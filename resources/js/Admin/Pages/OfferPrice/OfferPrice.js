@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef,useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -9,20 +9,27 @@ import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
-
+import FilterButtons from "../../../Components/common/FilterButton";
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function OfferPrice() {
+   
     const tableRef = useRef(null);
-
+    
     const navigate = useNavigate();
-
+    const [filter, setFilter] = useState("All");
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-
+    const offerStatuses = [
+        "sent",
+        "accepted",
+       "declined",
+       
+       
+    ];
     useEffect(() => {
         $(tableRef.current).DataTable({
             processing: true,
@@ -189,10 +196,17 @@ export default function OfferPrice() {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
-    const handleFilterByStatus = (_status) => {
-        $(tableRef.current).DataTable().column(4).search(_status).draw();
-    };
-
+    // const handleFilterByStatus = (_status) => {
+    //     $(tableRef.current).DataTable().column(4).search(_status).draw();
+    // };
+    useEffect(() => {
+        if (filter == "All") {
+            $(tableRef.current).DataTable().column(4).search(null).draw();
+        } else {
+            $(tableRef.current).DataTable().column(4).search(filter).draw();
+        }
+    }, [filter]);
+   
     return (
         <div id="container">
             <Sidebar />
@@ -226,11 +240,11 @@ export default function OfferPrice() {
                         </div>
                     </div>
                 </div>
-                <div className="card">
-                    <div className="card-body">
-                        <div className="row">
-                            <div className="col-md-3">
-                                <div className="form-group">
+                <div className=" d-none d-lg-block">
+                            <div className="row">
+                            <div style={{ fontWeight: "bold" ,marginTop:10,marginLeft:15}}>Filter</div> 
+                            <div>
+                                {/* <div className="form-group">
                                     <select
                                         className="form-control"
                                         onChange={(e) => {
@@ -248,9 +262,32 @@ export default function OfferPrice() {
                                             Declined
                                         </option>
                                     </select>
-                                </div>
+                                </div> */}
+                                 <FilterButtons
+                            text="All"
+                            className="px-3 mr-1 ml-4"
+                            selectedFilter={filter}
+                            setselectedFilter={setFilter}
+                        /> 
+                         {offerStatuses.map((_status, _index) => {
+                            return (
+                                <FilterButtons
+                                    text={_status}
+                                    className="mr-1 px-3 ml-2"
+                                    key={_index}
+                                    selectedFilter={filter}
+                                    setselectedFilter={setFilter}
+                                />
+                            );
+                        })}
                             </div>
+                            </div>
+                      
+                           
                         </div>
+                <div className="card">
+                    <div className="card-body">
+                     
 
                         <div className="boxPanel">
                             <table

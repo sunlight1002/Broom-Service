@@ -12,11 +12,11 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
-
+import FilterButtons from "../../../Components/common/FilterButton";
 export default function Schedule() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
-
+    const [filter, setFilter] = useState("All");
     const tableRef = useRef(null);
 
     const headers = {
@@ -24,7 +24,14 @@ export default function Schedule() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-
+    const meetingStatuses = [
+        "pending",
+        "Confirmed",
+        "completed",
+        "declined",
+        "rescheduled",
+       
+    ];
     useEffect(() => {
         $(tableRef.current).DataTable({
             processing: true,
@@ -231,10 +238,16 @@ export default function Schedule() {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
-    const handleFilterByStatus = (_status) => {
-        $(tableRef.current).DataTable().column(5).search(_status).draw();
-    };
-
+    // const handleFilterByStatus = (_status) => {
+    //     $(tableRef.current).DataTable().column(5).search(_status).draw();
+    // };
+    useEffect(() => {
+        if (filter == "All") {
+            $(tableRef.current).DataTable().column(5).search(null).draw();
+        } else {
+            $(tableRef.current).DataTable().column(5).search(filter).draw();
+        }
+    }, [filter]);
     return (
         <div id="container">
             <Sidebar />
@@ -256,37 +269,63 @@ export default function Schedule() {
                         </div>
                     </div>
                 </div>
+                <div className=" mb-4 d-none d-lg-block">
+                            <div className="row">
+ <div style={{ fontWeight: "bold" ,marginTop:10,marginLeft:15}}>Filter</div> 
+ <div >
+                           
+                           {/* <div className="form-group">
+                               <select
+                                   className="form-control"
+                                   onChange={(e) => {
+                                       handleFilterByStatus(
+                                           e.target.value
+                                       );
+                                   }}
+                               >
+                                   <option value="">All</option>
+                                   <option value="pending">Pending</option>
+                                   <option value="confirmed">
+                                       Confirmed
+                                   </option>
+                                   <option value="declined">
+                                       Declined
+                                   </option>
+                                   <option value="completed">
+                                       Completed
+                                   </option>
+                                   <option value="rescheduled">
+                                       Rescheduled
+                                   </option>
+                               </select>
+                               
+                           </div> */}
+                            <FilterButtons
+                       text="All"
+                       className="px-3 mr-1 ml-4"
+                       
+                       selectedFilter={filter}
+                       setselectedFilter={setFilter}
+                   />
+                    {meetingStatuses.map((_status, _index) => {
+                       return (
+                           <FilterButtons
+                               text={_status}
+                               className="mr-1 px-3 ml-2"
+                               key={_index}
+                               selectedFilter={filter}
+                               setselectedFilter={setFilter}
+                           />
+                       );
+                   })}
+                       </div>
+                            </div>
+                       
+                          
+                        </div>
                 <div className="card">
                     <div className="card-body">
-                        <div className="row">
-                            <div className="col-md-3">
-                                <div className="form-group">
-                                    <select
-                                        className="form-control"
-                                        onChange={(e) => {
-                                            handleFilterByStatus(
-                                                e.target.value
-                                            );
-                                        }}
-                                    >
-                                        <option value="">All</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="confirmed">
-                                            Confirmed
-                                        </option>
-                                        <option value="declined">
-                                            Declined
-                                        </option>
-                                        <option value="completed">
-                                            Completed
-                                        </option>
-                                        <option value="rescheduled">
-                                            Rescheduled
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                      
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}

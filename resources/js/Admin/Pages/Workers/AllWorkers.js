@@ -344,7 +344,7 @@ export default function AllWorkers() {
                             Manpower Company
                         </div>
                         <div>
-                            <button
+                            {/* <button
                                 className={`btn border rounded px-3 mr-1 float-left`}
                                 style={
                                     filters.manpower_company_id === null
@@ -385,7 +385,24 @@ export default function AllWorkers() {
                                 >
                                     {company.name}
                                 </button>
-                            ))}
+                            ))} */}
+                              <select className="form-control"
+                              onChange={(e) => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: e.target.value,
+                                    });
+                                    
+                                }} >
+                                <option value="" >All</option>
+                               
+                                {manpowerCompanies.map((company, _index) => (
+                                    
+                                <option key={_index} value={company.id} > {company.name}</option>
+                            ))} 
+                               
+                              
+                            </select>
                         </div>
 
                         <input
