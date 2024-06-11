@@ -113,6 +113,9 @@ export default function WorkerHours() {
             responsive: true,
             drawCallback: function (settings) {
                 setSelectedWorkerIDs([]);
+                $(tableRef.current)
+                    .find(".dt-select-all")
+                    .prop("checked", false);
             },
         });
 
