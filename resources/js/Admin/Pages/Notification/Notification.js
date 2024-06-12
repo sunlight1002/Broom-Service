@@ -144,15 +144,6 @@ export default function Notification() {
                                 />
 
                                 <FilterButtons
-                                    text="workers-and-availability"
-                                    className="px-3 mr-1"
-                                    selectedFilter={notificationGrpTypeFilter}
-                                    setselectedFilter={
-                                        setNotificationGrpTypeFilter
-                                    }
-                                />
-
-                                <FilterButtons
                                     text="reviews-of-clients"
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
@@ -163,6 +154,15 @@ export default function Notification() {
 
                                 <FilterButtons
                                     text="problem-with-workers"
+                                    className="px-3 mr-1"
+                                    selectedFilter={notificationGrpTypeFilter}
+                                    setselectedFilter={
+                                        setNotificationGrpTypeFilter
+                                    }
+                                />
+
+                                <FilterButtons
+                                    text="worker-forms"
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
                                     setselectedFilter={

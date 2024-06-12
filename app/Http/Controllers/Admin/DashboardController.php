@@ -134,7 +134,7 @@ class DashboardController extends Controller
               NotificationTypeEnum::FILES,
             ]);
           })
-          ->when($groupType == 'workers-and-availability', function ($q) {
+          ->when($groupType == 'worker-forms', function ($q) {
             return $q->whereIn('type', [
               NotificationTypeEnum::FORM101_SIGNED,
               NotificationTypeEnum::INSURANCE_SIGNED,
@@ -145,7 +145,9 @@ class DashboardController extends Controller
           ->when($groupType == 'reviews-of-clients', function ($q) {
             return $q->whereIn('type', [
               NotificationTypeEnum::CLIENT_COMMENTED,
-              NotificationTypeEnum::JOB_REVIEWED,
+              NotificationTypeEnum::ADMIN_COMMENTED,
+              NotificationTypeEnum::WORKER_COMMENTED,
+              NotificationTypeEnum::CLIENT_REVIEWED,
             ]);
           })
           ->when($groupType == 'problem-with-workers', function ($q) {
@@ -280,7 +282,7 @@ class DashboardController extends Controller
             if (isset($job)) {
               $noticeAll[$k]->data = "Client has comment for a <a href='/admin/view-job/" . $job->id . "'>Job </a>";
             }
-          } else if ($notice->type == NotificationTypeEnum::JOB_REVIEWED) {
+          } else if ($notice->type == NotificationTypeEnum::CLIENT_REVIEWED) {
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
@@ -299,39 +301,62 @@ class DashboardController extends Controller
             $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> has been paid partially";
           } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_APPROVED_JOB) {
-            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+            $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> hasn't approved the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_LEFT_FOR_JOB) {
-            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+            $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> hasn't leave for the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_STARTED_JOB) {
-            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+            $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> hasn't started the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_FINISHED_JOB_ON_TIME) {
-            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+            $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> hasn't finished the <a href='/admin/view-job/" . $job->id . "'>Job </a> on time";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_EXCEED_JOB_TIME) {
-            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+            $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> exceeded the <a href='/admin/view-job/" . $job->id . "'>Job </a> time";
+            }
+          } else if ($notice->type == NotificationTypeEnum::CLIENT_COMMENTED) {
+            $job = Job::where('id', $notice->job_id)->first();
+            $client = Client::find($notice->user_id);
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                "</a> has added commented to the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::ADMIN_COMMENTED) {
+            $job = Job::where('id', $notice->job_id)->first();
+            $admin = Admin::find($notice->user_id);
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = $admin->name . " has added commented to the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_COMMENTED) {
+            $job = Job::where('id', $notice->job_id)->first();
+            $worker = User::find($notice->user_id);
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
+                "</a> has added commented to the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
             }
           }
         }

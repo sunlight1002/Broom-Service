@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\AdminCommented;
 use App\Models\JobComments;
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Job;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -52,6 +55,8 @@ class JobCommentController extends Controller
 
         $data = $request->all();
 
+        $job = Job::find($data['job_id']);
+
         $comment = JobComments::create([
             'name' => $data['name'],
             'comment_for' => $data['comment_for'],
@@ -77,6 +82,9 @@ class JobCommentController extends Controller
             }
             $comment->attachments()->createMany($resultArr);
         }
+
+        event(new AdminCommented(Auth::user()->toArray(), $job->toArray()));
+
         return response()->json([
             'message' => 'Comments has been created successfully'
         ]);

@@ -45,4 +45,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_SAFETY_GEAR_SIGNED = "worker_safety_gear_signed";
     public const CLIENT_PAYMENT_FAILED = "client_payment_failed";
     public const CLIENT_REVIEWED = "client_reviewed";
+    public const CLIENT_COMMENTED = "client_commented";
+    public const WORKER_COMMENTED = "worker_commented";
+    public const ADMIN_COMMENTED = "admin_commented";
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Enums\JobStatusEnum;
 use App\Events\JobNotificationToWorker;
 use App\Events\JobReviewRequest;
+use App\Events\WorkerCommented;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Models\Job;
 use App\Models\Admin;
@@ -152,6 +153,8 @@ class JobCommentController extends Controller
                 event(new JobReviewRequest($job));
             }
         }
+
+        event(new WorkerCommented(Auth::user()->toArray(), $job->toArray()));
 
         return response()->json([
             'message' => 'Comment has been created successfully'

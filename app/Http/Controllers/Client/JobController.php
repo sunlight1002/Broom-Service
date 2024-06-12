@@ -500,13 +500,6 @@ class JobController extends Controller
             'client_reviewed_at' => now()->toDateTimeString()
         ]);
 
-        Notification::create([
-            'user_id' => $job->client_id,
-            'user_type' => Client::class,
-            'type' => NotificationTypeEnum::JOB_REVIEWED,
-            'status' => 'reviewed'
-        ]);
-
         event(new ClientReviewed($job->client, $job));
 
         return response()->json([

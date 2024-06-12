@@ -759,6 +759,68 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.client_reviewed.content', [
                         'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
+                        'rating' => $jobData['rating'],
+                        'review' => $jobData['review'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::CLIENT_COMMENTED:
+                    $clientData = $eventData['client'];
+                    $jobData = $eventData['job'];
+
+                    $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.client_commented.content', [
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
+                        'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::ADMIN_COMMENTED:
+                    $adminData = $eventData['admin'];
+                    $jobData = $eventData['job'];
+
+                    $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.admin_commented.content', [
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
+                        'admin_name' => $adminData['name'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_COMMENTED:
+                    $workerData = $eventData['worker'];
+                    $jobData = $eventData['job'];
+
+                    $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_commented.content', [
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
+                        'worker_name' => $workerData['firstname'] . " " . $workerData['lastname'],
                     ]);
 
                     break;

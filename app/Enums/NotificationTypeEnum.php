@@ -22,12 +22,14 @@ final class NotificationTypeEnum extends AbstractEnum
     public const PAYMENT_PAID = 'payment-paid';
     public const PAYMENT_PARTIAL_PAID = 'payment-partial-paid';
     public const CONVERTED_TO_CLIENT = 'converted-to-client';
-    public const JOB_REVIEWED = 'job-reviewed';
+    public const CLIENT_REVIEWED = 'client-reviewed';
     public const FORM101_SIGNED = 'form101-signed';
     public const WORKER_CONTRACT_SIGNED = 'worker-contract-signed';
     public const SAFETY_GEAR_SIGNED = 'safety-gear-signed';
     public const INSURANCE_SIGNED = 'insurance-signed';
     public const CLIENT_COMMENTED = 'client-commented';
+    public const ADMIN_COMMENTED = 'admin-commented';
+    public const WORKER_COMMENTED = 'worker-commented';
     public const JOB_SCHEDULE_CHANGE = 'job-schedule-change';
     public const WORKER_NOT_APPROVED_JOB = 'worker-not-approved-job';
     public const WORKER_NOT_LEFT_FOR_JOB = 'worker-not-left-for-job';

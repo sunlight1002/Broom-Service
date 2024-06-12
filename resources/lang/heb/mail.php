@@ -493,7 +493,16 @@ return [
             'content' => "ברכות משירות מטאטא. התשלום של :name עם הכרטיס [**** **** **** :card_number] נכשל.",
         ],
         'client_reviewed' => [
-            'content' => "ברכות משירות מטאטא. :client_name השאיר ביקורת עבור עבודה :date_time.",
+            'content' => "ברכות משירות מטאטא. :client_name נתן דירוג של :rating עבור עבודה בתאריך :date_time.\n\n-: :review",
+        ],
+        'client_commented' => [
+            'content' => "ברכות משירות מטאטא. הלקוח :client_name השאיר תגובה עבור עבודה בתאריך :date_time.",
+        ],
+        'admin_commented' => [
+            'content' => "ברכות משירות מטאטא. :admin_name השאיר תגובה עבור עבודה בתאריך :date_time.",
+        ],
+        'worker_commented' => [
+            'content' => "ברכות משירות מטאטא. העובד :worker_name השאיר תגובה עבור עבודה בתאריך :date_time.",
         ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',

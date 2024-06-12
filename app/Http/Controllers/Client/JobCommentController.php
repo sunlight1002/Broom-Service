@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Enums\NotificationTypeEnum;
+use App\Events\ClientCommented;
 use App\Models\JobComments;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Job;
-use App\Models\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -63,6 +62,7 @@ class JobCommentController extends Controller
         }
 
         $job = Job::query()
+            ->with('client')
             ->where('client_id', Auth::id())
             ->find($id);
 
@@ -99,13 +99,7 @@ class JobCommentController extends Controller
             $comment->attachments()->createMany($resultArr);
         }
 
-        Notification::create([
-            'user_id' => $job->client->id,
-            'user_type' => get_class($job->client),
-            'type' => NotificationTypeEnum::CLIENT_COMMENTED,
-            'job_id' => $job->id,
-            'status' => 'commented'
-        ]);
+        event(new ClientCommented(Auth::user()->toArray(), $job->toArray()));
 
         return response()->json([
             'message' => 'Comment has been created successfully'

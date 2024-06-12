@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\AdminCommented;
 use App\Events\AdminLeadFilesNotificationJob;
 use App\Events\AdminReScheduleMeetingJob;
+use App\Events\ClientCommented;
 use App\Events\ClientPaymentFailed;
 use App\Events\ClientReviewed;
 use App\Events\ContractFormSigned;
@@ -26,6 +28,7 @@ use App\Events\MeetingReminderEvent;
 use App\Events\OfferAccepted;
 use App\Events\OfferSaved;
 use App\Events\WorkerChangeAffectedAvailability;
+use App\Events\WorkerCommented;
 use App\Events\WorkerForm101Requested;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMeetingNotification;
@@ -46,9 +49,12 @@ use App\Listeners\SendJobNotificationToAdmin;
 use App\Listeners\SendJobNotificationToWorker;
 use App\Listeners\SendJobNotificationToClient;
 use App\Listeners\MeetingReminderNotification;
+use App\Listeners\NotifyForAdminCommented;
+use App\Listeners\NotifyForClientCommented;
 use App\Listeners\NotifyForClientReviewed;
 use App\Listeners\NotifyForContract;
 use App\Listeners\NotifyForOffer;
+use App\Listeners\NotifyForWorkerCommented;
 use App\Listeners\SendClientCredentials;
 use App\Listeners\SendWorkerChangedAffectedAvailability;
 use App\Listeners\SendWorkerForm101Notification;
@@ -145,6 +151,15 @@ class EventServiceProvider extends ServiceProvider
         ],
         ClientReviewed::class => [
             NotifyForClientReviewed::class
+        ],
+        ClientCommented::class => [
+            NotifyForClientCommented::class
+        ],
+        AdminCommented::class => [
+            NotifyForAdminCommented::class
+        ],
+        WorkerCommented::class => [
+            NotifyForWorkerCommented::class
         ]
     ];
 

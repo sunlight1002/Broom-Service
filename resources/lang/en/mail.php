@@ -485,7 +485,16 @@ return [
             'content' => "Greetings from Broom Service. :name's payment with card [**** **** **** :card_number] has been failed.",
         ],
         'client_reviewed' => [
-            'content' => "Greetings from Broom Service. :client_name has reviewed for job :date_time.",
+            'content' => "Greetings from Broom Service. :client_name has reviewed with :rating rating for job :date_time.\n\n-: :review",
+        ],
+        'client_commented' => [
+            'content' => "Greetings from Broom Service. Client :client_name has commented for job :date_time.",
+        ],
+        'admin_commented' => [
+            'content' => "Greetings from Broom Service. :admin_name has commented for job :date_time.",
+        ],
+        'worker_commented' => [
+            'content' => "Greetings from Broom Service. Worker :worker_name has commented for job :date_time.",
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',

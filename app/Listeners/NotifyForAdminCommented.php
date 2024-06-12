@@ -4,15 +4,15 @@ namespace App\Listeners;
 
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\ClientReviewed;
+use App\Events\AdminCommented;
 use App\Events\WhatsappNotificationEvent;
-use App\Models\Client;
+use App\Models\Admin;
 use App\Models\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 
-class NotifyForClientReviewed implements ShouldQueue
+class NotifyForAdminCommented implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -27,23 +27,24 @@ class NotifyForClientReviewed implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  \App\Events\ClientReviewed  $event
+     * @param  \App\Events\AdminCommented  $event
      * @return void
      */
-    public function handle(ClientReviewed $event)
+    public function handle(AdminCommented $event)
     {
         Notification::create([
-            'user_id' => $event->job->client_id,
-            'user_type' => Client::class,
-            'type' => NotificationTypeEnum::CLIENT_REVIEWED,
-            'status' => 'reviewed'
+            'user_id' => $event->admin['id'],
+            'user_type' => Admin::class,
+            'type' => NotificationTypeEnum::ADMIN_COMMENTED,
+            'job_id' => $event->job['id'],
+            'status' => 'commented'
         ]);
 
         event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::CLIENT_REVIEWED,
+            "type" => WhatsappMessageTemplateEnum::ADMIN_COMMENTED,
             "notificationData" => [
-                'client' => $event->client->toArray(),
-                'job' => $event->job->toArray()
+                'admin' => $event->admin,
+                'job' => $event->job
             ]
         ]));
     }
