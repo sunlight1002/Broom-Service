@@ -44,7 +44,7 @@ class ContractFormSignedMail extends Mailable
                 'lng' => 'en'
             ])
             ->attach($pdfPath, [
-                'as' => __('mail.contract-form.form_name'),
+                'as' => __('mail.contract-form.form_name') . '.pdf',
                 'mime' => 'application/pdf'
             ])
             ->subject(__('mail.worker.contract-signed.subject'));

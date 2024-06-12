@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
@@ -118,6 +119,11 @@ class ScheduleController extends Controller
         }
 
         $schedule = Schedule::create($input);
+
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => LeadStatusEnum::POTENTIAL]
+        );
 
         $schedule->load(['client', 'propertyAddress']);
 

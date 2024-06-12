@@ -169,7 +169,7 @@ export default function Contract() {
 
         $(tableRef.current).on("click", ".dt-create-job-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/view-contract/${_id}`);
+            navigate(`/admin/create-job/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-cancel-job-btn", function () {

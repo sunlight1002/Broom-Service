@@ -15,4 +15,5 @@ final class LeadStatusEnum extends AbstractEnum
     public const PENDING_CLIENT = 'pending client';
     public const FREEZE_CLIENT = 'freeze client';
     public const ACTIVE_CLIENT = 'active client';
+    public const PAST = 'past';
 }

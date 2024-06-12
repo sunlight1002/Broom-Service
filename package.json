@@ -25,6 +25,8 @@
         "react-dom": "^16.14.0"
     },
     "dependencies": {
+        "@canvasjs/charts": "^3.8.10",
+        "@canvasjs/react-charts": "^1.0.2",
         "@ckeditor/ckeditor5-build-classic": "^35.4.0",
         "@ckeditor/ckeditor5-react": "^5.0.6",
         "@faker-js/faker": "^7.6.0",

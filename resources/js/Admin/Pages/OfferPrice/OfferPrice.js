@@ -1,4 +1,4 @@
-import React, { useEffect, useRef,useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -13,9 +13,8 @@ import FilterButtons from "../../../Components/common/FilterButton";
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function OfferPrice() {
-   
     const tableRef = useRef(null);
-    
+
     const navigate = useNavigate();
     const [filter, setFilter] = useState("All");
     const headers = {
@@ -23,13 +22,7 @@ export default function OfferPrice() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    const offerStatuses = [
-        "sent",
-        "accepted",
-       "declined",
-       
-       
-    ];
+    const offerStatuses = ["sent", "accepted", "declined"];
     useEffect(() => {
         $(tableRef.current).DataTable({
             processing: true,
@@ -196,9 +189,6 @@ export default function OfferPrice() {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
-    // const handleFilterByStatus = (_status) => {
-    //     $(tableRef.current).DataTable().column(4).search(_status).draw();
-    // };
     useEffect(() => {
         if (filter == "All") {
             $(tableRef.current).DataTable().column(4).search(null).draw();
@@ -206,7 +196,7 @@ export default function OfferPrice() {
             $(tableRef.current).DataTable().column(4).search(filter).draw();
         }
     }, [filter]);
-   
+
     return (
         <div id="container">
             <Sidebar />
@@ -241,54 +231,39 @@ export default function OfferPrice() {
                     </div>
                 </div>
                 <div className=" d-none d-lg-block">
-                            <div className="row">
-                            <div style={{ fontWeight: "bold" ,marginTop:10,marginLeft:15}}>Filter</div> 
-                            <div>
-                                {/* <div className="form-group">
-                                    <select
-                                        className="form-control"
-                                        onChange={(e) => {
-                                            handleFilterByStatus(
-                                                e.target.value
-                                            );
-                                        }}
-                                    >
-                                        <option value="">All</option>
-                                        <option value="sent">Sent</option>
-                                        <option value="accepted">
-                                            Accepted
-                                        </option>
-                                        <option value="declined">
-                                            Declined
-                                        </option>
-                                    </select>
-                                </div> */}
-                                 <FilterButtons
-                            text="All"
-                            className="px-3 mr-1 ml-4"
-                            selectedFilter={filter}
-                            setselectedFilter={setFilter}
-                        /> 
-                         {offerStatuses.map((_status, _index) => {
-                            return (
-                                <FilterButtons
-                                    text={_status}
-                                    className="mr-1 px-3 ml-2"
-                                    key={_index}
-                                    selectedFilter={filter}
-                                    setselectedFilter={setFilter}
-                                />
-                            );
-                        })}
-                            </div>
-                            </div>
-                      
-                           
+                    <div className="row">
+                        <div
+                            style={{
+                                fontWeight: "bold",
+                                marginTop: 10,
+                                marginLeft: 15,
+                            }}
+                        >
+                            Filter
                         </div>
+                        <div>
+                            <FilterButtons
+                                text="All"
+                                className="px-3 mr-1 ml-4"
+                                selectedFilter={filter}
+                                setselectedFilter={setFilter}
+                            />
+                            {offerStatuses.map((_status, _index) => {
+                                return (
+                                    <FilterButtons
+                                        text={_status}
+                                        className="mr-1 px-3 ml-2"
+                                        key={_index}
+                                        selectedFilter={filter}
+                                        setselectedFilter={setFilter}
+                                    />
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
                 <div className="card">
                     <div className="card-body">
-                     
-
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}

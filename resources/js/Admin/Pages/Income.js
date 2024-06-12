@@ -1,34 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import Sidebar from "../Layouts/Sidebar";
-import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Moment from "moment";
+import CanvasJSReact from "@canvasjs/react-charts";
 
-const thisMonthFilter = {
-    start_date: Moment().startOf("month").format("YYYY-MM-DD"),
-    end_date: Moment().endOf("month").format("YYYY-MM-DD"),
-};
-
-const todayFilter = {
-    start_date: Moment().format("YYYY-MM-DD"),
-    end_date: Moment().format("YYYY-MM-DD"),
-};
-
-const thisWeekFilter = {
-    start_date: Moment().startOf("week").format("YYYY-MM-DD"),
-    end_date: Moment().endOf("week").format("YYYY-MM-DD"),
-};
+import Sidebar from "../Layouts/Sidebar";
+import FilterButtons from "../../Components/common/FilterButton";
+import FullPageLoader from "../../Components/common/FullPageLoader";
 
 export default function income() {
-    const [tasks, setTasks] = useState([]);
-    const [loading, setLoading] = useState("Loading...");
     const [totalTask, setTotalTask] = useState(0);
     const [income, setIncome] = useState(0);
+    const [totalMins, setTotalMins] = useState(0);
+    const [totalActualMins, setTotalActualMins] = useState(0);
+    const [totalDiffMins, setTotalDiffMins] = useState(0);
     const [role, setRole] = useState();
+    const [incomeDataPoints, setIncomeDataPoints] = useState([]);
+    const [outcomeDataPoints, setOutcomeDataPoints] = useState([]);
+    const [selectedDateRange, setSelectedDateRange] = useState("Week");
+    const [selectedDateStep, setSelectedDateStep] = useState("Current");
+    const [dateRange, setDateRange] = useState({
+        start_date: "",
+        end_date: "",
+    });
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
+    const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -36,45 +34,87 @@ export default function income() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const [dateRange, setDateRange] = useState({
-        start_date: null,
-        end_date: null,
-    });
-
     const getTasks = () => {
+        setIsLoading(true);
+
         axios
-            .post("/api/admin/income", { dateRange }, { headers })
+            .post("/api/admin/income", { ...dateRange }, { headers })
             .then((res) => {
-                if (res.data.tasks.length > 0) {
-                    setTasks(res.data.tasks);
-                    setTotalTask(res.data.total_tasks);
-                    setIncome(res.data.income);
-                } else {
-                    setTasks([]);
-                    setLoading("No Completed Tasks found.");
+                setTotalTask(res.data.data.total_jobs);
+                setIncome(res.data.data.income);
+                setTotalMins(res.data.data.duration_minutes);
+                setTotalActualMins(res.data.data.actual_time_taken_minutes);
+                setTotalDiffMins(res.data.data.difference_minutes);
+
+                const _graph = res.data.graph;
+
+                if (_graph.labels) {
+                    let _incomePoints = [];
+                    let _outcomePoints = [];
+                    for (let index = 0; index < _graph.labels.length; index++) {
+                        _incomePoints.push({
+                            y: _graph.data.profit[index],
+                            label: _graph.labels[index],
+                        });
+
+                        _outcomePoints.push({
+                            y: _graph.data.expense[index],
+                            label: _graph.labels[index],
+                        });
+                    }
+
+                    setIncomeDataPoints(_incomePoints);
+                    setOutcomeDataPoints(_outcomePoints);
                 }
+                setIsLoading(false);
+            })
+            .catch((e) => {
+                setIsLoading(false);
             });
     };
-
-    function toHoursAndMinutes(totalSeconds) {
-        const totalMinutes = Math.floor(totalSeconds / 60);
-        const s = totalSeconds % 60;
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        return decimalHours(h, m, s);
-    }
-
-    function decimalHours(h, m, s) {
-        var hours = parseInt(h, 10);
-        var minutes = m ? parseInt(m, 10) : 0;
-        var min = minutes / 60;
-        return hours + ":" + min.toString().substring(0, 4);
-    }
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
         });
+    };
+
+    const minutesToHours = (minutes) => {
+        const hours = Math.floor(minutes / 60);
+        return `${hours} hours`;
+    };
+
+    const chartOptions = {
+        title: {
+            text: "Overview",
+        },
+        subtitles: [
+            {
+                text: `${dateRange.start_date} to ${dateRange.end_date}`,
+            },
+        ],
+        axisY: {
+            prefix: "₪ ",
+        },
+        toolTip: {
+            shared: true,
+        },
+        data: [
+            {
+                type: "line",
+                name: "Income",
+                // showInLegend: true,
+                yValueFormatString: "₪ #,##0.##",
+                dataPoints: incomeDataPoints,
+            },
+            {
+                type: "line",
+                name: "Outcome",
+                // showInLegend: false,
+                yValueFormatString: "₪ #,##0.##",
+                dataPoints: outcomeDataPoints,
+            },
+        ],
     };
 
     useEffect(() => {
@@ -88,216 +128,262 @@ export default function income() {
         }
     }, []);
 
+    useEffect(() => {
+        let _startMoment = Moment();
+        let _endMoment = Moment();
+        if (selectedDateRange == "Day") {
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "day");
+                _endMoment.subtract(1, "day");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "day");
+                _endMoment.add(1, "day");
+            }
+        } else if (selectedDateRange == "Week") {
+            _startMoment.startOf("week");
+            _endMoment.endOf("week");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "week");
+                _endMoment.subtract(1, "week");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "week");
+                _endMoment.add(1, "week");
+            }
+        } else if (selectedDateRange == "Month") {
+            _startMoment.startOf("month");
+            _endMoment.endOf("month");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "month");
+                _endMoment.subtract(1, "month");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "month");
+                _endMoment.add(1, "month");
+            }
+        } else if (selectedDateRange == "Year") {
+            _startMoment.startOf("year");
+            _endMoment.endOf("year");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "year");
+                _endMoment.subtract(1, "year");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "year");
+                _endMoment.add(1, "year");
+            }
+        } else {
+            _startMoment = Moment("2000-01-01");
+        }
+
+        setDateRange({
+            start_date: _startMoment.format("YYYY-MM-DD"),
+            end_date: _endMoment.format("YYYY-MM-DD"),
+        });
+    }, [selectedDateRange, selectedDateStep]);
+
     return (
         <div id="container">
             <Sidebar />
             <div id="content">
-                <div className="titleBox card card-body p-3 m-3">
+                <div className="titleBox">
                     <div className="row">
-                        <div className="col-sm-6">
-                            <h4 className="page-title">
-                                Total Jobs : {totalTask}
-                            </h4>
-                            <h4 className="page-title">Income : {income}</h4>
-                            <h4 className="page-title">Outcome : 0</h4>
-                        </div>
-                        <div className="col-sm-6">
-                            <div
-                                className="search-data"
-                                style={{ cursor: "pointer" }}
-                            >
-                                <span
-                                    className="p-2"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setDateRange({
-                                            start_date: todayFilter.start_date,
-                                            end_date: todayFilter.end_date,
-                                        });
-                                    }}
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                            <div className="d-flex align-items-center">
+                                <div
+                                    style={{ fontWeight: "bold" }}
+                                    className="mr-2"
                                 >
-                                    Day
-                                </span>
-                                <span
-                                    className="p-2"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setDateRange({
-                                            start_date:
-                                                thisWeekFilter.start_date,
-                                            end_date: thisWeekFilter.end_date,
-                                        });
-                                    }}
-                                >
-                                    Week
-                                </span>
-                                <span
-                                    className="p-2"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setDateRange({
-                                            start_date:
-                                                thisMonthFilter.start_date,
-                                            end_date: thisMonthFilter.end_date,
-                                        });
-                                    }}
-                                >
-                                    Month
-                                </span>
-                                <span
-                                    className="p-2"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setDateRange({
-                                            start_date: null,
-                                            end_date: null,
-                                        });
-                                    }}
-                                >
-                                    All
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-sm-12 d-sm-flex flex-wrap align-items-center">
-                            <div
-                                className="mr-3 "
-                                style={{ fontWeight: "bold" }}
-                            >
-                                Date Period
-                            </div>
-                            <input
-                                className="form-control"
-                                type="date"
-                                placeholder="From date"
-                                name="from filter"
-                                style={{ width: "fit-content" }}
-                                value={dateRange.start_date}
-                                onChange={(e) => {
-                                    setDateRange({
-                                        start_date: e.target.value,
-                                        end_date: dateRange.end_date,
-                                    });
-                                }}
-                            />
-                            <div className="mx-2">to</div>
-                            <input
-                                className="form-control mr-2"
-                                type="date"
-                                placeholder="To date"
-                                name="to filter"
-                                style={{ width: "fit-content" }}
-                                value={dateRange.end_date}
-                                onChange={(e) => {
-                                    setDateRange({
-                                        start_date: dateRange.start_date,
-                                        end_date: e.target.value,
-                                    });
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <hr />
-                <div className="card">
-                    <div className="card-body">
-                        <div className="boxPanel">
-                            {tasks.length > 0 ? (
-                                <Table className="table table-bordered">
-                                    <Thead>
-                                        <Tr style={{ cursor: "pointer" }}>
-                                            <Th>ID</Th>
-                                            <Th>Worker</Th>
-                                            <Th>Client</Th>
-                                            <Th>Time Takes</Th>
-                                            <Th>Income</Th>
-                                            <Th>Outcome</Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {tasks &&
-                                            tasks.map((item, index) => {
-                                                let time =
-                                                    item.total_sec != null
-                                                        ? toHoursAndMinutes(
-                                                              item.total_sec
-                                                          )
-                                                        : 0;
-                                                return (
-                                                    <Tr key={index}>
-                                                        <Td>{item.id}</Td>
-                                                        <Td>
-                                                            {
-                                                                item.worker
-                                                                    .firstname
-                                                            }{" "}
-                                                            {
-                                                                item.worker
-                                                                    .lastname
-                                                            }
-                                                        </Td>
-                                                        <Td>
-                                                            {" "}
-                                                            {
-                                                                item.client
-                                                                    .firstname
-                                                            }{" "}
-                                                            {
-                                                                item.client
-                                                                    .lastname
-                                                            }
-                                                        </Td>
-                                                        <Td>{time}</Td>
-                                                        <Td>
-                                                            {item.offer
-                                                                ? item.offer
-                                                                      .subtotal +
-                                                                  " ILS + VAT "
-                                                                : ""}
-                                                        </Td>
-                                                        <Td>
-                                                            <span className="d-flex justify-content-center justify-content-sm-start ml-4 ml-sm-0">
-                                                                {0}
-                                                            </span>
-                                                        </Td>
-                                                    </Tr>
-                                                );
-                                            })}
-                                    </Tbody>
-                                </Table>
-                            ) : (
-                                <p className="text-center mt-5">{loading}</p>
-                            )}
-                            {/*clients.length > 0 ? (
-                                <ReactPaginate
-                                    previousLabel={"Previous"}
-                                    nextLabel={"Next"}
-                                    breakLabel={"..."}
-                                    pageCount={pageCount}
-                                    marginPagesDisplayed={2}
-                                    pageRangeDisplayed={3}
-                                    onPageChange={handlePageClick}
-                                    containerClassName={
-                                        "pagination justify-content-end mt-3"
-                                    }
-                                    pageClassName={"page-item"}
-                                    pageLinkClassName={"page-link"}
-                                    previousClassName={"page-item"}
-                                    previousLinkClassName={"page-link"}
-                                    nextClassName={"page-item"}
-                                    nextLinkClassName={"page-link"}
-                                    breakClassName={"page-item"}
-                                    breakLinkClassName={"page-link"}
-                                    activeClassName={"active"}
+                                    Date Period
+                                </div>
+                                <FilterButtons
+                                    text="Day"
+                                    className="px-4 mr-1"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
                                 />
-                            ) : (
-                                <></>
-                            )*/}
+                                <FilterButtons
+                                    text="Week"
+                                    className="px-4 mr-1"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+                                <FilterButtons
+                                    text="Month"
+                                    className="px-4 mr-1"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+                                <FilterButtons
+                                    text="Year"
+                                    className="px-4 mr-1"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+                                <FilterButtons
+                                    text="All Time"
+                                    className="px-4 mr-3"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+                                {selectedDateRange !== "All Time" && (
+                                    <>
+                                        <FilterButtons
+                                            text="Previous"
+                                            className="px-3 mr-1"
+                                            selectedFilter={selectedDateStep}
+                                            setselectedFilter={
+                                                setSelectedDateStep
+                                            }
+                                        />
+                                        <FilterButtons
+                                            text="Current"
+                                            className="px-3 mr-1"
+                                            selectedFilter={selectedDateStep}
+                                            setselectedFilter={
+                                                setSelectedDateStep
+                                            }
+                                        />
+                                        <FilterButtons
+                                            text="Next"
+                                            className="px-3"
+                                            selectedFilter={selectedDateStep}
+                                            setselectedFilter={
+                                                setSelectedDateStep
+                                            }
+                                        />
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    Custom Date Range
+                                </div>
+
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="From date"
+                                    name="from filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.start_date}
+                                    onChange={(e) => {
+                                        setselectedFilter("Custom Range");
+                                        setDateRange({
+                                            start_date: e.target.value,
+                                            end_date: dateRange.end_date,
+                                        });
+                                    }}
+                                />
+                                <div className="mx-2">to</div>
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="To date"
+                                    name="to filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.end_date}
+                                    onChange={(e) => {
+                                        setselectedFilter("Custom Range");
+                                        setDateRange({
+                                            start_date: dateRange.start_date,
+                                            end_date: e.target.value,
+                                        });
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row adminDash">
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
+                            <div className="dashBox">
+                                <div className="dashIcon">
+                                    <i className="fa-solid fa-suitcase"></i>
+                                </div>
+                                <div className="dashText">
+                                    <h3>{totalTask}</h3>
+                                    <p>Total Jobs</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
+                            <div className="dashBox">
+                                <div className="dashIcon">
+                                    <i className="fa-solid fa-suitcase"></i>
+                                </div>
+                                <div className="dashText">
+                                    <h3>{minutesToHours(totalMins)}</h3>
+                                    <p>Total Job Hours</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
+                            <div className="dashBox">
+                                <div className="dashIcon">
+                                    <i className="fa-solid fa-suitcase"></i>
+                                </div>
+                                <div className="dashText">
+                                    <h3>{minutesToHours(totalActualMins)}</h3>
+                                    <p>Total Actual Hours</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
+                            <div className="dashBox">
+                                <div className="dashIcon">
+                                    <i className="fa-solid fa-suitcase"></i>
+                                </div>
+                                <div className="dashText">
+                                    <h3>{minutesToHours(totalDiffMins)}</h3>
+                                    <p>Total Exceed Hours</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* <div className="col-lg-4 col-sm-6  col-xs-6">
+                            <div className="dashBox">
+                                <div className="dashIcon">
+                                    <i className="fa-solid fa-suitcase"></i>
+                                </div>
+                                <div className="dashText">
+                                    <h3>{income}</h3>
+                                    <p>Income</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="col-lg-4 col-sm-6  col-xs-6">
+                            <div className="dashBox">
+                                <div className="dashIcon">
+                                    <i className="fa-solid fa-suitcase"></i>
+                                </div>
+                                <div className="dashText">
+                                    <h3>0</h3>
+                                    <p>Outcome</p>
+                                </div>
+                            </div>
+                        </div> */}
+                    </div>
+
+                    <div className="card">
+                        <div className="card-body">
+                            <div className="row">
+                                <div className="col-md-12">
+                                    <CanvasJSChart options={chartOptions} />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <FullPageLoader visible={isLoading} />
         </div>
     );
 }

@@ -34,8 +34,8 @@ class LeadStatusSeeder extends Seeder
                 $leadStatus = LeadStatusEnum::ACTIVE_CLIENT;
             } else if ($contract = $client->contract()->whereIn('status', ['verified', 'un-verified'])->latest()->first()) {
                 switch ($contract->status) {
-                    case ContractStatusEnum::VERIFIED:
-                        $leadStatus = LeadStatusEnum::FREEZE_CLIENT;
+                    case ContractStatusEnum::NOT_SIGNED:
+                        $leadStatus = LeadStatusEnum::PENDING_CLIENT;
                         break;
 
                     case ContractStatusEnum::UN_VERIFIED:
@@ -43,15 +43,7 @@ class LeadStatusSeeder extends Seeder
                         break;
                 }
             } elseif ($offer = $client->offers()->latest()->first()) {
-                switch ($offer->status) {
-                    case 'accepted':
-                        $leadStatus = LeadStatusEnum::POTENTIAL_CLIENT;
-                        break;
-
-                    case 'sent':
-                        $leadStatus = LeadStatusEnum::POTENTIAL;
-                        break;
-                }
+                $leadStatus = LeadStatusEnum::POTENTIAL_CLIENT;
             } else {
                 $leadStatus = LeadStatusEnum::PENDING;
             }

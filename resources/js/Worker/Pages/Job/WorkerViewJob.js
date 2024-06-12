@@ -86,9 +86,9 @@ export default function WorkerViewJob() {
                 alert.success(res.data.data);
                 setIsApproving(false);
             })
-            .catch((err) => {
+            .catch((e) => {
                 setIsApproving(false);
-                alert.error(err.message);
+                alert.error(e.response.data.message);
             });
     };
 

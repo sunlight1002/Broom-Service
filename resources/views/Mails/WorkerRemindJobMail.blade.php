@@ -28,7 +28,6 @@
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.client')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.service')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.property_address_txt')}}</th>
-					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.shift')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.start_time')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.status')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.worker_new_job.action')}}</th>
@@ -48,8 +47,7 @@
 
 					</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['property_address']['address_name'] }} @if($job['property_address']['parking']) <br/> [{{ $job['property_address']['parking'] }}] @endif</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ isset($job['start_time'])?$job['start_time']:'' }} </td>
+					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::today()->setTimeFromTimeString($job['start_time'])->format('H:i') }} </td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ ucfirst($job['status']) }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px;display:flex;height: 38px">
 						<a href='{{ url("worker/".base64_encode($job['worker']['id'])."/jobs/".base64_encode($job['id'])."/approve") }}' style="font-size: 13px;color: #007bff;min-width: 51px">{{__('mail.worker_tomorrow_job.approve')}}</a>

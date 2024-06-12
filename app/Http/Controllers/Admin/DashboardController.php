@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\ContractStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\NotificationTypeEnum;
+use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
@@ -15,11 +16,13 @@ use App\Models\Contract;
 use App\Models\Notification;
 use App\Models\Admin;
 use App\Models\ManageTime;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Traits\PriceOffered;
+use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
 {
@@ -148,6 +151,10 @@ class DashboardController extends Controller
           ->when($groupType == 'problem-with-workers', function ($q) {
             return $q->whereIn('type', [
               NotificationTypeEnum::WORKER_NOT_APPROVED_JOB,
+              NotificationTypeEnum::WORKER_NOT_LEFT_FOR_JOB,
+              NotificationTypeEnum::WORKER_NOT_STARTED_JOB,
+              NotificationTypeEnum::WORKER_NOT_FINISHED_JOB_ON_TIME,
+              NotificationTypeEnum::WORKER_EXCEED_JOB_TIME,
             ]);
           })
           ->orderBy('id', 'desc')
@@ -298,6 +305,34 @@ class DashboardController extends Controller
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> hasn't approved the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
             }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_LEFT_FOR_JOB) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't leave for the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_STARTED_JOB) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't started the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_FINISHED_JOB_ON_TIME) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't finished the <a href='/admin/view-job/" . $job->id . "'>Job </a> on time";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_EXCEED_JOB_TIME) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> exceeded the <a href='/admin/view-job/" . $job->id . "'>Job </a> time";
+            }
           }
         }
       }
@@ -334,37 +369,56 @@ class DashboardController extends Controller
 
   public function income(Request $request)
   {
-    $requestData = $request->all();
-    $tasks = Job::query()
-      ->with(['client', 'worker', 'offer', 'hours'])
-      ->where('status', JobStatusEnum::COMPLETED);
+    $start_date = $request->get('start_date');
+    $end_date = $request->get('end_date');
 
-    if (isset($requestData['dateRange'])) {
-      $startDate = $requestData['dateRange']['start_date'];
-      $endDate = $requestData['dateRange']['end_date'];
-      $tasks = $tasks->whereBetween('created_at', [$startDate, $endDate])->get();
-    } else {
-      $tasks = $tasks->get();
-    }
-    $inc = 0;
-    foreach ($tasks as $t1 => $task) {
-      if (isset($task->hours)) {
-        $tsec = 0;
-        foreach ($task->hours as $t => $hour) {
-          $tsec += $hour->time_diff;
-        }
-        $tasks[$t1]->total_sec = $tsec;
-      }
+    $data = Job::query()
+      ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
+      ->where('jobs.status', JobStatusEnum::COMPLETED)
+      ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
+        return $q->whereBetween('jobs.created_at', [$start_date, $end_date]);;
+      })
+      ->selectRaw('SUM(jobs.subtotal_amount) as income')
+      ->selectRaw('SUM(jobs.actual_time_taken_minutes) as actual_time_taken_minutes')
+      ->selectRaw('SUM(job_services.duration_minutes) as duration_minutes')
+      ->selectRaw('SUM(jobs.actual_time_taken_minutes - job_services.duration_minutes) as difference_minutes')
+      ->selectRaw('COUNT(jobs.id) as total_jobs')
+      ->first();
 
-      if (isset($task->offer)) {
-        $inc += $task->offer->subtotal;
+    $graph = [];
+    if ($start_date && $end_date) {
+      $iCountCompanyID = Setting::query()
+        ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+        ->value('value');
+
+      $iCountUsername = Setting::query()
+        ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+        ->value('value');
+
+      $iCountPassword = Setting::query()
+        ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+        ->value('value');
+
+      $url = 'https://api.icount.co.il/api/v3.php/chart/monthly_profitability';
+      $response = Http::post($url, [
+        'cid' => $iCountCompanyID,
+        'user' => $iCountUsername,
+        'pass' => $iCountPassword,
+        'start_date' => $start_date,
+        'end_date' => $end_date
+      ]);
+
+      $json = $response->json();
+
+      if (isset($json['status']) && $json['status'] == true) {
+        $graph['labels'] = $json['monthly_profitability']['labels'];
+        $graph['data'] = $json['monthly_profitability']['data'];
       }
     }
 
     return response()->json([
-      'tasks' => $tasks,
-      'total_tasks' => $tasks->count(),
-      'income' => $inc,
+      'data' => $data,
+      'graph' => $graph
     ]);
   }
 

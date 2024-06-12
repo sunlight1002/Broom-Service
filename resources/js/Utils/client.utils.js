@@ -37,6 +37,10 @@ export const leadStatusColor = (_status) => {
             _color = "green";
             break;
 
+        case "past":
+            _color = "black";
+            break;
+
         default:
             break;
     }

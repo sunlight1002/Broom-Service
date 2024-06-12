@@ -370,10 +370,12 @@ class JobController extends Controller
                 }
 
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+                $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
                 $jobData = [
                     'start_date'    => $job_date,
                     'start_time'    => $start_time,
+                    'end_time'      => $end_time,
                     'shifts'        => $slotsInString,
                     'status'        => $status,
                     'next_start_date'   => $next_job_date,
@@ -488,6 +490,7 @@ class JobController extends Controller
                 }
 
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+                $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
                 $job = Job::create([
                     'worker_id'     => $workerDate['worker_id'],
@@ -496,6 +499,7 @@ class JobController extends Controller
                     'offer_id'      => $contract->offer_id,
                     'start_date'    => $job_date,
                     'start_time'    => $start_time,
+                    'end_time'      => $end_time,
                     'shifts'        => $slotsInString,
                     'schedule'      => $repeat_value,
                     'schedule_id'   => $s_id,
@@ -567,7 +571,7 @@ class JobController extends Controller
 
         $client->lead_status()->updateOrCreate(
             [],
-            ['lead_status' => LeadStatusEnum::ACTIVE_CLIENT]
+            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
         );
 
         return response()->json([
@@ -680,10 +684,12 @@ class JobController extends Controller
                 }
 
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+                $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
                 $jobData = [
                     'start_date'    => $job_date,
                     'start_time'    => $start_time,
+                    'end_time'      => $end_time,
                     'shifts'        => $slotsInString,
                     'status'        => $status,
                     'next_start_date'   => $next_job_date,
@@ -767,11 +773,13 @@ class JobController extends Controller
         }
 
         $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+        $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
         $jobData = [
             'worker_id'     => $data['worker']['worker_id'],
             'start_date'    => $job_date,
             'start_time'    => $start_time,
+            'end_time'      => $end_time,
             'shifts'        => $slotsInString,
             'status'        => $status,
             'next_start_date'   => $next_job_date,
@@ -824,6 +832,11 @@ class JobController extends Controller
             'duration' => $request->repeatancy,
             'until_date' => $request->until_date,
         ]);
+
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
+        );
 
         Notification::create([
             'user_id' => $job->client->id,
@@ -947,10 +960,12 @@ class JobController extends Controller
                 }
 
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+                $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
                 $jobData = [
                     'start_date'    => $job_date,
                     'start_time'    => $start_time,
+                    'end_time'      => $end_time,
                     'shifts'        => $slotsInString,
                     'status'        => $status,
                     'next_start_date'   => $next_job_date,
@@ -1027,10 +1042,12 @@ class JobController extends Controller
         }
 
         $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+        $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
         $jobData = [
             'start_date'    => $job_date,
             'start_time'    => $start_time,
+            'end_time'      => $end_time,
             'shifts'        => $slotsInString,
             'status'        => $status,
             'next_start_date'   => $next_job_date,
@@ -1077,6 +1094,11 @@ class JobController extends Controller
             'duration' => $request->repeatancy,
             'until_date' => $request->until_date,
         ]);
+
+        $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
+        );
 
         Notification::create([
             'user_id' => $job->client->id,

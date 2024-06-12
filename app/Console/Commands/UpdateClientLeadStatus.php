@@ -6,10 +6,13 @@ use App\Enums\ContractStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Models\Client;
+use App\Traits\JobSchedule;
 use Illuminate\Console\Command;
 
 class UpdateClientLeadStatus extends Command
 {
+    use JobSchedule;
+
     /**
      * The name and signature of the console command.
      *
@@ -48,20 +51,9 @@ class UpdateClientLeadStatus extends Command
             ->get(['id']);
 
         foreach ($clients as $key => $client) {
-            $isActive = $client->jobs()
-                ->whereDate('start_date', '<=', today()->toDateString())
-                ->whereDate('start_date', '>', today()->subDays(7)->toDateString())
-                ->whereIn('status', [
-                    JobStatusEnum::PROGRESS,
-                    JobStatusEnum::SCHEDULED,
-                    JobStatusEnum::UNSCHEDULED,
-                    JobStatusEnum::COMPLETED,
-                ])
-                ->exists();
-
             $client->lead_status()->updateOrCreate(
                 [],
-                ['lead_status' => $isActive ? LeadStatusEnum::ACTIVE_CLIENT : LeadStatusEnum::FREEZE_CLIENT]
+                ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
             );
         }
 

@@ -386,22 +386,23 @@ export default function AllWorkers() {
                                     {company.name}
                                 </button>
                             ))} */}
-                              <select className="form-control"
-                              onChange={(e) => {
+                            <select
+                                className="form-control"
+                                onChange={(e) => {
                                     setFilters({
                                         ...filters,
                                         manpower_company_id: e.target.value,
                                     });
-                                    
-                                }} >
-                                <option value="" >All</option>
-                               
+                                }}
+                            >
+                                <option value="">All</option>
+
                                 {manpowerCompanies.map((company, _index) => (
-                                    
-                                <option key={_index} value={company.id} > {company.name}</option>
-                            ))} 
-                               
-                              
+                                    <option key={_index} value={company.id}>
+                                        {" "}
+                                        {company.name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 

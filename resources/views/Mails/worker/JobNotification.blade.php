@@ -34,7 +34,6 @@
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.worker')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.service')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.property_address_txt')}}</th>
-					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.shift')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.start_time')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.status')}}</th>
 				</tr>
@@ -52,8 +51,7 @@
 						@endif
 					</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ isset($job['property_address']) && $job['property_address'] ? $job['property_address']['address_name'] : "-" }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['shifts'] }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ isset($job['start_time'])?$job['start_time']:'-' }}</td>
+					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::today()->setTimeFromTimeString($job['start_time'])->format('H:i') }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ ucfirst($job['status']) }}</td>
 				</tr>
 			</tbody>

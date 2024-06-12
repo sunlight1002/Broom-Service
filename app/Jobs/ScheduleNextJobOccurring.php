@@ -51,6 +51,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
     public function handle()
     {
         $job = Job::query()
+            ->with('client')
             ->where('schedule', '!=', 'na')
             ->where('is_next_job_created', false)
             ->where(function ($q) {
@@ -63,6 +64,8 @@ class ScheduleNextJobOccurring implements ShouldQueue
         $workingWeekDays = json_decode($manageTime->days);
 
         if ($job) {
+            $client = $job->client;
+
             $offerServices = $this->formatServices($job->offer, false);
             $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
                 return $value['service'] == $job->schedule_id;
@@ -196,6 +199,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
             $total_amount = $subtotal_amount - $discount_amount;
 
             $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+            $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
             $nextJob = Job::create([
                 'worker_id'     => $workerId,
@@ -204,6 +208,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'offer_id'      => $job->offer_id,
                 'start_date'    => $next_job_date,
                 'start_time'    => $start_time,
+                'end_time'      => $end_time,
                 'shifts'        => $slotsInString,
                 'schedule'      => $job->schedule,
                 'schedule_id'   => $job->schedule_id,
@@ -242,6 +247,11 @@ class ScheduleNextJobOccurring implements ShouldQueue
             ]);
 
             $this->copyDefaultCommentsToJob($nextJob);
+
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
+            );
         }
     }
 }

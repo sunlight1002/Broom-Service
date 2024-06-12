@@ -30,4 +30,8 @@ final class NotificationTypeEnum extends AbstractEnum
     public const CLIENT_COMMENTED = 'client-commented';
     public const JOB_SCHEDULE_CHANGE = 'job-schedule-change';
     public const WORKER_NOT_APPROVED_JOB = 'worker-not-approved-job';
+    public const WORKER_NOT_LEFT_FOR_JOB = 'worker-not-left-for-job';
+    public const WORKER_NOT_STARTED_JOB = 'worker-not-started-job';
+    public const WORKER_NOT_FINISHED_JOB_ON_TIME = 'worker-not-finished-job-on-time';
+    public const WORKER_EXCEED_JOB_TIME = 'worker-exceed-job-time';
 }
