@@ -345,6 +345,8 @@ return [
         'admin_change_worker_content'  =>  'Worker :workerName unassigned from the job# :jobId.',
         'worker_job_reminder_subject'   => 'Job Reminder | Broom Service',
         'worker_job_reminder_content'   => 'Just a friendly reminder that you have not approve the job till now.',
+        'worker_job_not_started'   => 'Just a friendly reminder that you have not started the job yet.',
+        'worker_exceed_job_time'   => 'Just a friendly reminder that you have exceed the job time.',
         'worker_job_start_time_content' => 'Job time has been started by you.',
         'extra_amount' => 'Extra amount',
         'check_job_details' => 'Check Job Details',
@@ -413,8 +415,17 @@ return [
         'worker_job_approval' => [
             'content' => "Greetings from Broom Service. Please check the details.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
-        'worker_job_not_approval' => [
-            'content' => "Greetings from Broom Service. The worker has not been approved for the job yet.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+        'worker_not_approved_job' => [
+            'content' => "Greetings from Broom Service. The Worker has not yet approved the job address for tomorrow.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+        ],
+        'worker_not_left_for_job' => [
+            'content' => "Greetings from Broom Service. The Worker has not yet left for the job.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+        ],
+        'worker_not_started_job' => [
+            'content' => "Greetings from Broom Service. The Worker has not yet started the job.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+        ],
+        'worker_exceed_job_time' => [
+            'content' => "Greetings from Broom Service. The Worker has exceed the job time.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_remind_job' => [
             'content' => "Greetings from Broom Service. This is to inform you about your tomorrow job. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nStart Time: :start_time\nStatus: :status",

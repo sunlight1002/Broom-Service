@@ -31,8 +31,14 @@ class SendJobNotificationToWorker implements ShouldQueue
         $worker = $event->worker;
         $job = $event->job;
         $emailData = $event->emailData;
+
         App::setLocale($worker['lng']);
-        Mail::send('/Mails/worker/JobNotification', ['job' => $job,'worker' =>  $worker, 'emailData' => $emailData], function ($messages) use ($worker, $emailData) {
+
+        Mail::send('/Mails/worker/JobNotification', [
+            'job' => $job,
+            'worker' => $worker,
+            'emailData' => $emailData
+        ], function ($messages) use ($worker, $emailData) {
             $messages->to($worker['email']);
             $messages->subject($emailData['emailSubject']);
         });

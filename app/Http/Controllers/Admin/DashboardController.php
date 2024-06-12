@@ -151,6 +151,10 @@ class DashboardController extends Controller
           ->when($groupType == 'problem-with-workers', function ($q) {
             return $q->whereIn('type', [
               NotificationTypeEnum::WORKER_NOT_APPROVED_JOB,
+              NotificationTypeEnum::WORKER_NOT_LEFT_FOR_JOB,
+              NotificationTypeEnum::WORKER_NOT_STARTED_JOB,
+              NotificationTypeEnum::WORKER_NOT_FINISHED_JOB_ON_TIME,
+              NotificationTypeEnum::WORKER_EXCEED_JOB_TIME,
             ]);
           })
           ->orderBy('id', 'desc')
@@ -300,6 +304,34 @@ class DashboardController extends Controller
             if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a> hasn't approved the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_LEFT_FOR_JOB) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't leave for the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_STARTED_JOB) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't started the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_FINISHED_JOB_ON_TIME) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't finished the <a href='/admin/view-job/" . $job->id . "'>Job </a> on time";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_EXCEED_JOB_TIME) {
+            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> exceeded the <a href='/admin/view-job/" . $job->id . "'>Job </a> time";
             }
           }
         }

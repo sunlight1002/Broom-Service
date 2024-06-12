@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
+use App\Events\JobNotificationToWorker;
 use App\Events\JobReviewRequest;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Models\Job;
@@ -92,7 +93,7 @@ class JobCommentController extends Controller
                 'name' => $request->name,
                 'job_id' => $job->id,
                 'comment_for' => 'admin',
-                'comment' => $request->comment?$request->comment:NULL,
+                'comment' => $request->comment ? $request->comment : NULL,
             ]);
             if ($isFiles) {
                 if (!Storage::disk('public')->exists('uploads/attachments')) {
@@ -120,6 +121,19 @@ class JobCommentController extends Controller
 
             if ($request->status == JobStatusEnum::COMPLETED) {
                 $jobData['completed_at'] = now()->toDateTimeString();
+
+                if ($request->status == JobStatusEnum::COMPLETED) {
+                    $jobArray = $job->load(['propertyAddress'])->toArray();
+                    $worker = $jobArray['worker'];
+
+                    $emailData = [
+                        'emailSubject'  => __('mail.job_nxt_step.completed_nxt_step_email_subject'),
+                        'emailTitle'  => __('mail.job_nxt_step.completed_nxt_step_email_title'),
+                        'emailContent'  => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " <b>" . $jobArray['id'] . "</b>"]),
+                    ];
+
+                    event(new JobNotificationToWorker($worker, $jobArray, $emailData));
+                }
             }
 
             $job->update($jobData);

@@ -199,6 +199,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
             $total_amount = $subtotal_amount - $discount_amount;
 
             $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+            $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
 
             $nextJob = Job::create([
                 'worker_id'     => $workerId,
@@ -207,6 +208,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 'offer_id'      => $job->offer_id,
                 'start_date'    => $next_job_date,
                 'start_time'    => $start_time,
+                'end_time'      => $end_time,
                 'shifts'        => $slotsInString,
                 'schedule'      => $job->schedule,
                 'schedule_id'   => $job->schedule_id,

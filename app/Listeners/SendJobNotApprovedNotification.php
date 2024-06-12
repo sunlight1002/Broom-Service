@@ -68,7 +68,7 @@ class SendJobNotApprovedNotification implements ShouldQueue
         ]);
 
         event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::WORKER_JOB_NOT_APPROVAL,
+            "type" => WhatsappMessageTemplateEnum::WORKER_NOT_APPROVED_JOB,
             "notificationData" => array(
                 'job' => $event->job->toArray(),
                 'content' => 'Worker has not approved the job yet.'

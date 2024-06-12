@@ -16,7 +16,11 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_CHANGE_REQUEST = 'worker_change_request';
     public const WORKER_CONTRACT = 'worker_contract';
     public const WORKER_JOB_APPROVAL = 'worker_job_approval';
-    public const WORKER_JOB_NOT_APPROVAL = 'worker_job_not_approval';
+    public const WORKER_NOT_APPROVED_JOB = 'worker_not_approved_job';
+    public const WORKER_NOT_LEFT_FOR_JOB = 'worker_not_left_for_job';
+    public const WORKER_NOT_STARTED_JOB = 'worker_not_started_job';
+    public const WORKER_NOT_FINISHED_JOB_ON_TIME = 'worker_not_finished_job_on_time';
+    public const WORKER_EXCEED_JOB_TIME = 'worker_exceed_job_time';
     public const WORKER_REMIND_JOB = 'worker_remind_job';
     public const WORKER_UNASSIGNED = 'worker_unassigned';
 

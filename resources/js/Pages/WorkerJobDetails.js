@@ -20,7 +20,7 @@ export default function WorkerJobDetails() {
     const approveWorkerJob = () => {
         axios
             .post(
-                `/api/worker/${Base64.decode(param.wid)}/jobs/${Base64.decode(
+                `/api/guest/${Base64.decode(param.wid)}/jobs/${Base64.decode(
                     param.jid
                 )}/approve`
             )
@@ -28,11 +28,7 @@ export default function WorkerJobDetails() {
                 alert.success(t("job_approval.success_msg"));
             })
             .catch((e) => {
-                Swal.fire({
-                    title: "Error!",
-                    text: e.response.data.message,
-                    icon: "error",
-                });
+                alert.error(e.response.data.message);
             });
     };
 
@@ -64,11 +60,7 @@ export default function WorkerJobDetails() {
                 setJob(response.data.data);
             })
             .catch((e) => {
-                Swal.fire({
-                    title: "Error!",
-                    text: e.response.data.message,
-                    icon: "error",
-                });
+                alert.error(e.response.data.message);
             });
     };
 

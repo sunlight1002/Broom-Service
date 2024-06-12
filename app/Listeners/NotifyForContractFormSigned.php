@@ -35,12 +35,13 @@ class NotifyForContractFormSigned implements ShouldQueue
      */
     public function handle(ContractFormSigned $event)
     {
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::WORKER_CONTRACT_SIGNED,
-            "notificationData" => [
-                'worker' => $event->worker
-            ]
-        ]));
+        // no whatsapp notification to admin in group
+        Notification::create([
+            'user_id' => $event->worker->id,
+            'user_type' => get_class($event->worker),
+            'type' => NotificationTypeEnum::WORKER_CONTRACT_SIGNED,
+            'status' => 'signed'
+        ]);
 
         $admins = Admin::query()
             ->where('role', 'admin')
@@ -49,13 +50,6 @@ class NotifyForContractFormSigned implements ShouldQueue
 
         App::setLocale('en');
         foreach ($admins as $key => $admin) {
-            Notification::create([
-                'user_id' => $event->worker->id,
-                'user_type' => get_class($event->worker),
-                'type' => NotificationTypeEnum::WORKER_CONTRACT_SIGNED,
-                'status' => 'signed'
-            ]);
-
             Mail::to($admin->email)->send(new AdminContractFormSignedMail($admin, $event->worker, $event->form));
         }
 

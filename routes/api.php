@@ -36,7 +36,7 @@ Route::post('worker/{id}/insurance-form', [AuthController::class, 'saveInsurance
 Route::get('worker/{id}', [AuthController::class, 'getWorker']);
 
 Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
-Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
+Route::post('guest/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
 Route::get('teams/availability/{id}/date/{date}', [MeetingController::class, 'availabilityByDate']);
 
 // Authenticated Routes

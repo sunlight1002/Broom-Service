@@ -119,35 +119,31 @@ class Job extends Model
         //send notification to worker about next step
         static::updating(function ($model) {
             $isSend = false;
-            $job = $model->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray();
-            $worker = $job['worker'];
-            if ($worker && auth()->user()->email == $worker['email']) {
-                if ($model->isDirty('worker_approved_at')) {
-                    $isSend = true;
-                    $emailData = [
-                        'emailSubject'  => __('mail.job_nxt_step.approved_nxt_step_email_subject'),
-                        'emailTitle'  => __('mail.job_nxt_step.approved_nxt_step_email_title'),
-                        'emailContent'  => __('mail.job_nxt_step.approved_nxt_step_email_content', ['label' => " <b>".__('mail.job_nxt_step.leaving_for_work_link')."</b>"]),
-                    ];
-                } elseif ($model->isDirty('job_opening_timestamp')) {
-                    $isSend = true;
-                    $emailData = [
-                        'emailSubject'  => __('mail.job_nxt_step.opened_nxt_step_email_subject'),
-                        'emailTitle'  => __('mail.job_nxt_step.opened_nxt_step_email_title'),
-                        'emailContent'  => __('mail.job_nxt_step.opened_nxt_step_email_content', ['l1' => " <b>".__('mail.job_common.start_time')."</b>", 'l2' => " <b>".__('mail.job_common.mark_as_complete')."</b>"]),
-                    ];
-                } elseif ($model->isDirty('is_job_done')) {
-                    $isSend = true;
-                    $emailData = [
-                        'emailSubject'  => __('mail.job_nxt_step.completed_nxt_step_email_subject'),
-                        'emailTitle'  => __('mail.job_nxt_step.completed_nxt_step_email_title'),
-                        'emailContent'  => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " <b>".$job['id']."</b>"]),
-                    ];
-                }
 
-                if ($isSend) {
-                    event(new JobNotificationToWorker($worker, $job, $emailData));
-                }
+            if ($model->isDirty('worker_approved_at')) {
+                $isSend = true;
+                $emailData = [
+                    'emailSubject'  => __('mail.job_nxt_step.approved_nxt_step_email_subject'),
+                    'emailTitle'  => __('mail.job_nxt_step.approved_nxt_step_email_title'),
+                    'emailContent'  => __('mail.job_nxt_step.approved_nxt_step_email_content', ['label' => " <b>" . __('mail.job_nxt_step.leaving_for_work_link') . "</b>"]),
+                ];
+            } elseif ($model->isDirty('job_opening_timestamp')) {
+                $isSend = true;
+                $emailData = [
+                    'emailSubject'  => __('mail.job_nxt_step.opened_nxt_step_email_subject'),
+                    'emailTitle'  => __('mail.job_nxt_step.opened_nxt_step_email_title'),
+                    'emailContent'  => __('mail.job_nxt_step.opened_nxt_step_email_content', ['l1' => " <b>" . __('mail.job_common.start_time') . "</b>", 'l2' => " <b>" . __('mail.job_common.mark_as_complete') . "</b>"]),
+                ];
+            }
+
+            if ($isSend) {
+                $job = $model
+                    ->load(['client', 'worker', 'jobservice', 'propertyAddress'])
+                    ->toArray();
+
+                $worker = $job['worker'];
+
+                event(new JobNotificationToWorker($worker, $job, $emailData));
             }
         });
 

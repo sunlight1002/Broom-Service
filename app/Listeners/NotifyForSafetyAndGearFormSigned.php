@@ -35,12 +35,13 @@ class NotifyForSafetyAndGearFormSigned implements ShouldQueue
      */
     public function handle(SafetyAndGearFormSigned $event)
     {
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::WORKER_SAFETY_GEAR_SIGNED,
-            "notificationData" => [
-                'worker' => $event->worker
-            ]
-        ]));
+        // no whatsapp notification to admin in group
+        Notification::create([
+            'user_id' => $event->worker->id,
+            'user_type' => get_class($event->worker),
+            'type' => NotificationTypeEnum::SAFETY_GEAR_SIGNED,
+            'status' => 'signed'
+        ]);
 
         $admins = Admin::query()
             ->where('role', 'admin')
@@ -49,13 +50,6 @@ class NotifyForSafetyAndGearFormSigned implements ShouldQueue
 
         App::setLocale('en');
         foreach ($admins as $key => $admin) {
-            Notification::create([
-                'user_id' => $event->worker->id,
-                'user_type' => get_class($event->worker),
-                'type' => NotificationTypeEnum::SAFETY_GEAR_SIGNED,
-                'status' => 'signed'
-            ]);
-
             Mail::to($admin->email)->send(new AdminSafetyAndGearFormSignedMail($admin, $event->worker, $event->form));
         }
 

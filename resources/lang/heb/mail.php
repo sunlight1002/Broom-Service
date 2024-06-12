@@ -353,6 +353,8 @@ return [
         'admin_change_worker_content'  => ':workerName עובד הוסר מהמשימה # :jobId.',
         'worker_job_reminder_subject'   => 'תזכורת משימה | שירותי מטאטא',
         'worker_job_reminder_content'   => 'תזכורת ידידותית שעדיין לא אישרת את המשימה.',
+        'worker_job_not_started'   => 'רק תזכורת ידידותית שעדיין לא התחלת בעבודה.',
+        'worker_exceed_job_time'   => 'רק תזכורת ידידותית שחרגת את זמן העבודה.',
         'worker_job_start_time_content' => 'זמן המשימה הוגדר על ידך.',
         'extra_amount' => 'כמות נוספת',
         'check_job_details' => 'בדוק פרטי עבודה',
@@ -421,8 +423,17 @@ return [
         'worker_job_approval' => [
             'content' => "ברכות משירות מטאטא. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
-        'worker_job_not_approval' => [
-            'content' => "ברכות משירות מטאטא. העובד עדיין לא אושר לעבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+        'worker_not_approved_job' => [
+            'content' => "ברכות משירות מטאטא. העובד עדיין לא אישר את כתובת העבודה למחר.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+        ],
+        'worker_not_left_for_job' => [
+            'content' => "ברכות משירות מטאטא. העובד עדיין לא עזב את העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+        ],
+        'worker_not_started_job' => [
+            'content' => "ברכות משירות מטאטא. העובד עדיין לא התחיל את העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+        ],
+        'worker_exceed_job_time' => [
+            'content' => "ברכות משירות מטאטא. העובד עבר את זמן העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_remind_job' => [
             'content' => "ברכות משירות מטאטא. זהו הודעה על העבודה שלך למחר. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nשעת התחלה: :start_time\nסטטוס: :status",

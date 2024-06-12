@@ -19,11 +19,14 @@ class Kernel extends ConsoleKernel
         $schedule->command('worker:notify-next-day-job')->dailyAt('17:00');
         $schedule->command('client:review-job-request')->dailyAt('17:00');
         $schedule->command('worker:failed-to-approve-job')->dailyAt('20:00');
+        $schedule->command('reminder:job-not-approve-or-leave')->hourlyAt(45);
+        $schedule->command('reminder:job-not-started')->hourlyAt(1);
+        $schedule->command('notification:job-not-finished-on-time')->hourlyAt(5);
+        $schedule->command('notification:job-time-exceed')->hourlyAt(1);
         $schedule->command('invoice:check-once-in-month')->dailyAt('17:30');
         $schedule->command('regular-invoice:generate')->dailyAt('12:00');
         $schedule->command('worker:notify-yearly-insurance-form')->yearlyOn(1, 1, '09:00');
         $schedule->command('meeting:reminder')->hourly();
-        $schedule->command('worker:job-reminder')->dailyAt('17:00');
         $schedule->command('client:update-lead-status')->hourly();
     }
 
