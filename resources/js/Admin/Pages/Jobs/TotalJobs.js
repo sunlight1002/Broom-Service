@@ -82,6 +82,7 @@ export default function TotalJobs() {
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
     const actualTimeExceedFilterRef = useRef(null);
+    const hasNoWorkerFilterRef = useRef(null);
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -115,6 +116,9 @@ export default function TotalJobs() {
                     d.start_time_filter = startTimeFilterRef.current.value;
                     d.actual_time_exceed_filter = actualTimeExceedFilterRef
                         .current.checked
+                        ? 1
+                        : 0;
+                    d.has_no_worker = hasNoWorkerFilterRef.current.checked
                         ? 1
                         : 0;
                     d.start_date = startDateRef.current.value;
@@ -866,6 +870,26 @@ export default function TotalJobs() {
                                         for="inlineCheckbox1"
                                     >
                                         Actual Time Exceed
+                                    </label>
+                                </div>
+
+                                <div class="form-check form-check-inline">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        id="inlineCheckbox2"
+                                        onChange={() => {
+                                            $(tableRef.current)
+                                                .DataTable()
+                                                .draw();
+                                        }}
+                                        ref={hasNoWorkerFilterRef}
+                                    />
+                                    <label
+                                        class="form-check-label"
+                                        for="inlineCheckbox2"
+                                    >
+                                        Has No Worker
                                     </label>
                                 </div>
                             </div>

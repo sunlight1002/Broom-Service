@@ -55,6 +55,7 @@ class JobController extends Controller
         $done_filter = $request->get('done_filter');
         $start_time_filter = $request->get('start_time_filter');
         $actual_time_exceed_filter = $request->get('actual_time_exceed_filter');
+        $has_no_worker = $request->get('has_no_worker');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
 
@@ -88,6 +89,9 @@ class JobController extends Controller
             })
             ->when($actual_time_exceed_filter == 1, function ($q) {
                 return $q->whereRaw('jobs.actual_time_taken_minutes > job_services.duration_minutes');
+            })
+            ->when($has_no_worker == 1, function ($q) {
+                return $q->whereNull('jobs.worker_id');
             })
             ->select('jobs.id', 'jobs.start_date', 'clients.id as client_id', 'clients.color as client_color', 'users.id as worker_id', 'services.color_code as service_color', 'jobs.shifts', 'jobs.is_job_done', 'jobs.status', 'job_services.duration_minutes', 'jobs.actual_time_taken_minutes', 'jobs.comment', 'jobs.review', 'jobs.rating', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id')
             ->selectRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) as client_name")
