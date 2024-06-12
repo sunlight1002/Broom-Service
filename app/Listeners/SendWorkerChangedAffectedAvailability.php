@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\NotificationTypeEnum;
 use App\Events\WorkerChangeAffectedAvailability;
 use App\Models\Admin;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Models\Notification;
 
 class SendWorkerChangedAffectedAvailability implements ShouldQueue
 {
@@ -31,8 +33,18 @@ class SendWorkerChangedAffectedAvailability implements ShouldQueue
      */
     public function handle(WorkerChangeAffectedAvailability $event)
     {
+        Notification::create([
+            'user_id' => $event->worker->id,
+            'user_type' => get_class($event->worker),
+            'type' => NotificationTypeEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB,
+            'status' => 'changed',
+            'data' => [
+                'date' => $event->date,
+            ]
+        ]);
+
         event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::WORKER_AVAILABILITY_CHANGED,
+            "type" => WhatsappMessageTemplateEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB,
             "notificationData" => array(
                 'worker' => $event->worker->toArray(),
                 'date' => $event->date,

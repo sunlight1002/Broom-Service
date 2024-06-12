@@ -38,4 +38,7 @@ final class NotificationTypeEnum extends AbstractEnum
     public const WORKER_EXCEED_JOB_TIME = 'worker-exceed-job-time';
     public const NEW_LEAD_ARRIVED = 'new-lead-arrived';
     public const CLIENT_LEAD_STATUS_CHANGED = 'client-lead-status-changed';
+    public const CLIENT_CHANGED_JOB_SCHEDULE = 'client-changed-job-schedule';
+    public const WORKER_CHANGED_AVAILABILITY_AFFECT_JOB = 'worker-changed-availability-affect-job';
+    public const WORKER_LEAVES_JOB = 'worker-leaves-job';
 }

@@ -474,7 +474,7 @@ return [
         'team_lead_files' => [
             'content' => "ברכות משירות מטאטא. :client_name הוסיף קבצים חדשים בפרטי הפגישה המצוינים למטה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date",
         ],
-        'worker_availability_changed' => [
+        'worker_changed_availability_affect_job' => [
             'content' => "ברכות משירות מטאטא. :name שינה את הזמינות המשפיעה על העבודה ב-:date.",
         ],
         'worker_form101_signed' => [
@@ -509,6 +509,12 @@ return [
         ],
         'client_lead_status_changed' => [
             'content' => "ברכות משירות מטאטא. הסטטוס של :client_name שונה ל-:new_status.",
+        ],
+        'worker_leaves_job' => [
+            'content' => "ברכות משירות מטאטא. העובד :name קבע תאריך לעזיבת עבודה ל-:date.",
+        ],
+        'client_changed_job_schedule' => [
+            'content' => "ברכות משירות מטאטא. הלקוח :client_name שינה את לוח הזמנים לעבודה בתאריך :date_time.",
         ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',

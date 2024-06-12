@@ -118,6 +118,9 @@ class DashboardController extends Controller
               NotificationTypeEnum::OPENING_JOB,
               NotificationTypeEnum::CLIENT_CANCEL_JOB,
               NotificationTypeEnum::WORKER_RESCHEDULE,
+              NotificationTypeEnum::CLIENT_CHANGED_JOB_SCHEDULE,
+              NotificationTypeEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB,
+              NotificationTypeEnum::WORKER_LEAVES_JOB,
             ]);
           })
           ->when($groupType == 'lead-client', function ($q) {
@@ -367,6 +370,26 @@ class DashboardController extends Controller
             if (isset($client)) {
               $noticeAll[$k]->data = "<a href='/admin/view-client/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
                 "</a> lead status has been changed to " . $notice->data['new_status'] . ".";
+            }
+          } else if ($notice->type == NotificationTypeEnum::CLIENT_CHANGED_JOB_SCHEDULE) {
+            $job = Job::where('id', $notice->job_id)->first();
+
+            if (isset($job)) {
+              $noticeAll[$k]->data = "Client has changed schedule of <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB) {
+            $worker = User::find($notice->user_id);
+
+            if (isset($worker)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
+                "</a> availability has been changed that affect job on " . $notice->data['date'] . '.';
+            }
+          } else if ($notice->type == NotificationTypeEnum::WORKER_LEAVES_JOB) {
+            $worker = User::find($notice->user_id);
+
+            if (isset($worker)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
+                "</a> leave date has been set to " . $notice->data['date'] . '.';
             }
           }
         }

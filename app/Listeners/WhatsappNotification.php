@@ -704,7 +704,7 @@ class WhatsappNotification
 
                     break;
 
-                case WhatsappMessageTemplateEnum::WORKER_AVAILABILITY_CHANGED:
+                case WhatsappMessageTemplateEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB:
                     $workerData = $eventData['worker'];
 
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
@@ -716,9 +716,28 @@ class WhatsappNotification
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.worker_availability_changed.content', [
+                    $text .= __('mail.wa-message.worker_changed_availability_affect_job.content', [
                         'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
                         'date' => Carbon::parse($eventData['date'])->format('M d Y'),
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_LEAVES_JOB:
+                    $workerData = $eventData['worker'];
+
+                    $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_leaves_job.content', [
+                        'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                        'date' => $workerData['date'],
                     ]);
 
                     break;
@@ -761,6 +780,26 @@ class WhatsappNotification
                         'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
                         'rating' => $jobData['rating'],
                         'review' => $jobData['review'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::CLIENT_CHANGED_JOB_SCHEDULE:
+                    $clientData = $eventData['client'];
+                    $jobData = $eventData['job'];
+
+                    $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.client_changed_job_schedule.content', [
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
+                        'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
                     ]);
 
                     break;

@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\NotificationTypeEnum;
 use App\Events\JobWorkerChanged;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -11,6 +12,8 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToClient;
+use App\Models\Client;
+use App\Models\Notification;
 
 class SendWorkerChangedNotification implements ShouldQueue
 {
@@ -129,6 +132,24 @@ class SendWorkerChangedNotification implements ShouldQueue
                 'emailContent'  =>  __('mail.job_common.admin_change_worker_content', ['workerName' => $event->oldWorker['firstname'] . ' ' . $event->oldWorker['lastname'], 'jobId' => $emailData['job']['id']])
             ];
             event(new JobNotificationToClient($worker, $client, $jobData, $emailData));
+        }
+
+        if ($event->isChangedByClient) {
+            Notification::create([
+                'user_id' => $client['id'],
+                'user_type' => Client::class,
+                'type' => NotificationTypeEnum::CLIENT_CHANGED_JOB_SCHEDULE,
+                'job_id' => $event->job['id'],
+                'status' => 'changed'
+            ]);
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::CLIENT_CHANGED_JOB_SCHEDULE,
+                "notificationData" => [
+                    'client' => $client,
+                    'job' => $event->job->toArray()
+                ]
+            ]));
         }
     }
 }

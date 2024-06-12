@@ -32,6 +32,7 @@ use App\Events\OfferSaved;
 use App\Events\WorkerChangeAffectedAvailability;
 use App\Events\WorkerCommented;
 use App\Events\WorkerForm101Requested;
+use App\Events\WorkerLeaveJob;
 use App\Listeners\AdminLeadFilesNotification;
 use App\Listeners\AdminReScheduleMeetingNotification;
 use App\Listeners\NotifyForClientPaymentFailed;
@@ -59,6 +60,7 @@ use App\Listeners\NotifyForLeadStatusChanged;
 use App\Listeners\NotifyForNewLead;
 use App\Listeners\NotifyForOffer;
 use App\Listeners\NotifyForWorkerCommented;
+use App\Listeners\NotifyForWorkerLeave;
 use App\Listeners\SendClientCredentials;
 use App\Listeners\SendWorkerChangedAffectedAvailability;
 use App\Listeners\SendWorkerForm101Notification;
@@ -170,6 +172,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         ClientLeadStatusChanged::class => [
             NotifyForLeadStatusChanged::class
+        ],
+        WorkerLeaveJob::class => [
+            NotifyForWorkerLeave::class
         ]
     ];
 

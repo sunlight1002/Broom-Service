@@ -38,7 +38,6 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const CLIENT_MEETING_REMINDER = 'client_meeting_reminder';
 
     public const WORKER_FORMS = "worker_forms";
-    public const WORKER_AVAILABILITY_CHANGED = "worker_availability_changed";
     public const WORKER_FORM101_SIGNED = "worker_form101_signed";
     public const WORKER_CONTRACT_SIGNED = "worker_contract_signed";
     public const WORKER_INSURANCE_SIGNED = "worker_insurance_signed";
@@ -50,4 +49,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const ADMIN_COMMENTED = "admin_commented";
     public const NEW_LEAD_ARRIVED = "new_lead_arrived";
     public const CLIENT_LEAD_STATUS_CHANGED = "client_lead_status_changed";
+    public const CLIENT_CHANGED_JOB_SCHEDULE = "client_changed_job_schedule";
+    public const WORKER_CHANGED_AVAILABILITY_AFFECT_JOB = "worker_changed_availability_affect_job";
+    public const WORKER_LEAVES_JOB = "worker_leaves_job";
 }

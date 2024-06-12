@@ -466,7 +466,7 @@ return [
         'team_lead_files' => [
             'content'   =>  "Greetings from Broom Service. :client_name added New files in below mentioned meeting details. Please check the details.\n\nDate/Time: :date"
         ],
-        'worker_availability_changed' => [
+        'worker_changed_availability_affect_job' => [
             'content' => "Greetings from Broom Service. :name has changed availability that affectes job on :date.",
         ],
         'worker_form101_signed' => [
@@ -501,6 +501,12 @@ return [
         ],
         'client_lead_status_changed' => [
             'content' => "Greetings from Broom Service. :client_name's status has been changed to :new_status.",
+        ],
+        'worker_leaves_job' => [
+            'content' => "Greetings from Broom Service. Worker :name leave job date set to :date.",
+        ],
+        'client_changed_job_schedule' => [
+            'content' => "Greetings from Broom Service. Client :client_name has changed schedule for job :date_time.",
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',

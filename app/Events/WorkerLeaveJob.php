@@ -10,24 +10,20 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class JobWorkerChanged
+class WorkerLeaveJob
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $job, $startTime, $old_job_data, $oldWorker, $isChangedByClient;
+    public $worker;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($job, $startTime, $old_job_data, $oldWorker, $isChangedByClient)
+    public function __construct($worker)
     {
-        $this->job = $job;
-        $this->startTime = $startTime;
-        $this->old_job_data = $old_job_data;
-        $this->oldWorker = $oldWorker;
-        $this->isChangedByClient = $isChangedByClient;
+        $this->worker = $worker;
     }
 
     /**

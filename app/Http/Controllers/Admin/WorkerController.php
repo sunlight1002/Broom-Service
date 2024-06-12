@@ -12,6 +12,7 @@ use App\Enums\Form101FieldEnum;
 use App\Enums\WorkerFormTypeEnum;
 use App\Events\WorkerCreated;
 use App\Events\WorkerForm101Requested;
+use App\Events\WorkerLeaveJob;
 use App\Exports\WorkerHoursExport;
 use App\Traits\JobSchedule;
 use Carbon\Carbon;
@@ -776,9 +777,14 @@ class WorkerController extends Controller
         if (isset($data['date']) && !empty($data['date'])) {
             $date = $data['date'];
         }
-        $worker->update([
-            'last_work_date' => $date,
-        ]);
+
+        if ($date != $worker->last_work_date) {
+            $worker->update([
+                'last_work_date' => $date,
+            ]);
+
+            event(new WorkerLeaveJob($worker));
+        }
 
         return response()->json([
             'message' => 'Leave job date updated successfully'

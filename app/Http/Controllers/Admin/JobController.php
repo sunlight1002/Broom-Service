@@ -735,6 +735,7 @@ class JobController extends Controller
 
         $old_job_data = [
             'start_date' => $job->start_date,
+            'start_time' => $job->start_time,
             'shifts' => $job->shifts,
         ];
 
@@ -865,7 +866,13 @@ class JobController extends Controller
 
         $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-        event(new JobWorkerChanged($job, $mergedContinuousTime[0]['starting_at'], $old_job_data, $oldWorker));
+        event(new JobWorkerChanged(
+            $job,
+            $mergedContinuousTime[0]['starting_at'],
+            $old_job_data,
+            $oldWorker,
+            false
+        ));
 
         return response()->json([
             'message' => 'Job has been updated successfully'
