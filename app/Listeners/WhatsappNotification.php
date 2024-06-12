@@ -824,6 +824,43 @@ class WhatsappNotification
                     ]);
 
                     break;
+
+                case WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.new_lead_arrived.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::CLIENT_LEAD_STATUS_CHANGED:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.client_lead_status_changed.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'new_status' => $eventData['new_status']
+                    ]);
+
+                    break;
             }
 
             if ($receiverNumber && $text) {

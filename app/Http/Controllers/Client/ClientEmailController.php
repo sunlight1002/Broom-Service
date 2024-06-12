@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Schedule;
@@ -87,6 +88,7 @@ class ClientEmailController extends Controller
       'status' => 'accepted'
     ]);
 
+    $client = $offer->client;
     $ofr = $offer->toArray();
 
     $hash = md5($ofr['client']['email'] . $ofr['id']);
@@ -98,14 +100,16 @@ class ClientEmailController extends Controller
       'status'     => ContractStatusEnum::NOT_SIGNED
     ]);
 
-    LeadStatus::updateOrCreate(
-      [
-        'client_id' => $ofr['client']['id']
-      ],
-      [
-        'lead_status' => LeadStatusEnum::PENDING_CLIENT
-      ]
-    );
+    $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
+
+    if ($client->lead_status->lead_status != $newLeadStatus) {
+      $client->lead_status()->updateOrCreate(
+        [],
+        ['lead_status' => $newLeadStatus]
+      );
+
+      event(new ClientLeadStatusChanged($client, $newLeadStatus));
+    }
 
     Notification::create([
       'user_id' => $ofr['client']['id'],
@@ -333,10 +337,16 @@ class ClientEmailController extends Controller
         ]);
       }
 
-      $client->lead_status()->updateOrCreate(
-        [],
-        ['lead_status' => LeadStatusEnum::PENDING_CLIENT]
-      );
+      $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
+
+      if ($client->lead_status->lead_status != $newLeadStatus) {
+        $client->lead_status()->updateOrCreate(
+          [],
+          ['lead_status' => $newLeadStatus]
+        );
+
+        event(new ClientLeadStatusChanged($client, $newLeadStatus));
+      }
 
       Notification::create([
         'user_id' => $contract->client_id,
@@ -454,6 +464,13 @@ class ClientEmailController extends Controller
 
   public function addMeet(Request $request)
   {
+    $client = Client::find($request['data']['client']['id']);
+    if (!$client) {
+      return response()->json([
+        'message' => 'Client not found'
+      ], 404);
+    }
+
     $start_time_standard_format = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $request['data']['startDate'])->toTimeString();
 
     $schedule = Schedule::create([
@@ -465,14 +482,16 @@ class ClientEmailController extends Controller
       'client_id'      => $request['data']['client']['id'],
     ]);
 
-    LeadStatus::updateOrCreate(
-      [
-        'client_id' => $schedule->client_id,
-      ],
-      [
-        'lead_status' =>  LeadStatusEnum::POTENTIAL
-      ]
-    );
+    $newLeadStatus = LeadStatusEnum::POTENTIAL;
+
+    if ($client->lead_status->lead_status != $newLeadStatus) {
+      $client->lead_status()->updateOrCreate(
+        [],
+        ['lead_status' => $newLeadStatus]
+      );
+
+      event(new ClientLeadStatusChanged($client, $newLeadStatus));
+    }
 
     $schedule->load(['client', 'team', 'propertyAddress']);
 

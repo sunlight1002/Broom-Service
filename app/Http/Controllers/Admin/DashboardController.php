@@ -132,6 +132,8 @@ class DashboardController extends Controller
               NotificationTypeEnum::CONTRACT_REJECT,
               NotificationTypeEnum::RESCHEDULE_MEETING,
               NotificationTypeEnum::FILES,
+              NotificationTypeEnum::CLIENT_LEAD_STATUS_CHANGED,
+              NotificationTypeEnum::NEW_LEAD_ARRIVED
             ]);
           })
           ->when($groupType == 'worker-forms', function ($q) {
@@ -276,12 +278,6 @@ class DashboardController extends Controller
           } else if ($notice->type == NotificationTypeEnum::INSURANCE_SIGNED) {
             $noticeAll[$k]->data = "Insurance form has been signed by <a href='/admin/view-worker/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a>";
-          } else if ($notice->type == NotificationTypeEnum::CLIENT_COMMENTED) {
-            $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
-
-            if (isset($job)) {
-              $noticeAll[$k]->data = "Client has comment for a <a href='/admin/view-job/" . $job->id . "'>Job </a>";
-            }
           } else if ($notice->type == NotificationTypeEnum::CLIENT_REVIEWED) {
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
 
@@ -357,6 +353,20 @@ class DashboardController extends Controller
             if (isset($job)) {
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
                 "</a> has added commented to the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+            }
+          } else if ($notice->type == NotificationTypeEnum::NEW_LEAD_ARRIVED) {
+            $client = Client::find($notice->user_id);
+
+            if (isset($client)) {
+              $noticeAll[$k]->data = "New lead <a href='/admin/view-client/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                "</a> has been added.";
+            }
+          } else if ($notice->type == NotificationTypeEnum::CLIENT_LEAD_STATUS_CHANGED) {
+            $client = Client::find($notice->user_id);
+
+            if (isset($client)) {
+              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                "</a> lead status has been changed to " . $notice->data['new_status'] . ".";
             }
           }
         }

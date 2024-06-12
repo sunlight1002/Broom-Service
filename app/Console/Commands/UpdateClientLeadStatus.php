@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Enums\ContractStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Models\Client;
 use App\Traits\JobSchedule;
 use Illuminate\Console\Command;
@@ -51,10 +52,16 @@ class UpdateClientLeadStatus extends Command
             ->get(['id']);
 
         foreach ($clients as $key => $client) {
-            $client->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
-            );
+            $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
+
+            if ($client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
+
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            }
         }
 
         return 0;

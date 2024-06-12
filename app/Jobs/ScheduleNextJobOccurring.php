@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\JobStatusEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Models\Job;
 use App\Models\ManageTime;
 use App\Traits\JobSchedule;
@@ -248,10 +249,16 @@ class ScheduleNextJobOccurring implements ShouldQueue
 
             $this->copyDefaultCommentsToJob($nextJob);
 
-            $client->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
-            );
+            $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
+
+            if ($client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
+    
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            }
         }
     }
 }

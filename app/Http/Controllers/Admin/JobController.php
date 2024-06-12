@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Jobs\CreateJobOrder;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\JobCancellationFee;
@@ -569,10 +570,16 @@ class JobController extends Controller
             }
         }
 
-        $client->lead_status()->updateOrCreate(
-            [],
-            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
-        );
+        $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
+
+        if ($client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        }
 
         return response()->json([
             'message' => 'Job has been created successfully'
@@ -833,10 +840,16 @@ class JobController extends Controller
             'until_date' => $request->until_date,
         ]);
 
-        $client->lead_status()->updateOrCreate(
-            [],
-            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
-        );
+        $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
+
+        if ($client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        }
 
         Notification::create([
             'user_id' => $job->client->id,
@@ -1095,10 +1108,16 @@ class JobController extends Controller
             'until_date' => $request->until_date,
         ]);
 
-        $client->lead_status()->updateOrCreate(
-            [],
-            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
-        );
+        $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
+
+        if ($client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        }
 
         Notification::create([
             'user_id' => $job->client->id,

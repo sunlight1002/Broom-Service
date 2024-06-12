@@ -177,6 +177,7 @@ export default function AddOffer() {
             })
             .catch((e) => {
                 setIsSubmitting(false);
+                alert.error(e.response.data.message);
             });
     };
 

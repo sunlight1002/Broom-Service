@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Exports\ClientSampleFileExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportClientJob;
@@ -879,10 +880,18 @@ class ClientController extends Controller
         }
         $client->status = $statusArr[$data['status']];
         $client->save();
-        $client->lead_status()->updateOrCreate(
-            [],
-            ['lead_status' => $data['status']]
-        );
+
+        $newLeadStatus = $data['status'];
+
+        if ($client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        }
+
         $client->logs()->create([
             'status' =>  $statusArr[$data['status']],
             'reason' =>  $data['reason']

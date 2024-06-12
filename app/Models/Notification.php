@@ -16,6 +16,7 @@ class Notification extends Model
         'offer_id',
         'contract_id',
         'job_id',
+        'data',
     ];
 
     protected $casts = [

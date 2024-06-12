@@ -504,6 +504,12 @@ return [
         'worker_commented' => [
             'content' => "ברכות משירות מטאטא. העובד :worker_name השאיר תגובה עבור עבודה בתאריך :date_time.",
         ],
+        'new_lead_arrived' => [
+            'content' => "ברכות משירות מטאטא. ליד חדש (:client_name) הגיע.",
+        ],
+        'client_lead_status_changed' => [
+            'content' => "ברכות משירות מטאטא. הסטטוס של :client_name שונה ל-:new_status.",
+        ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',
             'upload_file' => 'העלה קובץ',

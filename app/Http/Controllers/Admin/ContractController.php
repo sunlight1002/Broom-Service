@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
@@ -153,10 +154,16 @@ class ContractController extends Controller
             'status' => ContractStatusEnum::VERIFIED
         ]);
 
-        $client->lead_status()->updateOrCreate(
-            [],
-            ['lead_status' => LeadStatusEnum::FREEZE_CLIENT]
-        );
+        $newLeadStatus = LeadStatusEnum::FREEZE_CLIENT;
+
+        if ($client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        }
 
         return response()->json([
             'message' => 'Contract verified successfully'

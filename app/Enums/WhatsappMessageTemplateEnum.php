@@ -48,4 +48,6 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const CLIENT_COMMENTED = "client_commented";
     public const WORKER_COMMENTED = "worker_commented";
     public const ADMIN_COMMENTED = "admin_commented";
+    public const NEW_LEAD_ARRIVED = "new_lead_arrived";
+    public const CLIENT_LEAD_STATUS_CHANGED = "client_lead_status_changed";
 }

@@ -496,6 +496,12 @@ return [
         'worker_commented' => [
             'content' => "Greetings from Broom Service. Worker :worker_name has commented for job :date_time.",
         ],
+        'new_lead_arrived' => [
+            'content' => "Greetings from Broom Service. New lead (:client_name) has been arrived.",
+        ],
+        'client_lead_status_changed' => [
+            'content' => "Greetings from Broom Service. :client_name's status has been changed to :new_status.",
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',

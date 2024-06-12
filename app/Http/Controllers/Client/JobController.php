@@ -6,6 +6,7 @@ use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Events\ClientReviewed;
 use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
@@ -443,10 +444,16 @@ class JobController extends Controller
             'until_date' => $data['until_date'],
         ]);
 
-        $client->lead_status()->updateOrCreate(
-            [],
-            ['lead_status' => $this->getClientLeadStatusBasedOnJobs($client)]
-        );
+        $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
+
+        if ($client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        }
 
         Notification::create([
             'user_id' => $job->client->id,

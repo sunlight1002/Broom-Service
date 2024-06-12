@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use App\Enums\LeadStatusEnum;
+use App\Events\NewLeadArrived;
 use Laravel\Passport\HasApiTokens;
 
 class Client extends Authenticatable
@@ -82,6 +83,8 @@ class Client extends Authenticatable
                     'lead_status' => LeadStatusEnum::PENDING
                 ]
             );
+
+            event(new NewLeadArrived($model));
         });
         static::deleting(function ($model) {
             Schedule::where('client_id', $model->id)->delete();

@@ -6,6 +6,7 @@ use App\Events\AdminCommented;
 use App\Events\AdminLeadFilesNotificationJob;
 use App\Events\AdminReScheduleMeetingJob;
 use App\Events\ClientCommented;
+use App\Events\ClientLeadStatusChanged;
 use App\Events\ClientPaymentFailed;
 use App\Events\ClientReviewed;
 use App\Events\ContractFormSigned;
@@ -25,6 +26,7 @@ use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToWorker;
 use App\Events\JobNotificationToClient;
 use App\Events\MeetingReminderEvent;
+use App\Events\NewLeadArrived;
 use App\Events\OfferAccepted;
 use App\Events\OfferSaved;
 use App\Events\WorkerChangeAffectedAvailability;
@@ -53,6 +55,8 @@ use App\Listeners\NotifyForAdminCommented;
 use App\Listeners\NotifyForClientCommented;
 use App\Listeners\NotifyForClientReviewed;
 use App\Listeners\NotifyForContract;
+use App\Listeners\NotifyForLeadStatusChanged;
+use App\Listeners\NotifyForNewLead;
 use App\Listeners\NotifyForOffer;
 use App\Listeners\NotifyForWorkerCommented;
 use App\Listeners\SendClientCredentials;
@@ -160,6 +164,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkerCommented::class => [
             NotifyForWorkerCommented::class
+        ],
+        NewLeadArrived::class => [
+            NotifyForNewLead::class
+        ],
+        ClientLeadStatusChanged::class => [
+            NotifyForLeadStatusChanged::class
         ]
     ];
 

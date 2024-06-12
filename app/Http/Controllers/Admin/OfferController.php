@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Events\OfferSaved;
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\LeadStatus;
 use App\Models\Offer;
 use App\Traits\PriceOffered;
@@ -81,6 +83,19 @@ class OfferController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
+        if (!$request->get('client_id')) {
+            return response()->json([
+                'message' => 'Client not selected'
+            ], 404);
+        }
+
+        $client = Client::find($request->get('client_id'));
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
         $services = json_decode($request->get('services'), true);
 
         $tax_percentage = config('services.app.tax_percentage');
@@ -109,14 +124,16 @@ class OfferController extends Controller
         $offer = Offer::create($input);
         $offer->load(['client', 'service']);
 
-        LeadStatus::updateOrCreate(
-            [
-                'client_id' => $offer->client_id,
-            ],
-            [
-                'lead_status' =>  LeadStatusEnum::POTENTIAL_CLIENT
-            ]
-        );
+        $newLeadStatus = LeadStatusEnum::POTENTIAL_CLIENT;
+
+        if ($client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        }
 
         if ($request->action == 'Save and Send') {
             event(new OfferSaved($offer->toArray()));
