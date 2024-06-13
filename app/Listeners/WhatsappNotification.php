@@ -64,7 +64,11 @@ class WhatsappNotification
 
                     $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_meeting_schedule.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
                     ]);
 
@@ -99,7 +103,11 @@ class WhatsappNotification
 
                     $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_meeting_reminder.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $eventData['firstname'] . ' ' . $eventData['lastname']
                     ]);
 
@@ -125,7 +133,11 @@ class WhatsappNotification
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.offer_price.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
                     ]);
 
@@ -146,7 +158,11 @@ class WhatsappNotification
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.contract.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
                     ]);
 
@@ -165,7 +181,11 @@ class WhatsappNotification
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_job_updated.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $clientData['firstname']
                     ]);
 
@@ -188,7 +208,11 @@ class WhatsappNotification
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.delete_meeting.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
                     ]);
 
@@ -211,7 +235,11 @@ class WhatsappNotification
                     $receiverNumber = $workerData['phone'];
                     App::setLocale($workerData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.form101.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $workerData['firstname'] . ' ' . $workerData['lastname']
                     ]);
 
@@ -231,7 +259,11 @@ class WhatsappNotification
                     $receiverNumber = $workerData['phone'];
                     App::setLocale($workerData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.new_job.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $workerData['firstname'] . ' ' . $workerData['lastname']
                     ]);
 
@@ -254,41 +286,17 @@ class WhatsappNotification
 
                     break;
 
-                case WhatsappMessageTemplateEnum::WORKER_CHANGE_REQUEST:
-                    $jobData = $eventData['job'];
-                    $adminData = $eventData['admin'];
-
-                    $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                    App::setLocale('en');
-
-                    $text = __('mail.wa-message.common.salutation', [
-                        'name' => $adminData['name']
-                    ]);
-
-                    $text .= "\n\n";
-
-                    $text .= __('mail.wa-message.worker_change_request.content', [
-                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y'),
-                        'client_name' => $jobData['client']['firstname'] . ' ' . $jobData['client']['lastname'],
-                        'service_name' => $jobData['jobservice']['name'],
-                        'address' => $jobData['property_address']['address_name']
-                            ? $jobData['property_address']['address_name']
-                            : 'NA',
-                        'worker_name' => isset($jobData['worker'])
-                            ? ($jobData['worker']['firstname'] . ' ' . $jobData['worker']['lastname'])
-                            : "NA",
-                        'start_time' => Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i')
-                    ]);
-
-                    break;
-
                 case WhatsappMessageTemplateEnum::WORKER_CONTRACT:
                     $workerData = $eventData;
 
                     $receiverNumber = $workerData['phone'];
                     App::setLocale($workerData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_contract.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $workerData['firstname'] . ' ' . $workerData['lastname']
                     ]);
 
@@ -307,7 +315,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_job_approval.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -332,7 +344,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_not_approved_job.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -361,7 +377,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_not_left_for_job.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -390,13 +410,48 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_not_started_job.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.worker_not_started_job.content', [
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
+                        'client_name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname'],
+                        'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
+                        'service_name' => ($jobData['jobservice']['name'] . ', '),
+                        'address' => $jobData['property_address']['address_name']
+                            ? $jobData['property_address']['address_name']
+                            : 'NA',
+                    ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/view-worker/" . $jobData['worker']['id']);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_NOT_FINISHED_JOB_ON_TIME:
+                    // $adminData = $eventData['admin'];
+                    $jobData = $eventData['job'];
+
+                    $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.worker_not_finished_job_on_time.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_not_finished_job_on_time.content', [
                         'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'client_name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname'],
                         'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
@@ -417,7 +472,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_exceed_job_time.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -445,7 +504,11 @@ class WhatsappNotification
                     $receiverNumber = $workerData['phone'];
                     App::setLocale($workerData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_remind_job.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $workerData['firstname'] . ' ' . $workerData['lastname']
                     ]);
 
@@ -476,7 +539,11 @@ class WhatsappNotification
                     $receiverNumber = $oldWorkerData['phone'];
                     App::setLocale($oldWorkerData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_unassigned_job.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $oldWorkerData['firstname'] . ' ' . $oldWorkerData['lastname']
                     ]);
 
@@ -499,7 +566,11 @@ class WhatsappNotification
                     $receiverNumber = $jobData['client']['phone'];
                     App::setLocale($jobData['client']['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_job_status_notification.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname']
                     ]);
 
@@ -523,7 +594,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_job_opening_notification.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -546,7 +621,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_job_status_notification.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -571,7 +650,11 @@ class WhatsappNotification
                     $receiverNumber = $workerData['phone'];
                     App::setLocale($workerData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_safe_gear.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $workerData['firstname'] . ' ' . $workerData['lastname']
                     ]);
 
@@ -595,7 +678,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.admin_reschedule_meeting.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -625,7 +712,11 @@ class WhatsappNotification
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_reschedule_meeting.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
                     ]);
 
@@ -645,7 +736,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.admin_lead_files.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -666,7 +761,11 @@ class WhatsappNotification
                     $receiverNumber = $workerData['phone'];
                     App::setLocale($workerData['lng']);
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_forms.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => $workerData['firstname'] . ' ' . $workerData['lastname']
                     ]);
 
@@ -685,7 +784,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.admin_job_status_notification.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -710,7 +813,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_changed_availability_affect_job.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -729,7 +836,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_leaves_job.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -749,7 +860,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_payment_failed.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -769,7 +884,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.order_cancelled.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -790,7 +909,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.payment_paid.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -809,7 +932,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_invoice_created_and_sent_to_pay.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -829,7 +956,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_invoice_paid_created_receipt.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -848,7 +979,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.order_created_with_extra.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -870,7 +1005,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_reviewed.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -892,7 +1031,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_changed_job_schedule.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -912,7 +1055,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_commented.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -932,7 +1079,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.admin_commented.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -952,7 +1103,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.worker_commented.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -971,7 +1126,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.new_lead_arrived.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 
@@ -989,7 +1148,11 @@ class WhatsappNotification
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.common.salutation', [
+                    $text = __('mail.wa-message.client_lead_status_changed.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
 

@@ -83,10 +83,6 @@ class AdminLeadFilesNotification implements ShouldQueue
         ]);
 
         //team mail
-        // event(new WhatsappNotificationEvent([
-        //     "type" => WhatsappMessageTemplateEnum::TEAM_LEAD_FILES,
-        //     "notificationData" => $scheduleArr
-        // ]));
         Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail, $filePath) {
             $messages->to($teamEmail);
 

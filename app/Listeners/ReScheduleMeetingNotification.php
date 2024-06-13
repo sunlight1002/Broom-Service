@@ -64,11 +64,6 @@ class ReScheduleMeetingNotification implements ShouldQueue
             "notificationData" => $scheduleArr
         ]));
 
-        // event(new WhatsappNotificationEvent([
-        //     "type" => WhatsappMessageTemplateEnum::TEAM_RESCHEDULE_MEETING,
-        //     "notificationData" => $scheduleArr
-        // ]));
-
         Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
             $messages->to($teamEmail);
 

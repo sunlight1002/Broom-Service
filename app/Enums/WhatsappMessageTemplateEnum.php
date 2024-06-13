@@ -13,7 +13,6 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const DELETE_MEETING = 'delete_meeting';
     public const FORM101 = 'form101';
     public const NEW_JOB = 'new_job';
-    public const WORKER_CHANGE_REQUEST = 'worker_change_request';
     public const WORKER_CONTRACT = 'worker_contract';
     public const WORKER_JOB_APPROVAL = 'worker_job_approval';
     public const WORKER_NOT_APPROVED_JOB = 'worker_not_approved_job';
@@ -31,10 +30,8 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
 
     public const WORKER_SAFE_GEAR = 'worker_safe_gear';
     public const ADMIN_RESCHEDULE_MEETING = 'admin_reschedule_meeting';
-    public const TEAM_RESCHEDULE_MEETING = 'team_reschedule_meeting';
     public const CLIENT_RESCHEDULE_MEETING = 'client_reschedule_meeting';
     public const ADMIN_LEAD_FILES = 'admin_lead_files';
-    public const TEAM_LEAD_FILES = 'team_lead_files';
     public const CLIENT_MEETING_REMINDER = 'client_meeting_reminder';
 
     public const WORKER_FORMS = "worker_forms";

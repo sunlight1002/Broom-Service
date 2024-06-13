@@ -390,146 +390,184 @@ return [
         'common' => [
             'salutation' => "שלום, *:name*"
         ],
+        'client_meeting_reminder' => [
+            'header' => "*תזכורת לפגישה*",
+        ],
         'client_meeting_schedule' => [
-            'content' => "ברכות משירות מטאטא. רק תזכורת ידידותית שיש לך פגישה מתקרבת ב-*:date* בין *:start_time* ל-*:end_time* ב-*:address* עבור *:purpose*. לחץ על כפתור *קבל/דחה* או *העלה קובץ* כדי לקבל, לדחות, לתזמן מחדש ולהעלות קבצים.",
+            'header' => "*נקבעה פגישה*",
+            'content' => "תזכורת ידידותית שיש לך פגישה קרובה ב-*:date* בין השעות *:start_time* עד *:end_time* בכתובת *:address* עבור *:purpose*. לחץ על כפתור *קבל/דחה* או *העלה קובץ* כדי לקבל, לדחות, לתזמן מחדש ולהעלות קבצים.",
         ],
         'offer_price' => [
-            'content' => "ברכות משירות מטאטא. נא לבדוק את הצעת המחיר עבור *:service_names*. לאחר אישורך, יישלח אליך הסכם התקשרות שתצטרך למלא ולחתום עליו ואז נהיה מוכנים להתחיל את העבודה.
-            לחץ על הכפתור למטה כדי לראות את הצעת המחיר.",
+            'header' => "*ההצעת מחיר מברום סרוויס*",
+            'content' => "אנא בדוק את הצעת המחיר עבור *:service_names*. לאחר אישורך, הסכם התקשרות יישלח אליך אותו תצטרך למלא ולחתום למטה ואז נהיה מוכנים להתחיל את העבודה. לחץ על הכפתור למטה כדי לראות את הצעת המחיר.",
         ],
         'contract' => [
-            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס החוזה כדי להתחיל לעבוד בעבודה.
-            לחץ על הכפתור למטה כדי לבדוק את החוזה.",
+            'header' => "*הסכם התקשרות ברום סרוויס*",
+            'content' => "נרשמת בהצלחה לפורטל שלנו. אנא חתום על טופס החוזה כדי להתחיל לעבוד בעבודה. לחץ על הכפתור למטה כדי לבדוק את החוזה.",
         ],
         'client_job_updated' => [
-            'content' => "ברכות משירות מטאטא. העבודה שלך הושלמה.\n\nתאריך: :date\nשירות: :service_name\n\nנא לדרג אותנו ולשלוח את הביקורת שלך.",
+            'header' => "*עבודה הסתיימה | ברום סרוויס*",
+            'content' => "העבודה שלך הושלמה.\n\nתאריך: :date\nשירות: :service_name\n\nאנא דרג אותנו ושלח את הביקורת שלך.",
         ],
         'delete_meeting' => [
-            'content' => "ברכות משירות מטאטא.\n\nרק תזכורת ידידותית שהפגישה שלך עם *:team_name* ב-*:date* בין *:start_time* ל-*:end_time* בוטלה כעת.",
+            'header' => "*הפגישה עם ברום סרוויס בוטלה*",
+            'content' => "תזכורת ידידותית שהפגישה שלך עם *:team_name* ב-*:date* בין השעות *:start_time* עד *:end_time* בוטלה כעת.",
         ],
         'form101' => [
-            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס 101 כדי להתחיל לעבוד בעבודה.\n\nלחץ על הכפתור למטה כדי למלא את טופס 101.",
+            'header' => "*טופס 101 עם ברום סרוויס*",
+            'content' => "נרשמת בהצלחה לפורטל שלנו. אנא חתום על טופס 101 כדי להתחיל לעבוד בעבודה.\n\nלחץ על הכפתור למטה כדי למלא את טופס 101.",
         ],
         'new_job' => [
-            'content' => "ברכות משירות מטאטא. :content_txt נא לבדוק את הפרטים.\n\n
-            תאריך/שעה: :date_time\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nסטטוס: :status",
-        ],
-        'worker_change_request' => [
-            'content' => "ברכות משירות מטאטא. יש בקשה מהלקוח להחליף עובד בעבודה. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nעובד: :worker_name\nשעת התחלה: :start_time",
+            'header' => "*פרטי עבודה עם ברום סרוויס*",
+            'content' => ":content_txt אנא בדוק את הפרטים.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nסטטוס: :status",
         ],
         'worker_contract' => [
-            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס החוזה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי לבדוק את החוזה.",
+            'header' => "*הסכם התקשרות ברום סרוויס*",
+            'content' => "נרשמת בהצלחה לפורטל שלנו. אנא חתום על טופס החוזה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי לבדוק את החוזה.",
         ],
         'worker_job_approval' => [
-            'content' => "ברכות משירות מטאטא. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+            'header' => "*עבודה אושרה | ברום סרוויס*",
+            'content' => "אנא בדוק את הפרטים.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_not_approved_job' => [
-            'content' => "ברכות משירות מטאטא. העובד עדיין לא אישר את כתובת העבודה למחר.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+            'header' => "*עבודה לא אושרה | ברום סרוויס*",
+            'content' => "העובד עדיין לא אישר את כתובת העבודה למחר.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_not_left_for_job' => [
-            'content' => "ברכות משירות מטאטא. העובד עדיין לא עזב את העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+            'header' => "*עובד לא יוצא לעבודה | שירות מטאטא*",
+            'content' => "העובד עדיין לא יצא לעבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_not_started_job' => [
-            'content' => "ברכות משירות מטאטא. העובד עדיין לא התחיל את העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+            'header' => "*עובד לא התחיל עבודה | שירות מטאטא*",
+            'content' => "העובד עדיין לא התחיל את העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+        ],
+        'worker_not_finished_job_on_time' => [
+            'header' => "*העובד לא סיים את העבודה בזמן | Broom Service*",
+            'content' => "העובד לא סיים את העבודה בזמן.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_exceed_job_time' => [
-            'content' => "ברכות משירות מטאטא. העובד עבר את זמן העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
+            'header' => "*עובד מעבר לזמן עבודה | שירות מטאטא*",
+            'content' => "העובד חרג מזמן העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_remind_job' => [
-            'content' => "ברכות משירות מטאטא. זהו הודעה על העבודה שלך למחר. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nשעת התחלה: :start_time\nסטטוס: :status",
+            'header' => "*פרטי העבודה שלך למחר | ברום סרוויס*",
+            'content' => "זה להודיע לך על העבודה שלך למחר. אנא בדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nזמן התחלה: :start_time\nסטטוס: :status",
         ],
         'worker_unassigned_job' => [
-            'content' => "ברכות משירות מטאטא. הוסרת מהעבודה. נא לבדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nשעת התחלה: :start_time",
+            'header' => "*העבודה שלך בוטלה | ברום סרוויס*",
+            'content' => "הוסרת מהעבודה. אנא בדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nזמן התחלה: :start_time",
         ],
         'client_job_status_notification' => [
-            'content' => "ברכות משירות מטאטא. העבודה בוטלה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nלקוח: :client_name\nשירות: :service_name\nהערה: :comment",
+            'header' => "*שירות בוטל | ברום סרוויס*",
+            'content' => "העבודה בוטלה. אנא בדוק את הפרטים.\n\nתאריך/שעה: :date\nלקוח: :client_name\nשירות: :service_name\nהערה: :comment",
         ],
         'worker_safe_gear' => [
-            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס החוזה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי לבדוק את הבטיחות והציוד.",
+            'header' => "*בטיחות וציוד | ברום סרוויס*",
+            'content' => "נרשמת בהצלחה לפורטל שלנו. אנא חתום על טופס החוזה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי לבדוק את בטיחות והציוד.",
         ],
         'client_reschedule_meeting' => [
-            'content' => "ברכות משירות מטאטא. רק תזכורת ידידותית שיש לך פגישה מתקרבת עם :client_name. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nנכס: :address\nמטרה: :purpose\nקישור לפגישה: :meet_link",
+            'header' => "*קבע מחדש פגישה | ברום סרוויס*",
+            'content' => "תזכורת ידידותית שיש לך פגישה קרובה עם :client_name. אנא בדוק את הפרטים.\n\nתאריך/שעה: :date\nנכס: :address\nמטרה: :purpose\nקישור לפגישה: :meet_link",
         ],
         'worker_forms' => [
-            'content' => "ברכות משירות מטאטא. נרשמת בהצלחה בפורטל שלנו. נא לחתום על הטפסים למטה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי למלא טפסים.",
+            'header' => "*טפסי עבודה | שירות מטאטאים*",
+            'content' => "נרשמת בהצלחה לפורטל שלנו. אנא חתום על הטפסים למטה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי למלא את הטפסים.",
         ],
         'worker_job_opening_notification' => [
-            'content' => ':client_name עכשיו בדרך לעבודה.',
+            'header' => "*עובד השתנה מצב עבודה | ברום סרוויס*",
+            'content' => ":client_name עכשיו בדרך לעבודה.",
         ],
         'worker_job_status_notification' => [
-            'content' => "ברכות משירות מטאטא. עובד שינה את מצב העבודה ל-:status. נא לבדוק את הפרטים למטה.\n\nתאריך/שעה: :date\nעובד: :worker_name\nלקוח: :client_name\nשירות: :service_name\nסטטוס: :status",
+            'header' => "*עובד השתנה מצב עבודה | ברום סרוויס*",
+            'content' => "עובד שינה את סטטוס העבודה ל-:status. אנא בדוק את הפרטים למטה.\n\nתאריך/שעה: :date\nעובד: :worker_name\nלקוח: :client_name\nשירות: :service_name\nסטטוס: :status",
         ],
         'admin_job_status_notification' => [
-            'content' => "ברכות משירות מטאטא. העבודה בוטלה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nעובד: :worker_name\nלקוח: :client_name\nשירות: :service_name\nסטטוס: :status\nהערה: :comment",
+            'header' => "*המשרה בוטלה | שירות מטאטא*",
+            'content' => "העבודה בוטלה. אנא בדוק את הפרטים.\n\nתאריך/שעה: :date\nעובד: :worker_name\nלקוח: :client_name\nשירות: :service_name\nסטטוס: :status\nהערה: :comment",
         ],
         'admin_reschedule_meeting' => [
-            'content' => "ברכות משירות מטאטא. רק תזכורת ידידותית שיש לך פגישה מתקרבת עם :client_name. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nנכס: :address\nמטרה: :purpose\nקישור לפגישה: :meet_link",
-        ],
-        'team_reschedule_meeting' => [
-            'content' => "ברכות משירות מטאטא. רק תזכורת ידידותית שיש לך פגישה מתקרבת עם :client_name. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date\nנכס: :address\nמטרה: :purpose\nקישור לפגישה: :meet_link",
+            'header' => "*קבע מחדש פגישה | ברום סרוויס*",
+            'content' => "תזכורת ידידותית שיש לך פגישה קרובה עם :client_name. אנא בדוק את הפרטים.\n\nתאריך/שעה: :date\nנכס: :address\nמטרה: :purpose\nקישור לפגישה: :meet_link",
         ],
         'admin_lead_files' => [
-            'content' => "ברכות משירות מטאטא. :client_name הוסיף קבצים חדשים בפרטי הפגישה המצוינים למטה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date",
-        ],
-        'team_lead_files' => [
-            'content' => "ברכות משירות מטאטא. :client_name הוסיף קבצים חדשים בפרטי הפגישה המצוינים למטה. נא לבדוק את הפרטים.\n\nתאריך/שעה: :date",
+            'header' => "*קבצים | ברום סרוויס*",
+            'content' => ":client_name הוסיף קבצים חדשים בפרטי הפגישה למטה. אנא בדוק את הפרטים.\n\nתאריך/שעה: :date",
         ],
         'worker_changed_availability_affect_job' => [
-            'content' => "ברכות משירות מטאטא. :name שינה את הזמינות המשפיעה על העבודה ב-:date.",
+            'header' => "*זמינות שונתה עובד | שירות מטאטאים*",
+            'content' => ":name שינה זמינות שמשפיעה על עבודה ב-:date.",
         ],
         'worker_form101_signed' => [
-            'content' => "ברכות משירות מטאטא. :name חתם על טופס 101.",
+            'header' => "*טופס 101 חתום | שירות מטאטאים*",
+            'content' => ":name חתם על טופס 101.",
         ],
         'worker_contract_signed' => [
-            'content' => "ברכות משירות מטאטא. :name חתם על טופס החוזה.",
+            'header' => "*חוזה חתום | שירות מטאטאים*",
+            'content' => ":name חתם על טופס החוזה.",
         ],
         'worker_insurance_signed' => [
-            'content' => "ברכות משירות מטאטא. :name חתם על טופס הביטוח.",
+            'header' => "*ביטוח חתום | שירות מטאטאים*",
+            'content' => ":name חתם על טופס הביטוח.",
         ],
         'worker_safety_gear_signed' => [
-            'content' => "ברכות משירות מטאטא. :name חתם על טופס הבטיחות והציוד.",
+            'header' => "*טופס בטיחות וציוד חתום | שירות מטאטאים*",
+            'content' => ":name חתם על טופס בטיחות והציוד.",
         ],
         'client_payment_failed' => [
-            'content' => "ברכות משירות מטאטא. התשלום של :name עם הכרטיס [**** **** **** :card_number] נכשל.",
+            'header' => "*תשלום לקוח נכשל | שירות מטאטאים*",
+            'content' => "התשלום של :name עם הכרטיס [**** **** **** :card_number] נכשל.",
         ],
         'client_reviewed' => [
-            'content' => "ברכות משירות מטאטא. :client_name נתן דירוג של :rating עבור עבודה בתאריך :date_time.\n\n-: :review",
+            'header' => "*לקוח נבדק | שירות מטאטאים*",
+            'content' => ":client_name נתן דירוג של :rating עבור עבודה בתאריך :date_time.\n\n-: :review",
         ],
         'client_commented' => [
-            'content' => "ברכות משירות מטאטא. הלקוח :client_name השאיר תגובה עבור עבודה בתאריך :date_time.",
+            'header' => "*לקוח הגיב | שירות מטאטאים*",
+            'content' => "הלקוח :client_name השאיר תגובה עבור עבודה בתאריך :date_time.",
         ],
         'admin_commented' => [
-            'content' => "ברכות משירות מטאטא. :admin_name השאיר תגובה עבור עבודה בתאריך :date_time.",
+            'header' => "*מנהל הגיב | שירות מטאטאים*",
+            'content' => ":admin_name השאיר תגובה עבור עבודה בתאריך :date_time.",
         ],
         'worker_commented' => [
-            'content' => "ברכות משירות מטאטא. העובד :worker_name השאיר תגובה עבור עבודה בתאריך :date_time.",
+            'header' => "*העובד הגיב | שירות מטאטאים*",
+            'content' => "העובד :worker_name השאיר תגובה עבור עבודה בתאריך :date_time.",
         ],
         'new_lead_arrived' => [
-            'content' => "ברכות משירות מטאטא. ליד חדש (:client_name) הגיע.",
+            'header' => "*הובלה חדשה הגיעה | שירות מטאטאים*",
+            'content' => "ליד חדש (:client_name) הגיע.",
         ],
         'client_lead_status_changed' => [
-            'content' => "ברכות משירות מטאטא. הסטטוס של :client_name שונה ל-:new_status.",
+            'header' => "*סטטוס ההובלה השתנה | שירות מטאטאים*",
+            'content' => "הסטטוס של :client_name שונה ל-:new_status.",
         ],
         'worker_leaves_job' => [
-            'content' => "ברכות משירות מטאטא. העובד :name קבע תאריך לעזיבת עבודה ל-:date.",
+            'header' => "*תאריך עזיבה של עובד | שירות מטאטאים*",
+            'content' => "העובד :name קבע תאריך לעזיבת עבודה ל-:date.",
         ],
         'client_changed_job_schedule' => [
-            'content' => "ברכות משירות מטאטא. הלקוח :client_name שינה את לוח הזמנים לעבודה בתאריך :date_time.",
+            'header' => "*לוח זמנים שונה ללקוח | שירות מטאטאים*",
+            'content' => "הלקוח :client_name שינה את לוח הזמנים לעבודה בתאריך :date_time.",
         ],
         'order_cancelled' => [
-            'content' => "ברכות משירות מטאטא. ההזמנה של הלקוח :client_name (:order_id) בוטלה.",
+            'header' => "*ההזמנה בוטלה | שירות מטאטאים*",
+            'content' => "ההזמנה של הלקוח :client_name (:order_id) בוטלה.",
         ],
         'payment_paid' => [
-            'content' => "ברכות משירות מטאטא. הלקוח :client_name ביצע תשלום.",
+            'header' => "*תשלום שולם | שירות מטאטאים*",
+            'content' => "הלקוח :client_name ביצע תשלום.",
         ],
         'client_invoice_created_and_sent_to_pay' => [
-            'content' => "ברכות משירות מטאטא. חשבונית (:invoice_id) נוצרה ונשלחה ל-:client_name.",
+            'header' => "*חשבונית נוצרה ושליחה | שירות מטאטאים*",
+            'content' => "חשבונית (:invoice_id) נוצרה ונשלחה ל-:client_name.",
         ],
         'client_invoice_paid_created_receipt' => [
-            'content' => "ברכות משירות מטאטא. קבלה לחשבונית (:invoice_id) נוצרה עבור :client_name.",
+            'header' => "*הקבלה נוצרה | שירות מטאטאים*",
+            'content' => "קבלה לחשבונית (:invoice_id) נוצרה עבור :client_name.",
         ],
         'order_created_with_extra' => [
-            'content' => "ברכות משירות מטאטא. הזמנה (:order_id) נוצרה עבור :client_name עם תוספת של ₪:extra והנחה של ₪:discount.",
+            'header' => "*הזמנה נוצרה עם תוספת | שירות מטאטאים*",
+            'content' => "הזמנה (:order_id) נוצרה עבור :client_name עם תוספת של ₪:extra והנחה של ₪:discount.",
         ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',
