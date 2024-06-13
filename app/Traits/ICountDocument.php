@@ -5,7 +5,10 @@ namespace App\Traits;
 use App\Enums\InvoiceStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\OrderPaidStatusEnum;
+use App\Events\ClientInvoiceCreated;
+use App\Events\ClientInvRecCreated;
 use App\Events\ClientPaymentFailed;
+use App\Events\ClientPaymentPaid;
 use App\Models\Invoices;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
@@ -184,18 +187,14 @@ trait ICountDocument
                 ->update([
                     'is_paid' => true
                 ]);
+
+            event(new ClientInvRecCreated($client, $invoice->invoice_id));
+        } else {
+            event(new ClientInvoiceCreated($client, $invoice));
         }
 
         if ($isPaymentProcessed) {
-            Notification::create([
-                'user_id'   => $client->id,
-                'user_type' => get_class($client),
-                'type'      => NotificationTypeEnum::PAYMENT_PAID,
-                'data'      => [
-                    'amount' => $subtotal
-                ],
-                'status' => 'paid'
-            ]);
+            event(new ClientPaymentPaid($client, $subtotal));
         }
     }
 }

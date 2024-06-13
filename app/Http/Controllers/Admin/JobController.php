@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\ClientLeadStatusChanged;
+use App\Events\ClientOrderCancelled;
 use App\Jobs\CreateJobOrder;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\JobCancellationFee;
@@ -1758,6 +1759,8 @@ class JobController extends Controller
                     'order_id' => NULL,
                     'is_order_generated' => false
                 ]);
+
+                event(new ClientOrderCancelled($order->client, $order));
             }
         }
 

@@ -6,8 +6,14 @@ use App\Events\AdminCommented;
 use App\Events\AdminLeadFilesNotificationJob;
 use App\Events\AdminReScheduleMeetingJob;
 use App\Events\ClientCommented;
+use App\Events\ClientInvoiceCreated;
+use App\Events\ClientInvRecCreated;
 use App\Events\ClientLeadStatusChanged;
+use App\Events\ClientOrderCancelled;
+use App\Events\ClientOrderWithExtraOrDiscount;
 use App\Events\ClientPaymentFailed;
+use App\Events\ClientPaymentPaid;
+use App\Events\ClientPaymentPartiallyPaid;
 use App\Events\ClientReviewed;
 use App\Events\ContractFormSigned;
 use App\Events\ContractSigned;
@@ -54,11 +60,17 @@ use App\Listeners\SendJobNotificationToClient;
 use App\Listeners\MeetingReminderNotification;
 use App\Listeners\NotifyForAdminCommented;
 use App\Listeners\NotifyForClientCommented;
+use App\Listeners\NotifyForClientInvoice;
+use App\Listeners\NotifyForClientInvRec;
+use App\Listeners\NotifyForClientOrderWithExtraOrDiscount;
+use App\Listeners\NotifyForClientPaymentPaid;
+use App\Listeners\NotifyForClientPaymentPartiallyPaid;
 use App\Listeners\NotifyForClientReviewed;
 use App\Listeners\NotifyForContract;
 use App\Listeners\NotifyForLeadStatusChanged;
 use App\Listeners\NotifyForNewLead;
 use App\Listeners\NotifyForOffer;
+use App\Listeners\NotifyForOrderCancelled;
 use App\Listeners\NotifyForWorkerCommented;
 use App\Listeners\NotifyForWorkerLeave;
 use App\Listeners\SendClientCredentials;
@@ -175,6 +187,24 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkerLeaveJob::class => [
             NotifyForWorkerLeave::class
+        ],
+        ClientOrderCancelled::class => [
+            NotifyForOrderCancelled::class
+        ],
+        ClientPaymentPaid::class => [
+            NotifyForClientPaymentPaid::class
+        ],
+        ClientPaymentPartiallyPaid::class => [
+            NotifyForClientPaymentPartiallyPaid::class
+        ],
+        ClientInvoiceCreated::class => [
+            NotifyForClientInvoice::class
+        ],
+        ClientInvRecCreated::class => [
+            NotifyForClientInvRec::class
+        ],
+        ClientOrderWithExtraOrDiscount::class => [
+            NotifyForClientOrderWithExtraOrDiscount::class
         ]
     ];
 

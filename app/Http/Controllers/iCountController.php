@@ -6,6 +6,7 @@ use App\Enums\InvoiceStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
+use App\Events\ClientPaymentPaid;
 use App\Models\Client;
 use App\Models\Invoices;
 use App\Models\Notification;
@@ -215,15 +216,7 @@ class iCountController extends Controller
                                             ]);
 
                                             if ($invoice->status == InvoiceStatusEnum::PAID) {
-                                                Notification::create([
-                                                    'user_id'   => $client->id,
-                                                    'user_type' => get_class($client),
-                                                    'type'      => NotificationTypeEnum::PAYMENT_PAID,
-                                                    'data'      => [
-                                                        'amount' => $paid_amount
-                                                    ],
-                                                    'status' => 'paid'
-                                                ]);
+                                                event(new ClientPaymentPaid($client, $paid_amount));
                                             }
                                         } else {
                                             if ($invoice->is_webhook_created) {
@@ -244,15 +237,7 @@ class iCountController extends Controller
                                                 ]);
 
                                                 if ($invoice->status == InvoiceStatusEnum::PAID) {
-                                                    Notification::create([
-                                                        'user_id'   => $client->id,
-                                                        'user_type' => get_class($client),
-                                                        'type'      => NotificationTypeEnum::PAYMENT_PAID,
-                                                        'data'      => [
-                                                            'amount' => $paid_amount
-                                                        ],
-                                                        'status' => 'paid'
-                                                    ]);
+                                                    event(new ClientPaymentPaid($client, $paid_amount));
                                                 }
                                             }
                                         }

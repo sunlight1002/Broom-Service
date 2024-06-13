@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\InvoiceStatusEnum;
 use App\Enums\JobStatusEnum;
-use App\Enums\NotificationTypeEnum;
 use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
+use App\Events\ClientInvRecCreated;
+use App\Events\ClientOrderCancelled;
+use App\Events\ClientOrderWithExtraOrDiscount;
 use App\Events\ClientPaymentFailed;
+use App\Events\ClientPaymentPaid;
+use App\Events\ClientPaymentPartiallyPaid;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Invoices;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
-use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Receipts;
 use App\Models\Refunds;
@@ -25,7 +28,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
 class InvoiceController extends Controller
@@ -542,6 +544,8 @@ class InvoiceController extends Controller
                 'is_paid' => true
             ]);
 
+        event(new ClientInvRecCreated($client, $json['docnum']));
+
         return response()->json([
             'message' => 'Invoice updated successfully'
         ]);
@@ -656,6 +660,8 @@ class InvoiceController extends Controller
                 'is_order_generated' => false
             ]);
             $order->update(['status' => 'Cancelled']);
+
+            event(new ClientOrderCancelled($order->client, $order));
         }
 
         return response()->json(['message' => 'Doc cancelled successfully!']);
@@ -783,7 +789,7 @@ class InvoiceController extends Controller
         $items = $request->services;
         $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
-        $this->generateOrderDocument(
+        $order = $this->generateOrderDocument(
             $client,
             $items,
             $dueDate,
@@ -793,6 +799,10 @@ class InvoiceController extends Controller
                 'discount_amount' => $job->discount_amount
             ]
         );
+
+        if ($job->extra_amount || $job->discount_amount) {
+            event(new ClientOrderWithExtraOrDiscount($client, $order, $job->extra_amount));
+        }
 
         return response()->json([
             'message' => 'Order generated successfully'
@@ -841,6 +851,7 @@ class InvoiceController extends Controller
         $not_one_time_job_ids = [];
         $items = [];
         $lang = $client->lng;
+        $extra_amount = 0;
         $discount_amount = 0;
         foreach ($notOneTimeJobs as $job) {
             $service = $job->jobservice;
@@ -852,11 +863,12 @@ class InvoiceController extends Controller
                 "quantity"    => 1,
             ];
             $discount_amount = $discount_amount + $job->discount_amount;
+            $extra_amount = $extra_amount + $job->extra_amount;
         }
 
         $dueDate = Carbon::today()->endOfMonth()->toDateString();
         if (count($not_one_time_job_ids) > 0) {
-            $this->generateOrderDocument(
+            $order = $this->generateOrderDocument(
                 $client,
                 $items,
                 $dueDate,
@@ -866,6 +878,10 @@ class InvoiceController extends Controller
                     'discount_amount' => $discount_amount
                 ]
             );
+
+            if ($extra_amount || $order->discount_amount) {
+                event(new ClientOrderWithExtraOrDiscount($client, $order, $extra_amount));
+            }
         }
 
         foreach ($oneTimeJobs as $job) {
@@ -877,7 +893,7 @@ class InvoiceController extends Controller
                 "quantity"    => 1,
             ];
 
-            $this->generateOrderDocument(
+            $order = $this->generateOrderDocument(
                 $client,
                 [$item],
                 $dueDate,
@@ -887,6 +903,10 @@ class InvoiceController extends Controller
                     'discount_amount' => $job->discount_amount
                 ]
             );
+
+            if ($job->extra_amount || $job->discount_amount) {
+                event(new ClientOrderWithExtraOrDiscount($client, $order, $job->extra_amount));
+            }
         }
 
         return response()->json([
@@ -1433,17 +1453,13 @@ class InvoiceController extends Controller
                 ]);
         }
 
-        Notification::create([
-            'user_id'   => $client->id,
-            'user_type' => get_class($client),
-            'type'      => $isFullPayment
-                ? NotificationTypeEnum::PAYMENT_PAID
-                : NotificationTypeEnum::PAYMENT_PARTIAL_PAID,
-            'data'      => [
-                'amount' => $subtotal
-            ],
-            'status' => 'paid'
-        ]);
+        if ($isFullPayment) {
+            event(new ClientPaymentPaid($client, $subtotal));
+        } else {
+            event(new ClientPaymentPartiallyPaid($client, $subtotal));
+        }
+
+        event(new ClientInvRecCreated($client, $json['docnum']));
 
         return response()->json([
             'message' => 'Invoice updated successfully'
@@ -1618,15 +1634,8 @@ class InvoiceController extends Controller
                 ]);
         }
 
-        Notification::create([
-            'user_id'   => $client->id,
-            'user_type' => get_class($client),
-            'type'      => NotificationTypeEnum::PAYMENT_PAID,
-            'data'      => [
-                'amount' => $subtotal
-            ],
-            'status' => 'paid'
-        ]);
+        event(new ClientPaymentPaid($client, $subtotal));
+        event(new ClientInvRecCreated($client, $json['docnum']));
 
         return response()->json([
             'message' => 'Invoice updated successfully'

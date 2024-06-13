@@ -508,6 +508,21 @@ return [
         'client_changed_job_schedule' => [
             'content' => "Greetings from Broom Service. Client :client_name has changed schedule for job :date_time.",
         ],
+        'order_cancelled' => [
+            'content' => "Greetings from Broom Service. Client :client_name's order (:order_id) has been cancelled.",
+        ],
+        'payment_paid' => [
+            'content' => "Greetings from Broom Service. Client :client_name's have done a payment.",
+        ],
+        'client_invoice_created_and_sent_to_pay' => [
+            'content' => "Greetings from Broom Service. Invoice (:invoice_id) has been created and sent to :client_name.",
+        ],
+        'client_invoice_paid_created_receipt' => [
+            'content' => "Greetings from Broom Service. Invoice Receipt (:invoice_id) has been created for :client_name.",
+        ],
+        'order_created_with_extra' => [
+            'content' => "Greetings from Broom Service. Order (:order_id) has been created for :client_name with extra ₪:extra and discount ₪:discount.",
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',

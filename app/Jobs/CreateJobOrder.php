@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
+use App\Events\ClientOrderWithExtraOrDiscount;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
 use App\Traits\PaymentAPI;
@@ -141,6 +142,10 @@ class CreateJobOrder implements ShouldQueue
                     'discount_amount' => $job->discount_amount
                 ]
             );
+
+            if ($job->extra_amount || $job->discount_amount) {
+                event(new ClientOrderWithExtraOrDiscount($client, $order, $job->extra_amount));
+            }
 
             if ($job->is_one_time_in_month_job) {
                 GenerateJobInvoice::dispatch($order->id);

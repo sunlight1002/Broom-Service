@@ -110,6 +110,10 @@ class DashboardController extends Controller
               NotificationTypeEnum::PAYMENT_FAILED,
               NotificationTypeEnum::PAYMENT_PAID,
               NotificationTypeEnum::PAYMENT_PARTIAL_PAID,
+              NotificationTypeEnum::ORDER_CANCELLED,
+              NotificationTypeEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY,
+              NotificationTypeEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT,
+              NotificationTypeEnum::ORDER_CREATED_WITH_EXTRA,
             ]);
           })
           ->when($groupType == 'changes-and-cancellation', function ($q) {
@@ -391,6 +395,18 @@ class DashboardController extends Controller
               $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
                 "</a> leave date has been set to " . $notice->data['date'] . '.';
             }
+          } else if ($notice->type == NotificationTypeEnum::ORDER_CANCELLED) {
+            $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a>'s order (" . $notice->data['order_id'] . ") has been cancelled.";
+          } else if ($notice->type == NotificationTypeEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY) {
+            $noticeAll[$k]->data = "Invoice (" . $notice->data['invoice_id'] . ") has been created for <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a>.";
+          } else if ($notice->type == NotificationTypeEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT) {
+            $noticeAll[$k]->data = "Invoice Receipt (" . $notice->data['invoice_id'] . ") has been created for <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a>.";
+          } else if ($notice->type == NotificationTypeEnum::ORDER_CREATED_WITH_EXTRA) {
+            $noticeAll[$k]->data = "Order (" . $notice->data['order_id'] . ") has been created for <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a> with extra or discount.";
           }
         }
       }

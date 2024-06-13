@@ -43,6 +43,8 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_INSURANCE_SIGNED = "worker_insurance_signed";
     public const WORKER_SAFETY_GEAR_SIGNED = "worker_safety_gear_signed";
     public const CLIENT_PAYMENT_FAILED = "client_payment_failed";
+    public const PAYMENT_PAID = 'payment_paid';
+    public const PAYMENT_PARTIAL_PAID = 'payment_partial_paid';
     public const CLIENT_REVIEWED = "client_reviewed";
     public const CLIENT_COMMENTED = "client_commented";
     public const WORKER_COMMENTED = "worker_commented";
@@ -52,4 +54,8 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const CLIENT_CHANGED_JOB_SCHEDULE = "client_changed_job_schedule";
     public const WORKER_CHANGED_AVAILABILITY_AFFECT_JOB = "worker_changed_availability_affect_job";
     public const WORKER_LEAVES_JOB = "worker_leaves_job";
+    public const ORDER_CANCELLED = "order_cancelled";
+    public const CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY = "client_invoice_created_and_sent_to_pay";
+    public const CLIENT_INVOICE_PAID_CREATED_RECEIPT = "client_invoice_paid_created_receipt";
+    public const ORDER_CREATED_WITH_EXTRA = "order_created_with_extra";
 }

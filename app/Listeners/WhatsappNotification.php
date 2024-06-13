@@ -762,6 +762,107 @@ class WhatsappNotification
 
                     break;
 
+                case WhatsappMessageTemplateEnum::ORDER_CANCELLED:
+                    $clientData = $eventData['client'];
+                    $orderData = $eventData['order'];
+
+                    $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.order_cancelled.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'order_id' => $orderData['order_id']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::PAYMENT_PAID:
+                case WhatsappMessageTemplateEnum::PAYMENT_PARTIAL_PAID:
+                    $clientData = $eventData['client'];
+                    // $amountData = $eventData['amount'];
+
+                    $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.payment_paid.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY:
+                    $clientData = $eventData['client'];
+                    $invoiceData = $eventData['invoice'];
+
+                    $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.client_invoice_created_and_sent_to_pay.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'invoice_id' => $invoiceData['invoice_id']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT:
+                    $clientData = $eventData['client'];
+                    $invoiceData = $eventData['invoice'];
+
+                    $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.client_invoice_paid_created_receipt.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'invoice_id' => $invoiceData['invoice_id']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_EXTRA:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.order_created_with_extra.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'order_id' => $eventData['order_id'],
+                        'extra' => $eventData['extra'],
+                        'discount' => $eventData['discount'],
+                    ]);
+
+                    break;
+
                 case WhatsappMessageTemplateEnum::CLIENT_REVIEWED:
                     $clientData = $eventData['client'];
                     $jobData = $eventData['job'];

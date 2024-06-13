@@ -41,4 +41,8 @@ final class NotificationTypeEnum extends AbstractEnum
     public const CLIENT_CHANGED_JOB_SCHEDULE = 'client-changed-job-schedule';
     public const WORKER_CHANGED_AVAILABILITY_AFFECT_JOB = 'worker-changed-availability-affect-job';
     public const WORKER_LEAVES_JOB = 'worker-leaves-job';
+    public const ORDER_CANCELLED = 'order-cancelled';
+    public const CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY = "client-invoice-created-and-sent-to-pay";
+    public const CLIENT_INVOICE_PAID_CREATED_RECEIPT = "client-invoice-paid-created-receipt";
+    public const ORDER_CREATED_WITH_EXTRA = "order-created-with-extra";
 }

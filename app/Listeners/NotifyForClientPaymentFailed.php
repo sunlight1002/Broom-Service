@@ -33,6 +33,16 @@ class NotifyForClientPaymentFailed implements ShouldQueue
      */
     public function handle(ClientPaymentFailed $event)
     {
+        Notification::create([
+            'user_id' => $event->client->id,
+            'user_type' => get_class($event->client),
+            'type' => NotificationTypeEnum::PAYMENT_FAILED,
+            'data' => [
+                'card' => $event->card
+            ],
+            'status' => 'failed'
+        ]);
+
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED,
             "notificationData" => [
@@ -48,16 +58,6 @@ class NotifyForClientPaymentFailed implements ShouldQueue
 
         App::setLocale('en');
         foreach ($admins as $key => $admin) {
-            Notification::create([
-                'user_id' => $event->client->id,
-                'user_type' => get_class($event->client),
-                'type' => NotificationTypeEnum::PAYMENT_FAILED,
-                'data' => [
-                    'card' => $event->card
-                ],
-                'status' => 'failed'
-            ]);
-
             $emailData = [
                 'client' => $event->client,
                 'card' => $event->card,

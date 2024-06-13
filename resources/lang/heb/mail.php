@@ -516,6 +516,21 @@ return [
         'client_changed_job_schedule' => [
             'content' => "ברכות משירות מטאטא. הלקוח :client_name שינה את לוח הזמנים לעבודה בתאריך :date_time.",
         ],
+        'order_cancelled' => [
+            'content' => "ברכות משירות מטאטא. ההזמנה של הלקוח :client_name (:order_id) בוטלה.",
+        ],
+        'payment_paid' => [
+            'content' => "ברכות משירות מטאטא. הלקוח :client_name ביצע תשלום.",
+        ],
+        'client_invoice_created_and_sent_to_pay' => [
+            'content' => "ברכות משירות מטאטא. חשבונית (:invoice_id) נוצרה ונשלחה ל-:client_name.",
+        ],
+        'client_invoice_paid_created_receipt' => [
+            'content' => "ברכות משירות מטאטא. קבלה לחשבונית (:invoice_id) נוצרה עבור :client_name.",
+        ],
+        'order_created_with_extra' => [
+            'content' => "ברכות משירות מטאטא. הזמנה (:order_id) נוצרה עבור :client_name עם תוספת של ₪:extra והנחה של ₪:discount.",
+        ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',
             'upload_file' => 'העלה קובץ',
