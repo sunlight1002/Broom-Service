@@ -405,7 +405,7 @@ return [
         ],
         'delete_meeting' => [
             'header' => "*Meeting cancelled*",
-            'content' => "Just a friendly reminder that your meeting with *:team_name* on *:date* between *:start_time* to *:end_time* has been cancelled now.",
+            'content' => "Just a friendly reminder that your meeting *:team_name* on *:date* between *:start_time* to *:end_time* has been cancelled.",
         ],
         'form101' => [
             'header' => "*Form 101 with Broom Service*",
@@ -426,7 +426,7 @@ return [
         ],
         'worker_not_approved_job' => [
             'header' => "*Job Not Approved | Broom Service*",
-            'content' => "The Worker has not yet approved the job address for tomorrow.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+            'content' => "The worker has not approved the address yet.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_not_left_for_job' => [
             'header' => "*Worker not out for work | Broom Service*",
@@ -446,31 +446,31 @@ return [
         ],
         'worker_remind_job' => [
             'header' => "*Information about your job tomorrow | Broom Service*",
-            'content' => "This is to inform you about your tomorrow job. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nStart Time: :start_time\nStatus: :status",
+            'content' => "This is to inform you about your job tomorrow. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nStart Time: :start_time\nStatus: :status",
         ],
         'worker_unassigned_job' => [
             'header' => "*Job Unassigned with Broom Service*",
-            'content' => "You have been unassigned from a job.Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nStart Time: :start_time",
+            'content' => "Your job has been canceled. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nStart Time: :start_time",
         ],
         'client_job_status_notification' => [
             'header' => "*Job Canceled | Broom Service*",
-            'content' => "The job has been canceled. Please check the details.\n\nDate/Time: :date\nClient: :client_name\nService: :service_name\nComment: :comment",
+            'content' => "The service has been canceled. Please check the details.\n\nDate/Time: :date\nClient: :client_name\nService: :service_name\nComment: :comment",
         ],
         'worker_safe_gear'  =>  [
             'header' => "*Safety And Gear | Broom Service*",
-            'content' => "You have successfully registered on our portal. Please sign the contract form to start working on the job.\nClick the below button to check the Safety And Gear.",
+            'content' => "You have successfully registered on our portal. Please sign the safety and gear form to start working on the job.\nClick the below button to check the Safety And Gear.",
         ],
         'client_reschedule_meeting'  =>  [
             'header' => "*Re-schedule Meeting | Broom Service*",
-            'content' => "Just a friendly reminder that you have an upcoming appointment with :client_name. Please check the details.\n\nDate/Time: :date\nProperty: :address\nPurpose: :purpose\nMeeting Link: :meet_link",
+            'content' => "Just a friendly reminder that you have an upcoming appointment with :team_name. Please check the details.\n\nDate/Time: :date\nProperty: :address\nPurpose: :purpose\nMeeting Link: :meet_link",
         ],
         'worker_forms'  =>  [
             'header' => "*Worker Forms | Broom Service*",
-            'content' => "You have successfully registered on our portal. Please sign the below forms to start working on the job.\nClick the below button to fill forms.",
+            'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the below forms to start working on the job.\nClick the below button to fill forms.",
         ],
         'worker_job_opening_notification' => [
             'header' => "*Worker Changed Job Status | Broom Service*",
-            'content' => 'The :client_name is now on his way to work.'
+            'content' => ':client_name is now on their way to work.'
         ],
         'worker_job_status_notification' => [
             'header' => "*Worker Changed Job Status | Broom Service*",
@@ -486,7 +486,7 @@ return [
         ],
         'admin_lead_files' => [
             'header' => "*Files | Broom Service*",
-            'content' =>  ":client_name added New files in below mentioned meeting details. Please check the details.\n\nDate/Time: :date"
+            'content' =>  ":client_name added new files in below mentioned meeting details. Please check the details.\n\nDate/Time: :date"
         ],
         'worker_changed_availability_affect_job' => [
             'header' => "*Worker Changed Availability | Broom Service*",
