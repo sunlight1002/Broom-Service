@@ -56,6 +56,7 @@ class Client extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'passcode',
         'password',
         'remember_token',
     ];

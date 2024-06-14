@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import logo from "../Assets/image/sample.svg";
 import star from "../Assets/image/icons/blue-star.png";
 import SignatureCanvas from "react-signature-canvas";
@@ -18,7 +18,7 @@ export default function WorkContract() {
     const navigate = useNavigate();
     const [offer, setOffer] = useState(null);
     const [services, setServices] = useState([]);
-    const [client, setClient] = useState([]);
+    const [client, setClient] = useState(null);
     const [contract, setContract] = useState(null);
     const param = useParams();
     const sigRef = useRef();
@@ -241,577 +241,361 @@ export default function WorkContract() {
         }, 500);
     }, []);
 
+    const workerHours = (_service) => {
+        if (_service.type === "hourly") {
+            return _service.workers.map((i) => i.jobHours).join(", ");
+        }
+
+        return "-";
+    };
+
+    const clientName = useMemo(() => {
+        return client ? `${client.firstname} ${client.lastname}` : "";
+    }, [client]);
+
+    const showWorkerHours = useMemo(() => {
+        return services.filter((i) => i.type !== "fixed").length > 0;
+    }, [services]);
+
     return (
         <div className="container parent" style={{ display: "none" }}>
             <div className="send-offer client-contract sendOfferRtl">
                 <div className="maxWidthControl dashBox mb-4">
-                    <div className="row">
+                    <div className="row border-bottom pb-2">
                         <div className="col-sm-6">
-                            <svg
-                                width="190"
-                                height="77"
-                                xmlns="http://www.w3.org/2000/svg"
-                                xmlnsXlink="http://www.w3.org/1999/xlink"
-                            >
-                                <image
-                                    xlinkHref={logo}
+                            <h4 className="m-0">
+                                {t("client.contract-form.business_name_value")}
+                            </h4>
+                            <p className="m-0">
+                                {t("client.contract-form.h_p")} 515184208
+                            </p>
+                            <p className="m-0">
+                                {t("client.contract-form.address")}:{" "}
+                                {t("client.contract-form.address_value")}
+                            </p>
+                            <p className="m-0">
+                                {t("client.contract-form.phone")}: 03-5257060
+                            </p>
+                            <p className="m-0">
+                                {t("client.contract-form.email")}:
+                                Office@broomservice.co.il
+                            </p>
+                        </div>
+                        <div className="col-sm-6">
+                            <div className="float-right">
+                                <svg
                                     width="190"
                                     height="77"
-                                ></image>
-                            </svg>
-                        </div>
-                        <div className="col-sm-6">
-                            {status == "not-signed" ? (
-                                <div className="mt-2 float-right">
-                                    <button
-                                        type="button"
-                                        className="btn btn-pink"
-                                        onClick={handleAccept}
-                                    >
-                                        {t("work-contract.accept_contract")}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn btn-danger ml-2"
-                                        onClick={(e) =>
-                                            RejectContract(e, contract.id)
-                                        }
-                                    >
-                                        {t("work-contract.button_reject")}
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="mt-2 float-right headMsg">
-                                    {status == "un-verified" ||
-                                    status == "verified" ? (
-                                        <h4 className="btn btn-success">
-                                            {t("global.accepted")}
-                                        </h4>
-                                    ) : (
-                                        <h4 className="btn btn-danger">
-                                            {t("global.rejected")}
-                                        </h4>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <h4 className="inHead" style={{ whiteSpace: "pre-wrap" }}>
-                        {t("work-contract.inHead")}
-                    </h4>
-                    <div className="signed">
-                        <p>
-                            {t("work-contract.signed")}{" "}
-                            <span>{client.city ? client.city : "NA"}</span> on{" "}
-                            {contract && (
-                                <span>
-                                    {Moment(contract.created_at).format(
-                                        "DD MMMM,Y"
-                                    )}
-                                </span>
-                            )}
-                        </p>
-                    </div>
-                    <div className="between">
-                        <p>{t("work-contract.between")}</p>
-                        <p>{t("work-contract.broom_service")}</p>
-                    </div>
-                    <div className="first">
-                        <h2 className="mb-4">
-                            {t("work-contract.first_party_title")}
-                        </h2>
-                        <p style={{ textAlign: "center" }}>
-                            {t("work-contract.and")}
-                        </p>
-                        {offer && offer.client && (
-                            <React.Fragment>
-                                <ul className="list-inline">
-                                    <li className="list-inline-item ml-2">
-                                        {t("work-contract.full_name")}{" "}
-                                        <span>
-                                            {offer.client.firstname +
-                                                " " +
-                                                offer.client.lastname}
-                                        </span>
-                                    </li>
-                                </ul>
-                                <ul className="list-inline">
-                                    <li className="list-inline-item ml-2">
-                                        {t("work-contract.telephone")}{" "}
-                                        <span>{offer.client.phone}</span>
-                                    </li>
-                                    <li className="list-inline-item">
-                                        {t("work-contract.email")}{" "}
-                                        <span>{offer.client.email}</span>
-                                    </li>
-                                </ul>
-                            </React.Fragment>
-                        )}
-                        <h2 className="mb-4">
-                            {t("work-contract.second_party_title")}
-                        </h2>
-                        <div className="whereas">
-                            <div className="info-list">
-                                <div className="icons">
-                                    <h4>{t("work-contract.whereas")}</h4>
-                                </div>
-                                <div className="info-text">
-                                    <p>
-                                        {t("work-contract.whereas_info_text")}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="info-list">
-                                <div className="icons">
-                                    <h4>{t("work-contract.and_whereas")}</h4>
-                                </div>
-                                <div className="info-text">
-                                    <p>
-                                        {t(
-                                            "work-contract.and_whereas_info_text"
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="info-list">
-                                <div className="icons">
-                                    <h4>{t("work-contract.and_whereas_2")}</h4>
-                                </div>
-                                <div className="info-text">
-                                    <p>
-                                        {t(
-                                            "work-contract.and_whereas_2_info_text"
-                                        )}
-                                    </p>
-                                </div>
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                                >
+                                    <image
+                                        xlinkHref={logo}
+                                        width="190"
+                                        height="77"
+                                    ></image>
+                                </svg>
                             </div>
                         </div>
                     </div>
-                    <h2 className="text-center mb-4">
-                        {t("work-contract.parties_hereby_title")}
-                    </h2>
-                    <div className="shift-30">
-                        <h6>{t("work-contract.intro_subtitle")}</h6>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
+                    <div className="row mt-4">
+                        <div className="col-md-12 d-flex">
+                            <label htmlFor="">
+                                {t("client.contract-form.name")}:
+                            </label>
+                            <span className="text-underline mx-3">
+                                {clientName}
+                            </span>
+                            <div className="mx-4">
+                                <label htmlFor="">
+                                    {t("client.contract-form.hp_em_tz")}:
+                                </label>
                             </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.intro_txt_1")}</p>
+                            <span className="text-underline mx-3"></span>
+                        </div>
+                        <div className="col-md-12">
+                            <label htmlFor="">
+                                {t("client.contract-form.address")}:
+                            </label>
+                            <span className="text-underline mx-3"></span>
+                        </div>
+                        <div className="col-md-12 d-flex">
+                            <label htmlFor="">
+                                {t("client.contract-form.phone")}:
+                            </label>
+                            <span className="text-underline mx-3">
+                                {client ? client.phone : ""}
+                            </span>
+                            <div className="mx-4">
+                                <label htmlFor="">
+                                    {t("client.contract-form.fax")}:
+                                </label>
+                            </div>
+                            <span className="text-underline mx-3"></span>
+                        </div>
+                        <div className="col-md-12">
+                            <label htmlFor="">
+                                {t("client.contract-form.email")}:
+                            </label>
+                            <span className="text-underline mx-3">
+                                {client ? client.email : ""}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="row mt-4">
+                        <div className="col-md-12">
+                            <p className="text-center">
+                                {t(
+                                    "client.contract-form.contractual_agreement"
+                                )}
+                            </p>
+                            <p>1. {t("client.contract-form.ca1")}</p>
+
+                            <div
+                                className="text-justify"
+                                style={{ textIndent: "50px" }}
+                            >
+                                <p>
+                                    1.1.{" "}
+                                    {t("client.contract-form.ca1_1", {
+                                        name: clientName,
+                                    })}
+                                </p>
+                                <p>1.2. {t("client.contract-form.ca1_2")}</p>
+                                <p>1.3. {t("client.contract-form.ca1_3")}</p>
                             </div>
                         </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.intro_txt_2")}</p>
-                            </div>
+                    </div>
+                    <div className="row mt-4">
+                        <div className="col-md-12">
+                            <p>2. {t("client.contract-form.ca2")}</p>
                         </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.intro_txt_3")}</p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.intro_txt_4")}</p>
-                            </div>
-                        </div>
-                        <h6 className="text-center text-underline">
-                            {t("work-contract.service_subtitle")}
-                        </h6>
-                        <div className="service-table table-responsive">
-                            <table className="table table-bordered">
-                                <tbody>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.the_service_txt")}
-                                        </td>
-                                        <td>
-                                            {services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {s.service != "10"
-                                                            ? s.name
-                                                            : s.other_title}
-                                                    </p>
-                                                );
-                                            })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.location_txt")}
-                                        </td>
-                                        <td>
-                                            {services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {s.address.address_name}
-                                                    </p>
-                                                );
-                                            })}
-                                            <span
-                                                style={{ fontWeight: "600" }}
-                                                className="d-block mt-2"
-                                            >
-                                                {t(
-                                                    "work-contract.other_address_txt"
-                                                )}
-                                            </span>{" "}
-                                            <br />
-                                            {contract &&
-                                            contract.additional_address !=
-                                                null ? (
-                                                <input
-                                                    type="text"
-                                                    value={
-                                                        contract.additional_address
-                                                    }
-                                                    readOnly
-                                                    className="form-control"
-                                                />
-                                            ) : (
-                                                <input
-                                                    type="text"
-                                                    name="additional_address"
-                                                    onChange={(e) =>
-                                                        setAaddress(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    placeholder={t(
-                                                        "work-contract.placeholder_address"
+                        <div className="col-md-12">
+                            <div className="table-responsive">
+                                <table className="table table-sm table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                {t("price_offer.address_text")}
+                                            </th>
+                                            <th>
+                                                {t("price_offer.service_txt")}
+                                            </th>
+                                            <th>{t("price_offer.type")}</th>
+                                            <th>
+                                                {t("price_offer.freq_s_txt")}
+                                            </th>
+                                            {showWorkerHours && (
+                                                <th>
+                                                    {t(
+                                                        "price_offer.worker_hours"
                                                     )}
-                                                    className="form-control"
-                                                />
+                                                </th>
                                             )}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t(
-                                                "work-contract.service_delivery_txt"
-                                            )}
-                                        </td>
-                                        <td>
-                                            {t("work-contract.as_agreed_txt")}{" "}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.frequency_txt")}
-                                        </td>
-                                        <td>
-                                            {services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {" "}
-                                                        {s.freq_name};{" "}
-                                                        {/* {frequencyDescription(
-                                                            s
-                                                        )} */}
-                                                    </p>
-                                                );
-                                            })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t(
-                                                "work-contract.consideration_txt"
-                                            )}
-                                        </td>
-                                        <td>
-                                            {services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {s.totalamount +
-                                                            " " +
-                                                            t(
-                                                                "work-contract.ils"
-                                                            ) +
-                                                            " + " +
-                                                            t(
-                                                                "work-contract.vat"
-                                                            ) +
-                                                            " " +
-                                                            t(
-                                                                "work-contract.for"
-                                                            ) +
-                                                            " " +
-                                                            (s.service != "10"
-                                                                ? s.name
-                                                                : s.other_title) +
-                                                            ", " +
-                                                            s.freq_name}
-                                                    </p>
-                                                );
-                                            })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        {/* <td style={{width: "60%"}}>{t('work-contract.payment_method')}</td> */}
-                                        <td colSpan="2">
-                                            {t("work-contract.payment_method")}
-                                        </td>
-                                        {/* <td>&nbsp;</td> */}
-                                    </tr>
-                                    <tr>
-                                        <td colSpan="2">
-                                            {t(
-                                                "work-contract.hereby_permit_txt"
-                                            )}
-                                        </td>
-                                        {/* <td>&nbsp;</td> */}
-                                    </tr>
+                                            <th>
+                                                {t("price_offer.amount_txt")}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {services.map((s, i) => {
+                                            return (
+                                                <tr key={i}>
+                                                    <td>
+                                                        {s.address &&
+                                                        s.address.address_name
+                                                            ? s.address
+                                                                  .address_name
+                                                            : "NA"}
+                                                    </td>
+                                                    <td>
+                                                        {s.service == 10
+                                                            ? s.other_title
+                                                            : s.name}
+                                                    </td>
+                                                    <td>{s.type}</td>
+                                                    <td>{s.freq_name} </td>
+                                                    {showWorkerHours && (
+                                                        <td>
+                                                            {workerHours(s)}
+                                                        </td>
+                                                    )}
+                                                    {s.type == "fixed" ? (
+                                                        <td>
+                                                            {s.workers.length *
+                                                                s.fixed_price}{" "}
+                                                            {t(
+                                                                "global.currency"
+                                                            )}
+                                                        </td>
+                                                    ) : (
+                                                        <td>
+                                                            {s.rateperhour}{" "}
+                                                            {t(
+                                                                "global.currency"
+                                                            )}{" "}
+                                                            {t(
+                                                                "global.perhour"
+                                                            )}{" "}
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div style={{ textIndent: "50px" }}>
+                                {t("client.contract-form.the_services")}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row mt-4">
+                        <div className="col-md-12">
+                            <p>3. {t("client.contract-form.ca3")}</p>
+                            <div
+                                className="text-justify"
+                                style={{ textIndent: "50px" }}
+                            >
+                                <p>3.1. {t("client.contract-form.ca3_1")}</p>
+                                <p>3.2. {t("client.contract-form.ca3_2")}</p>
+                                <p>3.3. {t("client.contract-form.ca3_3")}</p>
+
+                                <div className="mt-2">
+                                    <p>
+                                        {t(
+                                            "client.contract-form.cc_card_charge_auth"
+                                        )}
+                                    </p>
+                                    <p>
+                                        {t(
+                                            "client.contract-form.cc_declaration"
+                                        )}
+                                    </p>
+                                    <p>
+                                        {t("client.contract-form.cc_details")}
+                                    </p>
+                                    <p>
+                                        {t("client.contract-form.cc_card_type")}
+                                        :
+                                    </p>
+                                    <p>
+                                        {t(
+                                            "client.contract-form.cc_holder_name"
+                                        )}
+                                        :
+                                    </p>
+                                    <p>
+                                        {t("client.contract-form.cc_id_number")}
+                                        :
+                                    </p>
+                                    <p>
+                                        {t("client.contract-form.cc_signature")}
+                                        :
+                                    </p>
+                                    <p>
+                                        {t(
+                                            "client.contract-form.add_cc_click_here"
+                                        )}
+                                    </p>
 
                                     {clientCards.map((_card, _index) => {
                                         return (
-                                            <tr key={_index}>
-                                                <td colSpan={2}>
-                                                    <div className="form-check">
-                                                        <label className="form-check-label">
-                                                            <input
-                                                                type="checkbox"
-                                                                className="form-check-input"
-                                                                value={_card.id}
-                                                                onChange={
-                                                                    handleCardSelect
-                                                                }
-                                                                checked={
-                                                                    _card.id ==
-                                                                    selectedClientCardID
-                                                                }
-                                                                disabled={
-                                                                    contract &&
-                                                                    contract.status !=
-                                                                        "not-signed"
-                                                                }
-                                                            />
-                                                            **** **** ****{" "}
-                                                            {_card.card_number}{" "}
-                                                            - {_card.valid} (
-                                                            {_card.card_type})
-                                                        </label>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <div className="my-3">
+                                                <label className="form-check-label ">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="form-check-input"
+                                                        value={_card.id}
+                                                        onChange={
+                                                            handleCardSelect
+                                                        }
+                                                        checked={
+                                                            _card.id ==
+                                                            selectedClientCardID
+                                                        }
+                                                        disabled={
+                                                            contract &&
+                                                            contract.status !=
+                                                                "not-signed"
+                                                        }
+                                                    />
+                                                    **** **** ****{" "}
+                                                    {_card.card_number} -{" "}
+                                                    {_card.valid} (
+                                                    {_card.card_type})
+                                                </label>
+                                            </div>
                                         );
                                     })}
 
                                     {!isCardAdded && (
-                                        <tr>
-                                            <td style={{ width: "60%" }}>
-                                                {t(
-                                                    "work-contract.add_card_txt"
-                                                )}
-                                            </td>
-                                            <td>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-success ac"
-                                                    onClick={(e) =>
-                                                        handleCard(e)
-                                                    }
-                                                    disabled={
-                                                        addCardBtnDisabled
-                                                    }
-                                                >
-                                                    {t(
-                                                        "work-contract.add_card_btn"
-                                                    )}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    )}
-
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
+                                        <button
+                                            type="button"
+                                            className="btn btn-success ac mx-5"
+                                            onClick={(e) => handleCard(e)}
+                                            disabled={addCardBtnDisabled}
+                                        >
                                             {t(
-                                                "work-contract.miscellaneous_txt"
+                                                "client.contract-form.add_credit_card"
                                             )}
-                                        </td>
-                                        <td>
-                                            {t("work-contract.employees_txt")}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                        </button>
+                                    )}
+                                    <p>
+                                        {t(
+                                            "client.contract-form.cc_compensation"
+                                        )}
+                                    </p>
+                                </div>
+
+                                <p>3.4. {t("client.contract-form.ca3_4")}</p>
+                                <p>3.5. {t("client.contract-form.ca3_5")}</p>
+                                <p>
+                                    {t(
+                                        "client.contract-form.direct_mail_declaration"
+                                    )}
+                                </p>
+                                <p>
+                                    {t("client.contract-form.direct_mail_note")}
+                                </p>
+                            </div>
                         </div>
-                        <h6 className="text-underline">
-                            {t("work-contract.tenant_subtitle")}
-                        </h6>
-                        <div className="agg-list">
+                    </div>
+                    <div className="row mt-4">
+                        <div className="col-md-12">
+                            <p>4. {t("client.contract-form.ca4")}</p>
+                            <p>{t("client.contract-form.date")}: </p>
+                        </div>
+                    </div>
+                    <div className="row mt-4">
+                        <div className="col-md-12">
+                            <p className="text-center">
+                                {t("client.contract-form.general_terms")}
+                            </p>
+                            <p>1. {t("client.contract-form.gt1")}</p>
+                            <p>2. {t("client.contract-form.gt2")}</p>
+                            <p>3. {t("client.contract-form.gt3")}</p>
+                            <p>4. {t("client.contract-form.gt4")}</p>
+                            <p>5. {t("client.contract-form.gt5")}</p>
+                            <p>6. {t("client.contract-form.gt6")}</p>
+                            <p>7. {t("client.contract-form.gt7")}</p>
+                            <p>8. {t("client.contract-form.gt8")}</p>
+                            <p>9. {t("client.contract-form.gt9_1")}</p>
+                            <p>{t("client.contract-form.gt9_2")}</p>
+                            <p>{t("client.contract-form.gt9_3")}</p>
+                            <p>10. {t("client.contract-form.gt10")}</p>
+                        </div>
+                    </div>
+                    <div className="shift-30">
+                        {/* <div className="agg-list">
                             <div className="icons">
                                 <img src={star} />
                             </div>
                             <div className="agg-text">
                                 <p>{t("work-contract.tenant_txt_1")}</p>
                             </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.tenant_txt_2")}</p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.tenant_txt_3")}</p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.tenant_txt_4")}</p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p style={{ whiteSpace: "pre-wrap" }}>
-                                    {t("work-contract.tenant_txt_5")}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p style={{ backgroundColor: "yellow" }}>
-                                    {t("work-contract.tenant_txt_6")}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p style={{ backgroundColor: "yellow" }}>
-                                    {t("work-contract.tenant_txt_7")}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p style={{ backgroundColor: "yellow" }}>
-                                    {t("work-contract.tenant_txt_8")}
-                                </p>
-                            </div>
-                        </div>
-                        <h6 className="text-underline">
-                            {t("work-contract.company_subtitle")}
-                        </h6>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p style={{ whiteSpace: "pre-wrap" }}>
-                                    {t("work-contract.company_txt_1")}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.company_txt_2")}</p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.company_txt_3")} </p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.company_txt_4")} </p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.company_txt_5")} </p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.company_txt_6")} </p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.company_txt_7")}</p>
-                            </div>
-                        </div>
-                        <h6 className="text-underline">
-                            {t("work-contract.general_subtitle")}
-                        </h6>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.general_txt_1")}</p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.general_txt_2")} </p>
-                            </div>
-                        </div>
-                        <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.general_txt_3")}</p>
-                            </div>
-                        </div>
-                        <h6 className="text-center text-underline mt-3 mb-4">
-                            {t("work-contract.signed_title")}
-                        </h6>
+                        </div> */}
                         <div className="row">
                             <div className="col-sm-6">
                                 <h5 className="mt-2 mb-4">
@@ -855,8 +639,8 @@ export default function WorkContract() {
                                     />
                                 </div>
                             </div>
-                            {status == "not-signed" && (
-                                <div className=" col-sm-12 mt-2 float-right">
+                            {status == "not-signed" ? (
+                                <div className="col-sm-12 mt-2 float-right">
                                     <button
                                         type="button"
                                         className="btn btn-pink"
@@ -864,6 +648,28 @@ export default function WorkContract() {
                                     >
                                         {t("work-contract.accept_contract")}
                                     </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger ml-2"
+                                        onClick={(e) =>
+                                            RejectContract(e, contract.id)
+                                        }
+                                    >
+                                        {t("work-contract.button_reject")}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="col-sm-12 mt-2 float-right">
+                                    {status == "un-verified" ||
+                                    status == "verified" ? (
+                                        <h4 className="btn btn-success">
+                                            {t("global.accepted")}
+                                        </h4>
+                                    ) : (
+                                        <h4 className="btn btn-danger">
+                                            {t("global.rejected")}
+                                        </h4>
+                                    )}
                                 </div>
                             )}
                         </div>
