@@ -65,18 +65,16 @@ class SendWorkerFormsNotification implements ShouldQueue
 
             // Mail::send('/Mails/WorkerContractMail', $workerArr, function ($messages) use ($workerArr) {
             //     $messages->to($workerArr['email']);
-            //     ($workerArr['lng'] == 'heb') ?
-            //         $sub = $workerArr['id'] . "# " . __('mail.worker_contract.subject') :
-            //         $sub = __('mail.worker_contract.subject') . " #" . $workerArr['id'];
-            //     $messages->subject($sub);
+            //     $messages->subject(__('mail.worker_contract.subject', [
+            //         'id' => $workerArr['id']
+            //     ]));
             // });
 
             // Mail::send('/Mails/WorkerSafeGearMail', $workerArr, function ($messages) use ($workerArr) {
             //     $messages->to($workerArr['email']);
-            //     ($workerArr['lng'] == 'heb') ?
-            //         $sub = $workerArr['id'] . "# " . __('mail.worker_safe_gear.subject') :
-            //         $sub = __('mail.worker_safe_gear.subject') . " #" . $workerArr['id'];
-            //     $messages->subject($sub);
+            //     $messages->subject(__('mail.worker_safe_gear.subject', [
+            //         'id' => $workerArr['id']
+            //     ]));
             // });
             // } else if (
             //     $event->worker->country != 'Israel' &&

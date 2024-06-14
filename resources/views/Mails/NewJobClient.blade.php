@@ -23,7 +23,7 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.client_new_job.hi')}}, {{ $name }}</h1>
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $name])}}</h1>
 		
 		@if($lng == 'heb')
 		<p style="text-align: center;line-height: 30px"> לקוח יקר, זהו אישור על השירות שהזמנת. לצפיה בפרטים. </p>

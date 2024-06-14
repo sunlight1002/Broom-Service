@@ -53,9 +53,9 @@ class ReScheduleMeetingNotification implements ShouldQueue
             Mail::send('/Mails/AdminReScheduleMeetingMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail) {
                 $messages->to($adminEmail);
 
-                $subject = __('mail.meeting.resubject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
-
-                $messages->subject($subject);
+                $messages->subject(__('mail.meeting.resubject', [
+                    'id' => $scheduleArr['id']
+                ]));
             });
         }
 
@@ -67,9 +67,9 @@ class ReScheduleMeetingNotification implements ShouldQueue
         Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
             $messages->to($teamEmail);
 
-            $subject = __('mail.meeting.resubject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
-
-            $messages->subject($subject);
+            $messages->subject(__('mail.meeting.resubject', [
+                'id' => $scheduleArr['id']
+            ]));
         });
 
         if (!empty($schedules->start_time) && !empty($schedules->end_time)) {

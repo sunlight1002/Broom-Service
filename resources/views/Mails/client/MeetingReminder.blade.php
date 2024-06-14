@@ -26,13 +26,11 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.meeting.hi')}}, {{$client['firstname']}} {{$client['lastname']}}</h1>
-       
-		@if($client['lng'] == 'heb')
-		<p style="text-align: center;">{{__('mail.meeting.greetings')}} {{__('mail.meeting.from')}}{{__('mail.meeting.company')}}. {{__('mail.meeting.appointment')}}
-		@else 
-		<p style="text-align: center;">{{__('mail.meeting.greetings')}} {{__('mail.meeting.from')}} {{__('mail.meeting.company')}}. {{__('mail.meeting.appointment')}}
-		@endif
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $client['firstname'] . ' ' . $client['lastname']])}}</h1>
+
+		<p style="text-align: center;">{{__('mail.common.greetings')}}</p>
+
+		<p style="text-align: center;">{{__('mail.meeting.appointment')}}
 
 		@if(!empty($team['name'])) 
 		{{__('mail.meeting.with')}}      <span style="color:#0130c6;font-weight:700;">{{ $client['lng'] == 'heb' ? $team['heb_name'] : $team['name']}}</span>
@@ -77,9 +75,9 @@
 			<a href='{{ url("meeting-files/".base64_encode($schedule["id"]))}}' target='_blank' style="background: #151021;color: #fff;border: 1px solid #151021;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.meeting.upload_job_description')}}</a>
 		</div>
 		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
-		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.meeting.best_regards')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.meeting.company')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.meeting.tel')}}: 03-525-70-60</p>
+		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px"><a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a></p>
 	</div>
 </body>

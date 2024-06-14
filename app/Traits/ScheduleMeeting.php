@@ -36,13 +36,9 @@ trait ScheduleMeeting
         Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
 
-            if ($scheduleArr['client']['lng'] == 'en') {
-                $subject = __('mail.meeting.subject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
-            } else {
-                $subject = $scheduleArr['id'] . "# " . __('mail.meeting.subject') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company');
-            }
-
-            $messages->subject($subject);
+            $messages->subject(__('mail.meeting.subject', [
+                'id' => $scheduleArr['id']
+            ]));
         });
 
         $schedule->update(['meeting_mail_sent_at' => now()]);

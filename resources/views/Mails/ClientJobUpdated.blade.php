@@ -20,7 +20,7 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.client_new_job.hi')}}, {{ $job['client']['firstname'] }}</h1>
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $job['client']['firstname']])}}</h1>
 
 		<p style="text-align: center;line-height: 30px">{{__('mail.client_new_job.greetings')}} {{__('mail.client_new_job.from')}} {{__('mail.client_new_job.company')}}. {{__('mail.client_job_status.job_completed')}}</p>
 

@@ -37,10 +37,9 @@ class SendWorkerForm101Notification implements ShouldQueue
 
             Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
                 $messages->to($workerArr['email']);
-                ($workerArr['lng'] == 'heb') ?
-                    $sub = $workerArr['id'] . "# " . __('mail.form_101.subject') :
-                    $sub = __('mail.form_101.subject') . " #" . $workerArr['id'];
-                $messages->subject($sub);
+                $messages->subject(__('mail.form_101.subject', [
+                    'id' => $workerArr['id']
+                ]));
             });
 
             if (!empty($workerArr['phone'])) {

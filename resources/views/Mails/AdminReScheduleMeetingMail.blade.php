@@ -22,10 +22,11 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.meeting.hi')}}, {{$name}}</h1>
-       
-		<p style="text-align: center;">{{__('mail.meeting.greetings')}} {{__('mail.meeting.from')}} {{__('mail.meeting.company')}}. {{__('mail.meeting.appointment')}}
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $name])}}</h1>
 		
+		<p style="text-align: center;">{{__('mail.common.greetings')}}</p>
+       
+		<p style="text-align: center;">{{__('mail.meeting.appointment')}}
 		
 		{{__('mail.meeting.with')}}      <span style="color:#0130c6;font-weight:700;">{{$client['firstname']}} {{$client['lastname']}}</span>
 		
@@ -59,9 +60,9 @@
 		@endif
 
 		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
-		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.meeting.best_regards')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.meeting.company')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.meeting.tel')}}: 03-525-70-60</p>
+		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px"><a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a></p>
 	</div>
 </body>

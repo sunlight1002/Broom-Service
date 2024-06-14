@@ -22,22 +22,20 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.form_101.hi')}}, {{$firstname}} {{$lastname }}</h1>
-		
-		@if($lng == 'heb')
-		<p style="text-align: center;line-height: 30px">{{__('mail.form_101.greetings')}} {{__('mail.form_101.from')}}{{__('mail.form_101.company')}}. {{__('mail.forms.content')}}</p>
-		@else
-        <p style="text-align: center;line-height: 30px">{{__('mail.form_101.greetings')}} {{__('mail.form_101.from')}} {{__('mail.form_101.company')}}. {{__('mail.forms.content')}}</p>
-		@endif
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $firstname . ' ' . $lastname])}}</h1>
+
+		<p style="text-align: center;line-height: 30px">{{__('mail.common.greetings')}}</p>
+
+		<p style="text-align: center;line-height: 30px">{{__('mail.forms.content')}}</p>
 
 		<p style="text-align: center;">{{__('mail.forms.below_txt')}}</p>
 		<div style="text-align: center;">
 			<a href='{{ url("worker-forms/".base64_encode($id))}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.forms.btn_txt')}}</a> 
 		</div>
-		<p style="margin-top: 40px">{{__('mail.form_101.reply_txt')}}</p>
-		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.form_101.regards')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.form_101.company')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.form_101.tel')}}: 03-525-70-60</p>
+		<p style="margin-top: 40px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
+		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px"><a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a></p>
 	</div>
 </body>

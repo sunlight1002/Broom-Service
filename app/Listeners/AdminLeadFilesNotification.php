@@ -59,11 +59,11 @@ class AdminLeadFilesNotification implements ShouldQueue
             Mail::send('/Mails/AdminLeadFilesMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail, $filePath) {
                 $messages->to($adminEmail);
 
-                $subject = __('mail.meeting.file') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
-
                 $messages->attach($filePath);
 
-                $messages->subject($subject);
+                $messages->subject(__('mail.meeting.file_subject', [
+                    'id' => $scheduleArr['id']
+                ]));
             });
         }
 
@@ -86,9 +86,10 @@ class AdminLeadFilesNotification implements ShouldQueue
         Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail, $filePath) {
             $messages->to($teamEmail);
 
-            $subject = __('mail.meeting.file') . " " . __('mail.meeting.from') . " " . __('mail.meeting.company') . " #" . $scheduleArr['id'];
             $messages->attach($filePath);
-            $messages->subject($subject);
+            $messages->subject(__('mail.meeting.file_subject', [
+                'id' => $scheduleArr['id']
+            ]));
         });
     }
 }

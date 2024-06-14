@@ -1,13 +1,11 @@
 <?php
 return [
     'meeting' => [
-        'subject'     => 'Meeting schedule',
-        'resubject'     => 'Re-schedule Meeting',
+        'subject'     => 'Meeting Schedule | Broom Service #:id',
+        'resubject'     => 'Re-schedule Meeting | Broom Service #:id',
+        'file_subject'     => 'Files | Broom Service #:id',
         'file'     => 'Files',
         'file_content'     => "Added New files in below mentions meeting details",
-        'hi'          => 'Hi',
-        'greetings'   => 'Greetings',
-        'from'        => 'from',
         'appointment' => 'Just a friendly reminder that you have an upcoming appointment',
         'select_preferred_slot' => 'Please, select preferred appointment slot',
         'with'        => 'with',
@@ -20,9 +18,6 @@ return [
         'reject'      => 'Reject',
         'reschedule'  => 'Reschedule',
         'below_line'  => 'If you have any questions or concerns please do not hesitate to get in touch with us by replying to this email.',
-        'best_regards' => 'Best Regards',
-        'company'     => 'Broom Service',
-        'tel'         => 'Telephone',
         'price_offer' => 'Price offer',
         'quality_check' => 'Quality check',
         'upload_job_description' => 'Upload Job Description',
@@ -79,17 +74,10 @@ return [
         'tel'         => 'Telephone'
     ],
     'form_101' => [
-        'subject'     => 'Form 101 | Broom Service',
-        'hi'          => 'Hi',
-        'greetings'   => 'Greetings',
-        'from'        => 'from',
-        'company'     => 'Broom Service',
-        'content'     => 'You have successfully registered on our portal. Please sign the Form 101 to start working on the job.',
-        'below_txt'   => 'Click the below button to fill Form101.',
+        'subject'     => 'Form 101 | Broom Service #:id',
+        'content'     => 'You have successfully registered on our portal. Please sign Form 101 to start working.',
+        'below_txt'   => 'Click the button below to fill Form 101.',
         'btn_txt'     => 'Form 101',
-        'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
-        'regards'     => 'Best Regards',
-        'tel'         => 'Telephone'
     ],
     'job_status' => [
         'subject'     => 'Worker Changed Job Status',
@@ -106,30 +94,16 @@ return [
         'cancellation_fee' => 'Cancellation fee'
     ],
     'worker_contract' => [
-        'subject'     => 'Contract Form | Broom Service',
-        'hi'          => 'Hi',
-        'greetings'   => 'Greetings',
-        'from'        => 'from',
-        'company'     => 'Broom Service',
-        'content'     => 'You have successfully registered on our portal. Please sign the contract form to start working on the job.',
-        'below_txt'   => 'Click the below button to check the contract form.',
+        'subject'     => 'Contract Form | Broom Service #:id',
+        'content'     => 'You have successfully registered on our portal. Please sign the Contract Form to start working.',
+        'below_txt'   => 'Click the button below to check the Contract Form.',
         'btn_txt'     => 'Contract Form',
-        'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
-        'regards'     => 'Best Regards',
-        'tel'         => 'Telephone'
     ],
     'worker_safe_gear' => [
-        'subject'     => 'Safety and Gear Form | Broom Service',
-        'hi'          => 'Hi',
-        'greetings'   => 'Greetings',
-        'from'        => 'from',
-        'company'     => 'Broom Service',
-        'content'     => 'You have successfully registered on our portal. Please sign the safety and gear form to start working on the job.',
-        'below_txt'   => 'Click the below button to check the Safety and Gear form.',
-        'btn_txt'     => 'Safety And Gear Form',
-        'reply_txt'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
-        'regards'     => 'Best Regards',
-        'tel'         => 'Telephone'
+        'subject'     => 'Safety and Gear Form | Broom Service #:id',
+        'content'     => 'You have successfully registered on our portal. Please sign the Safety and Gear Form to start working.',
+        'below_txt'   => 'Click the button below to check the Safety and Gear Form.',
+        'btn_txt'     => 'Safety and Gear Form',
     ],
     'client_job_status' => [
         'subject'     => 'Client Cancel Job',
@@ -172,7 +146,6 @@ return [
     ],
     'client_new_job' => [
         'subject'     => 'Job Details with',
-        'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
         'company'     => 'Broom Service',
@@ -227,7 +200,7 @@ return [
     'common' => [
         'salutation' => 'Hi, :name',
         'greetings' => 'Greetings from Broom Service',
-        'dont_hesitate_to_get_in_touch'   => 'If you have any questions or concerns please don\'t hesitate to get in touch with us by replying to this email.',
+        'dont_hesitate_to_get_in_touch'   => 'If you have any questions or concerns, please don\'t hesitate to get in touch with us by replying to this email.',
         'regards'     => 'Best Regards',
         'company'     => 'Broom Service',
         'tel'         => 'Telephone',
@@ -256,19 +229,19 @@ return [
     ],
     'client' => [
         'review-request' => [
-            'subject' => 'Job Review | Broom Service',
+            'subject' => 'Service Review | Broom Service',
             'message' => 'Please, rate us and send your review.',
         ],
         'payment-failed' => [
             'subject' => 'Payment Failed | Broom Service',
-            'message' => 'Your payment with card [**** **** **** :card_number] has been failed. Please add a new card.'
+            'message' => 'Your payment with card [**** **** **** :card_number] has failed. Please add a new card.'
         ],
     ],
     'worker' => [
         'insurance-form' => [
             'subject' => 'Insurance Form | Broom Service',
-            'message' => 'You have successfully registered on our portal. Please sign the insurance form to start working on the job.',
-            'secondary_message' => 'Click the below button to check the Insurance form.',
+            'message' => 'You have successfully registered on our portal. Please sign the Insurance Form to start working.',
+            'secondary_message' => 'Click the button below to check the Insurance Form.',
             'btn_txt' => 'Insurance Form',
         ],
         'form101-signed' => [
@@ -277,15 +250,15 @@ return [
         ],
         'safety-and-gear-signed' => [
             'subject' => 'Safety and Gear Form Signed | Broom Service',
-            'message' => 'You have completed the signing of Safety and Gear Form. Kindly find the signed document attached in PDF format for your reference.',
+            'message' => 'You have completed the signing of the Safety and Gear Form. Kindly find the signed document attached in PDF format for your reference.',
         ],
         'contract-signed' => [
             'subject' => 'Contract Form Signed | Broom Service',
-            'message' => 'You have completed the signing of Contract Form. Kindly find the signed document attached in PDF format for your reference.',
+            'message' => 'You have completed the signing of the Contract Form. Kindly find the signed document attached in PDF format for your reference.',
         ],
         'insurance-signed' => [
             'subject' => 'Insurance Form Signed | Broom Service',
-            'message' => 'You have completed the signing of Insurance Form. Kindly find the signed document attached in PDF format for your reference.',
+            'message' => 'You have completed the signing of the Insurance Form. Kindly find the signed document attached in PDF format for your reference.',
         ],
     ],
     'insurance-form' => [
