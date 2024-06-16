@@ -15,7 +15,13 @@ class Contract extends Model
         'unique_hash',
         'card_id',
         'job_status',
-        'file'
+        'file',
+        'consent_to_ads',
+        'comment'
+    ];
+
+    protected $casts = [
+        'consent_to_ads' => 'boolean'
     ];
 
     public function client()

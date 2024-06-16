@@ -6,22 +6,19 @@ import companySign from "../Assets/image/company-sign.png";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import swal from "sweetalert";
-import Moment from "moment";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { frequencyDescription } from "../Utils/job.utils";
 
 export default function WorkContract() {
     const { t } = useTranslation();
     const navigate = useNavigate();
+
     const [offer, setOffer] = useState(null);
     const [services, setServices] = useState([]);
     const [client, setClient] = useState(null);
     const [contract, setContract] = useState(null);
-    const param = useParams();
-    const sigRef = useRef();
     const [signature, setSignature] = useState(null);
     const [Aaddress, setAaddress] = useState(null);
     const [status, setStatus] = useState("");
@@ -31,6 +28,11 @@ export default function WorkContract() {
     const [clientCards, setClientCards] = useState([]);
     const [selectedClientCardID, setSelectedClientCardID] = useState(null);
     const [isCardAdded, setIsCardAdded] = useState(false);
+    const [consentToAds, setConsentToAds] = useState(true);
+
+    const params = useParams();
+    const sigRef = useRef();
+    const consentToAdsRef = useRef();
 
     const handleAccept = (e) => {
         if (!selectedClientCardID) {
@@ -44,13 +46,14 @@ export default function WorkContract() {
         }
 
         const data = {
-            unique_hash: param.id,
+            unique_hash: params.id,
             offer_id: offer.id,
             client_id: offer.client.id,
             card_id: selectedClientCardID,
             additional_address: Aaddress,
             status: "un-verified",
             signature: signature,
+            consent_to_ads: consentToAdsRef.current.checked ? 1 : 0,
         };
 
         axios
@@ -86,7 +89,7 @@ export default function WorkContract() {
 
     const getOffer = () => {
         axios
-            .post(`/api/client/contracts/${param.id}`)
+            .post(`/api/client/contracts/${params.id}`)
             .then((res) => {
                 if (res.data.offer) {
                     const _contract = res.data.contract;
@@ -95,6 +98,7 @@ export default function WorkContract() {
                     setClient(res.data.offer.client);
                     setContract(_contract);
                     setStatus(_contract.status);
+                    setConsentToAds(_contract.consent_to_ads ? true : false);
 
                     setClientCards(res.data.cards);
                     setSelectedClientCardID(_contract.card_id);
@@ -167,7 +171,7 @@ export default function WorkContract() {
         setAddCardBtnDisabled(true);
 
         axios
-            .post(`/api/client/contracts/${param.id}/initialize-card`, {})
+            .post(`/api/client/contracts/${params.id}/initialize-card`, {})
             .then((response) => {
                 setCheckingForCard(true);
 
@@ -199,7 +203,7 @@ export default function WorkContract() {
                 if (checkingForCard) {
                     axios
                         .post(
-                            `/api/client/contracts/${param.id}/check-card`,
+                            `/api/client/contracts/${params.id}/check-card`,
                             {}
                         )
                         .then((response) => {
@@ -502,7 +506,7 @@ export default function WorkContract() {
 
                                     {clientCards.map((_card, _index) => {
                                         return (
-                                            <div className="my-3">
+                                            <div className="my-3" key={_index}>
                                                 <label className="form-check-label ">
                                                     <input
                                                         type="checkbox"
@@ -550,7 +554,30 @@ export default function WorkContract() {
                                 </div>
 
                                 <p>3.4. {t("client.contract-form.ca3_4")}</p>
-                                <p>3.5. {t("client.contract-form.ca3_5")}</p>
+                                <p>
+                                    3.5.
+                                    <label className="form-check-label">
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            checked={consentToAds}
+                                            onChange={(e) => {
+                                                setConsentToAds(
+                                                    e.target.checked
+                                                        ? true
+                                                        : false
+                                                );
+                                            }}
+                                            disabled={
+                                                contract &&
+                                                contract.status != "not-signed"
+                                            }
+                                            ref={consentToAdsRef}
+                                        />
+                                        {t("client.contract-form.ca3_5")}
+                                    </label>
+                                </p>
+
                                 <p>
                                     {t(
                                         "client.contract-form.direct_mail_declaration"
@@ -565,6 +592,7 @@ export default function WorkContract() {
                     <div className="row mt-4">
                         <div className="col-md-12">
                             <p>4. {t("client.contract-form.ca4")}</p>
+                            {contract && <p>{contract.comment}</p>}
                             <p>{t("client.contract-form.date")}: </p>
                         </div>
                     </div>

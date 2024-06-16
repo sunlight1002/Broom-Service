@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -10,8 +10,12 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
+import ContractCommentModal from "../../Components/Modals/ContractCommentModal";
 
 export default function Contract() {
+    const [selectedContract, setSelectedContract] = useState(null);
+    const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
+
     const navigate = useNavigate();
     const tableRef = useRef(null);
 
@@ -288,6 +292,19 @@ export default function Contract() {
                     </div>
                 </div>
             </div>
+
+            {isOpenCommentModal && (
+                <ContractCommentModal
+                    isOpen={isOpenCommentModal}
+                    setIsOpen={() => {
+                        setIsOpenCommentModal(false);
+                    }}
+                    contract={selectedContract}
+                    onSuccess={() => {
+                        $(tableRef.current).DataTable().draw();
+                    }}
+                />
+            )}
         </div>
     );
 }
