@@ -11,7 +11,7 @@ export default function ContractCommentModal({
 }) {
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
-        comment: contract.comment,
+        comment: contract.comment ? contract.comment : "",
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -105,7 +105,7 @@ export default function ContractCommentModal({
                 <Button
                     type="button"
                     className="btn btn-secondary"
-                    onClick={() => handleChangeStatusModalClose()}
+                    onClick={() => setIsOpen(false)}
                 >
                     Close
                 </Button>

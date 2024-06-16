@@ -127,6 +127,8 @@ export default function Contract() {
 
                         _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
 
+                        _html += `<button type="button" class="dropdown-item dt-comment-btn" data-id="${row.id}" data-comment="${row.comment}">Comment</button>`;
+
                         _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
 
                         _html += "</div> </div>";
@@ -186,6 +188,13 @@ export default function Contract() {
             cancelJob(_id, "enable");
         });
 
+        $(tableRef.current).on("click", ".dt-comment-btn", function () {
+            const _id = $(this).data("id");
+            const _comment = $(this).data("comment");
+
+            handleComment({ id: _id, comment: _comment });
+        });
+
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/view-contract/${_id}`);
@@ -200,6 +209,11 @@ export default function Contract() {
             $(tableRef.current).DataTable().destroy(true);
         };
     }, []);
+
+    const handleComment = (_contract) => {
+        setSelectedContract(_contract);
+        setIsOpenCommentModal(true);
+    };
 
     const handleDelete = (id) => {
         Swal.fire({
