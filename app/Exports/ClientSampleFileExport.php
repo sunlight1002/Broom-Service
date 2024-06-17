@@ -57,27 +57,27 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 $validationO = $event->sheet->getCell("O2")->getDataValidation();
                 $validationP = $event->sheet->getCell("P2")->getDataValidation();
                 $validationQ = $event->sheet->getCell("Q2")->getDataValidation();
-                $validationS = $event->sheet->getCell("S2")->getDataValidation();
-                $validationT = $event->sheet->getCell("T2")->getDataValidation();
-                $validationU = $event->sheet->getCell("U2")->getDataValidation();
-                $validationV = $event->sheet->getCell("V2")->getDataValidation();
-                $validationW = $event->sheet->getCell("W2")->getDataValidation();
                 $validationX = $event->sheet->getCell("X2")->getDataValidation();
                 $validationY = $event->sheet->getCell("Y2")->getDataValidation();
+                $validationZ = $event->sheet->getCell("Z2")->getDataValidation();
+                $validationAA = $event->sheet->getCell("AA2")->getDataValidation();
+                $validationAB = $event->sheet->getCell("AB2")->getDataValidation();
+                $validationAC = $event->sheet->getCell("AC2")->getDataValidation();
                 $validationAD = $event->sheet->getCell("AD2")->getDataValidation();
+                $validationAI = $event->sheet->getCell("AI2")->getDataValidation();
 
                 $validationN = $this->setDropDownValidation($validationN, $paymentMethodOptions);
                 $validationO = $this->setDropDownValidation($validationO, $languageOptions);
                 $validationP = $this->setDropDownValidation($validationP, $colorOptions);
                 $validationQ = $this->setDropDownValidation($validationQ, $statusOptions);
-                $validationS = $this->setDropDownValidation($validationS, $yesNoOptions);
-                $validationT = $this->setDropDownValidation($validationT, $yesNoOptions);
-                $validationU = $this->setDropDownValidation($validationU, $preferTypeOptions);
-                $validationV = $this->setDropDownValidation($validationV, $yesNoOptions);
-                $validationW = $this->setDropDownValidation($validationW, $this->serviceNameOptions);
-                $validationX = $this->setDropDownValidation($validationX, $this->frequencyOptions);
-                $validationY = $this->setDropDownValidation($validationY, $rateTypeOptions);
-                $validationAD = $this->setDropDownValidation($validationAD, $yesNoOptions);
+                $validationX = $this->setDropDownValidation($validationX, $yesNoOptions);
+                $validationY = $this->setDropDownValidation($validationY, $yesNoOptions);
+                $validationZ = $this->setDropDownValidation($validationZ, $preferTypeOptions);
+                $validationAA = $this->setDropDownValidation($validationAA, $yesNoOptions);
+                $validationAB = $this->setDropDownValidation($validationAB, $this->serviceNameOptions);
+                $validationAC = $this->setDropDownValidation($validationAC, $this->frequencyOptions);
+                $validationAD = $this->setDropDownValidation($validationAD, $rateTypeOptions);
+                $validationAI = $this->setDropDownValidation($validationAI, $yesNoOptions);
 
                 // clone validation to remaining rows
                 for ($i = 3; $i <= $row_count; $i++) {
@@ -85,14 +85,14 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                     $event->sheet->getCell("O{$i}")->setDataValidation(clone $validationO);
                     $event->sheet->getCell("P{$i}")->setDataValidation(clone $validationP);
                     $event->sheet->getCell("Q{$i}")->setDataValidation(clone $validationQ);
-                    $event->sheet->getCell("S{$i}")->setDataValidation(clone $validationS);
-                    $event->sheet->getCell("T{$i}")->setDataValidation(clone $validationT);
-                    $event->sheet->getCell("U{$i}")->setDataValidation(clone $validationU);
-                    $event->sheet->getCell("V{$i}")->setDataValidation(clone $validationV);
-                    $event->sheet->getCell("W{$i}")->setDataValidation(clone $validationW);
                     $event->sheet->getCell("X{$i}")->setDataValidation(clone $validationX);
                     $event->sheet->getCell("Y{$i}")->setDataValidation(clone $validationY);
+                    $event->sheet->getCell("Z{$i}")->setDataValidation(clone $validationZ);
+                    $event->sheet->getCell("AA{$i}")->setDataValidation(clone $validationAA);
+                    $event->sheet->getCell("AB{$i}")->setDataValidation(clone $validationAB);
+                    $event->sheet->getCell("AC{$i}")->setDataValidation(clone $validationAC);
                     $event->sheet->getCell("AD{$i}")->setDataValidation(clone $validationAD);
+                    $event->sheet->getCell("AI{$i}")->setDataValidation(clone $validationAI);
                 }
             },
         ];
@@ -140,6 +140,11 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 "color" => "Green",
                 "status" => "Customer",
                 "full_address" => "HaHashmal St 5, Tel Aviv-Yafo, Israel",
+                "property_name" => "",
+                "floor" => "",
+                "apt_number" => "",
+                "enterance" => "",
+                "parking" => "",
                 "dog_in_the_property" => "Yes",
                 "cat_in_the_property" => "No",
                 "prefered_type" => "Male",
@@ -152,7 +157,6 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 "other_title" => "",
                 "worker_hours" => "5,7,10",
                 "has_contract" => "Yes",
-                "additional_address" => "Home Address",
                 "card_number" => "0000000000000000",
                 "card_type" => "Visa",
                 "card_holder_id" => "123456789",

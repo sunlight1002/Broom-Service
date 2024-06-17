@@ -184,11 +184,11 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     }
 
                     ClientPropertyAddress::create([
-                        'address_name' => $result->formatted_address ?? null,
+                        'address_name' => $row['property_name'] ?? null,
                         'city' => $city ?? NULL,
-                        'floor' => NULL,
-                        'apt_no' => null,
-                        'entrence_code' => null,
+                        'floor' => $row['floor'] ?? NULL,
+                        'apt_no' => $row['apt_number'] ?? NULL,
+                        'entrence_code' => $row['enterance'] ?? NULL,
                         'zipcode' => $zipcode ?? NULL,
                         'geo_address' => $result->formatted_address ?? NULL,
                         'latitude' => $result->geometry->location->lat ?? NULL,
@@ -197,6 +197,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         'prefer_type' => $preferTypeOptions[$row['prefered_type']],
                         'is_dog_avail' => $row['dog_in_the_property'] == 'Yes' ? 1 : 0,
                         'is_cat_avail' => $row['cat_in_the_property'] == 'Yes' ? 1 : 0,
+                        'parking' => $row['parking'] ?? NULL
                     ]);
                 }
 
@@ -320,7 +321,6 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             $contract = Contract::create([
                                 'offer_id' => $offer->id,
                                 'client_id' => $client->id,
-                                'additional_address' => $row['additional_address'],
                                 'status' => ContractStatusEnum::VERIFIED,
                                 'unique_hash' => $hash
                             ]);
@@ -328,7 +328,6 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             $contract->update([
                                 'offer_id' => $offer->id,
                                 'client_id' => $client->id,
-                                'additional_address' => $row['additional_address'],
                                 'status' => ContractStatusEnum::VERIFIED,
                                 'unique_hash' => $hash
                             ]);
