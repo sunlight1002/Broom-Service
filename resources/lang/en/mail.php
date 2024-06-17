@@ -363,20 +363,20 @@ return [
             'content' => "The worker has not approved the address yet.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_not_left_for_job' => [
-            'header' => "*Worker not out for work | Broom Service*",
-            'content' => "The Worker has not yet left for the job.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+            'header' => "*Worker Not Out for Work | Broom Service*",
+            'content' => "The worker has not yet left for the job.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_not_started_job' => [
-            'header' => "*Worker not started Job | Broom Service*",
-            'content' => "The Worker has not yet started the job.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+            'header' => "*Worker Not Started Job | Broom Service*",
+            'content' => "The worker has not yet started the job.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_not_finished_job_on_time' => [
             'header' => "*Worker Not Finished Job On Time | Broom Service*",
-            'content' => "The Worker has not finished the job on time.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+            'content' => "The worker has not finished the job on time.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_exceed_job_time' => [
             'header' => "*Worker Exceed Job Time | Broom Service*",
-            'content' => "The Worker has exceed the job time.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+            'content' => "The worker has exceeded the job time.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_remind_job' => [
             'header' => "*Information about your job tomorrow | Broom Service*",
@@ -400,7 +400,7 @@ return [
         ],
         'worker_forms'  =>  [
             'header' => "*Worker Forms | Broom Service*",
-            'content' => "Greetings from Broom Service. You have successfully registered on our portal. Please sign the below forms to start working on the job.\nClick the below button to fill forms.",
+            'content' => "You have successfully registered on our portal. Please sign the below forms to start working.\nClick the below button to fill forms.",
         ],
         'worker_job_opening_notification' => [
             'header' => "*Worker Changed Job Status | Broom Service*",
@@ -412,7 +412,7 @@ return [
         ],
         'admin_job_status_notification' => [
             'header' => "*Job Canceled | Broom Service*",
-            'content' => "The job has been canceled. Please check the details.\n\nDate/Time: :date\nWorker: :worker_name\nClient: :client_name\nService: :service_name\nStatus: :status\nComment: :comment",
+            'content' => "The service has been canceled. Please check the details.\n\nDate/Time: :date\nWorker: :worker_name\nClient: :client_name\nService: :service_name\nStatus: :status\nComment: :comment",
         ],
         'admin_reschedule_meeting' => [
             'header' => "*Re-schedule Meeting | Broom Service*",
@@ -444,27 +444,27 @@ return [
         ],
         'client_payment_failed' => [
             'header' => "*Client Payment Failed | Broom Service*",
-            'content' => ":name's payment with card [**** **** **** :card_number] has been failed.",
+            'content' => ":name's payment with card [**** **** **** :card_number] has failed.",
         ],
         'client_reviewed' => [
             'header' => "*Client Reviewed | Broom Service*",
-            'content' => ":client_name has reviewed with :rating rating for job :date_time.\n\n-: :review",
+            'content' => ":client_name has added a comment for the job :date_time.",
         ],
         'client_commented' => [
             'header' => "*Client Commented | Broom Service*",
-            'content' => "Client :client_name has commented for job :date_time.",
+            'content' => "Client :client_name has added a comment for the job :date_time.",
         ],
         'admin_commented' => [
             'header' => "*Admin Commented | Broom Service*",
-            'content' => ":admin_name has commented for job :date_time.",
+            'content' => ":admin_name has added a comment for the job :date_time.",
         ],
         'worker_commented' => [
             'header' => "*Worker Commented | Broom Service*",
-            'content' => "Worker :worker_name has commented for job :date_time.",
+            'content' => "Worker :worker_name has added a comment for the job :date_time.",
         ],
         'new_lead_arrived' => [
             'header' => "*New Lead Arrived | Broom Service*",
-            'content' => "New lead (:client_name) has been arrived.",
+            'content' => "A new lead (:client_name) has arrived.",
         ],
         'client_lead_status_changed' => [
             'header' => "*Lead Status Changed | Broom Service*",
@@ -472,31 +472,35 @@ return [
         ],
         'worker_leaves_job' => [
             'header' => "*Worker Job Leaving Date | Broom Service*",
-            'content' => "Worker :name leave job date set to :date.",
+            'content' => "Worker :name's leave job date is set to :date.",
         ],
         'client_changed_job_schedule' => [
             'header' => "*Client Changed Schedule | Broom Service*",
-            'content' => "Client :client_name has changed schedule for job :date_time.",
+            'content' => "Client :client_name has changed the schedule for job :date_time.",
         ],
         'order_cancelled' => [
-            'header' => "*Order Cancelled | Broom Service*",
-            'content' => "Client :client_name's order (:order_id) has been cancelled.",
+            'header' => "*Order Canceled | Broom Service*",
+            'content' => "Client :client_name's order (:order_id) has been canceled.",
         ],
         'payment_paid' => [
             'header' => "*Payment Paid | Broom Service*",
-            'content' => "Client :client_name's have done a payment.",
+            'content' => "Client :client_name has made a payment.",
         ],
         'client_invoice_created_and_sent_to_pay' => [
-            'header' => "*Invoice Created and Send | Broom Service*",
+            'header' => "*Invoice Created and Sent | Broom Service*",
             'content' => "Invoice (:invoice_id) has been created and sent to :client_name.",
         ],
         'client_invoice_paid_created_receipt' => [
             'header' => "*Receipt Created | Broom Service*",
-            'content' => "Invoice Receipt (:invoice_id) has been created for :client_name.",
+            'content' => "Receipt (:invoice_id) has been created for :client_name.",
         ],
         'order_created_with_extra' => [
-            'header' => "*Order Created with Extra | Broom Service*",
-            'content' => "Order (:order_id) has been created for :client_name with extra ₪:extra and discount ₪:discount.",
+            'header' => "*Order Created with Extra Charge | Broom Service*",
+            'content' => "Order (:order_id) has been created for :client_name with an extra charge of ₪:extra and a total of ₪:total.",
+        ],
+        'order_created_with_discount' => [
+            'header' => "*Order Created with Discount | Broom Service*",
+            'content' => "Order (:order_id) has been created for :client_name with a discount of ₪:discount and a total of ₪:total after the discount.",
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',

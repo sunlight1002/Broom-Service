@@ -4,14 +4,14 @@ namespace App\Listeners;
 
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\ClientOrderWithExtraOrDiscount;
+use App\Events\ClientOrderWithExtra;
 use App\Events\WhatsappNotificationEvent;
 use App\Models\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 
-class NotifyForClientOrderWithExtraOrDiscount implements ShouldQueue
+class NotifyForClientOrderWithExtra implements ShouldQueue
 {
     /**
      * Create the event listener.
@@ -26,10 +26,10 @@ class NotifyForClientOrderWithExtraOrDiscount implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  \App\Events\ClientOrderWithExtraOrDiscount  $event
+     * @param  \App\Events\ClientOrderWithExtra  $event
      * @return void
      */
-    public function handle(ClientOrderWithExtraOrDiscount $event)
+    public function handle(ClientOrderWithExtra $event)
     {
         Notification::create([
             'user_id' => $event->client->id,
@@ -38,7 +38,7 @@ class NotifyForClientOrderWithExtraOrDiscount implements ShouldQueue
             'data' => [
                 'extra' => $event->extra,
                 'order_id' => $event->order->order_id,
-                'discount' => $event->order->discount_amount
+                'total_amount' => $event->order->total_amount,
             ],
             'status' => 'created'
         ]);
@@ -49,7 +49,7 @@ class NotifyForClientOrderWithExtraOrDiscount implements ShouldQueue
                 'client' => $event->client->toArray(),
                 'extra' => $event->extra,
                 'order_id' => $event->order->order_id,
-                'discount' => $event->order->discount_amount
+                'total_amount' => $event->order->total_amount,
             ]
         ]));
     }

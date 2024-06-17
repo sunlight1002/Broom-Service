@@ -493,7 +493,11 @@ return [
         ],
         'order_created_with_extra' => [
             'header' => "*הזמנה נוצרה עם תוספת | שירות מטאטאים*",
-            'content' => "הזמנה (:order_id) נוצרה עבור :client_name עם תוספת של ₪:extra והנחה של ₪:discount.",
+            'content' => "הזמנה (:order_id) נוצרה עבור :client_name בתוספת תשלום של ₪:extra ובסך הכל ₪:total.",
+        ],
+        'order_created_with_discount' => [
+            'header' => "*הזמנה נוצרה עם הנחה | שירות מטאטא*",
+            'content' => "הזמנה (:order_id) נוצרה עבור :client_name עם הנחה של ₪:discount ובסך הכל ₪:total לאחר ההנחה.",
         ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',

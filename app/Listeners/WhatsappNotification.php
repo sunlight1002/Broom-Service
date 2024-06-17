@@ -993,7 +993,32 @@ class WhatsappNotification
                         'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
                         'order_id' => $eventData['order_id'],
                         'extra' => $eventData['extra'],
+                        'total' => $eventData['total_amount'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_DISCOUNT:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.order_created_with_discount.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.order_created_with_discount.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'order_id' => $eventData['order_id'],
                         'discount' => $eventData['discount'],
+                        'total' => $eventData['total_amount'],
                     ]);
 
                     break;
@@ -1018,8 +1043,8 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.client_reviewed.content', [
                         'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
-                        'rating' => $jobData['rating'],
-                        'review' => $jobData['review'],
+                        // 'rating' => $jobData['rating'],
+                        // 'review' => $jobData['review'],
                     ]);
 
                     break;

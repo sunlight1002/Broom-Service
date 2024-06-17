@@ -114,6 +114,7 @@ class DashboardController extends Controller
               NotificationTypeEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY,
               NotificationTypeEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT,
               NotificationTypeEnum::ORDER_CREATED_WITH_EXTRA,
+              NotificationTypeEnum::ORDER_CREATED_WITH_DISCOUNT,
             ]);
           })
           ->when($groupType == 'changes-and-cancellation', function ($q) {
@@ -406,7 +407,10 @@ class DashboardController extends Controller
               "</a>.";
           } else if ($notice->type == NotificationTypeEnum::ORDER_CREATED_WITH_EXTRA) {
             $noticeAll[$k]->data = "Order (" . $notice->data['order_id'] . ") has been created for <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
-              "</a> with extra or discount.";
+              "</a> with extra.";
+          } else if ($notice->type == NotificationTypeEnum::ORDER_CREATED_WITH_DISCOUNT) {
+            $noticeAll[$k]->data = "Order (" . $notice->data['order_id'] . ") has been created for <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+              "</a> with discount.";
           }
         }
       }

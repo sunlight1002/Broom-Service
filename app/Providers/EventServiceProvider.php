@@ -10,7 +10,8 @@ use App\Events\ClientInvoiceCreated;
 use App\Events\ClientInvRecCreated;
 use App\Events\ClientLeadStatusChanged;
 use App\Events\ClientOrderCancelled;
-use App\Events\ClientOrderWithExtraOrDiscount;
+use App\Events\ClientOrderWithDiscount;
+use App\Events\ClientOrderWithExtra;
 use App\Events\ClientPaymentFailed;
 use App\Events\ClientPaymentPaid;
 use App\Events\ClientPaymentPartiallyPaid;
@@ -62,7 +63,8 @@ use App\Listeners\NotifyForAdminCommented;
 use App\Listeners\NotifyForClientCommented;
 use App\Listeners\NotifyForClientInvoice;
 use App\Listeners\NotifyForClientInvRec;
-use App\Listeners\NotifyForClientOrderWithExtraOrDiscount;
+use App\Listeners\NotifyForClientOrderWithDiscount;
+use App\Listeners\NotifyForClientOrderWithExtra;
 use App\Listeners\NotifyForClientPaymentPaid;
 use App\Listeners\NotifyForClientPaymentPartiallyPaid;
 use App\Listeners\NotifyForClientReviewed;
@@ -203,8 +205,11 @@ class EventServiceProvider extends ServiceProvider
         ClientInvRecCreated::class => [
             NotifyForClientInvRec::class
         ],
-        ClientOrderWithExtraOrDiscount::class => [
-            NotifyForClientOrderWithExtraOrDiscount::class
+        ClientOrderWithExtra::class => [
+            NotifyForClientOrderWithExtra::class
+        ],
+        ClientOrderWithDiscount::class => [
+            NotifyForClientOrderWithDiscount::class
         ]
     ];
 

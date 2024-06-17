@@ -8,7 +8,8 @@ use App\Enums\OrderPaidStatusEnum;
 use App\Enums\SettingKeyEnum;
 use App\Events\ClientInvRecCreated;
 use App\Events\ClientOrderCancelled;
-use App\Events\ClientOrderWithExtraOrDiscount;
+use App\Events\ClientOrderWithDiscount;
+use App\Events\ClientOrderWithExtra;
 use App\Events\ClientPaymentFailed;
 use App\Events\ClientPaymentPaid;
 use App\Events\ClientPaymentPartiallyPaid;
@@ -800,8 +801,12 @@ class InvoiceController extends Controller
             ]
         );
 
-        if ($job->extra_amount || $job->discount_amount) {
-            event(new ClientOrderWithExtraOrDiscount($client, $order, $job->extra_amount));
+        if ($job->extra_amount) {
+            event(new ClientOrderWithExtra($client, $order, $job->extra_amount));
+        }
+
+        if ($job->discount_amount) {
+            event(new ClientOrderWithDiscount($client, $order));
         }
 
         return response()->json([
@@ -879,8 +884,12 @@ class InvoiceController extends Controller
                 ]
             );
 
-            if ($extra_amount || $order->discount_amount) {
-                event(new ClientOrderWithExtraOrDiscount($client, $order, $extra_amount));
+            if ($extra_amount) {
+                event(new ClientOrderWithExtra($client, $order, $extra_amount));
+            }
+
+            if ($order->discount_amount) {
+                event(new ClientOrderWithDiscount($client, $order));
             }
         }
 
@@ -904,8 +913,12 @@ class InvoiceController extends Controller
                 ]
             );
 
-            if ($job->extra_amount || $job->discount_amount) {
-                event(new ClientOrderWithExtraOrDiscount($client, $order, $job->extra_amount));
+            if ($job->extra_amount) {
+                event(new ClientOrderWithExtra($client, $order, $job->extra_amount));
+            }
+
+            if ($job->discount_amount) {
+                event(new ClientOrderWithDiscount($client, $order));
             }
         }
 
