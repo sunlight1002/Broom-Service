@@ -19,7 +19,7 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.worker_new_job.hi')}}, {{ $old_worker['firstname'] }} {{ $old_worker['lastname'] }}</h1>
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $old_worker['firstname'] . ' ' . $old_worker['lastname']])}}</h1>
 		<p style="text-align: center;line-height: 30px">{{__('mail.worker_new_job.greetings')}} {{__('mail.worker_new_job.from')}} {{__('mail.worker_new_job.company')}}. {{__('mail.worker_unassigned.you_unassigned_from_job')}} {{__('mail.worker_new_job.please_check')}}</p>
 		<table cellpadding="0" cellspacing="0" width="100%">
 			<thead>

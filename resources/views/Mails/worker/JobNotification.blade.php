@@ -31,7 +31,6 @@
 				<tr>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.date')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.client')}}</th>
-					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.worker')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.service')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.property_address_txt')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.job_common.start_time')}}</th>
@@ -42,7 +41,6 @@
 				<tr>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::parse($job['start_date'])->format('M d Y') }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['client']['firstname'] }} {{ $job['client']['lastname'] }}</td>
-					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ $job['worker']['firstname'] }} {{ $job['worker']['lastname'] }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">
 						@if($job['worker']['lng'] == 'heb')
 							{{ $job['jobservice']['heb_name'].', ' }}

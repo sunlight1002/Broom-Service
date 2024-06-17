@@ -48,10 +48,10 @@
 				</tr>
 			</tbody>
 		</table>
-		<p style="margin-top: 40px">{{__('mail.client_new_job.reply_txt')}}</p>
-		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.client_new_job.regards')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.client_new_job.company')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.client_new_job.tel')}}: 03-525-70-60</p>
+		<p style="margin-top: 40px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
+		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px"><a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a></p>
 	</div>
 </body>

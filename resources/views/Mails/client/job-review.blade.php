@@ -29,6 +29,7 @@
 				<tr>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.date')}}</th>
 					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.service')}}</th>
+					<th width="" style="text-align:left;border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{__('mail.client_new_job.start_time')}}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -43,6 +44,7 @@
 						@endif
 
 					</td>
+					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::today()->setTimeFromTimeString($job['start_time'])->format('H:i') }}</td>
 				</tr>
 			</tbody>
 		</table>

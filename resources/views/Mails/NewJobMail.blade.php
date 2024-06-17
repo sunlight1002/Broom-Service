@@ -17,7 +17,8 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.worker_new_job.hi')}}, {{ $job['worker']['firstname'] }} {{ $job['worker']['lastname'] }}</h1>
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $job['worker']['firstname'] . ' ' . $job['worker']['lastname']])}}</h1>
+
 		<p style="text-align: center;line-height: 30px">{{__('mail.worker_new_job.greetings')}} {{__('mail.worker_new_job.from')}} {{__('mail.worker_new_job.company')}}. {{ $content }}</p>
 		<table cellpadding="0" cellspacing="0" width="100%">
 			 <thead>
@@ -48,7 +49,7 @@
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ \Carbon\Carbon::today()->setTimeFromTimeString($job['start_time'])->format('H:i') }} </td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px">{{ ucfirst($job['status']) }}</td>
 					<td style="border: 1px solid #dee2e6;font-size: 14px;padding: 8px;display:flex;height: 38px">
-						<a href='{{ url("worker/login") }}'  style="font-size: 13px;color: #007bff;min-width: 51px">View Job</a>
+						<a href='{{ url("worker/login") }}'  style="font-size: 13px;color: #007bff;min-width: 51px">{{__('mail.worker_new_job.view_job')}}</a>
 					</td>
 				</tr>
 			</tbody>

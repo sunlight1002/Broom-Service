@@ -28,7 +28,7 @@
 		@if($lng == 'heb')
 		<p style="text-align: center;line-height: 30px"> לקוח יקר, זהו אישור על השירות שהזמנת. לצפיה בפרטים. </p>
 		@else
-        <p style="text-align: center;line-height: 30px">{{__('mail.client_new_job.greetings')}} {{__('mail.client_new_job.from')}} {{__('mail.client_new_job.company')}}. {{__('mail.client_new_job.content')}}</p>
+        <p style="text-align: center;line-height: 30px">{{__('mail.common.greetings')}}. {{__('mail.client_new_job.content')}}</p>
 		@endif
 
 		<table cellpadding="0" cellspacing="0" width="100%">
@@ -61,10 +61,10 @@
 				@endforeach
 			</tbody>
 			</table>
-		<p style="margin-top: 40px">{{__('mail.client_new_job.reply_txt')}}</p>
-		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.client_new_job.regards')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.client_new_job.company')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.client_new_job.tel')}}: 03-525-70-60</p>
+		<p style="margin-top: 40px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
+		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px"><a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a></p>
 	</div>
 </body>

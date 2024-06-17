@@ -80,19 +80,18 @@ return [
         'cancellation_fee' => 'עם דמי ביטול ',
         'btn_txt'     => 'בדוק חוזה',
         'thanks_text'   => 'תודה',
-        'job_completed' => 'העבודה שלך הושלמה',
+        'job_completed' => 'העבודה אצלך הסתיימה.',
         'review' => 'סקירה',
-        'job_completed_subject'     => 'עבודה הושלמה | שירותי מטאטא',
+        'job_completed_subject'     => 'עבודה הסתיימה | ברום סרוויס',
     ],
     'worker_new_job' => [
         'subject'     => 'תזכורת לגבי שירות שהזמנתם',
-        'hi'          => 'היי',
         'greetings'   => 'לקוח יקר',
         'from'        => 'מ',
         'company'     => 'ברום סרוויס',
         'content'     => 'שירות שהזמנת. לצפיה בפרטים.',
         'please_check' => 'אנא בדוק את הפרטים.',
-        'new_job_assigned' => 'משרה חדשה הוקצתה.',
+        'new_job_assigned' => 'שובצת לעבודה.',
         'change_in_job' => 'שינוי בעבודה שלך.',
         'below_txt'   => 'לחץ על הלחצן למטה כדי לבדוק את ההסכם.',
         'btn_txt'     => 'בדוק הסכם',
@@ -108,21 +107,15 @@ return [
         'action'      => 'פעולה',
         'scheduled'   => 'שובץ',
         'to'          => 'ל',
-        'view_job'    => 'הצג פרטים',
+        'view_job'    => 'צפה בעבודה',
         'start_time'  => 'שעת התחלה',
         'property_address_txt'  => 'כתובת הנכס'
     ],
     'client_new_job' => [
         'subject'     => 'תזכורת לגבי שירות שהזמנתם',
-        'greetings'   => 'לקוח יקר',
-        'from'        => 'מ',
-        'company'     => 'ברום סרוויס',
         'content'     => 'שירות שהזמנת. לצפיה בפרטים.',
         'below_txt'   => 'לחץ על הלחצן למטה כדי לבדוק את ההסכם.',
         'btn_txt'     => 'בדוק הסכם',
-        'reply_txt'   => 'אם יש לך שאלות או בקשות, אנא אל תהסס ליצור איתנו קשר על ידי מענה לדוא"ל זה.',
-        'regards'     => 'בברכה',
-        'tel'         => 'טלפון',
         'date'        => 'תאריך',
         'client'      => 'לָקוּחַ',
         'worker'      => 'עובד',
@@ -162,8 +155,8 @@ return [
         'tel'         => 'טלפון'
     ],
     'worker_job' => [
-        'shift_changed' => 'משמרת שונתה.',
-        'shift_changed_subject' => 'שינוי משמרת | שירותי מטאטא'
+        'shift_changed' => 'המשמרת הוחלפה.',
+        'shift_changed_subject' => 'המשמרת הוחלפה. אנא בדוק את הפרטים.'
     ],
     'common' => [
         'salutation' => 'שלום, :name',
@@ -197,8 +190,8 @@ return [
     ],
     'client' => [
         'review-request' => [
-            'subject' => 'בקשה לביקורת | שירות מטופל',
-            'message' => 'אנא דרגו אותנו ושלחו את ביקורתכם.',
+            'subject' => 'דירוג השירות שקיבלת | ברום סרוויס',
+            'message' => 'נשמח למענה על משוב קצר על השירות שקיבלת.',
         ],
         'payment-failed' => [
             'subject' => 'תשלום נכשל | ברום סרוויס',
@@ -274,9 +267,9 @@ return [
         'approve_subject' => 'משימה מאושרת | שירותי מטאטא',
         'approve_title' => 'עובד אישר משימה',
         'approve_content' => 'אישרת את המשימה.',
-        'not_approve_subject' => 'משימה לא מאושרת | שירותי מטאטא',
+        'not_approve_subject' => 'עבודה לא אושרה | ברום סרוויס',
         'not_approve_title' => 'עובד לא אישר משימה',
-        'not_approve_content' => 'לא אישרת את המשימה.',
+        'not_approve_content' => 'לא אישרת את העבודה.',
         'job_status'  => 'סטטוס המשימה',
         'admin_switch_worker_subject' => 'בקשה להחלפת עובד | שירותי מטאטא',
         'admin_switch_worker_title' => 'החלפת עובד על ידי מנהל',
