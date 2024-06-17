@@ -37,7 +37,7 @@
 		@endif		
 		</p>
 	
-		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
+		<p style="margin-top: 20px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>

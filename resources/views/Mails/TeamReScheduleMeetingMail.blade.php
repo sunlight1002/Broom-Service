@@ -31,16 +31,13 @@
 
 		{{__('mail.meeting.with')}} <span style="color:#0130c6;font-weight:700;">{{$client['firstname']}} {{$client['lastname']}}</span>
 
-
 		@if($start_date)
 			{{__('mail.meeting.on')}} <span style="color:#0130c6;font-weight:700;">{{ \Carbon\Carbon::parse($start_date)->format('d-m-Y')}}</span>
 			{{__('mail.meeting.between')}} <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($start_time))}}</span>
 			{{__('mail.meeting.to')}} <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($end_time))}}</span>
 		@endif
 
-		@if(isset($property_address))
-			{{__('mail.meeting.address_txt')}} <span style="color:#0130c6;font-weight:700;">{{ isset($property_address)?$property_address['address_name']:'NA' }}</span>
-		@endif
+		{{__('mail.meeting.address_txt')}} <span style="color:#0130c6;font-weight:700;">{{ isset($property_address)?$property_address['address_name']:'NA' }}</span>
 
 		@if($purpose != '')
 			{{__('mail.meeting.for')}}
@@ -54,12 +51,11 @@
 			@endif
 		@endif
 
-
 		@if(!empty($meet_link))
 		<p style="text-align: center;">{{$meet_link}}</p>
 		@endif
 
-		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
+		<p style="margin-top: 20px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>

@@ -35,15 +35,6 @@ class MeetingReminderNotification implements ShouldQueue
         $team = $schedule->team;
         //send reminder to team
         if(isset($team['email']) && !empty($team['email'])){
-            // App::setLocale('en');
-            // Mail::send('/Mails/team/MeetingReminder', [
-            //     'schedule'  => $schedule, 
-            //     'client'    => $client, 
-            //     'team'      => $team,
-            // ], function ($messages) use ($team) {
-            //     $messages->to($team['email']);
-            //     $messages->subject('Meeting Remider');
-            // });
             $scheduleData = $schedule;
             $scheduleData['phone'] = $team['phone'];
             $scheduleData['lng'] = 'en';
@@ -59,15 +50,6 @@ class MeetingReminderNotification implements ShouldQueue
         
         //send reminder to client
         if(isset($client['email']) && !empty($client['email'])){
-            // App::setLocale($client['lng']);
-            // Mail::send('/Mails/client/MeetingReminder', [
-            //     'schedule'  => $schedule, 
-            //     'client'    => $client, 
-            //     'team'      => $team,
-            // ], function ($messages) use ($client) {
-            //     $messages->to($client['email']);
-            //     $messages->subject('Meeting Remider');
-            // });
             $scheduleData = $schedule;
             $scheduleData['phone'] = $client['phone'];
             $scheduleData['lng'] = $client['lng'];

@@ -30,35 +30,36 @@
        
 		<p style="text-align: center;">{{__('mail.common.greetings')}}</p>
 
-		<p style="text-align: center;">{{__('mail.meeting.appointment')}}
+		@php
+			$purpose_txt = '';
+			if($purpose == 'Price offer') {
+				$purpose_txt = __('mail.meeting.price_offer');
+			} elseif($purpose == "Quality check") {
+				$purpose_txt = __('mail.meeting.quality_check');
+			} else {
+				$purpose_txt = $purpose;
+			}
+		@endphp
 
-		@if(!empty($team['name'])) 
-		{{__('mail.meeting.with')}}      <span style="color:#0130c6;font-weight:700;">{{ $client['lng'] == 'heb' ? $team['heb_name'] : $team['name']}}</span>
-		 @endif
+		@if($start_date)
+		<p style="text-align: center;">{{__('mail.meeting.content_with_date_time', [
+			'team_name' => $client['lng'] == 'heb' ? $team['heb_name'] : $team['name'],
+			'date' => \Carbon\Carbon::parse($start_date)->format('d-m-Y'),
+			'start_time' => date("H:i", strtotime($start_time)),
+			'end_time' => date("H:i", strtotime($end_time)),
+			'address' => isset($property_address) ? $property_address['address_name'] : 'NA',
+			'purpose' => $purpose_txt
+		])}} </p>
 
-			@if($start_date)
-			{{__('mail.meeting.on')}}       <span style="color:#0130c6;font-weight:700;">{{ \Carbon\Carbon::parse($start_date)->format('d-m-Y')}}</span>
-			{{__('mail.meeting.between')}}  <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($start_time))}}</span>
-			{{__('mail.meeting.to')}}       <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($end_time))}}</span>
-			@endif
+		@else
 
-		 @if(isset($property_address))
-		 {{__('mail.meeting.address_txt')}}       <span style="color:#0130c6;font-weight:700;">{{ isset($property_address)?$property_address['address_name']:'NA' }}</span>
-		 @endif
-		
-		 @if($purpose != '') 
-         {{__('mail.meeting.for')}}  
+		<p style="text-align: center;">{{__('mail.meeting.content_without_date_time', [
+			'team_name' => $client['lng'] == 'heb' ? $team['heb_name'] : $team['name'],
+			'address' => isset($property_address) ? $property_address['address_name'] : 'NA',
+			'purpose' => $purpose_txt
+		])}} </p>
 
-		 @if($purpose == 'Price offer')   
-		 <span style="color:#0130c6;font-weight:700;">{{ __('mail.meeting.price_offer') }}&nbsp;</span></p>
-		 @elseif($purpose == "Quality check")
-		 <span style="color:#0130c6;font-weight:700;">{{ __('mail.meeting.quality_check') }}&nbsp;</span></p>
-		 @else
-		 <span style="color:#0130c6;font-weight:700;">{{ $purpose }}&nbsp;</span></p>
-		 @endif
-
-		 @endif
-
+		@endif
 
 		@if(!empty($meet_link))
 		<p style="text-align: center;">{{$meet_link}}</p>
@@ -74,7 +75,7 @@
 
 			<a href='{{ url("meeting-files/".base64_encode($id))}}' target='_blank' style="background: #151021;color: #fff;border: 1px solid #151021;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.meeting.upload_job_description')}}</a>
 		</div>
-		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
+		<p style="margin-top: 20px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>

@@ -25,22 +25,20 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.contract.hi')}}, {{$client['firstname']}} {{$client['lastname']}}</h1>
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $client['firstname'] . ' ' . $client['lastname']])}}</h1>
 		
-		@if($client['lng'] == 'heb')
-		<p style="text-align: center;line-height: 30px">{{__('mail.contract.greetings')}} {{__('mail.contract.from')}}{{__('mail.contract.company')}}. {{__('mail.contract.content')}}</p>
-		@else
-        <p style="text-align: center;line-height: 30px">{{__('mail.contract.greetings')}} {{__('mail.contract.from')}} {{__('mail.contract.company')}}. {{__('mail.contract.content')}}</p>
-		@endif
+		<p style="text-align: center;line-height: 30px">{{__('mail.common.greetings')}}</p>
+
+		<p style="text-align: center;line-height: 30px">{{__('mail.contract.content')}}</p>
 
 		<p style="text-align: center;">{{__('mail.contract.below_txt')}}</p>
 		<div style="text-align: center;">
 			<a href='{{ url("work-contract/".$contract_id)}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.contract.btn_txt')}}</a> 
 		</div>
-		<p style="margin-top: 40px">{{__('mail.contract.reply_txt')}}</p>
-		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.contract.regards')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.contract.company')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.contract.tel')}}: 03-525-70-60</p>
+		<p style="margin-top: 40px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
+		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px"><a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a></p>
 	</div>
 </body>

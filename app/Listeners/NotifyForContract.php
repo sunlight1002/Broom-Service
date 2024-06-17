@@ -43,11 +43,10 @@ class NotifyForContract implements ShouldQueue
 
         Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
             $messages->to($ofr['client']['email']);
-            $ofr['client']['lng'] ?
-                $sub = __('mail.contract.subject') . "  " . __('mail.contract.company') . " for offer #" . $ofr['id']
-                :  $sub = $ofr['id'] . "# " . __('mail.contract.subject') . "  " . __('mail.contract.company');
 
-            $messages->subject($sub);
+            $messages->subject(__('mail.contract.subject', [
+                'id' => $ofr['id']
+            ]));
         });
     }
 }

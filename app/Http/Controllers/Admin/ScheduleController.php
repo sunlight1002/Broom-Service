@@ -128,9 +128,9 @@ class ScheduleController extends Controller
 
         event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
 
-        $schedule->load(['client', 'propertyAddress']);
-
         if (!$schedule->start_date) {
+            $schedule->load(['client', 'team', 'propertyAddress']);
+
             $this->sendMeetingMail($schedule);
 
             return response()->json([
@@ -406,8 +406,9 @@ class ScheduleController extends Controller
         }
         Mail::send('/Mails/DeleteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
             $messages->to($scheduleArr['client']['email']);
-            $sub = __('mail.cancel_meeting.subject') . " " . __('mail.cancel_meeting.from') . " " . __('mail.cancel_meeting.company') . " #" . $scheduleArr['id'];
-            $messages->subject($sub);
+            $messages->subject(__('mail.cancel_meeting.subject', [
+                'id' => $scheduleArr['id']
+            ]));
         });
 
         $schedule->delete();

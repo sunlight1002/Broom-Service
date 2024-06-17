@@ -27,27 +27,20 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.cancel_meeting.hi')}}, {{$client['firstname']}} {{$client['lastname']}}</h1>
-        
-		@if($client['lng'] == 'heb')
-		<p style="text-align: center;">{{__('mail.cancel_meeting.greetings')}} {{__('mail.cancel_meeting.from')}}{{__('mail.cancel_meeting.company')}}. {{__('mail.cancel_meeting.appointment')}}
-		@else
-		<p style="text-align: center;">{{__('mail.cancel_meeting.greetings')}} {{__('mail.cancel_meeting.from')}} {{__('mail.cancel_meeting.company')}}. {{__('mail.cancel_meeting.appointment')}}
-		@endif
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $client['firstname'] . ' ' . $client['lastname']])}}</h1>
 
-		@if(!empty($team['name'])) 
-		{{__('mail.cancel_meeting.with')}}      <span style="color:#0130c6;font-weight:700;">{{$team['name']}}</span>
-		 @endif
-		 {{__('mail.cancel_meeting.on')}}       <span style="color:#0130c6;font-weight:700;">{{ \Carbon\Carbon::parse($start_date)->format('d-m-Y')}}</span>
-		 {{__('mail.cancel_meeting.between')}}  <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($start_time))}}</span>
-		 {{__('mail.cancel_meeting.to')}}       <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($end_time))}}</span>
-		
-         <b>{{__('mail.cancel_meeting.cancel_text')}}</b>
-	
-		<p style="margin-top: 20px">{{__('mail.cancel_meeting.below_line')}}</p>
-		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.cancel_meeting.best_regards')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.cancel_meeting.company')}}</p>
-		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.cancel_meeting.tel')}}: 03-525-70-60</p>
+		<p style="text-align: center;">{{__('mail.common.greetings')}}</p>
+
+		<p style="text-align: center;">{{__('mail.cancel_meeting.content', [
+				'date' => \Carbon\Carbon::parse($start_date)->format('d-m-Y'),
+				'start_time' => date("H:i", strtotime($start_time)),
+				'end_time' => date("H:i", strtotime($end_time))
+			])}} </p>
+
+		<p style="margin-top: 20px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
+		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
+		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px"><a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a></p>
 	</div>
 </body>

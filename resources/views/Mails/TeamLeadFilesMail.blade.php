@@ -27,7 +27,7 @@
 		<p style="text-align: center;">{{__('mail.common.greetings')}}</p>
        	<p style="text-align: center;">{{__('mail.meeting.file')}}
 		
-	   <p style="text-align: center;">{{$client['firstname']}} {{$client['lastname']}} {{__('mail.meeting.file_content')}}</p>	
+	   	<p style="text-align: center;">{{$client['firstname']}} {{$client['lastname']}} {{__('mail.meeting.file_content')}}</p>	
 		
 		{{__('mail.meeting.with')}}      <span style="color:#0130c6;font-weight:700;">{{$client['firstname']}} {{$client['lastname']}}</span>
 
@@ -37,7 +37,7 @@
 			{{__('mail.meeting.to')}}       <span style="color:#0130c6;font-weight:700;">{{date("H:i", strtotime($end_time))}}</span>
 			@endif
 
-		<p style="margin-top: 20px">{{__('mail.meeting.below_line')}}</p>
+		<p style="margin-top: 20px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.common.company')}}</p>
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{__('mail.common.tel')}}: 03-525-70-60</p>
