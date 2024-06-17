@@ -4,15 +4,6 @@ import { useTranslation } from "react-i18next";
 
 export default function WorkerDetails({ worker }) {
     const { t } = useTranslation();
-    const cords = useMemo(() => {
-        if (!worker) {
-            return "NA";
-        }
-
-        return worker.latitude && worker.longitude
-            ? worker.latitude + "," + worker.longitude
-            : "NA";
-    }, [worker]);
 
     return (
         <>
@@ -79,7 +70,7 @@ export default function WorkerDetails({ worker }) {
                                     {worker ? (
                                         <Link
                                             target="_blank"
-                                            to={`https://maps.google.com?q=${cords}`}
+                                            to={`https://maps.google.com?q=${worker.address}`}
                                         >
                                             {worker.address}
                                         </Link>

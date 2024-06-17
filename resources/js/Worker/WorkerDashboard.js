@@ -266,14 +266,6 @@ export default function WorkerDashboard() {
                                                         address.address_name
                                                             ? address.address_name
                                                             : "NA";
-                                                    let cords =
-                                                        address &&
-                                                        address.latitude &&
-                                                        address.longitude
-                                                            ? address.latitude +
-                                                              "," +
-                                                              address.longitude
-                                                            : "NA";
                                                     return (
                                                         <Tr key={index}>
                                                             <Td>
@@ -307,10 +299,9 @@ export default function WorkerDashboard() {
                                                                 {item.shifts}
                                                             </Td>
                                                             <Td>
-                                                                {cords !==
-                                                                "NA" ? (
+                                                                {item.property_address ? (
                                                                     <Link
-                                                                        to={`https://maps.google.com?q=${cords}`}
+                                                                        to={`https://maps.google.com?q=${item.property_address.geo_address}`}
                                                                         target="_blank"
                                                                     >
                                                                         {
@@ -428,14 +419,6 @@ export default function WorkerDashboard() {
                                                     address.address_name
                                                         ? address.address_name
                                                         : "NA";
-                                                let cords =
-                                                    address &&
-                                                    address.latitude &&
-                                                    address.longitude
-                                                        ? address.latitude +
-                                                          "," +
-                                                          address.longitude
-                                                        : "NA";
                                                 return (
                                                     <Tr key={index}>
                                                         <Td>
@@ -459,9 +442,9 @@ export default function WorkerDashboard() {
                                                         </Td>
                                                         <Td>{item.shifts}</Td>
                                                         <Td>
-                                                            {cords !== "NA" ? (
+                                                            {item.property_address ? (
                                                                 <Link
-                                                                    to={`https://maps.google.com?q=${cords}`}
+                                                                    to={`https://maps.google.com?q=${item.property_address.geo_address}`}
                                                                     target="_blank"
                                                                 >
                                                                     {

@@ -50,7 +50,7 @@ export default function WorkerViewJob() {
                 setJobStatus(r.status);
                 setClient(r.client);
                 setWorker(r.worker);
-                setAddress(r.property_address ? r.property_address : {});
+                setAddress(r.property_address ? r.property_address : null);
                 handleStartTime(res.data.job.start_date);
             })
             .catch((e) => {

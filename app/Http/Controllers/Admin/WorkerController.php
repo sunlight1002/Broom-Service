@@ -311,7 +311,9 @@ class WorkerController extends Controller
             'country'       => $request->country,
             'is_afraid_by_cat'          => $request->is_afraid_by_cat,
             'is_afraid_by_dog'          => $request->is_afraid_by_dog,
-            'manpower_company_id'       => $request->company_type == "manpower" ? $request->manpower_company_id : NULL,
+            'manpower_company_id'       => $request->company_type == "manpower"
+                ? $request->manpower_company_id
+                : NULL,
         ]);
 
         $i = 1;

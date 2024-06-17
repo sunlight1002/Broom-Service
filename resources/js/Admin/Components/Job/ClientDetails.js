@@ -3,10 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 export default function ClientDetails({ client, address }) {
     const { t } = useTranslation();
-    var cords =
-        address.latitude && address.longitude
-            ? address.latitude + "," + address.longitude
-            : "NA";
 
     return (
         <>
@@ -77,7 +73,7 @@ export default function ClientDetails({ client, address }) {
                                 <p>
                                     <Link
                                         target="_blank"
-                                        to={`https://maps.google.com?q=${cords}`}
+                                        to={`https://maps.google.com?q=${address.geo_address}`}
                                     >
                                         {address.address_name}
                                     </Link>

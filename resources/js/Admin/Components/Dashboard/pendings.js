@@ -330,16 +330,13 @@ export default function () {
                                                             )}
                                                     </td>
                                                     <td>
-                                                        {property && cords ? (
+                                                        {property ? (
                                                             <Link
-                                                                to={`https://maps.google.com?q=${cords}`}
+                                                                to={`https://maps.google.com?q=${property.geo_address}`}
                                                             >
-                                                                {property &&
-                                                                property.address_name
-                                                                    ? d
-                                                                          .property_address
-                                                                          .address_name
-                                                                    : "NA"}
+                                                                {
+                                                                    property.address_name
+                                                                }
                                                             </Link>
                                                         ) : (
                                                             "NA"
@@ -536,15 +533,7 @@ export default function () {
                                                                             .address
                                                                             .longitude ? (
                                                                             <Link
-                                                                                to={`https://maps.google.com?q=${
-                                                                                    s
-                                                                                        .address
-                                                                                        .latitude +
-                                                                                    "," +
-                                                                                    s
-                                                                                        .address
-                                                                                        .longitude
-                                                                                }`}
+                                                                                to={`https://maps.google.com?q=${s.address.geo_address}`}
                                                                                 key={
                                                                                     j
                                                                                 }
@@ -773,15 +762,7 @@ export default function () {
                                                                             .address
                                                                             .longitude ? (
                                                                             <Link
-                                                                                to={`https://maps.google.com?q=${
-                                                                                    s
-                                                                                        .address
-                                                                                        .latitude +
-                                                                                    "," +
-                                                                                    s
-                                                                                        .address
-                                                                                        .longitude
-                                                                                }`}
+                                                                                to={`https://maps.google.com?q=${s.address.geo_address}`}
                                                                                 key={
                                                                                     j
                                                                                 }

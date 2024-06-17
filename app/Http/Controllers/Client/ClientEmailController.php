@@ -36,7 +36,7 @@ class ClientEmailController extends Controller
         'client:id,lng,firstname,lastname',
         'team:id,name,heb_name',
         'team.availabilities:team_member_id,date,start_time,end_time',
-        'propertyAddress:id,address_name,latitude,longitude'
+        'propertyAddress:id,address_name,latitude,longitude,geo_address'
       ])
       ->find($id);
 

@@ -47,7 +47,7 @@ class JobController extends Controller
             ->leftJoin('job_services', 'job_services.job_id', '=', 'jobs.id')
             ->leftJoin('services', 'job_services.service_id', '=', 'services.id')
             ->where('jobs.client_id', Auth::user()->id)
-            ->select('jobs.id', 'jobs.start_date', 'jobs.shifts', 'jobs.status', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'jobs.start_time')
+            ->select('jobs.id', 'jobs.start_date', 'jobs.shifts', 'jobs.status', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'jobs.start_time', 'client_property_addresses.geo_address')
             ->selectRaw("$service_column AS service_name")
             ->groupBy('jobs.id');
 

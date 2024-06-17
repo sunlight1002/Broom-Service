@@ -54,7 +54,7 @@ class DashboardController extends Controller
             ->leftJoin('client_property_addresses', 'schedules.address_id', '=', 'client_property_addresses.id')
             ->leftJoin('files', 'files.meeting', '=', 'schedules.id')
             ->where('schedules.client_id', Auth::user()->id)
-            ->select('schedules.id', 'schedules.booking_status', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'admins.name as attender_name', 'schedules.start_date', 'schedules.start_time', 'schedules.end_time', 'schedules.purpose')
+            ->select('schedules.id', 'schedules.booking_status', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'admins.name as attender_name', 'schedules.start_date', 'schedules.start_time', 'schedules.end_time', 'schedules.purpose', 'client_property_addresses.geo_address')
             ->selectRaw('IF(files.id IS NULL, 0, 1) as file_exists');
 
         return DataTables::eloquent($query)

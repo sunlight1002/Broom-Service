@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import { Base64 } from "js-base64";
 import logo from "../Assets/image/sample.svg";
-import Clientfiles from "../Client/Pages/Schedule/Files";
 import { useAlert } from "react-alert";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -23,7 +22,7 @@ export default function MeetingFiles() {
     const [file, setFile] = useState([]);
     const [AllFiles, setAllFiles] = useState([]);
     const [loading, setLoading] = useState("Loading...");
-    const [address, setAddress] = useState([]);
+    const [address, setAddress] = useState(null);
     const [toggle, toggleValue] = useToggle(false);
     const meetId = Base64.decode(param.id);
     const headers = {
@@ -39,7 +38,7 @@ export default function MeetingFiles() {
                 setMeeting(schedule);
                 setTeamName(schedule.team?.name);
                 setAddress(
-                    schedule.property_address ? schedule.property_address : []
+                    schedule.property_address ? schedule.property_address : null
                 );
                 const lng = schedule.client.lng;
                 i18next.changeLanguage(lng);
@@ -202,17 +201,13 @@ export default function MeetingFiles() {
                             {timeFormat(meeting.end_time)}
                         </span>
                     </li>
-                    {address.address_name ? (
+                    {address ? (
                         <li>
                             {t("meet_stat.address")}:{" "}
                             <span>
                                 <Link
                                     target="_blank"
-                                    to={`https://maps.google.com?q=${
-                                        address.latitude +
-                                        "," +
-                                        address.longitude
-                                    }`}
+                                    to={`https://maps.google.com?q=${address.geo_address}`}
                                 >
                                     {address.address_name}
                                 </Link>

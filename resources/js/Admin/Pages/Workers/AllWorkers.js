@@ -76,7 +76,7 @@ export default function AllWorkers() {
                     orderable: false,
                     render: function (data, type, row, meta) {
                         if (data) {
-                            return `<a href="https://maps.google.com?q=${row.latitude},${row.longitude}" target="_blank" class="dt-address-link"> ${data} </a>`;
+                            return `<a href="https://maps.google.com?q=${row.address}" target="_blank" class="dt-address-link"> ${data} </a>`;
                         } else {
                             return "NA";
                         }

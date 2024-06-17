@@ -219,15 +219,7 @@ export default function ViewOffer() {
                                                                                     <td>
                                                                                         {s.address ? (
                                                                                             <Link
-                                                                                                to={`https://maps.google.com?q=${
-                                                                                                    s
-                                                                                                        .address
-                                                                                                        .latitude +
-                                                                                                    "," +
-                                                                                                    s
-                                                                                                        .address
-                                                                                                        .longitude
-                                                                                                }`}
+                                                                                                to={`https://maps.google.com?q=${s.address.geo_address}`}
                                                                                             >
                                                                                                 {
                                                                                                     s

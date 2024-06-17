@@ -6,39 +6,6 @@ import { Link } from "react-router-dom";
 export default function Services({ job }) {
     const { t, i18n } = useTranslation();
     const c_lng = i18n.language;
-    // const show_shift = ["Full Day", "Morning", "Afternoon", "Evening", "Night"];
-    // const getShift = (shifts) => {
-    //     let s = shifts.split(",");
-    //     let check = "";
-    //     let new_shift = "";
-    //     show_shift.map((p) => {
-    //         if (p == "Afternoon") {
-    //             check = "noon";
-    //         } else {
-    //             check = p;
-    //         }
-    //         s.map((sh) => {
-    //             if (sh.includes(check.toLowerCase())) {
-    //                 if (new_shift == "") {
-    //                     new_shift = p;
-    //                 } else {
-    //                     if (!new_shift.includes(p)) {
-    //                         new_shift =
-    //                             t("global." + new_shift.toLowerCase()) +
-    //                             " | " +
-    //                             t("global." + p.toLowerCase());
-    //                     }
-    //                 }
-    //             }
-    //         });
-    //     });
-    //     if (new_shift == "Full Day") return t("global.fullday");
-    //     if (new_shift == "Morning") return t("global.morning");
-    //     if (new_shift == "Noon") return t("global.noon");
-    //     if (new_shift == "Afternoon") return t("global.afternoon");
-    //     if (new_shift == "Evening") return t("global.evening");
-    //     return new_shift;
-    // };
     let status = job.status;
     if (status == "not-started") {
         status = t("j_status.not-started");
@@ -128,13 +95,7 @@ export default function Services({ job }) {
                                             <p>
                                                 <Link
                                                     target="_blank"
-                                                    to={`https://maps.google.com?q=${
-                                                        job.property_address
-                                                            .latitude +
-                                                        "," +
-                                                        job.property_address
-                                                            .longitude
-                                                    }`}
+                                                    to={`https://maps.google.com?q=${job.property_address.geo_address}`}
                                                 >
                                                     {
                                                         job.property_address

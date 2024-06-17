@@ -278,15 +278,7 @@ export default function ClientViewOffer() {
                                                                                     <Td>
                                                                                         {s.address ? (
                                                                                             <Link
-                                                                                                to={`https://maps.google.com?q=${
-                                                                                                    s
-                                                                                                        .address
-                                                                                                        .latitude +
-                                                                                                    "," +
-                                                                                                    s
-                                                                                                        .address
-                                                                                                        .longitude
-                                                                                                }`}
+                                                                                                to={`https://maps.google.com?q=${s.address.geo_address}`}
                                                                                             >
                                                                                                 {
                                                                                                     s

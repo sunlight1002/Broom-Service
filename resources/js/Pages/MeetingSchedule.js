@@ -14,7 +14,7 @@ export default function MeetingSchedule() {
 
     const [meeting, setMeeting] = useState([]);
     const [teamName, setTeamName] = useState("");
-    const [address, setAddress] = useState([]);
+    const [address, setAddress] = useState(null);
 
     const getMeeting = () => {
         axios
@@ -24,7 +24,7 @@ export default function MeetingSchedule() {
                 setMeeting(schedule);
                 setTeamName(schedule.team?.name);
                 setAddress(
-                    schedule.property_address ? schedule.property_address : []
+                    schedule.property_address ? schedule.property_address : null
                 );
                 const lng = schedule.client.lng;
                 i18next.changeLanguage(lng);
@@ -108,17 +108,13 @@ export default function MeetingSchedule() {
                     ) : (
                         ""
                     )}
-                    {address.address_name ? (
+                    {address ? (
                         <li>
                             {t("meet_stat.address")}:{" "}
                             <span>
                                 <Link
                                     target="_blank"
-                                    to={`https://maps.google.com?q=${
-                                        address.latitude +
-                                        "," +
-                                        address.longitude
-                                    }`}
+                                    to={`https://maps.google.com?q=${address.geo_address}`}
                                 >
                                     {address.address_name}
                                 </Link>

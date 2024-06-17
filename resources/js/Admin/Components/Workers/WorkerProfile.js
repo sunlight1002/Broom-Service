@@ -10,12 +10,6 @@ export default function WorkerProfile({ worker }) {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const cords = useMemo(() => {
-        return worker.latitude && worker.longitude
-            ? worker.latitude + "," + worker.longitude
-            : "";
-    });
-
     const viewPass = () => {
         if (!passVal) {
             window.alert("Please enter your password");
@@ -153,7 +147,7 @@ export default function WorkerProfile({ worker }) {
                                         Address
                                     </label>
                                     <a
-                                        href={`https://maps.google.com?q=${cords}`}
+                                        href={`https://maps.google.com?q=${worker.address}`}
                                         target="_blank"
                                     >
                                         <p>{worker.address}</p>

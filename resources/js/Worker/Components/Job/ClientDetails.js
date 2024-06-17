@@ -3,10 +3,6 @@ import { useTranslation } from "react-i18next";
 
 export default function ClientDetails({ client, address }) {
     const { t } = useTranslation();
-    var cords =
-        address.latitude && address.longitude
-            ? address.latitude + "," + address.longitude
-            : "NA";
     return (
         <>
             <div className="dashBox p-4 mb-3">
@@ -38,28 +34,34 @@ export default function ClientDetails({ client, address }) {
                                 <p>{client.phone}</p>
                             </div>
                         </div>
-                        <div className="col-xl-4 col-md-6 col-12">
-                            <div className="form-group">
-                                <label>{t("worker.jobs.view.geo_adr")}</label>
-                                <p>
-                                    <a
-                                        href={`https://maps.google.com?q=${cords}`}
-                                        target="_blank"
-                                    >
-                                        {address.address_name}
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                        {address.parking && (
-                            <div className="col-sm-4">
-                                <div className="form-group">
-                                    <label>
-                                        {t("worker.jobs.view.parking")}
-                                    </label>
-                                    <p>{address.parking}</p>
+                        {address && (
+                            <>
+                                <div className="col-xl-4 col-md-6 col-12">
+                                    <div className="form-group">
+                                        <label>
+                                            {t("worker.jobs.view.geo_adr")}
+                                        </label>
+                                        <p>
+                                            <a
+                                                href={`https://maps.google.com?q=${address.geo_address}`}
+                                                target="_blank"
+                                            >
+                                                {address.address_name}
+                                            </a>
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
+                                {address.parking && (
+                                    <div className="col-sm-4">
+                                        <div className="form-group">
+                                            <label>
+                                                {t("worker.jobs.view.parking")}
+                                            </label>
+                                            <p>{address.parking}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </form>
