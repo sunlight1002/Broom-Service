@@ -356,7 +356,9 @@ class ClientEmailController extends Controller
         'status' => 'accepted'
       ]);
 
-      event(new ContractSigned($client, $contract));
+      $client->makeVisible('passcode');
+
+      event(new ContractSigned($client->toArray(), $contract));
 
       return response()->json([
         'message' => "Thanks, for accepting contract"

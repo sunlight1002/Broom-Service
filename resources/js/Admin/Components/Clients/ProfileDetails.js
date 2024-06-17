@@ -103,16 +103,11 @@ export default function ProfileDetails({
             return;
         }
         axios
-            .post(
-                `/api/admin/viewpass`,
-                { id: localStorage.getItem("admin-id"), pass: passVal },
-                { headers }
-            )
+            .post(`/api/admin/viewpass`, { pass: passVal }, { headers })
             .then((res) => {
                 if (res.data.response == false) {
                     window.alert("Wrong password!");
                 } else {
-                    console.log(passcode);
                     setPass(passcode);
                     document.querySelector(".closePs").click();
                 }

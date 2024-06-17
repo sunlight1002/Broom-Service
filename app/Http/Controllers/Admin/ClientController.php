@@ -334,6 +334,8 @@ class ClientController extends Controller
             ], 404);
         }
 
+        $client->makeVisible('passcode');
+
         $contract = Contract::query()
             ->where('client_id', $client->id)
             ->where('status', 'verified')
@@ -369,6 +371,8 @@ class ClientController extends Controller
                 ]
             ], 404);
         }
+    
+        $client->makeVisible('passcode');
 
         return response()->json([
             'client' => $client,

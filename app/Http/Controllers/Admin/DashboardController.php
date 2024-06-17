@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Traits\PriceOffered;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
@@ -428,7 +429,8 @@ class DashboardController extends Controller
 
   public function viewPass(Request $request)
   {
-    $user = Admin::where('id', $request->id)->first();
+    $user = Admin::find(Auth::id());
+
     $response = Hash::check($request->pass, $user->password);
     return response()->json([
       'response' => $response

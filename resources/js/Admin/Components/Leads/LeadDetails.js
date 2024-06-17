@@ -182,7 +182,7 @@ export default function LeadDetails({ lead }) {
                                                 <p>
                                                     <Link
                                                         className="btn btn-success"
-                                                        to={`/admin/edit-lead/${param.id}`}
+                                                        to={`/admin/leads/${param.id}/edit`}
                                                     >
                                                         {t(
                                                             "admin.leads.leadDetails.EditLead"

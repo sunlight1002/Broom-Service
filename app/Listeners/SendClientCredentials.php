@@ -33,7 +33,7 @@ class SendClientCredentials implements ShouldQueue
         $client = $event->client;
 
         App::setLocale($client['lng']);
-        Mail::send('/Mails/ClientLoginCredentialsMail', $client->toArray(), function ($messages) use ($client) {
+        Mail::send('/Mails/ClientLoginCredentialsMail', $client, function ($messages) use ($client) {
             $messages->to($client['email']);
 
             $messages->subject(__('mail.client_credentials.subject', [
