@@ -27,9 +27,14 @@ class ContractController extends Controller
      */
     public function index(Request $request)
     {
+        $status = $request->get('status');
+
         $query = Contract::query()
             ->leftJoin('offers', 'offers.id', '=', 'contracts.offer_id')
             ->leftJoin('clients', 'contracts.client_id', '=', 'clients.id')
+            ->when($status != 'All', function ($q) use ($status) {
+                return $q->where('contracts.status', $status);
+            })
             ->select('contracts.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'contracts.status', 'contracts.job_status', 'offers.subtotal', 'offers.services', 'contracts.created_at');
 
         return DataTables::eloquent($query)

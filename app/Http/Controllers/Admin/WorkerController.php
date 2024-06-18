@@ -40,6 +40,7 @@ class WorkerController extends Controller
     {
         $status = $request->get('status');
         $manpowerCompanyID = $request->get('manpower_company_id');
+        $isMyCompany = $request->get('is_my_company');
 
         $query = User::query()
             ->when($status == "active", function ($q) {
@@ -57,6 +58,9 @@ class WorkerController extends Controller
             })
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);
+            })
+            ->when($isMyCompany == 'true', function ($q) {
+                return $q->where('company_type', 'my-company');
             })
             ->when($status && !$manpowerCompanyID, function ($q) {
                 return $q->where('company_type', 'my-company');
@@ -798,6 +802,7 @@ class WorkerController extends Controller
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
         $manpowerCompanyID = $request->get('manpower_company_id');
+        $isMyCompany = $request->get('is_my_company');
 
         $jobHours = Job::query()
             ->when($start_date, function ($q) use ($start_date) {
@@ -816,6 +821,9 @@ class WorkerController extends Controller
             })
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);
+            })
+            ->when($isMyCompany == 'true', function ($q) {
+                return $q->where('company_type', 'my-company');
             })
             ->where(function ($q) {
                 $q
@@ -857,8 +865,15 @@ class WorkerController extends Controller
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
         $manpowerCompanyID = $request->get('manpower_company_id');
+        $isMyCompany = $request->get('is_my_company');
 
-        return Excel::download(new WorkerHoursExport($worker_ids, $start_date, $end_date, $manpowerCompanyID), 'Worker Hours.csv');
+        return Excel::download(new WorkerHoursExport(
+            $worker_ids,
+            $start_date,
+            $end_date,
+            $manpowerCompanyID,
+            $isMyCompany
+        ), 'Worker Hours.csv');
     }
 
     public function formSend(Request $request, Form101FieldEnum $formEnum)

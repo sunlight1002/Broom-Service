@@ -63,6 +63,7 @@ export default function WorkerHours() {
     const [selectedDateStep, setSelectedDateStep] = useState("Current Day");
     const [filters, setFilters] = useState({
         manpower_company_id: "",
+        is_my_company: false,
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
     const [selectedWorkerIDs, setSelectedWorkerIDs] = useState([]);
@@ -71,6 +72,7 @@ export default function WorkerHours() {
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
     const manpowerCompanyRef = useRef(null);
+    const isMyCompanyRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -95,6 +97,7 @@ export default function WorkerHours() {
                     d.manpower_company_id = manpowerCompanyRef.current.value;
                     d.start_date = startDateRef.current.value;
                     d.end_date = endDateRef.current.value;
+                    d.is_my_company = isMyCompanyRef.current.value;
                 },
             },
             order: [[1, "desc"]],
@@ -423,6 +426,12 @@ export default function WorkerHours() {
                                 value={dateRange.end_date}
                                 ref={endDateRef}
                             />
+
+                            <input
+                                type="hidden"
+                                value={filters.is_my_company}
+                                ref={isMyCompanyRef}
+                            />
                         </div>
                     </div>
                     <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
@@ -485,17 +494,19 @@ export default function WorkerHours() {
                         >
                             Manpower Company
                         </div>
-                        <div>
+                        <div className="d-flex">
                             <select
                                 className="form-control"
                                 onChange={(e) => {
                                     setFilters({
                                         ...filters,
                                         manpower_company_id: e.target.value,
+                                        is_my_company: false,
                                     });
                                 }}
+                                value={filters.manpower_company_id}
                             >
-                                <option value="">All</option>
+                                <option value="">--- Select ---</option>
 
                                 {manpowerCompanies.map((company, _index) => (
                                     <option key={_index} value={company.id}>
@@ -504,6 +515,47 @@ export default function WorkerHours() {
                                     </option>
                                 ))}
                             </select>
+                            <button
+                                className={`btn border rounded px-3 mx-1`}
+                                style={
+                                    filters.is_my_company === true
+                                        ? { background: "white" }
+                                        : {
+                                              background: "#2c3f51",
+                                              color: "white",
+                                          }
+                                }
+                                onClick={() => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: "",
+                                        is_my_company: true,
+                                    });
+                                }}
+                            >
+                                My Company
+                            </button>
+                            <button
+                                className={`btn border rounded px-3 mx-1`}
+                                style={
+                                    filters.is_my_company !== true &&
+                                    filters.manpower_company_id === ""
+                                        ? { background: "white" }
+                                        : {
+                                              background: "#2c3f51",
+                                              color: "white",
+                                          }
+                                }
+                                onClick={() => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: "",
+                                        is_my_company: false,
+                                    });
+                                }}
+                            >
+                                All
+                            </button>
                         </div>
                     </div>
                 </div>

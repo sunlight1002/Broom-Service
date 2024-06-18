@@ -18,7 +18,8 @@ export default function AllWorkers() {
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const [filters, setFilters] = useState({
         status: "",
-        manpower_company_id: null,
+        manpower_company_id: "",
+        is_my_company: false,
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
 
@@ -26,6 +27,7 @@ export default function AllWorkers() {
     const tableRef = useRef(null);
     const statusRef = useRef(null);
     const manpowerCompanyRef = useRef(null);
+    const isMyCompanyRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -49,6 +51,7 @@ export default function AllWorkers() {
                 data: function (d) {
                     d.status = statusRef.current.value;
                     d.manpower_company_id = manpowerCompanyRef.current.value;
+                    d.is_my_company = isMyCompanyRef.current.value;
                 },
             },
             order: [[0, "desc"]],
@@ -343,11 +346,31 @@ export default function AllWorkers() {
                         >
                             Manpower Company
                         </div>
-                        <div>
-                            {/* <button
-                                className={`btn border rounded px-3 mr-1 float-left`}
+                        <div className="d-flex">
+                            <select
+                                className="form-control"
+                                onChange={(e) => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: e.target.value,
+                                        is_my_company: false,
+                                    });
+                                }}
+                                value={filters.manpower_company_id}
+                            >
+                                <option value="">--- Select ---</option>
+
+                                {manpowerCompanies.map((company, _index) => (
+                                    <option key={_index} value={company.id}>
+                                        {" "}
+                                        {company.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                className={`btn border rounded px-3 mx-1`}
                                 style={
-                                    filters.manpower_company_id === null
+                                    filters.is_my_company === true
                                         ? { background: "white" }
                                         : {
                                               background: "#2c3f51",
@@ -357,53 +380,34 @@ export default function AllWorkers() {
                                 onClick={() => {
                                     setFilters({
                                         ...filters,
-                                        manpower_company_id: null,
+                                        manpower_company_id: "",
+                                        is_my_company: true,
+                                    });
+                                }}
+                            >
+                                My Company
+                            </button>
+                            <button
+                                className={`btn border rounded px-3 mx-1`}
+                                style={
+                                    filters.is_my_company !== true &&
+                                    filters.manpower_company_id === ""
+                                        ? { background: "white" }
+                                        : {
+                                              background: "#2c3f51",
+                                              color: "white",
+                                          }
+                                }
+                                onClick={() => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: "",
+                                        is_my_company: false,
                                     });
                                 }}
                             >
                                 All
                             </button>
-                            {manpowerCompanies.map((company, _index) => (
-                                <button
-                                    key={_index}
-                                    className={`btn border rounded px-3 mr-1 float-left`}
-                                    style={
-                                        filters.manpower_company_id ===
-                                        company.id
-                                            ? { background: "white" }
-                                            : {
-                                                  background: "#2c3f51",
-                                                  color: "white",
-                                              }
-                                    }
-                                    onClick={() => {
-                                        setFilters({
-                                            ...filters,
-                                            manpower_company_id: company.id,
-                                        });
-                                    }}
-                                >
-                                    {company.name}
-                                </button>
-                            ))} */}
-                            <select
-                                className="form-control"
-                                onChange={(e) => {
-                                    setFilters({
-                                        ...filters,
-                                        manpower_company_id: e.target.value,
-                                    });
-                                }}
-                            >
-                                <option value="">All</option>
-
-                                {manpowerCompanies.map((company, _index) => (
-                                    <option key={_index} value={company.id}>
-                                        {" "}
-                                        {company.name}
-                                    </option>
-                                ))}
-                            </select>
                         </div>
 
                         <input
@@ -416,6 +420,12 @@ export default function AllWorkers() {
                             type="hidden"
                             value={filters.manpower_company_id}
                             ref={manpowerCompanyRef}
+                        />
+
+                        <input
+                            type="hidden"
+                            value={filters.is_my_company}
+                            ref={isMyCompanyRef}
                         />
                     </div>
                 </div>

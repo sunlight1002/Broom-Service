@@ -12,14 +12,16 @@ class WorkerHoursExport implements FromArray
     protected $start_date = NULL;
     protected $end_date = NULL;
     protected $manpowerCompanyID = '';
+    protected $isMyCompany = '';
     protected $data = [];
 
-    public function __construct($worker_ids, $start_date, $end_date, $manpowerCompanyID)
+    public function __construct($worker_ids, $start_date, $end_date, $manpowerCompanyID, $isMyCompany)
     {
         $this->worker_ids = $worker_ids;
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         $this->manpowerCompanyID = $manpowerCompanyID;
+        $this->isMyCompany = $isMyCompany;
     }
 
     public function array(): array
@@ -40,6 +42,9 @@ class WorkerHoursExport implements FromArray
             ->where(function ($q) {
                 $q->whereNull('users.last_work_date')
                     ->orWhereDate('users.last_work_date', '>=', today()->toDateString());
+            })
+            ->when($this->isMyCompany == 'true', function ($q) {
+                return $q->where('company_type', 'my-company');
             })
             ->select('jobs.start_date', DB::raw('CONCAT(users.firstname, " ", COALESCE(users.lastname, "")) as worker_name'), 'users.worker_id', 'users.id')
             ->selectRaw('SUM(jobs.actual_time_taken_minutes) AS time')

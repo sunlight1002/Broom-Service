@@ -230,7 +230,7 @@ export default function OfferPrice() {
                         </div>
                     </div>
                 </div>
-                <div className=" d-none d-lg-block">
+                <div className="d-none d-lg-block">
                     <div className="row">
                         <div
                             style={{

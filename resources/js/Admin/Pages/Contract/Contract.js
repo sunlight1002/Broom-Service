@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -10,10 +10,21 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
+import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Contract() {
     const navigate = useNavigate();
     const tableRef = useRef(null);
+    const statusRef = useRef(null);
+
+    const [filter, setFilter] = useState("All");
+
+    const contractStatuses = [
+        "verified",
+        "un-verified",
+        "not-signed",
+        "declined",
+    ];
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -33,6 +44,9 @@ export default function Contract() {
                         "Authorization",
                         `Bearer ` + localStorage.getItem("admin-token")
                     );
+                },
+                data: function (d) {
+                    d.status = statusRef.current.value;
                 },
             },
             order: [[0, "desc"]],
@@ -262,6 +276,10 @@ export default function Contract() {
         });
     };
 
+    useEffect(() => {
+        $(tableRef.current).DataTable().draw();
+    }, [filter]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -279,6 +297,44 @@ export default function Contract() {
                                 <option value="">-- Sort By--</option>
                                 <option value="5">Status</option>
                             </select>
+                        </div>
+                    </div>
+                </div>
+                <div className="d-none d-lg-block">
+                    <div className="row">
+                        <div
+                            style={{
+                                fontWeight: "bold",
+                                marginTop: 10,
+                                marginLeft: 15,
+                            }}
+                        >
+                            Filter
+                        </div>
+                        <div>
+                            <FilterButtons
+                                text="All"
+                                className="px-3 mr-1 ml-4"
+                                selectedFilter={filter}
+                                setselectedFilter={setFilter}
+                            />
+                            {contractStatuses.map((_status, _index) => {
+                                return (
+                                    <FilterButtons
+                                        text={_status}
+                                        className="mr-1 px-3 ml-2"
+                                        key={_index}
+                                        selectedFilter={filter}
+                                        setselectedFilter={setFilter}
+                                    />
+                                );
+                            })}
+
+                            <input
+                                type="hidden"
+                                value={filter}
+                                ref={statusRef}
+                            />
                         </div>
                     </div>
                 </div>
