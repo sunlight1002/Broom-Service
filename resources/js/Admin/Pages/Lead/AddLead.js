@@ -3,30 +3,31 @@ import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
 import axios from "axios";
-import { MultiSelect } from "react-multi-select-component";
-import Select from "react-select";
-import { create } from "lodash";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import { useTranslation } from "react-i18next";
 
 export default function AddLead() {
-    const [firstname, setFirstName] = useState("");
-    const [lastname, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [invoiceName, setInvoiceName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [dob, setDob] = useState("");
-    const [passcode, setPassCode] = useState("");
-    const [lng, setLng] = useState("");
-    const [color, setColor] = useState("");
     const [status, setStatus] = useState(0);
     const [errors, setErrors] = useState([]);
     const alert = useAlert();
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
-    const [paymentMethod, setPaymentMethod] = useState("cc");
+    const [addresses, setAddresses] = useState([]);
+    const [formValues, setFormValues] = useState({
+        firstname: "",
+        lastname: "",
+        email: "",
+        invoicename: "",
+        phone: "",
+        dob: "",
+        passcode: "",
+        lng: "",
+        color: "",
+        vat_number: "",
+        payment_method: "cc",
+    });
+
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const [addresses, setAddresses] = useState([]);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -47,17 +48,23 @@ export default function AddLead() {
                 `/api/admin/leads`,
                 {
                     data: {
-                        firstname: firstname,
-                        lastname: lastname == null ? "" : lastname,
-                        invoicename: invoiceName ? invoiceName : "",
-                        dob: dob,
-                        passcode: passcode,
-                        lng: lng ? lng : "heb",
-                        color: !color ? "#fff" : color,
-                        email: email,
+                        firstname: formValues.firstname,
+                        lastname:
+                            formValues.lastname == null
+                                ? ""
+                                : formValues.lastname,
+                        invoicename: formValues.invoicename
+                            ? formValues.invoicename
+                            : "",
+                        dob: formValues.dob,
+                        passcode: formValues.passcode,
+                        lng: formValues.lng ? formValues.lng : "heb",
+                        color: !formValues.color ? "#fff" : formValues.color,
+                        email: formValues.email,
                         phone: phoneClc,
-                        password: passcode,
-                        payment_method: paymentMethod,
+                        password: formValues.passcode,
+                        payment_method: formValues.payment_method,
+                        vat_number: formValues.vat_number,
                         extra: JSON.stringify(extra),
                         status: !status ? 0 : parseInt(status),
                         meta: "",
@@ -124,10 +131,14 @@ export default function AddLead() {
                                             </label>
                                             <input
                                                 type="text"
-                                                value={firstname}
-                                                onChange={(e) =>
-                                                    setFirstName(e.target.value)
-                                                }
+                                                value={formValues.firstname}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        firstname:
+                                                            e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 required
                                                 placeholder={t(
@@ -152,10 +163,14 @@ export default function AddLead() {
                                             </label>
                                             <input
                                                 type="text"
-                                                value={lastname}
-                                                onChange={(e) =>
-                                                    setLastName(e.target.value)
-                                                }
+                                                value={formValues.lastname}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        lastname:
+                                                            e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 required
                                                 placeholder={t(
@@ -173,12 +188,14 @@ export default function AddLead() {
                                             </label>
                                             <input
                                                 type="text"
-                                                value={invoiceName}
-                                                onChange={(e) =>
-                                                    setInvoiceName(
-                                                        e.target.value
-                                                    )
-                                                }
+                                                value={formValues.invoicename}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        invoicename:
+                                                            e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 required
                                                 placeholder={t(
@@ -197,10 +214,13 @@ export default function AddLead() {
                                             </label>
                                             <input
                                                 type="email"
-                                                value={email}
-                                                onChange={(e) =>
-                                                    setEmail(e.target.value)
-                                                }
+                                                value={formValues.email}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        email: e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 required
                                                 placeholder={t(
@@ -226,10 +246,14 @@ export default function AddLead() {
                                             </label>
                                             <input
                                                 type="password"
-                                                value={passcode}
-                                                onChange={(e) =>
-                                                    setPassCode(e.target.value)
-                                                }
+                                                value={formValues.passcode}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        passcode:
+                                                            e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control"
                                                 required
                                                 placeholder={t(
@@ -256,11 +280,14 @@ export default function AddLead() {
                                             </label>
                                             <input
                                                 type="tel"
-                                                value={phone}
+                                                value={formValues.phone}
                                                 name={"phone"}
-                                                onChange={(e) =>
-                                                    setPhone(e.target.value)
-                                                }
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        phone: e.target.value,
+                                                    });
+                                                }}
                                                 className="form-control pphone"
                                                 placeholder={t(
                                                     "admin.leads.AddLead.placeHolder.PrimaryPhone"
@@ -420,8 +447,13 @@ export default function AddLead() {
                                     </label>
                                     <input
                                         type="date"
-                                        value={dob}
-                                        onChange={(e) => setDob(e.target.value)}
+                                        value={formValues.dob}
+                                        onChange={(e) => {
+                                            setFormValues({
+                                                ...formValues,
+                                                dob: e.target.value,
+                                            });
+                                        }}
                                         className="form-control"
                                     />
                                     {errors.dob ? (
@@ -435,14 +467,37 @@ export default function AddLead() {
 
                                 <div className="form-group">
                                     <label className="control-label">
+                                        ID/VAT Number
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        value={formValues.vat_number}
+                                        onChange={(e) => {
+                                            setFormValues({
+                                                ...formValues,
+                                                vat_number: e.target.value,
+                                            });
+                                        }}
+                                        className="form-control"
+                                        required
+                                        placeholder="Enter ID/VAT Number"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
                                         {t("admin.leads.AddLead.PaymentMethod")}
                                     </label>
 
                                     <select
                                         className="form-control"
-                                        value={paymentMethod}
+                                        value={formValues.payment_method}
                                         onChange={(e) => {
-                                            setPaymentMethod(e.target.value);
+                                            setFormValues({
+                                                ...formValues,
+                                                payment_method: e.target.value,
+                                            });
                                         }}
                                     >
                                         <option value="cc">
@@ -475,9 +530,12 @@ export default function AddLead() {
 
                                     <select
                                         className="form-control"
-                                        value={lng}
+                                        value={formValues.lng}
                                         onChange={(e) => {
-                                            setLng(e.target.value);
+                                            setFormValues({
+                                                ...formValues,
+                                                lng: e.target.value,
+                                            });
                                         }}
                                     >
                                         <option value="heb">Hebrew</option>
@@ -503,7 +561,12 @@ export default function AddLead() {
                                             id="swatch_2"
                                             value="0"
                                             color="#fff"
-                                            onChange={(e) => setColor("#fff")}
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    color: "#fff",
+                                                });
+                                            }}
                                         />
                                         <label htmlFor="swatch_2">
                                             <i className="fa fa-check"></i>
@@ -519,9 +582,12 @@ export default function AddLead() {
                                             id="swatch_7"
                                             value="2"
                                             color="#28a745"
-                                            onChange={(e) =>
-                                                setColor("#28a745")
-                                            }
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    color: "#28a745",
+                                                });
+                                            }}
                                         />
                                         <label htmlFor="swatch_7">
                                             <i className="fa fa-check"></i>
@@ -537,9 +603,12 @@ export default function AddLead() {
                                             id="swatch_3"
                                             value="3"
                                             color="#007bff"
-                                            onChange={(e) =>
-                                                setColor("#007bff")
-                                            }
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    color: "#007bff",
+                                                });
+                                            }}
                                         />
                                         <label htmlFor="swatch_3">
                                             <i className="fa fa-check"></i>
@@ -555,9 +624,12 @@ export default function AddLead() {
                                             id="swatch_1"
                                             value="1"
                                             color="#6f42c1"
-                                            onChange={(e) =>
-                                                setColor("#6f42c1")
-                                            }
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    color: "#6f42c1",
+                                                });
+                                            }}
                                         />
                                         <label htmlFor="swatch_1">
                                             <i className="fa fa-check"></i>
@@ -573,9 +645,12 @@ export default function AddLead() {
                                             id="swatch_5"
                                             value="5"
                                             color="#dc3545"
-                                            onChange={(e) =>
-                                                setColor("#dc3545")
-                                            }
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    color: "#dc3545",
+                                                });
+                                            }}
                                         />
                                         <label htmlFor="swatch_5">
                                             <i className="fa fa-check"></i>
@@ -591,9 +666,12 @@ export default function AddLead() {
                                             id="swatch_4"
                                             value="4"
                                             color="#fd7e14"
-                                            onChange={(e) =>
-                                                setColor("#fd7e14")
-                                            }
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    color: "#fd7e14",
+                                                });
+                                            }}
                                         />
                                         <label htmlFor="swatch_4">
                                             <i className="fa fa-check"></i>
@@ -609,9 +687,12 @@ export default function AddLead() {
                                             id="swatch_6"
                                             value="6"
                                             color="#ffc107"
-                                            onChange={(e) =>
-                                                setColor("#ffc107")
-                                            }
+                                            onChange={(e) => {
+                                                setFormValues({
+                                                    ...formValues,
+                                                    color: "#ffc107",
+                                                });
+                                            }}
                                         />
                                         <label htmlFor="swatch_6">
                                             <i className="fa fa-check"></i>

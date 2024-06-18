@@ -9,17 +9,17 @@ import swal from "sweetalert";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import moment from "moment";
 
 export default function WorkContract() {
     const { t } = useTranslation();
-    const navigate = useNavigate();
 
     const [offer, setOffer] = useState(null);
     const [services, setServices] = useState([]);
     const [client, setClient] = useState(null);
     const [contract, setContract] = useState(null);
     const [signature, setSignature] = useState(null);
+    const [cardSignature, setCardSignature] = useState(null);
     const [Aaddress, setAaddress] = useState(null);
     const [status, setStatus] = useState("");
     const [sessionURL, setSessionURL] = useState("");
@@ -29,9 +29,11 @@ export default function WorkContract() {
     const [selectedClientCardID, setSelectedClientCardID] = useState(null);
     const [isCardAdded, setIsCardAdded] = useState(false);
     const [consentToAds, setConsentToAds] = useState(true);
+    const [signDate, setSignDate] = useState(moment().format("DD/MM/YYYY"));
 
     const params = useParams();
-    const sigRef = useRef();
+    const sigRef1 = useRef();
+    const sigRef2 = useRef();
     const consentToAdsRef = useRef();
 
     const handleAccept = (e) => {
@@ -54,6 +56,7 @@ export default function WorkContract() {
             status: "un-verified",
             signature: signature,
             consent_to_ads: consentToAdsRef.current.checked ? 1 : 0,
+            form_data: { card_signature: cardSignature },
         };
 
         axios
@@ -78,13 +81,22 @@ export default function WorkContract() {
             });
     };
 
-    const handleSignatureEnd = () => {
-        setSignature(sigRef.current.toDataURL());
+    const handleSignature1End = () => {
+        setSignature(sigRef1.current.toDataURL());
     };
 
-    const clearSignature = () => {
-        sigRef.current.clear();
+    const clearSignature1 = () => {
+        sigRef1.current.clear();
         setSignature(null);
+    };
+
+    const handleSignature2End = () => {
+        setCardSignature(sigRef2.current.toDataURL());
+    };
+
+    const clearSignature2 = () => {
+        sigRef2.current.clear();
+        setCardSignature(null);
     };
 
     const getOffer = () => {
@@ -105,6 +117,11 @@ export default function WorkContract() {
                     if (_contract.status != "not-signed") {
                         setIsCardAdded(true);
                     }
+                    if (_contract.signed_at) {
+                        setSignDate(
+                            moment(_contract.signed_at).format("DD/MM/YYYY")
+                        );
+                    }
                     i18next.changeLanguage(res.data.offer.client.lng);
 
                     if (res.data.offer.client.lng == "heb") {
@@ -124,7 +141,7 @@ export default function WorkContract() {
                 } else {
                     setOffer({});
                     setServices([]);
-                    setClient([]);
+                    setClient(null);
                     setContract(null);
                 }
             })
@@ -261,6 +278,10 @@ export default function WorkContract() {
         return services.filter((i) => i.type !== "fixed").length > 0;
     }, [services]);
 
+    const selectedClientCard = useMemo(() => {
+        return clientCards.find((i) => i.id == selectedClientCardID);
+    }, [clientCards, selectedClientCardID]);
+
     return (
         <div className="container parent" style={{ display: "none" }}>
             <div className="send-offer client-contract sendOfferRtl">
@@ -315,7 +336,9 @@ export default function WorkContract() {
                                     {t("client.contract-form.hp_em_tz")}:
                                 </label>
                             </div>
-                            <span className="text-underline mx-3"></span>
+                            <span className="text-underline mx-3">
+                                {client ? client.vat_number : ""}
+                            </span>
                         </div>
                         <div className="col-md-12">
                             <label htmlFor="">
@@ -482,22 +505,66 @@ export default function WorkContract() {
                                     </p>
                                     <p>
                                         {t("client.contract-form.cc_card_type")}
-                                        :
+                                        :{" "}
+                                        {selectedClientCard
+                                            ? selectedClientCard.card_type
+                                            : ""}
                                     </p>
                                     <p>
                                         {t(
                                             "client.contract-form.cc_holder_name"
                                         )}
-                                        :
+                                        :{" "}
+                                        {selectedClientCard
+                                            ? selectedClientCard.card_holder_name
+                                            : ""}
                                     </p>
                                     <p>
                                         {t("client.contract-form.cc_id_number")}
-                                        :
+                                        :{" "}
+                                        {selectedClientCard
+                                            ? selectedClientCard.card_holder_id
+                                            : ""}
                                     </p>
                                     <p>
                                         {t("client.contract-form.cc_signature")}
                                         :
                                     </p>
+                                    <div>
+                                        {contract && contract.signed_at ? (
+                                            <>
+                                                {contract.form_data && (
+                                                    <img
+                                                        src={
+                                                            contract.form_data
+                                                                .card_signature
+                                                        }
+                                                    />
+                                                )}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <SignatureCanvas
+                                                    penColor="black"
+                                                    canvasProps={{
+                                                        width: 250,
+                                                        height: 100,
+                                                        className: "sigCanvas",
+                                                    }}
+                                                    ref={sigRef2}
+                                                    onEnd={handleSignature2End}
+                                                />
+                                                <button
+                                                    className="btn btn-warning m-3 mb-5"
+                                                    onClick={clearSignature2}
+                                                >
+                                                    {t(
+                                                        "work-contract.btn_warning_txt"
+                                                    )}
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
                                     <p>
                                         {t(
                                             "client.contract-form.add_cc_click_here"
@@ -554,37 +621,37 @@ export default function WorkContract() {
                                 </div>
 
                                 <p>3.4. {t("client.contract-form.ca3_4")}</p>
-                                <p>
-                                    3.5.
-                                    <label className="form-check-label">
-                                        <input
-                                            type="checkbox"
-                                            className="form-check-input"
-                                            checked={consentToAds}
-                                            onChange={(e) => {
-                                                setConsentToAds(
-                                                    e.target.checked
-                                                        ? true
-                                                        : false
-                                                );
-                                            }}
-                                            disabled={
-                                                contract &&
-                                                contract.status != "not-signed"
-                                            }
-                                            ref={consentToAdsRef}
-                                        />
-                                        {t("client.contract-form.ca3_5")}
-                                    </label>
-                                </p>
 
-                                <p>
+                                <label
+                                    className="form-check-label"
+                                    style={{ fontWeight: 500 }}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="form-check-input"
+                                        checked={consentToAds}
+                                        onChange={(e) => {
+                                            setConsentToAds(
+                                                e.target.checked ? true : false
+                                            );
+                                        }}
+                                        disabled={
+                                            contract &&
+                                            contract.status != "not-signed"
+                                        }
+                                        ref={consentToAdsRef}
+                                    />
+                                    3.5.{" "}
                                     {t(
                                         "client.contract-form.direct_mail_declaration"
                                     )}
-                                </p>
+                                </label>
                                 <p>
-                                    {t("client.contract-form.direct_mail_note")}
+                                    <strong>
+                                        {t(
+                                            "client.contract-form.direct_mail_note"
+                                        )}
+                                    </strong>
                                 </p>
                             </div>
                         </div>
@@ -592,8 +659,10 @@ export default function WorkContract() {
                     <div className="row mt-4">
                         <div className="col-md-12">
                             <p>4. {t("client.contract-form.ca4")}</p>
-                            {contract && <p>{contract.comment}</p>}
-                            <p>{t("client.contract-form.date")}: </p>
+                            {offer && <p>{offer.comment}</p>}
+                            <p>
+                                {t("client.contract-form.date")}: {signDate}
+                            </p>
                         </div>
                     </div>
                     <div className="row mt-4">
@@ -601,18 +670,78 @@ export default function WorkContract() {
                             <p className="text-center">
                                 {t("client.contract-form.general_terms")}
                             </p>
-                            <p>1. {t("client.contract-form.gt1")}</p>
-                            <p>2. {t("client.contract-form.gt2")}</p>
-                            <p>3. {t("client.contract-form.gt3")}</p>
-                            <p>4. {t("client.contract-form.gt4")}</p>
-                            <p>5. {t("client.contract-form.gt5")}</p>
-                            <p>6. {t("client.contract-form.gt6")}</p>
-                            <p>7. {t("client.contract-form.gt7")}</p>
-                            <p>8. {t("client.contract-form.gt8")}</p>
-                            <p>9. {t("client.contract-form.gt9_1")}</p>
+                            <p>
+                                1.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt1_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt1")}
+                            </p>
+                            <p>
+                                2.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt2_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt2")}
+                            </p>
+                            <p>
+                                3.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt3_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt3")}
+                            </p>
+                            <p>
+                                4.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt4_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt4")}
+                            </p>
+                            <p>
+                                5.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt5_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt5")}
+                            </p>
+                            <p>
+                                6.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt6_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt6")}
+                            </p>
+                            <p>
+                                7.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt7_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt7")}
+                            </p>
+                            <p>
+                                8.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt8_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt8")}
+                            </p>
+                            <p>
+                                9.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt9_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt9_1")}
+                            </p>
                             <p>{t("client.contract-form.gt9_2")}</p>
                             <p>{t("client.contract-form.gt9_3")}</p>
-                            <p>10. {t("client.contract-form.gt10")}</p>
+                            <p>
+                                10.{" "}
+                                <strong>
+                                    {t("client.contract-form.gt10_title")}
+                                </strong>{" "}
+                                {t("client.contract-form.gt10")}
+                            </p>
                         </div>
                     </div>
                     <div className="shift-30">
@@ -641,12 +770,12 @@ export default function WorkContract() {
                                                 height: 100,
                                                 className: "sigCanvas",
                                             }}
-                                            ref={sigRef}
-                                            onEnd={handleSignatureEnd}
+                                            ref={sigRef1}
+                                            onEnd={handleSignature1End}
                                         />
                                         <button
                                             className="btn btn-warning"
-                                            onClick={clearSignature}
+                                            onClick={clearSignature1}
                                         >
                                             {t("work-contract.btn_warning_txt")}
                                         </button>

@@ -147,6 +147,7 @@ class ClientController extends Controller
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
             'invoicename' => ['required', 'string', 'max:255'],
+            'vat_number' => ['nullable', 'string', 'max:50'],
             'phone'     => ['required', 'unique:clients'],
             'status'    => ['required'],
             'passcode'  => ['required', 'string', 'min:6',],
@@ -390,6 +391,7 @@ class ClientController extends Controller
     {
         $validator = Validator::make($request->data, [
             'firstname' => ['required', 'string', 'max:255'],
+            'vat_number' => ['nullable', 'string', 'max:50'],
             // 'passcode'  => ['required', 'string', 'min:6'],
             'phone'     => ['required', 'unique:clients,phone,' . $id],
             'status'    => ['required'],

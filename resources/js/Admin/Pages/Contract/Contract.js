@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -10,12 +10,8 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
-import ContractCommentModal from "../../Components/Modals/ContractCommentModal";
 
 export default function Contract() {
-    const [selectedContract, setSelectedContract] = useState(null);
-    const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
-
     const navigate = useNavigate();
     const tableRef = useRef(null);
 
@@ -41,6 +37,11 @@ export default function Contract() {
             },
             order: [[0, "desc"]],
             columns: [
+                {
+                    title: "Date",
+                    data: "created_at",
+                    visible: false,
+                },
                 {
                     title: "Client",
                     data: "client_name",
@@ -127,8 +128,6 @@ export default function Contract() {
 
                         _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-comment-btn" data-id="${row.id}" data-comment="${row.comment}">Comment</button>`;
-
                         _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
 
                         _html += "</div> </div>";
@@ -188,13 +187,6 @@ export default function Contract() {
             cancelJob(_id, "enable");
         });
 
-        $(tableRef.current).on("click", ".dt-comment-btn", function () {
-            const _id = $(this).data("id");
-            const _comment = $(this).data("comment");
-
-            handleComment({ id: _id, comment: _comment });
-        });
-
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/view-contract/${_id}`);
@@ -209,11 +201,6 @@ export default function Contract() {
             $(tableRef.current).DataTable().destroy(true);
         };
     }, []);
-
-    const handleComment = (_contract) => {
-        setSelectedContract(_contract);
-        setIsOpenCommentModal(true);
-    };
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -290,7 +277,7 @@ export default function Contract() {
                                 onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">-- Sort By--</option>
-                                <option value="4">Status</option>
+                                <option value="5">Status</option>
                             </select>
                         </div>
                     </div>
@@ -306,19 +293,6 @@ export default function Contract() {
                     </div>
                 </div>
             </div>
-
-            {isOpenCommentModal && (
-                <ContractCommentModal
-                    isOpen={isOpenCommentModal}
-                    setIsOpen={() => {
-                        setIsOpenCommentModal(false);
-                    }}
-                    contract={selectedContract}
-                    onSuccess={() => {
-                        $(tableRef.current).DataTable().draw();
-                    }}
-                />
-            )}
         </div>
     );
 }

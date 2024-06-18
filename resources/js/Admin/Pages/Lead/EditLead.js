@@ -19,11 +19,13 @@ export default function EditWorker() {
     const [errors, setErrors] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState("");
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
+    const [vatNumber, setVatNumber] = useState("");
+    const [addresses, setAddresses] = useState([]);
+
     const alert = useAlert();
     const params = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const [addresses, setAddresses] = useState([]);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -76,6 +78,7 @@ export default function EditWorker() {
             email: email,
             phone: phoneClc,
             password: passcode,
+            vat_number: vatNumber,
             payment_method: paymentMethod,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
@@ -117,6 +120,7 @@ export default function EditWorker() {
                     payment_method,
                     extra,
                     property_addresses,
+                    vat_number,
                 } = response.data.lead;
                 setFirstName(firstname);
                 setLastName(lastname);
@@ -129,6 +133,7 @@ export default function EditWorker() {
                 setInvoiceName(invoicename);
                 setStatus(status);
                 setPaymentMethod(payment_method);
+                setVatNumber(vat_number);
                 setAddresses(property_addresses);
                 extra != null
                     ? setExtra(JSON.parse(extra))
@@ -478,6 +483,23 @@ export default function EditWorker() {
                                     ) : (
                                         ""
                                     )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        ID/VAT Number
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        value={vatNumber}
+                                        onChange={(e) => {
+                                            setVatNumber(e.target.value);
+                                        }}
+                                        className="form-control"
+                                        required
+                                        placeholder="Enter ID/VAT Number"
+                                    />
                                 </div>
 
                                 <div className="form-group">

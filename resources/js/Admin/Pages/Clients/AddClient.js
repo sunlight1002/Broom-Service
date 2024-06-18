@@ -3,9 +3,6 @@ import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
 import axios from "axios";
-import { MultiSelect } from "react-multi-select-component";
-import Select from "react-select";
-import { create } from "lodash";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import JobMenu from "../../Components/Job/JobMenu";
 
@@ -25,9 +22,10 @@ export default function AddClient() {
     const [cjob, setCjob] = useState("0");
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [paymentMethod, setPaymentMethod] = useState("cc");
-    const navigate = useNavigate();
-
+    const [vatNumber, setVatNumber] = useState("");
     const [addresses, setAddresses] = useState([]);
+
+    const navigate = useNavigate();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -84,6 +82,7 @@ export default function AddClient() {
             email: email,
             phone: phoneClc,
             password: passcode,
+            vat_number: vatNumber,
             payment_method: paymentMethod,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
@@ -474,6 +473,23 @@ export default function AddClient() {
                                     ) : (
                                         ""
                                     )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        ID/VAT Number
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        value={vatNumber}
+                                        onChange={(e) => {
+                                            setVatNumber(e.target.value);
+                                        }}
+                                        className="form-control"
+                                        required
+                                        placeholder="Enter ID/VAT Number"
+                                    />
                                 </div>
 
                                 <div className="form-group">

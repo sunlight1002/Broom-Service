@@ -28,6 +28,8 @@ export default function AddLeadClient() {
     const [cjob, setCjob] = useState();
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [paymentMethod, setPaymentMethod] = useState("cc");
+    const [vatNumber, setVatNumber] = useState("");
+
     const navigate = useNavigate();
     const params = useParams();
     const { t } = useTranslation();
@@ -87,6 +89,7 @@ export default function AddLeadClient() {
             email: email,
             phone: phoneClc,
             password: passcode,
+            vat_number: vatNumber,
             payment_method: paymentMethod,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
@@ -186,6 +189,7 @@ export default function AddLeadClient() {
                 setStatus(response.data.client.status);
                 setPaymentMethod(response.data.client.payment_method);
                 setAddresses(response.data.client.property_addresses);
+                setVatNumber(response.data.client.vat_number);
                 response.data.client.extra != null
                     ? setExtra(JSON.parse(response.data.client.extra))
                     : setExtra([{ email: "", name: "", phone: "" }]);
@@ -567,6 +571,23 @@ export default function AddLeadClient() {
                                     ) : (
                                         ""
                                     )}
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        ID/VAT Number
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        value={vatNumber}
+                                        onChange={(e) => {
+                                            setVatNumber(e.target.value);
+                                        }}
+                                        className="form-control"
+                                        required
+                                        placeholder="Enter ID/VAT Number"
+                                    />
                                 </div>
 
                                 <div className="form-group">

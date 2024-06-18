@@ -5,6 +5,7 @@ import { useAlert } from "react-alert";
 import { useNavigate, useParams } from "react-router-dom";
 import { SelectPicker } from "rsuite";
 import OfferServiceMenu from "../../Pages/OfferPrice/OfferServiceMenu";
+import OfferCommentModal from "../../Components/Modals/OfferCommentModal";
 
 export default function EditOffer() {
     const alert = useAlert();
@@ -41,6 +42,8 @@ export default function EditOffer() {
     const [addresses, setAddresses] = useState([]);
     const [clientOptions, setClientOptions] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
+    const [comment, setComment] = useState("");
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -162,6 +165,7 @@ export default function EditOffer() {
 
         const data = {
             client_id: clientID,
+            comment: comment,
             status: status,
             services: JSON.stringify(formValues),
             action: _action,
@@ -195,6 +199,7 @@ export default function EditOffer() {
                 setClientID(_offer.client_id);
                 handleServiceLng(_offer.client_id);
                 setStatus(_offer.status);
+                setComment(_offer.comment);
                 setFormValues(JSON.parse(_offer.services));
             });
     };
@@ -228,7 +233,7 @@ export default function EditOffer() {
                         <div className="card-body">
                             <form>
                                 <div className="row">
-                                    <div className="col-sm-12">
+                                    <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
                                                 Client
@@ -245,14 +250,45 @@ export default function EditOffer() {
                                                 required
                                             />
                                         </div>
+                                    </div>
 
-                                        <div className="card card-dark">
-                                            <div className="card-header card-black">
+                                    <div className="col-sm-6">
+                                        <button
+                                            type="button"
+                                            className="btn btn-info mt-25"
+                                            onClick={(e) => {
+                                                setIsOpenCommentModal(true);
+                                            }}
+                                            style={{ marginInline: "6px" }}
+                                        >
+                                            Comment
+                                        </button>
+                                        {isOpenCommentModal && (
+                                            <OfferCommentModal
+                                                isOpen={isOpenCommentModal}
+                                                setIsOpen={() => {
+                                                    setIsOpenCommentModal(
+                                                        false
+                                                    );
+                                                }}
+                                                comment={comment}
+                                                onChange={(_comment) => {
+                                                    setComment(_comment);
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="row">
+                                    <div className="col-sm-12">
+                                        <div className="card-dark">
+                                            <div className="card-black">
                                                 <h3 className="card-title">
                                                     Services
                                                 </h3>
                                             </div>
-                                            <div className="card-body">
+                                            <div className="mt-2">
                                                 <OfferServiceMenu
                                                     addresses={addresses}
                                                     services={services}

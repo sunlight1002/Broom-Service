@@ -36,7 +36,7 @@ return [
         'btn_txt'     => 'Price Offer',
     ],
     'contract' => [
-        'subject'     => 'Contract for Offer #id | Broom Service',
+        'subject'     => 'Contract for Offer #:id | Broom Service',
         'content'     => 'A work agreement for digital signature is attached. Please add your credit card details to the secure system. It will be charged 1 ILS, which will be refunded after verification. The details will be stored securely. Then, please sign and accept the contract. If you have any questions, please contact us: 03-525-70-60 or reply to this email.',
         'below_txt'   => 'Click the below button to check the contract.',
         'btn_txt'     => 'Check Contract',

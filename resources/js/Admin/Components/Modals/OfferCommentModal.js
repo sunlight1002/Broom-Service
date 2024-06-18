@@ -1,25 +1,17 @@
 import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
-import Swal from "sweetalert2";
 
-export default function ContractCommentModal({
+export default function OfferCommentModal({
     setIsOpen,
     isOpen,
-    contract,
-    onSuccess,
+    comment,
+    onChange,
 }) {
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
-        comment: contract.comment ? contract.comment : "",
+        comment: comment ? comment : "",
     });
-    const [isLoading, setIsLoading] = useState(false);
-
-    const headers = {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
-    };
 
     const checkValidation = () => {
         if (!formValues.comment) {
@@ -31,38 +23,10 @@ export default function ContractCommentModal({
     };
 
     const handleSubmit = () => {
-        let hasError = false;
         const valid = checkValidation();
-        if (!valid) {
-            hasError = true;
-        }
-        if (!hasError) {
-            setIsLoading(true);
-
-            axios
-                .post(
-                    `/api/admin/contracts/${contract.id}/comment`,
-                    {
-                        comment: formValues.comment,
-                    },
-                    {
-                        headers,
-                    }
-                )
-                .then(async (response) => {
-                    Swal.fire("Saved!", "Comment saved", "success");
-                    setIsLoading(false);
-                    onSuccess();
-                    setIsOpen(false);
-                })
-                .catch((e) => {
-                    Swal.fire({
-                        title: "Error!",
-                        text: e.response.data.message,
-                        icon: "error",
-                    });
-                    setIsLoading(false);
-                });
+        if (valid) {
+            onChange(formValues.comment);
+            setIsOpen(false);
         }
     };
 
@@ -111,7 +75,6 @@ export default function ContractCommentModal({
                 </Button>
                 <Button
                     type="button"
-                    disabled={isLoading}
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >

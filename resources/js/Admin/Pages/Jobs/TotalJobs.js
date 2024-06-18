@@ -355,6 +355,7 @@ export default function TotalJobs() {
                     !e.target.closest(".dt-time-counter-dec") &&
                     !e.target.closest(".dt-time-counter-inc") &&
                     !e.target.closest(".dt-switch-worker-btn") &&
+                    !e.target.closest(".dt-if-job-done-checkbox") &&
                     (!tableRef.current.classList.contains("collapsed") ||
                         !e.target.closest(".dtr-control"))
                 ) {
@@ -367,7 +368,8 @@ export default function TotalJobs() {
                     !e.target.closest(".dt-client-badge") &&
                     !e.target.closest(".dt-time-counter-dec") &&
                     !e.target.closest(".dt-time-counter-inc") &&
-                    !e.target.closest(".dt-switch-worker-btn")
+                    !e.target.closest(".dt-switch-worker-btn") &&
+                    !e.target.closest(".dt-if-job-done-checkbox")
                 ) {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                 }
@@ -397,9 +399,7 @@ export default function TotalJobs() {
             const _hours = parseFloat($(this).data("hours"));
 
             const _changedHours = (
-                _hours > 0 && !_hours.includes("-")
-                    ? parseFloat(_hours) - 0.25
-                    : 0
+                _hours > 0 ? parseFloat(_hours) - 0.25 : 0
             ).toFixed(2);
 
             handleWorkerActualTime(_id, _changedHours * 60);
@@ -853,9 +853,9 @@ export default function TotalJobs() {
 
                         <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
                             <div className="d-flex align-items-center">
-                                <div class="form-check form-check-inline">
+                                <div className="form-check form-check-inline">
                                     <input
-                                        class="form-check-input"
+                                        className="form-check-input"
                                         type="checkbox"
                                         id="inlineCheckbox1"
                                         onChange={() => {
@@ -866,16 +866,16 @@ export default function TotalJobs() {
                                         ref={actualTimeExceedFilterRef}
                                     />
                                     <label
-                                        class="form-check-label"
-                                        for="inlineCheckbox1"
+                                        className="form-check-label"
+                                        htmlFor="inlineCheckbox1"
                                     >
                                         Actual Time Exceed
                                     </label>
                                 </div>
 
-                                <div class="form-check form-check-inline">
+                                <div className="form-check form-check-inline">
                                     <input
-                                        class="form-check-input"
+                                        className="form-check-input"
                                         type="checkbox"
                                         id="inlineCheckbox2"
                                         onChange={() => {
@@ -886,8 +886,8 @@ export default function TotalJobs() {
                                         ref={hasNoWorkerFilterRef}
                                     />
                                     <label
-                                        class="form-check-label"
-                                        for="inlineCheckbox2"
+                                        className="form-check-label"
+                                        htmlFor="inlineCheckbox2"
                                     >
                                         Has No Worker
                                     </label>

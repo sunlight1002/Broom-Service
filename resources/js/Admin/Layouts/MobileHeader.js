@@ -119,6 +119,13 @@ export default function MobileHeader() {
                         </li>
 
                         <li className="nav-item">
+                            <a href="/admin/chat">
+                                <i className="fa-solid fa-message"></i>
+                                Whatsapp chat
+                            </a>
+                        </li>
+
+                        {/* <li className="nav-item">
                             <div
                                 id="myFencewh"
                                 className="fence commonDropdown"
@@ -161,7 +168,7 @@ export default function MobileHeader() {
                                     </div>
                                 </div>
                             </div>
-                        </li>
+                        </li> */}
 
                         {/* <li className="nav-item">
                             <div

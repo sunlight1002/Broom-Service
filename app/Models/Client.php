@@ -48,6 +48,7 @@ class Client extends Authenticatable
         'payment_method',
         'icount_client_id',
         'avatar',
+        'vat_number',
     ];
 
     /**

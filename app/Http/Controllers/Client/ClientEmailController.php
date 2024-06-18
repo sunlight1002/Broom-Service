@@ -322,7 +322,10 @@ class ClientEmailController extends Controller
         ], 404);
       }
 
-      $contract->update($request->input());
+      $input = $request->input();
+      $input['signed_at'] = now()->toDateTimeString();
+
+      $contract->update($input);
 
       if ($client->status != 2) {
         $client->update([
@@ -435,7 +438,7 @@ class ClientEmailController extends Controller
           return $q->where('id', $contract->card_id);
         }
       )
-      ->get(['id', 'card_number', 'valid', 'card_type']);
+      ->get(['id', 'card_number', 'valid', 'card_type', 'card_holder_name', 'card_holder_id']);
 
     $offer['services'] = $this->formatServices($offer);
 

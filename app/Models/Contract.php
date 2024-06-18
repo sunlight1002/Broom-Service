@@ -17,10 +17,12 @@ class Contract extends Model
         'job_status',
         'file',
         'consent_to_ads',
-        'comment'
+        'form_data',
+        'signed_at',
     ];
 
     protected $casts = [
+        'form_data' => 'array',
         'consent_to_ads' => 'boolean'
     ];
 

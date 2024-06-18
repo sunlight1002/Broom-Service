@@ -12,7 +12,8 @@ class Offer extends Model
         'subtotal',
         'total',
         'status',
-        'is_fixed_for_services'
+        'is_fixed_for_services',
+        'comment'
     ];
 
     /**

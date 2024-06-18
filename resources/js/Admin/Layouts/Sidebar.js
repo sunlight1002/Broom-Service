@@ -99,8 +99,13 @@ export default function Sidebar() {
                         <i className="fa-solid fa-briefcase"></i>Schedule
                     </NavLink>
                 </li>
-
                 <li className="list-group-item">
+                    <NavLink to="/admin/chat">
+                        <i className="fa-solid fa-message"></i>Whatsapp chat
+                    </NavLink>
+                </li>
+
+                {/* <li className="list-group-item">
                     <div id="myFence" className="fence commonDropdown">
                         <div id="fencehead2">
                             <a
@@ -139,7 +144,7 @@ export default function Sidebar() {
                             </div>
                         </div>
                     </div>
-                </li>
+                </li> */}
 
                 <li className="list-group-item">
                     <NavLink to="/admin/messenger">

@@ -144,7 +144,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     // Contract Api
     Route::resource('contract', ContractController::class)->except(['create', 'store', 'edit', 'update']);
-    Route::post('contracts/{id}/comment', [ContractController::class, 'saveContractComment']);
     Route::post('client-contracts', [ContractController::class, 'clientContracts']);
     Route::post('get-contract/{id}', [ContractController::class, 'getContract']);
     Route::post('verify-contract', [ContractController::class, 'verify']);

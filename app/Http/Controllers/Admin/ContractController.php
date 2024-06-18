@@ -30,7 +30,7 @@ class ContractController extends Controller
         $query = Contract::query()
             ->leftJoin('offers', 'offers.id', '=', 'contracts.offer_id')
             ->leftJoin('clients', 'contracts.client_id', '=', 'clients.id')
-            ->select('contracts.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'contracts.status', 'contracts.job_status', 'offers.subtotal', 'offers.services', 'contracts.comment');
+            ->select('contracts.id', 'clients.id as client_id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'contracts.status', 'contracts.job_status', 'offers.subtotal', 'offers.services', 'contracts.created_at');
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -245,25 +245,6 @@ class ContractController extends Controller
 
         return response()->json([
             'message' => 'Contact file uploaded!',
-        ]);
-    }
-
-    public function saveContractComment(Request $request, $id)
-    {
-        $contract = Contract::find($id);
-
-        if (!$contract) {
-            return response()->json([
-                'message' => 'Contract not found'
-            ], 404);
-        }
-
-        $contract->update([
-            'comment' => $request->get('comment')
-        ]);
-
-        return response()->json([
-            'message' => 'Comment saved successfully!',
         ]);
     }
 }

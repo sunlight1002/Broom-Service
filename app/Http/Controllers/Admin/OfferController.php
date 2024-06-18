@@ -75,6 +75,7 @@ class OfferController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'client_id'    => ['required'],
+            'comment'      => ['nullable'],
             'status'       => ['required'],
             'services'     => ['required']
         ]);
@@ -213,6 +214,7 @@ class OfferController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'client_id'    => ['required'],
+            'comment'      => ['nullable'],
             'status'       => ['required'],
         ]);
 
