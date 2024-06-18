@@ -132,12 +132,6 @@ export default function WorkContract() {
                     } else {
                         document.querySelector("html").removeAttribute("dir");
                     }
-
-                    if (res.data.offer.client.lng == "heb") {
-                        document
-                            .querySelector("html")
-                            .setAttribute("dir", "rtl");
-                    }
                 } else {
                     setOffer({});
                     setServices([]);
