@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useAlert } from "react-alert";
 import Moment from "moment";
@@ -22,59 +22,19 @@ import CancelJobModal from "../../Components/Modals/CancelJobModal";
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function TotalJobs() {
-    const todayFilter = {
-        start_date: Moment().format("YYYY-MM-DD"),
-        end_date: Moment().format("YYYY-MM-DD"),
-    };
-    const nextDayFilter = {
-        start_date: Moment().add(1, "days").startOf("day").format("YYYY-MM-DD"),
-        end_date: Moment().add(1, "days").endOf("day").format("YYYY-MM-DD"),
-    };
-    const previousDayFilter = {
-        start_date: Moment()
-            .subtract(1, "days")
-            .startOf("day")
-            .format("YYYY-MM-DD"),
-        end_date: Moment()
-            .subtract(1, "days")
-            .endOf("day")
-            .format("YYYY-MM-DD"),
-    };
-    const currentWeekFilter = {
-        start_date: Moment().startOf("week").format("YYYY-MM-DD"),
-        end_date: Moment().endOf("week").format("YYYY-MM-DD"),
-    };
-    const nextWeekFilter = {
-        start_date: Moment()
-            .add(1, "weeks")
-            .startOf("week")
-            .format("YYYY-MM-DD"),
-        end_date: Moment().add(1, "weeks").endOf("week").format("YYYY-MM-DD"),
-    };
-    const previousWeekFilter = {
-        start_date: Moment()
-            .subtract(1, "weeks")
-            .startOf("week")
-            .format("YYYY-MM-DD"),
-        end_date: Moment()
-            .subtract(1, "weeks")
-            .endOf("week")
-            .format("YYYY-MM-DD"),
-    };
-
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
     const [dateRange, setDateRange] = useState({
-        start_date: todayFilter.start_date,
-        end_date: todayFilter.end_date,
+        start_date: "",
+        end_date: "",
     });
     const [doneFilter, setDoneFilter] = useState("");
     const [startTimeFilter, setStartTimeFilter] = useState("");
-    const [selectedFilter, setselectedFilter] = useState("Day");
-    const [selectedButton, setSelectedButton] = useState("Current Day");
     const [selectedJob, setSelectedJob] = useState(null);
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
+    const [selectedDateRange, setSelectedDateRange] = useState("Week");
+    const [selectedDateStep, setSelectedDateStep] = useState("Current");
 
     const tableRef = useRef(null);
     const doneFilterRef = useRef(null);
@@ -575,6 +535,57 @@ export default function TotalJobs() {
         setIsOpenCancelModal(true);
     };
 
+    useEffect(() => {
+        let _startMoment = Moment();
+        let _endMoment = Moment();
+        if (selectedDateRange == "Day") {
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "day");
+                _endMoment.subtract(1, "day");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "day");
+                _endMoment.add(1, "day");
+            }
+        } else if (selectedDateRange == "Week") {
+            _startMoment.startOf("week");
+            _endMoment.endOf("week");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "week");
+                _endMoment.subtract(1, "week");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "week");
+                _endMoment.add(1, "week");
+            }
+        } else if (selectedDateRange == "Month") {
+            _startMoment.startOf("month");
+            _endMoment.endOf("month");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "month");
+                _endMoment.subtract(1, "month");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "month");
+                _endMoment.add(1, "month");
+            }
+        } else if (selectedDateRange == "Year") {
+            _startMoment.startOf("year");
+            _endMoment.endOf("year");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "year");
+                _endMoment.subtract(1, "year");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "year");
+                _endMoment.add(1, "year");
+            }
+        } else {
+            _startMoment = Moment("2000-01-01");
+        }
+
+        setDateRange({
+            start_date: _startMoment.format("YYYY-MM-DD"),
+            end_date: _endMoment.format("YYYY-MM-DD"),
+        });
+    }, [selectedDateRange, selectedDateStep]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -642,135 +653,41 @@ export default function TotalJobs() {
                                 <FilterButtons
                                     text="Day"
                                     className="px-4 mr-1"
-                                    onClick={() => {
-                                        setDateRange({
-                                            start_date: todayFilter.start_date,
-                                            end_date: todayFilter.end_date,
-                                        });
-                                        setSelectedButton("Current Day");
-                                    }}
-                                    selectedFilter={selectedFilter}
-                                    setselectedFilter={setselectedFilter}
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
                                     text="Week"
-                                    className="px-4 mr-4"
-                                    onClick={() => {
-                                        setDateRange({
-                                            start_date:
-                                                currentWeekFilter.start_date,
-                                            end_date:
-                                                currentWeekFilter.end_date,
-                                        });
-                                        setSelectedButton("Current Week");
-                                    }}
-                                    selectedFilter={selectedFilter}
-                                    setselectedFilter={setselectedFilter}
+                                    className="px-4 mr-1"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
                                 />
-                                {selectedFilter === "Day" && (
-                                    <div className="row">
-                                        <FilterButtons
-                                            text="Previous Day"
-                                            className="px-3"
-                                            onClick={() =>
-                                                setDateRange({
-                                                    start_date:
-                                                        previousDayFilter.start_date,
-                                                    end_date:
-                                                        previousDayFilter.end_date,
-                                                })
-                                            }
-                                            selectedFilter={selectedButton}
-                                            setselectedFilter={
-                                                setSelectedButton
-                                            }
-                                        />
-                                        <FilterButtons
-                                            text="Current Day"
-                                            className="px-3"
-                                            onClick={() =>
-                                                setDateRange({
-                                                    start_date:
-                                                        todayFilter.start_date,
-                                                    end_date:
-                                                        todayFilter.end_date,
-                                                })
-                                            }
-                                            selectedFilter={selectedButton}
-                                            setselectedFilter={
-                                                setSelectedButton
-                                            }
-                                        />
-                                        <FilterButtons
-                                            text="Next Day"
-                                            className="px-3"
-                                            onClick={() =>
-                                                setDateRange({
-                                                    start_date:
-                                                        nextDayFilter.start_date,
-                                                    end_date:
-                                                        nextDayFilter.end_date,
-                                                })
-                                            }
-                                            selectedFilter={selectedButton}
-                                            setselectedFilter={
-                                                setSelectedButton
-                                            }
-                                        />
-                                    </div>
-                                )}
-                                {selectedFilter === "Week" && (
-                                    <div className="row">
-                                        <FilterButtons
-                                            text="Previous Week"
-                                            className="px-3"
-                                            onClick={() =>
-                                                setDateRange({
-                                                    start_date:
-                                                        previousWeekFilter.start_date,
-                                                    end_date:
-                                                        previousWeekFilter.end_date,
-                                                })
-                                            }
-                                            selectedFilter={selectedButton}
-                                            setselectedFilter={
-                                                setSelectedButton
-                                            }
-                                        />
-                                        <FilterButtons
-                                            text="Current Week"
-                                            className="px-3"
-                                            onClick={() =>
-                                                setDateRange({
-                                                    start_date:
-                                                        currentWeekFilter.start_date,
-                                                    end_date:
-                                                        currentWeekFilter.end_date,
-                                                })
-                                            }
-                                            selectedFilter={selectedButton}
-                                            setselectedFilter={
-                                                setSelectedButton
-                                            }
-                                        />
-                                        <FilterButtons
-                                            text="Next Week"
-                                            className="px-3"
-                                            onClick={() =>
-                                                setDateRange({
-                                                    start_date:
-                                                        nextWeekFilter.start_date,
-                                                    end_date:
-                                                        nextWeekFilter.end_date,
-                                                })
-                                            }
-                                            selectedFilter={selectedButton}
-                                            setselectedFilter={
-                                                setSelectedButton
-                                            }
-                                        />
-                                    </div>
-                                )}
+
+                                <FilterButtons
+                                    text="Month"
+                                    className="px-4 mr-3"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+
+                                <FilterButtons
+                                    text="Previous"
+                                    className="px-3 mr-1"
+                                    selectedFilter={selectedDateStep}
+                                    setselectedFilter={setSelectedDateStep}
+                                />
+                                <FilterButtons
+                                    text="Current"
+                                    className="px-3 mr-1"
+                                    selectedFilter={selectedDateStep}
+                                    setselectedFilter={setSelectedDateStep}
+                                />
+                                <FilterButtons
+                                    text="Next"
+                                    className="px-3"
+                                    selectedFilter={selectedDateStep}
+                                    setselectedFilter={setSelectedDateStep}
+                                />
                             </div>
                         </div>
                         <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
@@ -790,7 +707,6 @@ export default function TotalJobs() {
                                     style={{ width: "fit-content" }}
                                     value={dateRange.start_date}
                                     onChange={(e) => {
-                                        setselectedFilter("Custom Range");
                                         setDateRange({
                                             start_date: e.target.value,
                                             end_date: dateRange.end_date,
@@ -806,7 +722,6 @@ export default function TotalJobs() {
                                     style={{ width: "fit-content" }}
                                     value={dateRange.end_date}
                                     onChange={(e) => {
-                                        setselectedFilter("Custom Range");
                                         setDateRange({
                                             start_date: dateRange.start_date,
                                             end_date: e.target.value,

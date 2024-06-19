@@ -17,31 +17,18 @@ import AddCreditCardModal from "../../Components/Modals/AddCreditCardModal";
 import FilterButtons from "../../../Components/common/FilterButton";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 
-const thisMonthFilter = {
-    start_date: Moment().startOf("month").format("YYYY-MM-DD"),
-    end_date: Moment().endOf("month").format("YYYY-MM-DD"),
-};
-
-const nextMonthFilter = {
-    start_date: Moment().add(1, "month").startOf("month").format("YYYY-MM-DD"),
-    end_date: Moment().add(1, "month").endOf("month").format("YYYY-MM-DD"),
-};
-
 export default function Payments() {
-    const [pageCount, setPageCount] = useState(0);
-    const [clients, setClients] = useState([]);
-    const [currentPage, setCurrentPage] = useState(0);
     const [dateRange, setDateRange] = useState({
-        start_date: thisMonthFilter.start_date,
-        end_date: thisMonthFilter.end_date,
+        start_date: "",
+        end_date: "",
     });
-    const [selectedDateFilter, setSelectedDateFilter] = useState("This month");
     const [paidStatusFilter, setPaidStatusFilter] = useState("all");
     const [addPaymentModalOpen, setAddPaymentModalOpen] = useState(false);
     const [addCardModalOpen, setAddCardModalOpen] = useState(false);
     const [selectedClientID, setSelectedClientID] = useState(null);
-    const [searchVal, setSearchVal] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedDateRange, setSelectedDateRange] = useState("Week");
+    const [selectedDateStep, setSelectedDateStep] = useState("Current");
 
     const navigate = useNavigate();
     const alert = useAlert();
@@ -359,6 +346,57 @@ export default function Payments() {
         return _statuses[_status];
     };
 
+    useEffect(() => {
+        let _startMoment = Moment();
+        let _endMoment = Moment();
+        if (selectedDateRange == "Day") {
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "day");
+                _endMoment.subtract(1, "day");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "day");
+                _endMoment.add(1, "day");
+            }
+        } else if (selectedDateRange == "Week") {
+            _startMoment.startOf("week");
+            _endMoment.endOf("week");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "week");
+                _endMoment.subtract(1, "week");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "week");
+                _endMoment.add(1, "week");
+            }
+        } else if (selectedDateRange == "Month") {
+            _startMoment.startOf("month");
+            _endMoment.endOf("month");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "month");
+                _endMoment.subtract(1, "month");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "month");
+                _endMoment.add(1, "month");
+            }
+        } else if (selectedDateRange == "Year") {
+            _startMoment.startOf("year");
+            _endMoment.endOf("year");
+            if (selectedDateStep == "Previous") {
+                _startMoment.subtract(1, "year");
+                _endMoment.subtract(1, "year");
+            } else if (selectedDateStep == "Next") {
+                _startMoment.add(1, "year");
+                _endMoment.add(1, "year");
+            }
+        } else {
+            _startMoment = Moment("2000-01-01");
+        }
+
+        setDateRange({
+            start_date: _startMoment.format("YYYY-MM-DD"),
+            end_date: _endMoment.format("YYYY-MM-DD"),
+        });
+    }, [selectedDateRange, selectedDateStep]);
+
     return (
         <div id="container">
             <Sidebar />
@@ -416,98 +454,131 @@ export default function Payments() {
                         </div>
                     </div>
                     <div className="row">
-                        <div className="col-sm-12 d-md-flex flex-wrap align-items-center">
-                            <div
-                                className="mr-3"
-                                style={{ fontWeight: "bold" }}
-                            >
-                                Date Period
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                            <div className="d-flex align-items-center">
+                                <div
+                                    style={{ fontWeight: "bold" }}
+                                    className="mr-2"
+                                >
+                                    Date Period
+                                </div>
+                                <FilterButtons
+                                    text="Day"
+                                    className="px-4 mr-1"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+                                <FilterButtons
+                                    text="Week"
+                                    className="px-4 mr-1"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+                                <FilterButtons
+                                    text="Month"
+                                    className="px-4 mr-1"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+                                <FilterButtons
+                                    text="Year"
+                                    className="px-4 mr-1"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+                                <FilterButtons
+                                    text="All Time"
+                                    className="px-4 mr-3"
+                                    selectedFilter={selectedDateRange}
+                                    setselectedFilter={setSelectedDateRange}
+                                />
+                                {selectedDateRange !== "All Time" && (
+                                    <>
+                                        <FilterButtons
+                                            text="Previous"
+                                            className="px-3 mr-1"
+                                            selectedFilter={selectedDateStep}
+                                            setselectedFilter={
+                                                setSelectedDateStep
+                                            }
+                                        />
+                                        <FilterButtons
+                                            text="Current"
+                                            className="px-3 mr-1"
+                                            selectedFilter={selectedDateStep}
+                                            setselectedFilter={
+                                                setSelectedDateStep
+                                            }
+                                        />
+                                        <FilterButtons
+                                            text="Next"
+                                            className="px-3"
+                                            selectedFilter={selectedDateStep}
+                                            setselectedFilter={
+                                                setSelectedDateStep
+                                            }
+                                        />
+                                    </>
+                                )}
                             </div>
-                            <input
-                                className="form-control"
-                                type="date"
-                                placeholder="From date"
-                                name="from filter"
-                                style={{ width: "fit-content" }}
-                                value={dateRange.start_date}
-                                onChange={(e) => {
-                                    setDateRange({
-                                        start_date: e.target.value,
-                                        end_date: dateRange.end_date,
-                                    });
-                                }}
-                            />
-                            <div className="mx-2">to</div>
-                            <input
-                                className="form-control mr-2"
-                                type="date"
-                                placeholder="To date"
-                                name="to filter"
-                                style={{ width: "fit-content" }}
-                                value={dateRange.end_date}
-                                onChange={(e) => {
-                                    setDateRange({
-                                        start_date: dateRange.start_date,
-                                        end_date: e.target.value,
-                                    });
-                                }}
-                            />
-                            <FilterButtons
-                                text="This month"
-                                className="px-3 mr-1 mt-2"
-                                onClick={() =>
-                                    setDateRange({
-                                        start_date: thisMonthFilter.start_date,
-                                        end_date: thisMonthFilter.end_date,
-                                    })
-                                }
-                                selectedFilter={selectedDateFilter}
-                                setselectedFilter={setSelectedDateFilter}
-                            />
+                        </div>
+                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
+                            <div className="d-flex align-items-center">
+                                <div
+                                    className="mr-3"
+                                    style={{ fontWeight: "bold" }}
+                                >
+                                    Custom Date Range
+                                </div>
 
-                            <FilterButtons
-                                text="Next month"
-                                className="px-3 mr-1  mt-2"
-                                onClick={() =>
-                                    setDateRange({
-                                        start_date: nextMonthFilter.start_date,
-                                        end_date: nextMonthFilter.end_date,
-                                    })
-                                }
-                                selectedFilter={selectedDateFilter}
-                                setselectedFilter={setSelectedDateFilter}
-                            />
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="From date"
+                                    name="from filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.start_date}
+                                    onChange={(e) => {
+                                        setDateRange({
+                                            start_date: e.target.value,
+                                            end_date: dateRange.end_date,
+                                        });
+                                    }}
+                                />
+                                <div className="mx-2">to</div>
+                                <input
+                                    className="form-control"
+                                    type="date"
+                                    placeholder="To date"
+                                    name="to filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.end_date}
+                                    onChange={(e) => {
+                                        setDateRange({
+                                            start_date: dateRange.start_date,
+                                            end_date: e.target.value,
+                                        });
+                                    }}
+                                />
 
-                            <FilterButtons
-                                text="All time"
-                                className="px-3 mr-1  mt-2"
-                                onClick={() =>
-                                    setDateRange({
-                                        start_date: null,
-                                        end_date: null,
-                                    })
-                                }
-                                selectedFilter={selectedDateFilter}
-                                setselectedFilter={setSelectedDateFilter}
-                            />
+                                <input
+                                    type="hidden"
+                                    value={paidStatusFilter}
+                                    ref={paidStatusRef}
+                                />
 
-                            <input
-                                type="hidden"
-                                value={paidStatusFilter}
-                                ref={paidStatusRef}
-                            />
+                                <input
+                                    type="hidden"
+                                    value={dateRange.start_date}
+                                    ref={startDateRef}
+                                />
 
-                            <input
-                                type="hidden"
-                                value={dateRange.start_date}
-                                ref={startDateRef}
-                            />
-
-                            <input
-                                type="hidden"
-                                value={dateRange.end_date}
-                                ref={endDateRef}
-                            />
+                                <input
+                                    type="hidden"
+                                    value={dateRange.end_date}
+                                    ref={endDateRef}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
