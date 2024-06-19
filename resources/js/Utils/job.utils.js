@@ -474,6 +474,9 @@ export const getWorkerAvailabilities = (
     isClient = false,
     jobHours = undefined
 ) => {
+    const _today = moment().format("YYYY-MM-DD");
+    const _currentTime = moment().format("HH:mm:ss");
+
     return workers?.map((worker) => {
         let freeze_dates = worker.freeze_dates ?? [];
         const booked_slots = worker.booked_slots ?? [];
@@ -489,6 +492,10 @@ export const getWorkerAvailabilities = (
                 }),
                 notAvailableDates?.find((n) => n.date == key)
             );
+
+            if (key === _today) {
+                slots = slots.filter((i) => i.time > _currentTime);
+            }
 
             let filteredSlots = [];
 

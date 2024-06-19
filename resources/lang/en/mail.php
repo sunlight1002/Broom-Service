@@ -504,7 +504,7 @@ return [
         ],
         'lead_need_human_representative' => [
             'header' => "*Need Human Representative | Broom Service*",
-            'content' =>  ":client_name want to speak to a human representative."
+            'content' =>  ":client_name wants to speak to a human representative."
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',

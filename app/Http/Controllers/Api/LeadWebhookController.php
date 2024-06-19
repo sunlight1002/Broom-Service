@@ -1356,5 +1356,25 @@ If you would like to speak to a human representative, please send a message with
                 ['lead_status' => LeadStatusEnum::PENDING]
             );
         }
+
+        $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
+
+        $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
+
+        WhatsAppBotClientState::updateOrCreate([
+            'client_id' => $lead->id,
+        ], [
+            'menu_option' => 'main_menu',
+            'language' => 'he',
+        ]);
+
+        $response = WebhookResponse::create([
+            'status'        => 1,
+            'name'          => 'whatsapp',
+            'message'       => $m,
+            'number'        => $request->phone,
+            'read'          => 1,
+            'flex'          => 'A',
+        ]);
     }
 }
