@@ -376,11 +376,11 @@ export default function MyRoutes() {
                                 path="jobs/:id/change-worker"
                                 element={<ChangeWorker />}
                             />
-                            <Route
+                            {/* <Route
                                 exact
                                 path="jobs/:id/change-shift"
                                 element={<ChangeShift />}
-                            />
+                            /> */}
                             <Route
                                 exact
                                 path="view-job/:id"

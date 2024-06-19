@@ -30,6 +30,7 @@ export default function ChangeWorkerCalender({ job }) {
     const [minUntilDate, setMinUntilDate] = useState(null);
     const [currentFilter, setcurrentFilter] = useState("Current Week");
     const [searchVal, setSearchVal] = useState("");
+    const [customDateRange, setCustomDateRange] = useState([]);
 
     const params = useParams();
     const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function ChangeWorkerCalender({ job }) {
 
     const { t } = useTranslation();
     const flatpickrRef = useRef(null);
-    const [customDateRange, setCustomDateRange] = useState([]);
+    let isSameWorker = useRef();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -64,7 +65,13 @@ export default function ChangeWorkerCalender({ job }) {
                     has_cat: job.property_address.is_cat_avail,
                     has_dog: job.property_address.is_dog_avail,
                     prefer_type: job.property_address.prefer_type,
-                    ignore_worker_ids: job.worker_id,
+                    ignore_worker_ids: isSameWorker.current.checked
+                        ? ""
+                        : job.worker_id,
+                    only_worker_ids: isSameWorker.current.checked
+                        ? job.worker_id
+                        : "",
+                    job_id: job.id,
                 },
             })
             .then((res) => {
@@ -77,7 +84,11 @@ export default function ChangeWorkerCalender({ job }) {
 
     useEffect(() => {
         getTime();
-        getWorkers();
+
+        $("#edit-work-time").modal({
+            backdrop: "static",
+            keyboard: false,
+        });
     }, []);
 
     useEffect(() => {
@@ -289,6 +300,12 @@ export default function ChangeWorkerCalender({ job }) {
                 return { ...values, fee: _value };
             });
         }
+    };
+
+    const handleWorkerList = () => {
+        getWorkers();
+
+        $("#edit-work-time").modal("hide");
     };
 
     const feeInAmount = useMemo(() => {
@@ -773,6 +790,45 @@ export default function ChangeWorkerCalender({ job }) {
                             >
                                 Save and Send
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className="modal fade"
+                id="edit-work-time"
+                tabIndex="-1"
+                role="dialog"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+            >
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-body">
+                            <div className="row">
+                                <div className="col-sm-12 mb-4">
+                                    <div className="form-check">
+                                        <label className="form-check-label">
+                                            <input
+                                                ref={isSameWorker}
+                                                type="checkbox"
+                                                className="form-check-input"
+                                            />
+                                            Keep same worker
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="col-sm-12 mb-4">
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={handleWorkerList}
+                                    >
+                                        Continue
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

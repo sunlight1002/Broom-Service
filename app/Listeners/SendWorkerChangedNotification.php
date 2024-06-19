@@ -83,42 +83,44 @@ class SendWorkerChangedNotification implements ShouldQueue
         event(new JobNotificationToClient($worker, $client, $jobData, $emailData));
 
         if ($event->oldWorker) {
-            if (
-                isset($event->oldWorker['email']) &&
-                $event->oldWorker['email']
-            ) {
-                App::setLocale($event->oldWorker['lng']);
+            if ($event->oldWorker['id'] != $event->job['worker']['id']) {
+                if (
+                    isset($event->oldWorker['email']) &&
+                    $event->oldWorker['email']
+                ) {
+                    App::setLocale($event->oldWorker['lng']);
 
-                $emailData = array(
-                    'email' => $event->oldWorker['email'],
-                    'job' => $event->job->toArray(),
-                    'old_worker' => $event->oldWorker,
-                    'old_job' => $event->old_job_data
-                );
-                if (isset($emailData['old_worker']) && !empty($emailData['old_worker']['phone'])) {
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::WORKER_UNASSIGNED,
-                        "notificationData" => $emailData
-                    ]));
+                    $emailData = array(
+                        'email' => $event->oldWorker['email'],
+                        'job' => $event->job->toArray(),
+                        'old_worker' => $event->oldWorker,
+                        'old_job' => $event->old_job_data
+                    );
+                    if (isset($emailData['old_worker']) && !empty($emailData['old_worker']['phone'])) {
+                        event(new WhatsappNotificationEvent([
+                            "type" => WhatsappMessageTemplateEnum::WORKER_UNASSIGNED,
+                            "notificationData" => $emailData
+                        ]));
+                    }
+                    Mail::send('/Mails/WorkerUnassignedMail', $emailData, function ($messages) use ($emailData) {
+                        $messages->to($emailData['email']);
+                        $sub = __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company');
+                        $messages->subject($sub);
+                    });
                 }
-                Mail::send('/Mails/WorkerUnassignedMail', $emailData, function ($messages) use ($emailData) {
-                    $messages->to($emailData['email']);
-                    $sub = __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company');
-                    $messages->subject($sub);
-                });
-            }
 
-            App::setLocale('en');
-            //send notification to admin
-            $adminEmailData = [
-                'emailData'   => [
-                    'job'   =>  $event->job->toArray(),
-                ],
-                'emailSubject'  => __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company'),
-                'emailTitle'  => 'Job Unassigned',
-                'emailContent'  => 'Worker' . $event->oldWorker['firstname'] . ' ' . $event->oldWorker['lastname'] . ' unassigned from the job #' . $emailData['job']['id'] . 'Below are the job details.'
-            ];
-            event(new JobNotificationToAdmin($adminEmailData));
+                App::setLocale('en');
+                //send notification to admin
+                $adminEmailData = [
+                    'emailData'   => [
+                        'job'   =>  $event->job->toArray(),
+                    ],
+                    'emailSubject'  => __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company'),
+                    'emailTitle'  => 'Job Unassigned',
+                    'emailContent'  => 'Worker' . $event->oldWorker['firstname'] . ' ' . $event->oldWorker['lastname'] . ' unassigned from the job #' . $event->job['id'] . 'Below are the job details.'
+                ];
+                event(new JobNotificationToAdmin($adminEmailData));
+            }
 
             //send notification to client
             $jobData = $event->job->toArray();
@@ -129,7 +131,7 @@ class SendWorkerChangedNotification implements ShouldQueue
             $emailData = [
                 'emailSubject'  =>  __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company'),
                 'emailTitle'  => __('mail.job_common.job_unassigned_title'),
-                'emailContent'  =>  __('mail.job_common.admin_change_worker_content', ['workerName' => $event->oldWorker['firstname'] . ' ' . $event->oldWorker['lastname'], 'jobId' => $emailData['job']['id']])
+                'emailContent'  =>  __('mail.job_common.admin_change_worker_content', ['workerName' => $event->oldWorker['firstname'] . ' ' . $event->oldWorker['lastname'], 'jobId' => $event->job['id']])
             ];
             event(new JobNotificationToClient($worker, $client, $jobData, $emailData));
         }
