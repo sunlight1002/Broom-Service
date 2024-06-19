@@ -56,4 +56,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const CLIENT_INVOICE_PAID_CREATED_RECEIPT = "client_invoice_paid_created_receipt";
     public const ORDER_CREATED_WITH_EXTRA = "order_created_with_extra";
     public const ORDER_CREATED_WITH_DISCOUNT = "order_created_with_discount";
+    public const LEAD_NEED_HUMAN_REPRESENTATIVE = "lead_need_human_representative";
 }

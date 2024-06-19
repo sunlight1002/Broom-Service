@@ -502,6 +502,10 @@ return [
             'header' => "*Order Created with Discount | Broom Service*",
             'content' => "Order (:order_id) has been created for :client_name with a discount of ₪:discount and a total of ₪:total after the discount.",
         ],
+        'lead_need_human_representative' => [
+            'header' => "*Need Human Representative | Broom Service*",
+            'content' =>  ":client_name want to speak to a human representative."
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',
@@ -516,7 +520,8 @@ return [
             'safety_and_gear' => 'Check Safety And Gear',
             'check_form' => 'Check Forms',
             'view_worker' => 'View worker',
-            'check_file' => 'Check file'
+            'check_file' => 'Check file',
+            'view_client' => 'View Client'
         ]
     ]
 ];

@@ -499,6 +499,10 @@ return [
             'header' => "*הזמנה נוצרה עם הנחה | שירות מטאטא*",
             'content' => "הזמנה (:order_id) נוצרה עבור :client_name עם הנחה של ₪:discount ובסך הכל ₪:total לאחר ההנחה.",
         ],
+        'lead_need_human_representative' => [
+            'header' => "*צריך נציג אנושי | שירות מטאטא*",
+            'content' => ":client_name רוצה לדבר עם נציג אנושי.",
+        ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',
             'upload_file' => 'העלה קובץ',
@@ -513,7 +517,8 @@ return [
             'safety_and_gear' => 'בדוק בטיחות וציוד',
             'check_form' => 'בדוק טפסים',
             'view_worker' => 'הצג עובד',
-            'check_file' => 'בדוק קובץ'
+            'check_file' => 'בדוק קובץ',
+            'view_client' => 'צפה בלקוח'
         ]
     ]
 ];

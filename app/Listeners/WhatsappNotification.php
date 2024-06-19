@@ -755,6 +755,28 @@ class WhatsappNotification
 
                     break;
 
+                case WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE:
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.lead_need_human_representative.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.lead_need_human_representative.content', [
+                        'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
+                    ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/view-client/" . $eventData['client']['id']);
+
+                    break;
+
                 case WhatsappMessageTemplateEnum::WORKER_FORMS:
                     $workerData = $eventData;
 

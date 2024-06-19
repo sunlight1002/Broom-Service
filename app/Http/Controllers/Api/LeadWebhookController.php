@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\SettingKeyEnum;
+use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\ClientLeadStatusChanged;
+use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Fblead;
 use App\Models\Client;
@@ -81,7 +83,7 @@ class LeadWebhookController extends Controller
                 );
             }
             $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
-            
+
             $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
 
             WhatsAppBotClientState::updateOrCreate([
@@ -204,7 +206,7 @@ class LeadWebhookController extends Controller
                 // Send main menu is last menu state not found
                 if (!$client_menus || $message == '9') {
                     $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
-                    if($client->lng == 'heb') {
+                    if ($client->lng == 'heb') {
                         $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
@@ -246,7 +248,7 @@ class LeadWebhookController extends Controller
                     )
                 ) {
                     $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
-                    if($client->lng == 'heb') {
+                    if ($client->lng == 'heb') {
                         $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
@@ -297,7 +299,7 @@ class LeadWebhookController extends Controller
                         Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'en']);
                     }
                     $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
-                    
+
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
                     $response = WebhookResponse::create([
@@ -454,30 +456,64 @@ If you would like to speak to a human representative, please send a message with
 
                 if ($last_menu == 'human_representative') {
                     $msg = null;
-                    if ($client->lng == 'heb') {
-                        $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם פגישה.
-האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋';
-                    } else {
-                        $msg = 'A representative from our team will contact you shortly to schedule an appointment. Is there anything else I can help you with today? 👋';
-                    }
-                    WebhookResponse::create([
-                        'status'        => 1,
-                        'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                        'message'       => $msg,
-                        'number'        => $from,
-                        'flex'          => 'A',
-                        'read'          => 1,
-                        'data'          => json_encode($get_data)
-                    ]);
-                    WhatsAppBotClientState::updateOrCreate([
-                        'client_id' => $client->id,
-                    ], [
-                        'menu_option' => 'main_menu->human_representative->need_more_help',
-                        'language' =>  $client->lng == 'heb' ? 'he' : 'en',
-                    ]);
-                    $result = sendWhatsappMessage($from, array('message' => $msg));
 
+                    if (
+                        str_contains($message, 'Human Representative') ||
+                        str_contains($message, 'נציג אנושי')
+                    ) {
+                        event(new WhatsappNotificationEvent([
+                            "type" => WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE,
+                            "notificationData" => [
+                                'client' => $client->toArray()
+                            ]
+                        ]));
+
+                        if ($client->lng == 'heb') {
+                            $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם פגישה.
+    האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋';
+                        } else {
+                            $msg = 'A representative from our team will contact you shortly to schedule an appointment. Is there anything else I can help you with today? 👋';
+                        }
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'message'       => $msg,
+                            'number'        => $from,
+                            'flex'          => 'A',
+                            'read'          => 1,
+                            'data'          => json_encode($get_data)
+                        ]);
+                        WhatsAppBotClientState::updateOrCreate([
+                            'client_id' => $client->id,
+                        ], [
+                            'menu_option' => 'main_menu->human_representative->need_more_help',
+                            'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                        ]);
+                    } else {
+                        if ($client->lng == 'heb') {
+                            $msg = 'נראה שהזנת קלט שגוי. אנא בדוק ונסה שוב.';
+                        } else {
+                            $msg = 'It looks like you\'ve entered an incorrect input. Please check and try again.';
+                        }
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'message'       => $msg,
+                            'number'        => $from,
+                            'flex'          => 'A',
+                            'read'          => 1,
+                            'data'          => json_encode($get_data)
+                        ]);
+                        WhatsAppBotClientState::updateOrCreate([
+                            'client_id' => $client->id,
+                        ], [
+                            'menu_option' => 'main_menu->human_representative',
+                            'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                        ]);
+                    }
+                    $result = sendWhatsappMessage($from, array('message' => $msg));
                     die("Human representative");
                 }
 
