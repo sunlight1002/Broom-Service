@@ -412,9 +412,8 @@ To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a repre
                         '3' => [
                             'title' => "Schedule an appointment for a quote",
                             'content' => [
-                                'en' => "To receive a quote, please send us messages with the following details (Send each detail in separate messages, e.g., a separate message for Full Name, another message for Full Address, and so on.): 📝\n • Full name \n • Full address\n\nPlease send your full name",
-                                'he' => 'כדי לקבל הצעת מחיר, אנא שלחו את הפרטים הבאים (שלחו כל פרט בהודעה נפרדת, לדוגמה, הודעה נפרדת לשם מלא, הודעה נוספת לכתובת מלאה, וכן הלאה): 📝
-                                שם מלא',
+                                'en' => "To receive a quote, please send us messages with the following details\n\nPlease send your full name",
+                                'he' => "כדי לקבל הצעת מחיר, אנא שלחו את הפרטים הבאים: 📝\n\nשם מלא",
                             ]
                         ],
                         '4' => [
