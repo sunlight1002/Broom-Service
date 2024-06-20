@@ -60,7 +60,7 @@ export function IsrailContact({
         MobileNo: yup
             .string()
             .trim()
-            .matches(/^\d{10}$/, t("israilContract.errorMsg.mobile"))
+            // .matches(/^\d{10}$/, t("israilContract.errorMsg.mobile"))
             .required(t("israilContract.errorMsg.mobileRequired")),
         signature: yup
             .mixed()
@@ -95,7 +95,7 @@ export function IsrailContact({
             );
             setFieldValue("IdNumber", workerDetail.worker_id);
             setFieldValue("Address", workerDetail.address);
-            setFieldValue("PhoneNo", workerDetail.phone);
+            setFieldValue("MobileNo", workerDetail.phone);
             setFieldValue("role", workerDetail.role);
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);

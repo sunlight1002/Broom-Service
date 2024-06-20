@@ -113,7 +113,6 @@ export function NonIsraeliContract({
                 workerDetail.firstname + " " + workerDetail.lastname
             );
             setFieldValue("Address", workerDetail.address);
-            setFieldValue("PhoneNo", workerDetail.phone);
             setFieldValue("role", workerDetail.role);
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);
