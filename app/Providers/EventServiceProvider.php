@@ -17,7 +17,6 @@ use App\Events\ClientPaymentPaid;
 use App\Events\ClientPaymentPartiallyPaid;
 use App\Events\ClientReviewed;
 use App\Events\ContractFormSigned;
-use App\Events\ContractSigned;
 use App\Events\Form101Signed;
 use App\Events\InsuranceFormSigned;
 use App\Events\JobReviewRequest;
@@ -25,6 +24,7 @@ use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
 use App\Events\ReScheduleMeetingJob;
 use App\Events\SafetyAndGearFormSigned;
+use App\Events\SendClientLogin;
 use App\Events\WorkerApprovedJob;
 use App\Events\WorkerCreated;
 use App\Events\WorkerNotApprovedJob;
@@ -166,7 +166,7 @@ class EventServiceProvider extends ServiceProvider
         OfferAccepted::class => [
             NotifyForContract::class
         ],
-        ContractSigned::class => [
+        SendClientLogin::class => [
             SendClientCredentials::class
         ],
         ClientReviewed::class => [

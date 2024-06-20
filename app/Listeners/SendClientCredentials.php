@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
-use App\Events\ContractSigned;
+use App\Events\SendClientLogin;
 
 class SendClientCredentials implements ShouldQueue
 {
@@ -24,12 +24,11 @@ class SendClientCredentials implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  \App\Events\ContractSigned  $event
+     * @param  \App\Events\SendClientLogin  $event
      * @return void
      */
-    public function handle(ContractSigned $event)
+    public function handle(SendClientLogin $event)
     {
-        $contract = $event->contract;
         $client = $event->client;
 
         App::setLocale($client['lng']);

@@ -20,9 +20,9 @@ use App\Traits\PriceOffered;
 use App\Traits\ScheduleMeeting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Events\ContractSigned;
 use App\Events\OfferAccepted;
 use App\Events\ReScheduleMeetingJob;
+use App\Events\SendClientLogin;
 
 class ClientEmailController extends Controller
 {
@@ -361,7 +361,7 @@ class ClientEmailController extends Controller
 
       $client->makeVisible('passcode');
 
-      event(new ContractSigned($client->toArray(), $contract));
+      event(new SendClientLogin($client->toArray()));
 
       return response()->json([
         'message' => "Thanks, for accepting contract"
