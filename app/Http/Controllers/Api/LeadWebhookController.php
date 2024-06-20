@@ -134,7 +134,11 @@ class LeadWebhookController extends Controller
         Log::info($get_data);
         $data_returned = json_decode($get_data, true);
 
-        if (isset($data_returned['messages'])) {
+        if (
+            isset($data_returned['messages']) &&
+            isset($data_returned['messages'][0]['from_me']) &&
+            $data_returned['messages'][0]['from_me'] == false
+        ) {
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
 

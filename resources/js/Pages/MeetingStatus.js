@@ -75,17 +75,21 @@ export default function MeetingStatus() {
                         {t("meet_stat.with")} {teamName}
                     </h1>
                     <ul className="list-unstyled">
-                        <li>
-                            {t("meet_stat.date")}: <span>{dt}</span>
-                        </li>
-                        <li>
-                            {t("meet_stat.time")}:{" "}
-                            <span>
-                                {timeFormat(meeting.start_time)}{" "}
-                                {t("meet_stat.to")}{" "}
-                                {timeFormat(meeting.end_time)}
-                            </span>
-                        </li>
+                        {meeting.start_date && (
+                            <>
+                                <li>
+                                    {t("meet_stat.date")}: <span>{dt}</span>
+                                </li>
+                                <li>
+                                    {t("meet_stat.time")}:{" "}
+                                    <span>
+                                        {timeFormat(meeting.start_time)}{" "}
+                                        {t("meet_stat.to")}{" "}
+                                        {timeFormat(meeting.end_time)}
+                                    </span>
+                                </li>
+                            </>
+                        )}
                         <li>
                             {t("meet_stat.address")}:{" "}
                             <span>{meeting.property_address.address_name}</span>
