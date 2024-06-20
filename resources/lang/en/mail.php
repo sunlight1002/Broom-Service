@@ -506,6 +506,10 @@ return [
             'header' => "*Need Human Representative | Broom Service*",
             'content' =>  ":client_name wants to speak to a human representative."
         ],
+        'no_slot_avail_callback' => [
+            'header' => "*No Available Meeting Slot | Broom Service*",
+            'content' =>  "There are no available meeting slots. Please arrange a callback for :client_name."
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',

@@ -777,6 +777,28 @@ class WhatsappNotification
 
                     break;
 
+                case WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK:
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.no_slot_avail_callback.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.no_slot_avail_callback.content', [
+                        'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
+                    ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/view-client/" . $eventData['client']['id']);
+
+                    break;
+
                 case WhatsappMessageTemplateEnum::WORKER_FORMS:
                     $workerData = $eventData;
 

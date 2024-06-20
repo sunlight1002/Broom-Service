@@ -503,6 +503,10 @@ return [
             'header' => "*צריך נציג אנושי | שירות מטאטא*",
             'content' => ":client_name רוצה לדבר עם נציג אנושי.",
         ],
+        'no_slot_avail_callback' => [
+            'header' => "*אין זמינות לפגישה | שירות מטאטא*",
+            'content' => "אין פגישות זמינות. אנא תאם שיחה חוזרת עבור :client_name."
+        ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',
             'upload_file' => 'העלה קובץ',

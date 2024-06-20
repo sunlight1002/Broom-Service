@@ -154,7 +154,6 @@ class LeadWebhookController extends Controller
                 $client = Client::where('phone', 'like', '%' . $from . '%')->first();
             }
 
-
             if (!$client) {
                 $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
                 $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
@@ -239,7 +238,7 @@ class LeadWebhookController extends Controller
                 // Need more help
                 if (
                     (
-                        in_array($last_menu, ['email', 'need_more_help']) &&
+                        in_array($last_menu, ['need_more_help']) &&
                         (str_contains(strtolower($message), 'yes') || str_contains($message, 'כן'))
                     ) ||
                     (
@@ -363,36 +362,46 @@ We work with a permanent and skilled team of employees supervised by a work mana
 Payment is made by 💳 credit card at the end of the month or after the visit, depending on the route chosen.
 To receive a quote, you must schedule an appointment at your property with one of our supervisors, at no cost or obligation on your part, during which we will help you choose a package and then we will send you a detailed quote according to the requested work.
 Please note that office hours are 🕖 Monday-Thursday from 8:00 to 14:00.
-To schedule an appointment for a quote or speak with a representative, press ☎️ 3.',
-                                'he' => 'פרטים על השירות
-ברום סרוויס - שירות חדרים לבית שלכם.
+To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
+                                'he' => 'ברום סרוויס - שירות חדרים לבית שלכם 🏠.
 ברום סרוויס היא חברת ניקיון מקצועית המציעה שירותי ניקיון ברמה גבוהה לבית או לדירה, על בסיס קבוע או חד פעמי, ללא כל התעסקות מיותרת 🧹.
 אנו מציעים מגוון חבילות ניקיון מותאמות אישית, החל מחבילות ניקיון על בסיס קבוע ועד לשירותים נוספים כגון, ניקיון לאחר שיפוץ או לפני מעבר דירה, ניקוי חלונות בכל גובה ועוד ✨
-את כלל השירותים והחבילות שלנו תוכלו לראות באתר האנטרנט שלנו בכתובת  www.broomservice.co.il 🌐
+את כלל השירותים והחבילות שלנו תוכלו לראות באתר האינטרנט שלנו בכתובת 🌐 www.broomservice.co.il
 המחירים שלנו קבועים לביקור, בהתאם לחבילה הנבחרת, והם כוללים את כל השירותים הנדרשים, לרבות תנאים סוציאליים ונסיעות 🍵. 
-אנו עובדים עם צוות עובדים קבוע ומיומן המפוקח על ידי מנהל עבודה. 👨🏻‍💼
-התשלום מתבצע בכרטיס אשראי בסוף החודש או לאחר הביקור, בהתאם למסלול שנבחר. 💳	
-לקבלת הצעת מחיר, יש לתאם פגישה אצלכם בנכס עם אחד המפקחים שלנו, ללא כל עלות או התחייבות מצדכם שבמסגרתה נעזור לכם לבחור חבילה ולאחריה 
-נשלח לכם הצעת מחיר מפורטת בהתאם לעבודה המבוקשת. 📝
-
-נציין כי שעות הפעילות במשרד הם בימים א-ה בשעות 8.00-14.00 🕓
-לקביעת פגישה להצעת מחיר או שיחה עם נציג הקש 3 (עובר ל3) 📞'
+אנו עובדים עם צוות עובדים קבוע ומיומן המפוקח על ידי מנהל עבודה 👨🏻‍💼.
+התשלום מתבצע בכרטיס אשראי בסוף החודש או לאחר הביקור, בהתאם למסלול שנבחר 💳.
+לקבלת הצעת מחיר, יש לתאם פגישה אצלכם בנכס עם אחד המפקחים שלנו, ללא כל עלות או התחייבות מצדכם שבמסגרתה נעזור לכם לבחור חבילה ולאחריה נשלח לכם הצעת מחיר מפורטת בהתאם לעבודה המבוקשת 📝.
+נציין כי שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00 🕓.
+לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
                             ]
                         ],
                         '2' => [
                             'title' => "Service Areas",
                             'content' => [
                                 'en' => 'We provide service in the following areas: 🗺️
-Tel Aviv
-Ramat Gan
-Givatayim
-Kiryat Ono
-Ramat HaSharon
-Kfar Shmaryahu
-Herzliya
-To schedule an appointment for a quote or speak with a representative, press ☎️ 3.',
-                                'he' => 'אנו מספקים שירות באזורי תל אביב, רמת גן, גבעתיים, קריית אונו, רמת השרון, כפר שמריהו והרצליה. 🗺️
-לקביעת פגישה להצעת מחיר או שיחה עם נציג הקש 3 (עובר ל3) 📞'
+- Tel Aviv
+- Ramat Gan
+- Givatayim
+- Kiryat Ono
+- Ganei Tikva
+- Ramat HaSharon
+- Kfar Shmaryahu
+- Rishpon
+- Herzliya
+
+To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
+                                'he' => 'אנו מספקים שירות באזור 🗺️:
+- תל אביב
+- רמת גן
+- גבעתיים
+- קריית אונו
+- גני תקווה
+- רמת השרון
+- כפר שמריהו
+- רשפון
+- הרצליה
+
+לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
                             ]
                         ],
                         '3' => [
@@ -412,9 +421,9 @@ To schedule an appointment for a quote or speak with a representative, press ☎
                                 'en' => 'Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.
 You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
 Enter your phone number or email address with which you registered for the service 📝',
-                                'he' => 'לקוחות קיימים יכולים להשתמש בפלטפורמת הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
-תוכלו גם להכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
-כתוב את מס הטלפון או כתובת המייל איתם נרשמת לשירות',
+                                'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
+תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
+הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
                             ]
                         ],
                         '5' => [
@@ -423,7 +432,7 @@ Enter your phone number or email address with which you registered for the servi
                                 'en' => 'Dear customers, office hours are Monday-Thursday from 8:00 to 14:00.
 If you contact us outside of business hours, a representative from our team will get back to you as soon as possible on the next business day, during business hours.
 If you would like to speak to a human representative, please send a message with the word "Human Representative". 🙋🏻',
-                                'he' => 'לקוחות יקרים, שעות הפעילות במשרד הם בימים א-ה בשעות 8.00-14.00.
+                                'he' => 'לקוחות יקרים, שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00.
 במידה ופניתם מעבר לשעות הפעילות נציג מטעמנו יחזור אליכם בהקדם ביום העסקים הבא, בשעות הפעילות.
 אם אתם מעוניינים לדבר עם נציג אנושי, אנא שלחו הודעה עם המילה "נציג אנושי". 🙋🏻',
                             ]
@@ -432,7 +441,7 @@ If you would like to speak to a human representative, please send a message with
                 ];
 
                 // Greeting message
-                if (in_array($last_menu, ['email', 'need_more_help', 'cancel_one_time']) && (str_contains(strtolower($message), 'no') || str_contains($message, 'לא'))) {
+                if (in_array($last_menu, ['need_more_help', 'cancel_one_time']) && (str_contains(strtolower($message), 'no') || str_contains($message, 'לא'))) {
                     $msg = ($client->lng == 'heb' ? `מקווה שעזרתי! 🤗` : 'I hope I helped! 🤗');
                     WebhookResponse::create([
                         'status'        => 1,
@@ -469,10 +478,10 @@ If you would like to speak to a human representative, please send a message with
                         ]));
 
                         if ($client->lng == 'heb') {
-                            $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם פגישה.
-    האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋';
+                            $msg = 'נציג מטעמנו יצור קשר בהקדם.
+    האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
                         } else {
-                            $msg = 'A representative from our team will contact you shortly to schedule an appointment. Is there anything else I can help you with today? 👋';
+                            $msg = 'A representative from our team will contact you shortly. Is there anything else I can help you with today? (Yes or No) 👋';
                         }
                         WebhookResponse::create([
                             'status'        => 1,
@@ -798,7 +807,7 @@ If you would like to speak to a human representative, please send a message with
                     if (filter_var($message, FILTER_VALIDATE_EMAIL)) {
                         $email_exists = Client::where('email', $message)->where('id', '!=', $client->id)->exists();
                         if ($email_exists) {
-                            $msg = ($client->lng == 'heb' ? `'` . $message . `' כבר נלקח. נא להזין כתובת דוא"ל אחרת.` : '\'' . $message . '\' is already taken. Please enter a different email address.');
+                            $msg = ($client->lng == 'heb' ? `הכתובת '` . $message . `' כבר קיימת. נא הזן כתובת דוא"ל אחרת.` : '\'' . $message . '\' is already taken. Please enter a different email address.');
                         } else {
                             $client->email = trim($message);
                             $client->save();
@@ -814,13 +823,13 @@ If you would like to speak to a human representative, please send a message with
                                     'client_id'     => $client->id,
                                     'meet_via'      => 'on-site',
                                     'purpose'       => 'Price offer',
-                                    'start_date'    => $nextAvailableSlot['date'],
-                                    'start_time_standard_format' => $nextAvailableSlot['start_time'],
+                                    // 'start_date'    => $nextAvailableSlot['date'],
+                                    // 'start_time_standard_format' => $nextAvailableSlot['start_time'],
                                     'team_id'       => $nextAvailableSlot['team_member_id']
                                 ];
 
-                                $scheduleData['start_time'] = Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' ' . $nextAvailableSlot['start_time'])->format('h:i A');
-                                $scheduleData['end_time'] = Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' ' . $nextAvailableSlot['start_time'])->addMinutes(30)->format('h:i A');
+                                // $scheduleData['start_time'] = Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' ' . $nextAvailableSlot['start_time'])->format('h:i A');
+                                // $scheduleData['end_time'] = Carbon::createFromFormat('Y-m-d H:i:s', date('Y-m-d') . ' ' . $nextAvailableSlot['start_time'])->addMinutes(30)->format('h:i A');
 
                                 $schedule = Schedule::create($scheduleData);
 
@@ -858,34 +867,36 @@ If you would like to speak to a human representative, please send a message with
                                     'status' => $schedule->booking_status
                                 ]);
 
-                                $dateHumanFormat = Carbon::parse($nextAvailableSlot['date'])->format('d/m/Y');
-
+                                $link = url("meeting-status/" . base64_encode($schedule->id) . "/reschedule");
                                 if ($client->lng == 'heb') {
-                                    $startTime24Format = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $schedule->start_time)->format('H:i');
-                                    $endTime24Format = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $schedule->start_time)->addMinutes(30)->format('H:i');
-
-                                    $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם מצטערים, אין התור שלך נקבע ל-' . $dateHumanFormat . ' בין השעות ' . $startTime24Format . ' ל-' . $endTime24Format . '. יש משהו אחר שאני יכול לעזור לך בו היום? 😊';
+                                    $msg = "$link\n\nאנא בחר/י זמן לפגישה באמצעות הקישור למטה. יש משהו נוסף שבו אני יכול/ה לעזור לך היום? 😊";
                                 } else {
-                                    $msg = 'Your appointment is scheduled for ' . $dateHumanFormat . ' between ' . $schedule->start_time . ' to ' . $schedule->end_time . '. Is there anything else I can help you with today? 😊';
+                                    $msg = "Please choose a time slot for your appointment using the link below. Is there anything else I can help you with today? (Yes or No) 👋\n\n$link";
                                 }
                             } else {
                                 if ($client->lng == 'heb') {
-                                    $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם מצטערים, אין כרגע זמינות לתורים. יש משהו אחר שאני יכול לעזור לך בו היום? 😊';
+                                    $msg = "מצטערים, אין כרגע זמינות לפגישות. נציג מטעמנו ייצור עמכם קשר בהקדם. \n\nהאם יש משהו נוסף שאני יכול לעזור לך בו היום? (כן או לא) 👋";
                                 } else {
-                                    $msg = 'Sorry, there are no available slots for an appointment at the moment. Is there anything else I can help you with today? 😊';
+                                    $msg = "Sorry, there are no available slots for an appointment at the moment.\n\nA representative from our team will contact you shortly.\n\nIs there anything else I can help you with today? (Yes or No) 👋";
                                 }
+
+                                event(new WhatsappNotificationEvent([
+                                    "type" => WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK,
+                                    "notificationData" => [
+                                        'client' => $client->toArray()
+                                    ]
+                                ]));
                             }
 
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
-                                'menu_option' => 'main_menu->appointment->email',
+                                'menu_option' => 'main_menu->appointment->need_more_help',
                                 'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                             ]);
                         }
                     } else {
-                        $msg = ($client->lng == 'heb' ? `כתובת הדוא"ל '` . $message . `' נחשבת לא חוקית.
-                            בבקשה נסה שוב.` : 'The email address \'' . $message . '\' is considered invalid. Please try again.');
+                        $msg = ($client->lng == 'heb' ? `כתובת הדוא"ל '` . $message . `' לא תקינה. בבקשה נסה שוב.` : 'The email address \'' . $message . '\' is considered invalid. Please try again.');
                     }
 
                     if (!empty($msg)) {
@@ -1311,6 +1322,21 @@ If you would like to speak to a human representative, please send a message with
                     Log::info('Send message: ' . $menus[$last_menu][$message]['title']);
                     die("Language switched to english");
                 }
+
+                // if answer not fit script and options
+                $msg = "Sorry, I didn't understand your message. Could you please check and make sure you answered correctly?";
+
+                WebhookResponse::create([
+                    'status'        => 1,
+                    'name'          => 'whatsapp',
+                    'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                    'message'       => $msg,
+                    'number'        => $from,
+                    'flex'          => 'A',
+                    'read'          => 1,
+                    'data'          => json_encode($get_data)
+                ]);
+                $result = sendWhatsappMessage($from, array('message' => $msg));
             }
         }
 
