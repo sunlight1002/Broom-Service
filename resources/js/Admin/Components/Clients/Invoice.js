@@ -200,6 +200,8 @@ export default function Invoice() {
                 getInvoices();
                 setPayID(0);
                 setIsSubmitting(false);
+
+                $("#exampleModaPaymentAdd").modal("hide");
             })
             .catch((e) => {
                 Swal.fire({

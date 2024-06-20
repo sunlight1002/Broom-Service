@@ -112,7 +112,7 @@ export default function Payments() {
                         let _html = "";
 
                         if (row.priority_paid_status) {
-                            const _statusName = priorityStatus(data);
+                            const _statusName = priorityStatus(row.priority_paid_status);
 
                             _html +=
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';

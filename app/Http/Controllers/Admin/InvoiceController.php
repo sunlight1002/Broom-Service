@@ -1515,7 +1515,7 @@ class InvoiceController extends Controller
 
         if ($orders->count() == 0) {
             return response()->json([
-                'message' => "Open order not found"
+                'message' => "No open order found"
             ], 404);
         }
 
@@ -1690,7 +1690,7 @@ class InvoiceController extends Controller
 
             if ($orders->count() == 0) {
                 return response()->json([
-                    'message' => "Open order not found"
+                    'message' => "No open order found"
                 ], 404);
             }
 
@@ -1729,7 +1729,7 @@ class InvoiceController extends Controller
 
         if ($orders->count() == 0) {
             return response()->json([
-                'message' => "Open order not found"
+                'message' => "No open order found"
             ], 404);
         }
 
