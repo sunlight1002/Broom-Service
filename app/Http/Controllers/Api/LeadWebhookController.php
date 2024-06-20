@@ -34,6 +34,13 @@ class LeadWebhookController extends Controller
 {
     use ScheduleMeeting;
 
+    protected $botMessages = [
+        'main-menu' => [
+            'en' => "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית",
+            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu'
+        ]
+    ];
+
     public function saveLead(Request $request)
     {
         $challenge = $request->hub_challenge;
@@ -71,6 +78,7 @@ class LeadWebhookController extends Controller
             $lead->phone         = $request->phone;
             $lead->email         = $request->email;
             $lead->status        = 0;
+            $lead->lng = 'en';
             $lead->password      = Hash::make($request->phone);
             $lead->passcode      = $request->phone;
             $lead->geo_address   = $request->has('address') ? $request->address : '';
@@ -82,7 +90,7 @@ class LeadWebhookController extends Controller
                     ['lead_status' => LeadStatusEnum::PENDING]
                 );
             }
-            $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
+            $m = $this->botMessages['main-menu']['en'];
 
             $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
 
@@ -92,7 +100,6 @@ class LeadWebhookController extends Controller
                 'menu_option' => 'main_menu',
                 'language' => 'he',
             ]);
-
 
             $response = WebhookResponse::create([
                 'status'        => 1,
@@ -155,7 +162,7 @@ class LeadWebhookController extends Controller
             }
 
             if (!$client) {
-                $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
+                $m = $this->botMessages['main-menu']['en'];
                 $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
                 $response = WebhookResponse::create([
@@ -190,7 +197,6 @@ class LeadWebhookController extends Controller
             }
 
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
-                $n_f = false;
                 $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : $message_data[0]['button']['text'];
 
                 $result = WhatsappLastReply::where('phone', $from)
@@ -199,14 +205,13 @@ class LeadWebhookController extends Controller
 
                 Log::info('Result details:', ['result' => $result]);
 
-
                 $client_menus = WhatsAppBotClientState::where('client_id', $client->id)->first();
 
                 // Send main menu is last menu state not found
                 if (!$client_menus || $message == '9') {
-                    $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
+                    $m = $this->botMessages['main-menu']['en'];
                     if ($client->lng == 'heb') {
-                        $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
+                        $m = $this->botMessages['main-menu']['heb'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -246,9 +251,9 @@ class LeadWebhookController extends Controller
                         $message == '0'
                     )
                 ) {
-                    $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
+                    $m = $this->botMessages['main-menu']['en'];
                     if ($client->lng == 'heb') {
-                        $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
+                        $m = $this->botMessages['main-menu']['heb'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -297,7 +302,7 @@ class LeadWebhookController extends Controller
                     } else {
                         Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'en']);
                     }
-                    $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
+                    $m = $this->botMessages['main-menu']['en'];
 
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -326,7 +331,7 @@ class LeadWebhookController extends Controller
                     } else {
                         Client::where('phone', 'like', '%' . $from . '%')->update(['lng' => 'heb']);
                     }
-                    $m = 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu';
+                    $m = $this->botMessages['main-menu']['heb'];
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
                     $response = WebhookResponse::create([
@@ -407,12 +412,9 @@ To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a repre
                         '3' => [
                             'title' => "Schedule an appointment for a quote",
                             'content' => [
-                                'en' => "To receive a quote, please send us messages with the following details (Send each detail in separate messages, e.g., a separate message for Full Name, another message for Full Address, and so on.): 📝\n • Full name \n • Full address\nA representative from our team will contact you shortly to schedule an appointment.",
-                                'he' => 'כדי לקבל הצעת מחיר, אנא שלח לנו הודעות עם הפרטים הבאים (שלח כל פרט בהודעה נפרדת, לדוגמה, הודעה נפרדת לשם מלא, הודעה נוספת לכתובת מלאה, וכן הלאה): 📝
-שם מלא
-כתובת מלאה
-נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם פגישה.
-האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋',
+                                'en' => "To receive a quote, please send us messages with the following details (Send each detail in separate messages, e.g., a separate message for Full Name, another message for Full Address, and so on.): 📝\n • Full name \n • Full address\n\nPlease send your full name",
+                                'he' => 'כדי לקבל הצעת מחיר, אנא שלחו את הפרטים הבאים (שלחו כל פרט בהודעה נפרדת, לדוגמה, הודעה נפרדת לשם מלא, הודעה נוספת לכתובת מלאה, וכן הלאה): 📝
+                                שם מלא',
                             ]
                         ],
                         '4' => [
@@ -527,7 +529,7 @@ If you would like to speak to a human representative, please send a message with
                 }
 
                 // Store lead full name
-                if ($last_menu == 'appointment') {
+                if ($last_menu == 'full_name') {
                     $names = explode(' ', $message);
                     if (isset($names[0])) {
                         $client->firstname = trim($names[0]);
@@ -536,18 +538,37 @@ If you would like to speak to a human representative, please send a message with
                         $client->lastname = trim($names[1]);
                     }
                     $client->save();
-                    $client->refresh();
+                    // $client->refresh();
+                    $msg = null;
+                    if ($client->lng == 'heb') {
+                        $msg = 'כתובת מלאה (רחוב, מספר ועיר בלבד)';
+                    } else {
+                        $msg = "Please send your full address (Only street, number, and city)";
+                    }
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'message'       => $msg,
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($get_data)
+                    ]);
+
+                    $result = sendWhatsappMessage($from, array('message' => $msg));
+
                     WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
                     ], [
-                        'menu_option' => 'main_menu->appointment->full_name',
+                        'menu_option' => 'main_menu->appointment->full_address',
                         'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                     ]);
 
                     die("Store full name");
                 }
 
-                if ($last_menu == 'full_name') {
+                if ($last_menu == 'full_address') {
 
                     $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
                         'address' => $message,
@@ -587,7 +608,7 @@ If you would like to speak to a human representative, please send a message with
 
                             $msg = null;
                             if ($client->lng == 'heb') {
-                                $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם אנא אשר אם הכתובת הבאה נכונה על ידי תשובה בכן או לא:' . $result->formatted_address;
+                                $msg = 'אנא אשר אם הכתובת הבאה נכונה על ידי תשובה כן או לא:' . $result->formatted_address;
                             } else {
                                 $msg = "Please confirm if this address is correct by replying with Yes or No:\n\n" . $result->formatted_address;
                             }
@@ -604,7 +625,7 @@ If you would like to speak to a human representative, please send a message with
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
-                                'menu_option' => 'main_menu->appointment->verify_address',
+                                'menu_option' => 'main_menu->appointment->full_address->verify_address',
                                 'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                             ]);
                             $result = sendWhatsappMessage($from, array('message' => $msg));
@@ -658,9 +679,9 @@ If you would like to speak to a human representative, please send a message with
 
                         $msg = null;
                         if ($client->lng == 'heb') {
-                            $msg = 'אנא ספק את פרטי החניה עבור הכתובת הנתונה.';
+                            $msg = 'באיזו קומה נמצא הנכס שלך? (אם אין השב אין)';
                         } else {
-                            $msg = "Please provide the parking details for the given address.";
+                            $msg = "What is the floor of your address? (If none then type x)";
                         }
 
                         WebhookResponse::create([
@@ -679,7 +700,7 @@ If you would like to speak to a human representative, please send a message with
                         WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
                         ], [
-                            'menu_option' => 'main_menu->appointment->full_address',
+                            'menu_option' => 'main_menu->appointment->full_address->floor',
                             'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                         ]);
 
@@ -712,7 +733,7 @@ If you would like to speak to a human representative, please send a message with
                         WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
                         ], [
-                            'menu_option' => 'main_menu->appointment->full_name',
+                            'menu_option' => 'main_menu->appointment->full_address',
                             'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                         ]);
 
@@ -720,8 +741,110 @@ If you would like to speak to a human representative, please send a message with
                     }
                 }
 
+                if ($last_menu == 'floor') {
+                    $lastEnteredAddress = $client->verify_last_address_with_wa_bot;
+
+                    $propertyAddress = $client->property_addresses()
+                        ->where('id', $lastEnteredAddress['id'])
+                        ->first();
+
+                    if ($propertyAddress) {
+                        if (
+                            ($client->lng == 'heb' && $message == 'אין') ||
+                            ($client->lng == 'en' && strtolower($message) == 'x')
+                        ) {
+                            $propertyAddress->update([
+                                'floor' => NULL
+                            ]);
+                        } else {
+                            $propertyAddress->update([
+                                'floor' => $message
+                            ]);
+                        }
+                    }
+
+                    if ($client->lng == 'heb') {
+                        $msg = 'מהו מספר הדירה (אם אין השב אין)';
+                    } else {
+                        $msg = "What is the apartment number of your address? (If none then type x)";
+                    }
+
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'message'       => $msg,
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($get_data)
+                    ]);
+
+                    $result = sendWhatsappMessage($from, array('message' => $msg));
+
+                    WhatsAppBotClientState::updateOrCreate([
+                        'client_id' => $client->id,
+                    ], [
+                        'menu_option' => 'main_menu->appointment->full_address->apartment_number',
+                        'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                    ]);
+
+                    die("Address floor");
+                }
+
+                if ($last_menu == 'apartment_number') {
+                    $lastEnteredAddress = $client->verify_last_address_with_wa_bot;
+
+                    $propertyAddress = $client->property_addresses()
+                        ->where('id', $lastEnteredAddress['id'])
+                        ->first();
+
+                    if ($propertyAddress) {
+                        if (
+                            ($client->lng == 'heb' && $message == 'אין') ||
+                            ($client->lng == 'en' && strtolower($message) == 'x')
+                        ) {
+                            $propertyAddress->update([
+                                'apt_no' => NULL
+                            ]);
+                        } else {
+                            $propertyAddress->update([
+                                'apt_no' => $message
+                            ]);
+                        }
+                    }
+
+                    if ($client->lng == 'heb') {
+                        $msg = 'אנא ספק את פרטי החניה עבור הכתובת הנתונה.';
+                    } else {
+                        $msg = "Please provide the parking details for the given address.";
+                    }
+
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'message'       => $msg,
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($get_data)
+                    ]);
+
+                    $result = sendWhatsappMessage($from, array('message' => $msg));
+
+                    WhatsAppBotClientState::updateOrCreate([
+                        'client_id' => $client->id,
+                    ], [
+                        'menu_option' => 'main_menu->appointment->full_address->parking',
+                        'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                    ]);
+
+                    die("Address Apt no.");
+                }
+
                 // Store address parking
-                if ($last_menu == 'full_address') {
+                if ($last_menu == 'parking') {
                     $lastEnteredAddress = $client->verify_last_address_with_wa_bot;
 
                     $propertyAddress = $client->property_addresses()
@@ -760,7 +883,7 @@ If you would like to speak to a human representative, please send a message with
                         WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
                         ], [
-                            'menu_option' => 'main_menu->appointment->address_parking',
+                            'menu_option' => 'main_menu->appointment->full_address->email',
                             'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                         ]);
 
@@ -793,7 +916,7 @@ If you would like to speak to a human representative, please send a message with
                         WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
                         ], [
-                            'menu_option' => 'main_menu->appointment->full_name',
+                            'menu_option' => 'main_menu->appointment->full_address',
                             'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                         ]);
 
@@ -802,7 +925,7 @@ If you would like to speak to a human representative, please send a message with
                 }
 
                 // Store lead email
-                if ($last_menu == 'address_parking') {
+                if ($last_menu == 'email') {
                     $msg = null;
                     if (filter_var($message, FILTER_VALIDATE_EMAIL)) {
                         $email_exists = Client::where('email', $message)->where('id', '!=', $client->id)->exists();
@@ -1296,7 +1419,7 @@ If you would like to speak to a human representative, please send a message with
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
-                                'menu_option' => 'main_menu->appointment',
+                                'menu_option' => 'main_menu->appointment->full_name',
                                 'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                             ]);
                             break;
@@ -1372,6 +1495,7 @@ If you would like to speak to a human representative, please send a message with
         $lead->phone = $request->phone;
         $lead->email = $request->email;
         $lead->status = 0;
+        $lead->lng = 'en';
         $lead->password = Hash::make($request->phone);
         $lead->passcode = $request->phone;
         $lead->save();
@@ -1383,7 +1507,7 @@ If you would like to speak to a human representative, please send a message with
             );
         }
 
-        $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";
+        $m = $this->botMessages['main-menu']['en'];
 
         $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
 
