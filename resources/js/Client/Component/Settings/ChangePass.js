@@ -41,7 +41,7 @@ export default function ChangePass() {
                 <form>
                     <div className="form-group">
                         <label className="control-label">
-                            {t("client.settings.passwordUpdateSuccess")} *
+                            {t("client.settings.change_pass")} *
                         </label>
                         <input
                             type="password"

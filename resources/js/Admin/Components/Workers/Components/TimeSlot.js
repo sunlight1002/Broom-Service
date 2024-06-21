@@ -54,6 +54,7 @@ const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots }) => {
                             <select
                                 name={s.key}
                                 className="form-control"
+                                style={{ minWidth: "114px" }}
                                 ref={elementsRef.current[index]}
                             >
                                 <option value="">{s.name}</option>

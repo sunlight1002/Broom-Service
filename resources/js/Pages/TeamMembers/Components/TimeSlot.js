@@ -63,6 +63,7 @@ const TimeSlot = ({ clsName, slots, setTimeSlots, timeSlots }) => {
                         <select
                             name="start_time"
                             className="form-control"
+                            style={{ minWidth: "78px" }}
                             ref={startTimeRef}
                         >
                             <option value="">Time</option>

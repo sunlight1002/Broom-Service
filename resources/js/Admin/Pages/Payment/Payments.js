@@ -71,6 +71,7 @@ export default function Payments() {
                 {
                     title: "Client",
                     data: "client_name",
+                    responsivePriority: 0,
                     render: function (data, type, row, meta) {
                         let _html = `<span class="client-name-badge dt-client-badge" style="color: #FFFFFF; background-color: #D500A6;" data-client-id="${row.client_id}">`;
 
@@ -108,6 +109,7 @@ export default function Payments() {
                     title: "Action",
                     data: "action",
                     orderable: false,
+                    responsivePriority: 1,
                     render: function (data, type, row, meta) {
                         let _html = "";
 

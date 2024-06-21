@@ -394,8 +394,8 @@ export default function files() {
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"
             >
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content" style={{ width: "130%" }}>
+                <div className="modal-dialog modal-lg" role="document">
+                    <div className="modal-content">
                         <div className="modal-header">
                             <button
                                 type="button"
@@ -407,22 +407,10 @@ export default function files() {
                             </button>
                         </div>
                         <div className="modal-body">
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <img
-                                            src=""
-                                            className="showFile form-control"
-                                        />
-                                        <video
-                                            className="form-control showvideo"
-                                            controls
-                                        >
-                                            <source src="" type="video/mp4" />
-                                        </video>
-                                    </div>
-                                </div>
-                            </div>
+                            <img src="" className="showFile img-fluid w-100" />
+                            <video className="form-control showvideo" controls>
+                                <source src="" type="video/mp4" />
+                            </video>
                         </div>
                     </div>
                 </div>

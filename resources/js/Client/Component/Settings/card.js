@@ -183,7 +183,7 @@ export default function card() {
                                                                 }
                                                             >
                                                                 {t(
-                                                                    "work-contract.markAsDefault"
+                                                                    "client.settings.markAsDefault"
                                                                 )}
                                                             </button>
                                                             <button
