@@ -44,6 +44,7 @@ Route::get('get_services', [ServicesController::class, 'create']);
 Route::any('save-lead', [LeadWebhookController::class, 'saveLead']);
 
 Route::get('clients-sample-file', [ClientController::class, 'sampleFileExport']);
+Route::get('workers/import/sample', [WorkerController::class, 'sampleFileExport']);
 
 // Authenticated Routes
 Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
@@ -105,6 +106,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('workers/working-hours', [WorkerController::class, 'workingHoursReport']);
     Route::post('workers/working-hours/export', [WorkerController::class, 'exportWorkingHoursReport']);
     Route::post('form/send', [WorkerController::class, 'formSend']);
+
+    Route::post('workers/import', [WorkerController::class, 'import']);
 
     // not Available date
     Route::post('get-not-available-dates', [WorkerController::class, 'getNotAvailableDates']);

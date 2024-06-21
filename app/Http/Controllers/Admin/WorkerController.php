@@ -14,6 +14,8 @@ use App\Events\WorkerCreated;
 use App\Events\WorkerForm101Requested;
 use App\Events\WorkerLeaveJob;
 use App\Exports\WorkerHoursExport;
+use App\Exports\WorkerSampleExport;
+use App\Jobs\ImportWorker;
 use App\Traits\JobSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -919,5 +921,38 @@ class WorkerController extends Controller
         return response()->json([
             'message' => 'Worker created successfully',
         ]);
+    }
+
+    public function import(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:xlsx,xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->first()]);
+        }
+
+        $file = $request->file('file');
+        $fileName = 'file_' . $request->user()->id . '_' . date('YmdHis') . '_' . $file->getClientOriginalName();
+
+        if (!Storage::disk('public')->exists('uploads/imports')) {
+            Storage::disk('public')->makeDirectory('uploads/imports');
+        }
+
+        if (!Storage::disk('public')->putFileAs("uploads/imports", $file, $fileName)) {
+            return response()->json(['error' => 'File not uploaded']);
+        }
+
+        ImportWorker::dispatch($fileName);
+
+        return response()->json([
+            'message' => 'File has been submitted, it will be imported soon',
+        ]);
+    }
+
+    public function sampleFileExport(Request $request)
+    {
+        return Excel::download(new WorkerSampleExport, 'worker-import-sheet.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
 }

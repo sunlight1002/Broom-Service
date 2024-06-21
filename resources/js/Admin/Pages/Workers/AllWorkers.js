@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useAlert } from "react-alert";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 import $ from "jquery";
 import "datatables.net";
@@ -22,7 +25,10 @@ export default function AllWorkers() {
         is_my_company: false,
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
+    const [show, setShow] = useState(false);
+    const [importFile, setImportFile] = useState("");
 
+    const alert = useAlert();
     const navigate = useNavigate();
     const tableRef = useRef(null);
     const statusRef = useRef(null);
@@ -242,6 +248,44 @@ export default function AllWorkers() {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
     };
 
+    const handleImportSubmit = () => {
+        const formData = new FormData();
+        formData.append("file", importFile);
+        axios
+            .post("/api/admin/workers/import", formData, {
+                headers: {
+                    Accept: "application/json, text/plain, */*",
+                    "Content-Type": "multipart/form-data",
+                    Authorization:
+                        `Bearer ` + localStorage.getItem("admin-token"),
+                },
+            })
+            .then((response) => {
+                handleClose();
+                if (response.data.error) {
+                    alert.error(response.data.error);
+                } else {
+                    alert.success(response.data.message);
+                    setTimeout(() => {
+                        $(tableRef.current).DataTable().draw();
+                    }, 1000);
+                }
+            })
+            .catch((error) => {
+                handleClose();
+                alert.error(error.message);
+            });
+    };
+
+    const handleClose = () => {
+        setImportFile("");
+        setShow(false);
+    };
+    const handleShow = () => {
+        setImportFile("");
+        setShow(true);
+    };
+
     return (
         <div id="container">
             <Sidebar />
@@ -265,6 +309,12 @@ export default function AllWorkers() {
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
+                                <button
+                                    className="btn btn-pink mt-4 mr-2"
+                                    onClick={handleShow}
+                                >
+                                    Import
+                                </button>
                                 <Link
                                     to="/admin/workers/working-hours"
                                     className="btn btn-pink addButton mr-0 mr-md-2  ml-auto"
@@ -447,6 +497,44 @@ export default function AllWorkers() {
                         workerId={selectedWorkerId}
                     />
                 )}
+
+                <Modal show={show} onHide={handleClose}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Import File</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <a href="/api/admin/workers/import/sample">
+                            Download sample file
+                        </a>
+                        <form encType="multipart/form-data">
+                            <div className="row mt-2">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <input
+                                            type="file"
+                                            onChange={(e) =>
+                                                setImportFile(e.target.files[0])
+                                            }
+                                            className="form-control"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={handleClose}>
+                            Close
+                        </Button>
+                        <Button
+                            className="btn btn-pink"
+                            onClick={handleImportSubmit}
+                        >
+                            Submit
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </div>
         </div>
     );
