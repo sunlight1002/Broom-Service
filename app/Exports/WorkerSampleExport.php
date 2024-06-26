@@ -63,6 +63,10 @@ class WorkerSampleExport implements FromCollection, WithHeadings, WithEvents, Wi
                 $validationP = $event->sheet->getCell("P2")->getDataValidation();
                 $validationQ = $event->sheet->getCell("Q2")->getDataValidation();
                 $validationR = $event->sheet->getCell("R2")->getDataValidation();
+                $validationS = $event->sheet->getCell("S2")->getDataValidation();
+                $validationT = $event->sheet->getCell("T2")->getDataValidation();
+                $validationU = $event->sheet->getCell("U2")->getDataValidation();
+                $validationV = $event->sheet->getCell("V2")->getDataValidation();
 
                 $validationE = $this->setDropDownValidation($validationE, $genderOptions);
                 $validationJ = $this->setDropDownValidation($validationJ, $languageOptions);
@@ -72,6 +76,10 @@ class WorkerSampleExport implements FromCollection, WithHeadings, WithEvents, Wi
                 $validationP = $this->setDropDownValidation($validationP, $yesNoOptions);
                 $validationQ = $this->setDropDownValidation($validationQ, $yesNoOptions);
                 $validationR = $this->setDropDownValidation($validationR, $statusOptions);
+                $validationS = $this->setDropDownValidation($validationS, $yesNoOptions);
+                $validationT = $this->setDropDownValidation($validationT, $yesNoOptions);
+                $validationU = $this->setDropDownValidation($validationU, $yesNoOptions);
+                $validationV = $this->setDropDownValidation($validationV, $yesNoOptions);
 
                 // clone validation to remaining rows
                 for ($i = 3; $i <= $row_count; $i++) {
@@ -83,6 +91,10 @@ class WorkerSampleExport implements FromCollection, WithHeadings, WithEvents, Wi
                     $event->sheet->getCell("P{$i}")->setDataValidation(clone $validationP);
                     $event->sheet->getCell("Q{$i}")->setDataValidation(clone $validationQ);
                     $event->sheet->getCell("R{$i}")->setDataValidation(clone $validationR);
+                    $event->sheet->getCell("S{$i}")->setDataValidation(clone $validationS);
+                    $event->sheet->getCell("T{$i}")->setDataValidation(clone $validationT);
+                    $event->sheet->getCell("U{$i}")->setDataValidation(clone $validationU);
+                    $event->sheet->getCell("V{$i}")->setDataValidation(clone $validationV);
                 }
             },
         ];
@@ -130,6 +142,10 @@ class WorkerSampleExport implements FromCollection, WithHeadings, WithEvents, Wi
                 "are_you_afraid_of_dog" => "Yes",
                 "are_you_afraid_of_cat" => "No",
                 "status" => "Enable",
+                "form101" => "No",
+                "contract" => "Yes",
+                "saftey_and_gear" => "No",
+                "insurance" => "Yes",
             ]
         ]);
     }

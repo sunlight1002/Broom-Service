@@ -27,6 +27,7 @@ use App\Events\SafetyAndGearFormSigned;
 use App\Events\SendClientLogin;
 use App\Events\WorkerApprovedJob;
 use App\Events\WorkerCreated;
+use App\Events\SendWorkerLogin;
 use App\Events\WorkerNotApprovedJob;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Events\JobNotificationToAdmin;
@@ -54,6 +55,7 @@ use App\Listeners\SendJobReviewRequestNotification;
 use App\Listeners\SendShiftChangedNotification;
 use App\Listeners\SendWorkerChangedNotification;
 use App\Listeners\SendWorkerFormsNotification;
+use App\Listeners\SendWorkerCredentials;
 use App\Listeners\SendWorkerUpdatedJobStatusNotification;
 use App\Listeners\SendJobNotificationToAdmin;
 use App\Listeners\SendJobNotificationToWorker;
@@ -114,6 +116,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkerCreated::class => [
             SendWorkerFormsNotification::class
+        ],
+        SendWorkerLogin::class => [
+            SendWorkerCredentials::class
         ],
         WorkerForm101Requested::class => [
             SendWorkerForm101Notification::class

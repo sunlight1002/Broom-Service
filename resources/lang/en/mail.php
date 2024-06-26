@@ -241,6 +241,13 @@ return [
         'email' => 'Email',
         'password'  => 'Password',
     ],
+    'worker_credentials' => [
+        'subject' => 'Worker Credentials of :worker_name | Broom Service',
+        'content'   => 'Below are your login credentials.',
+        'btn_txt'   => 'Login',
+        'email' => 'Email',
+        'password'  => 'Password',
+    ],
     'job_common' => [
         'job_details' => 'Job Details',
         'worker_job_complete_content'  =>  'Job has been completed by :name.',

@@ -53,6 +53,11 @@ class User extends Authenticatable
         'passport',
         'last_work_date',
         'is_exist',
+        'form101',
+        'contract',
+        'saftey_and_gear',
+        'insurance',
+        'is_imported',
     ];
 
     /**

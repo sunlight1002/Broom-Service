@@ -188,16 +188,32 @@ class AuthController extends Controller
         $insuranceForm = $forms[WorkerFormTypeEnum::INSURANCE][0] ?? null;
 
         $forms = [];
-        if ($user->company_type == 'my-company') {
-            $forms['form101Form'] = $form101Form ? $form101Form : null;
-            $forms['saftyAndGearForm'] = $safetyAndGearForm ? $safetyAndGearForm : null;
-            $forms['contractForm'] = $contractForm ? $contractForm : null;
 
-            if ($user->country == 'Israel') {
+        if(!$user->is_imported) {
+            if ($user->company_type == 'my-company') {
+                $forms['form101Form'] = $form101Form ? $form101Form : null;
+                $forms['saftyAndGearForm'] = $safetyAndGearForm ? $safetyAndGearForm : null;
+                $forms['contractForm'] = $contractForm ? $contractForm : null;
+
+                if ($user->country == 'Israel') {
+                    $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
+                }
+            } else {
                 $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
             }
         } else {
-            $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
+            if($user->form101) {
+                $forms['form101Form'] = $user->form101 && $form101Form ? $form101Form : null;
+            }
+            if($user->contract) {
+                $forms['contractForm'] = $user->contract ? $contractForm : null;
+            }
+            if($user->saftey_and_gear) {
+                $forms['saftyAndGearForm'] = $user->saftey_and_gear ? $safetyAndGearForm : null;
+            }
+            if($user->insurance) {
+                $forms['insuranceForm'] = $user->insurance ? $insuranceForm : null;
+            }
         }
 
         return response()->json([
