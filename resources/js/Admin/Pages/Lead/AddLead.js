@@ -24,6 +24,7 @@ export default function AddLead() {
         color: "",
         vat_number: "",
         payment_method: "cc",
+        notification_type: "both",
     });
 
     const navigate = useNavigate();
@@ -519,6 +520,31 @@ export default function AddLead() {
                                             {t(
                                                 "admin.leads.AddLead.Options.PaymentMethod.ByCash"
                                             )}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Notification Type
+                                    </label>
+
+                                    <select
+                                        className="form-control"
+                                        value={formValues.notification_type}
+                                        onChange={(e) => {
+                                            setFormValues({
+                                                ...formValues,
+                                                notification_type: e.target.value,
+                                            });
+                                        }}
+                                    >
+                                        <option value="both">Both</option>
+                                        <option value="email">
+                                            Email
+                                        </option>
+                                        <option value="whatsapp">
+                                            WhatsApp
                                         </option>
                                     </select>
                                 </div>

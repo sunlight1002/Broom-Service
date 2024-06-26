@@ -21,6 +21,7 @@ export default function EditClient() {
     const [status, setStatus] = useState("");
     const [errors, setErrors] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState("");
+    const [notificationType, setNotificationType] = useState("both");
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [vatNumber, setVatNumber] = useState("");
 
@@ -88,6 +89,7 @@ export default function EditClient() {
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
+            notification_type: notificationType,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
         };
@@ -133,6 +135,7 @@ export default function EditClient() {
                 setInvoiceName(response.data.client.invoicename);
                 setStatus(response.data.client.status);
                 setPaymentMethod(response.data.client.payment_method);
+                setNotificationType(response.data.client.notification_type);
                 setVatNumber(response.data.client.vat_number);
                 setAddresses(response.data.client.property_addresses);
                 response.data.client.extra != null
@@ -543,6 +546,28 @@ export default function EditClient() {
                                             By Cheque
                                         </option>
                                         <option value="cash">By Cash</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Notification Type
+                                    </label>
+
+                                    <select
+                                        className="form-control"
+                                        value={notificationType}
+                                        onChange={(e) => {
+                                            setNotificationType(e.target.value);
+                                        }}
+                                    >
+                                        <option value="both">Both</option>
+                                        <option value="email">
+                                            Email
+                                        </option>
+                                        <option value="whatsapp">
+                                            WhatsApp
+                                        </option>
                                     </select>
                                 </div>
 

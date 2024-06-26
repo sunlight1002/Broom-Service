@@ -51,33 +51,37 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 $yesNoOptions = ['Yes', 'No'];
                 $preferTypeOptions = ['Female', 'Male', 'Both'];
                 $rateTypeOptions = ['fixed', 'hourly'];
+                $notificationTypes = ['both', 'email', 'whatsapp'];
 
                 // set dropdown list for first data row
                 $validationN = $event->sheet->getCell("N2")->getDataValidation();
                 $validationO = $event->sheet->getCell("O2")->getDataValidation();
                 $validationP = $event->sheet->getCell("P2")->getDataValidation();
                 $validationQ = $event->sheet->getCell("Q2")->getDataValidation();
-                $validationX = $event->sheet->getCell("X2")->getDataValidation();
-                $validationY = $event->sheet->getCell("Y2")->getDataValidation();
-                $validationZ = $event->sheet->getCell("Z2")->getDataValidation();
                 $validationAA = $event->sheet->getCell("AA2")->getDataValidation();
                 $validationAB = $event->sheet->getCell("AB2")->getDataValidation();
                 $validationAC = $event->sheet->getCell("AC2")->getDataValidation();
                 $validationAD = $event->sheet->getCell("AD2")->getDataValidation();
-                $validationAI = $event->sheet->getCell("AI2")->getDataValidation();
+                $validationAE = $event->sheet->getCell("AE2")->getDataValidation();
+                $validationAF = $event->sheet->getCell("AF2")->getDataValidation();
+                $validationAG = $event->sheet->getCell("AG2")->getDataValidation();
+                $validationAL = $event->sheet->getCell("AL2")->getDataValidation();
+                $validationAS = $event->sheet->getCell("AS2")->getDataValidation();
+
 
                 $validationN = $this->setDropDownValidation($validationN, $paymentMethodOptions);
                 $validationO = $this->setDropDownValidation($validationO, $languageOptions);
                 $validationP = $this->setDropDownValidation($validationP, $colorOptions);
                 $validationQ = $this->setDropDownValidation($validationQ, $statusOptions);
-                $validationX = $this->setDropDownValidation($validationX, $yesNoOptions);
-                $validationY = $this->setDropDownValidation($validationY, $yesNoOptions);
-                $validationZ = $this->setDropDownValidation($validationZ, $preferTypeOptions);
                 $validationAA = $this->setDropDownValidation($validationAA, $yesNoOptions);
-                $validationAB = $this->setDropDownValidation($validationAB, $this->serviceNameOptions);
-                $validationAC = $this->setDropDownValidation($validationAC, $this->frequencyOptions);
-                $validationAD = $this->setDropDownValidation($validationAD, $rateTypeOptions);
-                $validationAI = $this->setDropDownValidation($validationAI, $yesNoOptions);
+                $validationAB = $this->setDropDownValidation($validationAB, $yesNoOptions);
+                $validationAC = $this->setDropDownValidation($validationAC, $preferTypeOptions);
+                $validationAD = $this->setDropDownValidation($validationAD, $yesNoOptions);
+                $validationAE = $this->setDropDownValidation($validationAE, $this->serviceNameOptions);
+                $validationAF = $this->setDropDownValidation($validationAF, $this->frequencyOptions);
+                $validationAG = $this->setDropDownValidation($validationAG, $rateTypeOptions);
+                $validationAL = $this->setDropDownValidation($validationAL, $yesNoOptions);
+                $validationAS = $this->setDropDownValidation($validationAS, $notificationTypes);
 
                 // clone validation to remaining rows
                 for ($i = 3; $i <= $row_count; $i++) {
@@ -85,14 +89,15 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                     $event->sheet->getCell("O{$i}")->setDataValidation(clone $validationO);
                     $event->sheet->getCell("P{$i}")->setDataValidation(clone $validationP);
                     $event->sheet->getCell("Q{$i}")->setDataValidation(clone $validationQ);
-                    $event->sheet->getCell("X{$i}")->setDataValidation(clone $validationX);
-                    $event->sheet->getCell("Y{$i}")->setDataValidation(clone $validationY);
-                    $event->sheet->getCell("Z{$i}")->setDataValidation(clone $validationZ);
                     $event->sheet->getCell("AA{$i}")->setDataValidation(clone $validationAA);
                     $event->sheet->getCell("AB{$i}")->setDataValidation(clone $validationAB);
                     $event->sheet->getCell("AC{$i}")->setDataValidation(clone $validationAC);
                     $event->sheet->getCell("AD{$i}")->setDataValidation(clone $validationAD);
-                    $event->sheet->getCell("AI{$i}")->setDataValidation(clone $validationAI);
+                    $event->sheet->getCell("AE{$i}")->setDataValidation(clone $validationAE);
+                    $event->sheet->getCell("AF{$i}")->setDataValidation(clone $validationAF);
+                    $event->sheet->getCell("AG{$i}")->setDataValidation(clone $validationAG);
+                    $event->sheet->getCell("AL{$i}")->setDataValidation(clone $validationAL);
+                    $event->sheet->getCell("AS{$i}")->setDataValidation(clone $validationAS);
                 }
             },
         ];
@@ -143,6 +148,9 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 "property_name" => "",
                 "floor" => "",
                 "apt_number" => "",
+                "key" => "",
+                "comment" => "",
+                "lobby" => "",
                 "enterance" => "",
                 "parking" => "",
                 "dog_in_the_property" => "Yes",
@@ -163,6 +171,7 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 "card_holder_name" => "Card Holder",
                 "valid" => "12/25",
                 "cvv" => "123",
+                "notification_type" => "both",
             ]
         ]);
     }

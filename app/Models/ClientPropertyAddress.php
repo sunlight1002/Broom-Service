@@ -20,6 +20,8 @@ class ClientPropertyAddress extends Model
         'latitude',
         'longitude',
         'parking',
+        'key',
+        'lobby',
         'prefer_type',
         'is_dog_avail',
         'is_cat_avail',

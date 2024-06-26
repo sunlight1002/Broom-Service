@@ -854,6 +854,8 @@
                     "EnteranceCode": "קוד כניסה",
                     "ZipCode": "מיקוד",
                     "PreferedType": "סוג מועדף",
+                    "Key": "מַפְתֵחַ",
+                    "Lobby": "לובי",
                     "Options": {
                         "pleaseSelect": "--- בחר ---",
                         "PreferedType": {
@@ -876,6 +878,8 @@
                         "fullAddress": "כתובת מלאה",
                         "addressName": "שם הכתובת",
                         "floor": "הזן קומה",
+                        "Key": "מקש כניסה",
+                        "Lobby": "היכנסו ללובי",
                         "AptNumberAndAptName": "הזן מספר דירה ושם דירה",
                         "EnteranceCode": "הזן קוד כניסה",
                         "ZipCode": "הזן מיקוד",

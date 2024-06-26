@@ -60,6 +60,8 @@ const PropertyAddress = memo(function PropertyAddress({
     let is_cat_avail = useRef();
     let client_id = useRef();
     let addressName = useRef();
+    let key = useRef();
+    let lobby = useRef();
 
     useEffect(() => {
         setTimeout(() => {
@@ -139,6 +141,8 @@ const PropertyAddress = memo(function PropertyAddress({
                 latitude: lat.current.value,
                 city: city.current.value,
                 prefer_type: prefer_type.current.value,
+                key: key.current.value,
+                lobby: lobby.current.value,
                 is_dog_avail: is_dog_avail.current.checked,
                 is_cat_avail: is_cat_avail.current.checked,
                 client_id: client_id.current.value,
@@ -166,6 +170,10 @@ const PropertyAddress = memo(function PropertyAddress({
                     updatedData.parking;
                 addressVal[addressId.current.value]["prefer_type"] =
                     updatedData.prefer_type;
+                addressVal[addressId.current.value]["key"] =
+                    updatedData.key;
+                addressVal[addressId.current.value]["lobby"] =
+                    updatedData.lobby;
                 addressVal[addressId.current.value]["is_dog_avail"] =
                     updatedData.is_dog_avail;
                 addressVal[addressId.current.value]["is_cat_avail"] =
@@ -219,6 +227,8 @@ const PropertyAddress = memo(function PropertyAddress({
         enterance.current && (enterance.current.value = "");
         zip.current && (zip.current.value = "");
         parking.current && (parking.current.value = "");
+        key.current && (key.current.value = "");
+        lobby.current && (lobby.current.value = "");
         prefer_type.current && (prefer_type.current.value = "default");
         is_cat_avail.current && (is_cat_avail.current.checked = false);
         is_dog_avail.current && (is_dog_avail.current.checked = false);
@@ -246,6 +256,8 @@ const PropertyAddress = memo(function PropertyAddress({
                 enterance.current.value = data.entrence_code;
                 zip.current.value = data.zipcode;
                 parking.current.value = data.parking;
+                key.current.value = data.key;
+                lobby.current.value = data.lobby;
                 prefer_type.current.value = data.prefer_type
                     ? data.prefer_type
                     : "default";
@@ -517,6 +529,58 @@ const PropertyAddress = memo(function PropertyAddress({
                                         {errors.enterance ? (
                                             <small className="text-danger mb-1">
                                                 {errors.enterance}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Key"
+                                            )}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            ref={key}
+                                            className="form-control"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.Key"
+                                            )}
+                                        />
+                                        {errors.key ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.key}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Lobby"
+                                            )}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            ref={lobby}
+                                            className="form-control"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.Lobby"
+                                            )}
+                                        />
+                                        {errors.lobby ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.lobby}
                                             </small>
                                         ) : (
                                             ""

@@ -18,6 +18,7 @@ export default function EditWorker() {
     const [status, setStatus] = useState("");
     const [errors, setErrors] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState("");
+    const [notificationType, setNotificationType] = useState("both");
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [vatNumber, setVatNumber] = useState("");
     const [addresses, setAddresses] = useState([]);
@@ -80,6 +81,7 @@ export default function EditWorker() {
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
+            notification_type: notificationType,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
         };
@@ -118,6 +120,7 @@ export default function EditWorker() {
                     invoicename,
                     status,
                     payment_method,
+                    notification_type,
                     extra,
                     property_addresses,
                     vat_number,
@@ -133,6 +136,7 @@ export default function EditWorker() {
                 setInvoiceName(invoicename);
                 setStatus(status);
                 setPaymentMethod(payment_method);
+                setNotificationType(notification_type);
                 setVatNumber(vat_number);
                 setAddresses(property_addresses);
                 extra != null
@@ -535,6 +539,28 @@ export default function EditWorker() {
                                             {t(
                                                 "admin.leads.AddLead.Options.PaymentMethod.ByCash"
                                             )}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Notification Type
+                                    </label>
+
+                                    <select
+                                        className="form-control"
+                                        value={notificationType}
+                                        onChange={(e) => {
+                                            setNotificationType(e.target.value);
+                                        }}
+                                    >
+                                        <option value="both">Both</option>
+                                        <option value="email">
+                                            Email
+                                        </option>
+                                        <option value="whatsapp">
+                                            WhatsApp
                                         </option>
                                     </select>
                                 </div>

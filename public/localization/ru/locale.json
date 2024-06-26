@@ -792,6 +792,8 @@
                     "EnteranceCode": "Код входа",
                     "ZipCode": "Почтовый индекс",
                     "PreferedType": "Предпочитаемый тип",
+                    "Key": "Ключ",
+                    "Lobby": "Лобби",
                     "Options": {
                         "pleaseSelect": "--- Пожалуйста, выберите ---",
                         "PreferedType": {
@@ -814,6 +816,8 @@
                         "fullAddress": "Полный адрес",
                         "addressName": "Название адреса",
                         "floor": "Введите этаж",
+                        "Key": "Клавиша Ввода",
+                        "Lobby": "Войти в лобби",
                         "AptNumberAndAptName": "Введите номер квартиры и название квартиры",
                         "EnteranceCode": "Введите код входа",
                         "ZipCode": "Введите почтовый индекс",

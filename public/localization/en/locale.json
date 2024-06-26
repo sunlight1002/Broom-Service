@@ -854,6 +854,8 @@
                     "EnteranceCode": "Enterance code",
                     "ZipCode": "Zip code",
                     "PreferedType": "Prefered Type",
+                    "Key": "Key",
+                    "Lobby": "Lobby",
                     "Options": {
                         "pleaseSelect": "--- Please Select ---",
                         "PreferedType": {
@@ -875,6 +877,8 @@
                     "placeHolder": {
                         "fullAddress": "Full address",
                         "addressName": "Address name",
+                        "Key": "Enter Key",
+                        "Lobby": "Enter Lobby",
                         "floor": "Enter floor",
                         "AptNumberAndAptName": "Enter Apt number and Apt name",
                         "EnteranceCode": "Enter enterance code",

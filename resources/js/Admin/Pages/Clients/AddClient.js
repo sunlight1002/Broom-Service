@@ -22,6 +22,7 @@ export default function AddClient() {
     const [cjob, setCjob] = useState("0");
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [paymentMethod, setPaymentMethod] = useState("cc");
+    const [notificationType, setNotificationType] = useState("both");
     const [vatNumber, setVatNumber] = useState("");
     const [addresses, setAddresses] = useState([]);
 
@@ -84,6 +85,7 @@ export default function AddClient() {
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
+            notification_type: notificationType,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
         };
@@ -512,6 +514,28 @@ export default function AddClient() {
                                             By Cheque
                                         </option>
                                         <option value="cash">By Cash</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Notification Type
+                                    </label>
+
+                                    <select
+                                        className="form-control"
+                                        value={notificationType}
+                                        onChange={(e) => {
+                                            setNotificationType(e.target.value);
+                                        }}
+                                    >
+                                        <option value="both">Both</option>
+                                        <option value="email">
+                                            Email
+                                        </option>
+                                        <option value="whatsapp">
+                                            WhatsApp
+                                        </option>
                                     </select>
                                 </div>
 
