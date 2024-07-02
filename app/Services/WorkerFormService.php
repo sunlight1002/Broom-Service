@@ -11,7 +11,7 @@ use Throwable;
 
 class WorkerFormService
 {
-    public function generateForm101PDF($form, $outputName)
+    public function generateForm101PDF($form, $outputName, $lng)
     {
         $formData = $form->data;
 
@@ -27,7 +27,7 @@ class WorkerFormService
         $pdf->numPages = $pdf->setSourceFile($filePath);
         $pdf->SetTextColor(0, 7, 224);
 
-        $lng = $form->lng;
+        // $lng = $form->lng;
 
         if ($lng == "heb") {
             // set some language dependent data:
@@ -769,8 +769,8 @@ class WorkerFormService
             } else if ($page == 2) {
                 if (isset($formData['TaxExemption'])) {
                     if (
-                        isset($formData['TaxExemption']['isIsraelResident']) &&
-                        $formData['TaxExemption']['isIsraelResident'] === true
+                        isset($formData['employeeIsraeliResident']) &&
+                        $formData['employeeIsraeliResident'] === 'Yes'
                     ) {
                         $w = 3;
                         $h = 3;

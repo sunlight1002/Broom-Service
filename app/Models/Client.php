@@ -49,6 +49,7 @@ class Client extends Authenticatable
         'icount_client_id',
         'avatar',
         'vat_number',
+        'notification_type',
     ];
 
     /**

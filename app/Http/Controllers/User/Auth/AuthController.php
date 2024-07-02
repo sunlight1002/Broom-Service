@@ -334,11 +334,9 @@ class AuthController extends Controller
                 $forms['form101Form'] = $form101Form ? $form101Form : null;
                 $forms['saftyAndGearForm'] = $safetyAndGearForm ? $safetyAndGearForm : null;
                 $forms['contractForm'] = $contractForm ? $contractForm : null;
+            }
 
-                if ($user->country == 'Israel') {
-                    $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
-                }
-            } else {
+            if ($user->country != 'Israel') {
                 $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
             }
         } else {
@@ -513,7 +511,7 @@ class AuthController extends Controller
 
         if ($form->submitted_at) {
             $file_name = Str::uuid()->toString() . '.pdf';
-            $this->workerFormService->generateForm101PDF($form, $file_name);
+            $this->workerFormService->generateForm101PDF($form, $file_name, $worker->lng);
 
             $form->update([
                 'pdf_name' => $file_name
