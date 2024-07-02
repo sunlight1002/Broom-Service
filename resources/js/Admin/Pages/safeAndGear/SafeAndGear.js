@@ -51,7 +51,7 @@ const SafeAndGear = () => {
             setIsGeneratingPDF(true);
             const options = {
                 filename: "my-document.pdf",
-                margin: 1,
+                margin: [5, 5, 0, 5],
                 image: { type: "jpeg", quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: {
@@ -59,6 +59,7 @@ const SafeAndGear = () => {
                     format: "a4",
                     orientation: "portrait",
                 },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
             const content = contentRef.current;
@@ -159,9 +160,9 @@ const SafeAndGear = () => {
         },
     };
     return (
-        <div id="container" className="targetDiv">
+        <div id="container" className="targetDiv rtlcon" ref={contentRef}>
             <div id="content">
-                <div className="mx-5 mt-5" ref={contentRef}>
+                <div className="mx-5 mt-5">
                     <div className="text-center">
                         <h5>
                             <strong>{t("safeAndGear.welcomeToBroom")}</strong>

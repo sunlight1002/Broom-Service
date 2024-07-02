@@ -22,7 +22,7 @@ export default function WorkerContract() {
         setIsGeneratingPDF(true);
         const options = {
             filename: "my-document.pdf",
-            margin: 1,
+            margin: [5, 5, 0, 5],
             image: { type: "jpeg", quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: {
@@ -30,6 +30,7 @@ export default function WorkerContract() {
                 format: "a4",
                 orientation: "portrait",
             },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
         const content = contentRef.current;

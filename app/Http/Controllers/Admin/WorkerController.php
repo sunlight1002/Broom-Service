@@ -348,6 +348,12 @@ class WorkerController extends Controller
             }
         }
 
+        if($worker->company_type == 'manpower' && $worker->country != 'Israel') {
+            return response()->json([
+                'message' => 'Worker created successfully',
+            ]);
+        }
+
         $formEnum = new Form101FieldEnum;
 
         $defaultFields = $formEnum->getDefaultFields();

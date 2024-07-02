@@ -11,6 +11,36 @@ body:dir(rtl) {
     text-align: right;
     direction: rtl;
 }
+.rtlcon {
+    direction: rtl;
+    text-align: right;
+}
+.rtlcon input, .rtlcon p, .rtlcon span {
+    direction: rtl;
+    text-align: right;
+}
+.rtlcon table tr td, .rtlcon ol, .rtlcon ol li {
+    direction: rtl;
+    text-align: right;
+}
+.rtlcon ol li {
+    list-style: none;
+}
+.rtlcon #content {
+    padding-right: 0;
+}
+.rtlcon ol {
+    padding-right: 0;
+}
+@media print {
+    .page {
+        page-break-after: always;
+        margin: 20mm;
+    }
+    p, div, h1, h2, h3, h4, h5, h6, ol, ul {
+        page-break-inside: avoid;
+    }
+}
 .ifRTL, .agg-text{
     text-align: right;
     direction: rtl;

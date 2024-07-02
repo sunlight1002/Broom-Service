@@ -116,7 +116,7 @@ export function IsrailContact({
     };
 
     return (
-        <div className="container targetDiv" ref={contentRef}>
+        <div className="container targetDiv rtlcon" ref={contentRef}>
             <div id="content">
                 <div className="mt-5">
                     <form onSubmit={handleSubmit}>
@@ -293,7 +293,7 @@ export function IsrailContact({
                                     <p
                                         style={{
                                             marginBottom: isGeneratingPDF
-                                                ? "140px"
+                                                ? "16px"
                                                 : "16px",
                                         }}
                                     >
@@ -673,7 +673,7 @@ export function IsrailContact({
                                     <p
                                         style={{
                                             marginBottom: isGeneratingPDF
-                                                ? "155px"
+                                                ? "16px"
                                                 : "16px",
                                         }}
                                     >
