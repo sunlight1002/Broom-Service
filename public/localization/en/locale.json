@@ -2076,8 +2076,34 @@
         "form101Form": "Form101",
         "contractForm": "Contract",
         "workerFormPlural": "Worker Forms",
+        "workerInformation": "Worker Information",
         "hii": "Hii",
         "greetingTxt": "Greetings from Broom Service.",
-        "formContent": "You have successfully registered on our portal.Please sign the below forms to start working on job."
+        "formContent": "You have successfully registered on our portal.Please sign the below forms to start working on job.",
+        "join_portal": "To join our portal please fill below details."
+    },
+    "workerInviteForm": {
+        "first_name": "First Name",
+        "enter_first_name": "Enter First Name",
+        "last_name": "Last Name",
+        "enter_last_name": "Enter Last Name",
+        "enter_email": "Enter Email",
+        "email": "Email",
+        "phone": "Phone",
+        "enter_phone": "Enter Phone",
+        "gender": "Gender",
+        "male": "Male",
+        "female": "Female",
+        "language": "Language",
+        "country": "Country",
+        "hebrew": "Hebrew",
+        "english": "English",
+        "russian": "Russian",
+        "spanish": "Spanish",
+        "enter_location": "Enter a location",
+        "search_your_address": "Search Your Address",
+        "full_address": "Full Address",
+        "auto_complete": "auto complete from google address",
+        "submit": "Submit"
     }
 }

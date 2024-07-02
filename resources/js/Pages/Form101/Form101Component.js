@@ -41,6 +41,18 @@ const Form101Component = () => {
 
     const currentYear = new Date().getFullYear();
 
+    const scrollToError = (errors) => {
+        const errorFields = Object.keys(errors);
+        if (errorFields.length > 0) {
+            const firstErrorField = errorFields[0];
+            const errorElement = document.getElementById(firstErrorField);
+            if (errorElement) {
+                errorElement.scrollIntoView({ behavior: "smooth" });
+                errorElement.focus();
+            }
+        }
+    };
+
     const formSchema = yup.object({
         employerName: yup.string().trim().nullable(),
         employerAddress: yup.string().trim().nullable(),
@@ -576,7 +588,9 @@ const Form101Component = () => {
         handleChange,
         handleSubmit,
         setFieldValue,
+        onValidationChange,
         isSubmitting,
+        isValid,
     } = useFormik({
         initialValues: {
             employerName:
@@ -1129,6 +1143,9 @@ const Form101Component = () => {
                     });
                 });
         },
+        validateOnBlur: true,
+        validateOnChange: false,
+        validateOnMount: false,
     });
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
@@ -1486,6 +1503,7 @@ const Form101Component = () => {
                                 </button>
                                 <button
                                     type="submit"
+                                    onClick={() => scrollToError(errors)}
                                     className="btn btn-success ml-2"
                                     disabled={isSubmitting}
                                 >

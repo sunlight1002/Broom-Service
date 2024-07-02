@@ -34,6 +34,8 @@ Route::get('getSafegear/{id}', [AuthController::class, 'getSafegear']);
 Route::get('worker/{id}/insurance-form', [AuthController::class, 'getInsuranceForm']);
 Route::post('worker/{id}/insurance-form', [AuthController::class, 'saveInsuranceForm']);
 Route::get('worker/{id}', [AuthController::class, 'getWorker']);
+Route::get('worker-invitation/{id}', [AuthController::class, 'getWorkerInvitation']);
+Route::post('worker-invitation-update/{id}', [AuthController::class, 'getWorkerInvitationUpdate']);
 
 Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
 Route::post('guest/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);

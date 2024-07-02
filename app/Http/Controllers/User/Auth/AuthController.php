@@ -5,10 +5,14 @@ namespace App\Http\Controllers\User\Auth;
 use App\Enums\WorkerFormTypeEnum;
 use App\Events\ContractFormSigned;
 use App\Events\Form101Signed;
+use App\Models\ManpowerCompany;
 use App\Events\InsuranceFormSigned;
 use App\Events\SafetyAndGearFormSigned;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Enums\Form101FieldEnum;
+use App\Models\WorkerInvitation;
+use App\Models\WorkerAvailability;
 use App\Services\WorkerFormService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +20,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -160,6 +165,141 @@ class AuthController extends Controller
             'worker' => $user,
             'form' => $form
         ]);
+    }
+
+    public function getWorkerInvitation(Request $request)
+    {
+        $workerInvitation = WorkerInvitation::where('id', base64_decode($request->id))->first();
+
+        return response()->json([
+            'worker_invitation' => $workerInvitation,
+            'lng' => (substr($workerInvitation->phone ?? '', 0, 4) === '+972') ? 'heb' : 'en'
+        ]);
+    }
+
+    public function getWorkerInvitationUpdate(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'first_name' => ['required', 'string', 'max:255'],
+            'address'   => ['required', 'string'],
+            'phone'     => ['required', 'unique:users'],
+            'email'     => ['nullable', 'unique:users'],
+            'gender'    => ['required'],
+        ], [], [
+            'manpower_company_id' => 'Manpower'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+
+        $workerInvitation = WorkerInvitation::where('id', base64_decode($request->id))->first();
+        if(!$workerInvitation) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
+
+        $manpowerCompanyID = NULL;
+        if ($workerInvitation->company == 0) {
+            $manpowerCompany = ManpowerCompany::where('name', $workerInvitation->manpower_company_name)->first();
+            if (!$manpowerCompany && !empty($workerInvitation->manpower_company_name)) {
+                $manpowerCompany = ManpowerCompany::Create(['name' => $workerInvitation->manpower_company_name]);
+            }
+
+            $manpowerCompanyID = $manpowerCompany->id;
+        }
+
+        $workerData = [
+            'firstname' => $request->first_name ?? '',
+            'lastname'  => $request->last_name ?? '',
+            'phone'     => $request->phone ?? '',
+            'email'     => $request->email ?? '',
+            'role'      => '',
+            'address'           => $request->address ?? '',
+            'payment_per_hour'  => '',
+            'renewal_visa'      => '',
+            'worker_id'         => '',
+            'passcode'  => '',
+            'password'  => Hash::make($row['password'] ?? ''),
+            'country'   => $request->country ?? NULL,
+            'company_type'      => $workerInvitation->company ? 'manpower' : 'my-company',
+            'manpower_company_id' => $manpowerCompanyID,
+            'lng'       => $request->lng ?? 'heb',
+            'gender'    => $request->gender ?? '',
+            'is_afraid_by_cat' => 0,
+            'is_afraid_by_dog' => 0,
+            'status'    => 1,
+            'form101'   => $workerInvitation->form_101,
+            'contract'  => $workerInvitation->contact,
+            'saftey_and_gear' => $workerInvitation->safety,
+            'insurance'   => $workerInvitation->safety,
+            'is_imported' => 1,
+        ];
+
+        $worker = User::where('phone', $workerData['phone'])
+                    ->orWhere('email', $workerData['email'])
+                    ->first();
+
+        if (empty($worker)) {
+            $worker = User::create($workerData);
+            $i = 1;
+            $j = 0;
+            $check_friday = 1;
+            while ($i == 1) {
+                $current = Carbon::now();
+                $day = $current->addDays($j);
+                if ($this->isWeekend($day->toDateString())) {
+                    $check_friday++;
+                } else {
+                    $w_a = new WorkerAvailability;
+                    $w_a->user_id = $worker->id;
+                    $w_a->date = $day->toDateString();
+                    $w_a->start_time = '08:00:00';
+                    $w_a->end_time = '17:00:00';
+                    $w_a->status = 1;
+                    $w_a->save();
+                }
+                $j++;
+                if ($check_friday == 6) {
+                    $i = 2;
+                }
+            }
+
+        } else {
+            $worker->update($workerData);
+        }
+
+        if($workerInvitation->form_101 == 1) {
+            $formEnum = new Form101FieldEnum;
+
+            $defaultFields = $formEnum->getDefaultFields();
+            $defaultFields['employeeFirstName'] = $worker->firstname;
+            $defaultFields['employeeLastName'] = $worker->lastname;
+            $defaultFields['employeeMobileNo'] = $worker->phone;
+            $defaultFields['employeeEmail'] = $worker->email;
+            $defaultFields['sender']['employeeEmail'] = $worker->email;
+            $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
+            $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
+
+            $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::FORM101,
+                'data' => $formData,
+                'submitted_at' => NULL
+            ]);
+        }
+
+        return response()->json([
+            'worker' => $worker,
+            'base64_id' => base64_encode($worker->id),
+            'url' => "worker-forms/".base64_encode($worker->id)
+        ]);
+    }
+
+    public function isWeekend($date)
+    {
+        $weekDay = date('w', strtotime($date));
+        return ($weekDay == 5 || $weekDay == 6);
     }
 
     public function getWorker($id)

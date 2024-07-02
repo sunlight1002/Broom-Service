@@ -748,7 +748,7 @@ export default function EditWorker() {
                             <div className="col-sm-12 mt-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Are you afraid of any follwing pet
+                                        Are you afraid of any following pet
                                         animals ?
                                     </label>
                                 </div>
