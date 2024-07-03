@@ -181,8 +181,8 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'first_name' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
-            'phone'     => ['required', 'unique:users'],
-            'email'     => ['nullable', 'unique:users'],
+            'phone'     => ['required'],
+            'email'     => ['required'],
             'gender'    => ['required'],
         ], [], [
             'manpower_company_id' => 'Manpower'
