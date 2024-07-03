@@ -138,7 +138,7 @@ export default function WorkerInvitationForm() {
                 } else {
                     alert.success("Information has been updated successfully");
                     setTimeout(() => {
-                        navigate("/admin/workers");
+                        navigate(response.data.url);
                     }, 1000);
                 }
                 setIsSubmitting(false);
