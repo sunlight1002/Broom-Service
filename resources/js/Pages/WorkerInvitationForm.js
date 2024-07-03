@@ -16,6 +16,7 @@ import {
     Autocomplete,
 } from "@react-google-maps/api";
 import Geocode from "react-geocode";
+import { useNavigate } from "react-router-dom";
 
 export default function WorkerInvitationForm() {
     const param = useParams();
@@ -28,6 +29,7 @@ export default function WorkerInvitationForm() {
     const [latitude, setLatitude] = useState(-33.865143);
     const [longitude, setLongitude] = useState(151.2099);
     const [place, setPlace] = useState();
+    const navigate = useNavigate();
     Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
 
     const [formValues, setFormValues] = useState({
