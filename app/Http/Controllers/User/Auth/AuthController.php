@@ -234,7 +234,7 @@ class AuthController extends Controller
             'contract'  => $workerInvitation->contact,
             'saftey_and_gear' => $workerInvitation->safety,
             'insurance'   => $workerInvitation->safety,
-            'is_imported' => 1,
+            'is_imported' => 0,
         ];
 
         $worker = User::where('phone', $workerData['phone'])
