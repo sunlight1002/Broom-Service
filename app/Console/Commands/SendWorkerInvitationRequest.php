@@ -99,14 +99,14 @@ Please complete the process by the end of the week.
 Thank you for your cooperation,  
 Broom Service Team";
                 }
-                // $response = Http::withToken($this->whapiApiToken)
-                //         ->post($this->whapiApiEndpoint . 'messages/text', [
-                //             'to' => $receiverNumber,
-                //             'body' => $text
-                //         ]);
+                $response = Http::withToken($this->whapiApiToken)
+                        ->post($this->whapiApiEndpoint . 'messages/text', [
+                            'to' => $receiverNumber,
+                            'body' => $text
+                        ]);
 
-                // Log::info($response->json());
-                Log::info($text);
+                Log::info($response->json());
+                // Log::info($text);
             }
         });
     }
