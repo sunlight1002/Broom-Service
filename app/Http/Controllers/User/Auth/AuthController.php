@@ -223,7 +223,7 @@ class AuthController extends Controller
             'passcode'  => '',
             'password'  => Hash::make($row['password'] ?? ''),
             'country'   => $request->country ?? NULL,
-            'company_type'      => $workerInvitation->company ? 'manpower' : 'my-company',
+            'company_type'      => $workerInvitation->company ? 'my-company' : 'manpower',
             'manpower_company_id' => $manpowerCompanyID,
             'lng'       => $request->lng ?? 'heb',
             'gender'    => $request->gender ?? '',
