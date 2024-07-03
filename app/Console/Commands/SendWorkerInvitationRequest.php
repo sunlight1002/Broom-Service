@@ -54,50 +54,11 @@ class SendWorkerInvitationRequest extends Command
                 $text = NULL;
 
                 if ($worker->lng === 'heb') {
-                    $text .= $worker->first_name . " שלום,
-
-ברצוננו לעדכן אתכם שאנו עוברים בקרוב למערכת חדשה שתעזור ותקל על העבודה השוטפת של כולנו מא' ועד ת'!
-
-כחלק מהמעבר, אנו מבקשים מכם ללחוץ על הלינק הבא ולמלא את הפרטים שלכם על מנת להבטיח מעבר חלק ומוצלח למערכת החדשה.
-
-" . url("worker-invitation-form/" . base64_encode($worker->id)) . "
-
-אם יש שאלה או בעיה, תוכלו לפנות לאלכס ולעדכן אותו והוא ישמח לעזור.
-
-יש להשלים את התהליך עד לסוף השבוע בבקשה.
-
-תודה על שיתוף הפעולה,  
-צוות ברום סרוויס";
+                    $text .= $worker->first_name . " שלום,\nברצוננו לעדכן אתכם שאנו עוברים בקרוב למערכת חדשה שתעזור ותקל על העבודה השוטפת של כולנו מא' ועד ת'!\n\nכחלק מהמעבר, אנו מבקשים מכם ללחוץ על הלינק הבא ולמלא את הפרטים שלכם על מנת להבטיח מעבר חלק ומוצלח למערכת החדשה.\n\n" . url("worker-invitation-form/" . base64_encode($worker->id)) . "\n\nאם יש שאלה או בעיה, תוכלו לפנות לאלכס ולעדכן אותו והוא ישמח לעזור.\n\nיש להשלים את התהליך עד לסוף השבוע בבקשה.\n\nתודה על שיתוף הפעולה,\nצוות ברום סרוויס";
                 } elseif ($worker->lng === 'res') {
-                    $text = "Здравствуйте " . $worker->first_name . ",
-
-Мы хотим сообщить вам, что скоро мы переходим на новую систему, которая поможет упростить и облегчить наши повседневные операции от А до Я!
-
-В рамках перехода мы просим вас нажать на следующую ссылку и заполнить ваши данные, чтобы обеспечить плавный и успешный переход на новую систему.
-
-" . url("worker-invitation-form/" . base64_encode($worker->id)) . "
-
-Если у вас есть вопросы или проблемы, пожалуйста, свяжитесь с Алексом и сообщите ему, он будет рад помочь.
-
-Пожалуйста, завершите процесс до конца недели.
-
-Спасибо за ваше сотрудничество,  
-Команда Broom Service";
+                    $text = "Здравствуйте " . $worker->first_name . ",\n\nМы хотим сообщить вам, что скоро мы переходим на новую систему, которая поможет упростить и облегчить наши повседневные операции от А до Я!\n\nВ рамках перехода мы просим вас нажать на следующую ссылку и заполнить ваши данные, чтобы обеспечить плавный и успешный переход на новую систему.\n\n" . url("worker-invitation-form/" . base64_encode($worker->id)) . "\n\nЕсли у вас есть вопросы или проблемы, пожалуйста, свяжитесь с Алексом и сообщите ему, он будет рад помочь.\n\nПожалуйста, завершите процесс до конца недели.\nСпасибо за ваше сотрудничество,\nКоманда Broom Service";
                 } else {
-                    $text = "Hello " . $worker->first_name . ",
-
-We would like to inform you that we are soon transitioning to a new system that will help streamline and ease our day-to-day operations from A to Z!
-
-As part of the transition, we ask you to click on the following link and complete your details to ensure a smooth and successful transition to the new system.
-
-" . url("worker-invitation-form/" . base64_encode($worker->id)) . "
-
-If you have any questions or issues, please contact Alex and let him know, and he will be happy to assist.
-
-Please complete the process by the end of the week.
-
-Thank you for your cooperation,  
-Broom Service Team";
+                    $text = "Hello " . $worker->first_name . ",\n\nWe would like to inform you that we are soon transitioning to a new system that will help streamline and ease our day-to-day operations from A to Z!\n\nAs part of the transition, we ask you to click on the following link and complete your details to ensure a smooth and successful transition to the new system.\n\n" . url("worker-invitation-form/" . base64_encode($worker->id)) . "\n\nIf you have any questions or issues, please contact Alex and let him know, and he will be happy to assist.\n\nPlease complete the process by the end of the week.\n\nThank you for your cooperation, \n Broom Service Team";
                 }
                 $response = Http::withToken($this->whapiApiToken)
                         ->post($this->whapiApiEndpoint . 'messages/text', [
