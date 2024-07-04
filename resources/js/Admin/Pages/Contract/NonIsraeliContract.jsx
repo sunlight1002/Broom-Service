@@ -280,12 +280,21 @@ export function NonIsraeliContract({
                                     </p>
                                 </li>
                                 <li>
-                                    <p className="mb-2">
-                                        {t("nonIsrailContract.nic5", {
-                                            payment_per_hour:
-                                                workerDetail.payment_per_hour,
-                                        })}
-                                    </p>
+                                    {workerDetail?.is_existing_worker ? (
+                                        <p className="mb-2">
+                                            {t("nonIsrailContract.nic5_new", {
+                                                payment_per_hour:
+                                                    workerDetail.payment_per_hour,
+                                            })}
+                                        </p>
+                                    ) : (
+                                        <p className="mb-2">
+                                            {t("nonIsrailContract.nic5", {
+                                                payment_per_hour:
+                                                    workerDetail.payment_per_hour,
+                                            })}
+                                        </p>
+                                    )}
                                     <ol>
                                         <li>
                                             <p className="mb-2">

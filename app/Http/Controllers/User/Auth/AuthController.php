@@ -215,9 +215,9 @@ class AuthController extends Controller
             'lastname'  => $request->last_name ?? '',
             'phone'     => $request->phone ?? '',
             'email'     => $request->email ?? '',
-            'role'      => '',
+            'role'      => $workerInvitation->role ?? '',
             'address'           => $request->address ?? '',
-            'payment_per_hour'  => '',
+            'payment_per_hour'  => $workerInvitation->payment ?? 45,
             'renewal_visa'      => '',
             'worker_id'         => '',
             'passcode'  => '',
@@ -235,6 +235,7 @@ class AuthController extends Controller
             'saftey_and_gear' => $workerInvitation->safety ?? 0,
             'insurance'   => $workerInvitation->safety ?? 0,
             'is_imported' => 0,
+            'is_existing_worker' => 1,
         ];
 
         $worker = User::where('phone', $workerData['phone'])

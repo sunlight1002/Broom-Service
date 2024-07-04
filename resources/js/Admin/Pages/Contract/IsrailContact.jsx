@@ -284,20 +284,30 @@ export function IsrailContact({
                                     </p>
                                 </li>
                                 <li>
-                                    <p>
-                                        {t("israilContract.is5-1", {
-                                            payment_per_hour: workerDetail.payment_per_hour,
-                                        })}
-                                    </p>
-                                    <p
-                                        style={{
-                                            marginBottom: isGeneratingPDF
-                                                ? "16px"
-                                                : "16px",
-                                        }}
-                                    >
-                                        {t("israilContract.is5-2")}
-                                    </p>
+                                    {workerDetail?.is_existing_worker ? (
+                                        <p className="mb-2">
+                                            {t("israilContract.is5-3", {
+                                                payment_per_hour: workerDetail.payment_per_hour,
+                                            })}
+                                        </p>
+                                    ) : (
+                                        <>
+                                            <p>
+                                                {t("israilContract.is5-1", {
+                                                    payment_per_hour: workerDetail.payment_per_hour,
+                                                })}
+                                            </p>
+                                            <p
+                                                style={{
+                                                    marginBottom: isGeneratingPDF
+                                                        ? "16px"
+                                                        : "16px",
+                                                }}
+                                            >
+                                                {t("israilContract.is5-2")}
+                                            </p>
+                                        </>
+                                    )}
                                 </li>
                                 <li>
                                     <p>{t("israilContract.is6")}</p>

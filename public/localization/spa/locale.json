@@ -113,6 +113,7 @@
         "role": "__rol del trabajador (por ejemplo, limpiador)___",
         "nic4": "El supervisor directo del empleado: Alex Kanev.",
         "nic5": "El salario base de los trabajadores de limpieza se calculará en función del salario mínimo legal, y además recibirán un bono de retención, que complementará su salario a un salario base de {{payment_per_hour}} NIS por hora más condiciones sociales, como recompensa por trabajo continuo durante tres meses completos en la empresa.",
+        "nic5_new": "El salario base de los trabajadores de limpieza se calculará con base en {{payment_per_hour}} NIS por hora, más los beneficios sociales.",
         "nic5_sub": {
             "nic5_sub1": "Si el empleado decide dejar el trabajo antes del final del período completo de tres meses acordado en este acuerdo, el empleador tendrá derecho a deducir la cantidad del bono que exceda el salario mínimo pagado al empleado, e incluso a exigir la devolución del monto del bono ya pagado durante los primeros tres meses de trabajo, incluida la deducción del monto excedente del salario u otro pago pendiente.",
             "nic5_sub2": "El salario del empleado es el salario mínimo sectorial según el acuerdo colectivo en la industria de la limpieza, que actualmente es de 32.3 NIS por hora.",
@@ -232,6 +233,7 @@
         "is4": "Nombre del supervisor directo del empleado o el título del supervisor directo: Nombre completo: Alex Kanev",
         "is5-1": "El salario básico de los trabajadores de limpieza se calculará según el salario mínimo según la ley, y además se les dará un bono por persistencia, que complementará su salario a un salario básico de {{payment_per_hour}} NIS por hora más condiciones sociales, y esto como recompensa por la persistencia en el trabajo durante 3 meses completos seguidos en la empresa.",
         "is5-2": "Si el empleado decide dejar el trabajo antes del final del período completo de tres meses, según lo acordado en este acuerdo, el empleador tendrá derecho a deducir la cantidad del bono que excede el salario mínimo pagado al empleado, e incluso exigir al empleado que devuelva la cantidad del bono ya pagado durante los primeros tres meses de trabajo, principalmente mediante la deducción del monto excedente de su salario o cualquier otro pago debido a él. El salario del empleado es el salario mínimo según el convenio colectivo en la industria de limpieza, que actualmente asciende a 32.3 nuevos shekels por hora.",
+        "is5-3": "El salario base de los trabajadores de limpieza se calculará con base en {{payment_per_hour}} NIS por hora, más los beneficios sociales.",
         "is6": "El desglose de todos los pagos que se pagarán al empleado como salario son los siguientes:",
         "is6Table": {
             "paymentNotFixed": "Pagos no fijos",

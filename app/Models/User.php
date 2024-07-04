@@ -58,6 +58,7 @@ class User extends Authenticatable
         'saftey_and_gear',
         'insurance',
         'is_imported',
+        'is_existing_worker',
     ];
 
     /**

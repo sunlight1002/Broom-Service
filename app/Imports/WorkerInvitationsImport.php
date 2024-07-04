@@ -26,7 +26,6 @@ class WorkerInvitationsImport implements ToModel, WithHeadingRow
             // Capitalize first name and last name
             $firstName = ucfirst(strtolower($row['name']));
             $lastName = ucfirst(strtolower($row['last']));
-    
             return new WorkerInvitation([
                 'first_name' => $firstName,
                 'last_name' => $lastName,
@@ -42,6 +41,9 @@ class WorkerInvitationsImport implements ToModel, WithHeadingRow
                 'country' => $row['country'],
                 'visa_id' => $row['visaid'],
                 'lng' => strtolower($row['leng']),
+                'role' => $row['role'] ?? null,
+                'payment' => $row['payment'] ?? null,
+                'first_date' => $row['1st_day'] ? Carbon::createFromFormat('d.m.Y', $row['1st_day']) : null,
                 'is_invitation_sent' => false // default value
             ]);
         }

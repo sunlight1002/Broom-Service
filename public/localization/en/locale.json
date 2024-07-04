@@ -1746,6 +1746,7 @@
         "is4": "The name of the employee's direct supervisor or the job title of the direct supervisor: Full name: Alex Kanev",
         "is5-1": "The basic salary of the cleaning workers will be calculated based on the minimum wage according to law, and in addition they will be given a bonus for persistence, which will supplement their salary to a basic salary of NIS {{payment_per_hour}} per hour plus social conditions, and this as a reward for Persistence at work for 3 full months in a row at the company.",
         "is5-2": "If the employee decides to leave the job before the end of the full three-month period, as agreed upon in this agreement, the employer will be entitled to deduct the amount of the bonus that exceeds the minimum wage paid to the employee, and even require the employee to return the amount of the bonus already paid to him during The first three months of work, mostly by deducting the excess amount from his salary or any other payment due to him. The employee's salary is the minimum wage according to the collective agreement in the cleaning industry, which currently amounts to 32.3 new shekels per hour.",
+        "is5-3": "The base salary of the cleaning workers will be calculated based on {{payment_per_hour}} NIS per hour, plus social benefits.",
         "is6": "The breakdown of all the payments that will be paid to the employee as wages are as follows:",
         "is6Table": {
             "paymentNotFixed": "Non-Fixed Payments",
@@ -1871,6 +1872,7 @@
         "role": "Role:",
         "nic4": "The direct supervisor of the employee: Alex Kanev.",
         "nic5": "The base salary of cleaning workers will be calculated based on the legal minimum wage, and in addition, they will receive a retention bonus, which will supplement their salary to a base salary of {{payment_per_hour}} NIS per hour plus social conditions, as a reward for continuous work for three full months in the company.",
+        "nic5_new": "The base salary of the cleaning workers will be calculated based on {{payment_per_hour}} NIS per hour, plus social benefits.",
         "nic5_sub": {
             "nic5_sub1": "If the employee decides to leave the job before the end of the full three-month period as agreed in this agreement, the employer shall be entitled to deduct the bonus amount exceeding the minimum wage paid to the employee, and even to demand the return of the bonus amount already paid during the first three months of work, including by deducting the excess amount from the salary or any other payment due.",
             "nic5_sub2": "The employee's wage is the sectoral minimum wage according to the collective agreement in the cleaning industry, which currently stands at 32.3 NIS per hour.",
