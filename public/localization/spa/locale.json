@@ -307,5 +307,29 @@
             "mobileRequired": "Número de móvil requerido",
             "signRequired": "Firma requerida"
         }
+    },
+    "workerInviteForm": {
+        "first_name": "Nombre",
+        "enter_first_name": "Ingrese Nombre",
+        "last_name": "Apellido",
+        "enter_last_name": "Ingrese Apellido",
+        "enter_email": "Ingrese Correo Electrónico",
+        "email": "Correo Electrónico",
+        "phone": "Teléfono",
+        "enter_phone": "Ingrese Teléfono",
+        "gender": "Género",
+        "male": "Masculino",
+        "female": "Femenino",
+        "language": "Idioma",
+        "country": "País",
+        "hebrew": "Hebreo",
+        "english": "Inglés",
+        "russian": "Ruso",
+        "spanish": "Español",
+        "enter_location": "Ingrese una ubicación",
+        "search_your_address": "Busque su dirección",
+        "full_address": "Dirección Completa",
+        "auto_complete": "autocompletar desde la dirección de google",
+        "submit": "Enviar"
     }
 }

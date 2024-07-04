@@ -2017,5 +2017,29 @@
         "hii": "Приветствие",
         "greetingTxt": "Приветствие от Broom Service.",
         "formContent": "Вы успешно зарегистрировались на нашем портале. Пожалуйста, подпишите нижеприведенные формы, чтобы начать работу."
+    },
+    "workerInviteForm": {
+        "first_name": "Имя",
+        "enter_first_name": "Введите имя",
+        "last_name": "Фамилия",
+        "enter_last_name": "Введите фамилию",
+        "enter_email": "Введите адрес электронной почты",
+        "email": "Электронная почта",
+        "phone": "Телефон",
+        "enter_phone": "Введите телефон",
+        "gender": "Пол",
+        "male": "Мужчина",
+        "female": "Женщина",
+        "language": "Язык",
+        "country": "Страна",
+        "hebrew": "Иврит",
+        "english": "Английский",
+        "russian": "Русский",
+        "spanish": "Испанский",
+        "enter_location": "Введите местоположение",
+        "search_your_address": "Искать ваш адрес",
+        "full_address": "Полный адрес",
+        "auto_complete": "автозаполнение от google address",
+        "submit": "Отправить"
     }
 }

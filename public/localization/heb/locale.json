@@ -2078,5 +2078,29 @@
         "greetingTxt": "ברכות מ-Broom Service.",
         "formContent": "נרשמת בהצלחה לפורטל שלנו. אנא חתום על הטפסים למטה כדי להתחיל לעבוד.",
         "join_portal": "כדי להצטרף לפורטל שלנו, אנא מלא את הפרטים למטה."
+    },
+    "workerInviteForm": {
+        "first_name": "שם פרטי",
+        "enter_first_name": "הכנס שם פרטי",
+        "last_name": "שם משפחה",
+        "enter_last_name": "הכנס שם משפחה",
+        "enter_email": "הכנס אימייל",
+        "email": "אימייל",
+        "phone": "טלפון",
+        "enter_phone": "הכנס טלפון",
+        "gender": "מין",
+        "male": "זכר",
+        "female": "נקבה",
+        "language": "שפה",
+        "country": "מדינה",
+        "hebrew": "עברית",
+        "english": "אנגלית",
+        "russian": "רוסית",
+        "spanish": "ספרדית",
+        "enter_location": "הכנס מיקום",
+        "search_your_address": "חפש את הכתובת שלך",
+        "full_address": "כתובת מלאה",
+        "auto_complete": "השלמה אוטומטית מכתובת גוגל",
+        "submit": "שלח"
     }
 }
