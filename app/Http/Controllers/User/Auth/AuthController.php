@@ -154,7 +154,7 @@ class AuthController extends Controller
 
     public function getWorkerDetail(Request $request)
     {
-        $user = User::where('worker_id', $request->worker_id)->first();
+        $user = User::where('id', $request->worker_id)->first();
 
         $form = $user->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
@@ -230,10 +230,10 @@ class AuthController extends Controller
             'is_afraid_by_cat' => 0,
             'is_afraid_by_dog' => 0,
             'status'    => 1,
-            'form101'   => $workerInvitation->form_101,
-            'contract'  => $workerInvitation->contact,
-            'saftey_and_gear' => $workerInvitation->safety,
-            'insurance'   => $workerInvitation->safety,
+            'form101'   => $workerInvitation->form_101 ?? 0,
+            'contract'  => $workerInvitation->contact ?? 0,
+            'saftey_and_gear' => $workerInvitation->safety ?? 0,
+            'insurance'   => $workerInvitation->safety ?? 0,
             'is_imported' => 0,
         ];
 
@@ -366,7 +366,7 @@ class AuthController extends Controller
         $pdfFile = $data['pdf_file'];
         unset($data['pdf_file']);
 
-        $worker = User::where('worker_id', $id)->first();
+        $worker = User::where('id', $id)->first();
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',

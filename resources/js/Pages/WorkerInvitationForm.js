@@ -77,7 +77,7 @@ export default function WorkerInvitationForm() {
                     case 'eng':
                         workerLanguage = 'en';
                         break;
-                
+
                     case 'rus':
                         workerLanguage = 'ru';
                         break;
@@ -181,6 +181,8 @@ export default function WorkerInvitationForm() {
         getCountries();
     }, []);
 
+    // console.log(errors.gender, "hello");
+
     return (
         <div className="container">
             <div className="thankyou meet-status dashBox maxWidthControl p-4">
@@ -232,8 +234,7 @@ export default function WorkerInvitationForm() {
                                                             e.target.value,
                                                     });
                                                 }}
-                                                className="form-control"
-                                                required
+                                                className={`form-control ${errors.first_name ? 'is-invalid' : ''}`}
                                                 placeholder={t(
                                                     "workerInviteForm.enter_first_name"
                                                 )}
@@ -285,7 +286,8 @@ export default function WorkerInvitationForm() {
                                                         email: e.target.value,
                                                     });
                                                 }}
-                                                className="form-control"
+                                                className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+
                                                 placeholder={t(
                                                     "workerInviteForm.enter_email"
                                                 )}
@@ -313,7 +315,7 @@ export default function WorkerInvitationForm() {
                                                         phone: e.target.value,
                                                     });
                                                 }}
-                                                className="form-control"
+                                                className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
                                                 placeholder={t(
                                                     "workerInviteForm.enter_phone"
                                                 )}
@@ -337,7 +339,7 @@ export default function WorkerInvitationForm() {
                                             <label className="form-check-label">
                                                 <input
                                                     type="radio"
-                                                    className="form-check-input"
+                                                    className={`form-check-input ${errors.radio ? 'is-invalid' : ''}`}
                                                     value="male"
                                                     required
                                                     onChange={(e) => {
@@ -353,8 +355,10 @@ export default function WorkerInvitationForm() {
                                                     }
                                                 />
                                                 {t("workerInviteForm.male")}
+
                                             </label>
                                         </div>
+
                                         <div className="form-check-inline">
                                             <label className="form-check-label">
                                                 <input
@@ -376,6 +380,16 @@ export default function WorkerInvitationForm() {
                                                 />
                                                 {t("workerInviteForm.female")}
                                             </label>
+                                        </div>
+                                        <div className="mb-3">
+
+                                            {errors.gender ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.gender}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
                                         </div>
                                     </div>
 
@@ -445,6 +459,15 @@ export default function WorkerInvitationForm() {
                                                         )
                                                     )}
                                             </select>
+                                        </div>
+                                        <div className="mb-3">
+                                            {errors.country ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.country}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
                                         </div>
                                     </div>
 
@@ -526,19 +549,19 @@ export default function WorkerInvitationForm() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t(
-                                                            "workerInviteForm.full_address"
-                                                        )}{" "}
+                                                {t(
+                                                    "workerInviteForm.full_address"
+                                                )}{" "}
                                                 <small className="text-pink mb-1">
                                                     &nbsp; ({t(
-                                                            "workerInviteForm.auto_complete"
-                                                        )})
+                                                        "workerInviteForm.auto_complete"
+                                                    )})
                                                 </small>
                                             </label>
                                             <input
                                                 type="text"
                                                 value={address}
-                                                className="form-control"
+                                                className={`form-control ${errors.address ? "is-invalid" : ""}`}
                                                 placeholder="Full Address"
                                                 readOnly
                                             />

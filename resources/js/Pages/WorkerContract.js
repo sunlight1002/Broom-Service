@@ -11,6 +11,7 @@ import { objectToFormData } from "../Utils/common.utils";
 
 export default function WorkerContract() {
     const param = useParams();
+    console.log(param);
     const [workerDetail, setWorkerDetail] = useState({});
     const [workerFormDetail, setWorkerFormDetail] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);

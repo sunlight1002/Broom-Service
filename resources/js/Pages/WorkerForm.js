@@ -15,6 +15,7 @@ export default function WorkerForm() {
     const alert = useAlert();
     const { t } = useTranslation();
     const encodedWorkerId = param.id;
+
     const formArr = {
         form101Form: {
             name: "formTxt.form101Form",
@@ -37,6 +38,7 @@ export default function WorkerForm() {
             url: `/insurance-form/${encodedWorkerId}`,
         },
     };
+    
     const [worker, setWorker] = useState({});
     const [forms, setForms] = useState(formArr);
     const [isFetched, setIsFetched] = useState(false);
@@ -47,39 +49,34 @@ export default function WorkerForm() {
             .then((res) => {
                 const { worker: workData, forms: formData } = res.data;
                 setWorker(workData);
+
                 const updatedFormData = {};
-                for (const key in { ...forms }) {
+                for (const key in forms) {
                     if (formData.hasOwnProperty(key)) {
                         let _url = forms[key]["url"];
-                        if (key == "contractForm") {
-                            _url = `/worker-contract/${Base64.encode(
-                                workData.worker_id
-                            )}`;
-                        } else if (key == "form101Form" && formData[key]) {
-                            _url = `/form101/${Base64.encode(
-                                workData.id.toString()
-                            )}/${Base64.encode(
-                                formData[key]["id"].toString()
-                            )}`;
+                        if (key === "contractForm") {
+                            _url = `/worker-contract/${Base64.encode(workData.id.toString())}`;
+                        } else if (key === "form101Form" && formData[key]) {
+                            _url = `/form101/${Base64.encode(workData.id.toString())}/${Base64.encode(formData[key]["id"].toString())}`;
                         }
 
                         updatedFormData[key] = {
                             ...forms[key],
-                            isFilled:
-                                formData[key] && formData[key]["submitted_at"]
-                                    ? true
-                                    : false,
+                            isFilled: formData[key] && formData[key]["submitted_at"] ? true : false,
                             url: _url,
                         };
                     }
                 }
                 setForms(updatedFormData);
+
                 const lng = workData.lng;
                 i18next.changeLanguage(lng);
-                if (lng == "heb") {
+                if (lng === "heb") {
                     import("../Assets/css/rtl.css");
                     document.querySelector("html").setAttribute("dir", "rtl");
-                } else document.querySelector("html").removeAttribute("dir");
+                } else {
+                    document.querySelector("html").removeAttribute("dir");
+                }
                 setIsFetched(true);
             })
             .catch((err) => {
@@ -88,6 +85,7 @@ export default function WorkerForm() {
                 }
             });
     };
+
     useEffect(() => {
         getWorker();
     }, []);
