@@ -348,6 +348,19 @@ export default function CreateJobCalender({
                         />
                     </div>
                 </div>
+                <div className="col-sm-12 mt-2">
+                                    <div className="form-check">
+                                        <label className="form-check-label">
+                                            <input
+                                                ref={isPrevWorker}
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                name={"is_keep_prev_worker"}
+                                            />
+                                            Keep previous worker
+                                        </label>
+                                    </div>
+                                </div>
             </div>
             <div className="tab-content" style={{ background: "#fff" }}>
                 <div
@@ -739,19 +752,6 @@ export default function CreateJobCalender({
                         </div>
                         <div className="modal-body">
                             <div className="row">
-                                <div className="col-sm-12 mb-4">
-                                    <div className="form-check">
-                                        <label className="form-check-label">
-                                            <input
-                                                ref={isPrevWorker}
-                                                type="checkbox"
-                                                className="form-check-input"
-                                                name={"is_keep_prev_worker"}
-                                            />
-                                            Keep previous worker
-                                        </label>
-                                    </div>
-                                </div>
                                 <div className="col-sm-12">
                                     <label className="control-label">
                                         Services

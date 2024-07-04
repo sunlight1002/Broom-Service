@@ -1694,7 +1694,8 @@
         "success_msg": "Job approved sucessfully"
     },
     "safeAndGear": {
-        "welcomeToBroom": "Welcome to Broom Service: We are glad that you chose to work in our company, we will do everything to make you happy and happy with your work and of course take care of everything you need just like a family. The job is a full-time job about 8 hours a day and Fridays are optional.",
+        "welcomeToBroom": "Welcome to Broom Service:",
+        "broomIntro": " We are glad that you chose to work in our company, we will do everything to make you happy and happy with your work and of course take care of everything you need just like a family. The job is a full-time job about 8 hours a day and Fridays are optional.",
         "sfg1": "Please make sure that all of the required forms are signed and completed - signed contract, form 101, ID card or visa, and if necessary a health form. In order not to delay the payment of wages at the time.",
         "sfg2": "You will get address for your work on whatsapp or on your broom service application and how much time will be required to work on each house.",
         "sfg3": "Please make sure to get to the client in time. Please make sure to let us know if you are late or if any problem.",
@@ -1729,9 +1730,9 @@
         "successfullySigned": "Successfuly signed",
         "error": "Error!"
     },
-    "israilContract": {
-        "title1": "Notice to the employee regarding details of working conditions",
-        "title2": "According to the Notification to the Employee (Working Conditions) Law 2002",
+   "israilContract": {
+        "title1": "Notice to Employee Regarding Detailed Terms of Employment",
+        "title2": "In accordance with the Employee Notice (Terms of Employment) Law, 2002",
         "is1": "Employer's name: Brom Service L.M. Ltd. - private company number 515184208 Maan Hamel 11, Rosh Ha'Ein.",
         "name": "Employee name",
         "IDNumber": "ID number:",
@@ -1857,9 +1858,9 @@
         }
     },
     "nonIsrailContract": {
-        "title1": "Employment Agreement",
-        "title2": "and Notification to Employee Regarding Working Conditions",
-        "nic1": "According to Section 1 of the Notification to Employee (Working Conditions) Law, 2002",
+        "title1": "The employment agreement as well as a notice to the employee regarding working conditions",
+        "title2": "In accordance with Section 1 of the Law on Notification to Employees (Working Conditions), 2002",
+        "nic1": "Employer's name Brom Service L.M. Ltd. - private company number 515184208 Maan Amal 11, Rosh Ha'Ein",
         "empName": "Employee's name",
         "passport": "Passport Number",
         "Address": "Address",
@@ -1904,7 +1905,7 @@
                 }
             },
             "nic5_sub3": "** List types of payments such as: base salary, in-kind - food and non-alcoholic drinks for consumption on the premises and housing that is not a reimbursement, seniority increment, premiums and incentives, overtime; shift increments, recreation pay and any other payment for work wage whether fixed or non-fixed.",
-            "nic5_sub4": "Date: Employee signature and approval of the above ",
+            "nic5_sub4": "Employee signature and approval of the above ",
             "nic5_sub5": "* If the payment date is not fixed, or the date occurs upon a condition, specify it."
         },
         "nic6": "The employee's wage is determined according to an irrelevant ranking.",
@@ -1935,17 +1936,17 @@
                 }
             },
             "nic8Sub_1": "**This agreement replaces and cancels the previous agreement signed between the parties.",
-            "nic8Sub_2": "If the employer or an employers' organization of which the employer is a member, is a party to a collective agreement regulating the employee's working conditions – the name of the workers' organization that is a party to that collective agreement is: none",
+            "nic8Sub_2": "If the employer or an employers' organization of which the employer is a member, is a party to a collective agreement regulating the employee's working conditions – the name of the workers' organization that is a party to that collective agreement is:",
             "nic8Sub_3": "This notification is not an employment agreement, but an employer's notification of the main working conditions; nothing in this notification derogates from any right granted to the employee by law, extension order, collective agreement, or employment contract.",
             "nic8Sub_4": "Employee signature and approval of the above",
             "nic8Sub_5": "Clear",
-            "nic8Sub_6": "The employer will deduct from the employee's salary for National Insurance according to the law. The employer will deduct from the employee's salary for income tax according to the law. The employer will deduct from the employee's salary for foreign workers' deposits according to Section 1i of the Foreign Workers Law, 1991."
+            "nic8Sub_6": "The Company's signature:"
         },
         "deduction": {
             "title": "Deductions:",
             "deduction1": "The employer will deduct from the employee's salary for National Insurance according to the law",
             "deduction2": "The employer will deduct from the employee's salary for income tax according to the law",
-            "deduction3": "The employer will deduct from the employee's salary for foreign workers' deposits according to Section 1i of the Foreign Workers Law, 1991"
+            "deduction3": "The employer will deduct from the employee's salary for foreign workers' deposits according to Section 1יא of the Foreign Workers Law, 1991"
         },
         "obligations": {
             "title": "Employer's Obligations:",
@@ -1956,7 +1957,7 @@
             "supervisor1": "Details of the supervisor of foreign workers' rights:  Advocate Iris Maayan",
             "supervisor2": "Contact information for the supervisor of foreign workers:  53 Shlomo Road (Salame), Tel Aviv. Tel. 03-7347230, Fax. 03-7347269"
         },
-        "workerSign": "Date:  Employee signature and approval of the above ",
+        "workerSign": "Employee signature and approval of the above ",
         "companySign": "Sincerely, Broom Service L.M. Ltd.",
         "clear": "Clear",
         "Submit": "Submit",

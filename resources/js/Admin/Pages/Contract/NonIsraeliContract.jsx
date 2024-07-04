@@ -4,7 +4,7 @@ import * as yup from "yup";
 import { useFormik } from "formik";
 import SignatureCanvas from "react-signature-canvas";
 import moment from "moment";
-
+import companySign from '../../../Assets/image/company-sign.png'
 import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
 import { useTranslation } from "react-i18next";
@@ -42,8 +42,8 @@ export function NonIsraeliContract({
         signature2: "",
         signature3: "",
         signature4: "",
-        companySignature1: "",
-        companySignature2: "",
+        companySignature1:  companySign ,
+        companySignature2:  companySign ,
         role: "",
     };
 
@@ -166,6 +166,7 @@ export function NonIsraeliContract({
         companySigRef2.current.clear();
         setFieldValue("companySignature2", "");
     };
+
 
     return (
         <div className="container targetDiv" ref={contentRef}>
@@ -309,7 +310,7 @@ export function NonIsraeliContract({
                                                         </strong>
                                                     </p>
                                                     {formValues &&
-                                                    formValues.signature1 ? (
+                                                        formValues.signature1 ? (
                                                         <img
                                                             src={
                                                                 formValues.signature1
@@ -541,7 +542,7 @@ export function NonIsraeliContract({
                                                 </strong>
                                             </p>
                                             {formValues &&
-                                            formValues.signature2 ? (
+                                                formValues.signature2 ? (
                                                 <img
                                                     src={formValues.signature2}
                                                 />
@@ -761,7 +762,7 @@ export function NonIsraeliContract({
                                                 </strong>
                                             </p>
                                             {formValues &&
-                                            formValues.signature3 ? (
+                                                formValues.signature3 ? (
                                                 <img
                                                     src={formValues.signature3}
                                                 />
@@ -819,12 +820,10 @@ export function NonIsraeliContract({
                                                     )}
                                                 </strong>
                                             </p>
-                                            {formValues &&
-                                            formValues.companySignature1 ? (
+                                            {initialValues.companySignature2 &&
+                                                initialValues.companySignature2 ? (
                                                 <img
-                                                    src={
-                                                        formValues.companySignature1
-                                                    }
+                                                    src={initialValues.companySignature1}
                                                 />
                                             ) : (
                                                 <>
@@ -1015,10 +1014,10 @@ export function NonIsraeliContract({
                                             {t("nonIsrailContract.companySign")}
                                         </strong>
                                     </p>
-                                    {formValues &&
-                                    formValues.companySignature2 ? (
+                                    {initialValues.companySignature2 &&
+                                        initialValues.companySignature2 ? (
                                         <img
-                                            src={formValues.companySignature2}
+                                            src={initialValues.companySignature2}
                                         />
                                     ) : (
                                         <>

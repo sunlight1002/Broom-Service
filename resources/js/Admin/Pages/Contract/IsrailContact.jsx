@@ -225,7 +225,7 @@ export function IsrailContact({
                                                 label={t(
                                                     "israilContract.HomePhone"
                                                 )}
-                                                value={values.PhoneNo}
+                                                value={values.MobileNo}
                                                 // required={true}
                                                 readonly={true}
                                                 error={
@@ -247,7 +247,7 @@ export function IsrailContact({
                                                 label={t(
                                                     "israilContract.mobileNumber"
                                                 )}
-                                                value={values.MobileNo}
+                                                value={values.PhoneNo}
                                                 required={true}
                                                 error={
                                                     touched.MobileNo &&

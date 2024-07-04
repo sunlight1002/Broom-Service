@@ -91,6 +91,10 @@ export default function ChangeWorkerCalender({ job }) {
         });
     }, []);
 
+    useEffect(()=>{
+        getWorkers();
+    },[])
+
     useEffect(() => {
         setMinUntilDate(
             moment().startOf("day").add(1, "day").format("YYYY-MM-DD")
@@ -305,7 +309,6 @@ export default function ChangeWorkerCalender({ job }) {
     const handleWorkerList = () => {
         getWorkers();
 
-        $("#edit-work-time").modal("hide");
     };
 
     const feeInAmount = useMemo(() => {
@@ -360,6 +363,19 @@ export default function ChangeWorkerCalender({ job }) {
                         />
                     </div>
                 </div>
+                <div className="col-sm-12 mt-2">
+                                    <div className="form-check">
+                                        <label className="form-check-label">
+                                            <input
+                                                ref={isSameWorker}
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                onChange={handleWorkerList}
+                                            />
+                                            Keep same worker
+                                        </label>
+                                    </div>
+                                </div>
             </div>
             <div className="tab-content" style={{ background: "#fff" }}>
                 <div
@@ -795,7 +811,7 @@ export default function ChangeWorkerCalender({ job }) {
                 </div>
             </div>
 
-            <div
+            {/* <div
                 className="modal fade"
                 id="edit-work-time"
                 tabIndex="-1"
@@ -832,7 +848,7 @@ export default function ChangeWorkerCalender({ job }) {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </>
     );
 }

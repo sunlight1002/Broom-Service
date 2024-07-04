@@ -166,14 +166,21 @@ const SafeAndGear = () => {
             <div id="content">
                 <div className="mx-5 mt-5">
                     <div className="text-center">
-                        <h5>
-                            <strong>{t("safeAndGear.welcomeToBroom")}</strong>
-                        </h5>
+                    <p className="mb-4" style={{ fontSize: "20px" }}>
+                        {t("safeAndGear.welcomeToBroom")}
+                        </p>
                     </div>
-                    <p className="mt-4" style={{ fontSize: "16px" }}>
+
+                    <div className="text-center">
+                    <p className="mb-4" style={{ fontSize: "17px" }}>
+                        {t("safeAndGear.broomIntro")}
+                        </p>
+                    </div>
+                    {/* <p className="mt-4" style={{ fontSize: "16px" }}>
                         {t("safeAndGear.sfg1")}
-                    </p>
+                    </p> */}
                     <ol className="mt-3 lh-lg " style={{ fontSize: "16px" }}>
+                        <li>{t("safeAndGear.sfg1")}</li>
                         <li>{t("safeAndGear.sfg2")}</li>
                         <li>{t("safeAndGear.sfg3")}</li>
                         <li>{t("safeAndGear.sfg4")}</li>
@@ -184,7 +191,7 @@ const SafeAndGear = () => {
                         {/* <li>{t("safeAndGear.sfg9")}</li> */}
                     </ol>
 
-                    <div className="mt-5" style={{ marginBottom: "150px" }}>
+                    <div className="mt-5" style={{ marginBottom: "130px" }}>
                         <div className="text-center">
                             <h5>
                                 <strong>
