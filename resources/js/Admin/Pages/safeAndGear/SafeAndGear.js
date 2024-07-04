@@ -159,6 +159,8 @@ const SafeAndGear = () => {
             fontSize: "18px",
         },
     };
+
+    console.log(values.workerName);
     return (
         <div id="container" className="targetDiv rtlcon" ref={contentRef}>
             <div id="content">
@@ -179,7 +181,7 @@ const SafeAndGear = () => {
                         <li>{t("safeAndGear.sfg6")}</li>
                         <li>{t("safeAndGear.sfg7")}</li>
                         <li>{t("safeAndGear.sfg8")}</li>
-                        <li>{t("safeAndGear.sfg9")}</li>
+                        {/* <li>{t("safeAndGear.sfg9")}</li> */}
                     </ol>
 
                     <div className="mt-5" style={{ marginBottom: "150px" }}>
@@ -223,13 +225,22 @@ const SafeAndGear = () => {
                                         values.workerName2}
                                 </span>
                                 <p>
-                                    I{" "}
+                                    {/* I{" "}
                                     {values.workerName +
                                         " " +
                                         values.workerName2}{" "}
-                                    {t("safeAndGear.eq1")}
+                                    {t("safeAndGear.eq1")} */}
+
+                                        {t("safeAndGear.eq1", {
+                                            fullname:
+                                            values.workerName +
+                                            " " +
+                                            values.workerName2,
+                                        })}
+
+
                                 </p>
-                                <p>{t("safeAndGear.eq1")}</p>
+                                {/* <p>{t("safeAndGear.eq1")}</p> */}
                                 <p>{t("safeAndGear.eq2")}</p>
                                 <p>{t("safeAndGear.eq3")}</p>
                                 <p>{t("safeAndGear.eq4")}</p>
@@ -257,7 +268,7 @@ const SafeAndGear = () => {
                                             </span>
                                         </p>
                                         {formValues &&
-                                        formValues.signature != null ? (
+                                            formValues.signature != null ? (
                                             <img src={formValues.signature} />
                                         ) : (
                                             <div>

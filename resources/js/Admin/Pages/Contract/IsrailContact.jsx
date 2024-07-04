@@ -286,8 +286,7 @@ export function IsrailContact({
                                 <li>
                                     <p>
                                         {t("israilContract.is5-1", {
-                                            payment_per_hour:
-                                                workerDetail.payment_per_hour,
+                                            payment_per_hour: workerDetail.payment_per_hour,
                                         })}
                                     </p>
                                     <p
