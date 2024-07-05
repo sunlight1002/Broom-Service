@@ -1,6 +1,10 @@
 <?php
 
+
+
 namespace App\Traits;
+
+use Illuminate\Support\Facades\Http;
 
 use App\Enums\InvoiceStatusEnum;
 use App\Enums\NotificationTypeEnum;
@@ -12,11 +16,15 @@ use App\Events\ClientPaymentPaid;
 use App\Models\Invoices;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
+use App\Models\User;
+use App\Models\Setting;
+use App\Enums\SettingKeyEnum;
 use App\Models\Notification;
 use App\Models\Order;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 trait ICountDocument
 {
@@ -197,4 +205,93 @@ trait ICountDocument
             event(new ClientPaymentPaid($client, $subtotal));
         }
     }
+
+
+
+    private function createOrUpdateUser(Request $request)
+    {
+        $input = $request->data;
+
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/client/create_or_update';
+
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'client_type_name' => $input['firstname'] ?? null,
+            'client_name' => $input['firstname'] ?? null,
+            'first_name' => $input['firstname'] ?? null,
+            'last_name' => $input['lastname'] ?? null,
+            'custom_client_id' => $input['id'] ?? 0,
+            'client_id' => $input['id'] ?? 0,
+            'phone' => $input['phone'] ?? null,
+            'email' => $input['email'] ?? null,
+            'vat_id' => $input['vat_number'] ?? null,
+            'custom_info' => json_decode(json_encode([
+                'status' => $input['status'] ?? null,
+                'invoicename' => $input['invoicename'] ?? null,
+            ]))
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error: Failed to create or update user');
+        }
+
+        return $response;
+    }
+
+    private function deleteUser($id)
+{
+    $iCountCompanyID = Setting::query()
+        ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+        ->value('value');
+
+    $iCountUsername = Setting::query()
+        ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+        ->value('value');
+
+    $iCountPassword = Setting::query()
+        ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+        ->value('value');
+
+    $url = 'https://api.icount.co.il/api/v3.php/client/delete';
+
+    $requestData = [
+        'cid' => $iCountCompanyID,
+        'user' => $iCountUsername,
+        'pass' => $iCountPassword,
+        'client_id' => $id,
+    ];
+
+    $response = Http::withHeaders([
+        'Content-Type' => 'application/json',
+    ])->post($url, $requestData);
+
+    if ($response->status() != 200) {
+        throw new \Exception('Error: Failed to delete user');
+    }
+
+    return $response;
+}
+
+
 }

@@ -187,29 +187,27 @@ class AuthController extends Controller
         ], [], [
             'manpower_company_id' => 'Manpower'
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-
+    
         $workerInvitation = WorkerInvitation::where('id', base64_decode($request->id))->first();
         if(!$workerInvitation) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
-        }
-
-
+        }    
         $manpowerCompanyID = NULL;
         if ($workerInvitation->company == 0) {
             $manpowerCompany = ManpowerCompany::where('name', $workerInvitation->manpower_company_name)->first();
             if (!$manpowerCompany && !empty($workerInvitation->manpower_company_name)) {
                 $manpowerCompany = ManpowerCompany::Create(['name' => $workerInvitation->manpower_company_name]);
             }
-
+    
             $manpowerCompanyID = $manpowerCompany->id;
         }
-
+    
         $workerData = [
             'firstname' => $request->first_name ?? '',
             'lastname'  => $request->last_name ?? '',
@@ -236,12 +234,13 @@ class AuthController extends Controller
             'insurance'   => $workerInvitation->safety ?? 0,
             'is_imported' => 0,
             'is_existing_worker' => 1,
+            'first_date' => $workerInvitation->first_date ?? 0
         ];
-
+    
         $worker = User::where('phone', $workerData['phone'])
                     ->orWhere('email', $workerData['email'])
                     ->first();
-
+    
         if (empty($worker)) {
             $worker = User::create($workerData);
             $i = 1;
@@ -266,14 +265,14 @@ class AuthController extends Controller
                     $i = 2;
                 }
             }
-
+    
         } else {
             $worker->update($workerData);
         }
-
+    
         if($workerInvitation->form_101 == 1) {
             $formEnum = new Form101FieldEnum;
-
+    
             $defaultFields = $formEnum->getDefaultFields();
             $defaultFields['employeeFirstName'] = $worker->firstname;
             $defaultFields['employeeLastName'] = $worker->lastname;
@@ -282,20 +281,21 @@ class AuthController extends Controller
             $defaultFields['sender']['employeeEmail'] = $worker->email;
             $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
             $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
-
+    
             $worker->forms()->create([
                 'type' => WorkerFormTypeEnum::FORM101,
                 'data' => $formData,
                 'submitted_at' => NULL
             ]);
         }
-
+    
         return response()->json([
             'worker' => $worker,
             'base64_id' => base64_encode($worker->id),
             'url' => "worker-forms/".base64_encode($worker->id)
         ]);
     }
+    
 
     public function isWeekend($date)
     {

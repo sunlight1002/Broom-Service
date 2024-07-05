@@ -97,6 +97,7 @@ export function IsrailContact({
             setFieldValue("Address", workerDetail.address);
             setFieldValue("MobileNo", workerDetail.phone);
             setFieldValue("role", workerDetail.role);
+            setFieldValue("first_date", workerDetail.first_date);
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);
 
@@ -114,6 +115,7 @@ export function IsrailContact({
         sigRef.current.clear();
         setFieldValue("signature", "");
     };
+
 
     return (
         <div className="container targetDiv rtlcon" ref={contentRef}>
@@ -198,18 +200,19 @@ export function IsrailContact({
                                 </li>
                                 <li>
                                     <DateField
-                                        name={"startDate"}
+                                        name={"first_date"}
                                         onBlur={handleBlur}
                                         onChange={handleChange}
                                         label={t(
                                             "israilContract.StartDateOfJob"
                                         )}
-                                        value={values.startDate}
+                                        value={values.first_date}
                                         required={true}
                                         error={
-                                            touched.startDate &&
-                                            errors.startDate
+                                            touched.first_date &&
+                                            errors.first_date
                                         }
+                                        readOnly={values.first_date === null ? false : true}
                                     />
                                     <div className="row">
                                         <div
@@ -219,13 +222,14 @@ export function IsrailContact({
                                             }
                                         >
                                             <TextField
-                                                name={"PhoneNo"}
+                                                name={"MobileNo"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
                                                 label={t(
                                                     "israilContract.HomePhone"
                                                 )}
                                                 value={values.MobileNo}
+
                                                 // required={true}
                                                 readonly={true}
                                                 error={
@@ -241,13 +245,14 @@ export function IsrailContact({
                                             }
                                         >
                                             <TextField
-                                                name={"MobileNo"}
+                                             name={"PhoneNo"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
                                                 label={t(
                                                     "israilContract.mobileNumber"
                                                 )}
                                                 value={values.PhoneNo}
+
                                                 required={true}
                                                 error={
                                                     touched.MobileNo &&

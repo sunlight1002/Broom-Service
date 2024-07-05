@@ -12,6 +12,7 @@ use App\Models\ClientPropertyAddress;
 use App\Models\Schedule;
 use App\Models\WebhookResponse;
 use App\Models\WhatsappLastReply;
+use App\Traits\ICountDocument;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +23,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class LeadController extends Controller
 {
+    use ICountDocument;
     /**
      * Display a listing of the resource.
      *
@@ -106,6 +108,22 @@ class LeadController extends Controller
         $input['passcode'] = $password;
 
         $client = Client::create($input);
+
+        // Create user in iCount
+        $iCountResponse = $this->createOrUpdateUser($request);
+    
+        // Handle iCount response
+        if ($iCountResponse->status() != 200) {
+            return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        }
+    
+        $iCountData = $iCountResponse->json();
+        
+        // Extract Client_id from iCount response and update the Client model
+        if (isset($iCountData['client_id'])) {
+            $client->update(['icount_client_id' => $iCountData['client_id']]);
+        }
+    
 
         $property_address_data = $request->propertyAddress;
         if (count($property_address_data) > 0) {
@@ -203,6 +221,22 @@ class LeadController extends Controller
             $input['password'] = $client->password;
         }
 
+        // Create user in iCount
+        $iCountResponse = $this->createOrUpdateUser($request);
+    
+        // Handle iCount response
+        if ($iCountResponse->status() != 200) {
+            return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        }
+    
+        $iCountData = $iCountResponse->json();
+        
+        // Extract Client_id from iCount response and update the Client model
+        if (isset($iCountData['client_id'])) {
+            $client->update(['icount_client_id' => $iCountData['client_id']]);
+        }
+    
+
         $client->update($input);
         return response()->json([
             'message' => 'Lead updated successfully',
@@ -215,15 +249,34 @@ class LeadController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
     public function destroy($id)
     {
         $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json(['error' => 'Client not found'], 404);
+        }
+
+        // Call deleteUser method with the iCount client ID
+        $iCountResponse = $this->deleteUser($client->icount_client_id);
+
+        // Handle iCount response
+        if ($iCountResponse->status() != 200) {
+            return response()->json(['error' => 'Failed to delete user in iCount'], 500);
+        }
+
+        // Delete the client from the local database
         $client->delete();
 
         return response()->json([
-            'message' => "Lead has been deleted"
+            'message' => "Client has been deleted",
+            'client' => $client,
+            'iCountResponse' => $iCountResponse->json()
         ]);
     }
+
+    
 
     public function addComment(Request $request)
     {

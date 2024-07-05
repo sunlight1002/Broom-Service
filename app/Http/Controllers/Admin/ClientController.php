@@ -28,6 +28,7 @@ use App\Models\Comment;
 use App\Models\User;
 use App\Traits\JobSchedule;
 use App\Traits\PaymentAPI;
+use App\Traits\ICountDocument;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -36,9 +37,10 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
+
 class ClientController extends Controller
 {
-    use JobSchedule, PaymentAPI;
+    use JobSchedule, PaymentAPI, ICountDocument;
 
     /**
      * Display a listing of the resource.
@@ -148,25 +150,40 @@ class ClientController extends Controller
             'firstname' => ['required', 'string', 'max:255'],
             'invoicename' => ['required', 'string', 'max:255'],
             'vat_number' => ['nullable', 'string', 'max:50'],
-            'phone'     => ['required', 'unique:clients'],
-            'status'    => ['required'],
-            'passcode'  => ['required', 'string', 'min:6',],
-            'email'     => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
+            'phone' => ['required', 'unique:clients'],
+            'status' => ['required'],
+            'passcode' => ['required', 'string', 'min:6'],
+            'email' => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-
+    
         $input = $request->data;
         $input['password'] = Hash::make($input['passcode']);
         $client = Client::create($input);
-
+    
+        // Create user in iCount
+        $iCountResponse = $this->createOrUpdateUser($request);
+    
+        // Handle iCount response
+        if ($iCountResponse->status() != 200) {
+            return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        }
+    
+        $iCountData = $iCountResponse->json();
+        
+        // Extract Client_id from iCount response and update the Client model
+        if (isset($iCountData['client_id'])) {
+            $client->update(['icount_client_id' => $iCountData['client_id']]);
+        }
+    
         $client->lead_status()->updateOrCreate(
             [],
             ['lead_status' => LeadStatusEnum::PENDING]
         );
-
+    
         $addressIds = [];
         $property_address_data = $request->propertyAddress;
         if (count($property_address_data) > 0) {
@@ -176,13 +193,13 @@ class ClientController extends Controller
                 $addressIds[$key] = $createdClient->id;
             }
         }
-
+    
         if (!empty($request->jobdata)) {
             $allServices = json_decode($request->jobdata['services'], true);
             for ($i = 0; $i < count($allServices); $i++) {
-                $allServices[$i]['address'] =  $addressIds[$allServices[$i]['address']];
+                $allServices[$i]['address'] = $addressIds[$allServices[$i]['address']];
             }
-
+    
             $offer = Offer::create([
                 'client_id' => $client->id,
                 'services' => json_encode($allServices, JSON_UNESCAPED_UNICODE),
@@ -190,21 +207,21 @@ class ClientController extends Controller
                 'total' => $request->jobdata['total'],
                 'status' => 'accepted'
             ]);
-
+    
             $contract = Contract::create([
                 'offer_id' => $offer->id,
                 'client_id' => $client->id,
                 'unique_hash' => md5($client->email . $offer->id),
                 'status' => 'verified',
             ]);
-
+    
             /* Create job */
-
+    
             $jds = [];
             foreach ($allServices as $service) {
                 $service_schedules = ServiceSchedule::find($service['frequency']);
                 $ser = Services::find($service['service']);
-
+    
                 $repeat_value = $service_schedules->period;
                 if ($service['service'] == 10) {
                     $s_name = $service['other_title'];
@@ -220,10 +237,10 @@ class ClientController extends Controller
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
                 $address_id = $service['address'];
-
+    
                 $worker = $service['worker'];
-                $shift =  $service['shift'];
-
+                $shift = $service['shift'];
+    
                 $jobsArr = $this->scheduleJob(Arr::only($service, [
                     'period',
                     'cycle',
@@ -235,86 +252,87 @@ class ClientController extends Controller
                     'monthday_selection_type',
                     'month_date',
                 ]));
-
+    
                 foreach ($jobsArr as $key => $job) {
                     $status = 'scheduled';
                     if (Job::where('start_date', $job['job_date'])->where('worker_id', $worker)->exists()) {
                         $status = 'unscheduled';
                     }
-
+    
                     $jds[] = [
                         'job' => [
-                            'worker'      => $worker,
-                            'client_id'   => $client->id,
-                            'offer_id'    => $offer->id,
+                            'worker' => $worker,
+                            'client_id' => $client->id,
+                            'offer_id' => $offer->id,
                             'contract_id' => $contract->id,
                             'schedule_id' => $s_id,
-                            'start_date'  => $job['job_date'],
-                            'next_start_date'  => $job['next_job_date'],
-                            'shifts'      => $shift,
-                            'schedule'    => $repeat_value,
-                            'status'      => $status,
-                            'address_id'  => $address_id,
+                            'start_date' => $job['job_date'],
+                            'next_start_date' => $job['next_job_date'],
+                            'shifts' => $shift,
+                            'schedule' => $repeat_value,
+                            'status' => $status,
+                            'address_id' => $address_id,
                         ],
-
+    
                         'service' => [
                             'service_id' => $s_id,
-                            'name'       => $s_name,
-                            'heb_name'   => $s_heb_name,
-                            'job_hour'   => $s_hour,
-                            'freq_name'  => $s_freq,
-                            'cycle'      => $s_cycle,
-                            'period'     => $s_period,
-                            'total'      => $s_total,
-                            'config'      => $job['configuration'],
+                            'name' => $s_name,
+                            'heb_name' => $s_heb_name,
+                            'job_hour' => $s_hour,
+                            'freq_name' => $s_freq,
+                            'cycle' => $s_cycle,
+                            'period' => $s_period,
+                            'total' => $s_total,
+                            'config' => $job['configuration'],
                         ]
                     ];
                 }
             }
-
+    
             foreach ($jds as $jd) {
                 $jdata = $jd['job'];
                 $sdata = $jd['service'];
-
+    
                 $job = Job::create([
-                    'worker_id'   => $jdata['worker'],
-                    'address_id'  => $jdata['address_id'],
-                    'client_id'   => $jdata['client_id'],
-                    'offer_id'    => $jdata['offer_id'],
+                    'worker_id' => $jdata['worker'],
+                    'address_id' => $jdata['address_id'],
+                    'client_id' => $jdata['client_id'],
+                    'offer_id' => $jdata['offer_id'],
                     'contract_id' => $jdata['contract_id'],
                     'schedule_id' => $jdata['schedule_id'],
-                    'start_date'  => $jdata['start_date'],
-                    'next_start_date'  => $jdata['next_start_date'],
-                    'shifts'      => $jdata['shifts'],
-                    'schedule'    => $jdata['schedule'],
-                    'status'      => $jdata['status'],
+                    'start_date' => $jdata['start_date'],
+                    'next_start_date' => $jdata['next_start_date'],
+                    'shifts' => $jdata['shifts'],
+                    'schedule' => $jdata['schedule'],
+                    'status' => $jdata['status'],
                 ]);
-
+    
                 JobService::create([
-                    'job_id'     => $job->id,
+                    'job_id' => $job->id,
                     'service_id' => $sdata['service_id'],
-                    'name'       => $sdata['name'],
-                    'heb_name'   => $sdata['heb_name'],
-                    'job_hour'   => $sdata['job_hour'],
-                    'freq_name'  => $sdata['freq_name'],
-                    'cycle'      => $sdata['cycle'],
-                    'period'     => $sdata['period'],
-                    'total'      => $sdata['total'],
-                    'config'     => $sdata['config'],
+                    'name' => $sdata['name'],
+                    'heb_name' => $sdata['heb_name'],
+                    'job_hour' => $sdata['job_hour'],
+                    'freq_name' => $sdata['freq_name'],
+                    'cycle' => $sdata['cycle'],
+                    'period' => $sdata['period'],
+                    'total' => $sdata['total'],
+                    'config' => $sdata['config'],
                 ]);
             }
-
+    
             $client->lead_status()->updateOrCreate(
                 [],
                 ['lead_status' => LeadStatusEnum::ACTIVE_CLIENT]
             );
         }
         /*End create job */
-
+    
         return response()->json([
             'message' => 'Client created successfully',
         ]);
     }
+    
 
     /**
      * Display the specified resource.
@@ -416,6 +434,19 @@ class ClientController extends Controller
         }
 
         $input = $request->data;
+        
+         // Create user in iCount
+         $iCountResponse = $this->createOrUpdateUser($request);
+
+         // Handle iCount response
+         $iCountData = $iCountResponse->json();
+     
+        // Handle iCount response
+        if ($iCountResponse->status() != 200) {
+            return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        }
+
+
         if ((isset($input['passcode']) && $input['passcode'] != null)) {
             $input['password'] = Hash::make($input['passcode']);
         } else {
@@ -574,8 +605,21 @@ class ClientController extends Controller
     {
         Client::find($id)->delete();
 
+       
+        $iCountResponse =  $this->deleteUser($id);
+
+        // Handle iCount response
+        $iCountData = $iCountResponse->json();
+    
+       // Handle iCount response
+       if ($iCountResponse->status() != 200) {
+           return response()->json(['error' => 'Failed to delete user in iCount'], 500);
+       }
+
+
         return response()->json([
-            'message' => "Client has been deleted"
+            'message' => "Client has been deleted",
+            $iCountData
         ]);
     }
 
