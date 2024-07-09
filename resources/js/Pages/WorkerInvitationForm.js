@@ -181,7 +181,6 @@ export default function WorkerInvitationForm() {
         getCountries();
     }, []);
 
-    // console.log(errors.gender, "hello");
 
     return (
         <div className="container">
@@ -470,6 +469,38 @@ export default function WorkerInvitationForm() {
                                             )}
                                         </div>
                                     </div>
+
+
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                {t("workerInviteForm.workerId")} *
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={formValues.worker_id}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        worker_id: e.target.value,
+                                                    });
+                                                }}
+                                                className={`form-control ${errors.worker_id ? 'is-invalid' : ''}`}
+                                                placeholder={t(
+                                                    "workerInviteForm.workerId"
+                                                )}
+                                            />
+                                            {errors.phone ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.worker_id}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                    </div>
+
+
 
                                     <div className="col-sm-12">
                                         <div className="form-group">

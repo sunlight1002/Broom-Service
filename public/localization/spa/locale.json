@@ -322,6 +322,7 @@
         "female": "Femenino",
         "language": "Idioma",
         "country": "País",
+        "workerId": "ID de trabajador",
         "hebrew": "Hebreo",
         "english": "Inglés",
         "russian": "Ruso",

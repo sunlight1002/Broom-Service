@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Str; 
 use Carbon\Carbon;
 
 class AuthController extends Controller
@@ -217,7 +217,7 @@ class AuthController extends Controller
             'address'           => $request->address ?? '',
             'payment_per_hour'  => $workerInvitation->payment ?? 45,
             'renewal_visa'      => '',
-            'worker_id'         => '',
+            'worker_id'         => $request->worker_id ?? Str::uuid()->toString(),
             'passcode'  => '',
             'password'  => Hash::make($row['password'] ?? ''),
             'country'   => $request->country ?? NULL,

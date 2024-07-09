@@ -2094,6 +2094,7 @@
         "female": "נקבה",
         "language": "שפה",
         "country": "מדינה",
+        "workerId" : "עובד מזהה",
         "hebrew": "עברית",
         "english": "אנגלית",
         "russian": "רוסית",
@@ -2102,6 +2103,6 @@
         "search_your_address": "חפש את הכתובת שלך",
         "full_address": "כתובת מלאה",
         "auto_complete": "השלמה אוטומטית מכתובת גוגל",
-        "submit": "שלח"
+        "submit": "אשר"
     }
 }
