@@ -137,11 +137,12 @@ class OfferController extends Controller
         }
 
         if ($request->action == 'Save and Send') {
-            event(new OfferSaved($offer->toArray()));
+            event(new OfferSaved($offer->toArray()));   
         }
 
         return response()->json([
-            'message' => 'Offer created successfully'
+            'message' => 'Offer created successfully',
+            'offer' => $offer->toArray(),
         ]);
     }
 

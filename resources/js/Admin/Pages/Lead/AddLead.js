@@ -27,6 +27,7 @@ export default function AddLead() {
         notification_type: "both",
     });
 
+    
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -65,6 +66,7 @@ export default function AddLead() {
                         phone: phoneClc,
                         password: formValues.passcode,
                         payment_method: formValues.payment_method,
+                        notification_type: formValues.notification_type,
                         vat_number: formValues.vat_number,
                         extra: JSON.stringify(extra),
                         status: !status ? 0 : parseInt(status),

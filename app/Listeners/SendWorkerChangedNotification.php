@@ -96,6 +96,10 @@ class SendWorkerChangedNotification implements ShouldQueue
                         'old_worker' => $event->oldWorker,
                         'old_job' => $event->old_job_data
                     );
+
+                    // $notification_type = $event;
+                    // var_dump($notification_type);
+
                     if (isset($emailData['old_worker']) && !empty($emailData['old_worker']['phone'])) {
                         event(new WhatsappNotificationEvent([
                             "type" => WhatsappMessageTemplateEnum::WORKER_UNASSIGNED,

@@ -53,20 +53,42 @@ class NotifyForOffer implements ShouldQueue
 
         $offer['service_names'] = $s_names;
 
+        $notificationType = $offer['client']['notification_type'];
+
         App::setLocale($offer['client']['lng']);
-        if (isset($offer['client']) && !empty($offer['client']['phone'])) {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::OFFER_PRICE,
-                "notificationData" => $offer
-            ]));
+
+        if ($notificationType === 'both') {
+        
+            if (isset($offer['client']) && !empty($offer['client']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::OFFER_PRICE,
+                    "notificationData" => $offer
+                ]));
+            }
+    
+            Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
+                $messages->to($offer['client']['email']);
+    
+                $messages->subject(__('mail.offer.subject', [
+                    'id' => $offer['id']
+                ]));
+            });
+        }elseif ($notificationType === 'email') {
+            Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
+                $messages->to($offer['client']['email']);
+    
+                $messages->subject(__('mail.offer.subject', [
+                    'id' => $offer['id']
+                ]));
+            });
+        }else{
+            if (isset($offer['client']) && !empty($offer['client']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::OFFER_PRICE,
+                    "notificationData" => $offer
+                ]));
+            }
         }
 
-        Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
-            $messages->to($offer['client']['email']);
-
-            $messages->subject(__('mail.offer.subject', [
-                'id' => $offer['id']
-            ]));
-        });
     }
 }

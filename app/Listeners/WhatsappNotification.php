@@ -179,6 +179,7 @@ class WhatsappNotification
                     $clientData = $jobData['client'];
 
                     $receiverNumber = $clientData['phone'];
+
                     App::setLocale($clientData['lng']);
 
                     $text = __('mail.wa-message.client_job_updated.header');
@@ -199,6 +200,36 @@ class WhatsappNotification
                     ]);
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.review') . ": " . url("client/jobs/" . base64_encode($jobData['id']) . "/review");
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::CREATE_JOB:
+
+                    $jobData = $eventData['job'];
+                    $clientData = $jobData['client'];
+
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale($clientData['lng']);
+            
+                    $text = __('mail.wa-message.create_job.header');
+            
+                    $text .= "\n\n";
+            
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => $clientData['firstname']
+                    ]);
+            
+                    $text .= "\n\n";
+            
+                    $text .= __('mail.wa-message.create_job.content', [
+                        'date' => Carbon::parse($jobData['start_date'])->format('M d Y'),
+                        'service_name' => $clientData['lng'] == 'heb'
+                            ? $jobData['jobservice']['heb_name']
+                            : $jobData['jobservice']['name'],
+                    ]);
+            
+                    $text .= "\n\n" . __('mail.wa-message.button-label.review') . ": " . url("client/jobs/" . base64_encode($jobData['id']) . "/review");
+            
 
                     break;
 
@@ -900,20 +931,18 @@ class WhatsappNotification
                 case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED:
                     $clientData = $eventData['client'];
                     $cardData = $eventData['card'];
-
-                    $receiverNumber = config('services.whatsapp_groups.payment_status');
+    
+                    $receiverNumber = $clientData["phone"];
+                    if (!$receiverNumber) {
+                        return;
+                    }
+    
                     App::setLocale('en');
-
+    
                     $text = __('mail.wa-message.client_payment_failed.header');
-
                     $text .= "\n\n";
-
-                    $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
-                    ]);
-
+                    $text .= __('mail.wa-message.common.salutation', ['name' => 'everyone']);
                     $text .= "\n\n";
-
                     $text .= __('mail.wa-message.client_payment_failed.content', [
                         'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
                         'card_number' => $cardData['card_number']

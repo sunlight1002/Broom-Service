@@ -236,7 +236,7 @@ trait ICountDocument
             'last_name' => $input['lastname'] ?? null,
             'custom_client_id' => $input['id'] ?? 0,
             'client_id' => $input['id'] ?? 0,
-            'phone' => $input['phone'] ?? null,
+            'phone' => $input['phone'] ?? null, 
             'email' => $input['email'] ?? null,
             'vat_id' => $input['vat_number'] ?? null,
             'custom_info' => json_decode(json_encode([

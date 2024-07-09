@@ -30,6 +30,8 @@ class SendWorkerFormsNotification implements ShouldQueue
      */
     public function handle(WorkerCreated $event)
     {
+
+        // var_dump($event);
         if (!empty($event->worker->email)) {
             App::setLocale($event->worker->lng);
             $workerArr = $event->worker->toArray();
@@ -48,50 +50,6 @@ class SendWorkerFormsNotification implements ShouldQueue
                 ]));
             }
 
-            // if (
-            //     $event->worker->country == 'Israel' &&
-            //     $event->worker->company_type == 'my-company'
-            // ) {
-            //     if (!empty($workerArr['phone'])) {
-            //         event(new WhatsappNotificationEvent([
-            //             "type" => WhatsappMessageTemplateEnum::WORKER_CONTRACT,
-            //             "notificationData" => $workerArr
-            //         ]));
-            //         event(new WhatsappNotificationEvent([
-            //             "type" => WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR,
-            //             "notificationData" => $workerArr
-            //         ]));
-            //     }
-
-            // Mail::send('/Mails/WorkerContractMail', $workerArr, function ($messages) use ($workerArr) {
-            //     $messages->to($workerArr['email']);
-            //     $messages->subject(__('mail.worker_contract.subject', [
-            //         'id' => $workerArr['id']
-            //     ]));
-            // });
-
-            // Mail::send('/Mails/WorkerSafeGearMail', $workerArr, function ($messages) use ($workerArr) {
-            //     $messages->to($workerArr['email']);
-            //     $messages->subject(__('mail.worker_safe_gear.subject', [
-            //         'id' => $workerArr['id']
-            //     ]));
-            // });
-            // } else if (
-            //     $event->worker->country != 'Israel' &&
-            //     $event->worker->company_type == 'my-company'
-            // ) {
-            //     if (!empty($workerArr['phone'])) {
-            // event(new WhatsappNotificationEvent([
-            //     "type" => WhatsappMessageTemplateEnum::WORKER_SAFE_GEAR,
-            //     "notificationData" => $workerArr
-            // ]));
-            // }
-
-            // Mail::send('Mails.worker.insurance-form', $workerArr, function ($messages) use ($workerArr) {
-            //     $messages->to($workerArr['email']);
-            //     $messages->subject(__('mail.worker.insurance-form.subject'));
-            // });
-            // }
         }
     }
 }

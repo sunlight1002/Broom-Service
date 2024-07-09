@@ -26,20 +26,42 @@ trait ScheduleMeeting
     {
         $scheduleArr = $schedule->toArray();
         App::setLocale($scheduleArr['client']['lng']);
-        if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
-                "notificationData" => $scheduleArr
-            ]));
+
+        $notificationType = $schedule->client->notification_type;
+
+        if ($notificationType === 'both') {
+            if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
+                    "notificationData" => $scheduleArr
+                ]));
+            }
+
+            Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+                $messages->to($scheduleArr['client']['email']);
+
+                $messages->subject(__('mail.meeting.subject', [
+                    'id' => $scheduleArr['id']
+                ]));
+            });
+
+        } elseif ($notificationType === 'email') {
+            Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+                $messages->to($scheduleArr['client']['email']);
+
+                $messages->subject(__('mail.meeting.subject', [
+                    'id' => $scheduleArr['id']
+                ]));
+            });
+
+        } elseif ($notificationType === 'whatsapp') {
+            if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
+                    "notificationData" => $scheduleArr
+                ]));
+            }
         }
-
-        Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
-            $messages->to($scheduleArr['client']['email']);
-
-            $messages->subject(__('mail.meeting.subject', [
-                'id' => $scheduleArr['id']
-            ]));
-        });
 
         $schedule->update(['meeting_mail_sent_at' => now()]);
     }

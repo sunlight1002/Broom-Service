@@ -10,6 +10,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const OFFER_PRICE = 'offer_price';
     public const CONTRACT = 'contract';
     public const CLIENT_JOB_UPDATED = 'client_job_updated';
+    public const CREATE_JOB = 'create_job';
     public const DELETE_MEETING = 'delete_meeting';
     public const FORM101 = 'form101';
     public const NEW_JOB = 'new_job';

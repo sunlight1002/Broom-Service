@@ -94,6 +94,7 @@ class LeadController extends Controller
             'vat_number' => ['nullable', 'string', 'max:50'],
             'email'     => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
             'phone'     => ['nullable', 'unique:clients'],
+                        
         ]);
 
         if ($validator->fails()) {
@@ -140,6 +141,7 @@ class LeadController extends Controller
 
         return response()->json([
             'message' => 'Lead created successfully',
+            'data' => $client,
         ]);
     }
 

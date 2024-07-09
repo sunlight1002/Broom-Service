@@ -32,21 +32,40 @@ class NotifyForContract implements ShouldQueue
     {
         $ofr = $event->offer;
 
+        $notificationType = $ofr['client']['notification_type'];
+
         App::setLocale($ofr['client']['lng']);
-
-        if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::CONTRACT,
-                "notificationData" => $ofr
-            ]));
+        if ($notificationType === 'both') {
+            if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CONTRACT,
+                    "notificationData" => $ofr
+                ]));
+            }
+    
+            Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
+                $messages->to($ofr['client']['email']);
+    
+                $messages->subject(__('mail.contract.subject', [
+                    'id' => $ofr['id']
+                ]));
+            });
+        }elseif ($notificationType === 'email') {
+            Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
+                $messages->to($ofr['client']['email']);
+    
+                $messages->subject(__('mail.contract.subject', [
+                    'id' => $ofr['id']
+                ]));
+            });
+        }else{
+            if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CONTRACT,
+                    "notificationData" => $ofr
+                ]));
+            }
         }
-
-        Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
-            $messages->to($ofr['client']['email']);
-
-            $messages->subject(__('mail.contract.subject', [
-                'id' => $ofr['id']
-            ]));
-        });
+       
     }
 }

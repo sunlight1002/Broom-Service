@@ -209,7 +209,7 @@ class ScheduleController extends Controller
                 ]);
             }
 
-            $this->sendMeetingMail($schedule);
+            // $this->sendMeetingMail($schedule);
 
             return response()->json([
                 'data' => $schedule,

@@ -340,6 +340,10 @@ return [
             'content' => "You have successfully registered on our portal. Please sign the contract form to start working on the job.
             Click the below button to check the contract.",
         ],
+        'create_job' => [
+            'header' => "*New Job Created | Broom Service*",
+            'content' => "A new job has been scheduled.\n\nDate: :date\nService: :service_name\n\nWe look forward to serving you.",
+        ],
         'client_job_updated' => [
             'header' => "*Job Completed | Broom Service*",
             'content' => "Your job has been completed.\n\nDate: :date\nService: :service_name\n\nPlease, rate us and send your review.",
