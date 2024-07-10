@@ -1756,32 +1756,31 @@
             "tr1": {
                 "td1": "Salary",
                 "td2": "on the 9th of the month",
-                "td3": "meal subsidy",
-                "td4": "According to the customer's custom for billing the value of meals"
+                "td3": "Leave for a family party for cleaning workers",
+                "td4": "In accordance with the collective agreement in the cleaning industry"
             },
             "tr2": {
                 "td1": "travel",
                 "td2": "On the 9th of the month, except in cases where the employee will use transportation, in which case he is not entitled to travel reimbursement.",
-                "td3": "Leave for a family party for cleaning workers",
-                "td4": "In accordance with the collective agreement in the cleaning industry"
+                "td3": "Holiday for cleaning workers",
+                "td4": "In accordance with the law and the collective agreement in the cleaning industry and according to the leave procedure at the employer."
             },
             "tr3": {
                 "td1": "Recovery (hourly employee)",
                 "td2": "on the 9th of the month",
-                "td3": "Holiday for cleaning workers",
-                "td4": "In accordance with the law and the collective agreement in the cleaning industry and according to the leave procedure at the employer."
+                 "td3": "A holiday for cleaning workers",
+                "td4": "In the month in which the Tishrei and Sivan holidays fall (around October and April)"
             },
             "tr4": {
                 "td1": "Recovery (monthly employee)",
                 "td2": "once a year",
-                "td3": "A holiday for cleaning workers",
-                "td4": "In the month in which the Tishrei and Sivan holidays fall (around October and April)"
+                "td3": "sick pay for cleaning workers",
+                "td4": "In accordance with the law on sick pay and the collective agreement in the cleaning industry"
             },
             "tr5": {
                 "td1": "Seniority supplement for cleaning workers",
-                "td2": "After a year of work",
-                "td3": "sick pay for cleaning workers",
-                "td4": "In accordance with the law on sick pay and the collective agreement in the cleaning industry"
+                "td2": "After a year of work"
+             
             },
             "tr6": {
                 "td1": "Holiday fees for cleaning workers",
@@ -1952,7 +1951,7 @@
         },
         "obligations": {
             "title": "Employer's Obligations:",
-            "obligation1": "The employer is obligated to arrange, at its expense, for the employee to have medical insurance for the entire duration of his employment, according to Section 1d of the Foreign Workers Law, 1991, while deducting the amounts that can be deducted by law."
+            "obligation1": "The employer is obligated to arrange, at its expense, for the employee to have medical insurance for the entire duration of his employment, according to Section 1יא  of the Foreign Workers Law, 1991, while deducting the amounts that can be deducted by law."
         },
         "supervisor": {
             "title": "Supervisor of Foreign Workers:",

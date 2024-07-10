@@ -184,6 +184,7 @@ class AuthController extends Controller
             'phone'     => ['required'],
             'email'     => ['required'],
             'gender'    => ['required'],
+            'last_name' => ['required', 'string', 'max:255'],
         ], [], [
             'manpower_company_id' => 'Manpower'
         ]);
@@ -217,7 +218,7 @@ class AuthController extends Controller
             'address'           => $request->address ?? '',
             'payment_per_hour'  => $workerInvitation->payment ?? 45,
             'renewal_visa'      => '',
-            'worker_id'         => $request->worker_id ?? Str::uuid()->toString(),
+            'worker_id'         => $request->worker_id ?? null,
             'passcode'  => '',
             'password'  => Hash::make($row['password'] ?? ''),
             'country'   => $request->country ?? NULL,

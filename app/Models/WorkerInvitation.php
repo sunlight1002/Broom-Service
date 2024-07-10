@@ -18,6 +18,7 @@ class WorkerInvitation extends Model
         'last_name',
         'email',
         'phone',
+        "worker_id",
         'birth_date',
         'company',
         'manpower_company_name',

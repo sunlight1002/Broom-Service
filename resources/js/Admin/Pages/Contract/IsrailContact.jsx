@@ -461,17 +461,8 @@ export function IsrailContact({
                                                         "israilContract.is6Table.tr5.td2"
                                                     )}
                                                 </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "israilContract.is6Table.tr5.td3"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {t(
-                                                        "israilContract.is6Table.tr5.td4"
-                                                    )}
-                                                </td>
+                                                <td></td>
+                                                <td></td>
                                             </tr>
                                             <tr>
                                                 <td>

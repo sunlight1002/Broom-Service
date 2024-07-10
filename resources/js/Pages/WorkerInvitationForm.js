@@ -32,6 +32,7 @@ export default function WorkerInvitationForm() {
     const navigate = useNavigate();
     Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
 
+    // console.log(worker);
     const [formValues, setFormValues] = useState({
         first_name: "",
         last_name: "",
@@ -40,7 +41,7 @@ export default function WorkerInvitationForm() {
         gender: "",
         role: "",
         payment_hour: "",
-        worker_id: Math.random().toString().concat("0".repeat(3)).substr(2, 5),
+        worker_id: "",
         renewal_date: "",
         company_type: "",
         manpower_company_id: "",
@@ -70,6 +71,7 @@ export default function WorkerInvitationForm() {
         axios
             .get(`/api/worker-invitation/${param.id}`)
             .then((res) => {
+                console.log(res);
                 const { worker_invitation: workData, lng: workerLng } =
                     res.data;
                 let workerLanguage = 'heb';
@@ -181,7 +183,7 @@ export default function WorkerInvitationForm() {
         getCountries();
     }, []);
 
-
+console.log(errors);
     return (
         <div className="container">
             <div className="thankyou meet-status dashBox maxWidthControl p-4">
@@ -252,7 +254,8 @@ export default function WorkerInvitationForm() {
                                             <label className="control-label">
                                                 {t(
                                                     "workerInviteForm.last_name"
-                                                )}
+                                                )}{" "}
+                                                *
                                             </label>
                                             <input
                                                 type="text"
@@ -264,11 +267,18 @@ export default function WorkerInvitationForm() {
                                                             e.target.value,
                                                     });
                                                 }}
-                                                className="form-control"
+                                                className={`form-control ${errors.last_name ? 'is-invalid' : ''}`}
                                                 placeholder={t(
                                                     "workerInviteForm.enter_last_name"
                                                 )}
                                             />
+                                                {errors.last_name ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.last_name}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
                                         </div>
                                     </div>
                                     <div className="col-sm-6">

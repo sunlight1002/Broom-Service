@@ -183,7 +183,7 @@
             "nic8Sub_3": "Esta notificación no es un contrato de trabajo, sino una notificación del empleador sobre las condiciones de trabajo principales; nada en esta notificación deroga ningún derecho otorgado al empleado por ley, orden de extensión, acuerdo colectivo o contrato de trabajo.",
             "nic8Sub_4": "Firma del Empleado y aprobación de lo anterior",
             "nic8Sub_5": "Limpiar",
-            "nic8Sub_6": "El empleador deducirá del salario del empleado para el Seguro Nacional según la ley. El empleador deducirá del salario del empleado para el impuesto sobre la renta según la ley. El empleador deducirá del salario del empleado para los depósitos de trabajadores extranjeros según la Sección 1i de la Ley de Trabajadores Extranjeros de 1991."
+            "nic8Sub_6": "Firma de la empresa:"
         },
         "deduction": {
             "title": "Deducciones:",
@@ -193,7 +193,7 @@
         },
         "obligations": {
             "title": "Obligaciones del Empleador:",
-            "obligation1": "El empleador está obligado a gestionar, a su cargo, el seguro médico del empleado durante toda la duración de su empleo, según la Sección 1d de la Ley de Trabajadores Extranjeros de 1991, deduciendo los montos que pueden deducirse por ley."
+            "obligation1": "El empleador está obligado a gestionar, a su cargo, el seguro médico del empleado durante toda la duración de su empleo, según la Sección 1יא  de la Ley de Trabajadores Extranjeros de 1991, deduciendo los montos que pueden deducirse por ley."
         },
         "supervisor": {
             "title": "Supervisor de Trabajadores Extranjeros:",
