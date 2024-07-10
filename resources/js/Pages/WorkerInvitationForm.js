@@ -136,7 +136,6 @@ export default function WorkerInvitationForm() {
         axios
             .post(`/api/worker-invitation-update/${param.id}`, data, { headers })
             .then((response) => {
-                console.log(response);
                 if (response.data.errors) {
                     setErrors(response.data.errors);
                 } else {
@@ -183,7 +182,6 @@ export default function WorkerInvitationForm() {
         getCountries();
     }, []);
 
-console.log(errors);
     return (
         <div className="container">
             <div className="thankyou meet-status dashBox maxWidthControl p-4">

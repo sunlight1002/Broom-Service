@@ -185,6 +185,7 @@ class AuthController extends Controller
             'email'     => ['required'],
             'gender'    => ['required'],
             'last_name' => ['required', 'string', 'max:255'],
+            'worker_id' => ['required']
         ], [], [
             'manpower_company_id' => 'Manpower'
         ]);

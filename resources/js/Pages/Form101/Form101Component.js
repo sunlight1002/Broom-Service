@@ -1177,6 +1177,7 @@ const Form101Component = () => {
 
     const getForm = () => {
         axios.get(`/api/get101/${id}/${formId}`).then((res) => {
+            console.log(res);
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
@@ -1198,7 +1199,10 @@ const Form101Component = () => {
                 const _worker = res.data.worker;
                 setFieldValue("employeeFirstName", _worker.firstname);
                 setFieldValue("employeeLastName", _worker.lastname);
+                setFieldValue("employeeAddress", _worker.address);
                 setFieldValue("employeeMobileNo", _worker.phone);
+                setFieldValue("employeeIdNumber", _worker.worker_id  );
+                
                 const workerGender = _worker.gender;
                 const gender =
                     workerGender.charAt(0).toUpperCase() +
@@ -1221,6 +1225,8 @@ const Form101Component = () => {
             handleSubmit();
         }, 200);
     };
+
+    // console.log(values);
 
     return (
         <div className="container targetDiv">
