@@ -114,6 +114,7 @@ export function NonIsraeliContract({
             );
             setFieldValue("Address", workerDetail.address);
             setFieldValue("role", workerDetail.role);
+            setFieldValue("IdNumber", workerDetail.worker_id);
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);
 
@@ -225,6 +226,7 @@ export function NonIsraeliContract({
                                                     touched.IdNumber &&
                                                     errors.IdNumber
                                                 }
+                                                readonly={true}
                                             />
                                         </div>
                                     </div>

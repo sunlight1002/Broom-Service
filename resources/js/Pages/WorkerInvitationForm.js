@@ -184,7 +184,7 @@ export default function WorkerInvitationForm() {
         getCountries();
     }, []);
 
-    console.log(country);
+    console.log(errors);
 
     return (
         <div className="container">
@@ -483,6 +483,66 @@ export default function WorkerInvitationForm() {
                                     </div>
 
 
+                                    {/* {country === "Israel" ? (
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    {t("workerInviteForm.workerId")} *
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={formValues.worker_id}
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            worker_id: e.target.value,
+                                                        });
+                                                    }}
+                                                    className={`form-control ${errors.worker_id ? 'is-invalid' : ''}`}
+                                                    placeholder={t(
+                                                        "workerInviteForm.workerId"
+                                                    )}
+                                                />
+                                                {errors.phone ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.worker_id}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    {t("workerInviteForm.passportId")} *
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={formValues.passport_id}
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            passport_id: e.target.value,
+                                                        });
+                                                    }}
+                                                    className={`form-control ${errors.passport_id ? 'is-invalid' : ''}`}
+                                                    placeholder={t(
+                                                        "workerInviteForm.passportId"
+                                                    )}
+                                                />
+                                                {errors.phone ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.passport_id}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </div>
+                                        </div>
+                                    )} */}
+
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
@@ -502,15 +562,17 @@ export default function WorkerInvitationForm() {
                                                 className={`form-control ${country === "Israel"? errors.worker_id : errors.passport} ? 'is-invalid' : ''}`}
                                                 placeholder={country === "Israel" ? t("workerInviteForm.workerId") : t("workerInviteForm.passportId")}
                                             />
-                                            {errors.phone ? (
+                                            {errors.worker_id  ||  errors.passport ? (
                                                 <small className="text-danger mb-1">
-                                                    {country === "Israel"? errors.worker_id : errors.passport}
+                                                    {country === "Israel"? "The Id Number field is required." : "The Passport Number field is required."}
                                                 </small>
                                             ) : (
                                                 ""
                                             )}
                                         </div>
                                     </div>
+
+
 
                                     <div className="col-sm-12">
                                         <div className="form-group">

@@ -185,9 +185,10 @@ class AuthController extends Controller
             'email'     => ['required'],
             'gender'    => ['required'],
             'last_name' => ['required', 'string', 'max:255'],
-            // 'worker_id' => ['required']
+            'worker_id'  => ['required_without:passport'],
+            'passport'   => ['required_without:worker_id']
         ], [], [
-            'manpower_company_id' => 'Manpower'
+            'manpower_company_id' => 'Manpower',
         ]);
     
         if ($validator->fails()) {

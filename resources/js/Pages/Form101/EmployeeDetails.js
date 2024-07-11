@@ -343,7 +343,6 @@ export default function EmployeeDetails({
                                 ? errors.employeePostalCode
                                 : ""
                         }
-                        required
                     />
                 </div>
                 <div className="col-md-6">

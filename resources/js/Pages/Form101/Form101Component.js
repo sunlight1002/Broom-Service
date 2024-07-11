@@ -112,8 +112,8 @@ const Form101Component = () => {
             .string()
             .required(t("form101.errorMsg.HouseNoReq")),
         employeePostalCode: yup
-            .string()
-            .required(t("form101.errorMsg.PostalCodeReq")),
+            .string(),
+            // .required(t("form101.errorMsg.PostalCodeReq")),
         employeeMobileNo: yup
             .string()
             .required(t("form101.errorMsg.MobileNoReq")),
@@ -1227,6 +1227,8 @@ const Form101Component = () => {
             handleSubmit();
         }, 200);
     };
+
+    console.log(values);
 
     return (
         <div className="container targetDiv">
