@@ -71,7 +71,7 @@ export default function WorkerInvitationForm() {
         axios
             .get(`/api/worker-invitation/${param.id}`)
             .then((res) => {
-                console.log(res);
+                // console.log(res);
                 const { worker_invitation: workData, lng: workerLng } =
                     res.data;
                 let workerLanguage = 'heb';
@@ -91,13 +91,15 @@ export default function WorkerInvitationForm() {
                 setLng(workerLanguage);
                 setWorker(workData);
                 if (workData) {
-                    console.log(workData);
+                    console.log(workData, "workData");
                     setFormValues((prev) => ({
                         ...prev,
                         first_name: workData.first_name,
                         last_name: workData.last_name,
                         email: workData.email,
                         phone: workData.phone,
+                        // worker_id: workData.worker_id,
+                        // passport_id: workData.passport
                     }));
                 }
                 setIsFetched(true);
@@ -181,6 +183,8 @@ export default function WorkerInvitationForm() {
         getWorker();
         getCountries();
     }, []);
+
+    console.log(country);
 
     return (
         <div className="container">
@@ -270,7 +274,7 @@ export default function WorkerInvitationForm() {
                                                     "workerInviteForm.enter_last_name"
                                                 )}
                                             />
-                                                {errors.last_name ? (
+                                            {errors.last_name ? (
                                                 <small className="text-danger mb-1">
                                                     {errors.last_name}
                                                 </small>
@@ -482,33 +486,31 @@ export default function WorkerInvitationForm() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                {t("workerInviteForm.workerId")} *
+                                                {country === "Israel" ? t("workerInviteForm.workerId") : t("workerInviteForm.passportId")} *
                                             </label>
                                             <input
-                                                type="number"
-                                                value={formValues.worker_id}
+                                                type={country === "Israel" ? "number" : "text"}
+
+                                                name={country === "Israel"? "worker_id" : "passport"}
+                                                value={country === "Israel"? formValues.worker_id : formValues.passport}
                                                 onChange={(e) => {
                                                     setFormValues({
                                                         ...formValues,
-                                                        worker_id: e.target.value,
+                                                        [e.target.name]: e.target.value,
                                                     });
                                                 }}
-                                                className={`form-control ${errors.worker_id ? 'is-invalid' : ''}`}
-                                                placeholder={t(
-                                                    "workerInviteForm.workerId"
-                                                )}
+                                                className={`form-control ${country === "Israel"? errors.worker_id : errors.passport} ? 'is-invalid' : ''}`}
+                                                placeholder={country === "Israel" ? t("workerInviteForm.workerId") : t("workerInviteForm.passportId")}
                                             />
                                             {errors.phone ? (
                                                 <small className="text-danger mb-1">
-                                                    {errors.worker_id}
+                                                    {country === "Israel"? errors.worker_id : errors.passport}
                                                 </small>
                                             ) : (
                                                 ""
                                             )}
                                         </div>
                                     </div>
-
-
 
                                     <div className="col-sm-12">
                                         <div className="form-group">
