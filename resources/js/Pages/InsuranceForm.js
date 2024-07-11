@@ -342,6 +342,7 @@ const InsuranceForm = () => {
                 setFieldValue("canPassport", _worker.passport);
                 setFieldValue("canFirstDateOfIns", _worker.first_date);
 
+                console.log( _worker);
 
                 const _gender = _worker.gender;
                 setFieldValue(

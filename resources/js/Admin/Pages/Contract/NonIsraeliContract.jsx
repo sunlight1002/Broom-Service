@@ -42,8 +42,8 @@ export function NonIsraeliContract({
         signature2: "",
         signature3: "",
         signature4: "",
-        companySignature1:  companySign ,
-        companySignature2:  companySign ,
+        companySignature1: companySign,
+        companySignature2: companySign,
         role: "",
     };
 
@@ -167,7 +167,7 @@ export function NonIsraeliContract({
         setFieldValue("companySignature2", "");
     };
 
-    console.log(workerDetail?.is_existing_worker,"is_existing_worker");
+    console.log(workerDetail?.is_existing_worker, "is_existing_worker");
     return (
         <div className="container targetDiv" ref={contentRef}>
             <div id="content">
@@ -297,14 +297,14 @@ export function NonIsraeliContract({
                                     )}
                                     <ol>
                                         <>
-                                        {workerDetail?.is_existing_worker ? "" : (
-                                            <li>
+                                            {workerDetail?.is_existing_worker ? "" : (
+                                                <li>
 
-                                            <p className="mb-2">
-                                                {t(
-                                                    "nonIsrailContract.nic5_sub.nic5_sub1"
-                                                )}
-                                            </p>
+                                                    <p className="mb-2">
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.nic5_sub1"
+                                                        )}
+                                                    </p>
                                                 </li>
                                             )}
                                             <div className="row">
@@ -316,14 +316,14 @@ export function NonIsraeliContract({
                                                             : "")
                                                     }
                                                 >
-                                            {workerDetail?.is_existing_worker ? "" : (
-                                                    <p>
-                                                        <strong>
-                                                            {t(
-                                                                "nonIsrailContract.nic5_sub.nic5_sub2"
-                                                            )}
-                                                        </strong>
-                                                    </p>
+                                                    {workerDetail?.is_existing_worker ? "" : (
+                                                        <p>
+                                                            <strong>
+                                                                {t(
+                                                                    "nonIsrailContract.nic5_sub.nic5_sub2"
+                                                                )}
+                                                            </strong>
+                                                        </p>
                                                     )}
                                                     {formValues &&
                                                         formValues.signature1 ? (
@@ -911,61 +911,44 @@ export function NonIsraeliContract({
                                     </div>
                                 </li>
                             </ol>
-                            <ol className="mt-3">
+                            <ol className="mt-3" style={{ direction: "rtl" , textAlign: "right"}}>
                                 <li>
                                     <u>
                                         {t("nonIsrailContract.deduction.title")}
                                     </u>
                                     <ol>
                                         <li>
-                                            {t(
-                                                "nonIsrailContract.deduction.deduction1"
-                                            )}
+                                            {t("nonIsrailContract.deduction.deduction1")}
                                         </li>
                                         <li>
-                                            {t(
-                                                "nonIsrailContract.deduction.deduction2"
-                                            )}
+                                            {t("nonIsrailContract.deduction.deduction2")}
                                         </li>
                                         <li>
-                                            {t(
-                                                "nonIsrailContract.deduction.deduction3"
-                                            )}
+                                            {t("nonIsrailContract.deduction.deduction3")}
                                         </li>
                                     </ol>
                                 </li>
                                 <li className="mt-3">
                                     <u>
-                                        {" "}
-                                        {t(
-                                            "nonIsrailContract.obligations.title"
-                                        )}
+                                        {t("nonIsrailContract.obligations.title")}
                                     </u>
                                     <p>
-                                        {t(
-                                            "nonIsrailContract.obligations.obligation1"
-                                        )}
+                                        {t("nonIsrailContract.obligations.obligation1")}
                                     </p>
                                 </li>
                                 <li className="mt-3">
                                     <u>
-                                        {" "}
-                                        {t(
-                                            "nonIsrailContract.supervisor.title"
-                                        )}
+                                        {t("nonIsrailContract.supervisor.title")}
                                     </u>
                                     <p>
-                                        {t(
-                                            "nonIsrailContract.supervisor.supervisor1"
-                                        )}
+                                        {t("nonIsrailContract.supervisor.supervisor1")}
                                     </p>
                                     <p>
-                                        {t(
-                                            "nonIsrailContract.supervisor.supervisor2"
-                                        )}
+                                        {t("nonIsrailContract.supervisor.supervisor2")}
                                     </p>
                                 </li>
                             </ol>
+
                             <div className="row mt-5 gap-3">
                                 <div
                                     className={
