@@ -333,11 +333,15 @@ const InsuranceForm = () => {
                 setFieldValue("FirstName", _worker.firstname);
                 setFieldValue("LastName", _worker.lastname);
                 setFieldValue("Email", _worker.email);
+                setFieldValue("canOrigin", _worker.country);
                 setFieldValue("CellphoneNo", _worker.phone);
                 setFieldValue("canFirstName", _worker.firstname);
                 setFieldValue("canLastName", _worker.lastname);
                 setFieldValue("canEmail", _worker.email);
                 setFieldValue("canCellPhone", _worker.phone);
+                setFieldValue("canPassport", _worker.passport);
+                setFieldValue("canFirstDateOfIns", _worker.first_date);
+
 
                 const _gender = _worker.gender;
                 setFieldValue(
@@ -383,6 +387,8 @@ const InsuranceForm = () => {
         sigRef.current.clear();
         setFieldValue("signature", "");
     };
+
+    // console.log(formValues);
 
     return (
         <form className="my-2 mx-4" onSubmit={handleSubmit}>
@@ -655,28 +661,31 @@ const InsuranceForm = () => {
                     <label className="control-label">
                         {t("insurance.Gender")}
                     </label>
-                    <Form.Check
-                        label={t("insurance.Male")}
-                        name="gender"
-                        value="Male"
-                        checked={values.gender === "Male"}
-                        type="radio"
-                        id={`gender-1`}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        disabled
-                    />
-                    <Form.Check
-                        label={t("insurance.Female")}
-                        name="gender"
-                        value="Female"
-                        checked={values.gender === "Female"}
-                        type="radio"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        id={`gender-2`}
-                        disabled
-                    />
+                    <div className="d-flex">
+                        <Form.Check
+                            label={t("insurance.Male")}
+                            className="mr-2"
+                            name="gender"
+                            value="Male"
+                            checked={values.gender === "Male"}
+                            type="radio"
+                            id={`gender-1`}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            disabled
+                        />
+                        <Form.Check
+                            label={t("insurance.Female")}
+                            name="gender"
+                            value="Female"
+                            checked={values.gender === "Female"}
+                            type="radio"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            id={`gender-2`}
+                            disabled
+                        />
+                    </div>
                     <span className="text-danger">
                         {touched.gender && errors.gender}
                     </span>
