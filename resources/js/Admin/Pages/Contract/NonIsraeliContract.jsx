@@ -167,7 +167,7 @@ export function NonIsraeliContract({
         setFieldValue("companySignature2", "");
     };
 
-    console.log(workerDetail?.is_existing_worker, "is_existing_worker");
+    // console.log(workerDetail);
     return (
         <div className="container targetDiv" ref={contentRef}>
             <div id="content">
@@ -911,7 +911,11 @@ export function NonIsraeliContract({
                                     </div>
                                 </li>
                             </ol>
-                            <ol className="mt-3" style={{ direction: "rtl" , textAlign: "right"}}>
+                            <ol className="mt-3" style={
+                                workerDetail?.lng === "heb"
+                                    ? { direction: "rtl", textAlign: "right" }
+                                    : {}
+                            }>
                                 <li>
                                     <u>
                                         {t("nonIsrailContract.deduction.title")}
