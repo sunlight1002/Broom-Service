@@ -1202,6 +1202,8 @@ const Form101Component = () => {
                 setFieldValue("employeeAddress", _worker.address);
                 setFieldValue("employeeMobileNo", _worker.phone);
                 setFieldValue("employeeIdNumber", _worker.worker_id  );
+                setFieldValue("employeecountry", _worker.country  );
+                setFieldValue("employeePassportNumber", _worker.passport  );
                 
                 const workerGender = _worker.gender;
                 const gender =
@@ -1225,8 +1227,6 @@ const Form101Component = () => {
             handleSubmit();
         }, 200);
     };
-
-    // console.log(values);
 
     return (
         <div className="container targetDiv">

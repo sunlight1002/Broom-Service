@@ -142,7 +142,7 @@ export default function EmployeeDetails({
                                 <TextField
                                     name="employeePassportNumber"
                                     label={t("form101.passport_num")}
-                                    value={values.employeePassportNumber}
+                                    value={values.employeecountry !== "Israel" ? values.employeePassportNumber : ""}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     error={
@@ -212,7 +212,7 @@ export default function EmployeeDetails({
                             <TextField
                                 name="employeeIdNumber"
                                 label={t("form101.id_num")}
-                                value={values.employeeIdNumber}
+                                value={values.employeecountry === "Israel" ? values.employeeIdNumber : ""}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                                 error={

@@ -323,6 +323,7 @@
         "language": "Idioma",
         "country": "País",
         "workerId": "ID de trabajador",
+        "passportId": "Número de pasaporte",
         "hebrew": "Hebreo",
         "english": "Inglés",
         "russian": "Ruso",

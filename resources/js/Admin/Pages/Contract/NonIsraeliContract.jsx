@@ -167,7 +167,7 @@ export function NonIsraeliContract({
         setFieldValue("companySignature2", "");
     };
 
-
+    console.log(workerDetail?.is_existing_worker,"is_existing_worker");
     return (
         <div className="container targetDiv" ref={contentRef}>
             <div id="content">
@@ -296,12 +296,17 @@ export function NonIsraeliContract({
                                         </p>
                                     )}
                                     <ol>
-                                        <li>
+                                        <>
+                                        {workerDetail?.is_existing_worker ? "" : (
+                                            <li>
+
                                             <p className="mb-2">
                                                 {t(
                                                     "nonIsrailContract.nic5_sub.nic5_sub1"
                                                 )}
                                             </p>
+                                                </li>
+                                            )}
                                             <div className="row">
                                                 <div
                                                     className={
@@ -311,6 +316,7 @@ export function NonIsraeliContract({
                                                             : "")
                                                     }
                                                 >
+                                            {workerDetail?.is_existing_worker ? "" : (
                                                     <p>
                                                         <strong>
                                                             {t(
@@ -318,6 +324,7 @@ export function NonIsraeliContract({
                                                             )}
                                                         </strong>
                                                     </p>
+                                                    )}
                                                     {formValues &&
                                                         formValues.signature1 ? (
                                                         <img
@@ -394,7 +401,7 @@ export function NonIsraeliContract({
                                                     />
                                                 </div>
                                             </div>
-                                        </li>
+                                        </>
                                     </ol>
                                     <Table
                                         bordered

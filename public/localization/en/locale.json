@@ -61,7 +61,7 @@
         "accepted_text": "This meeting is already accepted.",
         "write_email_text": "Please write us an email if any query.",
         "address": "Address",
-        "client": "Client",
+        "   ": "Client",
         "team_name": "Team name",
         "meet_link": "Meet Link"
     },
@@ -2098,6 +2098,7 @@
         "language": "Language",
         "country": "Country",
         "workerId": "WorkerId",
+        "passportId": "PassportId",
         "hebrew": "Hebrew",
         "english": "English",
         "russian": "Russian",

@@ -185,7 +185,7 @@ class AuthController extends Controller
             'email'     => ['required'],
             'gender'    => ['required'],
             'last_name' => ['required', 'string', 'max:255'],
-            'worker_id' => ['required']
+            // 'worker_id' => ['required']
         ], [], [
             'manpower_company_id' => 'Manpower'
         ]);
@@ -221,6 +221,7 @@ class AuthController extends Controller
             'renewal_visa'      => '',
             'worker_id'         => $request->worker_id ?? null,
             'passcode'  => '',
+            'passport' => $request->passport ?? null,
             'password'  => Hash::make($row['password'] ?? ''),
             'country'   => $request->country ?? NULL,
             'company_type'      => $workerInvitation->company ? 'my-company' : 'manpower',

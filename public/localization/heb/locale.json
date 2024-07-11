@@ -2095,6 +2095,7 @@
         "language": "שפה",
         "country": "מדינה",
         "workerId": "עובד מזהה",
+        "passportId": "מספר דרכון",
         "hebrew": "עברית",
         "english": "אנגלית",
         "russian": "רוסית",
