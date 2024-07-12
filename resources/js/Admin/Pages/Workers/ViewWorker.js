@@ -18,7 +18,7 @@ export default function ViewWorker() {
         axios
             .get(`/api/admin/workers/${params.id}/edit`, { headers })
             .then((response) => {
-                setWorker(response.data.worker);
+                setWorker(response.data?.worker);
             });
     };
 

@@ -1969,6 +1969,7 @@
             "Role": "Employee's role is required",
             "invalidId": "Invalid ID number",
             "idRequired": "ID number is required",
+            "passportNumReq" :"Passport is required",
             "address": "Employee's address is required",
             "startDate": "Start date of work is required",
             "Date": "Date is required",

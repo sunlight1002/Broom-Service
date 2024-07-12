@@ -47,7 +47,42 @@ export function NonIsraeliContract({
         role: "",
     };
 
-    const formSchema = yup.object({
+    const formSchema = yup.object(workerDetail.passport? {
+        fullName: yup
+            .string()
+            .trim()
+            .required(t("nonIsrailContract.errorMsg.FullName")),
+        // role: yup
+        //     .string()
+        //     .trim()
+        //     .required(t("nonIsrailContract.errorMsg.Role")),
+        IdNumber: yup
+            .string()
+            .trim(),
+        Address: yup
+            .string()
+            .trim()
+            .required(t("nonIsrailContract.errorMsg.address")),
+        startDate: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.startDate")),
+        signatureDate1: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.Date")),
+        signatureDate2: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.Date")),
+        signatureDate3: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.Date")),
+        signatureDate4: yup
+            .date()
+            .required(t("nonIsrailContract.errorMsg.Date")),
+        signature1: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+        signature2: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+        signature3: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+        signature4: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+    }: {
         fullName: yup
             .string()
             .trim()
@@ -59,7 +94,7 @@ export function NonIsraeliContract({
         IdNumber: yup
             .string()
             .trim()
-            .required(t("nonIsrailContract.errorMsg.idRequired")),
+            .required(t("nonIsrailContract.errorMsg.passportNumReq")),
         Address: yup
             .string()
             .trim()
@@ -114,7 +149,8 @@ export function NonIsraeliContract({
             );
             setFieldValue("Address", workerDetail.address);
             setFieldValue("role", workerDetail.role);
-            setFieldValue("IdNumber", workerDetail.worker_id);
+            // setFieldValue("IdNumber", workerDetail.worker_id);
+            setFieldValue("passport", workerDetail.passport);
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);
 
@@ -168,7 +204,6 @@ export function NonIsraeliContract({
         setFieldValue("companySignature2", "");
     };
 
-    // console.log(workerDetail);
     return (
         <div className="container targetDiv" ref={contentRef}>
             <div id="content">
@@ -214,13 +249,13 @@ export function NonIsraeliContract({
                                         </div>
                                         <div className="col-6">
                                             <TextField
-                                                name={"IdNumber"}
+                                                name={"passport"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
                                                 label={t(
                                                     "nonIsrailContract.passport"
                                                 )}
-                                                value={values.IdNumber}
+                                                value={values.passport}
                                                 required={true}
                                                 error={
                                                     touched.IdNumber &&

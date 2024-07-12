@@ -47,7 +47,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                 }
             })
             .catch((e) => {
-                alert.error(e.response.data.message);
+                alert.error(e.response.data?.message);
             });
     };
 
@@ -192,8 +192,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                         ? `/storage/uploads/worker/contract/${worker.worker_contract}`
                                                         : `/worker-contract/` +
                                                           Base64.encode(
-                                                              worker.worker_id
+                                                            worker.id.toString()
                                                           )
+                                                        
                                                 }
                                                 className="m-2 btn btn-pink"
                                             >

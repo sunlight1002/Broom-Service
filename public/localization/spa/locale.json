@@ -299,6 +299,7 @@
             "Role": "Rol",
             "invalidNumber": "Número inválido",
             "idRequired": "Número de identificación requerido",
+            "passportNumReq" :"Se requiere pasaporte",
             "Address": "Dirección",
             "StartDateOfJob": "Fecha de inicio del trabajo",
             "Date": "Fecha",
