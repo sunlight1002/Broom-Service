@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import TextField from "./inputElements/TextField";
 import SelectElement from "./inputElements/SelectElement";
 import DateField from "./inputElements/DateField";
@@ -14,6 +14,14 @@ export default function EmployeeDetails({
     handleChange,
     setFieldValue,
 }) {
+
+    const [type, setType] = useState(values.employeecountry);
+    useEffect(() => {
+        setType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
+    }, [values])
+    // console.log(type, values);
+
+
     const { t } = useTranslation();
 
     const sexOptions = [
@@ -49,6 +57,7 @@ export default function EmployeeDetails({
         { label: "Meuhedet", value: "Meuhedet" },
         { label: "Leumit", value: "Leumit" },
     ];
+
     return (
         <div>
             <h2>{t("form101.employee_details")}</h2>
@@ -63,7 +72,7 @@ export default function EmployeeDetails({
                         readonly={true}
                         error={
                             touched.employeeFirstName &&
-                            errors.employeeFirstName
+                                errors.employeeFirstName
                                 ? errors.employeeFirstName
                                 : ""
                         }
@@ -96,7 +105,7 @@ export default function EmployeeDetails({
                             name="employeeIdentityType"
                             value="IDNumber"
                             className="mr-2"
-                            checked={values.employeeIdentityType === "IDNumber"}
+                            checked={type === "IDNumber"}
                             onChange={handleChange}
                         />
                         {t("form101.id_num")}
@@ -107,7 +116,7 @@ export default function EmployeeDetails({
                             name="employeeIdentityType"
                             value="Passport"
                             className="mr-2"
-                            checked={values.employeeIdentityType === "Passport"}
+                            checked={type === "Passport"}
                             onChange={handleChange}
                         />
                         {t("form101.passport_foreign")}
@@ -119,7 +128,7 @@ export default function EmployeeDetails({
                             </p>
                         )}
                 </div>
-                {values.employeeIdentityType === "Passport" ? (
+                {type === "Passport" ? (
                     <>
                         <div className="col-md-4 col-sm-6 col-xs-6">
                             <SelectElement
@@ -130,7 +139,7 @@ export default function EmployeeDetails({
                                 onBlur={handleBlur}
                                 error={
                                     touched.employeecountry &&
-                                    errors.employeecountry
+                                        errors.employeecountry
                                         ? errors.employeecountry
                                         : ""
                                 }
@@ -147,7 +156,7 @@ export default function EmployeeDetails({
                                     onBlur={handleBlur}
                                     error={
                                         touched.employeePassportNumber &&
-                                        errors.employeePassportNumber
+                                            errors.employeePassportNumber
                                             ? errors.employeePassportNumber
                                             : ""
                                     }
@@ -217,7 +226,7 @@ export default function EmployeeDetails({
                                 onBlur={handleBlur}
                                 error={
                                     touched.employeeIdNumber &&
-                                    errors.employeeIdNumber
+                                        errors.employeeIdNumber
                                         ? errors.employeeIdNumber
                                         : ""
                                 }
@@ -278,7 +287,7 @@ export default function EmployeeDetails({
                             onBlur={handleBlur}
                             error={
                                 touched.employeeDateOfAliyah &&
-                                errors.employeeDateOfAliyah
+                                    errors.employeeDateOfAliyah
                                     ? errors.employeeDateOfAliyah
                                     : ""
                             }
@@ -339,7 +348,7 @@ export default function EmployeeDetails({
                         onBlur={handleBlur}
                         error={
                             touched.employeePostalCode &&
-                            errors.employeePostalCode
+                                errors.employeePostalCode
                                 ? errors.employeePostalCode
                                 : ""
                         }
@@ -417,7 +426,7 @@ export default function EmployeeDetails({
                         onBlur={handleBlur}
                         error={
                             touched.employeeMaritalStatus &&
-                            errors.employeeMaritalStatus
+                                errors.employeeMaritalStatus
                                 ? errors.employeeMaritalStatus
                                 : ""
                         }
@@ -434,7 +443,7 @@ export default function EmployeeDetails({
                         onBlur={handleBlur}
                         error={
                             touched.employeeIsraeliResident &&
-                            errors.employeeIsraeliResident
+                                errors.employeeIsraeliResident
                                 ? errors.employeeIsraeliResident
                                 : ""
                         }
@@ -451,7 +460,7 @@ export default function EmployeeDetails({
                         onBlur={handleBlur}
                         error={
                             touched.employeeCollectiveMoshavMember &&
-                            errors.employeeCollectiveMoshavMember
+                                errors.employeeCollectiveMoshavMember
                                 ? errors.employeeCollectiveMoshavMember
                                 : ""
                         }
@@ -467,7 +476,7 @@ export default function EmployeeDetails({
                             onBlur={handleBlur}
                             error={
                                 touched.employeemyIncomeToKibbutz &&
-                                errors.employeemyIncomeToKibbutz
+                                    errors.employeemyIncomeToKibbutz
                                     ? errors.employeemyIncomeToKibbutz
                                     : ""
                             }
@@ -485,7 +494,7 @@ export default function EmployeeDetails({
                         onBlur={handleBlur}
                         error={
                             touched.employeeHealthFundMember &&
-                            errors.employeeHealthFundMember
+                                errors.employeeHealthFundMember
                                 ? errors.employeeHealthFundMember
                                 : ""
                         }
@@ -501,7 +510,7 @@ export default function EmployeeDetails({
                             onBlur={handleBlur}
                             error={
                                 touched.employeeHealthFundname &&
-                                errors.employeeHealthFundname
+                                    errors.employeeHealthFundname
                                     ? errors.employeeHealthFundname
                                     : ""
                             }

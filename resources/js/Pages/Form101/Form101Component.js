@@ -1156,7 +1156,7 @@ const Form101Component = () => {
     };
     useEffect(() => {
         getForm();
-    }, []);
+    }, [values]);
 
     const disableInputs = () => {
         // Disable inputs within the div with the id "targetDiv"
@@ -1177,7 +1177,7 @@ const Form101Component = () => {
 
     const getForm = () => {
         axios.get(`/api/get101/${id}/${formId}`).then((res) => {
-            console.log(res);
+            // console.log(res);
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
@@ -1228,7 +1228,7 @@ const Form101Component = () => {
         }, 200);
     };
 
-    console.log(values);
+    console.log(formValues, "formv");
 
     return (
         <div className="container targetDiv">
