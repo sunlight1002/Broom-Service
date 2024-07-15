@@ -351,7 +351,7 @@ class AuthController extends Controller
                 $forms['contractForm'] = $contractForm ? $contractForm : null;
             }
 
-            if ($user->country != 'Israel') {
+            if ($user->country != 'Israel' && !$user->is_existing_worker) {
                 $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
             }
         } else {
