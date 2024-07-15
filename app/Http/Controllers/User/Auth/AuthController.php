@@ -210,13 +210,23 @@ class AuthController extends Controller
     
             $manpowerCompanyID = $manpowerCompany->id;
         }
-    
+
+        if ($request->lng == 'heb') {
+            $role = 'מנקה';
+        }elseif($request->lng == 'spa'){
+            $role = 'limpiador';
+        }elseif ($request->lng == 'ru') {
+            $role = 'Уборщица';
+        }else {
+            $role = 'Cleaner';
+        }
+
         $workerData = [
             'firstname' => $request->first_name ?? '',
             'lastname'  => $request->last_name ?? '',
             'phone'     => $request->phone ?? '',
             'email'     => $request->email ?? '',
-            'role'      => $workerInvitation->role ?? '',
+            'role'      => $role,
             'address'           => $request->address ?? '',
             'payment_per_hour'  => $workerInvitation->payment ?? 45,
             'renewal_visa'      => '',

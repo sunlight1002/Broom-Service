@@ -96,7 +96,6 @@ export default function WorkerContract() {
         getWorker();
     }, []);
 
-
     return (
         <>
             {workerDetail ? (

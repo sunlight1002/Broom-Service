@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Base64 } from "js-base64";
 import Swal from "sweetalert2";
 import * as yup from "yup";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import i18next from "i18next";
 
@@ -28,6 +28,7 @@ import moment from "moment";
 const currentDate = moment().format("YYYY-MM-DD");
 
 const Form101Component = () => {
+    const navigate = useNavigate()
     const sigRef = useRef();
     const { t } = useTranslation();
     const alert = useAlert();
@@ -74,14 +75,14 @@ const Form101Component = () => {
         employeeIdentityType: yup
             .string()
             .required(t("form101.errorMsg.IdentityType")),
-        employeeIdNumber: yup.string().when("employeeIdentityType", {
-            is: "IDNumber",
+        employeeIdNumber: yup.string().when("employeecountry", {
+            is: "Israel",
             then: () =>
                 yup.string().required(t("form101.errorMsg.IdNumberReq")),
-            otherwise: () => yup.string(),
+            otherwise: () => yup.string().nullable(),
         }),
-        employeeIdCardCopy: yup.mixed().when("employeeIdentityType", {
-            is: "IDNumber",
+        employeeIdCardCopy: yup.mixed().when("employeecountry", {
+            is: "Israel",
             then: () =>
                 yup.mixed().required(t("form101.errorMsg.IdCardCopyReq")),
             otherwise: () => yup.mixed().nullable(),
@@ -1131,7 +1132,8 @@ const Form101Component = () => {
                     setSavingType("submit");
                     alert.success(response.data.message);
                     setTimeout(() => {
-                        window.location.reload(true);
+                        // window.location.reload(true);
+                        navigate(`/worker-forms/${param.id}`)
                     }, 2000);
                 })
                 .catch((e) => {
@@ -1177,7 +1179,6 @@ const Form101Component = () => {
 
     const getForm = () => {
         axios.get(`/api/get101/${id}/${formId}`).then((res) => {
-            // console.log(res);
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
@@ -1204,6 +1205,7 @@ const Form101Component = () => {
                 setFieldValue("employeeIdNumber", _worker.worker_id  );
                 setFieldValue("employeecountry", _worker.country  );
                 setFieldValue("employeePassportNumber", _worker.passport  );
+                setFieldValue("DateOfBeginningWork", _worker.first_date );
                 
                 const workerGender = _worker.gender;
                 const gender =
@@ -1228,7 +1230,8 @@ const Form101Component = () => {
         }, 200);
     };
 
-    console.log(formValues, "formv");
+
+
 
     return (
         <div className="container targetDiv">

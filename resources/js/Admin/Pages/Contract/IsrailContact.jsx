@@ -116,7 +116,6 @@ export function IsrailContact({
         setFieldValue("signature", "");
     };
 
-// console.log(errors,"israel");
     return (
         <div className="container targetDiv rtlcon" ref={contentRef}>
             <div id="content">

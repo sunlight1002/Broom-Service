@@ -19,7 +19,6 @@ export default function EmployeeDetails({
     useEffect(() => {
         setType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
     }, [values])
-    // console.log(type, values);
 
 
     const { t } = useTranslation();
@@ -57,6 +56,7 @@ export default function EmployeeDetails({
         { label: "Meuhedet", value: "Meuhedet" },
         { label: "Leumit", value: "Leumit" },
     ];
+
 
     return (
         <div>

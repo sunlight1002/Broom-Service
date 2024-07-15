@@ -59,6 +59,7 @@ class User extends Authenticatable
         'insurance',
         'is_imported',
         'is_existing_worker',
+        'first_date'
     ];
 
     /**

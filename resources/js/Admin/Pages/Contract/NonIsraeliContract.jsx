@@ -47,6 +47,7 @@ export function NonIsraeliContract({
         role: "",
     };
 
+
     const formSchema = yup.object(workerDetail.passport? {
         fullName: yup
             .string()
@@ -151,6 +152,8 @@ export function NonIsraeliContract({
             setFieldValue("role", workerDetail.role);
             // setFieldValue("IdNumber", workerDetail.worker_id);
             setFieldValue("passport", workerDetail.passport);
+            setFieldValue("startDate", workerDetail.first_date);
+
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);
 
@@ -203,6 +206,7 @@ export function NonIsraeliContract({
         companySigRef2.current.clear();
         setFieldValue("companySignature2", "");
     };
+
 
     return (
         <div className="container targetDiv" ref={contentRef}>
