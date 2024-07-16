@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom";
 export default function AdminLogin() {
     const navigate = useNavigate()
 
-    // useEffect(() => {
-    //     const adminLogin =  localStorage.getItem("admin-id")
-    //     // console.log(adminLogin);
-    //     if(adminLogin) {
-    //         navigate("/admin/dashboard");
-    //     }    
-    // }, [navigate])
+    useEffect(() => {
+        const adminLogin =  localStorage.getItem("admin-id")
+        // console.log(adminLogin);
+        if(adminLogin) {
+            navigate("/admin/dashboard");
+        }    
+    }, [navigate])
     
 
     const alert = useAlert();
@@ -35,8 +35,8 @@ export default function AdminLogin() {
                 localStorage.setItem("admin-token", result.data.token);
                 localStorage.setItem("admin-name", result.data.name);
                 localStorage.setItem("admin-id", result.data.id);
-                // console.log(result.data[0].two_factor_enabled);
-                if (result.data[0].two_factor_enabled) {
+                // console.log(typeof result.data[0].two_factor_enabled);
+                if (result.data.two_factor_enabled == 1 || result.data[0].two_factor_enabled == 1) {
                     window.location = "/admin/login-otp";
                 }else{
                     window.location = "/admin/dashboard";

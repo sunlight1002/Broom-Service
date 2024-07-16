@@ -20,84 +20,79 @@ class AuthController extends Controller
      * @return \Illuminate\Http\Response 
      */
     public function login(Request $request)
-{
-    // Validate the request
-    $validator = Validator::make($request->all(), [
-        'email' => ['required', 'string', 'email', 'max:255'],
-        'password' => ['required', 'string', 'min:6'],
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->messages()]);
-    }
-
-    // Authenticate the admin
-    $admin = Admin::where('email', $request->email)->first();
-
-    if (!$admin || !Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
-        return response()->json(['errors' => ['email' => 'These credentials do not match our records.']]);
-    }
-
-    // Generate 6-digit numeric OTP
-    $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
-
-    // Send OTP via email
-    if ($admin->two_factor_enabled) {
-        // try {
-            $admin->otp = $otp;
-            $admin->otp_expiry = now()->addMinutes(10); 
-            $admin->save();
-
-            Mail::to($admin->email)->send(new LoginOtpMail($otp)); 
-
-            return response()->json([
-                $admin,
-                'message' => 'OTP sent to your email for verification'
+        {
+            // Validate the request
+            $validator = Validator::make($request->all(), [
+                'email' => ['required', 'string', 'email', 'max:255'],
+                'password' => ['required', 'string', 'min:6'],
             ]);
-        // } catch (\Exception $e) {
-        //     \Log::error('Error sending OTP email: ' . $e);
-        //     return response()->json(['error' => 'Failed to send OTP email'], 500);
-        // }
-    } else {
-        // Login without OTP
-        $admin = Admin::find(auth()->guard('admin')->user()->id);
-        $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
 
-        return response()->json($admin);
-    }
-}
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->messages()]);
+            }
+
+            // Authenticate the admin
+            $admin = Admin::where('email', $request->email)->first();
+
+            if (!$admin || !Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
+                return response()->json(['errors' => ['email' => 'These credentials do not match our records.']]);
+            }
+
+            // Generate 6-digit numeric OTP
+            $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
+
+            // Send OTP via email
+            if ($admin->two_factor_enabled) {
+                    $admin->otp = $otp;
+                    $admin->otp_expiry = now()->addMinutes(10); 
+                    $admin->save();
+
+                    Mail::to($admin->email)->send(new LoginOtpMail($otp)); 
+
+                    return response()->json([
+                        $admin,
+                        'message' => 'OTP sent to your email for verification'
+                    ]);
+            } else {
+                // Login without OTP
+                $admin = Admin::find(auth()->guard('admin')->user()->id);
+                $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
+
+                return response()->json($admin);
+            }
+        }
 
 
 
-    public function verifyOtp(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'otp' => ['required', 'string', 'digits:6'],
-        ]);
+        public function verifyOtp(Request $request)
+        {
+            $validator = Validator::make($request->all(), [
+                'otp' => ['required', 'string', 'digits:6'],
+            ]);
         
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->messages()]);
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->messages()]);
+            }
+        
+            $admin = Admin::where('otp', $request->otp)
+                          ->where('otp_expiry', '>=', now())
+                          ->first();
+        
+            if (!$admin) {
+                return response()->json(['errors' => ['otp' => 'Invalid OTP or OTP expired']]);
+            }
+        
+            // Clear OTP after successful verification
+            $admin->otp = null;
+            $admin->otp_expiry = null;
+            $admin->save();
+        
+            // Generate token for the authenticated admin
+            $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
+        
+            return response()->json($admin);
         }
-
-        $admin = Admin::where('otp', $request->otp)
-                  ->where('otp_expiry', '>=', now())
-                  ->first();
-
-        if (!$admin) {
-            return response()->json(['errors' => ['otp' => 'Invalid OTP or OTP expired']]);
-        }
-
-        // $admin->otp = null;
-        // $admin->otp_expiry = null;
-        // $admin->save();
-        $admin = Admin::find(auth()->guard('admin')->user()->id);
-        $accessToken = $admin->createToken('Admin', ['admin'])->accessToken;
-
-        return response()->json(['admin' => $admin, 'access_token' => $accessToken]);
-    }
-
-
+        
     /** 
      * Register api 
      * 

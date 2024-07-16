@@ -1,13 +1,24 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAlert } from "react-alert";
 import logo from "../../../Assets/image/sample.svg";
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminLoginOtp() {
+    const navigate = useNavigate()
     const alert = useAlert();
     const [otp, setOtp] = useState(new Array(6).fill(""));
     const inputsRef = useRef([]);
     const buttonRef = useRef(null);
     const [errors, setErrors] = useState([]);
+
+
+    useEffect(() => {
+        const adminLogin =  localStorage.getItem("admin-id")
+        // console.log(adminLogin);
+        if(adminLogin) {
+            navigate("/admin/dashboard");
+        }    
+    }, [navigate])
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -23,11 +34,13 @@ export default function AdminLoginOtp() {
             const result = await axios.post(`/api/admin/verifyOtp`, data);
             if (result.data.errors) {
                 setErrors(result.data.errors);
+                console.log(result.data.errors);
             } else {
                 localStorage.setItem("admin-token", result.data.token);
                 localStorage.setItem("admin-name", result.data.name);
                 localStorage.setItem("admin-id", result.data.id);
-                // window.location = "/admin/dashboard";
+                window.location = "/admin/dashboard";
+                console.log(result);
             }
         } catch (error) {
             console.error("Error verifying OTP:", error);
