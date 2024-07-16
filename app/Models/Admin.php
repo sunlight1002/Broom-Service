@@ -28,6 +28,9 @@ class Admin extends Authenticatable
         'status',
         'role',
         'password',
+        'otp',
+        'otp_expiry',
+        'two_factor_enabled',
     ];
 
     /**
@@ -58,4 +61,11 @@ class Admin extends Authenticatable
     {
         return $this->hasMany(TeamMemberDefaultAvailability::class, 'team_member_id');
     }
+
+    // public function generateCode(){
+    //     $this->timestamps = false;
+    //     $this->otp = rand(1000,9999);
+    //     $this->otp_expiry = now()->addMinute(5);
+    //     $this->save();
+    // }
 }

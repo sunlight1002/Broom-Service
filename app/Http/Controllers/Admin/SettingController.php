@@ -89,6 +89,7 @@ class SettingController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . Auth::user()->id],
+            'two_factor_enabled' => ['nullable', 'boolean']
         ]);
 
         if ($validator->fails()) {
@@ -114,11 +115,16 @@ class SettingController extends Controller
             if (Storage::disk('public')->putFileAs("uploads/admin", $image, $name)) {
                 $input['avatar'] = $name;
             }
+        
         }
-
+        if ($request->has('twostepverification')) {
+            $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
+        }
+        
         $admin->update($input);
 
         return response()->json([
+            'data' => $request->all(),
             'message' => 'Account details updated successfully',
         ]);
     }
@@ -230,6 +236,8 @@ class SettingController extends Controller
                 ['value' => $request->icount_password]
             );
         }
+
+        
 
         return response()->json([
             'success' => 'Settings has been updated'

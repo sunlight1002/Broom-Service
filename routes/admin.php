@@ -38,6 +38,7 @@ use App\Http\Controllers\DocumentController;
 
 // Unauthenticated Routes
 Route::post('login', [AuthController::class, 'login']);
+Route::post('/verifyOtp', [AuthController::class, 'verifyOtp']);
 Route::post('register', [AuthController::class, 'register']);
 Route::get('countries', [SettingController::class, 'getCountries']);
 Route::get('get_services', [ServicesController::class, 'create']);

@@ -12,6 +12,7 @@
         "google/apiclient": "^2.15",
         "guzzlehttp/guzzle": "^7.0.1",
         "intervention/image": "^2.7",
+        "laravel/fortify": "*",
         "laravel/framework": "^8.75",
         "laravel/passport": "^10.4",
         "laravel/sanctum": "^2.11",
