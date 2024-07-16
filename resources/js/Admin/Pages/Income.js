@@ -301,7 +301,7 @@ export default function income() {
                         <div className="col-lg-4 col-sm-6  col-xs-6">
                             <div className="dashBox">
                                 <div className="dashIcon">
-                                    <i className="fa-solid fa-suitcase"></i>
+                                    <i className="fa-solid fa-suitcase font-50"></i>
                                 </div>
                                 <div className="dashText">
                                     <h3>{totalTask}</h3>
@@ -313,7 +313,7 @@ export default function income() {
                         <div className="col-lg-4 col-sm-6  col-xs-6">
                             <div className="dashBox">
                                 <div className="dashIcon">
-                                    <i className="fa-solid fa-suitcase"></i>
+                                    <i className="fa-solid fa-suitcase font-50"></i>
                                 </div>
                                 <div className="dashText">
                                     <h3>{minutesToHours(totalMins)}</h3>
@@ -325,7 +325,7 @@ export default function income() {
                         <div className="col-lg-4 col-sm-6  col-xs-6">
                             <div className="dashBox">
                                 <div className="dashIcon">
-                                    <i className="fa-solid fa-suitcase"></i>
+                                    <i className="fa-solid fa-suitcase font-50"></i>
                                 </div>
                                 <div className="dashText">
                                     <h3>{minutesToHours(totalActualMins)}</h3>
@@ -337,7 +337,7 @@ export default function income() {
                         <div className="col-lg-4 col-sm-6  col-xs-6">
                             <div className="dashBox">
                                 <div className="dashIcon">
-                                    <i className="fa-solid fa-suitcase"></i>
+                                    <i className="fa-solid fa-suitcase font-50"></i>
                                 </div>
                                 <div className="dashText">
                                     <h3>{minutesToHours(totalDiffMins)}</h3>

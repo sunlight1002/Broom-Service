@@ -21,7 +21,7 @@ import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 import CancelJobModal from "../../Components/Modals/CancelJobModal";
 import FilterButtons from "../../../Components/common/FilterButton";
 
-export default function TotalJobs() {
+export default function     TotalJobs() {
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
@@ -95,7 +95,7 @@ export default function TotalJobs() {
                     title: "Client",
                     data: "client_name",
                     render: function (data, type, row, meta) {
-                        let _html = `<span class="client-name-badge dt-client-badge" style="background-color: ${
+                        let _html = `<span class="client-name-badge dt-client-badge" style=" color: white; background-color: ${
                             row.client_color ?? "#FFFFFF"
                         };" data-client-id="${row.client_id}">`;
 
@@ -300,10 +300,24 @@ export default function TotalJobs() {
             searching: true,
             responsive: true,
             createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row");
+                $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class ');
+                    }
+                }
+            ]
         });
+
+
+        // Customize the search input
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -833,7 +847,7 @@ export default function TotalJobs() {
                         </div>
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body getjobslist">
                         <div className="boxPanel-Th-border-none">
                             <table

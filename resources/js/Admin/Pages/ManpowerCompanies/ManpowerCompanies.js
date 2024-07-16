@@ -73,6 +73,17 @@ export default function ManpowerCompanies() {
             ordering: true,
             searching: true,
             responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass('custom-row-class');
+            },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class ');
+                    }
+                }
+            ]
         });
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {

@@ -102,7 +102,11 @@ export default function Contract() {
                             color = "red";
                         }
 
-                        return `<span style="color: ${color};">${data}</span>`;
+                        // return `<span style="color: ${color};">${data}</span>`;
+
+                        return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                    ${data}
+                                </p>`;
                     },
                 },
                 {
@@ -116,7 +120,12 @@ export default function Contract() {
                     title: "Job Status",
                     data: "job_status",
                     render: function (data, type, row, meta) {
-                        return data ? "Inactive" : "Active";
+                        // return data ? "Inactive" : "Active";
+                        return data ? `<p style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                    Inactive
+                                </p>` : `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                    Active
+                                </p>`;
                     },
                 },
                 {
@@ -140,7 +149,7 @@ export default function Contract() {
                             _html += `<button type="button" class="dropdown-item dt-resume-job-btn" data-id="${row.id}">Resume Job</button>`;
                         }
 
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+                        // _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
 
                         _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
 
@@ -154,10 +163,23 @@ export default function Contract() {
             searching: true,
             responsive: true,
             createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row");
+                $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class ');
+                    }
+                }
+            ]
         });
+
+        // Customize the search input
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -338,7 +360,7 @@ export default function Contract() {
                         </div>
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

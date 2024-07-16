@@ -47,7 +47,7 @@ export default function OfferPrice() {
                     title: "Client",
                     data: "name",
                     render: function (data, type, row, meta) {
-                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
+                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-name" style="color: black; text-decoration: underline;"> ${data} </a>`;
                     },
                 },
                 {
@@ -71,7 +71,11 @@ export default function OfferPrice() {
                             color = "red";
                         }
 
-                        return `<span style="color: ${color};">${data}</span>`;
+                        // return `<span style="color: ${color};">${data}</span>`;
+                        return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                        ${data}
+                    </p>`;
+
                     },
                 },
                 {
@@ -106,10 +110,23 @@ export default function OfferPrice() {
             searching: true,
             responsive: true,
             createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row");
+                $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class ');
+                    }
+                }
+            ]
         });
+
+        // Customize the search input
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -262,7 +279,7 @@ export default function OfferPrice() {
                         </div>
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

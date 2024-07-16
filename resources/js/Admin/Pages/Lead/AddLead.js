@@ -27,7 +27,7 @@ export default function AddLead() {
         notification_type: "both",
     });
 
-    
+
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -117,21 +117,67 @@ export default function AddLead() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title addEmployer">
-                        {t("admin.leads.AddLead.AddLead")}
-                    </h1>
-                    <div className="card">
-                        <div className="card-body">
-                            <form>
-                                <div className="row">
-                                    <div className="col-sm-6">
-                                        <div className="form-group">
-                                            <label className="control-label">
+                <form>
+                    <div className="d-flex align-items-center justify-content-between">
+                        <h1 className="page-title addEmployer"
+                        style={{border: "none"}}
+                        >
+                            {t("admin.leads.AddLead.AddLead")}
+                        </h1>
+                        <div className="text-center">
+                            <input
+                                type="submit"
+                                onClick={handleFormSubmit}
+                                className="btn navyblue saveBtn"
+                                value="Save"
+                            />
+                            {/* <input
+                                type="submit"
+                                onClick={handleFormSubmit}
+                                className="btn navyblue saveBtn"
+                                value="Clear"
+                            /> */}
+                        </div>
+                    </div>
+                        <div className="container-box d-flex justify-content-between">
+                            <div className="card-item" style={{marginRight: "15px"}}>
+                                <div className="card-heading">
+                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="">General Information</p>
+                                </div>
+                                <div className="card-body d-flex">
+                                    <div className="col">
+                                        <div className="form-group d-flex w-100">
+                                            <label className="control-label" style={{width: "15rem"}}>
+                                                Notification Type
+                                            </label>
+
+                                            <select
+                                                className="form-control"
+                                                value={formValues.notification_type}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        notification_type: e.target.value,
+                                                    });
+                                                }}
+                                            >
+                                                <option value="both">Both</option>
+                                                <option value="email">
+                                                    Email
+                                                </option>
+                                                <option value="whatsapp">
+                                                    WhatsApp
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group d-flex">
+                                            <label className="control-label" style={{width: "14.4rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.FirstName"
                                                 )}{" "}
                                                 *
                                             </label>
+                                            <div className="d-flex flex-column w-100">
                                             <input
                                                 type="text"
                                                 value={formValues.firstname}
@@ -139,7 +185,7 @@ export default function AddLead() {
                                                     setFormValues({
                                                         ...formValues,
                                                         firstname:
-                                                            e.target.value,
+                                                        e.target.value,
                                                     });
                                                 }}
                                                 className="form-control"
@@ -147,7 +193,7 @@ export default function AddLead() {
                                                 placeholder={t(
                                                     "admin.leads.AddLead.placeHolder.FirstName"
                                                 )}
-                                            />
+                                                />
                                             {errors.firstname ? (
                                                 <small className="text-danger mb-1">
                                                     {errors.firstname}
@@ -155,11 +201,10 @@ export default function AddLead() {
                                             ) : (
                                                 ""
                                             )}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="col-sm-6">
-                                        <div className="form-group">
-                                            <label className="control-label">
+                                        <div className="form-group d-flex">
+                                            <label className="control-label" style={{width: "15rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.LastName"
                                                 )}
@@ -181,40 +226,88 @@ export default function AddLead() {
                                                 )}
                                             />
                                         </div>
-                                    </div>
-                                    <div className="col-sm-6">
-                                        <div className="form-group">
-                                            <label className="control-label">
-                                                {t(
-                                                    "admin.leads.AddLead.InvoiceName"
-                                                )}
+                                        <div className="form-group d-flex">
+                                            <label className="control-label" style={{width: "15rem"}}>
+                                                {t("admin.leads.AddLead.DOB")}
                                             </label>
                                             <input
-                                                type="text"
-                                                value={formValues.invoicename}
+                                                type="date"
+                                                value={formValues.dob}
                                                 onChange={(e) => {
                                                     setFormValues({
                                                         ...formValues,
-                                                        invoicename:
-                                                            e.target.value,
+                                                        dob: e.target.value,
                                                     });
                                                 }}
                                                 className="form-control"
-                                                required
-                                                placeholder={t(
-                                                    "admin.leads.AddLead.placeHolder.InvoiceName"
-                                                )}
                                             />
+                                            {errors.dob ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.dob}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                        <div className="form-group d-flex">
+                                            <label className="control-label" style={{width: "15rem"}}>
+                                                {t("admin.leads.AddLead.Language")}
+                                            </label>
+
+                                            <select
+                                                className="form-control"
+                                                value={formValues.lng}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        lng: e.target.value,
+                                                    });
+                                                }}
+                                            >
+                                                <option value="heb">Hebrew</option>
+                                                <option value="en">English</option>
+                                            </select>
                                         </div>
                                     </div>
-                                    <div className="col-sm-6">
-                                        <div className="form-group">
-                                            <label className="control-label">
+                                    <div className="col">
+                                        <div className="form-group d-flex">
+                                            <label className="control-label" style={{width: "15rem"}}>
+                                                {t(
+                                                    "admin.leads.AddLead.PrimaryPhone"
+                                                )}
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                value={formValues.phone}
+                                                name={"phone"}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        phone: e.target.value,
+                                                    });
+                                                }}
+                                                className="form-control pphone"
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.placeHolder.PrimaryPhone"
+                                                )}
+                                            />
+                                            {errors.phone ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.phone}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
+                                        <div className="form-group d-flex">
+                                            <label className="control-label" style={{width: "15rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.PrimaryEmail"
                                                 )}{" "}
                                                 *
                                             </label>
+                                            <div className="d-flex flex-column w-100">
+
                                             <input
                                                 type="email"
                                                 value={formValues.email}
@@ -237,12 +330,70 @@ export default function AddLead() {
                                             ) : (
                                                 ""
                                             )}
+                                            </div>
                                         </div>
-                                    </div>
+                                        <div className="form-group d-flex">
+                                            <label className="control-label" style={{width: "15rem"}}>
+                                                {t(
+                                                    "admin.leads.AddLead.InvoiceName"
+                                                )}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formValues.invoicename}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        invoicename:
+                                                            e.target.value,
+                                                    });
+                                                }}
+                                                className="form-control"
+                                                required
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.placeHolder.InvoiceName"
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="form-group d-flex">
+                                            <label className="control-label" style={{width: "15rem"}}>
+                                                {t("admin.leads.AddLead.PaymentMethod")}
+                                            </label>
 
-                                    <div className="col-sm-6">
-                                        <div className="form-group">
-                                            <label className="control-label">
+                                            <select
+                                                className="form-control"
+                                                value={formValues.payment_method}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        payment_method: e.target.value,
+                                                    });
+                                                }}
+                                            >
+                                                <option value="cc">
+                                                    {t(
+                                                        "admin.leads.AddLead.Options.PaymentMethod.CreditCard"
+                                                    )}
+                                                </option>
+                                                <option value="mt">
+                                                    {t(
+                                                        "admin.leads.AddLead.Options.PaymentMethod.MoneyTransfer"
+                                                    )}
+                                                </option>
+                                                <option value="cheque">
+                                                    {t(
+                                                        "admin.leads.AddLead.Options.PaymentMethod.ByCheque"
+                                                    )}
+                                                </option>
+                                                <option value="cash">
+                                                    {t(
+                                                        "admin.leads.AddLead.Options.PaymentMethod.ByCash"
+                                                    )}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group d-flex">
+                                            <label className="control-label" style={{width: "15rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.Password"
                                                 )}
@@ -273,304 +424,8 @@ export default function AddLead() {
                                             )}
                                         </div>
                                     </div>
-
-                                    <div className="col-sm-6 phone">
-                                        <div className="form-group">
-                                            <label className="control-label">
-                                                {t(
-                                                    "admin.leads.AddLead.PrimaryPhone"
-                                                )}
-                                            </label>
-                                            <input
-                                                type="tel"
-                                                value={formValues.phone}
-                                                name={"phone"}
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        phone: e.target.value,
-                                                    });
-                                                }}
-                                                className="form-control pphone"
-                                                placeholder={t(
-                                                    "admin.leads.AddLead.placeHolder.PrimaryPhone"
-                                                )}
-                                            />
-                                            {errors.phone ? (
-                                                <small className="text-danger mb-1">
-                                                    {errors.phone}
-                                                </small>
-                                            ) : (
-                                                ""
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {extra &&
-                                        extra.map((ex, i) => {
-                                            return (
-                                                <React.Fragment key={i}>
-                                                    <div className="col-sm-4">
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                {t(
-                                                                    "admin.leads.AddLead.AlternateEmail"
-                                                                )}
-                                                            </label>
-                                                            <input
-                                                                type="tel"
-                                                                value={
-                                                                    ex.email ||
-                                                                    ""
-                                                                }
-                                                                name="email"
-                                                                onChange={(e) =>
-                                                                    handleAlternate(
-                                                                        i,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                className="form-control"
-                                                                placeholder={t(
-                                                                    "admin.leads.AddLead.placeHolder.AlternateEmail"
-                                                                )}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="col-sm-4">
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                {t(
-                                                                    "admin.leads.AddLead.PersonName"
-                                                                )}
-                                                            </label>
-                                                            <input
-                                                                type="tel"
-                                                                value={
-                                                                    ex.name ||
-                                                                    ""
-                                                                }
-                                                                name="name"
-                                                                onChange={(e) =>
-                                                                    handleAlternate(
-                                                                        i,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                className="form-control"
-                                                                placeholder={t(
-                                                                    "admin.leads.AddLead.placeHolder.PersonName"
-                                                                )}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="col-sm-3">
-                                                        <div className="form-group">
-                                                            <label className="control-label">
-                                                                {t(
-                                                                    "admin.leads.AddLead.AlternatePhone"
-                                                                )}
-                                                            </label>
-                                                            <input
-                                                                type="tel"
-                                                                value={
-                                                                    ex.phone ||
-                                                                    ""
-                                                                }
-                                                                name="phone"
-                                                                onChange={(e) =>
-                                                                    handleAlternate(
-                                                                        i,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                className="form-control"
-                                                                placeholder={t(
-                                                                    "admin.leads.AddLead.placeHolder.AlternatePhone"
-                                                                )}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="col-sm-1">
-                                                        {i == 0 ? (
-                                                            <>
-                                                                <button
-                                                                    className="mt-25 btn btn-success"
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
-                                                                        addExtras(
-                                                                            e
-                                                                        );
-                                                                    }}
-                                                                >
-                                                                    {" "}
-                                                                    +{" "}
-                                                                </button>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <button
-                                                                    className="mt-25 btn bg-red"
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
-                                                                        removeExtras(
-                                                                            e,
-                                                                            i
-                                                                        );
-                                                                    }}
-                                                                >
-                                                                    {" "}
-                                                                    <i className="fa fa-minus"></i>{" "}
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </React.Fragment>
-                                            );
-                                        })}
                                 </div>
-
-                                <PropertyAddress
-                                    heading={t(
-                                        "admin.leads.AddLead.propertyAddress"
-                                    )}
-                                    errors={errors}
-                                    setErrors={setErrors}
-                                    addresses={addresses}
-                                    setAddresses={setAddresses}
-                                />
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        {t("admin.leads.AddLead.DOB")}
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={formValues.dob}
-                                        onChange={(e) => {
-                                            setFormValues({
-                                                ...formValues,
-                                                dob: e.target.value,
-                                            });
-                                        }}
-                                        className="form-control"
-                                    />
-                                    {errors.dob ? (
-                                        <small className="text-danger mb-1">
-                                            {errors.dob}
-                                        </small>
-                                    ) : (
-                                        ""
-                                    )}
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        ID/VAT Number
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        value={formValues.vat_number}
-                                        onChange={(e) => {
-                                            setFormValues({
-                                                ...formValues,
-                                                vat_number: e.target.value,
-                                            });
-                                        }}
-                                        className="form-control"
-                                        required
-                                        placeholder="Enter ID/VAT Number"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        {t("admin.leads.AddLead.PaymentMethod")}
-                                    </label>
-
-                                    <select
-                                        className="form-control"
-                                        value={formValues.payment_method}
-                                        onChange={(e) => {
-                                            setFormValues({
-                                                ...formValues,
-                                                payment_method: e.target.value,
-                                            });
-                                        }}
-                                    >
-                                        <option value="cc">
-                                            {t(
-                                                "admin.leads.AddLead.Options.PaymentMethod.CreditCard"
-                                            )}
-                                        </option>
-                                        <option value="mt">
-                                            {t(
-                                                "admin.leads.AddLead.Options.PaymentMethod.MoneyTransfer"
-                                            )}
-                                        </option>
-                                        <option value="cheque">
-                                            {t(
-                                                "admin.leads.AddLead.Options.PaymentMethod.ByCheque"
-                                            )}
-                                        </option>
-                                        <option value="cash">
-                                            {t(
-                                                "admin.leads.AddLead.Options.PaymentMethod.ByCash"
-                                            )}
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        Notification Type
-                                    </label>
-
-                                    <select
-                                        className="form-control"
-                                        value={formValues.notification_type}
-                                        onChange={(e) => {
-                                            setFormValues({
-                                                ...formValues,
-                                                notification_type: e.target.value,
-                                            });
-                                        }}
-                                    >
-                                        <option value="both">Both</option>
-                                        <option value="email">
-                                            Email
-                                        </option>
-                                        <option value="whatsapp">
-                                            WhatsApp
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <div className="form-group">
-                                    <label className="control-label">
-                                        {t("admin.leads.AddLead.Language")}
-                                    </label>
-
-                                    <select
-                                        className="form-control"
-                                        value={formValues.lng}
-                                        onChange={(e) => {
-                                            setFormValues({
-                                                ...formValues,
-                                                lng: e.target.value,
-                                            });
-                                        }}
-                                    >
-                                        <option value="heb">Hebrew</option>
-                                        <option value="en">English</option>
-                                    </select>
-                                </div>
-                                <div className="form-group">
+                                <div className="form-group d-flex align-items-center ml-5" >
                                     <div
                                         className="form-check form-check-inline1 pl-0"
                                         style={{ paddingLeft: "0" }}
@@ -738,17 +593,156 @@ export default function AddLead() {
                                         ""
                                     )}
                                 </div>
-
-                                <div className="form-group text-center">
-                                    <input
-                                        type="submit"
-                                        onClick={handleFormSubmit}
-                                        className="btn btn-pink saveBtn"
-                                    />
+                            </div>
+                            <div className="card-item">
+                                <div className="card-heading">
+                                <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="">Additional Contacts</p>
                                 </div>
-                            </form>
+                                <div className="card-body d-flex flex-column">
+                                    {extra &&
+                                        extra.map((ex, i) => {
+                                            return (
+                                                <React.Fragment key={i}>
+                                                <div className="d-flex">
+                                                    <div className="">
+                                                        <div className="form-group" style={{marginRight: "6px"}}>
+                                                            <label className="control-label">
+                                                                {t(
+                                                                    "admin.leads.AddLead.AlternateEmail"
+                                                                )}
+                                                            </label>
+                                                            <input
+                                                                type="tel"
+                                                                value={
+                                                                    ex.email ||
+                                                                    ""
+                                                                }
+                                                                name="email"
+                                                                onChange={(e) =>
+                                                                    handleAlternate(
+                                                                        i,
+                                                                        e
+                                                                    )
+                                                                }
+                                                                className="form-control"
+                                                                placeholder={t(
+                                                                    "admin.leads.AddLead.placeHolder.AlternateEmail"
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="">
+                                                        <div className="form-group" style={{marginRight: "6px"}}>
+                                                            <label className="control-label">
+                                                                {t(
+                                                                    "admin.leads.AddLead.PersonName"
+                                                                )}
+                                                            </label>
+                                                            <input
+                                                                type="tel"
+                                                                value={
+                                                                    ex.name ||
+                                                                    ""
+                                                                }
+                                                                name="name"
+                                                                onChange={(e) =>
+                                                                    handleAlternate(
+                                                                        i,
+                                                                        e
+                                                                    )
+                                                                }
+                                                                className="form-control"
+                                                                placeholder={t(
+                                                                    "admin.leads.AddLead.placeHolder.PersonName"
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="">
+                                                        <div className="form-group" style={{marginRight: "6px"}}>
+                                                            <label className="control-label">
+                                                                {t(
+                                                                    "admin.leads.AddLead.AlternatePhone"
+                                                                )}
+                                                            </label>
+                                                            <input
+                                                                type="tel"
+                                                                value={
+                                                                    ex.phone ||
+                                                                    ""
+                                                                }
+                                                                name="phone"
+                                                                onChange={(e) =>
+                                                                    handleAlternate(
+                                                                        i,
+                                                                        e
+                                                                    )
+                                                                }
+                                                                className="form-control"
+                                                                placeholder={t(
+                                                                    "admin.leads.AddLead.placeHolder.AlternatePhone"
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="">
+                                                        {i == 0 ? (
+                                                            <>
+                                                                <button
+                                                                style={{fontSize: "24px", color: "#2F4054",  padding: "1px 9px", background: "#E5EBF1", borderRadius: "5px"}}
+                                                                    className="mt-25 btn"
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        addExtras(
+                                                                            e
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    {" "}
+                                                                    <i class="fa fa-plus" ></i>{" "}
+                                                                </button>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <button
+                                                                    className="mt-25 btn bg-red"
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        removeExtras(
+                                                                            e,
+                                                                            i
+                                                                        );
+                                                                    }}
+                                                                >
+                                                                    {" "}
+                                                                    <i className="fa fa-minus"></i>{" "}
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                    </div>
+                                                </React.Fragment>
+                                            );
+                                        })}
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div className="property-container">
+                            <PropertyAddress
+                                heading={t(
+                                    "admin.leads.AddLead.propertyAddress"
+                                )}
+                                errors={errors}
+                                setErrors={setErrors}
+                                addresses={addresses}
+                                setAddresses={setAddresses}
+                            />
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

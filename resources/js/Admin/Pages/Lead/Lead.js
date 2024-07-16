@@ -93,7 +93,10 @@ export default function Lead() {
                     render: function (data, type, row, meta) {
                         const _statusColor = leadStatusColor(data);
 
-                        return `<span class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
+                        // return `<span class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
+                        return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                        ${data}
+                    </p>`;
                     },
                 },
                 {
@@ -123,10 +126,22 @@ export default function Lead() {
             searching: true,
             responsive: true,
             createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row");
+                $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class ');
+                    }
+                }
+            ]
         });
+
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -340,7 +355,7 @@ export default function Lead() {
                         })}
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

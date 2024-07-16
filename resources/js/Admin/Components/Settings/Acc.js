@@ -12,6 +12,7 @@ export default function Acc() {
     const [avatar, setAvatar] = useState("");
     const [lng, setLng] = useState("");
     const [errors, setErrors] = useState([]);
+    const [twostepverification, setTwostepverification] = useState(false)
     const alert = useAlert();
 
     const headers = {
@@ -34,6 +35,7 @@ export default function Acc() {
         formData.append("color", color);
         formData.append("avatar", avatar);
         formData.append("phone", phone);
+        formData.append("twostepverification", twostepverification);
         formData.append("lng", lng == 0 ? "heb" : lng);
         i18next.changeLanguage(lng);
         axios
@@ -160,6 +162,17 @@ export default function Acc() {
                             className="img-fluid mt-2"
                             style={{ maxWidth: "200px" }}
                         />
+                    </div>
+                    <div className="form-group">
+                        <div class="toggle-switch">
+                            <div className="switch">
+                                <span className="mr-2">Two step Verification</span>
+                                <input onChange={()=> setTwostepverification(prev => !prev)} type="checkbox" id="switch" />
+                                <label htmlFor="switch">
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     <div className="form-group text-center">
                         <input

@@ -4,6 +4,14 @@ import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import i18next from "i18next";
+import { IoIosLogOut } from "react-icons/io";
+import { HiOutlineSquares2X2 } from "react-icons/hi2";
+import { RiVideoChatLine } from "react-icons/ri";
+import { FaRegBookmark } from "react-icons/fa";
+import { LiaFileContractSolid } from "react-icons/lia";
+import { MdHomeRepairService } from "react-icons/md";
+import { MdOutlinePayments } from "react-icons/md";
+import { IoMdSettings } from "react-icons/io";
 
 import logo from "../../Assets/image/sample.svg";
 import { NavLink } from "react-router-dom";
@@ -60,48 +68,68 @@ export default function Sidebar() {
             </div>
             <ul className="list-group">
                 <li className="list-group-item">
-                    <NavLink to="/admin/dashboard">
-                        <i className="fa-solid fa-gauge"></i>Dashboard
+                    <NavLink to="/admin/dashboard"
+                    className="d-flex align-items-center"
+                    >
+                    <i className="d-flex align-items-center">
+                            <HiOutlineSquares2X2 className="font-28" />
+                        </i>Dashboard
                     </NavLink>
                 </li>
                 <li className="list-group-item">
-                    <NavLink to="/admin/leads">
-                        <i className="fa-solid fa-poll-h"></i>Leads
+                    <NavLink to="/admin/leads"
+                    className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-poll-h font-28"></i>Leads
                     </NavLink>
                 </li>
                 <li className="list-group-item">
-                    <NavLink to="/admin/clients">
-                        <i className="fa-solid fa-user-tie"></i>Clients
+                    <NavLink to="/admin/clients"
+                    className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-user-tie font-20"></i>Clients
                     </NavLink>
                 </li>
                 <li className="list-group-item">
-                    <NavLink to="/admin/workers">
-                        <i className="fa-solid fa-users"></i>Workers
+                    <NavLink to="/admin/workers"
+                    className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-users font-20"></i>Workers
                     </NavLink>
                 </li>
                 <li className="list-group-item">
-                    <NavLink to="/admin/schedule">
-                        <i className="fa-solid fa-video"></i>Meetings
+                    <NavLink to="/admin/schedule"
+                    className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-video font-20"></i>Meetings
                     </NavLink>
                 </li>
                 <li className="list-group-item">
-                    <NavLink to="/admin/offered-price">
-                        <i className="fa-solid fa-tags"></i>Offers
+                    <NavLink to="/admin/offered-price"
+                    className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-tags font-20"></i>Offers
                     </NavLink>
                 </li>
                 <li className="list-group-item">
-                    <NavLink to="/admin/contracts">
-                        <i className="fa-solid fa-clipboard-list"></i>Contracts
+                    <NavLink to="/admin/contracts"
+                    className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-clipboard-list font-20"></i>Contracts
                     </NavLink>
                 </li>
                 <li className="list-group-item">
-                    <NavLink to="/admin/jobs">
-                        <i className="fa-solid fa-briefcase"></i>Schedule
+                    <NavLink to="/admin/jobs"
+                    className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-briefcase font-20"></i>Schedule
                     </NavLink>
                 </li>
                 <li className="list-group-item">
-                    <NavLink to="/admin/chat">
-                        <i className="fa-solid fa-message"></i>Whatsapp chat
+                    <NavLink to="/admin/chat"
+                    className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-message font-20"></i>Whatsapp chat
                     </NavLink>
                 </li>
 
@@ -148,13 +176,13 @@ export default function Sidebar() {
 
                 <li className="list-group-item">
                     <NavLink to="/admin/messenger">
-                        <i className="fa-solid fa-comment"></i>Messenger Chat
+                        <i className="fa-solid fa-comment font-20"></i>Messenger Chat
                     </NavLink>
                 </li>
 
                 <li className="list-group-item">
                     <NavLink to="/admin/payments">
-                        <i className="fa-solid fa-cart-shopping"></i>Payments
+                        <i className="fa-solid fa-cart-shopping font-20"></i>Payments
                     </NavLink>
                 </li>
 
@@ -208,13 +236,13 @@ export default function Sidebar() {
                 {role !== "member" && (
                     <li className="list-group-item">
                         <NavLink to="/admin/income">
-                            <i className="fa-solid fa-ils"></i>Earnings
+                            <i className="fa-solid fa-ils font-20"></i>Earnings
                         </NavLink>
                     </li>
                 )}
                 <li className="list-group-item">
                     <NavLink to="/admin/notifications">
-                        <i className="fa-solid fa-bullhorn"></i>Notifications
+                        <i className="fa-solid fa-bullhorn font-20"></i>Notifications
                     </NavLink>
                 </li>
 
@@ -229,7 +257,7 @@ export default function Sidebar() {
                                 aria-expanded="true"
                                 aria-controls="fence2"
                             >
-                                <i className="fa-solid fa-gear"></i> Settings{" "}
+                                <i className="fa-solid fa-gear font-20"></i> Settings{" "}
                                 <i className="fa-solid fa-angle-down"></i>
                             </a>
                         </div>
@@ -290,7 +318,8 @@ export default function Sidebar() {
             </ul>
             <div className="sideLogout">
                 <div className="logoutBtn">
-                    <button className="btn btn-white" onClick={HandleLogout}>
+                    <button className="btn d-flex justify-content-center align-items-center" onClick={HandleLogout}>
+                    <IoIosLogOut className="mr-1 font-28" />
                         Logout
                     </button>
                 </div>

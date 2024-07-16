@@ -87,7 +87,7 @@ export default function Invoices() {
                         </div>
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <div className="table-responsive">

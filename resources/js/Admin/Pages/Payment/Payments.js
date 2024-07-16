@@ -157,7 +157,23 @@ export default function Payments() {
             ordering: true,
             searching: true,
             responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass('custom-row-class');
+            },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class ');
+                    }
+                }
+            ]
         });
+
+        // Customize the search input
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", ".dt-client-badge", function () {
             const _clientID = $(this).data("client-id");
@@ -584,7 +600,7 @@ export default function Payments() {
                         </div>
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body">
                         <div className="boxPanel-th-border-none">
                             <table

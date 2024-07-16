@@ -338,11 +338,11 @@ const PropertyAddress = memo(function PropertyAddress({
     }, []);
     return (
         <div>
-            <div className="row">
-                <div className="col-sm-8">
+            <div className="row align-items-center mt-3 ml-0 mr-0 justify-content-between">
+                <div className="">
                     <h4 className="mt-2 mb-3">{heading}</h4>
                 </div>
-                <div className="text-right col-sm-3">
+                <div className="text-right ">
                     <button
                         type="button"
                         onClick={() => {
@@ -767,7 +767,7 @@ const PropertyAddress = memo(function PropertyAddress({
                         <Modal.Footer>
                             <Button
                                 type="button"
-                                className="btn btn-secondary"
+                                className="btn navyblue"
                                 onClick={() => {
                                     isAdd.current = true;
                                     resetForm();
@@ -779,7 +779,7 @@ const PropertyAddress = memo(function PropertyAddress({
                             <Button
                                 type="button"
                                 onClick={(e) => handleAddress(e)}
-                                className="btn btn-primary"
+                                className="btn navyblue"
                             >
                                 {t("admin.leads.AddLead.addAddress.Save")}
                             </Button>

@@ -125,7 +125,7 @@ export default function Dashboard() {
                             <Link to="/admin/jobs">
                                 <div className="dashBox">
                                     <div className="dashIcon">
-                                        <i className="fa-solid fa-suitcase"></i>
+                                        <i className="fa-solid fa-suitcase font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalJobs}</h3>
@@ -138,7 +138,7 @@ export default function Dashboard() {
                             <Link to="/admin/clients">
                                 <div className="dashBox">
                                     <div className="dashIcon">
-                                        <i className="fa-regular fa-user"></i>
+                                        <i className="fa-regular fa-user font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalNewClients}</h3>
@@ -154,7 +154,7 @@ export default function Dashboard() {
                             <Link to="/admin/clients">
                                 <div className="dashBox">
                                     <div className="dashIcon">
-                                        <i className="fa-regular fa-user"></i>
+                                        <i className="fa-regular fa-user font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalActiveClients}</h3>
@@ -170,7 +170,7 @@ export default function Dashboard() {
                             <Link to="/admin/leads">
                                 <div className="dashBox">
                                     <div className="dashIcon">
-                                        <i className="fa-regular fa-user"></i>
+                                        <i className="fa-regular fa-user font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalLeads}</h3>
@@ -186,7 +186,7 @@ export default function Dashboard() {
                             <Link to="/admin/workers">
                                 <div className="dashBox">
                                     <div className="dashIcon">
-                                        <i className="fa-solid fa-user"></i>
+                                        <i className="fa-solid fa-user font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalWorkers}</h3>
@@ -202,7 +202,7 @@ export default function Dashboard() {
                             <Link to="/admin/schedule">
                                 <div className="dashBox">
                                     <div className="dashIcon">
-                                        <i className="fa-solid fa-handshake"></i>
+                                        <i className="fa-solid fa-handshake font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalSchedules}</h3>
@@ -215,7 +215,7 @@ export default function Dashboard() {
                             <Link to="/admin/offered-price">
                                 <div className="dashBox">
                                     <div className="dashIcon">
-                                        <i className="fa-solid fa-dollar-sign"></i>
+                                        <i className="fa-solid fa-dollar-sign font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{totalOffers}</h3>
@@ -233,7 +233,7 @@ export default function Dashboard() {
                             <Link to="/admin/contracts">
                                 <div className="dashBox">
                                     <div className="dashIcon">
-                                        <i className="fa-solid fa-file-contract"></i>
+                                        <i className="fa-solid fa-file-contract font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{contracts}</h3>
@@ -253,7 +253,7 @@ export default function Dashboard() {
                                     <Link to="/admin/income">
                                         <div className="dashBox">
                                             <div className="dashIcon">
-                                                <i className="fa-solid fa-file-contract"></i>
+                                                <i className="fa-solid fa-file-contract font-50"></i>
                                             </div>
                                             <div className="dashText">
                                                 <h3>{income} ILS</h3>
@@ -271,7 +271,7 @@ export default function Dashboard() {
                                     <Link to="/admin/income">
                                         <div className="dashBox">
                                             <div className="dashIcon">
-                                                <i className="fa-solid fa-file-contract"></i>
+                                                <i className="fa-solid fa-file-contract font-50"></i>
                                             </div>
                                             <div className="dashText">
                                                 <h3>{0}</h3>

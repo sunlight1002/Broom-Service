@@ -60,7 +60,7 @@ export default function TotalJobs() {
                     title: "Arrival Time",
                     data: "start_time",
                     render: function (data, type, row, meta) {
-                        return `<div class="rounded mb-1 shifts-badge"> ${data} </div>`;
+                        return `<div class="rounded mb-1 " style="text-decoration: underline;"> <a>${data}</a> </div>`;
                     },
                 },
                 {
@@ -68,7 +68,7 @@ export default function TotalJobs() {
                     data: "address_name",
                     render: function (data, type, row, meta) {
                         if (data) {
-                            return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="dt-address-link"> ${data} </a>`;
+                            return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="text-decoration: underline; color: black;"> ${data} </a>`;
                         } else {
                             return "NA";
                         }
@@ -77,39 +77,11 @@ export default function TotalJobs() {
                 {
                     title: "Status",
                     data: "status",
-
-                    // let status = item.status;
-                    //                             if (status == "not-started") {
-                    //                                 status = t(
-                    //                                     "j_status.not-started"
-                    //                                 );
-                    //                             }
-                    //                             if (status == "progress") {
-                    //                                 status =
-                    //                                     t("j_status.progress");
-                    //                             }
-                    //                             if (status == "completed") {
-                    //                                 status =
-                    //                                     t("j_status.completed");
-                    //                             }
-                    //                             if (status == "scheduled") {
-                    //                                 status =
-                    //                                     t("j_status.scheduled");
-                    //                             }
-                    //                             if (status == "unscheduled") {
-                    //                                 status = t(
-                    //                                     "j_status.unscheduled"
-                    //                                 );
-                    //                             }
-                    //                             if (status == "re-scheduled") {
-                    //                                 status = t(
-                    //                                     "j_status.re-scheduled"
-                    //                                 );
-                    //                             }
-                    //                             if (status == "cancel") {
-                    //                                 status =
-                    //                                     t("j_status.cancel");
-                    //                             }
+                    render: function (data, type, row, meta) {
+                        return `<p style="background-color: #2F4054; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                    ${data}
+                                </p>`;
+                    }
                 },
                 {
                     title: "Action",
@@ -143,10 +115,21 @@ export default function TotalJobs() {
             searching: true,
             responsive: true,
             createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row");
+                $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class');
+                    }
+                }
+            ]
         });
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -212,7 +195,7 @@ export default function TotalJobs() {
                         </div>
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

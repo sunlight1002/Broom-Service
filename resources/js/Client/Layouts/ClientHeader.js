@@ -49,15 +49,9 @@ export default function ClientHeader() {
         <>
             <div className="AdminHeader hidden-xs">
                 <div className="container-fluid">
-                    <div className="row">
-                        <div className="col-sm-6">
-                            <h1>
-                                {t("client.welcome")}{" "}
-                                {localStorage.getItem("client-name")}
-                            </h1>
-                        </div>
-                        <div className="col-sm-6">
-                            <div className="float-right">
+                    <div className="d-flex justify-content-end">
+                        <div className="">
+                            <div className="float-right" style={{marginTop: "20px", marginBottom: "20px"}}>
                                 <div className="dropdown show">
                                     <div
                                         className="dropdown-toggle"
@@ -68,11 +62,9 @@ export default function ClientHeader() {
                                         aria-haspopup="true"
                                         aria-expanded="false"
                                     >
-                                        <img
-                                            src={avatar}
-                                            className="img-fluid"
-                                            alt="Avatar not uploaded"
-                                        />
+                                        <span>
+                                            {localStorage.getItem("client-name")}
+                                        </span>
                                     </div>
                                     <div
                                         className="dropdown-menu dropdown-menu-right"

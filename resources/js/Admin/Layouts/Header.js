@@ -6,6 +6,8 @@ import MobileHeader from "./MobileHeader";
 import Moment from "moment";
 import axios from "axios";
 import i18next from "i18next";
+import { LuBellRing } from "react-icons/lu";
+
 
 export default function AdminHeader() {
     const alert = useAlert();
@@ -97,15 +99,16 @@ export default function AdminHeader() {
                                         <span className="counter">{count}</span>
                                     ) : (
                                         ""
-                                    )}
+                                    )}  
 
                                     <button
                                         onClick={(e) => handleCount(e)}
                                         type="button"
                                         className="btn btn-link dropdown-toggle"
                                         data-toggle="dropdown"
+                                        style={{marginTop: "10px"}}
                                     >
-                                        <i className="fas fa-bell"></i>
+                                        <i className="mt-1"><LuBellRing /></i>
                                     </button>
                                     <ul className="dropdown-menu">
                                         {notices.map((n, i) => {

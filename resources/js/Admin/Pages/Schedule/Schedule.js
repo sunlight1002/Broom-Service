@@ -87,7 +87,7 @@ export default function Schedule() {
                     data: "address_name",
                     render: function (data, type, row, meta) {
                         if (data) {
-                            return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="dt-address-link"> ${data} </a>`;
+                            return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="color: black; text-decoration: underline;"> ${data} </a>`;
                         } else {
                             return "NA";
                         }
@@ -110,7 +110,10 @@ export default function Schedule() {
                             color = "red";
                         }
 
-                        return `<span style="color: ${color};">${data}</span>`;
+                        // return `<span style="color: ${color};">${data}</span>`;
+                        return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                    ${data}
+                                </p>`;
                     },
                 },
                 {
@@ -136,11 +139,25 @@ export default function Schedule() {
             searching: true,
             responsive: true,
             createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row");
+                $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
                 $(row).attr("data-client-id", data.client_id);
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class ');
+                    }
+                }
+            ]
         });
+
+           // Customize the search input
+           const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+           $("div.dt-search").append(searchInputWrapper);
+           $("div.dt-search").addClass("position-relative");
+   
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -297,7 +314,7 @@ export default function Schedule() {
                         </div>
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

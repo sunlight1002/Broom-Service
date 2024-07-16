@@ -15,7 +15,7 @@ export default function Setting() {
                     <h1 className="page-title revTitle">
                         {t("client.settings.title")}
                     </h1>
-                    <ul className="nav nav-tabs mb-2" role="tablist">
+                    {/* <ul className="nav nav-tabs mb-2" role="tablist">
                         <li className="nav-item" role="presentation">
                             <a
                                 id="account-tab"
@@ -52,30 +52,32 @@ export default function Setting() {
                                 {t("client.settings.card_tab")}
                             </a>
                         </li>
-                    </ul>
-                    <div className="tab-content">
+                    </ul> */}
+                    <div className="tab-content d-flex justify-content-around flex-wrap">
+
                         <div
                             id="tab-account"
-                            className="tab-pane active show"
+                            className=" active show"
                             role="tab-panel"
                             aria-labelledby="account-tab"
                         >
+
                             <Acc />
                         </div>
                         <div
                             id="tab-password"
-                            className="tab-pane"
-                            role="tab-panel"
+                            className=""
                             aria-labelledby="password-tab"
                         >
+
                             <ChangePass />
                         </div>
                         <div
                             id="tab-card"
-                            className="tab-pane"
-                            role="tab-panel"
+                            className=""
                             aria-labelledby="card-tab"
                         >
+                            
                             <Card />
                         </div>
                     </div>

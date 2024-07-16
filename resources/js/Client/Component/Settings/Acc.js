@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAlert } from "react-alert";
 import Moment from "moment";
 import { useTranslation } from "react-i18next";
+import { FaPlusCircle } from "react-icons/fa";
+import { LuSave } from "react-icons/lu";
+
 
 export default function Acc() {
     const [firstname, setFirstName] = useState("");
@@ -22,6 +25,8 @@ export default function Acc() {
     const [errors, setErrors] = useState([]);
     const { t } = useTranslation();
     const alert = useAlert();
+    const fileInputRef = useRef(null);
+    const imageRef = useRef(null);
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -29,8 +34,18 @@ export default function Acc() {
     };
 
     const handleChange = (e) => {
-        setFile(URL.createObjectURL(e.target.files[0]));
-        setAvatar(e.target.files[0]);
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imageRef.current.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleClick = () => {
+        fileInputRef.current.click();
     };
 
     const handleSubmit = (e) => {
@@ -85,11 +100,39 @@ export default function Acc() {
     }, []);
 
     return (
-        <div className="card">
+        <div className="card" style={{
+            background: "#FAFBFC",
+            boxShadow: "none",
+            border: "1px solid #E5EBF1",
+        }}>
+            <p className="ml-3 mt-4"
+                style={{ fontWeight: "bolder" }}
+            >{t("client.settings.my_account")}</p>
             <div className="card-body">
                 <form>
                     <div className="form-group">
-                        <label className="control-label">
+                        {/* <label className="control-label">{t("client.settings.avatar_txt")}</label> */}
+                        <div className="position-relative" style={{height: "6.5rem", width: "6.5rem"}}>
+                            <div className="image-uploader" onClick={handleClick}>
+                                <div className="avatar-upload">
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleChange}
+                                        style={{ display: "none" }}
+                                    />
+                                    <div className="image-preview">
+                                        {file && <img src={file} ref={imageRef} alt="avatar" className="avatar" />}
+                                    </div>
+                                </div>
+                            </div>
+                                    <div className="placeholder pe-auto" ref={imageRef} onClick={handleClick}>
+                                        <FaPlusCircle />
+                                    </div>
+                        </div>
+                    </div>
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
                             {t("client.settings.f_nm")}
                         </label>
                         <input
@@ -106,8 +149,8 @@ export default function Acc() {
                         )}
                     </div>
 
-                    <div className="form-group">
-                        <label className="control-label">
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
                             {t("client.settings.l_nm")}
                         </label>
                         <input
@@ -123,8 +166,8 @@ export default function Acc() {
                             </small>
                         )}
                     </div>
-                    <div className="form-group">
-                        <label className="control-label">
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
                             {t("client.settings.inm")}
                         </label>
                         <input
@@ -140,8 +183,8 @@ export default function Acc() {
                             </small>
                         )}
                     </div>
-                    <div className="form-group">
-                        <label className="control-label">
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
                             {t("client.settings.email")}
                         </label>
                         <input
@@ -157,8 +200,8 @@ export default function Acc() {
                             </small>
                         )}
                     </div>
-                    <div className="form-group">
-                        <label className="control-label">
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
                             {t("client.settings.dob")}
                         </label>
                         <input
@@ -174,128 +217,9 @@ export default function Acc() {
                             </small>
                         )}
                     </div>
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("client.settings.city")}
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
-                            placeholder={t("client.settings.city")}
-                        />
-                        {errors.city && (
-                            <small className="text-danger mb-1">
-                                {errors.city}
-                            </small>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("client.settings.street_label")}
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            value={street}
-                            onChange={(e) => setStreet(e.target.value)}
-                            placeholder={t("client.settings.street_label")}
-                        />
-                        {errors.street_n_no && (
-                            <small className="text-danger mb-1">
-                                {errors.street_n_no}
-                            </small>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("client.settings.e_code")}
-                        </label>
-                        <input
-                            type="number"
-                            className="form-control"
-                            value={entrence}
-                            onChange={(e) => setEntrence(e.target.value)}
-                            placeholder={t("client.settings.e_code")}
-                        />
-                        {errors.entrence_code && (
-                            <small className="text-danger mb-1">
-                                {errors.entrence_code}
-                            </small>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("client.settings.apt_no")}
-                        </label>
-                        <input
-                            type="number"
-                            className="form-control"
-                            value={apt}
-                            onChange={(e) => setApt(e.target.value)}
-                            placeholder={t("client.settings.apt_no")}
-                        />
-                        {errors.apt_no && (
-                            <small className="text-danger mb-1">
-                                {errors.apt_no}
-                            </small>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("client.settings.floor_no")}
-                        </label>
-                        <input
-                            type="number"
-                            className="form-control"
-                            value={floor}
-                            onChange={(e) => setFloor(e.target.value)}
-                            placeholder={t("client.settings.floor_no")}
-                        />
-                        {errors.floor && (
-                            <small className="text-danger mb-1">
-                                {errors.floor}
-                            </small>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("client.settings.zip")}
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            value={zipcode}
-                            onChange={(e) => setZipcode(e.target.value)}
-                            placeholder={t("client.settings.zip")}
-                        />
-                        {errors.zipcode && (
-                            <small className="text-danger mb-1">
-                                {errors.zipcode}
-                            </small>
-                        )}
-                    </div>
 
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("client.settings.phone")}
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder={t("client.settings.phone")}
-                        />
-                        {errors.phone && (
-                            <small className="text-danger mb-1">
-                                {errors.phone}
-                            </small>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <label className="control-label">
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
                             {t("client.settings.lng")}
                         </label>
                         <select
@@ -314,34 +238,134 @@ export default function Acc() {
                             </option>
                         </select>
                     </div>
-                    <div className="form-group">
-                        <label
-                            className="control-label"
-                            style={{ display: "block" }}
-                        >
-                            {t("client.settings.avatar_txt")}
+
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
+                            {t("client.settings.city")}
                         </label>
                         <input
-                            type="file"
-                            onChange={handleChange}
-                            style={{
-                                display: "block",
-                                height: "unset",
-                                border: "none",
-                            }}
+                            type="text"
+                            className="form-control"
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            placeholder={t("client.settings.city")}
                         />
-                        <img
-                            src={file}
-                            className="img-fluid mt-2"
-                            style={{ maxWidth: "200px" }}
-                        />
+                        {errors.city && (
+                            <small className="text-danger mb-1">
+                                {errors.city}
+                            </small>
+                        )}
                     </div>
-                    <div className="form-group text-center">
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
+                            {t("client.settings.street_label")}
+                        </label>
                         <input
+                            type="text"
+                            className="form-control"
+                            value={street}
+                            onChange={(e) => setStreet(e.target.value)}
+                            placeholder={t("client.settings.street_label")}
+                        />
+                        {errors.street_n_no && (
+                            <small className="text-danger mb-1">
+                                {errors.street_n_no}
+                            </small>
+                        )}
+                    </div>
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
+                            {t("client.settings.e_code")}
+                        </label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={entrence}
+                            onChange={(e) => setEntrence(e.target.value)}
+                            placeholder={t("client.settings.e_code")}
+                        />
+                        {errors.entrence_code && (
+                            <small className="text-danger mb-1">
+                                {errors.entrence_code}
+                            </small>
+                        )}
+                    </div>
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
+                            {t("client.settings.apt_no")}
+                        </label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={apt}
+                            onChange={(e) => setApt(e.target.value)}
+                            placeholder={t("client.settings.apt_no")}
+                        />
+                        {errors.apt_no && (
+                            <small className="text-danger mb-1">
+                                {errors.apt_no}
+                            </small>
+                        )}
+                    </div>
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
+                            {t("client.settings.floor_no")}
+                        </label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            value={floor}
+                            onChange={(e) => setFloor(e.target.value)}
+                            placeholder={t("client.settings.floor_no")}
+                        />
+                        {errors.floor && (
+                            <small className="text-danger mb-1">
+                                {errors.floor}
+                            </small>
+                        )}
+                    </div>
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
+                            {t("client.settings.zip")}
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={zipcode}
+                            onChange={(e) => setZipcode(e.target.value)}
+                            placeholder={t("client.settings.zip")}
+                        />
+                        {errors.zipcode && (
+                            <small className="text-danger mb-1">
+                                {errors.zipcode}
+                            </small>
+                        )}
+                    </div>
+
+                    <div className="form-group d-flex align-items-center">
+                        <label className="control-label" style={{ width: "50%" }}>
+                            {t("client.settings.phone")}
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder={t("client.settings.phone")}
+                        />
+                        {errors.phone && (
+                            <small className="text-danger mb-1">
+                                {errors.phone}
+                            </small>
+                        )}
+                    </div>
+
+                    <div className="form-group text-right">
+                        <button
                             type="submit"
                             onClick={handleSubmit}
-                            className="btn btn-primary saveBtn"
-                        />
+                            className="btn navyblue saveBtn"
+                        ><span className="d-flex align-items-center"><LuSave className="mr-1" />{t("client.settings.save")}</span></button>
                     </div>
                 </form>
             </div>

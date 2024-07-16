@@ -66,7 +66,9 @@ export default function Contract() {
                     orderable: false,
                     responsivePriority: 1,
                     render: function (data, type, row, meta) {
-                        let _html = `<a href="/work-contract/${row.unique_hash}" class="ml-auto ml-md-2 mt-4 mt-md-0 btn bg-yellow dt-view-button" data-unique-hash="${row.unique_hash}">`;
+                        let _html = `<a href="/work-contract/${row.unique_hash}" class="ml-auto ml-md-2 mt-4 mt-md-0 btn dt-view-button" data-unique-hash="${row.unique_hash}"
+                        style="font-size: 15px; color: #2F4054; padding: 5px 8px; background: #E5EBF1; border-radius: 5px;"
+                        >`;
 
                         _html += `<i class="fa fa-eye"></i></a>`;
 
@@ -79,7 +81,21 @@ export default function Contract() {
             ordering: true,
             searching: true,
             responsive: true,
+            createdRow: function (row, data, dataIndex) {
+                $(row).addClass('custom-row-class');
+            },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class');
+                    }
+                }
+            ]
         });
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", ".dt-view-button", function (e) {
             e.preventDefault();
@@ -106,12 +122,12 @@ export default function Contract() {
                         </div>
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}
-                                className="display table table-bordered"
+                                className="display table table-bordered custom-datatable"
                             />
                         </div>
                     </div>
