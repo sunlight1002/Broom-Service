@@ -23,6 +23,7 @@ export default function Acc() {
     const [file, setFile] = useState("");
     const [avatar, setAvatar] = useState("");
     const [errors, setErrors] = useState([]);
+    const [twostepverification, setTwostepverification] = useState(false);
     const { t } = useTranslation();
     const alert = useAlert();
     const fileInputRef = useRef(null);
@@ -42,6 +43,26 @@ export default function Acc() {
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const getSetting = () => {
+        axios.get("/api/client/my-account", { headers }).then((response) => {
+            setFirstName(response.data.account.firstname);
+            setLastName(response.data.account.lastname);
+            setInvoicename(response.data.account.invoicename);
+            setDob(response.data.account.dob);
+            setCity(response.data.account.city);
+            setStreet(response.data.account.street_n_no);
+            setEntrence(response.data.account.entrence_code);
+            setApt(response.data.account.apt_no);
+            setFloor(response.data.account.floor);
+            setLng(response.data.account.lng);
+            setZipcode(response.data.account.zipcode);
+            setEmail(response.data.account.email);
+            setPhone(response.data.account.phone);
+            setFile(response.data.account.avatar);
+            setTwostepverification(response.data.account.two_factor_enabled === 1);
+        });
     };
 
     const handleClick = () => {
@@ -66,6 +87,10 @@ export default function Acc() {
         formData.append("email", email);
         formData.append("avatar", avatar);
         formData.append("phone", phone);
+        formData.append("twostepverification", twostepverification);
+        // for (let [key, value] of formData.entries()) {
+        //     console.log(`${key}: ${value}`);
+        // }
         axios
             .post(`/api/client/my-account`, formData, { headers })
             .then((response) => {
@@ -77,24 +102,7 @@ export default function Acc() {
             });
     };
 
-    const getSetting = () => {
-        axios.get("/api/client/my-account", { headers }).then((response) => {
-            setFirstName(response.data.account.firstname);
-            setLastName(response.data.account.lastname);
-            setInvoicename(response.data.account.invoicename);
-            setDob(response.data.account.dob);
-            setCity(response.data.account.city);
-            setStreet(response.data.account.street_n_no);
-            setEntrence(response.data.account.entrence_code);
-            setApt(response.data.account.apt_no);
-            setFloor(response.data.account.floor);
-            setLng(response.data.account.lng);
-            setZipcode(response.data.account.zipcode);
-            setEmail(response.data.account.email);
-            setPhone(response.data.account.phone);
-            setFile(response.data.account.avatar);
-        });
-    };
+
     useEffect(() => {
         getSetting();
     }, []);
@@ -358,6 +366,23 @@ export default function Acc() {
                                 {errors.phone}
                             </small>
                         )}
+                    </div>
+
+                    <div className="form-group d-flex align-items-center">
+                    <div className="toggle-switch">
+                            <div className="switch">
+                                <span className="mr-2">Two step Verification</span>
+                                <input
+                                    onChange={() => setTwostepverification(prev => !prev)}
+                                    type="checkbox"
+                                    id="switch"
+                                    checked={twostepverification}
+                                />
+                                <label htmlFor="switch">
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="form-group text-right">

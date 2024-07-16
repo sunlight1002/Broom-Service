@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 import logo from "../../../Assets/image/sample.svg";
 import { useNavigate } from "react-router-dom";
+import FullLoader from "../../../../../public/js/FullLoader";
 
 export default function AdminLogin() {
     const navigate = useNavigate()
@@ -19,9 +20,12 @@ export default function AdminLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
+    const [loading, setLoading] = useState(false)
+    console.log(errors);
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true)
 
         const data = {
             email: email,
@@ -32,19 +36,22 @@ export default function AdminLogin() {
             if (result.data.errors) {
                 setErrors(result.data.errors);
             } else {
-                localStorage.setItem("admin-token", result.data.token);
-                localStorage.setItem("admin-name", result.data.name);
-                localStorage.setItem("admin-id", result.data.id);
-                // console.log(typeof result.data[0].two_factor_enabled);
-                if (result.data.two_factor_enabled == 1 || result.data[0].two_factor_enabled == 1) {
+                if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
                     window.location = "/admin/login-otp";
+                    setLoading(false)
                 }else{
+                    localStorage.setItem("admin-token", result.data.token);
+                    localStorage.setItem("admin-name", result.data.name);
+                    localStorage.setItem("admin-id", result.data.id);
                     window.location = "/admin/dashboard";
                 }
-                // navigate("/admin/dashboard");
             }
         });
     };
+
+    if (loading) {
+        return <FullLoader/>
+    }
 
     return (
         <div id="loginPage">

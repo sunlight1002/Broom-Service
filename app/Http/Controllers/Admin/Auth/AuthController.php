@@ -50,7 +50,7 @@ class AuthController extends Controller
                     Mail::to($admin->email)->send(new LoginOtpMail($otp)); 
 
                     return response()->json([
-                        $admin,
+                        $admin->two_factor_enabled,
                         'message' => 'OTP sent to your email for verification'
                     ]);
             } else {

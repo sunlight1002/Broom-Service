@@ -1,6 +1,7 @@
 import i18next from "i18next";
 import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
+import axios from "axios";
 
 export default function Acc() {
     const [name, setName] = useState("");
@@ -12,7 +13,7 @@ export default function Acc() {
     const [avatar, setAvatar] = useState("");
     const [lng, setLng] = useState("");
     const [errors, setErrors] = useState([]);
-    const [twostepverification, setTwostepverification] = useState(false)
+    const [twostepverification, setTwostepverification] = useState(false);
     const alert = useAlert();
 
     const headers = {
@@ -26,7 +27,27 @@ export default function Acc() {
         setAvatar(e.target.files[0]);
     };
 
-    const handleSubmit = (e) => {
+    const getSetting = async () => {
+        try {
+            const response = await axios.get("/api/admin/my-account", { headers });
+            setName(response.data.account.name);
+            setColor(response.data.account.color);
+            setEmail(response.data.account.email);
+            setPhone(response.data.account.phone);
+            setLng(response.data.account.lng);
+            setAddress(response.data.account.address);
+            setFile(response.data.account.avatar);
+            setTwostepverification(response.data.account.two_factor_enabled === 1);
+        } catch (error) {
+            console.error("Error fetching settings:", error);
+        }
+    };
+
+    useEffect(() => {
+        getSetting();
+    }, []);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append("name", name);
@@ -36,34 +57,20 @@ export default function Acc() {
         formData.append("avatar", avatar);
         formData.append("phone", phone);
         formData.append("twostepverification", twostepverification);
-        formData.append("lng", lng == 0 ? "heb" : lng);
+        formData.append("lng", lng === "0" ? "heb" : lng);
         i18next.changeLanguage(lng);
-        axios
-            .post(`/api/admin/my-account`, formData, { headers })
-            .then((response) => {
-                if (response.data.errors) {
-                    setErrors(response.data.errors);
-                } else {
-                    alert.success(
-                        "Account details has been updated successfully"
-                    );
-                }
-            });
+
+        try {
+            const response = await axios.post(`/api/admin/my-account`, formData, { headers });
+            if (response.data.errors) {
+                setErrors(response.data.errors);
+            } else {
+                alert.success("Account details have been updated successfully");
+            }
+        } catch (error) {
+            console.error("Error updating account:", error);
+        }
     };
-    const getSetting = () => {
-        axios.get("/api/admin/my-account", { headers }).then((response) => {
-            setName(response.data.account.name);
-            setColor(response.data.account.color);
-            setEmail(response.data.account.email);
-            setPhone(response.data.account.phone);
-            setLng(response.data.account.lng);
-            setAddress(response.data.account.address);
-            setFile(response.data.account.avatar);
-        });
-    };
-    useEffect(() => {
-        getSetting();
-    }, []);
 
     return (
         <div className="card">
@@ -164,10 +171,15 @@ export default function Acc() {
                         />
                     </div>
                     <div className="form-group">
-                        <div class="toggle-switch">
+                        <div className="toggle-switch">
                             <div className="switch">
                                 <span className="mr-2">Two step Verification</span>
-                                <input onChange={()=> setTwostepverification(prev => !prev)} type="checkbox" id="switch" />
+                                <input
+                                    onChange={() => setTwostepverification(prev => !prev)}
+                                    type="checkbox"
+                                    id="switch"
+                                    checked={twostepverification}
+                                />
                                 <label htmlFor="switch">
                                     <span className="slider round"></span>
                                 </label>

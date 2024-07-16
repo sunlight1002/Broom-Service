@@ -13,40 +13,40 @@ export default function AdminLoginOtp() {
 
 
     useEffect(() => {
-        const adminLogin =  localStorage.getItem("admin-id")
+        const adminLogin = localStorage.getItem("admin-id")
         // console.log(adminLogin);
-        if(adminLogin) {
+        if (adminLogin) {
             navigate("/admin/dashboard");
-        }    
+        }
     }, [navigate])
 
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        
+
         const stringOtp = otp.join(""); // Join array into a single string
         // let numOtp = Number(stringOtp);
         const data = {
             otp: stringOtp,
         };
-    
+
         try {
             const result = await axios.post(`/api/admin/verifyOtp`, data);
             if (result.data.errors) {
-                setErrors(result.data.errors);
-                console.log(result.data.errors);
+                setErrors(result.data.errors.otp);
+                console.log(errors);
             } else {
                 localStorage.setItem("admin-token", result.data.token);
                 localStorage.setItem("admin-name", result.data.name);
                 localStorage.setItem("admin-id", result.data.id);
                 window.location = "/admin/dashboard";
-                console.log(result);
+                // console.log(result);
             }
         } catch (error) {
             console.error("Error verifying OTP:", error);
         }
     };
-    
+
 
     useEffect(() => {
         inputsRef.current[0].focus();
@@ -149,7 +149,7 @@ export default function AdminLoginOtp() {
                             ></image>
                         </svg>
                     </div>
-                    <h1 className="page-title">Admin Login Otp</h1>
+                    <h1 className="page-title text-center">Admin Login Otp</h1>
                     <form onSubmit={handleLogin}>
                         <div className="form-group">
                             <div className="container-fluid bg-body-tertiary d-block">
@@ -174,7 +174,6 @@ export default function AdminLoginOtp() {
                                                         />
                                                     ))}
                                                 </div>
-
                                                 <button type='submit' className="btn btn-danger mb-3" ref={buttonRef}>
                                                     Verify
                                                 </button>
@@ -183,15 +182,16 @@ export default function AdminLoginOtp() {
                                                     Didn't receive code? <a href="">Request again</a>
                                                 </p>
                                             </div>
+                                                {errors && (
+                                                    <small className="text-danger text-center mb-1">
+                                                        {errors}
+                                                    </small>
+                                                )}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            {errors.email && (
-                                <small className="text-danger mb-1">
-                                    {errors.email}
-                                </small>
-                            )}
+
                         </div>
                         {/* <div className="form-group mt-4">
                             <button
