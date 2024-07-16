@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import logo from "../../Assets/image/sample.svg";
 import i18next from "i18next";
-
-
-export default function WorkerLoginOtp() {
+export default function Login() {
     const [worker, setWorker] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);

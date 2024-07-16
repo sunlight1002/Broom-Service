@@ -1,8 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 import logo from "../../../Assets/image/sample.svg";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminLogin() {
+    const navigate = useNavigate()
+
+    // useEffect(() => {
+    //     const adminLogin =  localStorage.getItem("admin-id")
+    //     // console.log(adminLogin);
+    //     if(adminLogin) {
+    //         navigate("/admin/dashboard");
+    //     }    
+    // }, [navigate])
+    
+
     const alert = useAlert();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -23,7 +35,13 @@ export default function AdminLogin() {
                 localStorage.setItem("admin-token", result.data.token);
                 localStorage.setItem("admin-name", result.data.name);
                 localStorage.setItem("admin-id", result.data.id);
-                window.location = "/admin/dashboard";
+                // console.log(result.data[0].two_factor_enabled);
+                if (result.data[0].two_factor_enabled) {
+                    window.location = "/admin/login-otp";
+                }else{
+                    window.location = "/admin/dashboard";
+                }
+                // navigate("/admin/dashboard");
             }
         });
     };

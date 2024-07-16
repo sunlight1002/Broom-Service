@@ -5,6 +5,8 @@ import Sidebar from "../../Layouts/Sidebar";
 import axios from "axios";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import { useTranslation } from "react-i18next";
+import { IoSaveOutline } from "react-icons/io5";
+
 
 export default function AddLead() {
     const [status, setStatus] = useState(0);
@@ -125,12 +127,13 @@ export default function AddLead() {
                             {t("admin.leads.AddLead.AddLead")}
                         </h1>
                         <div className="text-center">
-                            <input
+                            <button
                                 type="submit"
                                 onClick={handleFormSubmit}
-                                className="btn navyblue saveBtn"
-                                value="Save"
-                            />
+                                className="btn navyblue d-flex align-items-center saveBtn"
+                                style={{paddingLeft: "20px", paddingRight: "20px"}}
+                                // value="Save"
+                            ><IoSaveOutline className="mr-2"/> Save</button>
                             {/* <input
                                 type="submit"
                                 onClick={handleFormSubmit}

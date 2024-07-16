@@ -1,6 +1,6 @@
 import React from "react";
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { positions, Provider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 import TimeAgo from "javascript-time-ago";
@@ -134,6 +134,7 @@ import ManpowerCompanies from "./Admin/Pages/ManpowerCompanies/ManpowerCompanies
 import WorkerAffectedAvailability from "./Admin/Pages/Workers/WorkerAffectedAvailability";
 import WorkerForm from "./Pages/WorkerForm";
 import WorkerInvitationForm from "./Pages/WorkerInvitationForm";
+import AdminLoginOtp from "./Admin/Pages/Auth/AdminLoginOtp";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -142,6 +143,7 @@ const options = {
 };
 
 export default function MyRoutes() {
+
     return (
         <Provider template={AlertTemplate} {...options}>
             <Router>
@@ -361,6 +363,7 @@ export default function MyRoutes() {
 
                     {/* Admin Routes Start  */}
                     <Route exact path="/admin/login" element={<AdminLogin />} />
+                    <Route exact path="/admin/login-otp" element={<AdminLoginOtp />} />
                     <Route element={<AdminProtectedRoutes />}>
                         <Route path="admin" element={<Admin />}>
                             <Route

@@ -350,7 +350,7 @@ const PropertyAddress = memo(function PropertyAddress({
                             isAdd.current = true;
                             resetForm();
                         }}
-                        className="btn btn-success"
+                        className="btn navyblue"
                     >
                         {" "}
                         + {t("admin.leads.AddLead.addAddress.Add")}
