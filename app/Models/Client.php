@@ -50,6 +50,9 @@ class Client extends Authenticatable
         'avatar',
         'vat_number',
         'notification_type',
+        'otp',
+        'otp_expiry',
+        'two_factor_enabled',
     ];
 
     /**

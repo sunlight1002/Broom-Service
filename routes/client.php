@@ -64,6 +64,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
 });
 
 Route::post('login', [AuthController::class, 'login']);
+Route::post('verifyOtp', [AuthController::class, 'verifyOtp']);
 
 // Emails Routes
 Route::get('{id}/info', [ClientEmailController::class, 'getClientInfo']);

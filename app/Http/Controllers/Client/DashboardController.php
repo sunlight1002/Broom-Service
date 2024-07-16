@@ -289,6 +289,7 @@ class DashboardController extends Controller
             'lng' => ['required'],
             'apt_no' => ['required'],
             'zipcode' => ['required'],
+            'two_factor_enabled' => ['nullable', 'boolean']
         ]);
 
         if ($validator->fails()) {
@@ -302,6 +303,10 @@ class DashboardController extends Controller
             $image->storeAs('uploads/client/', $name, 'public');
 
             $input['avatar'] = $name;
+        }
+        
+        if ($request->has('twostepverification')) {
+            $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
         }
 
         $client = Client::find(Auth::user()->id);
