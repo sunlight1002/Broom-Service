@@ -59,7 +59,10 @@ class User extends Authenticatable
         'insurance',
         'is_imported',
         'is_existing_worker',
-        'first_date'
+        'first_date',
+        'otp',
+        'otp_expiry',
+        'two_factor_enabled',
     ];
 
     /**

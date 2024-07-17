@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str; 
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\Worker\LoginOtpMail;
 use Carbon\Carbon;
 
 class AuthController extends Controller
@@ -36,6 +38,7 @@ class AuthController extends Controller
      * 
      * @return \Illuminate\Http\Response 
      */
+    
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -48,27 +51,65 @@ class AuthController extends Controller
         }
 
         if (Auth::attempt([
-            'worker_id'     => $request->worker_id,
+            'worker_id' => $request->worker_id,
             'password'  => $request->password
-        ])) {
-
-            $user        = User::find(auth()->user()->id);
-            $user->token = $user->createToken('User', ['user'])->accessToken;
-
-            return response()->json($user);
-        } else if (Auth::attempt([
+        ]) || Auth::attempt([
             'email'     => $request->worker_id,
             'password'  => $request->password
         ])) {
+            $user = User::find(auth()->user()->id);
 
-            $user        = User::find(auth()->user()->id);
-            $user->token = $user->createToken('User', ['user'])->accessToken;
+            if ($user->two_factor_enabled) {
+                $otp = strval(random_int(100000, 999999)); // Generate a random 6-digit number
 
-            return response()->json($user);
+                $user->otp = $otp;
+                $user->otp_expiry = now()->addMinutes(10);
+                $user->save();
+
+                Mail::to($user->email)->send(new LoginOtpMail($otp));
+
+                return response()->json([
+                    'message' => 'OTP sent to your email for verification'
+                ]);
+            } else {
+                $user->token = $user->createToken('User', ['user'])->accessToken;
+                return response()->json($user);
+            }
         } else {
             return response()->json(['errors' => ['worker' => 'These credentials do not match our records.']]);
         }
     }
+
+    public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'otp' => ['required', 'string', 'digits:6'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+
+        $user = User::where('otp', $request->otp)
+                    ->where('otp_expiry', '>=', now())
+                    ->first();
+
+        if (!$user) {
+            return response()->json(['errors' => ['otp' => 'Invalid OTP or OTP expired']]);
+        }
+
+        // Clear OTP after successful verification
+        $user->otp = null;
+        $user->otp_expiry = null;
+        $user->save();
+
+        // Generate token for the authenticated user
+        $user->token = $user->createToken('User', ['user'])->accessToken;
+
+        return response()->json($user);
+    }
+
+
     /** 
      * Register api 
      * 
@@ -177,7 +218,8 @@ class AuthController extends Controller
         ]);
     }
 
-    public function getWorkerInvitationUpdate(Request $request) {
+    public function getWorkerInvitationUpdate(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'first_name' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
@@ -190,34 +232,34 @@ class AuthController extends Controller
         ], [], [
             'manpower_company_id' => 'Manpower',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-    
+
         $workerInvitation = WorkerInvitation::where('id', base64_decode($request->id))->first();
-        if(!$workerInvitation) {
+        if (!$workerInvitation) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
-        }    
+        }
         $manpowerCompanyID = NULL;
         if ($workerInvitation->company == 0) {
             $manpowerCompany = ManpowerCompany::where('name', $workerInvitation->manpower_company_name)->first();
             if (!$manpowerCompany && !empty($workerInvitation->manpower_company_name)) {
                 $manpowerCompany = ManpowerCompany::Create(['name' => $workerInvitation->manpower_company_name]);
             }
-    
+
             $manpowerCompanyID = $manpowerCompany->id;
         }
 
         if ($request->lng == 'heb') {
             $role = 'מנקה';
-        }elseif($request->lng == 'spa'){
+        } elseif ($request->lng == 'spa') {
             $role = 'limpiador';
-        }elseif ($request->lng == 'ru') {
+        } elseif ($request->lng == 'ru') {
             $role = 'Уборщица';
-        }else {
+        } else {
             $role = 'Cleaner';
         }
 
@@ -250,11 +292,11 @@ class AuthController extends Controller
             'is_existing_worker' => 1,
             'first_date' => $workerInvitation->first_date ?? 0
         ];
-    
+
         $worker = User::where('phone', $workerData['phone'])
-                    ->orWhere('email', $workerData['email'])
-                    ->first();
-    
+            ->orWhere('email', $workerData['email'])
+            ->first();
+
         if (empty($worker)) {
             $worker = User::create($workerData);
             $i = 1;
@@ -279,14 +321,13 @@ class AuthController extends Controller
                     $i = 2;
                 }
             }
-    
         } else {
             $worker->update($workerData);
         }
-    
-        if($workerInvitation->form_101 == 1) {
+
+        if ($workerInvitation->form_101 == 1) {
             $formEnum = new Form101FieldEnum;
-    
+
             $defaultFields = $formEnum->getDefaultFields();
             $defaultFields['employeeFirstName'] = $worker->firstname;
             $defaultFields['employeeLastName'] = $worker->lastname;
@@ -295,21 +336,21 @@ class AuthController extends Controller
             $defaultFields['sender']['employeeEmail'] = $worker->email;
             $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
             $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
-    
+
             $worker->forms()->create([
                 'type' => WorkerFormTypeEnum::FORM101,
                 'data' => $formData,
                 'submitted_at' => NULL
             ]);
         }
-    
+
         return response()->json([
             'worker' => $worker,
             'base64_id' => base64_encode($worker->id),
-            'url' => "worker-forms/".base64_encode($worker->id)
+            'url' => "worker-forms/" . base64_encode($worker->id)
         ]);
     }
-    
+
 
     public function isWeekend($date)
     {
@@ -344,7 +385,7 @@ class AuthController extends Controller
 
         $forms = [];
 
-        if(!$user->is_imported) {
+        if (!$user->is_imported) {
             if ($user->company_type == 'my-company') {
                 $forms['form101Form'] = $form101Form ? $form101Form : null;
                 $forms['saftyAndGearForm'] = $safetyAndGearForm ? $safetyAndGearForm : null;
@@ -355,16 +396,16 @@ class AuthController extends Controller
                 $forms['insuranceForm'] = $insuranceForm ? $insuranceForm : null;
             }
         } else {
-            if($user->form101) {
+            if ($user->form101) {
                 $forms['form101Form'] = $user->form101 && $form101Form ? $form101Form : null;
             }
-            if($user->contract) {
+            if ($user->contract) {
                 $forms['contractForm'] = $user->contract ? $contractForm : null;
             }
-            if($user->saftey_and_gear) {
+            if ($user->saftey_and_gear) {
                 $forms['saftyAndGearForm'] = $user->saftey_and_gear ? $safetyAndGearForm : null;
             }
-            if($user->insurance) {
+            if ($user->insurance) {
                 $forms['insuranceForm'] = $user->insurance ? $insuranceForm : null;
             }
         }

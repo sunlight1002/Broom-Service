@@ -21,6 +21,7 @@ use App\Http\Controllers\User\DocumentController;
 
 // Unauthenticated Routes
 Route::post('login', [AuthController::class, 'login']);
+Route::post('verifyOtp', [AuthController::class, 'verifyOtp']);
 Route::post('register', [AuthController::class, 'register']);
 Route::get('showPdf/{id}', [AuthController::class, 'showPdf']);
 Route::post('worker-detail', [AuthController::class, 'getWorkerDetail']);
