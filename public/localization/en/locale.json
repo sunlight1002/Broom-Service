@@ -1730,7 +1730,7 @@
         "successfullySigned": "Successfuly signed",
         "error": "Error!"
     },
-   "israilContract": {
+    "israilContract": {
         "title1": "Notice to Employee Regarding Detailed Terms of Employment",
         "title2": "In accordance with the Employee Notice (Terms of Employment) Law, 2002",
         "is1": "Employer's name: Brom Service L.M. Ltd. - private company number 515184208 Maan Hamel 11, Rosh Ha'Ein.",
@@ -1768,7 +1768,7 @@
             "tr3": {
                 "td1": "Recovery (hourly employee)",
                 "td2": "on the 9th of the month",
-                 "td3": "A holiday for cleaning workers",
+                "td3": "A holiday for cleaning workers",
                 "td4": "In the month in which the Tishrei and Sivan holidays fall (around October and April)"
             },
             "tr4": {
@@ -1780,7 +1780,6 @@
             "tr5": {
                 "td1": "Seniority supplement for cleaning workers",
                 "td2": "After a year of work"
-             
             },
             "tr6": {
                 "td1": "Holiday fees for cleaning workers",
@@ -1788,7 +1787,7 @@
             }
         },
         "is7": "Employee rights, including leave, recreation, illness, holidays, etc., are calculated and paid according to the actual job scope and relevant legal provisions.",
-        "is8": "Transportation reimbursement according to the general collective agreement, and according to the cheapest cost in public transport: 11 NIS per day or a maximum of 225 NIS for a full month of work.",
+        "is8": "Transportation reimbursement according to the general collective agreement, and according to the cheapest cost in public transport: 13 NIS per day or a maximum of 236 NIS for a full month of work.",
         "is9": "I hereby authorize the deduction from my salary of participation in meals/ meal value as customary at the site where I work (circle as appropriate).",
         "is10-1": "The length of the regular working day for the employee is: 8 hours daily (6 days)/ 8.4 hours daily (5 days) / Beyond that, he will be paid overtime according to the law. The employee is aware that during a shift longer than 6 hours, he will take an unpaid meal break.",
         "is10-2": "The length of the regular working week for the employee is 42 hours, and: 5 days/ 6 days / according to the work arrangement to be determined in advance.",
@@ -1969,7 +1968,7 @@
             "Role": "Employee's role is required",
             "invalidId": "Invalid ID number",
             "idRequired": "ID number is required",
-            "passportNumReq" :"Passport is required",
+            "passportNumReq": "Passport is required",
             "address": "Employee's address is required",
             "startDate": "Start date of work is required",
             "Date": "Date is required",

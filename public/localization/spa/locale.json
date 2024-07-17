@@ -276,7 +276,7 @@
             }
         },
         "is7": "Los derechos del empleado, incluidos los permisos, las vacaciones, la enfermedad, los días festivos, etc., se calculan y pagan según el alcance real del trabajo y las disposiciones legales pertinentes.",
-        "is8": "Reembolso de transporte según el convenio colectivo general, y según el costo más barato en transporte público: 11 NIS por día o un máximo de 225 NIS por mes completo de trabajo.",
+        "is8": "Reembolso de transporte según el convenio colectivo general, y según el costo más barato en transporte público: 13 NIS por día o un máximo de 236 NIS por mes completo de trabajo.",
         "is9": "Por la presente autorizo la deducción de mi salario de la participación en comidas / valor de la comida como es costumbre en el sitio donde trabajo (marque según corresponda).",
         "is10-1": "La duración de la jornada laboral regular para el empleado es: 8 horas diarias (6 días) / 8.4 horas diarias (5 días) / Además, se le pagará horas extras según la ley. El empleado es consciente de que durante un turno de más de 6 horas, tomará un descanso para comer no remunerado.",
         "is10-2": "La duración de la semana laboral regular para el empleado es de 42 horas, y: 5 días / 6 días / según el arreglo de trabajo que se determine con antelación.",
@@ -299,7 +299,7 @@
             "Role": "Rol",
             "invalidNumber": "Número inválido",
             "idRequired": "Número de identificación requerido",
-            "passportNumReq" :"Se requiere pasaporte",
+            "passportNumReq": "Se requiere pasaporte",
             "Address": "Dirección",
             "StartDateOfJob": "Fecha de inicio del trabajo",
             "Date": "Fecha",
