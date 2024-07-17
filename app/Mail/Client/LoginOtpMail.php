@@ -20,6 +20,6 @@ class LoginOtpMail extends Mailable
     
     public function build()
     {
-        return $this->view('Mails.Client.LoginOtp')->with(['otp' => $this->otp]);
+        return $this->view('Mails.client.loginOtp')->with(['otp' => $this->otp]);
     }
 }

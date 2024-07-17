@@ -51,6 +51,7 @@ class AuthController extends Controller
 
                     return response()->json([
                         $admin->two_factor_enabled,
+                        $admin->email,
                         'message' => 'OTP sent to your email for verification'
                     ]);
             } else {
@@ -92,6 +93,28 @@ class AuthController extends Controller
         
             return response()->json($admin);
         }
+
+    public function resendOtp(Request $request)
+        {
+           // Authenticate the admin
+           $admin = Admin::where('email', $request->email)->first();
+
+        if (!$admin) {
+            return response()->json(['errors' => ['user' => 'User not found']], 401);
+        }
+
+        $otp = strval(random_int(100000, 999999));
+
+        $admin->otp = $otp;
+        $admin->otp_expiry = now()->addMinutes(10);
+        $admin->save();
+
+        Mail::to($admin->email)->send(new LoginOtpMail($otp));
+
+        return response()->json([
+            'message' => 'OTP sent to your email for verification'
+        ]);
+    }
         
     /** 
      * Register api 

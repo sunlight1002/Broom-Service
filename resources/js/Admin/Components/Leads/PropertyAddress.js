@@ -107,9 +107,9 @@ const PropertyAddress = memo(function PropertyAddress({
                 });
             });
         }
-        if (!address && isModalOpen) {
-            zip.current.value = "";
-        }
+        // if (!address && isModalOpen) {
+        //     zip.current.value = "";
+        // }
     }, [place?.getPlace(), isModalOpen]);
 
     const handleAddress = (e) => {
@@ -373,11 +373,11 @@ const PropertyAddress = memo(function PropertyAddress({
                             <Modal.Title>
                                 {isAdd.current
                                     ? t(
-                                          "admin.leads.AddLead.addAddress.AddPropertyAddress"
-                                      )
+                                        "admin.leads.AddLead.addAddress.AddPropertyAddress"
+                                    )
                                     : t(
-                                          "admin.leads.AddLead.addAddress.EditPropertyAddress"
-                                      )}
+                                        "admin.leads.AddLead.addAddress.EditPropertyAddress"
+                                    )}
                             </Modal.Title>
                         </Modal.Header>
 
@@ -431,10 +431,10 @@ const PropertyAddress = memo(function PropertyAddress({
                                     </div>
                                 </div>
                             </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">
+                        <div className=" d-flex">
+                            <div className="d-flex flex-column">
+                                    <div className="form-group d-flex align-items-center">
+                                        <label className="control-label mb-0 mr-2">
                                             {t(
                                                 "admin.leads.AddLead.addAddress.Name"
                                             )}
@@ -447,7 +447,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             placeholder={t(
                                                 "admin.leads.AddLead.addAddress.placeHolder.addressName"
                                             )}
-                                        />
+                                            />
                                         {errors.address_name ? (
                                             <small className="text-danger mb-1">
                                                 {errors.address_name}
@@ -456,11 +456,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             ""
                                         )}
                                     </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex align-items-center">
                                         <label className="control-label">
                                             {t(
                                                 "admin.leads.AddLead.addAddress.Floor"
@@ -482,11 +478,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             ""
                                         )}
                                     </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex align-items-center">
                                         <label className="control-label">
                                             {t(
                                                 "admin.leads.AddLead.addAddress.AptNumberAndAptName"
@@ -508,11 +500,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             ""
                                         )}
                                     </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex align-items-center">
                                         <label className="control-label">
                                             {t(
                                                 "admin.leads.AddLead.addAddress.EnteranceCode"
@@ -534,37 +522,29 @@ const PropertyAddress = memo(function PropertyAddress({
                                             ""
                                         )}
                                     </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex align-items-center">
                                         <label className="control-label">
                                             {t(
-                                                "admin.leads.AddLead.addAddress.Key"
+                                                "admin.leads.AddLead.addAddress.ZipCode"
                                             )}
                                         </label>
                                         <input
                                             type="text"
-                                            ref={key}
+                                            ref={zip}
                                             className="form-control"
                                             placeholder={t(
-                                                "admin.leads.AddLead.addAddress.placeHolder.Key"
+                                                "admin.leads.AddLead.addAddress.placeHolder.ZipCode"
                                             )}
                                         />
-                                        {errors.key ? (
+                                        {errors.zip && (
                                             <small className="text-danger mb-1">
-                                                {errors.key}
+                                                {errors.zip}
                                             </small>
-                                        ) : (
-                                            ""
                                         )}
                                     </div>
-                                </div>
                             </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                            <div className="d-flex flex-column">
+                                    <div className="form-group d-flex align-items-center">      
                                         <label className="control-label">
                                             {t(
                                                 "admin.leads.AddLead.addAddress.Lobby"
@@ -586,59 +566,29 @@ const PropertyAddress = memo(function PropertyAddress({
                                             ""
                                         )}
                                     </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex align-items-center">
                                         <label className="control-label">
                                             {t(
-                                                "admin.leads.AddLead.addAddress.ZipCode"
+                                                "admin.leads.AddLead.addAddress.Lobby"
                                             )}
                                         </label>
                                         <input
                                             type="text"
-                                            ref={zip}
+                                            ref={lobby}
                                             className="form-control"
                                             placeholder={t(
-                                                "admin.leads.AddLead.addAddress.placeHolder.ZipCode"
+                                                "admin.leads.AddLead.addAddress.placeHolder.Lobby"
                                             )}
                                         />
-                                        {errors.zip && (
+                                        {errors.lobby ? (
                                             <small className="text-danger mb-1">
-                                                {errors.zip}
+                                                {errors.lobby}
                                             </small>
+                                        ) : (
+                                            ""
                                         )}
                                     </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t(
-                                                "admin.leads.AddLead.addAddress.parking"
-                                            )}
-                                        </label>
-                                        <input
-                                            type="text"
-                                            ref={parking}
-                                            className="form-control"
-                                            placeholder={t(
-                                                "admin.leads.AddLead.addAddress.placeHolder.parking"
-                                            )}
-                                        />
-                                        {errors.parking && (
-                                            <small className="text-danger mb-1">
-                                                {errors.parking}
-                                            </small>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex align-items-center">
                                         <label className="control-label">
                                             {t(
                                                 "admin.leads.AddLead.addAddress.PreferedType"
@@ -674,11 +624,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             </option>
                                         </select>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex align-items-center">
                                         <div className="form-check form-switch">
                                             <input
                                                 ref={is_dog_avail}
@@ -697,11 +643,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             </label>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex align-items-center">
                                         <div className="form-check form-switch">
                                             <input
                                                 ref={is_cat_avail}
@@ -720,11 +662,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             </label>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
+                                    <div className="form-group d-flex align-items-center">
                                         <label className="control-label">
                                             {t(
                                                 "admin.leads.AddLead.addAddress.NotAllowedWorkers"
@@ -746,24 +684,9 @@ const PropertyAddress = memo(function PropertyAddress({
                                             }
                                         />
                                     </div>
-                                </div>
                             </div>
-                            <input
-                                type="hidden"
-                                ref={addressId}
-                                name="addressId"
-                            />
-                            <input type="hidden" ref={lat} name="lat" />
-                            <input type="hidden" ref={long} name="long" />
-                            <input type="hidden" ref={city} name="city" />
-                            <input
-                                type="hidden"
-                                ref={client_id}
-                                name="client_id"
-                                defaultValue={params.id ? params.id : 0}
-                            />
+                        </div>
                         </Modal.Body>
-
                         <Modal.Footer>
                             <Button
                                 type="button"
@@ -901,7 +824,7 @@ const PropertyAddress = memo(function PropertyAddress({
                         )}
                     </div>
                 </div>
-            </div>
+            </div>  
         </div>
     );
 });

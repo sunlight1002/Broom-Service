@@ -1,35 +1,63 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../../Assets/image/sample.svg";
 import i18next from "i18next";
+import { useNavigate } from "react-router-dom";
+import FullLoader from "../../../../public/js/FullLoader";
 
 
-export default function WorkerLoginOtp() {
+export default function WorkerLogin() {
     const [worker, setWorker] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
+    const [loading, setLoading] = useState(false)
+
+    const navigate = useNavigate()
+
+
+    useEffect(() => {
+        const workerLogin = localStorage.getItem("worker-id")
+        // console.log(adminLogin);
+        if (workerLogin) {
+            navigate("/worker/dashboard");
+        }
+    }, [navigate])
 
     const HandleLogin = (e) => {
         e.preventDefault();
+        setLoading(true)
         const data = {
             worker_id: worker,
             password: password,
         };
         axios.post(`/api/login`, data).then((result) => {
             if (result.data.errors) {
+                setLoading(false)
                 setErrors(result.data.errors);
             } else {
-                localStorage.setItem("worker-token", result.data.token);
-                i18next.changeLanguage(result.data.lng);
-                localStorage.setItem(
-                    "worker-name",
-                    result.data.firstname + " " + result.data.lastname
-                );
-                localStorage.setItem("worker-id", result.data.id);
-
-                window.location = "/worker/dashboard";
+                // console.log(result);
+                if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
+                    localStorage.setItem("worker-email", result.data[1]);
+                    window.location = "/worker/login-otp";
+                    setLoading(false)
+                }else{
+                    localStorage.setItem("worker-token", result.data.token);
+                    i18next.changeLanguage(result.data.lng);
+                    localStorage.setItem(
+                        "worker-name",
+                        result.data.firstname + " " + result.data.lastname
+                    );
+                    localStorage.setItem("worker-id", result.data.id);
+    
+                    window.location = "/worker/dashboard";
+                }
             }
         });
     };
+
+    if (loading) {
+        return <FullLoader/>
+    }
+
 
     return (
         <div>

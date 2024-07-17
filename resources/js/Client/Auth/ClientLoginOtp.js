@@ -1,21 +1,28 @@
 import React, { useEffect, useState, useRef } from 'react';
+import logo from "../../Assets/image/sample.svg";
 import { useAlert } from "react-alert";
-import logo from "../../../Assets/image/sample.svg";
+import i18next from "i18next";
 import { useNavigate } from 'react-router-dom';
 
-export default function AdminLoginOtp() {
-    const navigate = useNavigate()
-    const alert = useAlert();
+export default function ClientLoginOtp() {
     const [otp, setOtp] = useState(new Array(6).fill(""));
     const inputsRef = useRef([]);
+    const buttonRef = useRef(null);
+    const alert = useAlert();
+    const [errors, setErrors] = useState([]);
+    const [dir, setDir] = useState([]);
+    const navigate = useNavigate();
     const [timer, setTimer] = useState(60); // 1 minutes in seconds
     const [canResend, setCanResend] = useState(false);
-    const buttonRef = useRef(null);
-    const [errors, setErrors] = useState([]);
 
-    const adminEmail = localStorage.getItem("admin-email")
-    // console.log(adminEmail);
+    const clientEmail = localStorage.getItem("client-email");
 
+    useEffect(() => {
+        const clientLogin = localStorage.getItem("client-id");
+        if (clientLogin) {
+            navigate("/client/dashboard");
+        }
+    }, [navigate]);
 
     useEffect(() => {
         const countdown = setInterval(() => {
@@ -29,35 +36,31 @@ export default function AdminLoginOtp() {
                 }
             });
         }, 1000);
+
         return () => clearInterval(countdown);
-    }, []);
+    }, [canResend]);
 
     useEffect(() => {
-        const adminLogin = localStorage.getItem("admin-id")
-        // console.log(adminLogin);
-        if (adminLogin) {
-            navigate("/admin/dashboard");
-        }
-    }, [navigate])
+        inputsRef.current[0].focus();
+        buttonRef.current.setAttribute("disabled", "disabled");
+    }, []);
 
-
-    const handleResend = async(e) =>{
+    const handleResend = async (e) => {
         e.preventDefault();
 
-        const data ={
-            email: adminEmail
-        }
+        const data = {
+            email: clientEmail
+        };
 
         try {
-            const result = await axios.post(`/api/admin/resendOtp`,data);
-            // console.log(result);
+            const result = await axios.post(`/api/client/resendOtp`, data);
             if (result.data.errors) {
                 setErrors(result.data.errors.otp);
                 console.log(errors);
             } else {
                 console.log(result.data.message);
-                alert.success(result.data.message)
-                
+                alert.success(result.data.message);
+
                 setTimer(60);
                 setCanResend(false);
                 const countdown = setInterval(() => {
@@ -75,40 +78,36 @@ export default function AdminLoginOtp() {
         } catch (error) {
             console.error("Error verifying OTP:", error);
         }
+    };
 
-    }
-
-    const handleLogin = async (e) => {
+    const HandleLogin = async (e) => {
         e.preventDefault();
 
         const stringOtp = otp.join(""); // Join array into a single string
-        // let numOtp = Number(stringOtp);
         const data = {
             otp: stringOtp,
         };
 
         try {
-            const result = await axios.post(`/api/admin/verifyOtp`, data);
+            const result = await axios.post(`/api/client/verifyOtp`, data);
             if (result.data.errors) {
                 setErrors(result.data.errors.otp);
                 console.log(errors);
             } else {
-                localStorage.setItem("admin-token", result.data.token);
-                localStorage.setItem("admin-name", result.data.name);
-                localStorage.setItem("admin-id", result.data.id);
-                window.location = "/admin/dashboard";
-                // console.log(result);
+                localStorage.setItem("client-token", result.data.token);
+                i18next.changeLanguage(result.data.lng);
+                localStorage.setItem(
+                    "client-name",
+                    result.data.firstname + " " + result.data.lastname
+                );
+                localStorage.setItem("client-id", result.data.id);
+
+                window.location = "/client/dashboard";
             }
         } catch (error) {
             console.error("Error verifying OTP:", error);
         }
     };
-
-
-    useEffect(() => {
-        inputsRef.current[0].focus();
-        buttonRef.current.setAttribute("disabled", "disabled");
-    }, []);
 
     const handlePaste = (event) => {
         event.preventDefault();
@@ -124,7 +123,7 @@ export default function AdminLoginOtp() {
             }
         }
         setOtp(newOtp);
-        focusNextEmptyInput(newOtp);    
+        focusNextEmptyInput(newOtp);
     };
 
     const handleChange = (e, index) => {
@@ -174,11 +173,16 @@ export default function AdminLoginOtp() {
         }
     };
 
+    useEffect(() => {
+        let d = document.querySelector("html").getAttribute("dir");
+        d === "rtl" ? setDir("heb") : setDir("en");
+    }, []);
+
     return (
         <div id="loginPage">
             <div className="container adminLogin">
-                <div className="formSide pb-0">
-                    <div className="hidden-xs ifRTL d-flex justify-content-center">
+                <div className="formSide">
+                    <div className="hidden-xs text-center ifRTL">
                         <svg
                             width="333"
                             height="135"
@@ -206,8 +210,10 @@ export default function AdminLoginOtp() {
                             ></image>
                         </svg>
                     </div>
-                    <h1 className="page-title text-center">Admin Login Otp</h1>
-                    <form onSubmit={handleLogin}>
+                    <h1 className="page-title text-center">
+                        {dir === "heb" ? "כניסת לקוחות" : "Client Login otp"}
+                    </h1>
+                    <form onSubmit={HandleLogin}>
                         <div className="form-group">
                             <div className="container-fluid bg-body-tertiary d-block">
                                 <div className="row justify-content-center">
@@ -254,8 +260,8 @@ export default function AdminLoginOtp() {
                                     </div>
                                 </div>
                             </div>
-
                         </div>
+
                         {/* <div className="form-group mt-4">
                             <button
                                 type="submit"

@@ -135,6 +135,8 @@ import WorkerAffectedAvailability from "./Admin/Pages/Workers/WorkerAffectedAvai
 import WorkerForm from "./Pages/WorkerForm";
 import WorkerInvitationForm from "./Pages/WorkerInvitationForm";
 import AdminLoginOtp from "./Admin/Pages/Auth/AdminLoginOtp";
+import WorkerLoginOtp from "./Worker/Auth/WorkerLoginOtp";
+import ClientLoginOtp from "./Client/Auth/ClientLoginOtp";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -154,6 +156,11 @@ export default function MyRoutes() {
                         exact
                         path="client/login"
                         element={<ClientLogin />}
+                    />
+                       <Route
+                        exact
+                        path="client/login-otp"
+                        element={<ClientLoginOtp />}
                     />
                     <Route
                         exact
@@ -322,6 +329,11 @@ export default function MyRoutes() {
                         exact
                         path="worker/login"
                         element={<WorkerLogin />}
+                    />
+                      <Route
+                        exact
+                        path="worker/login-otp"
+                        element={<WorkerLoginOtp />}
                     />
 
                     <Route path="worker" element={<Worker />}></Route>

@@ -30,6 +30,8 @@ export default function WorkerMyAccount() {
     const [country, setCountry] = useState("Israel");
 
     const [countries, setCountries] = useState([]);
+    const [twostepverification, setTwostepverification] = useState(false);
+
 
     const [errors, setErrors] = useState([]);
     const alert = useAlert();
@@ -57,6 +59,9 @@ export default function WorkerMyAccount() {
             password: password,
             // status: itemStatus,
             country: country,
+            email: email,
+            twostepverification: twostepverification
+
         };
 
         elementsRef.current.map(
@@ -85,6 +90,7 @@ export default function WorkerMyAccount() {
             setAddress(w.address);
             setLng(w.lng);
             setCountry(w.country);
+            setTwostepverification(w.two_factor_enabled === 1);
             elementsRef.current.map(
                 (ref) =>
                     (ref.current.checked =
@@ -395,7 +401,23 @@ export default function WorkerMyAccount() {
                                 </label>
                             </div>
                         ))}
-                        <div className="form-group text-center">
+                      <div className="form-group d-flex align-items-center">
+                        <div className="toggle-switch">
+                            <div className="switch">
+                                <span className="mr-2">Two step Verification</span>
+                                <input
+                                    onChange={() => setTwostepverification(prev => !prev)}
+                                    type="checkbox"
+                                    id="switch"
+                                    checked={twostepverification}
+                                />
+                                <label htmlFor="switch">
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                        <div className="form-group text-center mb-0">
                             <input
                                 type="submit"
                                 value={t("worker.settings.update")}

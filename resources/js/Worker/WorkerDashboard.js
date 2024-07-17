@@ -152,7 +152,7 @@ export default function WorkerDashboard() {
                             <Link to={`/worker/jobs?f=past`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
-                                        <i className="fa-solid fa-suitcase"></i>
+                                        <i className="fa-solid fa-suitcase font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{pastJobCount}</h3>
@@ -166,7 +166,7 @@ export default function WorkerDashboard() {
                             <Link to={`/worker/jobs`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
-                                        <i className="fa-solid fa-clock"></i>
+                                        <i className="fa-solid fa-clock font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{pastHoursCount}</h3>
@@ -182,7 +182,7 @@ export default function WorkerDashboard() {
                             <Link to={`/worker/jobs?f=upcoming`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
-                                        <i className="fa-solid fa-suitcase"></i>
+                                        <i className="fa-solid fa-suitcase font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{upcomingJobCount}</h3>
@@ -200,7 +200,7 @@ export default function WorkerDashboard() {
                             <Link to={`/worker/jobs?f=today`}>
                                 <div className="dashBox">
                                     <div className="dashIcon mr-3">
-                                        <i className="fa-solid fa-suitcase"></i>
+                                        <i className="fa-solid fa-suitcase font-50"></i>
                                     </div>
                                     <div className="dashText">
                                         <h3>{todayJobCount}</h3>

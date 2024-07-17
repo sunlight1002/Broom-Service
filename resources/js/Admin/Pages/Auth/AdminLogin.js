@@ -21,7 +21,6 @@ export default function AdminLogin() {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(false)
-    console.log(errors);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -34,9 +33,12 @@ export default function AdminLogin() {
 
         await axios.post(`/api/admin/login`, data).then((result) => {
             if (result.data.errors) {
+                setLoading(false)
                 setErrors(result.data.errors);
             } else {
                 if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
+                    localStorage.setItem("admin-email", result.data[1]);
+                    console.log(result);
                     window.location = "/admin/login-otp";
                     setLoading(false)
                 }else{

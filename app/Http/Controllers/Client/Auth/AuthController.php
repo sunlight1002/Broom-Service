@@ -49,6 +49,7 @@ class AuthController extends Controller
 
                     return response()->json([
                         $client->two_factor_enabled,
+                        $client->email,
                         'message' => 'OTP sent to your email for verification'
                     ]);
                 }else{ 
@@ -97,8 +98,32 @@ class AuthController extends Controller
         // Generate token for the authenticated admin
         $client->token = $client->createToken('Client', ['client'])->accessToken;
     
-        return response()->json($admin);
+        return response()->json($client);
     }
+
+
+    public function resendOtp(Request $request)
+    {
+        $client = Client::where('email', $request->email)->first();
+
+        if (!$client) {
+            return response()->json(['errors' => ['user' => 'User not authenticated']], 401);
+        }
+
+
+        $otp = strval(random_int(100000, 999999));
+
+        $client->otp = $otp;
+        $client->otp_expiry = now()->addMinutes(10);
+        $client->save();
+
+        Mail::to($client->email)->send(new LoginOtpMail($otp));
+
+        return response()->json(['message' => 'OTP sent to your email for verification']);
+    }
+
+
+
     /** 
      * Register api 
      * 

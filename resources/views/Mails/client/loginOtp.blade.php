@@ -11,12 +11,6 @@
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600;700&display=swap" rel="stylesheet">
 	<title>OTP Verification</title>
 </head>
-@if($client['lng'] == 'heb')
-<body style="font-family: 'Noto Sans Hebrew', sans-serif;color: #212529;background: #fcfcfc; direction:rtl">
-@else 
-<body style="font-family: 'Open Sans', sans-serif;color: #212529;background: #fcfcfc;">
-@endif
-
 	<div style="max-width: 650px;margin: 0 auto;margin-top: 30px;margin-bottom: 20px;background: #fff;border: 1px solid #e6e8eb;border-radius: 6px;padding: 20px;">
 		
 		<p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">Your OTP for verification is: {{ $otp }}</p>

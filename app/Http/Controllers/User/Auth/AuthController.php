@@ -69,6 +69,8 @@ class AuthController extends Controller
                 Mail::to($user->email)->send(new LoginOtpMail($otp));
 
                 return response()->json([
+                    $user->two_factor_enabled,
+                    $user->email,
                     'message' => 'OTP sent to your email for verification'
                 ]);
             } else {
@@ -107,6 +109,26 @@ class AuthController extends Controller
         $user->token = $user->createToken('User', ['user'])->accessToken;
 
         return response()->json($user);
+    }
+
+    public function resendOtp(Request $request)
+    {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['errors' => ['user' => 'User not authenticated']], 401);
+        }
+
+
+        $otp = strval(random_int(100000, 999999));
+
+        $user->otp = $otp;
+        $user->otp_expiry = now()->addMinutes(10);
+        $user->save();
+
+        Mail::to($user->email)->send(new LoginOtpMail($otp));
+
+        return response()->json(['message' => 'OTP sent to your email for verification']);
     }
 
 
@@ -174,11 +196,13 @@ class AuthController extends Controller
         $worker->lng           = $request->lng;
         $worker->passcode      = $request->password;
         $worker->password      = Hash::make($request->password);
-        $worker->is_afraid_by_cat       = $request->is_afraid_by_cat;
-        $worker->is_afraid_by_dog       = $request->is_afraid_by_dog;
+        $worker->is_afraid_by_cat  = $request->is_afraid_by_cat;
+        $worker->is_afraid_by_dog  = $request->is_afraid_by_dog;
+        $worker->two_factor_enabled = $request->twostepverification;
         $worker->save();
 
         return response()->json([
+            $request->all(),
             'message' => 'Account updated successfully',
         ]);
     }

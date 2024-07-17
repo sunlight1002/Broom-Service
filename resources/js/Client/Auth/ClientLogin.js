@@ -1,32 +1,54 @@
 import React, { useEffect, useState } from "react";
 import logo from "../../Assets/image/sample.svg";
 import i18next from "i18next";
+import { useNavigate } from "react-router-dom";
+import FullLoader from "../../../../public/js/FullLoader";
 
 export default function ClientLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
     const [dir, setDir] = useState([]);
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
+
+        useEffect(() => {
+            const clientLogin = localStorage.getItem("client-id")
+            // console.log(adminLogin);
+            if (clientLogin) {
+                navigate("/client/dashboard");
+            }
+        }, [navigate])
 
     const HandleLogin = (e) => {
         e.preventDefault();
+        setLoading(true);
+
         const data = {
             email: email,
             password: password,
         };
         axios.post(`/api/client/login`, data).then((result) => {
+            // console.log(result);
             if (result.data.errors) {
+                setLoading(false)
                 setErrors(result.data.errors);
             } else {
-                localStorage.setItem("client-token", result.data.token);
-                i18next.changeLanguage(result.data.lng);
-                localStorage.setItem(
-                    "client-name",
-                    result.data.firstname + " " + result.data.lastname
-                );
-                localStorage.setItem("client-id", result.data.id);
-
-                window.location = "/client/dashboard";
+                if(result.data.two_factor_enabled === 1 || result.data[0] === 1){
+                    localStorage.setItem("client-email", result.data[1]);
+                    window.location = "/client/login-otp";
+                    setLoading(false)
+                }else{
+                    localStorage.setItem("client-token", result.data.token);
+                    i18next.changeLanguage(result.data.lng);
+                    localStorage.setItem(
+                        "client-name",
+                        result.data.firstname + " " + result.data.lastname
+                    );
+                    localStorage.setItem("client-id", result.data.id);
+                    setLoading(false)
+                    window.location = "/client/dashboard";
+                }
             }
         });
     };
@@ -35,6 +57,10 @@ export default function ClientLogin() {
         let d = document.querySelector("html").getAttribute("dir");
         d == "rtl" ? setDir("heb") : setDir("en");
     }, []);
+
+    if (loading) {
+        return <FullLoader/>
+    }
 
     return (
         <div id="loginPage">

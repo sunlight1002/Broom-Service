@@ -4,6 +4,8 @@ import { useNavigate, Link } from "react-router-dom";
 import logo from "../../Assets/image/sample.svg";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { IoIosLogOut } from "react-icons/io";
+
 
 export default function WorkerSidebar() {
     const alert = useAlert();
@@ -76,7 +78,8 @@ export default function WorkerSidebar() {
             </ul>
             <div className="sideLogout">
                 <div className="logoutBtn">
-                    <button className="btn btn-white" onClick={HandleLogout}>
+                    <button className="btn btn-white d-flex justify-content-center align-items-center" onClick={HandleLogout}>
+                    <IoIosLogOut className="mr-1 font-28" />
                         {t("worker.logout")}
                     </button>
                 </div>
