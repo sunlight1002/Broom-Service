@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Admin\LoginOtpMail;
 use Illuminate\Support\Str;
+use Twilio\Rest\Client;
 
 class AuthController extends Controller
 {
@@ -49,10 +50,23 @@ class AuthController extends Controller
 
                     Mail::to($admin->email)->send(new LoginOtpMail($otp)); 
 
+                    // Send OTP via SMS using Twilio
+                    $twilioAccountSid = config(services.twilio.twilio_id);
+                    $twilioAuthToken = config(services.twilio.twilio_token);
+                    $twilioPhoneNumber =config(services.twilio.twilio_number);
+
+                    $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
+                    $phone_number = '+91'.$admin->phone;
+                  
+                    $twilioClient->messages->create(
+                        $phone_number,
+                        ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                    );
+                
                     return response()->json([
                         $admin->two_factor_enabled,
                         $admin->email,
-                        'message' => 'OTP sent to your email for verification'
+                        'message' => 'OTP sent to your email and phone number for verification'
                     ]);
             } else {
                 // Login without OTP
@@ -159,4 +173,6 @@ class AuthController extends Controller
         $user->revoke();
         return response()->json(['success' => 'Logged Out Successfully!']);
     }
+
+    
 }

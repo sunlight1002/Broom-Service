@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers\Client\Auth;
 
+
 use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use Twilio\Rest\Client as TwilioClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Client\LoginOtpMail;
+
+
+
 
 class AuthController extends Controller
 {
@@ -39,19 +44,40 @@ class AuthController extends Controller
             $client = Client::find(auth()->guard('client')->user()->id);
             if ($client->status == 2) {
                 if($client->two_factor_enabled){
-                    $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
+                    try {
+                        $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
 
-                    $client->otp = $otp;
-                    $client->otp_expiry = now()->addMinutes(10); 
-                    $client->save();
+                        $client->otp = $otp;
+                        $client->otp_expiry = now()->addMinutes(10); 
+                        $client->save();
 
-                    Mail::to($client->email)->send(new LoginOtpMail($otp)); 
+                        Mail::to($client->email)->send(new LoginOtpMail($otp)); 
 
-                    return response()->json([
-                        $client->two_factor_enabled,
-                        $client->email,
-                        'message' => 'OTP sent to your email for verification'
-                    ]);
+                        // Send OTP via SMS using Twilio
+                        $twilioAccountSid = config(services.twilio.twilio_id);
+                        $twilioAuthToken = config(services.twilio.twilio_token);
+                        $twilioPhoneNumber =config(services.twilio.twilio_number);
+
+                        $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
+                        $phone_number = '+91'.$admin->phone;
+                    
+                        $twilioClient->messages->create(
+                            $phone_number,
+                            ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                        );
+
+                        return response()->json([
+                            "two_factor_enabled" => $client->two_factor_enabled,
+                            "email" => $client->email,
+                            'message' => 'OTP sent to your email and phone number for verification'
+                        ]);
+
+                    } catch (\Exception $e) {
+                        return response()->json([
+                            'errors' => ['otp' => 'Failed to send OTP. Please try again.'],
+                            'exception' => $e->getMessage()
+                        ], 500);
+                    }
                 }else{ 
                     $client->token = $client->createToken('Client', ['client'])->accessToken;
                     return response()->json($client);
@@ -121,8 +147,6 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'OTP sent to your email for verification']);
     }
-
-
 
     /** 
      * Register api 

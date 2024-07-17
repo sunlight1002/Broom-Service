@@ -24,3 +24,4 @@ yarn-error.log
 composer.lock
 .DS_Store
 public/js/resources_js_Assets_css_rtl_css.js
+public/js/node_modules_canvg_lib_index_es_js.js

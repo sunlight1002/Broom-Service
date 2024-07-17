@@ -83,4 +83,10 @@ return [
         'problem_with_workers' => env('PROBLEM_WITH_WORKERS_WA_GROUP_ID'),
     ],
 
+    'twilio' => [
+        'twilio_id' => env('TWILIO_SID'),
+        'twilio_token' => env('TWILIO_AUTH_TOKEN'),
+        'twilio_number' => env('TWILIO_NUMBER'),
+    ],
+
 ];

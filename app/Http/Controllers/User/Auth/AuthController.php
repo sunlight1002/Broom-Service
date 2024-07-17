@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Worker\LoginOtpMail;
 use Carbon\Carbon;
+use Twilio\Rest\Client;
 
 class AuthController extends Controller
 {
@@ -68,10 +69,23 @@ class AuthController extends Controller
 
                 Mail::to($user->email)->send(new LoginOtpMail($otp));
 
+                // Send OTP via SMS using Twilio
+                $twilioAccountSid = config(services.twilio.twilio_id);
+                $twilioAuthToken = config(services.twilio.twilio_token);
+                $twilioPhoneNumber =config(services.twilio.twilio_number);
+
+                $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
+                $phone_number = '+91'.$admin->phone;
+                
+                $twilioClient->messages->create(
+                    $phone_number,
+                    ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                );
+
                 return response()->json([
                     $user->two_factor_enabled,
                     $user->email,
-                    'message' => 'OTP sent to your email for verification'
+                    'message' => 'OTP sent to your email and phone number verification'
                 ]);
             } else {
                 $user->token = $user->createToken('User', ['user'])->accessToken;
@@ -183,6 +197,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'address'   => ['required', 'string'],
             'phone'     => ['required'],
+            'two_factor_enabled' => ['nullable', 'boolean']
         ]);
 
         if ($validator->fails()) {
