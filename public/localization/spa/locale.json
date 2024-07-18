@@ -342,6 +342,7 @@
         "subtitle": "Tu código fue enviado a través de correo electrónico o SMS",
         "verify": "Verificar",
         "receiveCode": "¿No recibiste el código?",
-        "requestAgain": "Solicitar nuevamente"
+        "requestAgain": "Solicitar nuevamente",
+        "resendAvailableIn": "Reenvío disponible en"
     }
 }

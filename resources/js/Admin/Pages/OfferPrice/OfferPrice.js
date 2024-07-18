@@ -227,7 +227,7 @@ export default function OfferPrice() {
                             <div className="search-data">
                                 <Link
                                     to="/admin/offers/create"
-                                    className="btn btn-pink addButton"
+                                    className="btn navyblue no-hover addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     Add New

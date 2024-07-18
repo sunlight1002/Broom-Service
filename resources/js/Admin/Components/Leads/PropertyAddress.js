@@ -148,7 +148,7 @@ const PropertyAddress = memo(function PropertyAddress({
                 client_id: client_id.current.value,
                 id: 0,
                 not_allowed_worker_ids:
-                    getWorkerId.length > 0 ? getWorkerId.toString() : null,
+                getWorkerId.length > 0 ? getWorkerId.toString() : null,
             };
             const adId = addressId.current?.value;
             if (isAdd.current) {
@@ -188,6 +188,7 @@ const PropertyAddress = memo(function PropertyAddress({
                     updatedData.not_allowed_worker_ids
                         ? updatedData.not_allowed_worker_ids
                         : "";
+                        // console.log(updatedData.not_allowed_worker_ids);
             }
             if (params.id) {
                 axios
@@ -337,7 +338,7 @@ const PropertyAddress = memo(function PropertyAddress({
         getWorkers();
     }, []);
 
-    console.log(workers.length);
+    // console.log(addresses);
 
     return (
         <div>
@@ -443,8 +444,8 @@ const PropertyAddress = memo(function PropertyAddress({
                                     </div>
                                 </div>
                             </div>
-                            <div className=" d-flex">
-                                <div className="d-flex flex-column">
+                            <div className=" d-flex property-modal">
+                                <div className="d-flex flex-column ">
                                     <div className="form-group d-flex align-items-center">
                                         <label className="control-label mb-0 navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
                                             {t(
@@ -813,10 +814,10 @@ const PropertyAddress = memo(function PropertyAddress({
 
                                             Cat
                                         </Th>
-                                        <Th>
+                                        {/* <Th>
 
                                             Allowed Workers
-                                        </Th>
+                                        </Th> */}
 
                                         <Th>
 
@@ -911,13 +912,22 @@ const PropertyAddress = memo(function PropertyAddress({
                                                         </label>
 
                                                     </Td>
-                                                    <Td>
-                                                        {workers && workers.length > 0
-                                                            ? workers.map((worker, idx) => (
-                                                                <span key={idx}>{worker.label}</span>
+                                                    {/* <Td>
+                                                        {item.not_allowed_worker_ids ? item.not_allowed_worker_ids
+                                                            .map((worker, idx) => (
+                                                                <span class="user-item">
+                                                                    <div class="">
+                                                                        <i class="fa fa-user"></i>
+                                                                    </div>
+                                                                    <span class="">{worker.label}</span>
+                                                                    <span class="">
+                                                                        <i class="fa fa-trash"></i>
+                                                                    </span>
+                                                                </span>
                                                             ))
                                                             : "NA"}
-                                                    </Td>
+
+                                                    </Td> */}
 
                                                     <Td>
                                                         {" "}

@@ -344,7 +344,7 @@ export default function Clients() {
                             </h1>
                             <Link
                                 to="/admin/clients/create"
-                                className="btn btn-pink addButton"
+                                className="btn navyblue  addButton"
                             >
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 Add New
@@ -366,7 +366,7 @@ export default function Clients() {
                                 </div>
                                 <div className="action-dropdown dropdown mt-4 mr-2">
                                     <button
-                                        className="btn btn-pink"
+                                        className="btn navyblue"
                                         onClick={handleShow}
                                     >
                                         {t("admin.global.Import")}
@@ -374,7 +374,7 @@ export default function Clients() {
                                 </div>
                                 <div className="action-dropdown dropdown mt-4 mr-2 d-none d-lg-block">
                                     <button
-                                        className="btn btn-pink ml-2"
+                                        className="btn navyblue ml-2"
                                         onClick={(e) => handleReport(e)}
                                     >
                                         {t("admin.client.Export")}
@@ -384,7 +384,7 @@ export default function Clients() {
                                 <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
                                     <button
                                         type="button"
-                                        className="btn btn-default dropdown-toggle"
+                                        className="btn navyblue dropdown-toggle"
                                         data-toggle="dropdown"
                                     >
                                         <i className="fa fa-filter"></i>
@@ -451,7 +451,7 @@ export default function Clients() {
 
                                 <Link
                                     to="/admin/clients/create"
-                                    className="btn btn-pink addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2"
+                                    className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     Add New

@@ -593,6 +593,10 @@ table tr td .dropdown-item {
   border-radius: .25rem;
 }
 
+.no-hover:hover {
+  color: white;
+}
+
 /* end */
 
 
@@ -3100,6 +3104,59 @@ button.time-counter, span.time-counter {
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
+}
+
+.user-item {
+  display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: #E5EBF1;
+    padding: 10px 5px;
+    margin-bottom: 10px;
+    border-radius: 11px;
+    /* max-width: 115px; */
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.user-icon {
+  background-color: #2F4054;
+  color: white; /* Assuming you want the icon to be white */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.user-name {
+  flex-grow: 1;
+  margin-left: 15px;
+  font-size: 16px;
+  color: #2F4054;
+  font-weight: 500;
+}
+
+.delete-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #2F4054;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.delete-button:hover {
+  color: #FF0000; /* Optional: Add hover effect for delete button */
+}
+
+@media  screen and (max-width: 669px) {
+  .property-modal{
+    flex-direction: column;
+  }
 }
 
 

@@ -319,7 +319,7 @@ export default function AllWorkers() {
                             </h1>
                             <Link
                                 to="/admin/add-worker"
-                                className="btn btn-pink d-block d-md-none addButton"
+                                className="btn navyblue d-block d-md-none addButton"
                             >
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 Add New
@@ -328,20 +328,20 @@ export default function AllWorkers() {
                         <div className="col-sm-6">
                             <div className="search-data">
                                 <button
-                                    className="btn btn-pink mt-4 mr-2"
+                                    className="btn navyblue mt-4 mr-2"
                                     onClick={handleShow}
                                 >
                                     Import
                                 </button>
                                 <Link
                                     to="/admin/workers/working-hours"
-                                    className="btn btn-pink addButton mr-0 mr-md-2  ml-auto"
+                                    className="btn navyblue addButton mr-0 mr-md-2  ml-auto"
                                 >
                                     Worker Hours
                                 </Link>
                                 <Link
                                     to="/admin/add-worker"
-                                    className="btn btn-pink d-none d-md-block addButton"
+                                    className="btn navyblue d-none d-md-block addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     Add New

@@ -2109,5 +2109,15 @@
         "full_address": "Full Address",
         "auto_complete": "auto complete from google address",
         "submit": "Submit"
+    },
+    "resendOtp":{
+        "workerLoginOtpTitle": "Worker Login Otp",
+        "clientLoginOtpTitle": "Client Login Otp",
+        "adminLoginOtpTitle": "Admin Login Otp",
+        "subtitle": "Your code was sent to you via email or SmS",
+        "verify": "Verify",
+        "receiveCode": "Didn't receive code?",
+        "requestAgain": "Request again",
+        "resendAvailableIn": "Resend available in"
     }
 }

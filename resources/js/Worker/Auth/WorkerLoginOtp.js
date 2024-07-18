@@ -3,6 +3,7 @@ import { useAlert } from "react-alert";
 import logo from "../../Assets/image/sample.svg";
 import { useNavigate } from 'react-router-dom';
 import i18next from "i18next";
+import { useTranslation } from "react-i18next";
 import FullLoader from '../../../../public/js/FullLoader';
 
 
@@ -15,10 +16,16 @@ export default function WorkerLoginOtp() {
     const [timer, setTimer] = useState(60); // 1 minutes in seconds
     const [canResend, setCanResend] = useState(false);
     const [loading, setLoading] = useState(false)
+    const { t } = useTranslation()
 
     const [errors, setErrors] = useState([]);
 
     const workerEmail = localStorage.getItem("worker-email")
+    const workerLng = localStorage.getItem("worker-lng")
+    
+    useEffect(() => {
+        i18next.changeLanguage(workerLng);
+    }, [workerLng]);
 
     useEffect(() => {
         const countdown = setInterval(() => {
@@ -221,7 +228,7 @@ export default function WorkerLoginOtp() {
                             ></image>
                         </svg>
                     </div>
-                    <h1 className="page-title text-center">Worker Login Otp</h1>
+                    <h1 className="page-title text-center">{t("resendOtp.workerLoginOtpTitle")}</h1>
                     <form onSubmit={handleLogin}>
                         <div className="form-group">
                             <div className="container-fluid bg-body-tertiary d-block">
@@ -229,8 +236,8 @@ export default function WorkerLoginOtp() {
                                     <div className="col-12 col-md-6 col-lg-4" style={{ minWidth: "500px" }}>
                                         <div className="card bg-white mb-5 border-0" style={{ boxShadow: "none" }}>
                                             <div className="card-body text-center">
-                                                <h4>Verify</h4>
-                                                <p>Your code was sent to you via email or Sms</p>
+                                                <h4>{t("resendOtp.verify")}</h4>
+                                                <p>{t("resendOtp.subtitle")}</p>
 
                                                 <div className="otp-field mb-4" onPaste={handlePaste}>
                                                     {otp.map((value, index) => (
@@ -247,16 +254,16 @@ export default function WorkerLoginOtp() {
                                                     ))}
                                                 </div>
                                                 <button type='submit' className="btn btn-danger mb-3" ref={buttonRef}>
-                                                    Verify
+                                                {t("resendOtp.verify")}
                                                 </button>
 
                                                 {canResend ? (
                                                     <p className="resend text-muted mb-0">
-                                                        Didn't receive code? <a href="" onClick={handleResend}>Request again</a>
+                                                       {t("resendOtp.receiveCode")} <a href="" onClick={handleResend}>{t("resendOtp.requestAgain")}</a>
                                                     </p>
                                                 ) : (
                                                     <p className="resend text-muted mb-0">
-                                                        Resend available in {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
+                                                        {t("resendOtp.resendAvailableIn")} {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
                                                     </p>
                                                 )}
                                             </div>

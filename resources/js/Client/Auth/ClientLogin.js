@@ -36,6 +36,8 @@ export default function ClientLogin() {
             } else {
                 if(result.data.two_factor_enabled === 1 || result.data[0] === 1){
                     localStorage.setItem("client-email", result.data.email);
+                    localStorage.setItem("client-lng", result.data.lng);
+
                     window.location = "/client/login-otp";
                     setLoading(false)
                 }else{

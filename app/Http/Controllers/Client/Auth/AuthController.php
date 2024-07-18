@@ -69,6 +69,7 @@ class AuthController extends Controller
                         return response()->json([
                             "two_factor_enabled" => $client->two_factor_enabled,
                             "email" => $client->email,
+                            "lng" => $client->lng,
                             'message' => 'OTP sent to your email and phone number for verification'
                         ]);
 

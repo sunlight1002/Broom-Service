@@ -2111,9 +2111,10 @@
         "workerLoginOtpTitle": "אימות התחברות לעובד",
         "clientLoginOtpTitle": "אימות התחברות ללקוח",
         "adminLoginOtpTitle": "אימות התחברות למנהל",
-        "subtitle": "הקוד שלך נשלח אליך באמצעות דואר אלקטרוני או SMS",
+        "subtitle": "הקוד שלך נשלח אליך באמצעות דואר אלקטרוני או סמס",
         "verify": "אמת",
         "receiveCode": "לא קיבלת קוד?",
-        "requestAgain": "בקש שוב"
+        "requestAgain": "בקש שוב",
+        "resendAvailableIn": "ניתן לשלוח שוב בעוד"
     }
 }

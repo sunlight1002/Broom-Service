@@ -37,6 +37,7 @@ export default function WorkerLogin() {
                 // console.log(result.data);
                 if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
                     localStorage.setItem("worker-email", result.data.email);
+                    localStorage.setItem("worker-lng", result.data.lng);
                     window.location = "/worker/login-otp";
                     setLoading(false)
                 }else{
