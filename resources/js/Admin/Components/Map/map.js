@@ -49,11 +49,13 @@ const Map = memo(function Map({
                 googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
                 libraries={libraries}
             >
+                <div className="skyBorder">
+
                 <GoogleMap
                     mapContainerStyle={containerStyle}
                     center={center}
                     zoom={15}
-                >
+                    >
                     <Marker
                         draggable={true}
                         onDragEnd={(e) => onMarkerDragEnd(e)}
@@ -61,14 +63,14 @@ const Map = memo(function Map({
                             lat: latitude,
                             lng: longitude,
                         }}
-                    />
+                        />
                     {address ? (
                         <InfoWindow
-                            onClose={(e) => onInfoWindowClose(e)}
-                            position={{
-                                lat: latitude + 0.0018,
-                                lng: longitude,
-                            }}
+                        onClose={(e) => onInfoWindowClose(e)}
+                        position={{
+                            lat: latitude + 0.0018,
+                            lng: longitude,
+                        }}
                         >
                             <div>
                                 <span
@@ -76,7 +78,7 @@ const Map = memo(function Map({
                                         padding: 0,
                                         margin: 0,
                                     }}
-                                >
+                                    >
                                     {address}
                                 </span>
                             </div>
@@ -86,14 +88,17 @@ const Map = memo(function Map({
                     )}
                     <Marker />
                 </GoogleMap>
+                </div>
+                <div className="mt-3">
                 <Autocomplete onPlaceChanged={onPlaceChanged} onLoad={onLoad}>
                     <input
                         ref={addressSearchRef}
                         type="text"
                         placeholder={t("admin.global.locationPlaceholder")}
-                        className="form-control mt-1"
-                    />
+                        className="form-control mt-1 skyBorder"
+                        />
                 </Autocomplete>
+                </div>
             </LoadScript>
         </div>
     );

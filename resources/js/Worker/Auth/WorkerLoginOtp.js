@@ -185,9 +185,9 @@ export default function WorkerLoginOtp() {
     };
 
 
-    if (loading) {
-        return <FullLoader/>
-    }
+    // if (loading) {
+    //     return <FullLoader/>
+    // }
 
     return (
         <div id="loginPage">
