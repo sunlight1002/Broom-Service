@@ -266,14 +266,14 @@ export default function Lead() {
                                 <div className="action-dropdown dropdown mt-md-4 mr-2 d-lg-none">
                                     <button
                                         type="button"
-                                        className="btn btn-default dropdown-toggle"
+                                        className="btn btn-default navyblue dropdown-toggle"
                                         data-toggle="dropdown"
                                     >
                                         <i className="fa fa-filter"></i>
                                     </button>
                                     <div className="dropdown-menu">
                                         <button
-                                            className="dropdown-item"
+                                            className="dropdown-item "
                                             onClick={(e) => {
                                                 setFilter("All");
                                             }}
@@ -298,7 +298,7 @@ export default function Lead() {
 
                                 <Link
                                     to="/admin/leads/create"
-                                    className="btn btn-pink add-btn"
+                                    className="btn navyblue add-btn"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     <span className="d-lg-block d-none">

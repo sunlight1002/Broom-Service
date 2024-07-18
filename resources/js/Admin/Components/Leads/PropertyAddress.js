@@ -336,6 +336,9 @@ const PropertyAddress = memo(function PropertyAddress({
     useEffect(() => {
         getWorkers();
     }, []);
+
+    console.log(workers.length);
+
     return (
         <div>
             <div className="row align-items-center mt-3 ml-0 mr-0 justify-content-between">
@@ -361,6 +364,7 @@ const PropertyAddress = memo(function PropertyAddress({
                 <div>
                     <Modal
                         size="lg"
+                        className="modal-container"
                         dialogClassName="custom-modal-dialog" // Apply your custom class here
                         show={isModalOpen}
                         onHide={() => {
@@ -371,6 +375,7 @@ const PropertyAddress = memo(function PropertyAddress({
                     >
                         <Modal.Header closeButton
                             className="border-0"
+                            style={{ padding: "1rem 2rem" }}
                         >
                             <Modal.Title>
                                 <div className="navyblueColor">
@@ -387,6 +392,7 @@ const PropertyAddress = memo(function PropertyAddress({
 
                         <Modal.Body
                             className="border-0"
+                            style={{ padding: "1rem 2rem" }}
                         >
                             <div className="row">
                                 <div className="w-100 mr-3 ml-3">
@@ -513,7 +519,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             )}
                                         </label>
                                         <input
-                                            type="password"
+                                            type="text"
                                             ref={enterance}
                                             className="form-control skyBorder"
                                             placeholder={t(
@@ -545,6 +551,26 @@ const PropertyAddress = memo(function PropertyAddress({
                                         {errors.zip && (
                                             <small className="text-danger mb-1">
                                                 {errors.zip}
+                                            </small>
+                                        )}
+                                    </div>
+                                    <div className="form-group d-flex align-items-center">
+                                        <label className="control-label" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.parking"
+                                            )}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            ref={parking}
+                                            className="form-control skyBorder"
+                                            placeholder={t(
+                                                "admin.leads.AddLead.addAddress.placeHolder.parking"
+                                            )}
+                                        />
+                                        {errors.parking && (
+                                            <small className="text-danger mb-1">
+                                                {errors.parking}
                                             </small>
                                         )}
                                     </div>
@@ -632,19 +658,19 @@ const PropertyAddress = memo(function PropertyAddress({
                                     </div>
                                     <div className="form-group d-flex align-items-center">
                                         <div className="form-check form-switch pl-0">
-                                        <label
+                                            <label
                                                 className="form-check-label custom-checkbox navyblueColor"
                                                 htmlFor="isDogAvail"
                                                 style={{ fontWeight: "500", fontSize: "14px" }}
                                             >
-                                            <input
-                                                ref={is_dog_avail}
-                                                className="form-check-input"
-                                                type="checkbox"
-                                                id="isDogAvail"
-                                                name="is_dog_avail"
-                                            />
-                                                 <span class="checkmark"></span>
+                                                <input
+                                                    ref={is_dog_avail}
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    id="isDogAvail"
+                                                    name="is_dog_avail"
+                                                />
+                                                <span className="checkmark"></span>
 
                                                 {t(
                                                     "admin.leads.AddLead.addAddress.IsDOG"
@@ -666,7 +692,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                                     id="isCatAvail"
                                                     name="is_cat_avail"
                                                 />
-                                                <span class="checkmark"></span>
+                                                <span className="checkmark"></span>
 
                                                 {t(
                                                     "admin.leads.AddLead.addAddress.IsCat"
@@ -698,9 +724,24 @@ const PropertyAddress = memo(function PropertyAddress({
                                     </div>
                                 </div>
                             </div>
+                            <input
+                                type="hidden"
+                                ref={addressId}
+                                name="addressId"
+                            />
+                            <input type="hidden" ref={lat} name="lat" />
+                            <input type="hidden" ref={long} name="long" />
+                            <input type="hidden" ref={city} name="city" />
+                            <input
+                                type="hidden"
+                                ref={client_id}
+                                name="client_id"
+                                defaultValue={params.id ? params.id : 0}
+                            />
                         </Modal.Body>
                         <Modal.Footer
                             className="border-0"
+                            style={{ padding: "1rem 2rem" }}
                         >
                             <div className="bg-transparent">
                                 <Button
@@ -729,7 +770,7 @@ const PropertyAddress = memo(function PropertyAddress({
                 </div>
             )}
             <div className="card">
-                <div className="card-body">
+                <div className="card-body" style={{ background: "#FAFBFC" }}>
                     <div className="boxPanel">
                         {addresses.length > 0 ? (
                             <Table className="table table-bordered">
@@ -741,17 +782,44 @@ const PropertyAddress = memo(function PropertyAddress({
                                             )}
                                         </Th>
                                         <Th>
-                                            {" "}
                                             {t(
                                                 "admin.leads.AddLead.addAddress.Address"
                                             )}
                                         </Th>
                                         <Th>
+                                            Floor
+                                        </Th>
+                                        <Th>
+                                            Apt # and Apt name
+                                        </Th>
+                                        <Th>
+                                            Enterance Code
+                                        </Th>
+                                        <Th>
+
                                             {t(
                                                 "admin.leads.AddLead.addAddress.Zipcode"
                                             )}
                                         </Th>
                                         <Th>
+
+                                            Gender Prefernce
+                                        </Th>
+                                        <Th>
+
+                                            Dog
+                                        </Th>
+                                        <Th>
+
+                                            Cat
+                                        </Th>
+                                        <Th>
+
+                                            Allowed Workers
+                                        </Th>
+
+                                        <Th>
+
                                             {t(
                                                 "admin.leads.AddLead.addAddress.Action"
                                             )}
@@ -764,21 +832,95 @@ const PropertyAddress = memo(function PropertyAddress({
                                             return (
                                                 <Tr key={index}>
                                                     <Td>
+                                                        {"  "}
                                                         {item.address_name
                                                             ? item.address_name
                                                             : "NA"}{" "}
                                                     </Td>
                                                     <Td>
+                                                        {"  "}
                                                         {item.geo_address
                                                             ? item.geo_address
                                                             : "NA"}{" "}
                                                     </Td>
                                                     <Td>
+                                                        {"  "}
+                                                        {item.floor
+                                                            ? item.floor
+                                                            : "NA"}
+                                                    </Td>
+                                                    <Td>
+                                                        {"  "}
+                                                        {item.apt_no
+                                                            ? item.apt_no
+                                                            : "NA"}
+                                                    </Td>
+                                                    <Td>
+                                                        {"  "}
+                                                        {item.entrence_code
+                                                            ? item.entrence_code
+                                                            : "NA"}
+                                                    </Td>
+                                                    <Td>
+                                                        {"  "}
                                                         {item.zipcode
                                                             ? item.zipcode
                                                             : "NA"}
                                                     </Td>
                                                     <Td>
+                                                        {"  "}
+                                                        {item.prefer_type
+                                                            ? item.prefer_type
+                                                            : "NA"}
+                                                    </Td>
+                                                    <Td>
+                                                        {"  "}
+                                                        <label
+                                                            className="form-check-label custom-checkbox navyblueColor"
+                                                            htmlFor="isDogAvail"
+                                                            style={{ fontWeight: "500", fontSize: "14px" }}
+                                                        >
+                                                            <input
+                                                                // ref={is_dog_avail}
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                id="isDogAvail"
+                                                                name="is_dog_avail"
+                                                                defaultChecked={item.is_cat_avail}
+                                                            />
+                                                            <span className="checkmark"></span>
+                                                        </label>
+
+                                                    </Td>
+                                                    <Td>
+                                                        {" "}
+                                                        <label
+                                                            className="form-check-label custom-checkbox navyblueColor"
+                                                            htmlFor="isDogAvail"
+                                                            style={{ fontWeight: "500", fontSize: "14px" }}
+                                                        >
+                                                            <input
+                                                                // ref={is_dog_avail}
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                id="isDogAvail"
+                                                                name="is_dog_avail"
+                                                                defaultChecked={item.is_dog_avail}
+                                                            />
+                                                            <span className="checkmark"></span>
+                                                        </label>
+
+                                                    </Td>
+                                                    <Td>
+                                                        {workers && workers.length > 0
+                                                            ? workers.map((worker, idx) => (
+                                                                <span key={idx}>{worker.label}</span>
+                                                            ))
+                                                            : "NA"}
+                                                    </Td>
+
+                                                    <Td>
+                                                        {" "}
                                                         <div className="action-dropdown dropdown">
                                                             <button
                                                                 type="button"

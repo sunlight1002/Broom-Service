@@ -143,14 +143,14 @@ export default function AddLead() {
                         </div>
                     </div>
                         <div className="container-box d-flex justify-content-between">
-                            <div className="card-item" style={{marginRight: "15px"}}>
+                            <div className="card-item" style={{marginRight: "15px", background: "#FAFBFC"}}>
                                 <div className="card-heading">
-                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="">General Information</p>
+                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">General Information</p>
                                 </div>
                                 <div className="card-body d-flex">
                                     <div className="col">
                                         <div className="form-group d-flex w-100">
-                                            <label className="control-label" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
                                                 Notification Type
                                             </label>
 
@@ -174,7 +174,7 @@ export default function AddLead() {
                                             </select>
                                         </div>
                                         <div className="form-group d-flex">
-                                            <label className="control-label" style={{width: "14.4rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "14.4rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.FirstName"
                                                 )}{" "}
@@ -207,7 +207,7 @@ export default function AddLead() {
                                             </div>
                                         </div>
                                         <div className="form-group d-flex">
-                                            <label className="control-label" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.LastName"
                                                 )}
@@ -230,7 +230,7 @@ export default function AddLead() {
                                             />
                                         </div>
                                         <div className="form-group d-flex">
-                                            <label className="control-label" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
                                                 {t("admin.leads.AddLead.DOB")}
                                             </label>
                                             <input
@@ -253,7 +253,7 @@ export default function AddLead() {
                                             )}
                                         </div>
                                         <div className="form-group d-flex">
-                                            <label className="control-label" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
                                                 {t("admin.leads.AddLead.Language")}
                                             </label>
 
@@ -274,7 +274,7 @@ export default function AddLead() {
                                     </div>
                                     <div className="col">
                                         <div className="form-group d-flex">
-                                            <label className="control-label" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.PrimaryPhone"
                                                 )}
@@ -303,7 +303,7 @@ export default function AddLead() {
                                             )}
                                         </div>
                                         <div className="form-group d-flex">
-                                            <label className="control-label" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.PrimaryEmail"
                                                 )}{" "}
@@ -336,7 +336,7 @@ export default function AddLead() {
                                             </div>
                                         </div>
                                         <div className="form-group d-flex">
-                                            <label className="control-label" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.InvoiceName"
                                                 )}
@@ -359,7 +359,7 @@ export default function AddLead() {
                                             />
                                         </div>
                                         <div className="form-group d-flex">
-                                            <label className="control-label" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
                                                 {t("admin.leads.AddLead.PaymentMethod")}
                                             </label>
 
@@ -396,7 +396,7 @@ export default function AddLead() {
                                             </select>
                                         </div>
                                         <div className="form-group d-flex">
-                                            <label className="control-label" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
                                                 {t(
                                                     "admin.leads.AddLead.Password"
                                                 )}
@@ -434,7 +434,7 @@ export default function AddLead() {
                                         style={{ paddingLeft: "0" }}
                                     >
                                         <label
-                                            className="form-check-label"
+                                            className="form-check-label navyblueColor"
                                             htmlFor="title"
                                         >
                                             {t("admin.leads.AddLead.Color")}
@@ -475,7 +475,7 @@ export default function AddLead() {
                                                 });
                                             }}
                                         />
-                                        <label htmlFor="swatch_7">
+                                        <label htmlFor="swatch_7 ">
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>
@@ -597,9 +597,9 @@ export default function AddLead() {
                                     )}
                                 </div>
                             </div>
-                            <div className="card-item">
+                            <div className="card-item" style={{background: "#FAFBFC"}}>
                                 <div className="card-heading">
-                                <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="">Additional Contacts</p>
+                                <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">Additional Contacts</p>
                                 </div>
                                 <div className="card-body d-flex flex-column">
                                     {extra &&

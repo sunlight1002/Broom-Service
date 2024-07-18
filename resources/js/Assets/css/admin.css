@@ -750,7 +750,7 @@ table tr td .dropdown-item {
 #container #content .form-group label {
   margin-bottom: 5px;
   font-weight: 100;
-  color: #000;
+  color: #2F4054;
   font-size: 14px;
 }
 
@@ -1920,7 +1920,10 @@ tbody tr:hover{
 }
 
 .worker-avail1 .fc-view-harness .fc-view>table {
-  width: 720px;
+  width: 800px;
+}
+.worker-avail1 .fc-button-group button:nth-child(1) span {
+  height: 100%;
 }
 
 .gender-group input {

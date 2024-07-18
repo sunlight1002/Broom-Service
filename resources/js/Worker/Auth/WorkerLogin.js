@@ -38,7 +38,7 @@ export default function WorkerLogin() {
                 if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
                     localStorage.setItem("worker-email", result.data.email);
                     window.location = "/worker/login-otp";
-                    // setLoading(false)
+                    setLoading(false)
                 }else{
                     localStorage.setItem("worker-token", result.data.token);
                     i18next.changeLanguage(result.data.lng);

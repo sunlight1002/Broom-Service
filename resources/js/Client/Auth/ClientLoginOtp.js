@@ -16,6 +16,7 @@ export default function ClientLoginOtp() {
     const [canResend, setCanResend] = useState(false);
 
     const clientEmail = localStorage.getItem("client-email");
+    console.log(clientEmail);
 
     useEffect(() => {
         const clientLogin = localStorage.getItem("client-id");
