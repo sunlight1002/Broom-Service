@@ -51,7 +51,7 @@ class AuthController extends Controller
                         $client->otp_expiry = now()->addMinutes(10); 
                         $client->save();
 
-                        Mail::to($client->email)->send(new LoginOtpMail($otp)); 
+                        Mail::to($client->email)->send(new LoginOtpMail($otp,$client)); 
 
                         // Send OTP via SMS using Twilio
                         $twilioAccountSid = config('services.twilio.twilio_id');
@@ -143,7 +143,7 @@ class AuthController extends Controller
             $client->otp_expiry = now()->addMinutes(10);
             $client->save();
 
-            Mail::to($client->email)->send(new LoginOtpMail($otp));
+            Mail::to($client->email)->send(new LoginOtpMail($otp,$client));
 
             // Send OTP via SMS using Twilio
             $twilioAccountSid = config('services.twilio.twilio_id');

@@ -177,4 +177,9 @@ class Client extends Authenticatable
     {
         return $this->morphMany(Log::class, 'logable')->latest('id')->take(1);
     }
+    
+    public function setPhoneAttribute($value)
+    {
+        $this->attributes['phone'] = preg_replace('/\D/', '', $value);
+    }
 }

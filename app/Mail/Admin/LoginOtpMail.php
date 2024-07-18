@@ -9,18 +9,23 @@ use Illuminate\Queue\SerializesModels;
 
 class LoginOtpMail extends Mailable
 {
-    use Queueable, SerializesModels;
-
     public $otp;
+    public $admin;
 
-    public function __construct($otp)
+    public function __construct($otp, $admin)
     {
         $this->otp = $otp;
+        $this->admin = $admin;
     }
 
     public function build()
     {
-        return $this->view('Mails.otp')->with(['otp' => $this->otp]);
+        return $this->view('Mails.otp')
+                    ->subject('Your OTP for Login')
+                    ->with([
+                        'otp' => $this->otp,
+                        'admin' => $this->admin
+                    ]);
     }
 }
 

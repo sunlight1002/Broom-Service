@@ -68,7 +68,7 @@ class AuthController extends Controller
                     $user->otp_expiry = now()->addMinutes(10);
                     $user->save();
 
-                    Mail::to($user->email)->send(new LoginOtpMail($otp));
+                    Mail::to($user->email)->send(new LoginOtpMail($otp,$user));
 
                     // Send OTP via SMS using Twilio
                     $twilioAccountSid = config('services.twilio.twilio_id');
@@ -76,7 +76,7 @@ class AuthController extends Controller
                     $twilioPhoneNumber = config('services.twilio.twilio_number');        
 
                     $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
-                    $phone_number = '+91'.$user->phone;
+                    $phone_number = '+'.$user->phone;
                     
                     $twilioClient->messages->create(
                         $phone_number,
@@ -138,6 +138,7 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
 
+
         if (!$user) {
             return response()->json(['errors' => ['user' => 'User not authenticated']], 401);
         }
@@ -148,7 +149,7 @@ class AuthController extends Controller
             $user->otp_expiry = now()->addMinutes(10);
             $user->save();
 
-            Mail::to($user->email)->send(new LoginOtpMail($otp));
+            Mail::to($user->email)->send(new LoginOtpMail($otp,$user));
 
             // Send OTP via SMS using Twilio
             $twilioAccountSid = config('services.twilio.twilio_id');
@@ -156,7 +157,7 @@ class AuthController extends Controller
             $twilioPhoneNumber = config('services.twilio.twilio_number');
 
             $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
-            $phone_number = '+91'.$user->phone;
+            $phone_number = '+'.$user->phone;
             
             $twilioClient->messages->create(
                 $phone_number,

@@ -11,15 +11,23 @@ class LoginOtpMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-   
-    public function __construct($otp)
+    public $otp;
+    public $client;
+
+    public function __construct($otp, $client)
     {
         $this->otp = $otp;
+        $this->client = $client;
     }
 
     
     public function build()
     {
-        return $this->view('Mails.client.loginOtp')->with(['otp' => $this->otp]);
+        return $this->view('Mails.client.loginOtp')
+                    ->subject('Your OTP for Login')
+                    ->with([
+                        'otp' => $this->otp,
+                        'client' => $this->client
+                    ]);
     }
 }

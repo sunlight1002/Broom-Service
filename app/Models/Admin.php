@@ -62,6 +62,14 @@ class Admin extends Authenticatable
         return $this->hasMany(TeamMemberDefaultAvailability::class, 'team_member_id');
     }
 
+    public function setPhoneAttribute($value)
+    {
+        $this->attributes['phone'] = preg_replace('/\D/', '', $value);
+    }
+
+    
+   
+
     // public function generateCode(){
     //     $this->timestamps = false;
     //     $this->otp = rand(1000,9999);
