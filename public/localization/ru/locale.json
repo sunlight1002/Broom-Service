@@ -2044,5 +2044,14 @@
         "full_address": "Полный адрес",
         "auto_complete": "автозаполнение от google address",
         "submit": "Отправить"
+    },
+    "resendOtp": {
+        "workerLoginOtpTitle": "Одноразовый пароль для входа работника",
+        "clientLoginOtpTitle": "Одноразовый пароль для входа клиента",
+        "adminLoginOtpTitle": "Одноразовый пароль для входа администратора",
+        "subtitle": "Ваш код был отправлен вам по электронной почте или SMS",
+        "verify": "Подтвердить",
+        "receiveCode": "Не получили код?",
+        "requestAgain": "Запросить снова"
     }
 }

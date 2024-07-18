@@ -334,5 +334,14 @@
         "full_address": "Dirección Completa",
         "auto_complete": "autocompletar desde la dirección de google",
         "submit": "Enviar"
+    },
+    "resendOtp": {
+        "workerLoginOtpTitle": "Código de acceso para trabajadores",
+        "clientLoginOtpTitle": "Código de acceso para clientes",
+        "adminLoginOtpTitle": "Código de acceso para administradores",
+        "subtitle": "Tu código fue enviado a través de correo electrónico o SMS",
+        "verify": "Verificar",
+        "receiveCode": "¿No recibiste el código?",
+        "requestAgain": "Solicitar nuevamente"
     }
 }

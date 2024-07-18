@@ -2106,5 +2106,14 @@
         "full_address": "כתובת מלאה",
         "auto_complete": "השלמה אוטומטית מכתובת גוגל",
         "submit": "אשר"
+    },
+   "resendOtp": {
+        "workerLoginOtpTitle": "אימות התחברות לעובד",
+        "clientLoginOtpTitle": "אימות התחברות ללקוח",
+        "adminLoginOtpTitle": "אימות התחברות למנהל",
+        "subtitle": "הקוד שלך נשלח אליך באמצעות דואר אלקטרוני או SMS",
+        "verify": "אמת",
+        "receiveCode": "לא קיבלת קוד?",
+        "requestAgain": "בקש שוב"
     }
 }
