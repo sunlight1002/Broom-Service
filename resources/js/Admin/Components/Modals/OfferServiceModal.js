@@ -465,7 +465,7 @@ export default function OfferServiceModal({
                         style={{
                             display: showWeekDayOption ? "block" : "none",
                         }}
-                    >
+                        >
                         <div className="d-inline">
                             <span> On </span>
 

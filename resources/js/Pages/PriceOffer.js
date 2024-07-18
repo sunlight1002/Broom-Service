@@ -141,6 +141,23 @@ export default function PriceOffer() {
         return services.filter((i) => i.type !== "fixed").length > 0;
     }, [services]);
 
+    // console.log(allTemplates);
+
+    const data = [
+        { col1: t("price_offer.airbnb.services.s2"), col2: t("price_offer.airbnb.size_apt.s2"), col3: t("price_offer.airbnb.price.p1") },
+        { col1: t("price_offer.airbnb.services.s3"), col2: t("price_offer.airbnb.size_apt.s3"), col3: t("price_offer.airbnb.price.p2") },
+        { col1: t("price_offer.airbnb.services.s1"), col2: t("price_offer.airbnb.size_apt.s1"), col3: t("price_offer.airbnb.price.p3") },
+        { col1: t("price_offer.airbnb.services.s4"), col2: t("price_offer.airbnb.size_apt.s4"), col3: t("price_offer.airbnb.price.p4") },
+        { col1: t("price_offer.airbnb.services.s5"), col2: t("price_offer.airbnb.size_apt.s5"), col3: t("price_offer.airbnb.price.p5") },
+        { col1: t("price_offer.airbnb.services.s6"), col2: t("price_offer.airbnb.size_apt.s6"), col3: t("price_offer.airbnb.price.p6") },
+        { col1: t("price_offer.airbnb.services.s7"), col2: t("price_offer.airbnb.size_apt.s7"), col3: t("price_offer.airbnb.price.p7") },
+        { col1: t("price_offer.airbnb.services.s8"), col2: t("price_offer.airbnb.size_apt.s8"), col3: t("price_offer.airbnb.price.p8") },
+        { col1: t("price_offer.airbnb.services.s9"), col2: t("price_offer.airbnb.size_apt.s9"), col3: t("price_offer.airbnb.price.p9") },
+        { col1: t("price_offer.airbnb.services.s10"), col2: t("price_offer.airbnb.size_apt.s10"), col3: t("price_offer.airbnb.price.p10") },
+        { col1: t("price_offer.airbnb.services.s11"), col2: t("price_offer.airbnb.size_apt.s11"), col3: t("price_offer.airbnb.price.p11") },
+        { col1: t("price_offer.airbnb.services.s12"), col2: t("price_offer.airbnb.size_apt.s12"), col3: t("price_offer.airbnb.price.p12") },
+    ];
+
     return (
         <>
             <div className="container parent" style={{ display: "none" }}>
@@ -253,6 +270,79 @@ export default function PriceOffer() {
                                 || rg.includes(sid) && sid == 7
                                 && !rg.includes(sid) && sid == 10*/}
 
+
+
+                            {allTemplates.includes("airbnb") && (
+                                <div className="shift-20">
+                                    <h4>
+                                        &bull;{" "}
+                                        {t("price_offer.airbnb.title")}
+                                    </h4>
+                                    <ul className="list-unstyled">
+                                        <li>
+                                            <img src={star} />{" "}
+                                            {t(
+                                                "price_offer.airbnb.subtitle"
+                                            )}
+                                        </li>
+                                        <li>
+                                            <img src={star} />{" "}
+                                            {t(
+                                                "price_offer.airbnb.air1"
+                                            )}
+                                        </li>
+                                        <li>
+                                            <img src={star} />{" "}
+                                            {t(
+                                                "price_offer.airbnb.air2"
+                                            )}
+                                        </li>
+                                        {/* <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li> */}
+                                        <li>
+                                            <img src={star} />{" "}
+                                            {t(
+                                                "price_offer.airbnb.air3"
+                                            )}
+                                        </li>
+                                        <li>
+                                            <img src={star} />{" "}
+                                            {t(
+                                                "price_offer.airbnb.air4"
+                                            )}
+                                        </li>
+                                        <li>
+                                            <img src={star} />{" "}
+                                            {t(
+                                                "price_offer.airbnb.air5"
+                                            )}
+                                        </li>
+                                    </ul>
+
+                                    <h4 className="mt-4">
+                                        &bull;{" "}
+                                        {t("price_offer.regular_services.rs2")}
+                                    </h4>
+                                    <table border="1" style={{ width: "100%", textAlign: "center", borderCollapse: "collapse" }}>
+                                        <thead>
+                                            <tr>
+                                                <th>{t("price_offer.airbnb.service.title")}</th>
+                                                <th>{t("price_offer.airbnb.size_apt.title")}</th>
+                                                <th>{t("price_offer.airbnb.price.title")}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {data.map((row, index) => (
+                                                <tr key={index}>
+                                                    <td>{row.col1}</td>
+                                                    <td>{row.col2}</td>
+                                                    <td>{row.col3}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+
                             {allTemplates.includes("regular") && (
                                 <div className="shift-20">
                                     <h4>
@@ -300,6 +390,8 @@ export default function PriceOffer() {
                                     />
                                 </div>
                             )}
+
+
                             {/*(!rg.includes(sid) && sid == 4)
                                     && (!rg.includes(sid) && sid == 5)
                                     && (!rg.includes(sid) && sid == 6)
@@ -313,6 +405,10 @@ export default function PriceOffer() {
                                     !allTemplates.includes("regular")
                                 ) {
                                     return (
+
+
+
+
                                         <div className="shift-20" key={i}>
                                             <h4 className="mt-4">
                                                 &bull; {s.other_title}
@@ -725,6 +821,7 @@ export default function PriceOffer() {
                                 </div>
                             )}
 
+
                             <div className="shift-20">
                                 <h4 className="mt-4">
                                     &bull;{" "}
@@ -822,10 +919,10 @@ export default function PriceOffer() {
                                                     <tr key={i}>
                                                         <td>
                                                             {s.address &&
-                                                            s.address
-                                                                .address_name
+                                                                s.address
+                                                                    .address_name
                                                                 ? s.address
-                                                                      .address_name
+                                                                    .address_name
                                                                 : "NA"}
                                                         </td>
                                                         <td>

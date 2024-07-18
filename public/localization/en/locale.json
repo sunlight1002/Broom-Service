@@ -231,6 +231,60 @@
             "cancel": "Cancel",
             "reject": "Reject",
             "reject_msg": "Offer has been rejected"
+        },
+        "airbnb": {
+            "title": "AirBnb apartment cleaning and maintenance is us. You can also offer the service to tenants staying in your apartment on demand.And all in one centralized invoice at the end of the month.Join the success! All our customers are Super Hosts!",
+            "subtitle": "Let us upgrade your property to a 5-star boutique hotel!",
+            "air1": "Cleaning and maintenance of the property by permanent and experienced maids who are legally insured and supervised by a foreman",
+            "air2": "Adherence to schedules (check-out) without late taps",
+            "air3": "Laundry services, dry cleaning, ironing: including collection and return up to 48 hours",
+            "air4": "Bed linen and towel rental service at the highest level – including delivery",
+            "air5": "Cleaning sofas, rugs and curtains",
+            "services": {
+                "title": "Service",
+                "s1": "Check in cleaning",
+                "s2": "Check in cleaning",
+                "s3": "Check in cleaning",
+                "s4": "Check in cleaning",
+                "s5": "Check in cleaning",
+                "s6": "Check in cleaning",
+                "s7": "All windows cleaning",
+                "s8": "All windows cleaning",
+                "s9": "All windows cleaning",
+                "s10": "All windows cleaning",
+                "s11": "All windows cleaning",
+                "s12": "All windows cleaning"
+            },
+            "size_apt": {
+                "title": "SIZE APT",
+                "s1": "studio up to 25sqm",
+                "s2": "1bd up to 45sqm",
+                "s3": "2bd up to 65sqm",
+                "s4": "3bd up to 85sqm",
+                "s5": "4bd up to 110sqm",
+                "s6": "5bd up to 140sqm",
+                "s7": "studio up to 25sqm",
+                "s8": "1bd up to 45sqm",
+                "s9": "2bd up to 65sqm",
+                "s10": "3bd up to 85sqm",
+                "s11": "4bd up to 110sqm",
+                "s12": "5bd up to 140sqm"
+            },
+            "price": {
+                "title": "PRICE",
+                "p1": "200",
+                "p2": "269",
+                "p3": "369",
+                "p4": "449",
+                "p5": "499",
+                "p6": "569",
+                "p7": "150",
+                "p8": "259",
+                "p9": "339",
+                "p10": "399",
+                "p11": "469",
+                "p12": "549"
+            }
         }
     },
     "work-contract": {
