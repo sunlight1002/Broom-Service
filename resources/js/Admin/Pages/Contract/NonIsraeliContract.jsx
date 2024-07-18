@@ -47,7 +47,6 @@ export function NonIsraeliContract({
         role: "",
     };
 
-
     const formSchema = yup.object(workerDetail.passport? {
         fullName: yup
             .string()
