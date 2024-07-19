@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\Worker\LoginOtpMail;
 use Carbon\Carbon;
 use Twilio\Rest\Client;
+use Illuminate\Support\Facades\App;
 
 class AuthController extends Controller
 {
@@ -70,7 +71,10 @@ class AuthController extends Controller
 
                     Mail::to($user->email)->send(new LoginOtpMail($otp,$user));
 
+                    App::setLocale($user->lng);
                     // Send OTP via SMS using Twilio
+                    $otpMessage = __('mail.otp.body', ['otp' => $otp]);
+
                     $twilioAccountSid = config('services.twilio.twilio_id');
                     $twilioAuthToken = config('services.twilio.twilio_token');
                     $twilioPhoneNumber = config('services.twilio.twilio_number');        
@@ -80,7 +84,7 @@ class AuthController extends Controller
                     
                     $twilioClient->messages->create(
                         $phone_number,
-                        ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                        ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
                     );
 
                     return response()->json([
@@ -152,7 +156,10 @@ class AuthController extends Controller
 
             Mail::to($user->email)->send(new LoginOtpMail($otp,$user));
 
+            App::setLocale($user->lng);
             // Send OTP via SMS using Twilio
+            $otpMessage = __('mail.otp.body', ['otp' => $otp]);
+
             $twilioAccountSid = config('services.twilio.twilio_id');
             $twilioAuthToken = config('services.twilio.twilio_token');
             $twilioPhoneNumber = config('services.twilio.twilio_number');
@@ -162,7 +169,7 @@ class AuthController extends Controller
             
             $twilioClient->messages->create(
                 $phone_number,
-                ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
             );
 
             return response()->json(['message' => 'OTP sent to your email and phone number for verification']);

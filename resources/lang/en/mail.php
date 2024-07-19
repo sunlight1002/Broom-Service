@@ -538,5 +538,14 @@ return [
             'check_file' => 'Check file',
             'view_client' => 'View Client'
         ]
-    ]
+        ],
+    
+    
+    'otp' => [
+        'subject' => 'Your OTP for Login',
+        'body' => 'Your OTP (One-Time Password) for login is: :otp',
+        'expiration' => 'Please use this OTP to proceed with your login. OTP will expire in 10 minutes.',
+    ],
+
+    
 ];

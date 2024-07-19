@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class LoginOtpMail extends Mailable
 {
@@ -18,13 +19,14 @@ class LoginOtpMail extends Mailable
     {
         $this->otp = $otp;
         $this->client = $client;
+        App::setLocale($client->lng);
     }
 
     
     public function build()
     {
         return $this->view('Mails.client.loginOtp')
-                    ->subject('Your OTP for Login')
+                    ->subject(__('mail.otp.subject'))
                     ->with([
                         'otp' => $this->otp,
                         'client' => $this->client

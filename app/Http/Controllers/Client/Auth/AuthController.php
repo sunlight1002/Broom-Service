@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Client\LoginOtpMail;
-
+use Illuminate\Support\Facades\App;
 
 
 
@@ -53,7 +53,10 @@ class AuthController extends Controller
 
                         Mail::to($client->email)->send(new LoginOtpMail($otp,$client)); 
 
+                        App::setLocale($user->lng);
                         // Send OTP via SMS using Twilio
+                        $otpMessage = __('mail.otp.body', ['otp' => $otp]);
+                        
                         $twilioAccountSid = config('services.twilio.twilio_id');
                         $twilioAuthToken = config('services.twilio.twilio_token');
                         $twilioPhoneNumber = config('services.twilio.twilio_number');
@@ -63,9 +66,9 @@ class AuthController extends Controller
                     
                         $twilioClient->messages->create(
                             $phone_number,
-                            ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                            ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
                         );
-
+            
                         return response()->json([
                             "two_factor_enabled" => $client->two_factor_enabled,
                             "email" => $client->email,
@@ -146,7 +149,10 @@ class AuthController extends Controller
 
             Mail::to($client->email)->send(new LoginOtpMail($otp,$client));
 
+            App::setLocale($user->lng);
             // Send OTP via SMS using Twilio
+            $otpMessage = __('mail.otp.body', ['otp' => $otp]);
+
             $twilioAccountSid = config('services.twilio.twilio_id');
             $twilioAuthToken = config('services.twilio.twilio_token');
             $twilioPhoneNumber = config('services.twilio.twilio_number');
@@ -156,7 +162,7 @@ class AuthController extends Controller
             
             $twilioClient->messages->create(
                 $phone_number,
-                ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
+                ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
             );
 
             return response()->json([

@@ -7,9 +7,9 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-	<title> Your OTP for Login</title>
+	<title> Otp for login </title>
 </head>
-<body style="@if($user['lng'] == 'heb') font-family: 'Noto Sans Hebrew', sans-serif;color: #212529;background: #fcfcfc; direction:rtl @else font-family: 'Open Sans', sans-serif;color: #212529;background: #fcfcfc; @endif">
+<body @if($user->lng =='heb') style="font-family: 'Noto Sans Hebrew', sans-serif;color: #212529;background: #fcfcfc; direction:rtl" @else style="font-family: 'Open Sans', sans-serif;color: #212529;background: #fcfcfc;" @endif>
 	<div style="max-width: 650px;margin: 0 auto;margin-top: 30px;margin-bottom: 20px;background: #fff;border: 1px solid #e6e8eb;border-radius: 6px;padding: 20px;">
 		<table cellpadding="0" cellspacing="0" width="100%">
 			<tr>
@@ -18,9 +18,9 @@
 				</td>
 			</tr>
 		</table>
-		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $user['firstname']])}}</h1>
-		<p style="text-align: center;line-height: 30px">Your OTP (One-Time Password) for login is: <strong>{{ $otp }}</strong></p>
-		<p style="text-align: center;line-height: 30px"> Please use this OTP to proceed with your login. OTP is expired in 10 minutes</p>
+		<h1 style="text-align: center;">{{__('mail.common.salutation', ['name' => $user->firstname])}}</h1>
+		<p style="text-align: center;line-height: 30px">{{ __('mail.otp.body', ['otp' => $otp]) }}</p>
+		<p style="text-align: center;line-height: 30px"> {{ __('mail.otp.expiration') }}</p>
 		
 
 		<p style="text-align: center;line-height: 30px">{{__('mail.common.greetings')}}</p>
