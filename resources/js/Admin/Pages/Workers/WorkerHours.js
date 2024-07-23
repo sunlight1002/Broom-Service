@@ -72,7 +72,7 @@ export default function WorkerHours() {
                     title: "Worker",
                     data: "name",
                     render: function (data, type, row, meta) {
-                        return `<a href="/admin/view-worker/${row.id}" class="dt-worker-link" data-worker-id="${row.id}"> ${data} </a>`;
+                        return `<a href="/admin/workers/view/${row.id}" class="dt-worker-link" data-worker-id="${row.id}"> ${data} </a>`;
                     },
                 },
                 {
@@ -140,7 +140,7 @@ export default function WorkerHours() {
 
         $(tableRef.current).on("click", ".dt-worker-link", function () {
             const _workerID = $(this).data("worker-id");
-            navigate(`/admin/view-worker/${_workerID}`);
+            navigate(`/admin/workers/view/${_workerID}`);
         });
 
         return function cleanup() {

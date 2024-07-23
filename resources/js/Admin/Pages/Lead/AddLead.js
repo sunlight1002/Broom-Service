@@ -430,7 +430,7 @@ export default function AddLead() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="form-group d-flex align-items-center ml-5" >
+                                <div className="form-group color d-flex align-items-center ml-5" >
                                     <div
                                         className="form-check form-check-inline1 pl-0"
                                         style={{ paddingLeft: "0" }}

@@ -397,7 +397,7 @@ export default function () {
                                                     </td>
                                                     <td>
                                                         <Link
-                                                            to={`/admin/view-schedule/${d.client.id}?sid=${d.id}`}
+                                                            to={`/admin/schedule/view/${d.client.id}?sid=${d.id}`}
                                                             className="btn btn-primary"
                                                         >
                                                             {t(

@@ -22,18 +22,50 @@ export default function LeadDetails({ lead }) {
     return (
         <>
             <div className="client-view">
-                <h1>
-                    <span>#{lead.id}</span>{" "}
-                    {lead.firstname + " " + lead.lastname}
-                </h1>
-                <div className="row">
-                    <div className="col-lg-8 col-12">
-                        <div className="ClientHistory dashBox p-4 min-414">
+                <div className="d-flex align-items-center justify-content-between">
+                    <h1 className="navyblueColor">
+                        <span>#{lead.id}</span>{" "}
+                        {lead.firstname + " " + lead.lastname}
+                    </h1>
+                    <div className=" p-4 d-flex align-items-center client-view-div1">
+                        <div className="">
+                            {/* <label className="d-block">
+                                {t(
+                                    "admin.leads.leadDetails.convertToClient"
+                                )}
+                            </label> */}
+                            <Link
+                                to={`/admin/add-lead-client/${param.id}`}
+                                className="btn navyblue  no-hover addButton mr-2"
+                            >
+                                <i className="btn-icon fas fa-plus-circle"></i>
+                                {t(
+                                    "admin.leads.leadDetails.convertToClient"
+                                )}
+                            </Link>
+                        </div>
+                        <div className="">
+                            <div className="search-data">
+                                <Link
+                                    to={`/admin/add-lead-client/${param.id}`}
+                                    className="btn navyblue addButton"
+                                >
+                                    <i className="btn-icon fas fa-pencil"></i>
+                                    {t("admin.global.Edit")}
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div className="row d-inline">
+                    <div className="">
+                        <div className="ClientHistory  pl-4 pr-4">
                             <ul className="nav nav-tabs" role="tablist">
                                 <li className="nav-item" role="presentation">
                                     <a
                                         id="client-details"
-                                        className="nav-link active"
+                                        className="nav-link active navyblueColor"
                                         data-toggle="tab"
                                         href="#tab-client-details"
                                         aria-selected="true"
@@ -45,7 +77,7 @@ export default function LeadDetails({ lead }) {
                                 <li className="nav-item" role="presentation">
                                     <a
                                         id="note-details"
-                                        className="nav-link"
+                                        className="nav-link navyblueColor"
                                         data-toggle="tab"
                                         href="#tab-note-details"
                                         aria-selected="false"
@@ -57,7 +89,7 @@ export default function LeadDetails({ lead }) {
                                 <li className="nav-item" role="presentation">
                                     <a
                                         id="files-tab"
-                                        className="nav-link"
+                                        className="nav-link navyblueColor"
                                         data-toggle="tab"
                                         href="#tab-files"
                                         aria-selected="false"
@@ -69,7 +101,7 @@ export default function LeadDetails({ lead }) {
                                 <li className="nav-item" role="presentation">
                                     <a
                                         id="intrest-details"
-                                        className="nav-link"
+                                        className="nav-link navyblueColor"
                                         data-toggle="tab"
                                         href="#tab-intrest"
                                         aria-selected="false"
@@ -82,16 +114,18 @@ export default function LeadDetails({ lead }) {
                                 </li>
                                 {/* <li className="nav-item" role="presentation"><a id="contact-details" className="nav-link" data-toggle="tab" href="#tab-contact" aria-selected="false" role="tab">First Contacted</a></li> */}
                             </ul>
-                            <div className="tab-content">
+                            <div className="tab-content border-0">
                                 <div
                                     id="tab-client-details"
                                     className="tab-pane active show"
                                     role="tab-panel"
                                     aria-labelledby="client-details"
                                 >
-                                    <div className="row">
-                                        <div className="col-xl-6">
-                                            <div className="form-group">
+                                    <h5 className="navyblueColor">{t("admin.leads.leadDetails.LeadInfo")}</h5>
+
+                                    <div className="row mt-3">
+                                        <div className="col-xl-4">
+                                            <div className="form-group navyblueColor">
                                                 <label>
                                                     {t("admin.global.Email")}
                                                 </label>
@@ -99,7 +133,7 @@ export default function LeadDetails({ lead }) {
                                             </div>
                                         </div>
                                         <div className="col-xl-6">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>
                                                     {" "}
                                                     {t("admin.global.Phone")}
@@ -114,8 +148,8 @@ export default function LeadDetails({ lead }) {
                                             </div>
                                         </div>
                                         {lead.lead_status && (
-                                            <div className="col-xl-6">
-                                                <div className="form-group">
+                                            <div className="col-xl-4">
+                                                <div className="form-group navyblueColor">
                                                     <label>
                                                         {t(
                                                             "admin.global.Status"
@@ -123,20 +157,19 @@ export default function LeadDetails({ lead }) {
                                                     </label>
 
                                                     {lead.latest_log &&
-                                                    lead.latest_log[0] ? (
+                                                        lead.latest_log[0] ? (
                                                         <p
                                                             data-tooltip-id="status-tooltip"
-                                                            data-tooltip-content={`Reason : ${
-                                                                lead
-                                                                    .latest_log[0]
-                                                                    .reason
-                                                            } on ${Moment(
-                                                                lead
-                                                                    .latest_log[0]
-                                                                    .created_at
-                                                            ).format(
-                                                                "DD/MM/Y"
-                                                            )}`}
+                                                            data-tooltip-content={`Reason : ${lead
+                                                                .latest_log[0]
+                                                                .reason
+                                                                } on ${Moment(
+                                                                    lead
+                                                                        .latest_log[0]
+                                                                        .created_at
+                                                                ).format(
+                                                                    "DD/MM/Y"
+                                                                )}`}
                                                         >
                                                             {
                                                                 lead.lead_status
@@ -155,7 +188,7 @@ export default function LeadDetails({ lead }) {
                                             </div>
                                         )}
                                         <div className="col-xl-6">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>
                                                     {" "}
                                                     {t(
@@ -166,7 +199,7 @@ export default function LeadDetails({ lead }) {
                                             </div>
                                         </div>
                                         <div className="col-sm-12">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>
                                                     {" "}
                                                     {t(
@@ -178,10 +211,10 @@ export default function LeadDetails({ lead }) {
                                         </div>
 
                                         <div className="col-sm-12">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <p>
                                                     <Link
-                                                        className="btn btn-success"
+                                                        className="btn navyblue"
                                                         to={`/admin/leads/${param.id}/edit`}
                                                     >
                                                         {t(
@@ -233,9 +266,9 @@ export default function LeadDetails({ lead }) {
                                                     <p>
                                                         {lead.reply
                                                             ? lead.reply.message
-                                                                  .length < 2
+                                                                .length < 2
                                                                 ? lead.reply
-                                                                      .message
+                                                                    .message
                                                                 : "Chat"
                                                             : ""}
                                                     </p>
@@ -291,80 +324,8 @@ export default function LeadDetails({ lead }) {
                         </div>
                     </div>
                     <div className="col-lg-4 col-12 mt-3 mt-lg-0">
-                        <div className="dashBox p-4">
-                            <div className="form-group">
-                                <label className="d-block">
-                                    {t(
-                                        "admin.leads.leadDetails.convertToClient"
-                                    )}
-                                </label>
-                                <Link
-                                    to={`/admin/add-lead-client/${param.id}`}
-                                    className="btn btn-pink addButton"
-                                >
-                                    <i className="btn-icon fas fa-plus-circle"></i>
-                                    {t("admin.leads.leadDetails.Convert")}
-                                </Link>
-                            </div>
-                        </div>
 
-                        <div className="dashBox p-4 mt-3">
-                            <div className="form-group">
-                                <label className="d-block">
-                                    {t("admin.leads.leadDetails.MeetingStatus")}
-                                </label>
-                                <span
-                                    id="ms"
-                                    className="dashStatus"
-                                    style={{
-                                        background: "#7e7e56",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    {lead.latest_meeting
-                                        ? lead.latest_meeting.booking_status
-                                        : t("admin.leads.leadDetails.NotSend")}
-                                </span>
-                            </div>
-
-                            <div className="form-group">
-                                <label className="d-block">
-                                    {" "}
-                                    {t("admin.leads.leadDetails.PriceOffer")}
-                                </label>
-                                <span
-                                    id="os"
-                                    className="dashStatus"
-                                    style={{
-                                        background: "#7e7e56",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    {lead.latest_offer
-                                        ? lead.latest_offer.status
-                                        : t("admin.leads.leadDetails.NotSend")}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="buttonBlocks dashBox mt-3 p-4">
-                            <Link to={`/admin/view-schedule/${param.id}`}>
-                                <i className="fas fa-hand-point-right"></i>
-
-                                {lead.meetings?.length == 0
-                                    ? t(
-                                          "admin.leads.leadDetails.ScheduleMeeting"
-                                      )
-                                    : t(
-                                          "admin.leads.leadDetails.ReScheduleMeeting"
-                                      )}
-                            </Link>
-                            <Link to={`/admin/offers/create?c=${param.id}`}>
-                                <i className="fas fa-hand-point-right"></i>
-                                {lead.offers?.length == 0
-                                    ? t("admin.leads.leadDetails.SendOffer")
-                                    : t("admin.leads.leadDetails.ReSendOffer")}
-                            </Link>
+                        <div className="buttonBlocks mt-3 p-4 d-none">
                             <Link
                                 to={`/admin/create-client-job/${param.id}`}
                                 id="bookBtn"

@@ -174,23 +174,23 @@ export default function AllWorkers() {
             }
 
             if (_id) {
-                navigate(`/admin/view-worker/${_id}`);
+                navigate(`/admin/workers/view/${_id}`);
             }
         });
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/edit-worker/${_id}`);
+            navigate(`/admin/workers/edit/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/view-worker/${_id}`);
+            navigate(`/admin/workers/view/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-freeze-shift-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/freeze-shift/${_id}`);
+            navigate(`/admin/workers/freeze-shift/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-leave-job-btn", function () {
@@ -319,7 +319,7 @@ export default function AllWorkers() {
                             </h1>
                             <Link
                                 to="/admin/add-worker"
-                                className="btn navyblue d-block d-md-none addButton"
+                                className="btn navyblue d-block d-md-none addButton no-hover"
                             >
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 Add New
@@ -328,20 +328,20 @@ export default function AllWorkers() {
                         <div className="col-sm-6">
                             <div className="search-data">
                                 <button
-                                    className="btn navyblue mt-4 mr-2"
+                                    className="btn navyblue mt-4 mr-2 no-hover"
                                     onClick={handleShow}
                                 >
                                     Import
                                 </button>
                                 <Link
                                     to="/admin/workers/working-hours"
-                                    className="btn navyblue addButton mr-0 mr-md-2  ml-auto"
+                                    className="btn navyblue addButton mr-0 mr-md-2  ml-auto no-hover"
                                 >
                                     Worker Hours
                                 </Link>
                                 <Link
                                     to="/admin/add-worker"
-                                    className="btn navyblue d-none d-md-block addButton"
+                                    className="btn navyblue d-none d-md-block addButton no-hover"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     Add New

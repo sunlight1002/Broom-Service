@@ -292,7 +292,7 @@ export default function Order() {
                                         <Td>
                                             {item.client ? (
                                                 <Link
-                                                    to={`/admin/view-client/${item.client.id}`}
+                                                    to={`/admin/clients/view/${item.client.id}`}
                                                 >
                                                     {item.client.firstname +
                                                         " " +

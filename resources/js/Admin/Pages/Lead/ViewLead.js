@@ -33,30 +33,20 @@ export default function ViewLead() {
         <div id="container">
             <Sidebar />
             <div id="content">
-                <div className="titleBox customer-title">
+                {/* <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">
                                 {t("admin.leads.viewLead.viewLead")}
                             </h1>
                         </div>
-                        <div className="col-sm-6">
-                            <div className="search-data">
-                                <Link
-                                    to={`/admin/add-lead-client/${param.id}`}
-                                    className="btn btn-pink addButton"
-                                >
-                                    <i className="btn-icon fas fa-pencil"></i>
-                                    {t("admin.global.Edit")}
-                                </Link>
-                            </div>
-                        </div>
+                       
                     </div>
-                </div>
+                </div> */}
                 {lead && (
                     <div className="view-applicant">
                         <LeadDetails lead={lead} />
-                        <div className="card mt-3">
+                        <div className="card mt-3" style={{boxShadow: "none"}}>
                             <div className="card-body">
                                 <LeadHistory client={lead} />
                             </div>

@@ -241,7 +241,7 @@ export default function card() {
                                 </Tbody>
                             </Table>
                         </div> */}
-                            <div className="card-item">
+                            <div className="item">
                                 <div className="d-flex justify-content-between align-items-center">
                                     <div className="d-flex justify-content-between align-items-center w-100">
                                     <p className=""

@@ -197,7 +197,7 @@ export default function ScheduledMeeting() {
                                             <td>
                                                 <div className="d-flex">
                                                     <Link
-                                                        to={`/admin/view-schedule/${param.id}?sid=${item.id}`}
+                                                        to={`/admin/schedule/view/${param.id}?sid=${item.id}`}
                                                         className="btn bg-yellow"
                                                     >
                                                         <i className="fa fa-eye"></i>

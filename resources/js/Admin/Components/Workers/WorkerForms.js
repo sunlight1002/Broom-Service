@@ -196,7 +196,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                           )
                                                         
                                                 }
-                                                className="m-2 btn btn-pink"
+                                                className="m-2 btn navyblue"
                                             >
                                                 View Contract
                                             </Link>
@@ -214,7 +214,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 href={`/storage/signed-docs/${contractForm.pdf_name}`}
                                                 target={"_blank"}
                                                 download={`${contractForm.type}.pdf`}
-                                                className="m-2 m-2 btn btn-pink"
+                                                className="m-2 m-2 btn navyblue"
                                             >
                                                 <span className="btn-default">
                                                     <i className="fa fa-download"></i>
@@ -282,7 +282,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                                   worker.id.toString()
                                                               )
                                                     }
-                                                    className="m-2 m-2 btn btn-pink"
+                                                    className="m-2 m-2 btn navyblue"
                                                 >
                                                     View Form
                                                 </Link>
@@ -300,7 +300,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                     href={`/storage/signed-docs/${form.pdf_name}`}
                                                     target={"_blank"}
                                                     download={`${form.type}.pdf`}
-                                                    className="m-2 m-2 btn btn-pink"
+                                                    className="m-2 m-2 btn navyblue"
                                                 >
                                                     <span className="btn-default">
                                                         <i className="fa fa-download"></i>
@@ -372,7 +372,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                               worker.id.toString()
                                                           )
                                                 }
-                                                className="m-2 m-2 btn btn-pink"
+                                                className="m-2 m-2 btn navyblue"
                                             >
                                                 View Safety and Gear Form
                                             </Link>
@@ -390,7 +390,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 href={`/storage/signed-docs/${safetyAndGearForm.pdf_name}`}
                                                 target={"_blank"}
                                                 download={`${safetyAndGearForm.type}.pdf`}
-                                                className="m-2 m-2 btn btn-pink"
+                                                className="m-2 m-2 btn navyblue"
                                             >
                                                 <span className="btn-default">
                                                     <i className="fa fa-download"></i>
@@ -461,7 +461,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                           worker.id.toString()
                                                       )
                                             }
-                                            className="m-2 m-2 btn btn-pink"
+                                            className="m-2 m-2 btn navyblue"
                                         >
                                             View Insurance Form
                                         </Link>
@@ -479,7 +479,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             href={`/storage/signed-docs/${insuranceForm.pdf_name}`}
                                             target={"_blank"}
                                             download={`${insuranceForm.type}.pdf`}
-                                            className="m-2 m-2 btn btn-pink"
+                                            className="m-2 m-2 btn navyblue"
                                         >
                                             <span className="btn-default">
                                                 <i className="fa fa-download"></i>

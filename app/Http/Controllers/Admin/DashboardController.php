@@ -180,56 +180,56 @@ class DashboardController extends Controller
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> scheduled with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/schedule/view/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> scheduled with <a href='/admin/clients/view/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> on " . Carbon::parse($sch->start_date)->format('d-m-Y') . " at " . ($sch->start_time);
             }
           } else if ($notice->type == NotificationTypeEnum::RESCHEDULE_MEETING) {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> Re-scheduled with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/schedule/view/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> Re-scheduled with <a href='/admin/clients/view/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> on " . Carbon::parse($sch->start_date)->format('d-m-Y') . " at " . ($sch->start_time);
             }
           } else if ($notice->type == NotificationTypeEnum::ACCEPT_MEETING) {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $notice->user->id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/schedule/view/" . $notice->user->id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/clients/view/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> has been confirmed now on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time);
             }
           } else if ($notice->type == NotificationTypeEnum::REJECT_MEETING) {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-schedule/" . $notice->meet_id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/schedule/view/" . $notice->meet_id . "?sid=" . $sch->id . "'> Meeting </a> with <a href='/admin/clients/view/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> which on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time) . " has cancelled now.";
             }
           } else if ($notice->type == NotificationTypeEnum::FILES) {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 
             if (isset($sch)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
-                "</a> have added a file to <a href='/admin/view-schedule/" . $notice->meet_id . "?sid=" . $sch->id . "'> Meeting </a> scheduled on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time);
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
+                "</a> have added a file to <a href='/admin/schedule/view/" . $notice->meet_id . "?sid=" . $sch->id . "'> Meeting </a> scheduled on " . Carbon::parse($sch->start_date)->format('d-m-Y')  . " at " . ($sch->start_time);
             }
           } else if ($notice->type == NotificationTypeEnum::ACCEPT_OFFER) {
             $ofr = Offer::with('client')->where('id', $notice->offer_id)->first();
 
             if (isset($ofr)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $ofr->client->id . "'>" . $ofr->client->firstname . " " . $ofr->client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $ofr->client->id . "'>" . $ofr->client->firstname . " " . $ofr->client->lastname .
                 "</a> has accepted the <a href='/admin/view-offer/" . $notice->offer_id . "'> price offer </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::REJECT_OFFER) {
             $ofr = Offer::with('client')->where('id', $notice->offer_id)->first();
 
             if (isset($ofr)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $ofr->client->id . "'>" . $ofr->client->firstname . " " . $ofr->client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $ofr->client->id . "'>" . $ofr->client->firstname . " " . $ofr->client->lastname .
                 "</a> has rejected <a href='/admin/view-offer/" . $notice->offer_id . "'>the price offer </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::CONTRACT_ACCEPT) {
             $contract = Contract::with('offer', 'client')->where('id', $notice->contract_id)->first();
 
             if (isset($contract)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $contract->client->id . "'>" . $contract->client->firstname . " " . $contract->client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $contract->client->id . "'>" . $contract->client->firstname . " " . $contract->client->lastname .
                 "</a> has approved the <a href='/admin/view-contract/" . $contract->id . "'> contract </a>";
               if ($contract->offer) {
                 $noticeAll[$k]->data .= "for <a href='/admin/view-offer/" . $contract->offer->id . "'> offer</a>";
@@ -239,7 +239,7 @@ class DashboardController extends Controller
             $contract = Contract::with('offer', 'client')->where('id', $notice->contract_id)->first();
 
             if (isset($contract)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $contract->client->id . "'>" . $contract->client->firstname . " " . $contract->client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $contract->client->id . "'>" . $contract->client->firstname . " " . $contract->client->lastname .
                 "</a> has rejected the <a href='/admin/view-contract/" . $contract->id . "'> contract </a>";
               if ($contract->offer) {
                 $noticeAll[$k]->data .= "for <a href='/admin/view-offer/" . $contract->offer->id . "'> offer</a>";
@@ -249,8 +249,8 @@ class DashboardController extends Controller
             $job = Job::with('offer', 'client')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $job->client->id . "'>" . $job->client->firstname . " " . $job->client->lastname .
-                "</a> has cancelled the  <a href='/admin/view-job/" . $job->id . "'> job </a>";
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $job->client->id . "'>" . $job->client->firstname . " " . $job->client->lastname .
+                "</a> has cancelled the  <a href='/admin/jobs/view/" . $job->id . "'> job </a>";
               if ($job->offer) {
                 $noticeAll[$k]->data .= "for <a href='/admin/view-offer/" . $job->offer->id . "'> offer </a> ";
               }
@@ -259,158 +259,158 @@ class DashboardController extends Controller
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
-                "</a> request for reschedule the  <a href='/admin/view-job/" . $job->id . "'> job </a>";
+              $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> request for reschedule the  <a href='/admin/jobs/view/" . $job->id . "'> job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::OPENING_JOB) {
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-job/" . $job->id . "'> Job </a> has been started by  <a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/jobs/view/" . $job->id . "'> Job </a> has been started by  <a href='/admin/workers/view/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
                 "</a>";
             }
           } else if ($notice->type == NotificationTypeEnum::JOB_SCHEDULE_CHANGE) {
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-job/" . $job->id . "'> Job </a> schedule has been changed";
+              $noticeAll[$k]->data = "<a href='/admin/jobs/view/" . $job->id . "'> Job </a> schedule has been changed";
             }
           } else if ($notice->type == NotificationTypeEnum::FORM101_SIGNED) {
-            $noticeAll[$k]->data = "Form 101 has been signed by <a href='/admin/view-worker/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Form 101 has been signed by <a href='/admin/workers/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a>";
           } else if ($notice->type == NotificationTypeEnum::WORKER_CONTRACT_SIGNED) {
-            $noticeAll[$k]->data = "Contract form has been signed by <a href='/admin/view-worker/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Contract form has been signed by <a href='/admin/workers/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a>";
           } else if ($notice->type == NotificationTypeEnum::SAFETY_GEAR_SIGNED) {
-            $noticeAll[$k]->data = "Safety and Gear form has been signed by <a href='/admin/view-worker/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Safety and Gear form has been signed by <a href='/admin/workers/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a>";
           } else if ($notice->type == NotificationTypeEnum::INSURANCE_SIGNED) {
-            $noticeAll[$k]->data = "Insurance form has been signed by <a href='/admin/view-worker/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Insurance form has been signed by <a href='/admin/workers/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a>";
           } else if ($notice->type == NotificationTypeEnum::CLIENT_REVIEWED) {
             $job = Job::with('offer', 'worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "Client has reviewed a <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+              $noticeAll[$k]->data = "Client has reviewed a <a href='/admin/jobs/view/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::CONVERTED_TO_CLIENT) {
-            $noticeAll[$k]->data = "<a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> have been converted to client";
           } else if ($notice->type == NotificationTypeEnum::PAYMENT_FAILED) {
-            $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> has been failed";
           } else if ($notice->type == NotificationTypeEnum::PAYMENT_PAID) {
-            $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> has been paid";
           } else if ($notice->type == NotificationTypeEnum::PAYMENT_PARTIAL_PAID) {
-            $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> has been paid partially";
           } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_APPROVED_JOB) {
             $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
-                "</a> hasn't approved the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+              $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't approved the <a href='/admin/jobs/view/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_LEFT_FOR_JOB) {
             $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
-                "</a> hasn't leave for the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+              $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't leave for the <a href='/admin/jobs/view/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_STARTED_JOB) {
             $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
-                "</a> hasn't started the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+              $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't started the <a href='/admin/jobs/view/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_FINISHED_JOB_ON_TIME) {
             $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
-                "</a> hasn't finished the <a href='/admin/view-job/" . $job->id . "'>Job </a> on time";
+              $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> hasn't finished the <a href='/admin/jobs/view/" . $job->id . "'>Job </a> on time";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_EXCEED_JOB_TIME) {
             $job = Job::with('worker')->where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
-                "</a> exceeded the <a href='/admin/view-job/" . $job->id . "'>Job </a> time";
+              $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $job->worker->id . "'>" . $job->worker->firstname . " " . $job->worker->lastname .
+                "</a> exceeded the <a href='/admin/jobs/view/" . $job->id . "'>Job </a> time";
             }
           } else if ($notice->type == NotificationTypeEnum::CLIENT_COMMENTED) {
             $job = Job::where('id', $notice->job_id)->first();
             $client = Client::find($notice->user_id);
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
-                "</a> has added commented to the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                "</a> has added commented to the <a href='/admin/jobs/view/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::ADMIN_COMMENTED) {
             $job = Job::where('id', $notice->job_id)->first();
             $admin = Admin::find($notice->user_id);
 
             if (isset($job)) {
-              $noticeAll[$k]->data = $admin->name . " has added commented to the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+              $noticeAll[$k]->data = $admin->name . " has added commented to the <a href='/admin/jobs/view/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_COMMENTED) {
             $job = Job::where('id', $notice->job_id)->first();
             $worker = User::find($notice->user_id);
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
-                "</a> has added commented to the <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+              $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
+                "</a> has added commented to the <a href='/admin/jobs/view/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::NEW_LEAD_ARRIVED) {
             $client = Client::find($notice->user_id);
 
             if (isset($client)) {
-              $noticeAll[$k]->data = "New lead <a href='/admin/view-client/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+              $noticeAll[$k]->data = "New lead <a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
                 "</a> has been added.";
             }
           } else if ($notice->type == NotificationTypeEnum::CLIENT_LEAD_STATUS_CHANGED) {
             $client = Client::find($notice->user_id);
 
             if (isset($client)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-client/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
                 "</a> lead status has been changed to " . $notice->data['new_status'] . ".";
             }
           } else if ($notice->type == NotificationTypeEnum::CLIENT_CHANGED_JOB_SCHEDULE) {
             $job = Job::where('id', $notice->job_id)->first();
 
             if (isset($job)) {
-              $noticeAll[$k]->data = "Client has changed schedule of <a href='/admin/view-job/" . $job->id . "'>Job </a>";
+              $noticeAll[$k]->data = "Client has changed schedule of <a href='/admin/jobs/view/" . $job->id . "'>Job </a>";
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB) {
             $worker = User::find($notice->user_id);
 
             if (isset($worker)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
                 "</a> availability has been changed that affect job on " . $notice->data['date'] . '.';
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_LEAVES_JOB) {
             $worker = User::find($notice->user_id);
 
             if (isset($worker)) {
-              $noticeAll[$k]->data = "<a href='/admin/view-worker/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
+              $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
                 "</a> leave date has been set to " . $notice->data['date'] . '.';
             }
           } else if ($notice->type == NotificationTypeEnum::ORDER_CANCELLED) {
-            $noticeAll[$k]->data = "Payment with <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a>'s order (" . $notice->data['order_id'] . ") has been cancelled.";
           } else if ($notice->type == NotificationTypeEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY) {
-            $noticeAll[$k]->data = "Invoice (" . $notice->data['invoice_id'] . ") has been created for <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Invoice (" . $notice->data['invoice_id'] . ") has been created for <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a>.";
           } else if ($notice->type == NotificationTypeEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT) {
-            $noticeAll[$k]->data = "Invoice Receipt (" . $notice->data['invoice_id'] . ") has been created for <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Invoice Receipt (" . $notice->data['invoice_id'] . ") has been created for <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a>.";
           } else if ($notice->type == NotificationTypeEnum::ORDER_CREATED_WITH_EXTRA) {
-            $noticeAll[$k]->data = "Order (" . $notice->data['order_id'] . ") has been created for <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Order (" . $notice->data['order_id'] . ") has been created for <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> with extra.";
           } else if ($notice->type == NotificationTypeEnum::ORDER_CREATED_WITH_DISCOUNT) {
-            $noticeAll[$k]->data = "Order (" . $notice->data['order_id'] . ") has been created for <a href='/admin/view-client/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Order (" . $notice->data['order_id'] . ") has been created for <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> with discount.";
           }
         }

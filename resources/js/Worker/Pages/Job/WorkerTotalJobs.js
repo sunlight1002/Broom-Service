@@ -354,7 +354,7 @@ export default function WorkerTotalJobs() {
                                                         </Td>
                                                         <Td>
                                                             <Link
-                                                                to={`/worker/view-job/${item.id}`}
+                                                                to={`/worker/jobs/view/${item.id}`}
                                                                 className="btn btn-primary mt-4 mt-md-0 ml-1"
                                                             >
                                                                 {t(

@@ -22,7 +22,7 @@ export default function WorkerDetails({ worker }) {
                                 {worker ? (
                                     <p>
                                         <Link
-                                            to={`/admin/view-worker/${worker.id}`}
+                                            to={`/admin/workers/view/${worker.id}`}
                                         >
                                             {" "}
                                             {worker.firstname}{" "}

@@ -38,8 +38,8 @@ export default function ViewWorker() {
                         <div className="col-sm-6">
                             <div className="search-data">
                                 <Link
-                                    to={`/admin/edit-worker/${params.id}`}
-                                    className="btn btn-pink addButton"
+                                    to={`/admin/workers/edit/${params.id}`}
+                                    className="btn navyblue no-hover addButton"
                                 >
                                     <i className="btn-icon fas fa-pencil"></i>
                                     Edit

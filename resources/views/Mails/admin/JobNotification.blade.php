@@ -23,7 +23,7 @@
 		<p style="text-align: center;line-height: 30px">Greetings from Broom Service. {{ $data['emailContent'] }}</p>
 		@if(isset($data['isJobOpen']) && $data['isJobOpen'] && $job['worker'])
 			<p style="text-align: center;line-height: 30px">
-                <a href='{{ url("worker/view-job/".$job["id"] ) }}'> {{__('mail.job_status.job')}} </a> {{__('mail.job_status.started_by')}}  <a href='{{ url("admin/view-worker/".$job["id"] ) }}'> {{ $job['worker']['firstname'] }}  {{ $job['worker']['lastname'] }}.</a>
+                <a href='{{ url("worker/jobs/view/".$job["id"] ) }}'> {{__('mail.job_status.job')}} </a> {{__('mail.job_status.started_by')}}  <a href='{{ url("admin/workers/view/".$job["id"] ) }}'> {{ $job['worker']['firstname'] }}  {{ $job['worker']['lastname'] }}.</a>
             </p>
 		@endif
 		<table cellpadding="0" cellspacing="0" width="100%">

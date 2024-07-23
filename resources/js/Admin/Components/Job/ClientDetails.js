@@ -24,7 +24,7 @@ export default function ClientDetails({ client, address }) {
                                     <Link
                                         to={
                                             client
-                                                ? `/admin/view-client/${client.id}`
+                                                ? `/admin/clients/view/${client.id}`
                                                 : "#"
                                         }
                                     >

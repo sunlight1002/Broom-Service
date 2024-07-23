@@ -11,7 +11,7 @@ export default function ViewOffer() {
     const [perhour, setPerHour] = useState(0);
     const param = useParams();
     const headers = {
-        Accept: "application/json, text/plain, */*",
+        Accept: "application/json, text/plain, _/_",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
@@ -160,11 +160,11 @@ export default function ViewOffer() {
                                                                     <th
                                                                         style={
                                                                             ofr.type !=
-                                                                            "fixed"
+                                                                                "fixed"
                                                                                 ? {
-                                                                                      display:
-                                                                                          "none",
-                                                                                  }
+                                                                                    display:
+                                                                                        "none",
+                                                                                }
                                                                                 : {}
                                                                         }
                                                                         className="text-right"
@@ -174,11 +174,11 @@ export default function ViewOffer() {
                                                                     <th
                                                                         style={
                                                                             perhour ==
-                                                                            0
+                                                                                0
                                                                                 ? {
-                                                                                      display:
-                                                                                          "none",
-                                                                                  }
+                                                                                    display:
+                                                                                        "none",
+                                                                                }
                                                                                 : {}
                                                                         }
                                                                         className="text-right"
@@ -189,11 +189,11 @@ export default function ViewOffer() {
                                                                     <th
                                                                         style={
                                                                             ofr.type ==
-                                                                            "fixed"
+                                                                                "fixed"
                                                                                 ? {
-                                                                                      display:
-                                                                                          "none",
-                                                                                  }
+                                                                                    display:
+                                                                                        "none",
+                                                                                }
                                                                                 : {}
                                                                         }
                                                                         className="text-right"
@@ -232,7 +232,7 @@ export default function ViewOffer() {
                                                                                         )}
                                                                                     </td>
                                                                                     {s.service ==
-                                                                                    10 ? (
+                                                                                        10 ? (
                                                                                         <td>
                                                                                             {" "}
                                                                                             {
@@ -265,13 +265,13 @@ export default function ViewOffer() {
                                                                                     </td>
                                                                                     {s.type !=
                                                                                         "fixed" ||
-                                                                                    perhour ==
+                                                                                        perhour ==
                                                                                         1 ? (
                                                                                         <>
                                                                                             <td className="text-right">
                                                                                                 {s.rateperhour
                                                                                                     ? s.rateperhour +
-                                                                                                      " ILS"
+                                                                                                    " ILS"
                                                                                                     : "--"}{" "}
                                                                                             </td>
                                                                                             <td className="text-right">
@@ -332,7 +332,7 @@ export default function ViewOffer() {
                                             {/*  <Dropdown className='text-right'>
                   <Dropdown.Toggle className='btn-pink' id="dropdown-basic">Acton</Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item href={`/admin/edit-offer/${ofr.id}`}>Edit</Dropdown.Item>
+                    <Dropdown.Item href={`/admin/offered-price/edit/${ofr.id}`}>Edit</Dropdown.Item>
                     <Dropdown.Item href={`/admin/offered-price`}>Back</Dropdown.Item>
                   </Dropdown.Menu>
                         </Dropdown>*/}
@@ -345,4 +345,5 @@ export default function ViewOffer() {
             </div>
         </div>
     );
+
 }

@@ -11,18 +11,29 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import FilterButtons from "../../../Components/common/FilterButton";
 import Sidebar from "../../Layouts/Sidebar";
+import ViewOfferModal from "./ViewOfferModal";
 
 export default function OfferPrice() {
     const tableRef = useRef(null);
 
     const navigate = useNavigate();
     const [filter, setFilter] = useState("All");
+    const [isModalOpen, setModalStatus] = useState(false);
+    const [selectedOfferId, setSelectedOfferId] = useState(null);
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
     const offerStatuses = ["sent", "accepted", "declined"];
+
+
+
+    const handleModal = (id) => {
+        setSelectedOfferId(id);
+        setModalStatus(true);
+    };
+
     useEffect(() => {
         $(tableRef.current).DataTable({
             processing: true,
@@ -47,7 +58,7 @@ export default function OfferPrice() {
                     title: "Client",
                     data: "name",
                     render: function (data, type, row, meta) {
-                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-name" style="color: black; text-decoration: underline;"> ${data} </a>`;
+                        return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name" style="color: black; text-decoration: underline;"> ${data} </a>`;
                     },
                 },
                 {
@@ -128,6 +139,12 @@ export default function OfferPrice() {
         $("div.dt-search").append(searchInputWrapper);
         $("div.dt-search").addClass("position-relative");
 
+        // document.addEventListener('click', function (e) {
+        //     if (e.target && e.target.classList.contains('dt-view-btn')) {
+        //         const id = e.target.getAttribute('data-id');
+        //         handleModal();
+        //     }})
+
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
             if (e.target.closest("tr.dt-row")) {
@@ -151,18 +168,19 @@ export default function OfferPrice() {
             }
 
             if (_id) {
-                navigate(`/admin/view-offer/${_id}`);
+                handleModal(_id);
             }
         });
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/edit-offer/${_id}`);
+            navigate(`/admin/offered-price/edit/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/view-offer/${_id}`);
+            // navigate(`/admin/view-offer/${_id}`);
+            handleModal(_id);
         });
 
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
@@ -290,6 +308,7 @@ export default function OfferPrice() {
                     </div>
                 </div>
             </div>
+            {isModalOpen && <ViewOfferModal showModal={isModalOpen} handleClose={() => setModalStatus(false)} offerId={selectedOfferId} />}
         </div>
     );
 }

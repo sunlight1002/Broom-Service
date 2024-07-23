@@ -176,7 +176,7 @@ export default function CurrentJob() {
                                             <td>
                                                 <div className="d-flex">
                                                     <Link
-                                                        to={`/admin/view-job/${item.id}`}
+                                                        to={`/admin/jobs/view/${item.id}`}
                                                         className="ml-2 btn btn-warning"
                                                     >
                                                         <i className="fa fa-eye"></i>

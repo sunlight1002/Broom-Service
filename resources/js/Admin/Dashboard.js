@@ -55,7 +55,7 @@ export default function Dashboard() {
 
     // const rowHandle = (e, id) => {
     //     e.preventDefault();
-    //     navigate(`/admin/view-job/${id}`);
+    //     navigate(`/admin/jobs/view/${id}`);
     // };
 
     // const copy = [...latestJobs];
@@ -377,7 +377,7 @@ export default function Dashboard() {
                                                     <div className="ml-auto">
                                                         {c ? (
                                                             <Link
-                                                                to={`/admin/view-client/${c.id}`}
+                                                                to={`/admin/clients/view/${c.id}`}
                                                                 className="btn btn-sm btn-warning"
                                                             >
                                                                 {t(

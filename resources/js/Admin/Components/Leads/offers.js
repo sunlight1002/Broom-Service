@@ -74,11 +74,17 @@ export default function OfferedPrice() {
                     render: function (data, type, row, meta) {
                         let _html = '<div class="d-flex">';
 
-                        _html += `<button type="button" class="btn bg-green dt-edit-btn" data-id="${row.id}"><i class="fa fa-edit"></i></button>`;
+                        _html += `<button type="button" class="btn dt-edit-btn" data-id="${row.id}"
+                        style="font-size: 15px; color: #2F4054; padding: 5px 8px; background: #E5EBF1; border-radius: 5px;"
+                        ><i class="fa fa-edit"></i></button>`;
 
-                        _html += `<button type="button" class="ml-2 btn bg-warning dt-view-btn" data-id="${row.id}"><i class="fa fa-eye"></i></button>`;
+                        _html += `<button type="button" class="ml-2 btn dt-view-btn" data-id="${row.id}"
+                        style="font-size: 15px; color: #2F4054; padding: 5px 8px; background: #E5EBF1; border-radius: 5px;"
+                        ><i class="fa fa-eye"></i></button>`;
 
-                        _html += `<button type="button" class="ml-2 btn bg-red dt-delete-btn" data-id="${row.id}"><i class="fa fa-trash"></i></button>`;
+                        _html += `<button type="button" class="ml-2 btn dt-delete-btn" data-id="${row.id}"
+                        style="font-size: 15px; color: #2F4054; padding: 5px 8px; background: #E5EBF1; border-radius: 5px;"
+                        ><i class="fa fa-trash"></i></button>`;
 
                         _html += "</div>";
 
@@ -90,10 +96,22 @@ export default function OfferedPrice() {
             searching: true,
             responsive: true,
             createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row");
+                $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('custom-cell-class');
+                    }
+                }
+            ]
         });
+
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");  
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -127,7 +145,7 @@ export default function OfferedPrice() {
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/edit-offer/${_id}`);
+            navigate(`/admin/offered-price/edit/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-delete-btn", function () {

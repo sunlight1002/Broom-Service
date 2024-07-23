@@ -138,7 +138,7 @@ export default function files() {
             <div className="text-right pb-3">
                 <button
                     type="button"
-                    className="btn btn-pink"
+                    className="btn navyblue"
                     data-toggle="modal"
                     data-target="#exampleModal"
                 >
@@ -216,7 +216,7 @@ export default function files() {
                                     <div className="col-sm-5 col-6">
                                         <div className="float-right noteUser">
                                             <button
-                                                className="ml-2 btn bg-red"
+                                                className="ml-2 btn navyblue"
                                                 onClick={(e) =>
                                                     handleDelete(e, f.id)
                                                 }

@@ -51,7 +51,7 @@ export default function WorkerAvailabilty() {
                 } else {
                     alert.success("Worker Availabilty Updated Successfully");
                     setTimeout(() => {
-                        navigate(`/admin/view-worker/${params.id}`);
+                        navigate(`/admin/workers/view/${params.id}`);
                     }, 1000);
                 }
             });

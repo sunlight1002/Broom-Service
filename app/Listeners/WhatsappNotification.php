@@ -461,7 +461,7 @@ class WhatsappNotification
                             : 'NA',
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/view-worker/" . $jobData['worker']['id']);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/workers/view/" . $jobData['worker']['id']);
 
                     break;
 
@@ -492,7 +492,7 @@ class WhatsappNotification
                             : 'NA',
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/view-worker/" . $jobData['worker']['id']);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/workers/view/" . $jobData['worker']['id']);
 
                     break;
 
@@ -523,7 +523,7 @@ class WhatsappNotification
                             : 'NA',
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/view-worker/" . $jobData['worker']['id']);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/workers/view/" . $jobData['worker']['id']);
 
                     break;
 
@@ -639,9 +639,9 @@ class WhatsappNotification
                         'client_name' => $workerData['firstname'] . " " . $workerData['lastname']
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/view-job/" . $jobData['id']);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/jobs/view/" . $jobData['id']);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/view-worker/" . $jobData['id']);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_worker') . ": " . url("admin/workers/view/" . $jobData['id']);
 
                     break;
 
@@ -671,7 +671,7 @@ class WhatsappNotification
                         'status' => ucfirst($jobData['status'])
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/view-job/" . $jobData["id"]);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/jobs/view/" . $jobData["id"]);
 
                     break;
 
@@ -804,7 +804,7 @@ class WhatsappNotification
                         'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/view-client/" . $eventData['client']['id']);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/clients/view/" . $eventData['client']['id']);
 
                     break;
 
@@ -826,7 +826,7 @@ class WhatsappNotification
                         'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/view-client/" . $eventData['client']['id']);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/clients/view/" . $eventData['client']['id']);
 
                     break;
 
@@ -878,7 +878,7 @@ class WhatsappNotification
                         'comment' => ($by == 'client' ? ("Client changed the Job status to " . ucfirst($jobData['status']) . "." . ($jobData['cancellation_fee_amount']) ? ("With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " ") : ("Job is marked as " . ucfirst($jobData['status'])))
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("admin/view-job/" . $jobData["id"]);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("admin/jobs/view/" . $jobData["id"]);
 
                     break;
 

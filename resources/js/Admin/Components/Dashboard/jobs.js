@@ -319,7 +319,7 @@ export default function jobs() {
                                                     <td>{j.status}</td>
                                                     <td>
                                                         <Link
-                                                            to={`/admin/view-job/${j.id}`}
+                                                            to={`/admin/jobs/view/${j.id}`}
                                                             className="btn btn-primary"
                                                         >
                                                             {t(
@@ -467,7 +467,7 @@ export default function jobs() {
                                                         <td>{j.status}</td>
                                                         <td>
                                                             <Link
-                                                                to={`/admin/view-job/${j.id}`}
+                                                                to={`/admin/jobs/view/${j.id}`}
                                                                 className="btn btn-primary"
                                                             >
                                                                 {t(
@@ -668,7 +668,7 @@ export default function jobs() {
                                                         <td>
                                                             <div className="d-flex">
                                                                 <Link
-                                                                    to={`/admin/view-job/${item.id}`}
+                                                                    to={`/admin/jobs/view/${item.id}`}
                                                                     className="ml-2 btn bg-yellow"
                                                                 >
                                                                     <i className="fa fa-eye"></i>

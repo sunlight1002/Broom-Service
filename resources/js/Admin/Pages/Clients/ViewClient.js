@@ -74,7 +74,7 @@ export default function ViewClient() {
         <div id="container">
             <Sidebar />
             <div id="content">
-                <div className="titleBox customer-title">
+                {/* <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">View Client</h1>
@@ -91,7 +91,7 @@ export default function ViewClient() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
                 {client && (
                     <div className="view-applicant">
                         <ProfileDetails
@@ -100,12 +100,14 @@ export default function ViewClient() {
                             scheduleStatus={scheduleStatus}
                             latestContract={latestContract}
                         />
-                        <div className="card mt-3">
+                        <div className="card mt-3" style={{boxShadow: "none"}}>
                             <div className="card-body">
                                 <ClientHistory
                                     contracts={contracts}
                                     setContracts={setContracts}
                                     latestContract={latestContract}
+                                    scheduleStatus={scheduleStatus}
+                                    offerStatus={offerStatus}
                                     client={client}
                                     fetchContract={getContract}
                                 />

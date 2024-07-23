@@ -125,7 +125,7 @@ export default function FreezeShiftWorkers() {
 
     const getWorkerFreezeDates = () => {
         axios
-            .get(`/api/admin/workers/freeze-shift/${params.id}`, {
+            .get(`/api/admin/workers/workers/freeze-shift/${params.id}`, {
                 headers,
             })
             .then((res) => {

@@ -154,13 +154,13 @@ export default function TotalJobs() {
             }
 
             if (_id) {
-                navigate(`/client/view-job/${Base64.encode(_id.toString())}`);
+                navigate(`/client/jobs/view/${Base64.encode(_id.toString())}`);
             }
         });
 
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = Base64.encode($(this).data("id").toString());
-            navigate(`/client/view-job/${_id}`);
+            navigate(`/client/jobs/view/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-change-schedule-btn", function () {

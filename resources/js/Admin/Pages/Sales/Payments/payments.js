@@ -333,7 +333,7 @@ export default function Payments() {
                                                             </Td>
                                                             <Td>
                                                                 <Link
-                                                                    to={`/admin/view-client/${
+                                                                    to={`/admin/clients/view/${
                                                                         item.client
                                                                             ? item
                                                                                   .client

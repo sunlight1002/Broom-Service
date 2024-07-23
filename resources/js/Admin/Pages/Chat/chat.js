@@ -202,8 +202,8 @@ export default function chat() {
                             <Link
                                 to={
                                     cd.client == 1
-                                        ? `/admin/view-client/${cd.id}`
-                                        : `/admin/view-lead/${cd.id}`
+                                        ? `/admin/clients/view/${cd.id}`
+                                        : `/admin/leads/view/${cd.id}`
                                 }
                             >
                                 <i className="fas fa-user"></i>

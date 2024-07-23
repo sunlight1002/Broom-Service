@@ -589,7 +589,7 @@ export default function Jobs({ contracts, client }) {
                                                             </Link>
                                                         )} */}
                                                     <Link
-                                                        to={`/admin/view-job/${j.id}`}
+                                                        to={`/admin/jobs/view/${j.id}`}
                                                         className="dropdown-item"
                                                     >
                                                         View Job

@@ -125,7 +125,7 @@ export default function OfferedPrice() {
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/edit-offer/${_id}`);
+            navigate(`/admin/offered-price/edit/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-delete-btn", function () {

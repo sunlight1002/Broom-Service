@@ -60,7 +60,7 @@ export default function Contract() {
                     title: "Client",
                     data: "client_name",
                     render: function (data, type, row, meta) {
-                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
+                        return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
                     },
                 },
                 {

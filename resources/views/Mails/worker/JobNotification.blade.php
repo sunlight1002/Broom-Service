@@ -23,7 +23,7 @@
 		<p style="text-align: center;line-height: 30px">{{__('mail.job_common.greetings')}} {{__('mail.job_common.from')}} {{__('mail.job_common.company')}}. {!! $emailData['emailContent'] !!} {{ __('mail.job_common.please_check') }}</p>
 		@if(isset($emailData['isJobOpen']) && $emailData['isJobOpen'])
 			<p style="text-align: center;line-height: 30px">
-                <a href='{{ url("worker/view-job/".$job["id"] ) }}'> {{__('mail.job_status.job')}} </a> {{__('mail.job_status.started_by')}}  <a href='{{ url("admin/view-worker/".$job["id"] ) }}'> {{ $job['worker']['firstname'] }}  {{ $job['worker']['lastname'] }}.</a>
+                <a href='{{ url("worker/jobs/view/".$job["id"] ) }}'> {{__('mail.job_status.job')}} </a> {{__('mail.job_status.started_by')}}  <a href='{{ url("admin/workers/view/".$job["id"] ) }}'> {{ $job['worker']['firstname'] }}  {{ $job['worker']['lastname'] }}.</a>
             </p>
 		@endif
 		<table cellpadding="0" cellspacing="0" width="100%">
@@ -55,7 +55,7 @@
 			</tbody>
 		</table>
 		<div style="text-align: center;margin-top: 40px;">
-			<a href='{{ url("worker/view-job/".$job["id"]) }}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.job_common.check_job_details')}}</a>
+			<a href='{{ url("worker/jobs/view/".$job["id"]) }}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.job_common.check_job_details')}}</a>
 		</div>
 		<p style="margin-top: 40px">{{__('mail.job_common.reply_txt')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.job_common.regards')}}</p>

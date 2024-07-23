@@ -94,7 +94,7 @@ export default function notes() {
             <div className="text-right pb-3">
                 <button
                     type="button"
-                    className="btn btn-pink"
+                    className="btn navyblue"
                     data-toggle="modal"
                     data-target="#exampleModalNote"
                 >
@@ -142,7 +142,7 @@ export default function notes() {
                                     <div className="col-sm-2 col-2">
                                         <div className="float-right noteUser">
                                             <button
-                                                className="ml-2 btn bg-red"
+                                                className="ml-2 btn navyblue"
                                                 onClick={(e) =>
                                                     handleDelete(e, n.id)
                                                 }

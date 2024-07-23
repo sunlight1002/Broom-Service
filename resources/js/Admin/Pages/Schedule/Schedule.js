@@ -75,7 +75,7 @@ export default function Schedule() {
                     title: "Name",
                     data: "name",
                     render: function (data, type, row, meta) {
-                        return `<a href="/admin/view-client/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
+                        return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
                     },
                 },
                 {
@@ -190,14 +190,14 @@ export default function Schedule() {
             }
 
             if (_id) {
-                navigate(`/admin/view-schedule/${_clientID}?sid=${_id}`);
+                navigate(`/admin/schedule/view/${_clientID}?sid=${_id}`);
             }
         });
 
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             const _clientID = $(this).data("client-id");
-            navigate(`/admin/view-schedule/${_clientID}?sid=${_id}`);
+            navigate(`/admin/schedule/view/${_clientID}?sid=${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-delete-btn", function () {

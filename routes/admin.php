@@ -100,7 +100,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('all-workers', [WorkerController::class, 'AllWorkers']);
     Route::post('workers/{id}/freeze-shift', [WorkerController::class, 'updateFreezeShift']);
     Route::post('workers/freeze-shift', [WorkerController::class, 'updateFreezeShiftWorkers']);
-    Route::get('workers/freeze-shift/{id}', [WorkerController::class, 'getFreezeShiftWorkers']);
+    Route::get('workers/workers/freeze-shift/{id}', [WorkerController::class, 'getFreezeShiftWorkers']);
     Route::post('workers/{id}/leave-job', [WorkerController::class, 'updateLeaveJob']);
     Route::get('worker_availability/{id}', [WorkerController::class, 'getWorkerAvailability']);
     Route::post('update_availability/{id}', [WorkerController::class, 'updateAvailability']);

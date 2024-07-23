@@ -166,7 +166,7 @@ export default function Lead() {
             }
 
             if (_id) {
-                navigate(`/admin/view-lead/${_id}`);
+                navigate(`/admin/leads/view/${_id}`);
             }
         });
 
@@ -177,7 +177,7 @@ export default function Lead() {
 
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/view-lead/${_id}`);
+            navigate(`/admin/leads/view/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-change-status-btn", function () {

@@ -162,7 +162,7 @@ export default function ClientDashboard() {
                                                         <Td>
                                                             <div className="d-flex">
                                                                 <Link
-                                                                    to={`/client/view-job/${Base64.encode(item.id.toString())}`}
+                                                                    to={`/client/jobs/view/${Base64.encode(item.id.toString())}`}
                                                                     className=""
                                                                     style={{background: "#E5EBF1", color: "#2F4054", padding: "5px 7px 0px", borderRadius: "5px"}}
                                                                 >

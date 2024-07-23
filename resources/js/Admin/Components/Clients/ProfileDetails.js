@@ -1,3 +1,5 @@
+// ProfileDetails.js
+
 import React, { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
@@ -80,13 +82,13 @@ export default function ProfileDetails({
         cstatus = "Customer";
     }
 
-    const handleTab = (e) => {
-        e.preventDefault();
-        let id = e.target.getAttribute("id");
-        if (id == "ms") document.querySelector("#schedule-meeting").click();
-        if (id == "os") document.querySelector("#offered-price").click();
-        if (id == "cs") document.querySelector("#contract").click();
-    };
+    // const handleTab = (e) => {
+    //     e.preventDefault();
+    //     let id = e.target.getAttribute("id");
+    //     if (id == "ms") document.querySelector("#schedule-meeting").click();
+    //     if (id == "os") document.querySelector("#offered-price").click();
+    //     if (id == "cs") document.querySelector("#contract").click();
+    // };
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -129,17 +131,64 @@ export default function ProfileDetails({
     return (
         <>
             <div className="client-view">
-                <h1>
-                    <span>#{client.id}</span> {firstname} {lastname}
-                </h1>
-                <div className="row">
-                    <div className="col-xl-8 col-12 mb-3 mb-xl-0 ">
-                        <div className="ClientHistory dashBox p-4 min-414">
+                <div className="d-flex align-items-center justify-content-between"
+                style={{padding: "30px 0 10px"}}
+                >
+                    <h1 className="navyblueColor">
+                        <span>#{client.id}</span>{" "}
+                        {client.firstname + " " + client.lastname}
+                    </h1>
+                    <div className="profile">
+                        <div className="form-group mb-0 d-flex">
+                        <Link to={`/admin/schedule/view/${param.id}`}
+                            style={{borderRadius: "5px"}}
+                            className="navyblue no-hover pl-2 pr-2 mr-2 d-flex align-items-center"
+                            >
+                                <i className="fas fa-hand-point-right"></i>
+
+                                {scheduleStatus == "Not Sent" ||
+                                    scheduleStatus == "sent"
+                                    ? "Schedule Meeting"
+                                    : "Re-schedule Meeting"}
+                            </Link>
+                            <Link to={`/admin/offers/create?c=${param.id}`}
+                            style={{borderRadius: "5px"}}
+                            className="navyblue no-hover pl-2 pr-2 mr-2 d-flex align-items-center"
+                            >
+                                <i className="fas fa-hand-point-right"></i>
+                                {offerStatus == "Not Sent" ||
+                                    offerStatus == "sent"
+                                    ? "Send Offer"
+                                    : "Re-send Offer"}
+                            </Link>
+                            <Link
+                                to={`/admin/create-client-job/${param.id}`}
+                                id="bookBtn"
+                                style={{ display: "none" , width: "30%"}}
+                                className="navyblue  align-items-center"
+                            >
+                                <i className="fas fa-hand-point-right"></i> Book
+                                Client
+                            </Link>
+                            <p>
+                                <Link
+                                    className="btn navyblue no-hover"
+                                    to={`/admin/clients/${param.id}/edit`}
+                                >
+                                    Edit client
+                                </Link>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="row d-inline">
+                    <div className="">
+                        <div className="ClientHistory  pl-4 pr-4">
                             <ul className="nav nav-tabs" role="tablist">
                                 <li className="nav-item" role="presentation">
                                     <a
                                         id="client-details"
-                                        className="nav-link active px-2"
+                                        className="nav-link active navyblueColor"
                                         data-toggle="tab"
                                         href="#tab-client-details"
                                         aria-selected="true"
@@ -151,7 +200,7 @@ export default function ProfileDetails({
                                 <li className="nav-item" role="presentation">
                                     <a
                                         id="note-details"
-                                        className="nav-link"
+                                        className="nav-link navyblueColor"
                                         data-toggle="tab"
                                         href="#tab-note-details"
                                         aria-selected="false"
@@ -163,7 +212,7 @@ export default function ProfileDetails({
                                 <li className="nav-item" role="presentation">
                                     <a
                                         id="files-tab"
-                                        className="nav-link"
+                                        className="nav-link navyblueColor"
                                         data-toggle="tab"
                                         href="#tab-files"
                                         aria-selected="false"
@@ -175,7 +224,7 @@ export default function ProfileDetails({
                                 <li className="nav-item" role="presentation">
                                     <a
                                         id="property-address-tab"
-                                        className="nav-link"
+                                        className="nav-link navyblueColor"
                                         data-toggle="tab"
                                         href="#tab-property-address"
                                         aria-selected="false"
@@ -185,16 +234,18 @@ export default function ProfileDetails({
                                     </a>
                                 </li>
                             </ul>
-                            <div className="tab-content">
+                            <div className="tab-content border-0">
                                 <div
                                     id="tab-client-details"
                                     className="tab-pane active show"
                                     role="tab-panel"
                                     aria-labelledby="client-details"
                                 >
-                                    <div className="row">
+                                    <h5 className="navyblueColor">Client info</h5>
+
+                                    <div className="row mt-3">
                                         <div className="col-sm-4">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>Color</label>
                                                 <span
                                                     style={{
@@ -213,7 +264,7 @@ export default function ProfileDetails({
                                             </div>
                                         </div>
                                         <div className="col-sm-4  ">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>Email</label>
                                                 <p className="word-break">
                                                     {email}
@@ -221,7 +272,7 @@ export default function ProfileDetails({
                                             </div>
                                         </div>
                                         <div className="col-sm-4">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>Phone</label>
                                                 <p>
                                                     <a href={`tel:${phone}`}>
@@ -231,7 +282,7 @@ export default function ProfileDetails({
                                             </div>
                                         </div>
                                         <div className="col-sm-4">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>Language</label>
                                                 <p>{lang}</p>
                                             </div>
@@ -243,7 +294,7 @@ export default function ProfileDetails({
                                             </div>
                                         </div> */}
                                         <div className="col-sm-4">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>Login details</label>
                                                 <p className="word-break">
                                                     <span>Email:</span> {email}
@@ -267,7 +318,7 @@ export default function ProfileDetails({
                                             </div>
                                         </div>
                                         <div className="col-sm-4">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>Joined on</label>
                                                 <p>{joined}</p>
                                             </div>
@@ -300,19 +351,18 @@ export default function ProfileDetails({
                                             </div>
                                         </div> */}
                                         <div className="col-sm-4">
-                                            <div className="form-group">
+                                            <div className="form-group navyblueColor">
                                                 <label>status</label>
                                                 {client.latest_log &&
-                                                client.latest_log[0] ? (
+                                                    client.latest_log[0] ? (
                                                     <p
                                                         data-tooltip-id="status-tooltip"
-                                                        data-tooltip-content={`Reason : ${
-                                                            client.latest_log[0]
-                                                                .reason
-                                                        } on ${Moment(
-                                                            client.latest_log[0]
-                                                                .created_at
-                                                        ).format("DD/MM/Y")}`}
+                                                        data-tooltip-content={`Reason : ${client.latest_log[0]
+                                                            .reason
+                                                            } on ${Moment(
+                                                                client.latest_log[0]
+                                                                    .created_at
+                                                            ).format("DD/MM/Y")}`}
                                                     >
                                                         {cstatus}
                                                     </p>
@@ -321,18 +371,7 @@ export default function ProfileDetails({
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="col-sm-12">
-                                            <div className="form-group">
-                                                <p>
-                                                    <Link
-                                                        className="btn btn-success"
-                                                        to={`/admin/clients/${param.id}/edit`}
-                                                    >
-                                                        Edit client
-                                                    </Link>
-                                                </p>
-                                            </div>
-                                        </div>
+
                                     </div>
                                 </div>
 
@@ -365,88 +404,7 @@ export default function ProfileDetails({
                             </div>
                         </div>
                     </div>
-                    <div className="col-xl-4  col-12">
-                        <div className="dashBox p-4">
-                            <div className="form-group">
-                                <label className="d-block">
-                                    Meeting Status
-                                </label>
-                                <span
-                                    onClick={(e) => handleTab(e)}
-                                    id="ms"
-                                    className="dashStatus"
-                                    style={{
-                                        background: scolor,
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    {scheduleStatus}
-                                </span>
-                            </div>
-
-                            <div className="form-group">
-                                <label className="d-block">Price Offer</label>
-                                <span
-                                    onClick={(e) => handleTab(e)}
-                                    id="os"
-                                    className="dashStatus"
-                                    style={{
-                                        background: ocolor,
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    {offerStatus}
-                                </span>
-                            </div>
-
-                            <div className="form-group mb-0">
-                                <label className="d-block">Contract</label>
-                                <span
-                                    onClick={(e) => handleTab(e)}
-                                    id="cs"
-                                    className="dashStatus"
-                                    style={{
-                                        background:
-                                            latestContract &&
-                                            latestContract.status == "Signed"
-                                                ? "green"
-                                                : "#7e7e56",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    {latestContract
-                                        ? latestContract.status
-                                        : "Not Sent"}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="buttonBlocks dashBox mt-3 p-4">
-                            <Link to={`/admin/view-schedule/${param.id}`}>
-                                <i className="fas fa-hand-point-right"></i>
-
-                                {scheduleStatus == "Not Sent" ||
-                                scheduleStatus == "sent"
-                                    ? "Schedule Meeting"
-                                    : "Re-schedule Meeting"}
-                            </Link>
-                            <Link to={`/admin/offers/create?c=${param.id}`}>
-                                <i className="fas fa-hand-point-right"></i>
-                                {offerStatus == "Not Sent" ||
-                                offerStatus == "sent"
-                                    ? "Send Offer"
-                                    : "Re-send Offer"}
-                            </Link>
-                            <Link
-                                to={`/admin/create-client-job/${param.id}`}
-                                id="bookBtn"
-                                style={{ display: "none" }}
-                            >
-                                <i className="fas fa-hand-point-right"></i> Book
-                                Client
-                            </Link>
-                        </div>
-                    </div>
+                  
                 </div>
                 <div
                     className="modal fade"

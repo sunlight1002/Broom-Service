@@ -341,7 +341,7 @@ export default function WorkerDashboard() {
                                                                     </button>
 
                                                                     <a
-                                                                        href={`/worker/view-job/${item.id}`}
+                                                                        href={`/worker/jobs/view/${item.id}`}
                                                                         target="_blank"
                                                                         className="btn btn-warning"
                                                                     >
@@ -588,7 +588,7 @@ export default function WorkerDashboard() {
                                                             )}
 
                                                             <a
-                                                                href={`/worker/view-job/${item.id}`}
+                                                                href={`/worker/jobs/view/${item.id}`}
                                                                 target="_blank"
                                                                 className="btn btn-warning"
                                                             >

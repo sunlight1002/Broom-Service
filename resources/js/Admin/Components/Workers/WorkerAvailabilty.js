@@ -516,7 +516,7 @@ export default function WorkerAvailabilty({ days }) {
                 <input
                     type="button"
                     value="Update availabilities"
-                    className="btn btn-pink"
+                    className="btn navyblue"
                     onClick={handleSubmit}
                 />
             </div>

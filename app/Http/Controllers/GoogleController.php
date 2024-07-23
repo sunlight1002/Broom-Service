@@ -55,7 +55,7 @@ class GoogleController extends Controller
                 );
             }
 
-            return redirect('admin/view-schedule/' . $schedule->client_id . '?sid=' . $schedule->id . '&action=create-calendar-event');
+            return redirect('admin/schedule/view/' . $schedule->client_id . '?sid=' . $schedule->id . '&action=create-calendar-event');
         } else {
             return abort(404);
         }

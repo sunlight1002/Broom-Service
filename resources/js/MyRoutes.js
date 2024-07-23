@@ -302,7 +302,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="/client/view-job/:id"
+                                path="/client/jobs/view/:id"
                                 element={<ClientJobView />}
                             />
                             <Route
@@ -356,7 +356,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="view-job/:id"
+                                path="jobs/view/:id"
                                 element={<WorkerViewJob />}
                             />
                             <Route
@@ -406,7 +406,7 @@ export default function MyRoutes() {
                             /> */}
                             <Route
                                 exact
-                                path="view-job/:id"
+                                path="jobs/view/:id"
                                 element={<ViewJob />}
                             />
                             <Route exact path="leads" element={<Leads />} />
@@ -422,7 +422,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="view-lead/:id"
+                                path="leads/view/:id"
                                 element={<ViewLead />}
                             />
                             <Route exact path="clients" element={<Clients />} />
@@ -443,7 +443,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="view-client/:id"
+                                path="clients/view/:id"
                                 element={<ViewClient />}
                             />
                             <Route
@@ -458,7 +458,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="freeze-shift/:id"
+                                path="workers/freeze-shift/:id"
                                 element={<FreezeShiftWorkers />}
                             />
                             <Route
@@ -468,12 +468,12 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="edit-worker/:id"
+                                path="workers/edit/:id"
                                 element={<EditWorker />}
                             />
                             <Route
                                 exact
-                                path="view-worker/:id"
+                                path="workers/view/:id"
                                 element={<ViewWorker />}
                             />
                             <Route
@@ -603,7 +603,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="edit-offer/:id"
+                                path="offered-price/edit/:id"
                                 element={<EditOffer />}
                             />
                             <Route
@@ -643,7 +643,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="view-schedule/:id"
+                                path="schedule/view/:id"
                                 element={<ViewSchedule />}
                             />
                             <Route

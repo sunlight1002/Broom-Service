@@ -710,7 +710,7 @@ export default function Invoices() {
                                                             </Td>
                                                             <Td>
                                                                 <Link
-                                                                    to={`/admin/view-client/${
+                                                                    to={`/admin/clients/view/${
                                                                         item.client
                                                                             ? item
                                                                                   .client

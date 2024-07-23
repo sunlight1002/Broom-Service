@@ -94,7 +94,7 @@ export default function notes() {
             <div className="text-right pb-3">
                 <button
                     type="button"
-                    className="btn btn-pink"
+                    className="btn navyblue"
                     data-toggle="modal"
                     data-target="#exampleModalNote"
                 >

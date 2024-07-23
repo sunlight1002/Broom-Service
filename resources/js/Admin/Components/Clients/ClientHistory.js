@@ -17,17 +17,20 @@ export default function ClientHistory({
     latestContract,
     client,
     fetchContract,
+    scheduleStatus,
+    offerStatus
 }) {
     const { hash } = useLocation();
 
     return (
+
         <div className="ClientHistory">
             <ul className="nav nav-tabs" role="tablist">
                 <li className="nav-item" role="presentation">
                     <a
                         id="schedule-meeting"
                         className={
-                            `nav-link ` +
+                            `nav-link d-flex align-items-center ` +
                             (!hash || hash === "#tab-schedule" ? "active" : "")
                         }
                         data-toggle="tab"
@@ -38,13 +41,29 @@ export default function ClientHistory({
                         role="tab"
                     >
                         Scheduled Meeting
+                        <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "3px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
+
+                        <span
+                            id="ms"
+                            className="d-flex ml-2 align-items-center"
+                            style={{
+                                color: "#C83939",
+                                fontWeight: "500",
+                                cursor: "pointer",
+                                fontSize: "16px"
+                            }}
+                        >
+                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
+                            {scheduleStatus}
+                        </span>
+                        </div>
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
                     <a
                         id="offered-price"
                         className={
-                            `nav-link ` +
+                            `nav-link d-flex align-items-center ` +
                             (hash === "#tab-offered" ? "active" : "")
                         }
                         data-toggle="tab"
@@ -55,13 +74,29 @@ export default function ClientHistory({
                         role="tab"
                     >
                         Offered Price
+                        <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "3px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
+
+                        <span
+                            id="os"
+                            className="d-flex ml-2 align-items-center"
+                            style={{
+                                color: "#C83939",
+                                fontWeight: "500",
+                                cursor: "pointer",
+                                fontSize: "16px"
+                            }}
+                        >
+                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
+                            {offerStatus}
+                        </span>
+                        </div>
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
                     <a
                         id="contract"
                         className={
-                            `nav-link ` +
+                            `nav-link d-flex align-items-center ` +
                             (hash === "#tab-contract" ? "active" : "")
                         }
                         data-toggle="tab"
@@ -72,13 +107,31 @@ export default function ClientHistory({
                         role="tab"
                     >
                         Contracts
+                        <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "3px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
+
+                        <span
+                            id="os"
+                            className="d-flex ml-2 align-items-center"
+                            style={{
+                                color: "#C83939",
+                                fontWeight: "500",
+                                cursor: "pointer",
+                                fontSize: "16px"
+                            }}
+                        >
+                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
+                            {latestContract
+                                ? latestContract.status
+                                : "Not Sent"}
+                        </span>
+                        </div>
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
                     <a
                         id="jobs-tab"
                         className={
-                            `nav-link ` + (hash === "#tab-jobs" ? "active" : "")
+                            `nav-link d-flex` + (hash === "#tab-jobs" ? "active" : "")
                         }
                         data-toggle="tab"
                         href="#tab-jobs"
@@ -112,7 +165,7 @@ export default function ClientHistory({
                     <a
                         id="invoice-tab"
                         className={
-                            `nav-link ` +
+                            `nav-link d-flex` +
                             (hash === "#tab-invoice" ? "active" : "")
                         }
                         data-toggle="tab"
@@ -177,7 +230,7 @@ export default function ClientHistory({
                     </a>
                 </li>
             </ul>
-            <div className="tab-content">
+            <div className="tab-content border-0">
                 <div
                     id="tab-schedule"
                     className={

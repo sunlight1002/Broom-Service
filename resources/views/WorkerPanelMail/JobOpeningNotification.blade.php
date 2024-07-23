@@ -20,7 +20,7 @@
 		<h1 style="text-align: center;">{{__('mail.job_status.hi')}}, {{$admin['name']}} </h1>
         <p>
             <p style="text-align: center;line-height: 30px">
-                <a href='{{ url("worker/view-job/".$job["id"] ) }}'> {{__('mail.job_status.job')}} </a> {{__('mail.job_status.started_by')}}  <a href='{{ url("admin/view-worker/".$job["id"] ) }}'> {{ $worker->firstname}}  {{ $worker->lastname}}.</a>
+                <a href='{{ url("worker/jobs/view/".$job["id"] ) }}'> {{__('mail.job_status.job')}} </a> {{__('mail.job_status.started_by')}}  <a href='{{ url("admin/workers/view/".$job["id"] ) }}'> {{ $worker->firstname}}  {{ $worker->lastname}}.</a>
             </p>
             <p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{__('mail.job_status.thanks_text')}}</p>
 		</p>

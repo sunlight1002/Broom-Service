@@ -163,7 +163,7 @@ export default function Clients() {
             }
 
             if (_id) {
-                navigate(`/admin/view-client/${_id}`);
+                navigate(`/admin/clients/view/${_id}`);
             }
         });
 
@@ -179,7 +179,7 @@ export default function Clients() {
 
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/view-client/${_id}`);
+            navigate(`/admin/clients/view/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-change-status-btn", function () {
@@ -338,13 +338,13 @@ export default function Clients() {
             <div id="content">
                 <div className="titleBox customer-title">
                     <div className="d-flex flex-column flex-lg-row">
-                        <div className="d-flex mt-2 d-lg-none justify-content-between">
+                        <div className="d-flex mt-2 d-lg-none justify-content-between no-hover">
                             <h1 className="page-title p-0">
                                 {t("admin.sidebar.Clients")}
                             </h1>
                             <Link
                                 to="/admin/clients/create"
-                                className="btn navyblue  addButton"
+                                className="btn navyblue addButton no-hover"
                             >
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 Add New
@@ -451,7 +451,7 @@ export default function Clients() {
 
                                 <Link
                                     to="/admin/clients/create"
-                                    className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2"
+                                    className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     Add New
