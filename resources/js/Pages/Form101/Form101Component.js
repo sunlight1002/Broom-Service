@@ -1180,6 +1180,8 @@ const Form101Component = () => {
     const getForm = () => {
         axios.get(`/api/get101/${id}/${formId}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
+            
+
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
                 document.querySelector("html").setAttribute("dir", "rtl");
@@ -1188,8 +1190,9 @@ const Form101Component = () => {
             }
 
             if (res.data.form) {
+                // console.log(res.data.form, "form");
                 setFormValues(res.data.form.data);
-
+                setFieldValue("employeePassportNumber", res.data.worker.passport );
                 if (res.data.form.submitted_at) {
                     setTimeout(() => {
                         disableInputs();
@@ -1198,6 +1201,8 @@ const Form101Component = () => {
                 }
             } else if (res.data.worker) {
                 const _worker = res.data.worker;
+                // console.log(_worker, "worker");
+
                 setFieldValue("employeeFirstName", _worker.firstname);
                 setFieldValue("employeeLastName", _worker.lastname);
                 setFieldValue("employeeAddress", _worker.address);
@@ -1229,7 +1234,6 @@ const Form101Component = () => {
             handleSubmit();
         }, 200);
     };
-
 
 
 
