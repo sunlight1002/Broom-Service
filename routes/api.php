@@ -8,6 +8,7 @@ use App\Http\Controllers\User\JobController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
 use App\Http\Controllers\User\DocumentController;
+use App\Http\Controllers\TwimlController;
 /*
 |--------------------------------------------------------------------------
 | Employee API Routes
@@ -20,6 +21,12 @@ use App\Http\Controllers\User\DocumentController;
 */
 
 // Unauthenticated Routes
+Route::post('twiml', [TwimlController::class, 'index']);
+Route::post('twiml/handlelanguage', [TwimlController::class, 'handleLanguage']);
+Route::post('twiml/handleSelection', [TwimlController::class, 'handleSelection']);
+Route::post('twiml/handleName', [TwimlController::class, 'handleName']);
+
+
 Route::post('login', [AuthController::class, 'login']);
 Route::post('verifyOtp', [AuthController::class, 'verifyOtp']);
 Route::post('resendOtp', [AuthController::class, 'resendOtp']);

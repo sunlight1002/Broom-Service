@@ -364,54 +364,54 @@ class LeadWebhookController extends Controller
                             'title' => "About the Service",
                             'content' => [
                                 'en' => 'Broom Service - Room service for your 🏠.
-Broom Service is a professional cleaning company that offers ✨ high-quality cleaning services for homes or apartments, on a regular or one-time basis, without any unnecessary 🤯 hassle.
-We offer a variety of 🧹 customized cleaning packages, from regular cleaning packages to additional services such as post-construction cleaning or pre-move cleaning, window cleaning at any height, and more.
-You can find all of our services and packages on our website at 🌐 www.broomservice.co.il.
-Our prices are fixed per visit, based on the selected package, and they include all the necessary services, including ☕️ social benefits and travel.
-We work with a permanent and skilled team of employees supervised by a work manager.
-Payment is made by 💳 credit card at the end of the month or after the visit, depending on the route chosen.
-To receive a quote, you must schedule an appointment at your property with one of our supervisors, at no cost or obligation on your part, during which we will help you choose a package and then we will send you a detailed quote according to the requested work.
-Please note that office hours are 🕖 Monday-Thursday from 8:00 to 14:00.
-To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
-                                'he' => 'ברום סרוויס - שירות חדרים לבית שלכם 🏠.
-ברום סרוויס היא חברת ניקיון מקצועית המציעה שירותי ניקיון ברמה גבוהה לבית או לדירה, על בסיס קבוע או חד פעמי, ללא כל התעסקות מיותרת 🧹.
-אנו מציעים מגוון חבילות ניקיון מותאמות אישית, החל מחבילות ניקיון על בסיס קבוע ועד לשירותים נוספים כגון, ניקיון לאחר שיפוץ או לפני מעבר דירה, ניקוי חלונות בכל גובה ועוד ✨
-את כלל השירותים והחבילות שלנו תוכלו לראות באתר האינטרנט שלנו בכתובת 🌐 www.broomservice.co.il
-המחירים שלנו קבועים לביקור, בהתאם לחבילה הנבחרת, והם כוללים את כל השירותים הנדרשים, לרבות תנאים סוציאליים ונסיעות 🍵. 
-אנו עובדים עם צוות עובדים קבוע ומיומן המפוקח על ידי מנהל עבודה 👨🏻‍💼.
-התשלום מתבצע בכרטיס אשראי בסוף החודש או לאחר הביקור, בהתאם למסלול שנבחר 💳.
-לקבלת הצעת מחיר, יש לתאם פגישה אצלכם בנכס עם אחד המפקחים שלנו, ללא כל עלות או התחייבות מצדכם שבמסגרתה נעזור לכם לבחור חבילה ולאחריה נשלח לכם הצעת מחיר מפורטת בהתאם לעבודה המבוקשת 📝.
-נציין כי שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00 🕓.
-לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
+                                        Broom Service is a professional cleaning company that offers ✨ high-quality cleaning services for homes or apartments, on a regular or one-time basis, without any unnecessary 🤯 hassle.
+                                        We offer a variety of 🧹 customized cleaning packages, from regular cleaning packages to additional services such as post-construction cleaning or pre-move cleaning, window cleaning at any height, and more.
+                                        You can find all of our services and packages on our website at 🌐 www.broomservice.co.il.
+                                        Our prices are fixed per visit, based on the selected package, and they include all the necessary services, including ☕️ social benefits and travel.
+                                        We work with a permanent and skilled team of employees supervised by a work manager.
+                                        Payment is made by 💳 credit card at the end of the month or after the visit, depending on the route chosen.
+                                        To receive a quote, you must schedule an appointment at your property with one of our supervisors, at no cost or obligation on your part, during which we will help you choose a package and then we will send you a detailed quote according to the requested work.
+                                        Please note that office hours are 🕖 Monday-Thursday from 8:00 to 14:00.
+                                        To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
+                                                                        'he' => 'ברום סרוויס - שירות חדרים לבית שלכם 🏠.
+                                        ברום סרוויס היא חברת ניקיון מקצועית המציעה שירותי ניקיון ברמה גבוהה לבית או לדירה, על בסיס קבוע או חד פעמי, ללא כל התעסקות מיותרת 🧹.
+                                        אנו מציעים מגוון חבילות ניקיון מותאמות אישית, החל מחבילות ניקיון על בסיס קבוע ועד לשירותים נוספים כגון, ניקיון לאחר שיפוץ או לפני מעבר דירה, ניקוי חלונות בכל גובה ועוד ✨
+                                        את כלל השירותים והחבילות שלנו תוכלו לראות באתר האינטרנט שלנו בכתובת 🌐 www.broomservice.co.il
+                                        המחירים שלנו קבועים לביקור, בהתאם לחבילה הנבחרת, והם כוללים את כל השירותים הנדרשים, לרבות תנאים סוציאליים ונסיעות 🍵. 
+                                        אנו עובדים עם צוות עובדים קבוע ומיומן המפוקח על ידי מנהל עבודה 👨🏻‍💼.
+                                        התשלום מתבצע בכרטיס אשראי בסוף החודש או לאחר הביקור, בהתאם למסלול שנבחר 💳.
+                                        לקבלת הצעת מחיר, יש לתאם פגישה אצלכם בנכס עם אחד המפקחים שלנו, ללא כל עלות או התחייבות מצדכם שבמסגרתה נעזור לכם לבחור חבילה ולאחריה נשלח לכם הצעת מחיר מפורטת בהתאם לעבודה המבוקשת 📝.
+                                        נציין כי שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00 🕓.
+                                        לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
                             ]
                         ],
                         '2' => [
                             'title' => "Service Areas",
                             'content' => [
                                 'en' => 'We provide service in the following areas: 🗺️
-- Tel Aviv
-- Ramat Gan
-- Givatayim
-- Kiryat Ono
-- Ganei Tikva
-- Ramat HaSharon
-- Kfar Shmaryahu
-- Rishpon
-- Herzliya
+                                        - Tel Aviv
+                                        - Ramat Gan
+                                        - Givatayim
+                                        - Kiryat Ono
+                                        - Ganei Tikva
+                                        - Ramat HaSharon
+                                        - Kfar Shmaryahu
+                                        - Rishpon
+                                        - Herzliya
 
-To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
-                                'he' => 'אנו מספקים שירות באזור 🗺️:
-- תל אביב
-- רמת גן
-- גבעתיים
-- קריית אונו
-- גני תקווה
-- רמת השרון
-- כפר שמריהו
-- רשפון
-- הרצליה
+                                        To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
+                                                                        'he' => 'אנו מספקים שירות באזור 🗺️:
+                                        - תל אביב
+                                        - רמת גן
+                                        - גבעתיים
+                                        - קריית אונו
+                                        - גני תקווה
+                                        - רמת השרון
+                                        - כפר שמריהו
+                                        - רשפון
+                                        - הרצליה
 
-לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
+                                        לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
                             ]
                         ],
                         '3' => [

@@ -20,6 +20,7 @@ export default function Sidebar() {
     const alert = useAlert();
     const navigate = useNavigate();
     const [role, setRole] = useState(null);
+    // const [lng, setLng] = useState(null);
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -29,6 +30,7 @@ export default function Sidebar() {
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
+            // setLng(res.data.success.lng)
         });
     };
 

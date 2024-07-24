@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useAlert } from "react-alert";
 import logo from "../../../Assets/image/sample.svg";
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 
 export default function AdminLoginOtp() {
     const navigate = useNavigate()
@@ -12,9 +14,14 @@ export default function AdminLoginOtp() {
     const [canResend, setCanResend] = useState(false);
     const buttonRef = useRef(null);
     const [errors, setErrors] = useState([]);
+    const { t } = useTranslation()  
 
     const adminEmail = localStorage.getItem("admin-email")
-    // console.log(adminEmail);
+    const adminLng = localStorage.getItem("admin-lng")
+    
+    useEffect(() => {
+        i18next.changeLanguage(adminLng);
+    }, [adminLng]);
 
 
     useEffect(() => {
@@ -206,16 +213,16 @@ export default function AdminLoginOtp() {
                             ></image>
                         </svg>
                     </div>
-                    <h1 className="page-title text-center">Admin Login Otp</h1>
+                    <h1 className="page-title text-center">{t("resendOtp.adminLoginOtpTitle")}</h1>
                     <form onSubmit={handleLogin}>
-                        <div className="form-group">
+                         <div className="form-group">
                             <div className="container-fluid bg-body-tertiary d-block">
                                 <div className="row justify-content-center">
                                     <div className="col-12 col-md-6 col-lg-4" style={{ minWidth: "500px" }}>
                                         <div className="card bg-white mb-5 border-0" style={{ boxShadow: "none" }}>
                                             <div className="card-body text-center">
-                                                <h4>Verify</h4>
-                                                <p>Your code was sent to you via email or Sms</p>
+                                                <h4>{t("resendOtp.verify")}</h4>
+                                                <p>{t("resendOtp.subtitle")}</p>
 
                                                 <div className="otp-field mb-4" onPaste={handlePaste}>
                                                     {otp.map((value, index) => (
@@ -232,16 +239,16 @@ export default function AdminLoginOtp() {
                                                     ))}
                                                 </div>
                                                 <button type='submit' className="btn btn-danger mb-3" ref={buttonRef}>
-                                                    Verify
+                                                {t("resendOtp.verify")}
                                                 </button>
 
                                                 {canResend ? (
                                                     <p className="resend text-muted mb-0">
-                                                        Didn't receive code? <a href="" onClick={handleResend}>Request again</a>
+                                                       {t("resendOtp.receiveCode")} <a href="" onClick={handleResend}>{t("resendOtp.requestAgain")}</a>
                                                     </p>
                                                 ) : (
                                                     <p className="resend text-muted mb-0">
-                                                        Resend available in {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
+                                                        {t("resendOtp.resendAvailableIn")} {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
                                                     </p>
                                                 )}
                                             </div>

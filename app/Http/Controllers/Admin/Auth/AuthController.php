@@ -67,6 +67,7 @@ class AuthController extends Controller
                 return response()->json([
                     "two_factor_enabled" =>$admin->two_factor_enabled,
                     "email" => $admin->email,
+                    "lng" => $admin->lng,
                     'message' => 'OTP sent to your email and phone number for verification'
                 ]);
             } catch (\Exception $e) {

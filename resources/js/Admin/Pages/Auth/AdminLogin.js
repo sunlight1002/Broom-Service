@@ -38,6 +38,8 @@ export default function AdminLogin() {
             } else {
                 if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
                     localStorage.setItem("admin-email", result.data.email);
+                    localStorage.setItem("admin-lng", result.data.lng);
+
                     console.log(result);
                     window.location = "/admin/login-otp";
                     setLoading(false)
