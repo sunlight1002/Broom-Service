@@ -161,6 +161,7 @@ export default function EmployeeDetails({
                                             : ""
                                     }
                                     required
+                                    readonly={values.employeePassportNumber === null ? false : true}
                                 />
                             </div>
                             <div className="col-md-4 col-sm-6 col-xs-6">
@@ -231,6 +232,7 @@ export default function EmployeeDetails({
                                         : ""
                                 }
                                 required
+                                readonly={values.employeeIdNumber === null ? false : true}
                             />
                         </div>
                         <div className="col-sm-4 col-xs-6">

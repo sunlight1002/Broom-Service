@@ -127,6 +127,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
             });
     };
 
+    // console.log(worker, "worker");
+    // console.log(getWorkerDetails, "workerDeatils");
+
     return (
         <div
             className="tab-pane fade active show"
@@ -412,8 +415,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     </div>
                 </>
             )}
-            {(worker.company_type === "manpower" ||
-                worker.country === "Israel") && (
+            {(worker && worker.country !== "Israel") && (
                 <div
                     className="card card-widget widget-user-2"
                     style={{ boxShadow: "none" }}
