@@ -4,6 +4,7 @@ import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import i18next from "i18next";
+import { useTranslation } from "react-i18next";
 import { IoIosLogOut } from "react-icons/io";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { RiVideoChatLine } from "react-icons/ri";
@@ -20,17 +21,18 @@ export default function Sidebar() {
     const alert = useAlert();
     const navigate = useNavigate();
     const [role, setRole] = useState(null);
-    // const [lng, setLng] = useState(null);
+    const { t } = useTranslation();
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+    const adminLng = localStorage.getItem("admin-lng");
+
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
-            // setLng(res.data.success.lng)
         });
     };
 
@@ -43,14 +45,18 @@ export default function Sidebar() {
                 localStorage.removeItem("admin-token");
                 localStorage.removeItem("admin-name");
                 localStorage.removeItem("admin-id");
+                localStorage.removeItem("admin-email");
+                localStorage.removeItem("admin-lng");
                 navigate("/admin/login");
                 alert.success("Logged Out Successfully");
             }
         });
     };
 
+    // console.log(lng);
+
     useEffect(() => {
-        i18next.changeLanguage("en");
+        i18next.changeLanguage(adminLng);
         getAdmin();
     }, []);
 
@@ -75,63 +81,63 @@ export default function Sidebar() {
                     >
                     <i className="d-flex align-items-center">
                             <HiOutlineSquares2X2 className="font-28" />
-                        </i>Dashboard
+                        </i>{t("admin.sidebar.dashboard")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/leads"
                     className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-poll-h font-28"></i>Leads
+                        <i className="fa-solid fa-poll-h font-28"></i>{t("admin.sidebar.leads")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/clients"
                     className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-user-tie font-20"></i>Clients
+                        <i className="fa-solid fa-user-tie font-20"></i>{t("admin.sidebar.clients")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/workers"
                     className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-users font-20"></i>Workers
+                        <i className="fa-solid fa-users font-20"></i>{t("admin.sidebar.workers")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/schedule"
                     className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-video font-20"></i>Meetings
+                        <i className="fa-solid fa-video font-20"></i>{t("admin.sidebar.meetings")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/offered-price"
                     className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-tags font-20"></i>Offers
+                        <i className="fa-solid fa-tags font-20"></i>{t("admin.sidebar.offers")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/contracts"
                     className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-clipboard-list font-20"></i>Contracts
+                        <i className="fa-solid fa-clipboard-list font-20"></i>{t("admin.sidebar.contracts")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/jobs"
                     className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-briefcase font-20"></i>Schedule
+                        <i className="fa-solid fa-briefcase font-20"></i>{t("admin.sidebar.schedule_meet")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/chat"
                     className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-message font-20"></i>Whatsapp chat
+                        <i className="fa-solid fa-message font-20"></i>{t("admin.sidebar.whatsapp")}
                     </NavLink>
                 </li>
 
@@ -178,13 +184,13 @@ export default function Sidebar() {
 
                 <li className="list-group-item">
                     <NavLink to="/admin/messenger">
-                        <i className="fa-solid fa-comment font-20"></i>Messenger Chat
+                        <i className="fa-solid fa-comment font-20"></i>{t("admin.sidebar.messenger")}
                     </NavLink>
                 </li>
 
                 <li className="list-group-item">
                     <NavLink to="/admin/payments">
-                        <i className="fa-solid fa-cart-shopping font-20"></i>Payments
+                        <i className="fa-solid fa-cart-shopping font-20"></i>{t("admin.sidebar.payments")}
                     </NavLink>
                 </li>
 
@@ -238,13 +244,13 @@ export default function Sidebar() {
                 {role !== "member" && (
                     <li className="list-group-item">
                         <NavLink to="/admin/income">
-                            <i className="fa-solid fa-ils font-20"></i>Earnings
+                            <i className="fa-solid fa-ils font-20"></i>{t("admin.sidebar.earnings")}
                         </NavLink>
                     </li>
                 )}
                 <li className="list-group-item">
                     <NavLink to="/admin/notifications">
-                        <i className="fa-solid fa-bullhorn font-20"></i>Notifications
+                        <i className="fa-solid fa-bullhorn font-20"></i>{t("admin.sidebar.notification")}
                     </NavLink>
                 </li>
 
@@ -259,7 +265,7 @@ export default function Sidebar() {
                                 aria-expanded="true"
                                 aria-controls="fence2"
                             >
-                                <i className="fa-solid fa-gear font-20"></i> Settings{" "}
+                                <i className="fa-solid fa-gear font-20"></i> {t("admin.sidebar.settings.title")}{" "}
                                 <i className="fa-solid fa-angle-down"></i>
                             </a>
                         </div>
@@ -275,26 +281,26 @@ export default function Sidebar() {
                                         <li className="list-group-item">
                                             <Link to="/admin/manage-team">
                                                 <i className="fa fa-angle-right"></i>{" "}
-                                                Manage team
+                                                {t("admin.sidebar.settings.manage_team")}
                                             </Link>
                                         </li>
                                     )}
                                     <li className="list-group-item">
                                         <Link to="/admin/services">
                                             <i className="fa fa-angle-right"></i>{" "}
-                                            Services
+                                            {t("admin.sidebar.settings.services")}
                                         </Link>
                                     </li>
                                     <li className="list-group-item">
                                         <Link to="/admin/manpower-companies">
                                             <i className="fa fa-angle-right"></i>{" "}
-                                            Manpower Companies
+                                            {t("admin.sidebar.settings.manpower")}
                                         </Link>
                                     </li>
                                     <li className="list-group-item">
                                         <Link to="/admin/manage-time">
                                             <i className="fa fa-angle-right"></i>{" "}
-                                            Manage Time
+                                            {t("admin.sidebar.settings.manageTime")}
                                         </Link>
                                     </li>
                                     {/*<li className='list-group-item'>
@@ -309,7 +315,7 @@ export default function Sidebar() {
                                     <li className="list-group-item">
                                         <Link to="/admin/settings">
                                             <i className="fa fa-angle-right"></i>{" "}
-                                            My Account
+                                            {t("admin.sidebar.settings.account")}
                                         </Link>
                                     </li>
                                 </ul>
@@ -322,7 +328,7 @@ export default function Sidebar() {
                 <div className="logoutBtn">
                     <button className="btn d-flex justify-content-center align-items-center" onClick={HandleLogout}>
                     <IoIosLogOut className="mr-1 font-28" />
-                        Logout
+                    {t("admin.sidebar.logout")}
                     </button>
                 </div>
             </div>

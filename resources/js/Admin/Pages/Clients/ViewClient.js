@@ -5,6 +5,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function ViewClient() {
     const [client, setClient] = useState(null);
@@ -12,6 +13,7 @@ export default function ViewClient() {
     const [offerStatus, setOfferStatus] = useState([]);
     const [contracts, setContracts] = useState([]);
     const [latestContract, setLatestContract] = useState([]);
+    const { t } = useTranslation();
 
     const param = useParams();
     const headers = {

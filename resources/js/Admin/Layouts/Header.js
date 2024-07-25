@@ -6,6 +6,7 @@ import MobileHeader from "./MobileHeader";
 import Moment from "moment";
 import axios from "axios";
 import i18next from "i18next";
+import { useTranslation } from "react-i18next";
 import { LuBellRing } from "react-icons/lu";
 
 
@@ -16,6 +17,7 @@ export default function AdminHeader() {
     const [file, setFile] = useState("");
     const [notices, setNotices] = useState([]);
     const [count, setCount] = useState(0);
+    const { t } = useTranslation()
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -90,7 +92,7 @@ export default function AdminHeader() {
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1>Welcome Administrator</h1>
+                            <h1>{t("admin.welcome")}</h1>
                         </div>
                         <div className="col-sm-6">
                             <div className="float-right d-flex">
@@ -202,21 +204,21 @@ export default function AdminHeader() {
                                             className="dropdown-item"
                                             to="/admin/settings"
                                         >
-                                            My Account
+                                            {t("admin.account")}
                                         </Link>
                                         {me && me.role !== "superadmin" && (
                                             <Link
                                                 className="dropdown-item"
                                                 to="/admin/my-availability"
                                             >
-                                                My Availability
+                                                {t("admin.avalability")}
                                             </Link>
                                         )}
                                         <Link
                                             className="dropdown-item"
                                             onClick={HandleLogout}
                                         >
-                                            Logout
+                                            {t("admin.logout")}
                                         </Link>
                                     </div>
                                 </div>

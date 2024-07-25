@@ -9,6 +9,7 @@ import FullPageLoader from "../../../Components/common/FullPageLoader";
 export default function ScheduledMeeting() {
     const [schedules, setSchedules] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState("");
 
     const param = useParams();
     const headers = {

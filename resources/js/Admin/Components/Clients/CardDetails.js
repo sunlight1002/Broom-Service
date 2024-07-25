@@ -3,10 +3,12 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { Badge } from "react-bootstrap";
 import swal from "sweetalert";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 import AddCreditCardModal from "../Modals/AddCreditCardModal";
 
 export default function CardDetails({ client }) {
+    const { t } = useTranslation();
     const [cards, setCards] = useState([]);
     const [addCardModalOpen, setAddCardModalOpen] = useState(false);
 
@@ -98,7 +100,7 @@ export default function CardDetails({ client }) {
                 disabled={addCardModalOpen}
                 onClick={() => handleCard()}
             >
-                Add Card
+                {t("global.addCard")}
             </button>
             <div className="table-responsive">
                 <Table className="table table-bordered">
@@ -161,7 +163,7 @@ export default function CardDetails({ client }) {
                             })
                         ) : (
                             <Tr>
-                                <Td colSpan="3">No card added</Td>
+                                <Td colSpan="3">{t("global.noCard")}</Td>
                             </Tr>
                         )}
                     </Tbody>

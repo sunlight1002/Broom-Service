@@ -199,7 +199,7 @@ export default function AddClient() {
                             <h1 className="page-title addEmployer"
                                 style={{ border: "none" }}
                             >
-                                Add Client
+                                {t("admin.leads.AddLead.AddLeadClient.AddClient")}
                             </h1>
                             <div className="text-center">
                                 <button
@@ -208,7 +208,7 @@ export default function AddClient() {
                                     className="btn navyblue d-flex align-items-center saveBtn"
                                     style={{ paddingLeft: "20px", paddingRight: "20px" }}
                                 // value="Save"
-                                ><IoSaveOutline className="mr-2" /> Save</button>
+                                ><IoSaveOutline className="mr-2" />{t("global.save")}</button>
                                 {/* <input
                                 type="submit"
                                 onClick={handleFormSubmit}
@@ -220,13 +220,13 @@ export default function AddClient() {
                         <div className="container-box d-flex justify-content-between">
                             <div className="card-item" style={{ marginRight: "15px", background: "#FAFBFC" }}>
                                 <div className="card-heading">
-                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">General Information</p>
+                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.General_Information")}</p>
                                 </div>
                                 <div className="card-body d-flex">
                                     <div className="col">
                                         <div className="form-group d-flex w-100">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                                Notification Type
+                                            {t("admin.leads.AddLead.Notification_Type")}
                                             </label>
 
                                             <select
@@ -250,7 +250,7 @@ export default function AddClient() {
                                         </div>
                                         <div className="form-group d-flex">
                                             <label className="control-label navyblueColor" style={{ width: "14.4rem" }}>
-                                                First Name{" "}
+                                            {t("admin.leads.AddLead.FirstName")}{" "}
                                                 *
                                             </label>
                                             <div className="d-flex flex-column w-100">
@@ -275,7 +275,7 @@ export default function AddClient() {
                                         </div>
                                         <div className="form-group d-flex">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                                Last Name
+                                            {t("admin.leads.AddLead.LastName")}
                                             </label>
                                             <input
                                                 type="text"
@@ -359,7 +359,7 @@ export default function AddClient() {
                                         </div>
                                         <div className="form-group d-flex">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                                Primary Email{" "}
+                                            {t("admin.leads.AddLead.PrimaryEmail")}{" "}
                                                 *
                                             </label>
                                             <div className="d-flex flex-column w-100">
@@ -385,7 +385,7 @@ export default function AddClient() {
                                         </div>
                                         <div className="form-group d-flex">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                                Invoice Name *
+                                            {t("admin.leads.AddLead.InvoiceName")} *
                                             </label>
                                             <input
                                                 type="text"
@@ -409,7 +409,7 @@ export default function AddClient() {
                                         </div>
                                         <div className="form-group d-flex">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                                Payment Method
+                                            {t("admin.leads.AddLead.PaymentMethod")}
                                             </label>
 
                                             <select
@@ -419,19 +419,19 @@ export default function AddClient() {
                                                     setPaymentMethod(e.target.value);
                                                 }}
                                             >
-                                                <option value="cc">Credit Card</option>
+                                                <option value="cc">{t("admin.leads.AddLead.Options.PaymentMethod.CreditCard")}</option>
                                                 <option value="mt">
-                                                    Money Transfer
+                                                {t("admin.leads.AddLead.Options.PaymentMethod.MoneyTransfer")}
                                                 </option>
                                                 <option value="cheque">
-                                                    By Cheque
+                                                {t("admin.leads.AddLead.Options.PaymentMethod.ByCheque")}
                                                 </option>
-                                                <option value="cash">By Cash</option>
+                                                <option value="cash">{t("admin.leads.AddLead.Options.PaymentMethod.ByCash")}</option>
                                             </select>
                                         </div>
                                         <div className="form-group d-flex">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                                Password *
+                                            {t("admin.leads.AddLead.Password")} *
                                             </label>
                                             <input
                                                 type="password"
@@ -463,7 +463,7 @@ export default function AddClient() {
                                             className="form-check-label navyblueColor"
                                             htmlFor="title"
                                         >
-                                            Color
+                                            {t("admin.leads.AddLead.Color")}
                                         </label>
                                     </div>
                                     <div className="swatch white mb-3">
@@ -478,7 +478,7 @@ export default function AddClient() {
                                         <label htmlFor="swatch_7">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>white</span>
+                                        <span>{t("admin.leads.AddLead.white")}</span>
                                     </div>
                                     <div className="swatch green mb-3">
                                         <input
@@ -494,7 +494,7 @@ export default function AddClient() {
                                         <label htmlFor="swatch_2">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Green</span>
+                                        <span>{t("admin.leads.AddLead.Green")}</span>
                                     </div>
                                     <div className="swatch blue mb-3">
                                         <input
@@ -510,7 +510,7 @@ export default function AddClient() {
                                         <label htmlFor="swatch_3">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Blue</span>
+                                        <span>{t("admin.leads.AddLead.Blue")}</span>
                                     </div>
                                     <div className="swatch purple mb-3">
                                         <input
@@ -526,7 +526,7 @@ export default function AddClient() {
                                         <label htmlFor="swatch_1">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Voilet</span>
+                                        <span>{t("admin.leads.AddLead.Voilet")}</span>
                                     </div>
                                     <div className="swatch red mb-3">
                                         <input
@@ -542,7 +542,7 @@ export default function AddClient() {
                                         <label htmlFor="swatch_5">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Red</span>
+                                        <span>{t("admin.leads.AddLead.Red")}</span>
                                     </div>
                                     <div className="swatch orange mb-3">
                                         <input
@@ -558,7 +558,7 @@ export default function AddClient() {
                                         <label htmlFor="swatch_4">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Orange</span>
+                                        <span>{t("admin.leads.AddLead.Orange")}</span>
                                     </div>
                                     <div className="swatch yellow mb-3">
                                         <input
@@ -574,7 +574,7 @@ export default function AddClient() {
                                         <label htmlFor="swatch_6">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Yellow</span>
+                                        <span>{t("admin.leads.AddLead.Yellow")}</span>
                                     </div>
 
                                     {errors.color ? (
@@ -588,7 +588,7 @@ export default function AddClient() {
                             </div>
                             <div className="card-item" style={{ background: "#FAFBFC" }}>
                                 <div className="card-heading">
-                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">Additional Contacts</p>
+                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.Additional_Contacts")}</p>
                                 </div>
                                 <div className="card-body d-flex flex-column">
                                     {extra &&
@@ -725,7 +725,7 @@ export default function AddClient() {
                         </div>
                         <div className="property-container">
                             <PropertyAddress
-                                heading={"Property Address"}
+                                heading={t("admin.client.property_address")}
                                 errors={errors}
                                 setErrors={setErrors}
                                 addresses={addresses}
@@ -735,7 +735,7 @@ export default function AddClient() {
 
                         <div className="form-group mt-35">
                             <label className="control-label">
-                                Status
+                                {t("admin.leads.Options.Status")}
                             </label>
                             <select
                                 className="form-control"
@@ -744,11 +744,11 @@ export default function AddClient() {
                                     setStatus(e.target.value)
                                 }
                             >
-                                <option value="0">Lead</option>
+                                <option value="0">{t("admin.leads.title")}</option>
                                 <option value="1">
-                                    Potential Customer
+                                {t("admin.leads.AddLead.potential_coustomer")}
                                 </option>
-                                <option value="2">Customer</option>
+                                <option value="2"> {t("admin.leads.AddLead.coustomer")}</option>
                             </select>
                             {errors.status ? (
                                 <small className="text-danger mb-1">
@@ -764,7 +764,7 @@ export default function AddClient() {
                             style={{ display: "none" }}
                         >
                             <label className="control-label">
-                                Create Job
+                            {t("admin.leads.AddLead.Options.CreateJob.title")}
                             </label>
                             <select
                                 className="form-control"
@@ -780,8 +780,8 @@ export default function AddClient() {
                                         ).style.display = "none");
                                 }}
                             >
-                                <option value="0">No</option>
-                                <option value="1">Yes</option>
+                                <option value="0">{t("admin.leads.AddLead.Options.CreateJob.No")}</option>
+                                <option value="1">{t("admin.leads.AddLead.Options.CreateJob.Yes")}</option>
                             </select>
                         </div>
 

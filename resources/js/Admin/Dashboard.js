@@ -100,6 +100,7 @@ export default function Dashboard() {
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
+            console.log(res);
         });
     };
 

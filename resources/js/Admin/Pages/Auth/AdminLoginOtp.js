@@ -18,6 +18,7 @@ export default function AdminLoginOtp() {
 
     const adminEmail = localStorage.getItem("admin-email")
     const adminLng = localStorage.getItem("admin-lng")
+    console.log(adminLng,"lng");
     
     useEffect(() => {
         i18next.changeLanguage(adminLng);

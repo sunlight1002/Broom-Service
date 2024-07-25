@@ -10,7 +10,7 @@ import JobMenu from "../../Components/Job/JobMenu";
 import { useTranslation } from "react-i18next";
 import { IoSaveOutline } from "react-icons/io5";
 
-export default function EditClient() {
+export default function     EditClient() {
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -251,7 +251,7 @@ export default function EditClient() {
                                     className="btn navyblue d-flex align-items-center saveBtn"
                                     style={{ paddingLeft: "20px", paddingRight: "20px" }}
                                 // value="Save"
-                                ><IoSaveOutline className="mr-2" /> Save</button>
+                                ><IoSaveOutline className="mr-2" /> {t("admin.leads.save")}</button>
                                 {/* <input
                                 type="submit"
                                 onClick={handleFormSubmit}
@@ -263,13 +263,13 @@ export default function EditClient() {
                         <div className="container-box d-flex justify-content-between">
                             <div className="card-item" style={{ marginRight: "15px", background: "#FAFBFC" }}>
                                 <div className="card-heading">
-                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">General Information</p>
+                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.General_Information")} </p>
                                 </div>
                                 <div className="card-body d-flex">
                                     <div className="col">
                                         <div className="form-group d-flex w-100">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                                Notification Type
+                                            {t("admin.leads.AddLead.Notification_Type")}
                                             </label>
 
                                             <select
@@ -659,7 +659,7 @@ export default function EditClient() {
                             </div>
                             <div className="card-item" style={{ background: "#FAFBFC" }}>
                                 <div className="card-heading">
-                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">Additional Contacts</p>
+                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.Additional_Contacts")}</p>
                                 </div>
                                 <div className="card-body d-flex flex-column">
                                     {extra &&

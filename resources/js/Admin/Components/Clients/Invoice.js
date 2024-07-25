@@ -8,6 +8,7 @@ import { Base64 } from "js-base64";
 import Swal from "sweetalert2";
 import { render } from "react-dom";
 import AceEditor from "react-ace";
+import { useTranslation } from "react-i18next";
 
 import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-github";
@@ -17,6 +18,8 @@ import AddCreditCardModal from "../Modals/AddCreditCardModal";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Invoice() {
+    const { t } = useTranslation();
+    
     const [invoices, setInvoices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [res, setRes] = useState("");
@@ -983,7 +986,7 @@ export default function Invoice() {
                                     className="btn btn-secondary closeb1"
                                     data-dismiss="modal"
                                 >
-                                    Close
+                                    {t("global.close")}
                                 </button>
                                 <button
                                     type="button"
@@ -1046,7 +1049,7 @@ export default function Invoice() {
                                     className="btn btn-secondary closeb11"
                                     data-dismiss="modal"
                                 >
-                                    Close
+                                    {t("global.close")}
                                 </button>
                                 <button
                                     type="button"
@@ -1124,7 +1127,7 @@ export default function Invoice() {
                                     className="btn btn-secondary closeb11"
                                     data-dismiss="modal"
                                 >
-                                    Close
+                                    {t("global.close")}
                                 </button>
                             </div>
                         </div>

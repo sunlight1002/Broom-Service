@@ -19,11 +19,6 @@ import Sidebar from "../../Layouts/Sidebar";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
 
-const statusArr = {
-    "pending client": "Pending client",
-    "freeze client": "Freeze client",
-    "active client": "Active client",
-};
 
 export default function Clients() {
     const [show, setShow] = useState(false);
@@ -35,13 +30,18 @@ export default function Clients() {
     const [filters, setFilters] = useState({
         action: "",
     });
-
+    
     const tableRef = useRef(null);
     const actionRef = useRef(null);
-
+    
     const alert = useAlert();
     const { t } = useTranslation();
-
+    
+    const statusArr = {
+        "pending client": t("admin.client.Pending_client"),
+        "freeze client": t("admin.client.Freeze_client"),
+        "active client": t("admin.client.Active_client"),
+    };
     useEffect(() => {
         $(tableRef.current).DataTable({
             processing: true,
@@ -340,20 +340,20 @@ export default function Clients() {
                     <div className="d-flex flex-column flex-lg-row">
                         <div className="d-flex mt-2 d-lg-none justify-content-between no-hover">
                             <h1 className="page-title p-0">
-                                {t("admin.sidebar.Clients")}
+                                {t("admin.sidebar.clients")}
                             </h1>
                             <Link
                                 to="/admin/clients/create"
                                 className="btn navyblue addButton no-hover"
                             >
                                 <i className="btn-icon fas fa-plus-circle"></i>
-                                Add New
+                                {t("admin.client.AddNew")}
                             </Link>
                         </div>
 
                         <div className="clearfix w-100 justify-content-between align-items-center">
                             <h1 className="page-title d-none d-lg-block float-left">
-                                {t("admin.sidebar.Clients")}
+                            {t("admin.sidebar.clients")}
                             </h1>
                             <div className="search-data">
                                 <div
@@ -408,7 +408,7 @@ export default function Clients() {
                                                 });
                                             }}
                                         >
-                                            {t("admin.client.PendingClient")}
+                                            {t("admin.client.Pending_client")}
                                         </button>
                                         <button
                                             className="dropdown-item"
@@ -419,7 +419,7 @@ export default function Clients() {
                                             }}
                                         >
                                             {t(
-                                                "admin.client.ActiveClient"
+                                                "admin.client.Active_client"
                                             )}
                                         </button>
                                         <button
@@ -431,7 +431,7 @@ export default function Clients() {
                                             }}
                                         >
                                             {t(
-                                                "admin.client.FreezeClient"
+                                                "admin.client.Freeze_client"
                                             )}
                                         </button>
                                         <button
@@ -454,7 +454,7 @@ export default function Clients() {
                                     className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
-                                    Add New
+                                    {t("admin.client.AddNew")}
                                 </Link>
                             </div>
                         </div>
@@ -478,7 +478,7 @@ export default function Clients() {
                             Status
                         </div>
                         <FilterButtons
-                            text={t("admin.global.All")}
+                            text={t("admin.client.All")}
                             className="px-3 mr-1"
                             value=""
                             onClick={() => {
@@ -490,7 +490,7 @@ export default function Clients() {
                         />
 
                         <FilterButtons
-                            text={t("admin.client.PendingClient")}
+                            text={t("admin.client.Pending_client")}
                             value="pending client"
                             className="px-3 mr-1"
                             onClick={() => {
@@ -501,7 +501,7 @@ export default function Clients() {
                             selectedFilter={filters.action}
                         />
                         <FilterButtons
-                            text={t("admin.client.ActiveClient")}
+                            text={t("admin.client.Active_client")}
                             className="px-3 mr-1"
                             value="active client"
                             onClick={() => {
@@ -512,7 +512,7 @@ export default function Clients() {
                             selectedFilter={filters.action}
                         />
                         <FilterButtons
-                            text={t("admin.client.FreezeClient")}
+                            text={t("admin.client.Freeze_client")}
                             className="px-3 mr-1"
                             value="freeze client"
                             onClick={() => {

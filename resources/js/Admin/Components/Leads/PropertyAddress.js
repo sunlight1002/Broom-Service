@@ -148,7 +148,7 @@ const PropertyAddress = memo(function PropertyAddress({
                 client_id: client_id.current.value,
                 id: 0,
                 not_allowed_worker_ids:
-                getWorkerId.length > 0 ? getWorkerId.toString() : null,
+                    getWorkerId.length > 0 ? getWorkerId.toString() : null,
             };
             const adId = addressId.current?.value;
             if (isAdd.current) {
@@ -188,7 +188,7 @@ const PropertyAddress = memo(function PropertyAddress({
                     updatedData.not_allowed_worker_ids
                         ? updatedData.not_allowed_worker_ids
                         : "";
-                        // console.log(updatedData.not_allowed_worker_ids);
+                // console.log(updatedData.not_allowed_worker_ids);
             }
             if (params.id) {
                 axios
@@ -788,13 +788,19 @@ const PropertyAddress = memo(function PropertyAddress({
                                             )}
                                         </Th>
                                         <Th>
-                                            Floor
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Floor"
+                                            )}
                                         </Th>
                                         <Th>
-                                            Apt # and Apt name
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.AptNumberAndAptName"
+                                            )}
                                         </Th>
                                         <Th>
-                                            Enterance Code
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.EnteranceCode"
+                                            )}
                                         </Th>
                                         <Th>
 
@@ -803,20 +809,27 @@ const PropertyAddress = memo(function PropertyAddress({
                                             )}
                                         </Th>
                                         <Th>
-
-                                            Gender Prefernce
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Gender_Prefernce"
+                                            )}
                                         </Th>
                                         <Th>
 
-                                            Dog
+                                        {t(
+                                                "admin.leads.AddLead.addAddress.Dog"
+                                            )}
                                         </Th>
                                         <Th>
 
-                                            Cat
+                                        {t(
+                                                "admin.leads.AddLead.addAddress.Cat"
+                                            )}
                                         </Th>
                                         {/* <Th>
 
-                                            Allowed Workers
+                                            {t(
+                                                "admin.leads.AddLead.addAddress.Allowed_workers"
+                                            )}
                                         </Th> */}
 
                                         <Th>

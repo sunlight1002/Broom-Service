@@ -11,8 +11,6 @@ import { MdHomeRepairService } from "react-icons/md";
 import { MdOutlinePayments } from "react-icons/md";
 import { IoMdSettings } from "react-icons/io";
 
-
-
 import logo from "../../Assets/image/sample.svg";
 
 export default function ClientSidebar() {
@@ -37,7 +35,7 @@ export default function ClientSidebar() {
             }
         });
     };
-
+// console.log(t("client.sidebar.dashboard"));
     return (
         <div id="column-left">
             <div className="sideLogo">

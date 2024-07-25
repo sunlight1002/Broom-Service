@@ -9,8 +9,10 @@ import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 import FilterButtons from "../../../Components/common/FilterButton";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import { useTranslation } from "react-i18next";
 
 export default function Jobs({ contracts, client }) {
+    const { t } = useTranslation();
     const todayFilter = {
         start_date: Moment().format("YYYY-MM-DD"),
         end_date: Moment().format("YYYY-MM-DD"),
@@ -220,7 +222,7 @@ export default function Jobs({ contracts, client }) {
             <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
                 <div className="d-flex align-items-center">
                     <div style={{ fontWeight: "bold" }} className="mr-2">
-                        Date Period
+                        {t("global.date_period")}
                     </div>
                     <FilterButtons
                         text="Day"
@@ -275,7 +277,7 @@ export default function Jobs({ contracts, client }) {
             <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
                 <div className="d-flex align-items-center">
                     <div className="mr-3" style={{ fontWeight: "bold" }}>
-                        Custom Date Range
+                    {t("global.custom_date")}
                     </div>
 
                     <input
@@ -323,7 +325,7 @@ export default function Jobs({ contracts, client }) {
                     className="btn btn-primary mr-3 ml-3"
                     onClick={(e) => genInvoice(e)}
                 >
-                    Generate Invoice
+                    {t("global.generate_invoice")}
                 </button>
                 <button
                     type="button"
@@ -353,7 +355,7 @@ export default function Jobs({ contracts, client }) {
                             });
                         }}
                     >
-                        Scheduled - {jres.scheduled}
+                        {t("global.schedule")} - {jres.scheduled}
                     </button>
                     <button
                         className="dropdown-item"
@@ -364,7 +366,7 @@ export default function Jobs({ contracts, client }) {
                             });
                         }}
                     >
-                        Unscheduled - {jres.unscheduled}
+                        {t("global.unSchedule")} - {jres.unscheduled}
                     </button>
                     <button
                         className="dropdown-item"
@@ -375,7 +377,7 @@ export default function Jobs({ contracts, client }) {
                             });
                         }}
                     >
-                        Progress - {jres.progress}
+                        {t("global.progress")} - {jres.progress}
                     </button>
                     <button
                         className="dropdown-item"
@@ -386,7 +388,7 @@ export default function Jobs({ contracts, client }) {
                             });
                         }}
                     >
-                        completed - {jres.completed}
+                       {t("global.completed")} - {jres.completed}
                     </button>
                     <button
                         className="dropdown-item"
@@ -397,7 +399,7 @@ export default function Jobs({ contracts, client }) {
                             });
                         }}
                     >
-                        Canceled - {jres.canceled}
+                        {t("global.cancelled")} - {jres.canceled}
                     </button>
                     <button
                         className="dropdown-item"
@@ -408,7 +410,7 @@ export default function Jobs({ contracts, client }) {
                             });
                         }}
                     >
-                        Ordered - {jres.ordered}
+                        {t("global.ordered")} - {jres.ordered}
                     </button>
                     <button
                         className="dropdown-item"
@@ -419,7 +421,7 @@ export default function Jobs({ contracts, client }) {
                             });
                         }}
                     >
-                        unordered - {jres.unordered}
+                        {t("global.Unordered")} - {jres.unordered}
                     </button>
                     <button
                         className="dropdown-item"
@@ -430,7 +432,7 @@ export default function Jobs({ contracts, client }) {
                             });
                         }}
                     >
-                        Invoiced - {jres.invoiced}
+                        {t("global.invoiced")} - {jres.invoiced}
                     </button>
                     <button
                         className="dropdown-item"
@@ -441,7 +443,7 @@ export default function Jobs({ contracts, client }) {
                             });
                         }}
                     >
-                        UnInvoiced - {jres.uninvoiced}
+                        {t("global.unInvoiced")} - {jres.uninvoiced}
                     </button>
                 </div>
             </div>
@@ -470,25 +472,25 @@ export default function Jobs({ contracts, client }) {
                                     onClick={(e) => sortTable(e, "id")}
                                     style={{ cursor: "pointer" }}
                                 >
-                                    ID <span className="arr"> &darr; </span>
+                                    {t("global.id")} <span className="arr"> &darr; </span>
                                 </th>
-                                <th>Service</th>
-                                <th>Worker</th>
-                                <th>Total Price</th>
+                                <th>{t("global.service")}</th>
+                                <th>{t("global.worker")}</th>
+                                <th>{t("global.totalPrice")}</th>
                                 <th
                                     onClick={(e) => sortTable(e, "created_at")}
                                     style={{ cursor: "pointer" }}
                                 >
-                                    Start Date{" "}
+                                    {t("global.startDate")}{" "}
                                     <span className="arr"> &darr; </span>
                                 </th>
                                 <th
                                     onClick={(e) => sortTable(e, "status")}
                                     style={{ cursor: "pointer" }}
                                 >
-                                    Status <span className="arr"> &darr; </span>
+                                    {t("global.status")} <span className="arr"> &darr; </span>
                                 </th>
-                                <th>Action</th>
+                                <th>{t("global.action")}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -592,7 +594,7 @@ export default function Jobs({ contracts, client }) {
                                                         to={`/admin/jobs/view/${j.id}`}
                                                         className="dropdown-item"
                                                     >
-                                                        View Job
+                                                        {t("global.viewJob")}
                                                     </Link>
 
                                                     {!j.is_order_generated && (
@@ -600,7 +602,7 @@ export default function Jobs({ contracts, client }) {
                                                             to={`/admin/add-order/?j=${j.id}&c=${params.id}`}
                                                             className="dropdown-item"
                                                         >
-                                                            Create Order
+                                                           {t("global.createOrder")}
                                                         </Link>
                                                     )}
                                                     {/* {!j.is_invoice_generated && (

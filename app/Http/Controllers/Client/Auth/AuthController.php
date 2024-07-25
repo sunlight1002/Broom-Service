@@ -53,7 +53,7 @@ class AuthController extends Controller
 
                         Mail::to($client->email)->send(new LoginOtpMail($otp,$client)); 
 
-                        App::setLocale($user->lng);
+                        App::setLocale($client->lng);
                         // Send OTP via SMS using Twilio
                         $otpMessage = __('mail.otp.body', ['otp' => $otp]);
                         
@@ -149,7 +149,7 @@ class AuthController extends Controller
 
             Mail::to($client->email)->send(new LoginOtpMail($otp,$client));
 
-            App::setLocale($user->lng);
+            App::setLocale($client->lng);
             // Send OTP via SMS using Twilio
             $otpMessage = __('mail.otp.body', ['otp' => $otp]);
 

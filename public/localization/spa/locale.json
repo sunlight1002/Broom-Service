@@ -344,5 +344,70 @@
         "receiveCode": "¿No recibiste el código?",
         "requestAgain": "Solicitar nuevamente",
         "resendAvailableIn": "Reenvío disponible en"
+    },
+    "admins": {
+        "welcome": "Bienvenido Administrador",
+        "account": "Mi cuenta",
+        "availability": "Disponibilidad",
+        "search": "Buscar",
+        "next": "Siguiente",
+        "previous": "Anterior",
+        "logout": "Cerrar sesión",
+        "common": {
+            "offers": "Ofertas",
+            "meetings": "Reuniones",
+            "services": "Servicios",
+            "payments": "Pagos"
+        },
+        "sidebar": {
+            "dashboard": "Tablero",
+            "leads": "Clientes potenciales",
+            "clients": "Clientes",
+            "workers": "Trabajadores",
+            "meetings": "Reuniones",
+            "offers": "Ofertas",
+            "contracts": "Contratos",
+            "schedule_meet": "Programado",
+            "whatsapp": "Chat de Whatsapp",
+            "messenger": "Chat de Messenger",
+            "payments": "Pagos",
+            "earnings": "Ganancias",
+            "notification": "Notificaciones",
+            "settings": {
+                "title": "Configuraciones",
+                "manage_team": "Gestionar equipo",
+                "services": "Servicios",
+                "manpower": "Empresas de mano de obra",
+                "manageTime": "Gestionar tiempo",
+                "account": "Mi cuenta"
+            },
+            "logout": "Cerrar sesión"
+        },
+        "leads": {
+        "All": "Todo",
+        "Potential": "Potencial",
+        "Pending": "Pendiente",
+        "Uninterested": "No interesado",
+        "Unanswered": "Sin respuesta",
+        "Irrelevant": "Irrelevante",
+        "Potential_client": "Cliente potencial",
+        "Pending_client": "Cliente pendiente",
+        "Freeze_client": "Cliente congelado",
+        "Active_client": "Cliente activo",
+        "MeetingSet": "Reunión programada",
+        "PriceOfferSent": "Oferta de precio enviada",
+        "DeclinedPriceOffer": "Oferta de precio rechazada",
+        "AddNew": "Agregar nuevo",
+        "Options": {
+            "sortBy": "-- Ordenar por --",
+            "ID": "ID",
+            "Name": "Nombre",
+            "Email": "Correo electrónico",
+            "Phone": "Teléfono",
+            "Status": "Estado"
+        },
+        "save": "Сохранить",
+        "change_status": "Cambiar estado"
+    }        
     }
 }

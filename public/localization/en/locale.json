@@ -17,6 +17,12 @@
         "rejected": "Rejected",
         "day": "Day",
         "week": "Week",
+        "date_period": "Date Period",
+        "date": "Date",
+        "time": "Time",
+        "custom_date": "Custom Date Range",
+        "from": "From",
+        "filter": "Filter",
         "previous_week": "Previous Week",
         "next_week": "Next Week",
         "to": "To",
@@ -26,7 +32,78 @@
         "yesDelete": "Yes, Delete!",
         "deleted": "Deleted!",
         "Logout": "Logged Out Successfully",
-        "select_default_option": "--Select--"
+        "select_default_option": "--Select--",
+        "generate_invoice": "Generate Invoice",
+        "schedule": "Schedule",
+        "unSchedule": "Unscheduled",
+        "progress": "Progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "pending": "Pending",
+        "ordered": "Ordered",
+        "Unordered": "Unordered",
+        "invoiced": "Invoiced",
+        "unInvoiced": "Uninvoiced",
+        "paid": "Paid",
+        "unPaid": "Unpaid",
+        "id": "ID",
+        "service": "Service",
+        "worker": "Worker",
+        "totalPrice": "Total Price",
+        "startDate": "Start Date",
+        "status": "Status",
+        "action": "Action",
+        "edit": "Edit",
+        "delete": "Delete",
+        "view": "View",
+        "add": "Add",
+        "update": "Update",
+        "cancel": "Cancel",
+        "save": "Save",
+        "close": "Close",
+        "addNew": "Add New",
+        "viewJob": "View Job",
+        "createOrder": "Create Order",
+        "addCard": "Add Card",
+        "addWorker": "Add Worker",
+        "addService": "Add Service",
+        "addCustomer": "Add Customer",
+        "noCard": "No Card added",
+        "addComment": "Add Comment"
+    },
+    "modal": {
+        "title": "Modal",
+        "close": "Close",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "view": "View",
+        "add": "Add",
+        "id": "ID",
+        "morning": "Morning",
+        "noon": "Noon",
+        "afternoon": "Afternoon",
+        "evening": "Evening",
+        "fullday": "Full Day",
+        "night": "Night",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "day": "Day",
+        "week": "Week",
+        "date_period": "Date Period",
+        "date": "Date",
+        "time": "Time",
+        "custom_date": "Custom Date Range",
+        "from": "From",
+        "filter": "Filter",
+        "to": "To",
+        "search": "Search",
+        "clear": "Clear",
+        "reset": "Reset",
+        "select": "Select",
+        "select_all": "Select All",
+        "leave_job": "Leave Job",
+        "last_working_date": "Last Working Date"
     },
     "front_meet": {
         "title": "Meeting time and date",
@@ -710,6 +787,19 @@
         }
     },
     "admin": {
+        "welcome": "Welcome Administrator",
+        "account": "My Account",
+        "availability": "Availability",
+        "search": "search",
+        "next": "Next",
+        "previous": "Previous",
+        "logout": "Logout",
+        "common": {
+            "offers": "Offers",
+            "meetings": "Meetings",
+            "services": "Services",
+            "payments": "Payments"
+        },
         "global": {
             "status": "Status",
             "action": "Action",
@@ -718,14 +808,22 @@
             "Delete": "Delete",
             "Name": "Name",
             "Email": "Email",
-            "Status": "Status",
             "Phone": "Phone",
             "Export": "Export to CSV",
             "Import": "Import",
             "All": "All",
             "AddNew": "Add New",
+            "active": "Active",
+            "inactive": "Inactive",
+            "pending": "Pending",
+            "past": "Past",
             "location": "Enter a location",
-            "locationPlaceholder": "Search your address"
+            "locationPlaceholder": "Search your address",
+            "manpower_company": "Manpower Company",
+            "myCompany": " My Company",
+            "import_file": "Import File",
+            "download_sample_file": " Download sample file",
+            "submit": "Submit"
         },
         "dashboard": {
             "jobPosted": "Job Posted",
@@ -778,10 +876,17 @@
             }
         },
         "leads": {
+            "title": "Lead",
             "All": "All",
-            "PotentialCustomer": "Potential Customer",
+            "Potential": "Potential",
             "Pending": "Pending",
             "Uninterested": "Uninterested",
+            "Unanswered": "Unanswered",
+            "Irrelevant": "Irrelevant",
+            "Potential_client": "Potential client",
+            "Pending_client": "Pending client",
+            "Freeze_client": "Freeze client",
+            "Active_client": "Active client",
             "MeetingSet": "Meeting set",
             "PriceOfferSent": "Price offer sent",
             "DeclinedPriceOffer": "Declined price offer",
@@ -798,6 +903,8 @@
             "Edit": "Edit",
             "view": "View",
             "Delete": "Delete",
+            "change_status": "Change status",
+            "save": "Save",
             "AddLead": {
                 "AddLead": "Add Lead",
                 "FirstName": "First name",
@@ -811,6 +918,11 @@
                 "AlternatePhone": "Alternate phone",
                 "DOB": "Date of birth",
                 "PaymentMethod": "Payment method",
+                "General_Information": "General Information",
+                "Notification_Type": "Notification Type",
+                "Additional_Contacts": "Additional Contacts",
+                "potential_coustomer": "Potential Customer",
+                "coustomer": "Coustomer",
                 "Options": {
                     "PaymentMethod": {
                         "CreditCard": "Credit Card",
@@ -824,10 +936,12 @@
                         "Customer": "Customer"
                     },
                     "CreateJob": {
+                        "title": "Create Job",
                         "No": "No",
                         "Yes": "Yes"
                     },
                     "Type": {
+                        "title": "Type",
                         "Fixed": "Fixed",
                         "Hourly": "Hourly"
                     }
@@ -856,6 +970,10 @@
                     "PreferedType": "Prefered Type",
                     "Key": "Key",
                     "Lobby": "Lobby",
+                    "Gender_Prefernce": "Gender Prefernce",
+                    "Dog": "Dog",
+                    "Cat": "Cat",
+                    "Allowed_workers": "Allowed Workers",
                     "Options": {
                         "pleaseSelect": "--- Please Select ---",
                         "PreferedType": {
@@ -1021,11 +1139,26 @@
         },
         "client": {
             "clientName": "Client Name",
-            "BookedCustomer": "Active client",
-            "NotBookedCustomer": "Pending client",
-            "ActiveClient": "Active client",
-            "PendingClient": "Pending client",
-            "FreezeClient": "Freeze client",
+            "clientEmail": "Client Email",
+            "client_info": "Client info",
+            "notes": "Notes",
+            "files": "Files",
+            "property_address": "Property Address",
+            "title": "Clients",
+            "All": "All",
+            "Potential": "Potential",
+            "Pending": "Pending",
+            "Uninterested": "Uninterested",
+            "Unanswered": "Unanswered",
+            "Irrelevant": "Irrelevant",
+            "Potential_client": "Potential client",
+            "Pending_client": "Pending client",
+            "Freeze_client": "Freeze client",
+            "Active_client": "Active client",
+            "MeetingSet": "Meeting set",
+            "PriceOfferSent": "Price offer sent",
+            "DeclinedPriceOffer": "Declined price offer",
+            "AddNew": "Add New",
             "Export": "Export",
             "Options": {
                 "sortBy": "-- Sort By--",
@@ -1033,13 +1166,33 @@
                 "Name": "Name",
                 "Email": "Email",
                 "Phone": "Phone",
-                "Status": "Status"
+                "Status": "Status",
+                "Password": "Password"
             },
-            "createJob": "Create Job"
+            "createJob": "Create Job",
+            "Files": "Files",
+            "language": "Language",
+            "Login_details": "Login details",
+            "Joined_on": "Joined on",
+            "Enter_password": "Enter your password",
+            "Close": "Close",
+            "Submit": "Submit"
         },
         "schedule": {
             "scheduleMetting": "Schedule Meeting",
+            "reSchedule": "Re-schedule Meeting",
+            "schedule": "Schedule",
+            "sendOffer": "Send Offer",
+            "bookClient": "Book Client",
             "joinedOn": "Joined On",
+            "offeredPrice": "Offered Price",
+            "contract": "Contracts",
+            "Jobs": "Jobs",
+            "invoice": "Invoices",
+            "card": "Cards",
+            "notSent": "Not Sent",
+            "commenst": "Comments",
+            "noRecord": "No record found",
             "meetingStatus": " Meeting Status",
             "meetingAttender": "Meeting Attender",
             "meetingPurpose": "Meeting Purpose",
@@ -1149,10 +1302,26 @@
         "sidebar": {
             "dashboard": "Dashboard",
             "leads": "Leads",
-            "jobs": "Jobs",
-            "Clients": "Clients",
-            "schedule": "Schedule",
-            "not_available": "Not Available Dates"
+            "clients": "Clients",
+            "workers": "Workers",
+            "meetings": "Meetings",
+            "offers": "Offers",
+            "contracts": "Contracts",
+            "schedule_meet": "Scheduled",
+            "whatsapp": "Whatsapp chat",
+            "messenger": "Messenger chat",
+            "payments": "Payments",
+            "earnings": "Earnings",
+            "notification": "Notitfications",
+            "settings": {
+                "title": "Settings",
+                "manage_team": "Manage team",
+                "services": "Services",
+                "manpower": "Manpower Companies",
+                "manageTime": "Manage Time",
+                "account": "My Account"
+            },
+            "logout": "Logout"
         }
     },
     "worker": {
@@ -1730,7 +1899,7 @@
         "successfullySigned": "Successfuly signed",
         "error": "Error!"
     },
-   "israilContract": {
+    "israilContract": {
         "title1": "Notice to Employee Regarding Detailed Terms of Employment",
         "title2": "In accordance with the Employee Notice (Terms of Employment) Law, 2002",
         "is1": "Employer's name: Brom Service L.M. Ltd. - private company number 515184208 Maan Hamel 11, Rosh Ha'Ein.",
@@ -1768,7 +1937,7 @@
             "tr3": {
                 "td1": "Recovery (hourly employee)",
                 "td2": "on the 9th of the month",
-                 "td3": "A holiday for cleaning workers",
+                "td3": "A holiday for cleaning workers",
                 "td4": "In the month in which the Tishrei and Sivan holidays fall (around October and April)"
             },
             "tr4": {
@@ -1780,7 +1949,6 @@
             "tr5": {
                 "td1": "Seniority supplement for cleaning workers",
                 "td2": "After a year of work"
-             
             },
             "tr6": {
                 "td1": "Holiday fees for cleaning workers",
@@ -1969,7 +2137,7 @@
             "Role": "Employee's role is required",
             "invalidId": "Invalid ID number",
             "idRequired": "ID number is required",
-            "passportNumReq" :"Passport is required",
+            "passportNumReq": "Passport is required",
             "address": "Employee's address is required",
             "startDate": "Start date of work is required",
             "Date": "Date is required",
@@ -2110,7 +2278,7 @@
         "auto_complete": "auto complete from google address",
         "submit": "Submit"
     },
-    "resendOtp":{
+    "resendOtp": {
         "workerLoginOtpTitle": "Worker Login Otp",
         "clientLoginOtpTitle": "Client Login Otp",
         "adminLoginOtpTitle": "Admin Login Otp",

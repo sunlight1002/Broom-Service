@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -17,6 +18,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
 
 export default function AllWorkers() {
+    const {t} = useTranslation()
     const [isOpenLeaveJobWorker, setIsOpenLeaveJobWorker] = useState(false);
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const [filters, setFilters] = useState({
@@ -312,17 +314,17 @@ export default function AllWorkers() {
                     <div className="row">
                         <div className="col-sm-6 d-flex justify-content-between">
                             <h1 className="page-title d-none d-md-block">
-                                Workers
+                                {t("admin.dashboard.workers")}
                             </h1>
                             <h1 className="page-title p-0 d-block d-md-none">
-                                Workers
+                            {t("admin.dashboard.workers")}
                             </h1>
                             <Link
                                 to="/admin/add-worker"
                                 className="btn navyblue d-block d-md-none addButton no-hover"
                             >
                                 <i className="btn-icon fas fa-plus-circle"></i>
-                                Add New
+                                {t("admin.leads.AddNew")}
                             </Link>
                         </div>
                         <div className="col-sm-6">
@@ -331,20 +333,20 @@ export default function AllWorkers() {
                                     className="btn navyblue mt-4 mr-2 no-hover"
                                     onClick={handleShow}
                                 >
-                                    Import
+                                   {t("admin.global.Import")}
                                 </button>
                                 <Link
                                     to="/admin/workers/working-hours"
                                     className="btn navyblue addButton mr-0 mr-md-2  ml-auto no-hover"
                                 >
-                                    Worker Hours
+                                    {t("price_offer.worker_hours")}
                                 </Link>
                                 <Link
                                     to="/admin/add-worker"
                                     className="btn navyblue d-none d-md-block addButton no-hover"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
-                                    Add New
+                                    {t("admin.leads.AddNew")}
                                 </Link>
                             </div>
                         </div>
@@ -353,12 +355,12 @@ export default function AllWorkers() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">-- Sort By--</option>
-                                <option value="0">ID</option>
-                                <option value="1">Name</option>
-                                <option value="2">Email</option>
-                                <option value="3">Phone</option>
-                                <option value="4">Address</option>
+                                <option value="">{t("admin.leads.Options.sortBy")}</option>
+                                <option value="0">{t("admin.leads.Options.ID")}</option>
+                                <option value="1">{t("admin.leads.Options.Name")}</option>
+                                <option value="2">{t("admin.leads.Options.Email")}</option>
+                                <option value="3">{t("admin.leads.Options.Phone")}</option>
+                                <option value="4">{t("admin.leads.AddLead.addAddress.Address")}</option>
                             </select>
                         </div>
                     </div>
@@ -366,7 +368,7 @@ export default function AllWorkers() {
                 <div className="row mb-2 d-none d-lg-block">
                     <div className="col-sm-12 d-flex align-items-center">
                         <div className="mr-3" style={{ fontWeight: "bold" }}>
-                            Status
+                            {t("admin.global.status")}
                         </div>
                         <button
                             className={`btn border rounded px-3 mr-1`}
@@ -385,7 +387,7 @@ export default function AllWorkers() {
                                 });
                             }}
                         >
-                            Active
+                            {t("admin.global.active")}
                         </button>
                         <button
                             className={`btn border rounded px-3 mr-1`}
@@ -404,7 +406,7 @@ export default function AllWorkers() {
                                 });
                             }}
                         >
-                            Past
+                            {t("admin.global.past")}
                         </button>
                     </div>
                     <div className="col-sm-12 d-flex mt-2">
@@ -412,7 +414,7 @@ export default function AllWorkers() {
                             className="mr-3 align-items-center"
                             style={{ fontWeight: "bold" }}
                         >
-                            Manpower Company
+                            {t("admin.global.manpower_company")}
                         </div>
                         <div className="d-flex">
                             <select
@@ -453,7 +455,7 @@ export default function AllWorkers() {
                                     });
                                 }}
                             >
-                                My Company
+                                {t("admin.global.myCompany")}
                             </button>
                             <button
                                 className={`btn border rounded px-3 mx-1`}
@@ -474,7 +476,7 @@ export default function AllWorkers() {
                                     });
                                 }}
                             >
-                                All
+                               {t("admin.global.All")}
                             </button>
                         </div>
 
@@ -518,11 +520,11 @@ export default function AllWorkers() {
 
                 <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Import File</Modal.Title>
+                        <Modal.Title>{t("admin.global.import_file")}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <a href="/api/admin/workers/import/sample">
-                            Download sample file
+                        {t("admin.global.download_sample_file")}
                         </a>
                         <form encType="multipart/form-data">
                             <div className="row mt-2">
@@ -543,13 +545,13 @@ export default function AllWorkers() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>
-                            Close
+                        {t("global.close")}
                         </Button>
                         <Button
                             className="btn btn-pink"
                             onClick={handleImportSubmit}
                         >
-                            Submit
+                            {t("admin.global.submit")}
                         </Button>
                     </Modal.Footer>
                 </Modal>

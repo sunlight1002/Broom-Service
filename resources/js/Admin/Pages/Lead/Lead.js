@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
@@ -16,19 +17,25 @@ import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
 
-const statusArr = {
-    pending: "Pending",
-    potential: "Potential",
-    irrelevant: "Irrelevant",
-    uninterested: "Uninterested",
-    unanswered: "Unanswered",
-    "potential client": "Potential client",
-    "pending client": "Pending client",
-    "freeze client": "Freeze client",
-    "active client": "Active client",
-};
-
 export default function Lead() {
+    const { t } = useTranslation();
+    const adminLng = localStorage.getItem("admin-lng");
+
+    useEffect(() => {
+        i18next.changeLanguage(adminLng);
+    }, [adminLng]);
+
+    const statusArr = {
+        pending: t("admin.leads.Pending"),
+        potential: t("admin.leads.Potential"),
+        irrelevant: t("admin.leads.Irrelevant"),
+        uninterested: t("admin.leads.Uninterested"),
+        unanswered: t("admin.leads.Unanswered"),
+        "potential client": t("admin.leads.Potential_client"),
+        "pending client": t("admin.leads.Pending_client"),
+        "freeze client": t("admin.leads.Freeze_client"),
+        "active client": t("admin.leads.Active_client"),
+    };
     const [filter, setFilter] = useState("All");
     const [changeStatusModal, setChangeStatusModal] = useState({
         isOpen: false,
@@ -38,14 +45,13 @@ export default function Lead() {
     const tableRef = useRef(null);
 
     const navigate = useNavigate();
-    const { t } = useTranslation();
     const leadStatuses = [
-        "pending",
-        "potential",
-        "irrelevant",
-        "uninterested",
-        "unanswered",
-        "potential client",
+        t("admin.leads.Pending"),
+        t("admin.leads.Potential"),
+        t("admin.leads.Irrelevant"),
+        t("admin.leads.Uninterested"),
+        t("admin.leads.Unanswered"),
+        t("admin.leads.Potential_client"),
     ];
 
     const headers = {
@@ -54,7 +60,16 @@ export default function Lead() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+   
+
     useEffect(() => {
+        const actionTranslations = {
+            edit: t("admin.leads.Edit"),
+            view: t("admin.leads.view"),
+            change_status: t("admin.leads.change_status"),
+            delete: t("admin.leads.Delete"),
+        };
+        // console.log(actionTranslations);
         $(tableRef.current).DataTable({
             processing: true,
             serverSide: true,
@@ -93,7 +108,6 @@ export default function Lead() {
                     render: function (data, type, row, meta) {
                         const _statusColor = leadStatusColor(data);
 
-                        // return `<span class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
                         return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                         ${data}
                     </p>`;
@@ -108,13 +122,10 @@ export default function Lead() {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">Change status</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${actionTranslations.edit}</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${actionTranslations.view}</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${actionTranslations.change_status}</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${actionTranslations.delete}</button>`;
 
                         _html += "</div> </div>";
 
@@ -131,12 +142,12 @@ export default function Lead() {
             },
             columnDefs: [
                 {
-                    targets: '_all',
+                    targets: "_all",
                     createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).addClass('custom-cell-class ');
-                    }
-                }
-            ]
+                        $(td).addClass("custom-cell-class ");
+                    },
+                },
+            ],
         });
 
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
@@ -278,7 +289,7 @@ export default function Lead() {
                                                 setFilter("All");
                                             }}
                                         >
-                                            All
+                                            {t("admin.leads.All")}
                                         </button>
                                         {leadStatuses.map((_status, _index) => {
                                             return (
@@ -337,7 +348,7 @@ export default function Lead() {
                 <div className="row mb-2 d-none d-lg-block">
                     <div className="col-sm-12">
                         <FilterButtons
-                            text="All"
+                            text={t("admin.leads.All")}
                             className="px-3 mr-1"
                             selectedFilter={filter}
                             setselectedFilter={setFilter}
@@ -355,7 +366,7 @@ export default function Lead() {
                         })}
                     </div>
                 </div>
-                <div className="card" style={{boxShadow: "none"}}>
+                <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

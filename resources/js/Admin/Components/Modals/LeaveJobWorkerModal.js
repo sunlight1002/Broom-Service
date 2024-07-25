@@ -83,7 +83,7 @@ export default function LeaveJobWorkerModal({ setIsOpen, isOpen, workerId }) {
             backdrop="static"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Leave Job</Modal.Title>
+                <Modal.Title>{t("modal.leave_job")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -91,7 +91,7 @@ export default function LeaveJobWorkerModal({ setIsOpen, isOpen, workerId }) {
                     <div className="col-sm-6">
                         <div className="form-group">
                             <label className="control-label">
-                                Last working date
+                            {t("modal.last_working_date")}
                             </label>
                             <DatePicker
                                 selected={selectedDate}
@@ -113,7 +113,7 @@ export default function LeaveJobWorkerModal({ setIsOpen, isOpen, workerId }) {
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
@@ -121,7 +121,7 @@ export default function LeaveJobWorkerModal({ setIsOpen, isOpen, workerId }) {
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >
-                    Save
+                   {t("modal.save")}
                 </Button>
             </Modal.Footer>
         </Modal>

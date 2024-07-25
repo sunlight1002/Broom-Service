@@ -10,6 +10,7 @@ import Notes from "./Notes";
 import Files from "./Files";
 import PropertyAddressTable from "../common/PropertyAddressTable";
 import { Tooltip } from "react-tooltip";
+import { useTranslation } from "react-i18next";
 
 export default function ProfileDetails({
     client,
@@ -18,6 +19,7 @@ export default function ProfileDetails({
     latestContract,
 }) {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const firstname = client.firstname;
     const lastname = client.lastname;
     const email = client.email;
@@ -148,8 +150,8 @@ export default function ProfileDetails({
 
                                 {scheduleStatus == "Not Sent" ||
                                     scheduleStatus == "sent"
-                                    ? "Schedule Meeting"
-                                    : "Re-schedule Meeting"}
+                                    ?  t("admin.schedule.scheduleMetting")
+                                    : t("admin.schedule.reSchedule")}
                             </Link>
                             <Link to={`/admin/offers/create?c=${param.id}`}
                             style={{borderRadius: "5px"}}
@@ -158,8 +160,8 @@ export default function ProfileDetails({
                                 <i className="fas fa-hand-point-right"></i>
                                 {offerStatus == "Not Sent" ||
                                     offerStatus == "sent"
-                                    ? "Send Offer"
-                                    : "Re-send Offer"}
+                                    ? t("admin.schedule.sendOffer")
+                                    : ("Re-" + t("admin.schedule.sendOffer"))}
                             </Link>
                             <Link
                                 to={`/admin/create-client-job/${param.id}`}
@@ -167,15 +169,14 @@ export default function ProfileDetails({
                                 style={{ display: "none" , width: "30%"}}
                                 className="navyblue  align-items-center"
                             >
-                                <i className="fas fa-hand-point-right"></i> Book
-                                Client
+                                <i className="fas fa-hand-point-right"></i>{t("admin.schedule.bookClient")}
                             </Link>
                             <p>
                                 <Link
                                     className="btn navyblue no-hover"
                                     to={`/admin/clients/${param.id}/edit`}
                                 >
-                                    Edit client
+                                    {t("admin.global.Edit")}
                                 </Link>
                             </p>
                         </div>
@@ -194,7 +195,7 @@ export default function ProfileDetails({
                                         aria-selected="true"
                                         role="tab"
                                     >
-                                        Client info
+                                        {t("admin.client.client_info")}
                                     </a>
                                 </li>
                                 <li className="nav-item" role="presentation">
@@ -206,7 +207,7 @@ export default function ProfileDetails({
                                         aria-selected="false"
                                         role="tab"
                                     >
-                                        Notes
+                                         {t("admin.client.notes")}
                                     </a>
                                 </li>
                                 <li className="nav-item" role="presentation">
@@ -218,7 +219,7 @@ export default function ProfileDetails({
                                         aria-selected="false"
                                         role="tab"
                                     >
-                                        Files
+                                        {t("admin.client.Files")}
                                     </a>
                                 </li>
                                 <li className="nav-item" role="presentation">
@@ -230,7 +231,7 @@ export default function ProfileDetails({
                                         aria-selected="false"
                                         role="tab"
                                     >
-                                        Property addresses
+                                        {t("admin.client.property_address")}
                                     </a>
                                 </li>
                             </ul>
@@ -241,12 +242,12 @@ export default function ProfileDetails({
                                     role="tab-panel"
                                     aria-labelledby="client-details"
                                 >
-                                    <h5 className="navyblueColor">Client info</h5>
+                                    <h5 className="navyblueColor">{t("admin.client.client_info")}</h5>
 
                                     <div className="row mt-3">
                                         <div className="col-sm-4">
                                             <div className="form-group navyblueColor">
-                                                <label>Color</label>
+                                                <label>{t("admin.leads.AddLead.Color")}</label>
                                                 <span
                                                     style={{
                                                         background: client.color
@@ -265,7 +266,7 @@ export default function ProfileDetails({
                                         </div>
                                         <div className="col-sm-4  ">
                                             <div className="form-group navyblueColor">
-                                                <label>Email</label>
+                                                <label>{t("admin.client.Options.Email")}</label>
                                                 <p className="word-break">
                                                     {email}
                                                 </p>
@@ -273,7 +274,7 @@ export default function ProfileDetails({
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group navyblueColor">
-                                                <label>Phone</label>
+                                                <label>{t("admin.client.Options.Phone")}</label>
                                                 <p>
                                                     <a href={`tel:${phone}`}>
                                                         {phone}
@@ -283,7 +284,7 @@ export default function ProfileDetails({
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group navyblueColor">
-                                                <label>Language</label>
+                                                <label>{t("admin.client.language")}</label>
                                                 <p>{lang}</p>
                                             </div>
                                         </div>
@@ -295,12 +296,12 @@ export default function ProfileDetails({
                                         </div> */}
                                         <div className="col-sm-4">
                                             <div className="form-group navyblueColor">
-                                                <label>Login details</label>
+                                                <label>{t("admin.client.Login_details")}</label>
                                                 <p className="word-break">
-                                                    <span>Email:</span> {email}
+                                                    <span>{t("admin.client.Options.Email")}:</span> {email}
                                                 </p>
                                                 <p>
-                                                    <span>Password:</span>
+                                                    <span>{t("admin.client.Options.Password")}:</span>
                                                     {pass == null ? (
                                                         <span
                                                             style={{
@@ -319,7 +320,7 @@ export default function ProfileDetails({
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group navyblueColor">
-                                                <label>Joined on</label>
+                                                <label>{t("admin.client.Joined_on")}</label>
                                                 <p>{joined}</p>
                                             </div>
                                         </div>
@@ -352,7 +353,7 @@ export default function ProfileDetails({
                                         </div> */}
                                         <div className="col-sm-4">
                                             <div className="form-group navyblueColor">
-                                                <label>status</label>
+                                                <label>{t("admin.client.Options.Status")}</label>
                                                 {client.latest_log &&
                                                     client.latest_log[0] ? (
                                                     <p
@@ -431,7 +432,7 @@ export default function ProfileDetails({
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Enter your password
+                                            {t("admin.client.Enter_password")}
                                             </label>
                                             <input
                                                 type="password"
@@ -453,14 +454,14 @@ export default function ProfileDetails({
                                     className="btn btn-secondary closePs"
                                     data-dismiss="modal"
                                 >
-                                    Close
+                                    {t("admin.client.Close")}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={viewPass}
                                     className="btn btn-primary"
                                 >
-                                    Submit
+                                    {t("admin.client.Submit")}
                                 </button>
                             </div>
                         </div>

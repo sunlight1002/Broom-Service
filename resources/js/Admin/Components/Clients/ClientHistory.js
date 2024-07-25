@@ -10,6 +10,7 @@ import Order from "./Order";
 import Invoice from "./Invoice";
 import Payment from "./Payment";
 import Comments from "../common/Comments";
+import { useTranslation } from "react-i18next";
 
 export default function ClientHistory({
     contracts,
@@ -21,6 +22,7 @@ export default function ClientHistory({
     offerStatus
 }) {
     const { hash } = useLocation();
+    const { t } = useTranslation();
 
     return (
 
@@ -40,7 +42,7 @@ export default function ClientHistory({
                         }
                         role="tab"
                     >
-                        Scheduled Meeting
+                        {t("admin.schedule.scheduleMetting")}
                         <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "3px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
 
                         <span
@@ -73,7 +75,7 @@ export default function ClientHistory({
                         }
                         role="tab"
                     >
-                        Offered Price
+                        {t("admin.schedule.offeredPrice")}
                         <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "3px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
 
                         <span
@@ -106,7 +108,7 @@ export default function ClientHistory({
                         }
                         role="tab"
                     >
-                        Contracts
+                        {t("admin.schedule.contract")}
                         <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "3px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
 
                         <span
@@ -138,7 +140,7 @@ export default function ClientHistory({
                         aria-selected={hash === "#tab-jobs" ? "true" : "false"}
                         role="tab"
                     >
-                        Jobs
+                        {t("admin.schedule.Jobs")}
                     </a>
                 </li>
 
@@ -175,7 +177,7 @@ export default function ClientHistory({
                         }
                         role="tab"
                     >
-                        Invoices
+                        {t("admin.schedule.invoice")}
                     </a>
                 </li>
                 {/* <li className="nav-item" role="presentation">
@@ -209,7 +211,7 @@ export default function ClientHistory({
                         }
                         role="tab"
                     >
-                        Cards
+                        {t("admin.schedule.card")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -226,7 +228,7 @@ export default function ClientHistory({
                         }
                         role="tab"
                     >
-                        Comments
+                        {t("admin.schedule.commenst")}
                     </a>
                 </li>
             </ul>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import moment from "moment";
+import { useTranslation } from "react-i18next";
 
 import AddCommentModal from "../Modals/AddCommentModal";
 
@@ -10,6 +11,7 @@ export default function Comments({
     routeType,
     canAddComment = true,
 }) {
+    const {t} = useTranslation()
     const [comments, setComments] = useState([]);
     const [loading, setLoading] = useState("Loading..");
     const [isOpenAddComment, setIsOpenAddComment] = useState(false);
@@ -82,7 +84,7 @@ export default function Comments({
                             className="btn btn-primary mr-3"
                             onClick={(e) => handleAddComment(e)}
                         >
-                            Add Comment
+                            {t("global.addComment")}
                         </button>
                     </div>
 
