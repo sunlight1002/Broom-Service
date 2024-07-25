@@ -127,9 +127,6 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
             });
     };
 
-    // console.log(worker, "worker");
-    // console.log(getWorkerDetails, "workerDeatils");
-
     return (
         <div
             className="tab-pane fade active show"
@@ -458,7 +455,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             to={
                                                 worker.form_insurance
                                                     ? `/storage/uploads/worker/insurance/${worker.form_insurance}`
-                                                    : `/worker-safe-gear/` +
+                                                    : `/insurance-form/` +
                                                       Base64.encode(
                                                           worker.id.toString()
                                                       )

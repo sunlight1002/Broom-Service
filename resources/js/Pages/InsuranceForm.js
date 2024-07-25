@@ -389,7 +389,6 @@ const InsuranceForm = () => {
         setFieldValue("signature", "");
     };
 
-    // console.log(formValues);
 
     return (
         <form className="my-2 mx-4" onSubmit={handleSubmit}>
