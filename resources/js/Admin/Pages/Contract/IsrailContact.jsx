@@ -232,8 +232,8 @@ export function IsrailContact({
                                                 // required={true}
                                                 readonly={true}
                                                 error={
-                                                    touched.PhoneNo &&
-                                                    errors.PhoneNo
+                                                    touched.MobileNo &&
+                                                    errors.MobileNo
                                                 }
                                             />
                                         </div>
@@ -254,8 +254,8 @@ export function IsrailContact({
 
                                                 required={true}
                                                 error={
-                                                    touched.MobileNo &&
-                                                    errors.MobileNo
+                                                    touched.PhoneNo &&
+                                                    "mobile is required"
                                                 }
                                             />
                                         </div>
