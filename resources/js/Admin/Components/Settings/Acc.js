@@ -2,8 +2,10 @@ import i18next from "i18next";
 import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 export default function Acc() {
+    const { t } = useTranslation();
     const [name, setName] = useState("");
     const [address, setAddress] = useState("");
     const [email, setEmail] = useState("");
@@ -77,23 +79,23 @@ export default function Acc() {
             <div className="card-body">
                 <form>
                     <div className="form-group">
-                        <label className="control-label">My name</label>
+                        <label className="control-label">{t("admin.sidebar.settings.myName")}</label>
                         <input
                             type="text"
                             className="form-control"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="My name"
+                            placeholder={t("admin.sidebar.settings.myName")}
                         />
                     </div>
                     <div className="form-group">
-                        <label className="control-label">My email</label>
+                        <label className="control-label">{t("admin.sidebar.settings.myEmail")}</label>
                         <input
                             type="text"
                             className="form-control"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="My email"
+                            placeholder={t("admin.sidebar.settings.myEmail")}
                         />
                         {errors.email && (
                             <small className="text-danger mb-1">
@@ -103,12 +105,12 @@ export default function Acc() {
                     </div>
 
                     <div className="form-group">
-                        <label className="control-label">My address</label>
+                        <label className="control-label">{t("admin.sidebar.settings.myAddress")}</label>
                         <textarea
                             className="form-control"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
-                            placeholder="My address"
+                            placeholder={t("admin.sidebar.settings.myAddress")}
                         />
                         {errors.address && (
                             <small className="text-danger mb-1">
@@ -117,7 +119,7 @@ export default function Acc() {
                         )}
                     </div>
                     <div className="form-group">
-                        <label className="control-label">Color</label>
+                        <label className="control-label">{t("admin.sidebar.settings.color")}</label>
                         <input
                             type="color"
                             className="form-control"
@@ -126,23 +128,23 @@ export default function Acc() {
                         />
                     </div>
                     <div className="form-group">
-                        <label className="control-label">My phone</label>
+                        <label className="control-label">{t("admin.sidebar.settings.myPhone")}</label>
                         <input
                             type="text"
                             className="form-control"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            placeholder="My phone"
+                            placeholder={t("admin.sidebar.settings.myPhone")}
                         />
                     </div>
                     <div className="form-group">
-                        <label className="control-label">Language</label>
+                        <label className="control-label">{t("admin.sidebar.settings.language")}</label>
                         <select
                             className="form-control"
                             value={lng}
                             onChange={(e) => setLng(e.target.value)}
                         >
-                            <option value="">--- Select language ---</option>
+                            <option value="">{t("admin.sidebar.settings.selectLang")}</option>
                             <option value="heb">Hebrew</option>
                             <option value="en">English</option>
                         </select>
@@ -152,7 +154,7 @@ export default function Acc() {
                             className="control-label"
                             style={{ display: "block" }}
                         >
-                            Upload profile image
+                            {t("admin.sidebar.settings.verification")}
                         </label>
                         <input
                             type="file"
@@ -173,7 +175,7 @@ export default function Acc() {
                     <div className="form-group">
                         <div className="toggle-switch">
                             <div className="switch">
-                                <span className="mr-2">Two step Verification</span>
+                                <span className="mr-2">{t("admin.sidebar.settings.verification")}</span>
                                 <input
                                     onChange={() => setTwostepverification(prev => !prev)}
                                     type="checkbox"

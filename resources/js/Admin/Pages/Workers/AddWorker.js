@@ -12,6 +12,7 @@ import Geocode from "react-geocode";
 import Swal from "sweetalert2";
 
 import Sidebar from "../../Layouts/Sidebar";
+import { useTranslation } from "react-i18next";
 
 const animalArray = [
     {
@@ -25,6 +26,8 @@ const animalArray = [
 ];
 
 export default function AddWorker() {
+
+    const { t } = useTranslation();
     const elementsRef = useRef(animalArray.map(() => createRef()));
     const [formValues, setFormValues] = useState({
         firstname: "",
@@ -180,15 +183,15 @@ export default function AddWorker() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title addEmployer">Add Worker</h1>
-                    <div className="card">
+                    <h1 className="page-title addEmployer">{t("global.addWorker")}</h1>
+                    <div className="card" style={{boxShadow: "none"}}>
                         <div className="card-body">
                             <form>
                                 <div className="row">
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                First Name *
+                                            {t("worker.settings.f_name")} *
                                             </label>
                                             <input
                                                 type="text"
@@ -202,7 +205,7 @@ export default function AddWorker() {
                                                 }}
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter First Name"
+                                                placeholder={t("workerInviteForm.enter_first_name")}
                                             />
                                             {errors.firstname ? (
                                                 <small className="text-danger mb-1">
@@ -216,7 +219,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Last Name
+                                            {t("worker.settings.l_name")}
                                             </label>
                                             <input
                                                 type="text"
@@ -229,14 +232,14 @@ export default function AddWorker() {
                                                     });
                                                 }}
                                                 className="form-control"
-                                                placeholder="Enter Last Name"
+                                                placeholder={t("workerInviteForm.enter_last_name")}
                                             />
                                         </div>
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Email
+                                            {t("worker.settings.email")}
                                             </label>
                                             <input
                                                 type="email"
@@ -248,7 +251,7 @@ export default function AddWorker() {
                                                     });
                                                 }}
                                                 className="form-control"
-                                                placeholder="Email"
+                                                placeholder={t("worker.settings.email")}
                                             />
                                             {errors.email ? (
                                                 <small className="text-danger mb-1">
@@ -262,7 +265,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Phone
+                                            {t("worker.settings.phone")}
                                             </label>
                                             <input
                                                 type="tel"
@@ -274,7 +277,7 @@ export default function AddWorker() {
                                                     });
                                                 }}
                                                 className="form-control"
-                                                placeholder="Phone"
+                                                placeholder={t("worker.settings.phone")}
                                             />
                                             {errors.phone ? (
                                                 <small className="text-danger mb-1">
@@ -289,7 +292,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Gender
+                                            {t("worker.settings.gender")}
                                             </label>
                                         </div>
                                         <div className="form-check-inline">
@@ -310,7 +313,7 @@ export default function AddWorker() {
                                                         "male"
                                                     }
                                                 />
-                                                Male
+                                                {t("worker.settings.male")}
                                             </label>
                                         </div>
                                         <div className="form-check-inline">
@@ -331,7 +334,7 @@ export default function AddWorker() {
                                                         "female"
                                                     }
                                                 />
-                                                Female
+                                                {t("worker.settings.female")}
                                             </label>
                                         </div>
                                         <div>
@@ -347,7 +350,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Role
+                                            {t("nonIsrailContract.role")}
                                             </label>
                                             <input
                                                 type="text"
@@ -359,7 +362,7 @@ export default function AddWorker() {
                                                     });
                                                 }}
                                                 className="form-control"
-                                                placeholder="Role"
+                                                placeholder={t("nonIsrailContract.role")}
                                             />
                                             {errors.role && (
                                                 <small className="text-danger mb-1">
@@ -371,7 +374,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Payment Per Hour (ILS)
+                                               {t("worker.settings.p_ph")}(ILS)
                                             </label>
                                             <input
                                                 type="text"
@@ -384,14 +387,14 @@ export default function AddWorker() {
                                                     });
                                                 }}
                                                 className="form-control"
-                                                placeholder="Payment Per Hour"
+                                                placeholder={t("worker.settings.p_ph")}
                                             />
                                         </div>
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Worker Id
+                                            {t("worker.settings.w_id")}
                                             </label>
                                             <input
                                                 type="text"
@@ -404,7 +407,7 @@ export default function AddWorker() {
                                                     });
                                                 }}
                                                 className="form-control"
-                                                placeholder="Payment Per Hour"
+                                                placeholder={t("worker.settings.w_id")}
                                             />
                                             {errors.worker_id ? (
                                                 <small className="text-danger mb-1">
@@ -418,7 +421,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Password *
+                                            {t("worker.settings.pass")} *
                                             </label>
                                             <input
                                                 type="password"
@@ -428,7 +431,7 @@ export default function AddWorker() {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Password"
+                                                placeholder={t("worker.settings.pass")}
                                                 autoComplete="new-password"
                                             />
                                         </div>
@@ -443,7 +446,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Language
+                                            {t("worker.settings.lng")}
                                             </label>
 
                                             <select
@@ -471,7 +474,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Country
+                                            {t("worker.settings.country")}
                                             </label>
 
                                             <select
@@ -501,7 +504,7 @@ export default function AddWorker() {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                    Renewal of visa
+                                                {t("worker.settings.renewal_visa")}
                                                 </label>
                                                 <input
                                                     type="date"
@@ -513,7 +516,7 @@ export default function AddWorker() {
                                                         });
                                                     }}
                                                     className="form-control"
-                                                    placeholder="Email"
+                                                    placeholder={t("worker.settings.renewal_visa")}
                                                 />
                                             </div>
                                         </div>
@@ -522,7 +525,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Company
+                                                {t("global.company")}
                                             </label>
                                         </div>
                                         <div className="form-check-inline">
@@ -545,7 +548,7 @@ export default function AddWorker() {
                                                         "my-company"
                                                     }
                                                 />
-                                                My Company
+                                                {t("admin.global.myCompany")}
                                             </label>
                                         </div>
                                         <div className="form-check-inline">
@@ -566,7 +569,7 @@ export default function AddWorker() {
                                                         "manpower"
                                                     }
                                                 />
-                                                Manpower
+                                                  {t("admin.global.manpower")}
                                             </label>
                                         </div>
                                         <div>
@@ -583,7 +586,7 @@ export default function AddWorker() {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                    Manpower
+                                                {t("admin.global.manpower")}
                                                 </label>
 
                                                 <select
@@ -601,7 +604,7 @@ export default function AddWorker() {
                                                     }
                                                 >
                                                     <option value="">
-                                                        --Select Manpower---
+                                                    {t("admin.global.select_manpower")}
                                                     </option>
                                                     {manpowerCompanies.map(
                                                         (mpc, index) => (
@@ -632,7 +635,7 @@ export default function AddWorker() {
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Enter a location
+                                    {t("admin.global.location")}
                                     </label>
                                     <LoadScript
                                         googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
@@ -685,7 +688,7 @@ export default function AddWorker() {
                                         >
                                             <input
                                                 type="text"
-                                                placeholder="Search Your Address"
+                                                placeholder={t("workerInviteForm.search_your_address")}
                                                 className="form-control mt-1"
                                             />
                                         </Autocomplete>
@@ -693,17 +696,16 @@ export default function AddWorker() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Full Address
+                                        {t("workerInviteForm.full_address")}
                                         <small className="text-pink mb-1">
-                                            &nbsp; (auto complete from google
-                                            address)
+                                            &nbsp; ({t("workerInviteForm.auto_complete")})
                                         </small>
                                     </label>
                                     <input
                                         type="text"
                                         value={address}
                                         className="form-control"
-                                        placeholder="Enter your address"
+                                        placeholder={t("workerInviteForm.enter_your_address")}
                                         readOnly
                                     />
                                     {errors.address ? (
@@ -717,7 +719,7 @@ export default function AddWorker() {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Skills
+                                            {t("worker.settings.skills")}
                                         </label>
                                     </div>
                                     <div className="form-check mb-3">
@@ -727,7 +729,7 @@ export default function AddWorker() {
                                                 className="form-check-input"
                                                 onChange={handleAllSkills}
                                             />
-                                            <strong>Select All</strong>
+                                            <strong>{t("modal.select_all")}</strong>
                                         </label>
                                     </div>
 
@@ -752,8 +754,7 @@ export default function AddWorker() {
                                 <div className="col-sm-12 mt-4">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Are you afraid of any follwing pet
-                                            animals ?
+                                            {t("worker.settings.areYouAfraid")}
                                         </label>
                                     </div>
                                     {animalArray.map((item, index) => (
@@ -780,7 +781,7 @@ export default function AddWorker() {
                                 </div>
                                 <div className="form-group mt-4">
                                     <label className="control-label">
-                                        Status
+                                    {t("worker.settings.status")}
                                     </label>
                                     <select
                                         className="form-control"
@@ -789,8 +790,8 @@ export default function AddWorker() {
                                             setItemStatus(e.target.value)
                                         }
                                     >
-                                        <option value="1">Enable</option>
-                                        <option value="0">Disable</option>
+                                        <option value="1">{t("worker.settings.Enable")}</option>
+                                        <option value="0">{t("worker.settings.Disable")}</option>
                                     </select>
                                     {errors.status ? (
                                         <small className="text-danger mb-1">
@@ -807,7 +808,7 @@ export default function AddWorker() {
                                         className="btn btn-pink"
                                         disabled={isLoading}
                                     >
-                                        Submit
+                                        {t("workerInviteForm.submit")}
                                     </button>
                                 </div>
                             </form>

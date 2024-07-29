@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 export default function ChangePass() {
+
+    const { t } = useTranslation();
     const [currentPassword, setCurrentPassword] = useState("");
     const [password, setPassword] = useState("");
     const [passwordConfirmed, setPasswordConfirmed] = useState("");
@@ -40,14 +43,14 @@ export default function ChangePass() {
                 <form>
                     <div className="form-group">
                         <label className="control-label">
-                            Current password *
+                            {t("client.settings.c_pass")} *
                         </label>
                         <input
                             type="password"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
                             className="form-control"
-                            placeholder="Current password"
+                            placeholder={t("client.settings.c_pass")}
                             autoComplete="new-password"
                         />
                         {errors.current_password ? (
@@ -60,14 +63,14 @@ export default function ChangePass() {
                     </div>
                     <div className="form-group">
                         <label className="control-label">
-                            New password *
+                        {t("client.settings.u_pass")}*
                         </label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="form-control"
-                            placeholder="New password"
+                            placeholder={t("client.settings.u_pass")}
                             autoComplete="new-password"
                         />
                         {errors.password ? (
@@ -80,7 +83,7 @@ export default function ChangePass() {
                     </div>
                     <div className="form-group">
                         <label className="control-label">
-                            Confirm new password *
+                        {t("client.settings.cn_pass")} *
                         </label>
                         <input
                             type="password"
@@ -89,7 +92,7 @@ export default function ChangePass() {
                                 setPasswordConfirmed(e.target.value)
                             }
                             className="form-control"
-                            placeholder="Confirm new password"
+                            placeholder={t("client.settings.cn_pass")}
                             autoComplete="new-password"
                         />
                     </div>
@@ -97,7 +100,8 @@ export default function ChangePass() {
                         <input
                             type="submit"
                             onClick={handleSubmit}
-                            className="btn btn-danger saveBtn"
+                            value={t("client.jobs.review.Submit")}
+                            className="btn navyblue saveBtn"
                         />
                     </div>
                 </form>

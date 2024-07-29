@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -13,6 +14,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Contract() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const tableRef = useRef(null);
     const statusRef = useRef(null);
@@ -20,10 +22,10 @@ export default function Contract() {
     const [filter, setFilter] = useState("All");
 
     const contractStatuses = [
-        "verified",
-        "un-verified",
-        "not-signed",
-        "declined",
+        t("global.verified"),
+        t("global.unverified"),
+        t("global.notSigned"),
+        t("admin.schedule.options.meetingStatus.Declined"),
     ];
 
     const headers = {
@@ -309,15 +311,15 @@ export default function Contract() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Contracts</h1>
+                            <h1 className="page-title">{t("client.sidebar.contracts")}</h1>
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">-- Sort By--</option>
-                                <option value="5">Status</option>
+                                <option value="">{t("admin.leads.Options.sortBy")}</option>
+                                <option value="5">{t("admin.leads.Options.Status")}</option>
                             </select>
                         </div>
                     </div>
@@ -331,11 +333,11 @@ export default function Contract() {
                                 marginLeft: 15,
                             }}
                         >
-                            Filter
+                            {t("global.filter")}
                         </div>
                         <div>
                             <FilterButtons
-                                text="All"
+                                text={t("admin.global.All")}
                                 className="px-3 mr-1 ml-4"
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}

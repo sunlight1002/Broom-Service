@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 import Sidebar from "../../../Layouts/Sidebar";
 
 export default function ManageTime() {
+    const {t} = useTranslation()
     const alert = useAlert();
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -79,7 +81,7 @@ export default function ManageTime() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Manage Time</h1>
+                            <h1 className="page-title">{t("admin.sidebar.settings.manageTime")}</h1>
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
@@ -88,7 +90,7 @@ export default function ManageTime() {
                                     onClick={(e) => handleSubmit(e)}
                                 >
                                     <i className="btn-icon fas fa-upload"></i>
-                                    Update
+                                    {t("global.update")}
                                 </button>
                             </div>
                         </div>
@@ -97,7 +99,7 @@ export default function ManageTime() {
                 <div className="card">
                     <div className="card-body">
                         <div className="form-group">
-                            <label htmlFor="days">Open Days</label>
+                            <label htmlFor="days">{t("global.update")}</label>
                             <br />
 
                             <div className="form-check form-check-inline">
@@ -113,7 +115,7 @@ export default function ManageTime() {
                                     className="form-check-label"
                                     htmlFor="sunday"
                                 >
-                                    Sunday
+                                    {t("global.sunday")}
                                 </label>
                             </div>
                             <div className="form-check form-check-inline">
@@ -128,7 +130,7 @@ export default function ManageTime() {
                                     className="form-check-label"
                                     htmlFor="monday"
                                 >
-                                    Monday
+                                    {t("global.monday")}
                                 </label>
                             </div>
                             <div className="form-check form-check-inline">
@@ -143,7 +145,7 @@ export default function ManageTime() {
                                     className="form-check-label"
                                     htmlFor="tuesday"
                                 >
-                                    Tuesday
+                                    {t("global.tuesday")}
                                 </label>
                             </div>
                             <div className="form-check form-check-inline">
@@ -158,7 +160,7 @@ export default function ManageTime() {
                                     className="form-check-label"
                                     htmlFor="wednesday"
                                 >
-                                    Wednesday
+                                    {t("global.wednesday")}
                                 </label>
                             </div>
                             <div className="form-check form-check-inline">
@@ -173,7 +175,7 @@ export default function ManageTime() {
                                     className="form-check-label"
                                     htmlFor="thursday"
                                 >
-                                    Thursday
+                                    {t("global.thursday")}
                                 </label>
                             </div>
                             <div className="form-check form-check-inline">
@@ -188,7 +190,7 @@ export default function ManageTime() {
                                     className="form-check-label"
                                     htmlFor="friday"
                                 >
-                                    Friday
+                                    {t("global.friday")}
                                 </label>
                             </div>
                             <div className="form-check form-check-inline">
@@ -203,14 +205,14 @@ export default function ManageTime() {
                                     className="form-check-label"
                                     htmlFor="saturday"
                                 >
-                                    Saturday
+                                    {t("global.saturday")}
                                 </label>
                             </div>
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="timing_starts">
-                                Timing Starts at
+                            {t("global.timingStartAt")}
                             </label>
                             <input
                                 type="time"
@@ -222,7 +224,7 @@ export default function ManageTime() {
                         </div>
                         <div className="form-group">
                             <label htmlFor="timing_starts">
-                                Timing Ends at
+                            {t("global.timingEndAt")}
                             </label>
                             <input
                                 type="time"

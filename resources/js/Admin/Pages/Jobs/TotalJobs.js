@@ -9,6 +9,7 @@ import { Tooltip } from "react-tooltip";
 import { CSVLink } from "react-csv";
 import Swal from "sweetalert2";
 import { renderToString } from "react-dom/server";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -21,7 +22,8 @@ import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 import CancelJobModal from "../../Components/Modals/CancelJobModal";
 import FilterButtons from "../../../Components/common/FilterButton";
 
-export default function     TotalJobs() {
+export default function  TotalJobs() {
+    const { t } = useTranslation();
     const [from, setFrom] = useState([]);
     const [to, setTo] = useState([]);
     const [isOpenSwitchWorker, setIsOpenSwitchWorker] = useState(false);
@@ -623,13 +625,13 @@ export default function     TotalJobs() {
                         </div> */}
                         <div className="App" style={{ display: "none" }}>
                             <CSVLink {...csvReport} id="csv">
-                                Export to CSV
+                                {t("admin.global.Export")}
                             </CSVLink>
                         </div>
 
                         <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
                             <div className="d-flex align-items-center">
-                                <div style={{ fontWeight: "bold" }}>Filter</div>
+                                <div style={{ fontWeight: "bold" }}>{t("global.filter")}</div>
                                 <div className="mx-3 d-flex align-items-center">
                                     <select
                                         className="form-control"
@@ -638,9 +640,9 @@ export default function     TotalJobs() {
                                             setDoneFilter(e.target.value);
                                         }}
                                     >
-                                        <option value="">All</option>
-                                        <option value="done">Done</option>
-                                        <option value="undone">Undone</option>
+                                        <option value="">{t("admin.global.All")}</option>
+                                        <option value="done">{t("admin.global.done")}</option>
+                                        <option value="undone">{t("admin.global.undone")}</option>
                                     </select>
 
                                     <select
@@ -650,11 +652,11 @@ export default function     TotalJobs() {
                                             setStartTimeFilter(e.target.value);
                                         }}
                                     >
-                                        <option value="">All Time</option>
-                                        <option value="morning">Morning</option>
-                                        <option value="noon">Noon</option>
+                                        <option value="">{t("modal.alltime")}</option>
+                                        <option value="morning">{t("global.morning")}</option>
+                                        <option value="noon">{t("global.noon")}</option>
                                         <option value="afternoon">
-                                            Afternoon
+                                        {t("global.afternoon")}
                                         </option>
                                     </select>
                                 </div>
@@ -662,42 +664,42 @@ export default function     TotalJobs() {
                                     style={{ fontWeight: "bold" }}
                                     className="mr-2"
                                 >
-                                    Date Period
+                                    {t("global.date_period")}
                                 </div>
                                 <FilterButtons
-                                    text="Day"
+                                    text={t("global.day")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text="Week"
+                                    text={t("global.week")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
 
                                 <FilterButtons
-                                    text="Month"
+                                    text={t("global.month")}
                                     className="px-4 mr-3"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
 
                                 <FilterButtons
-                                    text="Previous"
+                                    text={t("client.previous")}
                                     className="px-3 mr-1"
                                     selectedFilter={selectedDateStep}
                                     setselectedFilter={setSelectedDateStep}
                                 />
                                 <FilterButtons
-                                    text="Current"
+                                    text={t("global.current")}
                                     className="px-3 mr-1"
                                     selectedFilter={selectedDateStep}
                                     setselectedFilter={setSelectedDateStep}
                                 />
                                 <FilterButtons
-                                    text="Next"
+                                    text={t("global.next")}
                                     className="px-3"
                                     selectedFilter={selectedDateStep}
                                     setselectedFilter={setSelectedDateStep}
@@ -710,7 +712,7 @@ export default function     TotalJobs() {
                                     className="mr-3"
                                     style={{ fontWeight: "bold" }}
                                 >
-                                    Custom Date Range
+                                   {t("global.custom_date")}
                                 </div>
 
                                 <input
@@ -727,7 +729,7 @@ export default function     TotalJobs() {
                                         });
                                     }}
                                 />
-                                <div className="mx-2">to</div>
+                                <div className="mx-2">{t("global.to")}</div>
                                 <input
                                     className="form-control"
                                     type="date"
@@ -751,7 +753,7 @@ export default function     TotalJobs() {
                                     }}
                                     data-target="#exampleModal"
                                 >
-                                    Export Time Reports
+                                    {t("global.exportTimeReport")}
                                 </button>
 
                                 <input
@@ -798,7 +800,7 @@ export default function     TotalJobs() {
                                         className="form-check-label"
                                         htmlFor="inlineCheckbox1"
                                     >
-                                        Actual Time Exceed
+                                        {t("global.actualTimeExceed")}
                                     </label>
                                 </div>
 
@@ -818,7 +820,7 @@ export default function     TotalJobs() {
                                         className="form-check-label"
                                         htmlFor="inlineCheckbox2"
                                     >
-                                        Has No Worker
+                                        {t("global.hasNoWorker")}
                                     </label>
                                 </div>
                             </div>
@@ -831,7 +833,7 @@ export default function     TotalJobs() {
                                     data-toggle="modal"
                                     data-target="#exampleModal"
                                 >
-                                    Export Time Reports
+                                    {t("global.exportTimeReport")}
                                 </button>
                             </div>
                         </div>
@@ -840,9 +842,9 @@ export default function     TotalJobs() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">-- Sort By--</option>
-                                <option value="0">Job Date</option>
-                                <option value="1">Client</option>
+                                <option value="">{t("admin.leads.Options.sortBy")}</option>
+                                <option value="0">{t("admin.dashboard.jobs.jobdate")}</option>
+                                <option value="1">{t("admin.dashboard.jobs.client")}</option>
                             </select>
                         </div>
                     </div>
@@ -871,7 +873,7 @@ export default function     TotalJobs() {
                                             className="modal-title"
                                             id="exampleModalLabel"
                                         >
-                                            Worker Hours Report
+                                            {t("global.workerHoursReport")}
                                         </h5>
                                         <button
                                             type="button"
@@ -889,7 +891,7 @@ export default function     TotalJobs() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                        From
+                                                    {t("global.from")}
                                                     </label>
                                                     <input
                                                         type="date"
@@ -907,7 +909,7 @@ export default function     TotalJobs() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                        To
+                                                    {t("global.to")}
                                                     </label>
                                                     <input
                                                         type="date"
@@ -929,14 +931,14 @@ export default function     TotalJobs() {
                                             className="btn btn-secondary closeb"
                                             data-dismiss="modal"
                                         >
-                                            Close
+                                            {t("modal.close")}
                                         </button>
                                         <button
                                             type="button"
                                             onClick={(e) => handleReport(e)}
                                             className="btn btn-primary"
                                         >
-                                            Export
+                                            {t("admin.client.Export")}
                                         </button>
                                     </div>
                                 </div>

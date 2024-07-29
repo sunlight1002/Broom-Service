@@ -7,8 +7,10 @@ import Dropdown from "react-bootstrap/Dropdown";
 import { Link, useParams } from "react-router-dom";
 import Moment from "moment";
 import { workerHours } from "../../../Utils/common.utils";
+import { useTranslation } from "react-i18next";
 
 export default function ViewOffer({ showModal, handleClose, offerId }) {
+    const { t } = useTranslation();
     const [offer, setOffer] = useState([]);
     const [perhour, setPerHour] = useState(0);
     const param = useParams();
@@ -72,25 +74,24 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                 <div className="vbox1" style={{ border: "1px solid #E5EBF1", borderRadius: "5px", backgroundColor: "#FAFBFC", padding: "0px 18px 17px", marginRight: "20px" }}>
                                                     <h2>Broom Service</h2>
                                                     <p>
-                                                        Bnei Dan St, Tel
-                                                        Aviv-Yafo
+                                                        {t("worker_contract.company_address")}
                                                     </p>
                                                     <p>Israel</p>
                                                     <p>
-                                                        Phone:{" "}
+                                                        {t("client.offer.view.phone")}:{" "}
                                                         <span>
                                                             +97235257060
                                                         </span>
                                                     </p>
                                                     <p>
-                                                        Email:{" "}
+                                                    {t("client.offer.view.email")}:{" "}
                                                         <span>
                                                             office@broomservice.co.il
                                                         </span>
                                                     </p>
                                                 </div>
                                                 <div className="vbox1" style={{ border: "1px solid #E5EBF1", borderRadius: "5px", backgroundColor: "#FAFBFC", padding: "0px 18px 17px", marginRight: "20px" }}>
-                                                    <h2>To</h2>
+                                                    <h2>{t("global.to")}</h2>
                                                     <p>
                                                         {cl.firstname +
                                                             " " +
@@ -103,22 +104,22 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                             cl.zipcode}
                                                     </p> */}
                                                     <p>
-                                                        Phone:{" "}
+                                                    {t("client.offer.view.phone")}:{" "}
                                                         <span>{cl.phone}</span>
                                                     </p>
                                                     <p>
-                                                        Email:{" "}
+                                                    {t("client.offer.view.email")}:{" "}
                                                         <span>{cl.email}</span>
                                                     </p>
                                                 </div>
                                                 <div className="vbox1" style={{ border: "1px solid #E5EBF1", borderRadius: "5px", backgroundColor: "#FAFBFC", padding: "0px 18px 17px" }}>
-                                                    <h2>Offer Price</h2>
+                                                    <h2>{t("client.offer.view.ofr_price")}</h2>
                                                     <p>
-                                                        <b>Offer Id: </b>
+                                                        <b>{t("client.offer.view.ofr_id")}: </b>
                                                         <span> {ofr.id}</span>
                                                     </p>
                                                     <p>
-                                                        <b>Date: </b>
+                                                        <b>{t("client.offer.view.date")}: </b>
                                                         <span>
                                                             {" "}
                                                             {Moment(
@@ -136,7 +137,7 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                             <div className="card card-dark" style={{ boxShadow: "none", backgroundColor: "#FFFFFF" }}>
                                                 <div className="card-header border-0 card-black">
                                                     <h3 className="card-title mb-0 navyblueColor">
-                                                        Services
+                                                    {t("client.offer.view.services")}
                                                     </h3>
                                                 </div>
                                                 <div className="card-body">
@@ -144,19 +145,19 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                         <table className="table table-md navyblueColor">
                                                             <thead>
                                                                 <tr>
-                                                                    <th style={{ width: "30%" }}>Address</th>
-                                                                    <th style={{ width: "20%" }}>Service</th>
-                                                                    <th>Type</th>
-                                                                    <th className="text-right">Frequency</th>
-                                                                    <th className="text-right">Job Hours</th>
+                                                                    <th style={{ width: "30%" }}>{t("client.offer.view.address")}</th>
+                                                                    <th style={{ width: "20%" }}>{t("client.offer.view.service")}</th>
+                                                                    <th>{t("price_offer.type")}</th>
+                                                                    <th className="text-right">{t("client.offer.view.frequency")}</th>
+                                                                    <th className="text-right">{t("client.offer.view.job_hr")}</th>
                                                                     {ofr.type === "fixed" && (
-                                                                        <th className="text-right">Price</th>
+                                                                        <th className="text-right">{t("admin.leads.AddLead.AddLeadClient.jobMenu.Price")}</th>
                                                                     )}
                                                                     {perhour !== 0 && (
-                                                                        <th className="text-right">Rate Per Hour</th>
+                                                                        <th className="text-right">{t("client.offer.view.rate_ph")}</th>
                                                                     )}
                                                                     {ofr.type !== "fixed" && (
-                                                                        <th className="text-right">Total Amount</th>
+                                                                        <th className="text-right">{t("client.offer.view.total_amt")}</th>
                                                                     )}
                                                                 </tr>
                                                             </thead>
@@ -204,7 +205,7 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                                                 className="text-right"
                                                                                 style={{ borderRight: "none", borderLeft: "none" }}
                                                                             >
-                                                                                Total
+                                                                                {t("client.offer.total")}
                                                                             </td>
                                                                             <td className="text-right"
                                                                                 style={{ borderRight: "none", borderLeft: "none" }}
@@ -233,7 +234,7 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>Close</Button>
+                    <Button variant="secondary" onClick={handleClose}>{t("global.close")}</Button>
                 </Modal.Footer>
             </Modal>
         </div>

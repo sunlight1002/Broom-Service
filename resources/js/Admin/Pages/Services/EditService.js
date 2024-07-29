@@ -3,9 +3,12 @@ import Sidebar from "../../Layouts/Sidebar";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 
 export default function EditService() {
+
+    const { t } = useTranslation();
     const [service, setService] = useState("");
     const [serviceHeb, setServiceHeb] = useState("");
     const [template, setTemplate] = useState("");
@@ -64,7 +67,7 @@ export default function EditService() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title addEmployer">Edit Service</h1>
+                    <h1 className="page-title addEmployer">{t("global.edit")} {t("global.service")}</h1>
                     <div className="card">
                         <div className="card-body">
                             <form>
@@ -72,7 +75,7 @@ export default function EditService() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Service - En*
+                                            {t("global.service")} - En*
                                             </label>
                                             <input
                                                 type="text"
@@ -93,7 +96,7 @@ export default function EditService() {
 
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Service - Heb*
+                                            {t("global.service")} - Heb*
                                             </label>
                                             <input
                                                 type="text"
@@ -118,7 +121,7 @@ export default function EditService() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Template
+                                            {t("admin.global.template")}
                                             </label>
                                             <select
                                                 className="form-control"
@@ -128,29 +131,29 @@ export default function EditService() {
                                                 }
                                             >
                                                 <option value="">
-                                                    --- Please select ---
+                                                {t("worker.settings.pleaseSelect")}
                                                 </option>
                                                 <option value="regular">
-                                                    Regular Services( 2*, 3*,
+                                                {t("services.regularServices")}( 2*, 3*,
                                                     4*, 5* )
                                                 </option>
                                                 <option value="office_cleaning">
-                                                    Office Cleaning
+                                                {t("services.officeCleaning")}
                                                 </option>
                                                 <option value="after_renovation">
-                                                    After Renovation
+                                                {t("services.afterRenovation")}
                                                 </option>
                                                 <option value="thorough_cleaning">
-                                                    Thorough Cleaning
+                                                {t("services.throughCleaning")}
                                                 </option>
                                                 <option value="window_cleaning">
-                                                    Window Cleaning
+                                                {t("services.windowCleaning")}
                                                 </option>
                                                 <option value="polish">
-                                                    Polish
+                                                {t("services.polish")}
                                                 </option>
                                                 <option value="others">
-                                                    Others
+                                                {t("services.others")}
                                                 </option>
                                             </select>
                                             {errors.template && (
@@ -174,13 +177,13 @@ export default function EditService() {
                                                 }
                                             >
                                                 <option value="">
-                                                    --- Please select ---
+                                                {t("worker.settings.pleaseSelect")}
                                                 </option>
                                                 <option value="1">
-                                                    Active
+                                                {t("admin.global.active")}
                                                 </option>
                                                 <option value="0">
-                                                    Inactive
+                                                {t("admin.global.inactive")}
                                                 </option>
                                             </select>
                                             {errors.status && (
@@ -195,7 +198,8 @@ export default function EditService() {
                                         <input
                                             type="submit"
                                             onClick={handleUpdate}
-                                            className="btn btn-pink saveBtn"
+                                            value={t("client.jobs.review.Submit")}
+                                            className="btn navyblue saveBtn"
                                         />
                                     </div>
                                 </div>

@@ -115,7 +115,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job, onSuccess }) {
             }}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Cancel Job</Modal.Title>
+                <Modal.Title>{t("admin.global.cancelJob")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -167,7 +167,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job, onSuccess }) {
                             </div>
 
                             {feeInAmount > 0 ? (
-                                <p>{feeInAmount} ILS will be charged.</p>
+                                <p>{feeInAmount} ILS {t("admin.global.willBeCharged")}.</p>
                             ) : (
                                 <p>
                                     {t(

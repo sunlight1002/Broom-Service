@@ -3,6 +3,7 @@ import axios from "axios";
 import Moment from "moment";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -13,7 +14,10 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import FilterButtons from "../../../Components/common/FilterButton";
+
+
 export default function Schedule() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [filter, setFilter] = useState("All");
@@ -25,11 +29,11 @@ export default function Schedule() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
     const meetingStatuses = [
-        "pending",
-        "Confirmed",
-        "completed",
-        "declined",
-        "rescheduled",
+        t("admin.schedule.options.meetingStatus.Pending"),
+        t("admin.schedule.options.meetingStatus.Confirmed"),
+        t("admin.schedule.options.meetingStatus.Completed"),
+        t("admin.schedule.options.meetingStatus.Declined"),
+        t("admin.schedule.options.meetingStatus.rescheduled"),
     ];
     useEffect(() => {
         $(tableRef.current).DataTable({
@@ -268,16 +272,16 @@ export default function Schedule() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Meetings</h1>
+                            <h1 className="page-title">{t("client.common.meetings")}</h1>
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">-- Sort By--</option>
-                                <option value="0">Scheduled</option>
-                                <option value="5">Status</option>
+                                <option value="">{t("admin.leads.Options.sortBy")}</option>
+                                <option value="0">{t("j_status.scheduled")}</option>
+                                <option value="5">{t("global.status")}</option>
                             </select>
                         </div>
                     </div>
@@ -291,11 +295,11 @@ export default function Schedule() {
                                 marginLeft: 15,
                             }}
                         >
-                            Filter
+                            {t("global.filter")}
                         </div>
                         <div>
                             <FilterButtons
-                                text="All"
+                                text={t("admin.global.All")}
                                 className="px-3 mr-1 ml-4"
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}

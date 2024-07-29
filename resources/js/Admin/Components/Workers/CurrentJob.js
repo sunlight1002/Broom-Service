@@ -3,8 +3,11 @@ import { useAlert } from "react-alert";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export default function CurrentJob() {
+
+    const { t } = useTranslation();
     const [jobs, setJobs] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [loading, setLoading] = useState("Loading...");
@@ -108,10 +111,10 @@ export default function CurrentJob() {
                                         onClick={(e) => sortTable(e, "id")}
                                         style={{ cursor: "pointer" }}
                                     >
-                                        ID <span className="arr"> &darr; </span>
+                                        {t("form101.label_id")} <span className="arr"> &darr; </span>
                                     </th>
-                                    <th>Client Name</th>
-                                    <th>Service Name</th>
+                                    <th>{t("admin.dashboard.jobs.clientName")}</th>
+                                    <th>{t("price_offer.service_txt")}</th>
                                     <th
                                         onClick={(e) =>
                                             sortTable(e, "start_date")
@@ -119,25 +122,25 @@ export default function CurrentJob() {
                                         style={{ cursor: "pointer" }}
                                     >
                                         {" "}
-                                        Start Date{" "}
+                                        {t("global.startDate")}{" "}
                                         <span className="arr"> &darr; </span>
                                     </th>
                                     <th
                                         onClick={(e) => sortTable(e, "shifts")}
                                         style={{ cursor: "pointer" }}
                                     >
-                                        Shift{" "}
+                                        {t("worker.dashboard.shift")}{" "}
                                         <span className="arr"> &darr; </span>
                                     </th>
-                                    <th>Total</th>
+                                    <th>{t("worker.dashboard.total")}</th>
                                     <th
                                         onClick={(e) => sortTable(e, "status")}
                                         style={{ cursor: "pointer" }}
                                     >
-                                        Status{" "}
+                                        {t("worker.dashboard.status")}{" "}
                                         <span className="arr"> &darr; </span>
                                     </th>
-                                    <th>Action</th>
+                                    <th>{t("worker.dashboard.action")}</th>
                                 </tr>
                             </thead>
                             <tbody>

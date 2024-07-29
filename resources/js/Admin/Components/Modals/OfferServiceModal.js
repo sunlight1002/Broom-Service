@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 // import Select from "react-select";
+import { useTranslation } from "react-i18next";
 
 const initialValues = {
     service: "",
@@ -58,6 +59,8 @@ export default function OfferServiceModal({
     isAdd,
     editIndex,
 }) {
+
+    const {t} = useTranslation()
     const alert = useAlert();
     const [offerServiceTmp, setOfferServiceTmp] = useState(
         isAdd ? initialValues : tmpFormValues
@@ -344,13 +347,13 @@ export default function OfferServiceModal({
         >
             <Modal.Header closeButton>
                 <Modal.Title>
-                    {isAdd ? "Add Service" : "Edit Service"}
+                    {isAdd ? t("global.addService") : (t("admin.global.Edit") + t("global.service"))}
                 </Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
                 <div className="d-flex align-items-center mb-3">
-                    <label htmlFor="noOfWrkers">No of workers : </label>
+                    <label htmlFor="noOfWrkers">{t("global.noOfWorker")} : </label>
                     <input
                         type="number"
                         min={1}
@@ -364,7 +367,7 @@ export default function OfferServiceModal({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Property</label>
+                            <label className="control-label">{t("client.jobs.change.property")}</label>
                             <select
                                 className="form-control"
                                 name="address"
@@ -373,7 +376,7 @@ export default function OfferServiceModal({
                                     handleInputChange(e);
                                 }}
                             >
-                                <option value="">--Please select--</option>
+                                <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
                                 {addresses.map((address, i) => (
                                     <option value={address.id} key={i}>
                                         {address.address_name}
@@ -386,7 +389,7 @@ export default function OfferServiceModal({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Service</label>
+                            <label className="control-label">{t("global.service")}</label>
                             <select
                                 name="service"
                                 className="form-control"
@@ -400,7 +403,7 @@ export default function OfferServiceModal({
                                     }
                                 }}
                             >
-                                <option value={0}> -- Please select --</option>
+                                <option value={0}> {t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
                                 {services.map((s, i) => {
                                     return (
                                         <option
@@ -435,14 +438,14 @@ export default function OfferServiceModal({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Frequency</label>
+                            <label className="control-label">{t("client.offer.view.frequency")}</label>
                             <select
                                 name="frequency"
                                 className="form-control mb-2"
                                 value={offerServiceTmp.frequency || 0}
                                 onChange={(e) => handleInputChange(e)}
                             >
-                                <option value={0}> -- Please select --</option>
+                                <option value={0}> {t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
                                 {frequencies.map((s, i) => {
                                     return (
                                         <option
@@ -660,7 +663,7 @@ export default function OfferServiceModal({
                             options={frequencyDays}
                             className="basic-multi-single "
                             isClearable={true}
-                            placeholder="--Please select--"
+                            placeholder="{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}"
                             classNamePrefix="select"
                             onChange={(newValue, actionMeta) => {
                                 const e = {
@@ -685,7 +688,7 @@ export default function OfferServiceModal({
                 <div className="row">
                     <div className="col-sm-4">
                         <div className="form-group">
-                            <label className="control-label">Type</label>
+                            <label className="control-label">{t("price_offer.type")}</label>
                             <select
                                 name="type"
                                 className="form-control"
@@ -694,14 +697,14 @@ export default function OfferServiceModal({
                                     handleInputChange(e);
                                 }}
                             >
-                                <option value="fixed">Fixed</option>
-                                <option value="hourly">Hourly</option>
+                                <option value="fixed">{t("admin.leads.AddLead.Options.Type.Fixed")}</option>
+                                <option value="hourly">{t("admin.leads.AddLead.Options.Type.Hourly")}</option>
                             </select>
                         </div>
                     </div>
                     <div className="col-sm-4">
                         <div className="form-group">
-                            <label className="control-label">Price</label>
+                            <label className="control-label">{t("admin.leads.AddLead.AddLeadClient.jobMenu.Price")}</label>
                             {offerServiceTmp.type !== "hourly" && (
                                 <input
                                     type="number"
@@ -729,7 +732,7 @@ export default function OfferServiceModal({
                 </div>
 
                 <div className="bg-dark text-white py-2 px-2 mb-2">
-                    <strong>Workers</strong>
+                    <strong>{t("admin.sidebar.workers")}</strong>
                 </div>
 
                 {offerServiceTmp.workers.map((worker, _index) => (
@@ -750,14 +753,14 @@ export default function OfferServiceModal({
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >
-                    Save
+                    {t("modal.save")}
                 </Button>
             </Modal.Footer>
         </Modal>
@@ -765,6 +768,7 @@ export default function OfferServiceModal({
 }
 
 function WorkerForm({ workerFormValues, handleTmpValue, index }) {
+    const { t } = useTranslation();
     const handleInputChange = (e) => {
         let newFormValues = { ...workerFormValues };
 
@@ -776,7 +780,7 @@ function WorkerForm({ workerFormValues, handleTmpValue, index }) {
     return (
         <div className="row">
             <div className="col-sm-auto text-right pt-2">
-                <strong>Worker {index + 1}</strong>
+                <strong>{t("global.worker")} {index + 1}</strong>
             </div>
 
             <div className="col-sm-4">

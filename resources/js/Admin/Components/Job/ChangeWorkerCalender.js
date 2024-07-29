@@ -321,31 +321,31 @@ export default function ChangeWorkerCalender({ job }) {
                 <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
                     <div className="d-flex align-items-center flex-wrap float-left">
                         <div className="mr-3" style={{ fontWeight: "bold" }}>
-                            Worker Availability
+                        {t("client.jobs.change.worker_availability")}
                         </div>
                         <FilterButtons
-                            text="Current Week"
+                            text={t("client.jobs.change.currentWeek")}
                             className="px-3 mr-2 mb-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
-                            text="Next Week"
+                            text={t("client.jobs.change.nextWeek")}
                             className="px-3 mr-2 mb-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
-                            text="Next Next Week"
+                            text={t("client.jobs.change.nextnextWeek")}
                             className="px-3 mr-2 mb-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
                         />
 
                         <FilterButtons
-                            text="Custom"
+                            text={t("client.jobs.change.Custom")}
                             className="px-3 mr-2 mb-2"
                             selectedFilter={currentFilter}
                             setselectedFilter={setcurrentFilter}
@@ -372,7 +372,7 @@ export default function ChangeWorkerCalender({ job }) {
                                                 className="form-check-input"
                                                 onChange={handleWorkerList}
                                             />
-                                            Keep same worker
+                                            {t("client.jobs.change.KeepSameWorker")}
                                         </label>
                                     </div>
                                 </div>
@@ -460,7 +460,7 @@ export default function ChangeWorkerCalender({ job }) {
                 >
                     <div className="form-group">
                         <label className="control-label">
-                            Select Date Range
+                            {t("worker.schedule.select_date_range")}
                         </label>
                         <Flatpickr
                             name="date"
@@ -509,7 +509,7 @@ export default function ChangeWorkerCalender({ job }) {
             <div className="form-group text-center mt-3">
                 <input
                     type="button"
-                    value="View Job"
+                    value={t("global.viewJob")}
                     className="btn btn-pink viewBtn"
                     data-toggle="modal"
                     data-target="#exampleModal"
@@ -527,7 +527,7 @@ export default function ChangeWorkerCalender({ job }) {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalLabel">
-                                View Job
+                                {t("global.viewJob")}
                             </h5>
                             <button
                                 type="button"
@@ -544,17 +544,17 @@ export default function ChangeWorkerCalender({ job }) {
                                     <table className="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th scope="col">Client</th>
-                                                <th scope="col">Service</th>
-                                                <th scope="col">Frequency</th>
+                                                <th scope="col">{t("worker.jobs.client")}</th>
+                                                <th scope="col">{t("worker.jobs.service")}</th>
+                                                <th scope="col">{t("client.offer.view.frequency")}</th>
                                                 <th scope="col">
-                                                    Time to Complete
+                                                {t("client.jobs.change.time_to_complete")}
                                                 </th>
-                                                <th scope="col">Property</th>
+                                                <th scope="col">{t("client.jobs.change.propert")}</th>
                                                 <th scope="col">
-                                                    Gender preference
+                                                {t("client.jobs.change.gender_preference")}
                                                 </th>
-                                                <th scope="col">Pet animals</th>
+                                                <th scope="col"> {t("client.jobs.change.pet_animals")}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -580,7 +580,7 @@ export default function ChangeWorkerCalender({ job }) {
                                                             job.jobservice
                                                                 .duration_minutes
                                                         )}{" "}
-                                                        hours
+                                                        {t("client.jobs.review.hours")}
                                                     </p>
                                                 </td>
                                                 <td>
@@ -608,12 +608,12 @@ export default function ChangeWorkerCalender({ job }) {
                                                     <p>
                                                         {job.property_address
                                                             .is_cat_avail
-                                                            ? "Cat ,"
+                                                            ? t("admin.leads.AddLead.addAddress.Cat")
                                                             : job
                                                                   .property_address
                                                                   .is_dog_avail
-                                                            ? "Dog"
-                                                            : !job
+                                                                  ? t("admin.leads.AddLead.addAddress.Dog")
+                                                                  : !job
                                                                   .property_address
                                                                   .is_cat_avail &&
                                                               !job
@@ -633,9 +633,9 @@ export default function ChangeWorkerCalender({ job }) {
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">Worker</th>
-                                                    <th scope="col">Date</th>
-                                                    <th scope="col">Shifts</th>
+                                                    <th scope="col">{t("client.jobs.change.Worker")}</th>
+                                                    <th scope="col">{t("client.jobs.change.date")}</th>
+                                                    <th scope="col">{t("client.jobs.change.shift")}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -665,7 +665,7 @@ export default function ChangeWorkerCalender({ job }) {
                                 <div className="offset-sm-4 col-sm-4">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Repeatancy
+                                        {t("client.jobs.change.Repeatancy")}
                                         </label>
 
                                         <select
@@ -680,13 +680,13 @@ export default function ChangeWorkerCalender({ job }) {
                                             className="form-control mb-3"
                                         >
                                             <option value="one_time">
-                                                One Time ( for single job )
+                                            {t("client.jobs.change.oneTime")}
                                             </option>
                                             <option value="until_date">
-                                                Until Date
+                                            {t("client.jobs.change.UntilDate")}
                                             </option>
                                             <option value="forever">
-                                                Forever
+                                            {t("client.jobs.change.Forever")}
                                             </option>
                                         </select>
                                     </div>
@@ -696,7 +696,7 @@ export default function ChangeWorkerCalender({ job }) {
                                     <div className="offset-sm-4 col-sm-4">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Until Date
+                                            {t("client.jobs.change.UntilDate")}
                                             </label>
                                             <Flatpickr
                                                 name="date"
@@ -776,8 +776,7 @@ export default function ChangeWorkerCalender({ job }) {
 
                                         {feeInAmount > 0 ? (
                                             <p>
-                                                {feeInAmount} ILS will be
-                                                charged.
+                                                {feeInAmount} ILS {t("admin.global.willBeCharged")}.
                                             </p>
                                         ) : (
                                             <p>
@@ -796,7 +795,7 @@ export default function ChangeWorkerCalender({ job }) {
                                 className="btn btn-secondary closeb"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("client.jobs.change.Close")}
                             </button>
                             <button
                                 type="button"
@@ -804,7 +803,7 @@ export default function ChangeWorkerCalender({ job }) {
                                 className="btn btn-primary"
                                 data-dismiss="modal"
                             >
-                                Save and Send
+                                {t("client.jobs.change.SaveAndSend")}
                             </button>
                         </div>
                     </div>

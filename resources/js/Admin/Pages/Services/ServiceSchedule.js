@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -12,6 +13,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function ServiceSchedule() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const tableRef = useRef(null);
 
@@ -159,14 +161,14 @@ export default function ServiceSchedule() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Service Schedules</h1>
+                            <h1 className="page-title">{t("services.service")} {t("global.schedule")}</h1>
                         </div>
                         <div className="col-sm-6">
                             <Link
                                 to="/admin/service-schedules/create"
                                 className="ml-2 btn btn-success addButton"
                             >
-                                Add Schedule
+                                {t("global.add")} {t("global.schedule")}
                             </Link>
                         </div>
                     </div>

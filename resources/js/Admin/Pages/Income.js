@@ -7,8 +7,10 @@ import CanvasJSReact from "@canvasjs/react-charts";
 import Sidebar from "../Layouts/Sidebar";
 import FilterButtons from "../../Components/common/FilterButton";
 import FullPageLoader from "../../Components/common/FullPageLoader";
+import { useTranslation } from "react-i18next";
 
 export default function income() {
+    const { t } = useTranslation();
     const [totalTask, setTotalTask] = useState(0);
     const [income, setIncome] = useState(0);
     const [totalMins, setTotalMins] = useState(0);
@@ -191,34 +193,34 @@ export default function income() {
                                     style={{ fontWeight: "bold" }}
                                     className="mr-2"
                                 >
-                                    Date Period
-                                </div>
+                                    {t("global.date_period")}
+                                    </div>
                                 <FilterButtons
-                                    text="Day"
+                                    text={t("global.day")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text="Week"
+                                    text={t("global.week")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text="Month"
+                                    text={t("global.month")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text="Year"
+                                    text={t("global.year")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text="All Time"
+                                    text={t("modal.alltime")}
                                     className="px-4 mr-3"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
@@ -226,7 +228,7 @@ export default function income() {
                                 {selectedDateRange !== "All Time" && (
                                     <>
                                         <FilterButtons
-                                            text="Previous"
+                                            text={t("client.previous")}
                                             className="px-3 mr-1"
                                             selectedFilter={selectedDateStep}
                                             setselectedFilter={
@@ -234,7 +236,7 @@ export default function income() {
                                             }
                                         />
                                         <FilterButtons
-                                            text="Current"
+                                            text={t("global.current")}
                                             className="px-3 mr-1"
                                             selectedFilter={selectedDateStep}
                                             setselectedFilter={
@@ -242,7 +244,7 @@ export default function income() {
                                             }
                                         />
                                         <FilterButtons
-                                            text="Next"
+                                            text={t("global.next")}
                                             className="px-3"
                                             selectedFilter={selectedDateStep}
                                             setselectedFilter={
@@ -259,8 +261,8 @@ export default function income() {
                                     className="mr-3"
                                     style={{ fontWeight: "bold" }}
                                 >
-                                    Custom Date Range
-                                </div>
+                                    {t("global.custom_date")}
+                                    </div>
 
                                 <input
                                     className="form-control"
@@ -277,7 +279,7 @@ export default function income() {
                                         });
                                     }}
                                 />
-                                <div className="mx-2">to</div>
+                                <div className="mx-2">{t("global.to")}</div>
                                 <input
                                     className="form-control"
                                     type="date"
@@ -305,7 +307,7 @@ export default function income() {
                                 </div>
                                 <div className="dashText">
                                     <h3>{totalTask}</h3>
-                                    <p>Total Jobs</p>
+                                    <p>{t("worker.jobs.total")} {t("worker.jobs.title")}</p>
                                 </div>
                             </div>
                         </div>
@@ -317,7 +319,7 @@ export default function income() {
                                 </div>
                                 <div className="dashText">
                                     <h3>{minutesToHours(totalMins)}</h3>
-                                    <p>Total Job Hours</p>
+                                    <p>{t("worker.jobs.total")} {t("client.offer.view.job_hr")} Hours</p>
                                 </div>
                             </div>
                         </div>
@@ -329,7 +331,7 @@ export default function income() {
                                 </div>
                                 <div className="dashText">
                                     <h3>{minutesToHours(totalActualMins)}</h3>
-                                    <p>Total Actual Hours</p>
+                                    <p>{t("worker.jobs.total")} {t("worker.jobs.actualHours")}</p>
                                 </div>
                             </div>
                         </div>
@@ -341,7 +343,7 @@ export default function income() {
                                 </div>
                                 <div className="dashText">
                                     <h3>{minutesToHours(totalDiffMins)}</h3>
-                                    <p>Total Exceed Hours</p>
+                                    <p>{t("worker.jobs.totalExceedHours")}</p>
                                 </div>
                             </div>
                         </div>

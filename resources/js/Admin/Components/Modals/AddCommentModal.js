@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import moment from "moment";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import { useTranslation } from "react-i18next";
 
 export default function AddCommentModal({
     setIsOpen,
@@ -13,6 +14,7 @@ export default function AddCommentModal({
     routeType,
     onSuccess,
 }) {
+    const { t } = useTranslation();
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         comment: "",
@@ -110,14 +112,14 @@ export default function AddCommentModal({
             backdrop="static"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Add Comment</Modal.Title>
+                <Modal.Title>{t("global.addComment")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Comment</label>
+                            <label className="control-label">{t("client.jobs.view.cmt")}</label>
 
                             <textarea
                                 type="text"
@@ -137,7 +139,7 @@ export default function AddCommentModal({
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label htmlFor="files" className="form-label">
-                                Upload files
+                            {t("global.uploadFiles")}
                             </label>
                             <input
                                 ref={fileRef}
@@ -151,7 +153,7 @@ export default function AddCommentModal({
 
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Repeatancy</label>
+                            <label className="control-label">{t("global.repeatancy")}</label>
 
                             <select
                                 name="repeatancy"
@@ -164,8 +166,8 @@ export default function AddCommentModal({
                                 value={formValues.repeatancy}
                                 className="form-control mb-3"
                             >
-                                <option value="until_date">Until Date</option>
-                                <option value="forever">Forever</option>
+                                <option value="until_date">{t("client.jobs.change.UntilDate")}</option>
+                                <option value="forever">{t("client.jobs.change.Forever")}</option>
                             </select>
                         </div>
                     </div>
@@ -174,7 +176,7 @@ export default function AddCommentModal({
                         <div className="col-sm-12">
                             <div className="form-group">
                                 <label className="control-label">
-                                    Until Date
+                                {t("client.jobs.change.UntilDate")}
                                 </label>
                                 <Flatpickr
                                     name="date"
@@ -210,7 +212,7 @@ export default function AddCommentModal({
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
@@ -218,7 +220,7 @@ export default function AddCommentModal({
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >
-                    Save
+                    {t("modal.save")}
                 </Button>
             </Modal.Footer>
         </Modal>

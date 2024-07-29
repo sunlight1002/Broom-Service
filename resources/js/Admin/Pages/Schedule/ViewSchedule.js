@@ -678,7 +678,7 @@ export default function ViewSchedule() {
                                 <div className="mx-auto mt-5 custom-calendar">
                                     <div className="border">
                                         <h5 className="mt-3">
-                                            Select a Date & Time
+                                            {t("global.selectDateAndTimeRange")}
                                         </h5>
                                         <div
                                             className="d-flex gap-3 p-3"
@@ -728,8 +728,8 @@ export default function ViewSchedule() {
                                                         )
                                                     ) : (
                                                         <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
-                                                            No time slot
-                                                            avaiable
+                                                            {t("global.noTimeSlot")}
+                                                            {t("global.available")}
                                                         </li>
                                                     )}
                                                 </ul>
@@ -742,7 +742,7 @@ export default function ViewSchedule() {
 
                         <div className="text-center mt-3">
                             <button
-                                className="btn btn-pink sendBtn"
+                                className="btn navyblue sendBtn"
                                 onClick={sendMeeting}
                                 disabled={isLoading}
                             >

@@ -2,17 +2,8 @@ import { useRef, useState, memo, useEffect } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import OfferServiceModal from "../../Components/Modals/OfferServiceModal";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-const jobActions = [
-    {
-        key: "edit",
-        label: "Edit",
-    },
-    {
-        key: "delete",
-        label: "Delete",
-    },
-];
 const initialValue = {
     service: "",
     name: "",
@@ -43,6 +34,20 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
     handleSaveForm,
     handleRemoveFormFields,
 }) {
+
+    const { t } = useTranslation();
+
+    const jobActions = [
+        {
+            key: "edit",
+            label: t("admin.global.Edit"),
+        },
+        {
+            key: "delete",
+            label: t("admin.global.Delete"),
+        },
+    ];
+
     let isAdd = useRef(true);
     let indexRef = useRef();
     const [isOpen, setIsOpen] = useState(false);
@@ -89,7 +94,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                     onClick={handleAddService}
                     className="btn btn-success"
                 >
-                    + Add Service
+                    + {t("global.addService")}
                 </button>
             </div>
             <div className="table-responsive">
@@ -97,14 +102,14 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                     <Table className="table table-bordered">
                         <Thead>
                             <Tr>
-                                <Th>Address</Th>
-                                <Th>Service</Th>
-                                <Th>Type</Th>
-                                <Th>No. of Workers</Th>
-                                <Th>Job Hours</Th>
-                                <Th>Price</Th>
-                                <Th>Frequency</Th>
-                                <Th>Actions</Th>
+                                <Th>{t("price_offer.address_text")}</Th>
+                                <Th>{t("global.addService")}</Th>
+                                <Th>{t("price_offer.type")}</Th>
+                                <Th>{t("global.noOfWorker")}</Th>
+                                <Th>{t("price_offer.job_h_txt")}</Th>
+                                <Th>{t("admin.leads.AddLead.AddLeadClient.jobMenu.Price")}</Th>
+                                <Th>{t("admin.leads.AddLead.AddLeadClient.jobMenu.Frequency")}</Th>
+                                <Th>{t("admin.leads.AddLead.AddLeadClient.jobMenu.Actions")}</Th>
                             </Tr>
                         </Thead>
                         <Tbody>

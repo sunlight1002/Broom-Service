@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import { useTranslation } from "react-i18next";
 
 import Sidebar from "../../Layouts/Sidebar";
 import WorkerAvailabilityTable from "../../Components/Job/WorkerAvailabilityTable";
@@ -16,6 +17,7 @@ import {
 } from "../../../Utils/job.utils";
 
 export default function FreezeShiftWorkers() {
+    const { t } = useTranslation();
     const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();
@@ -326,7 +328,7 @@ export default function FreezeShiftWorkers() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Freeze Shift</h1>
+                            <h1 className="page-title">{t("global.freezeShift")}</h1>
                         </div>
                     </div>
                 </div>
@@ -339,31 +341,31 @@ export default function FreezeShiftWorkers() {
                                         className="mr-3"
                                         style={{ fontWeight: "bold" }}
                                     >
-                                        Worker Availability
+                                        {t("client.jobs.change.worker_availability")}
                                     </div>
                                     <FilterButtons
-                                        text="Current Week"
+                                        text={t("client.jobs.change.currentWeek")}
                                         className="px-3 mr-2 mb-2"
                                         selectedFilter={currentFilter}
                                         setselectedFilter={setcurrentFilter}
                                     />
 
                                     <FilterButtons
-                                        text="Next Week"
+                                        text={t("client.jobs.change.nextWeek")}
                                         className="px-3 mr-2 mb-2"
                                         selectedFilter={currentFilter}
                                         setselectedFilter={setcurrentFilter}
                                     />
 
                                     <FilterButtons
-                                        text="Next Next Week"
+                                        text={t("client.jobs.change.nextnextWeek")}
                                         className="px-3 mr-2 mb-2"
                                         selectedFilter={currentFilter}
                                         setselectedFilter={setcurrentFilter}
                                     />
 
                                     <FilterButtons
-                                        text="Custom"
+                                        text={t("client.jobs.change.Custom")}
                                         className="px-3 mr-2 mb-2"
                                         selectedFilter={currentFilter}
                                         setselectedFilter={setcurrentFilter}
@@ -464,7 +466,7 @@ export default function FreezeShiftWorkers() {
                                 >
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Select Date Range
+                                            {t(global.selectDateRange)}
                                         </label>
                                         <Flatpickr
                                             name="date"

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -12,6 +13,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function ManageTeam() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const tableRef = useRef(null);
 
@@ -189,7 +191,7 @@ export default function ManageTeam() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Team</h1>
+                            <h1 className="page-title">{t("global.team")}</h1>
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
@@ -198,7 +200,7 @@ export default function ManageTeam() {
                                     className="btn btn-pink addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
-                                    Add New
+                                    {t("global.addNew")}
                                 </Link>
                             </div>
                         </div>
@@ -207,11 +209,11 @@ export default function ManageTeam() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">-- Sort By--</option>
-                                <option value="0">Name</option>
-                                <option value="1">Email</option>
-                                <option value="2">Phone</option>
-                                <option value="3">Status</option>
+                                <option value="">{t("admin.leads.Options.sortBy")}</option>
+                                <option value="0">{t("admin.leads.Options.Name")}</option>
+                                <option value="1">{t("admin.leads.Options.Email")}</option>
+                                <option value="2">{t("admin.leads.Options.P:hone")}</option>
+                                <option value="3">{t("admin.leads.Options.Status")}</option>
                             </select>
                         </div>
                     </div>

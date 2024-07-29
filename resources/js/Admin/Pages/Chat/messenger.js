@@ -6,8 +6,10 @@ import { useAlert } from "react-alert";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import { template } from "lodash";
+import { useTranslation } from "react-i18next";
 
 export default function Messenger() {
+    const { t } = useTranslation();
     const [data, setData] = useState(null);
     const [messages, setMessages] = useState(null);
     const [selectNumber, setSelectNumber] = useState(null);
@@ -108,7 +110,7 @@ export default function Messenger() {
                 <div className="view-applicant">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Messenger Chat</h1>
+                            <h1 className="page-title">{t("admin.global.messengerChat")}</h1>
                         </div>
                         <div className="col-sm-6 text-right page-title">
                             <input
@@ -127,7 +129,7 @@ export default function Messenger() {
                             <div className="row">
                                 <div className="col-sm-9">
                                     <h4 className="header-title mb-3">
-                                        Replies
+                                    {t("admin.global.replies")}
                                     </h4>
                                     <hr />
                                     <div className="chat-conversation">
@@ -351,7 +353,7 @@ export default function Messenger() {
                     <div className="modal-content" style={{ width: "130%" }}>
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalLabel">
-                                Template
+                            {t("admin.global.template")}
                             </h5>
                             <button
                                 type="button"
@@ -373,11 +375,11 @@ export default function Messenger() {
                                             id="template"
                                         >
                                             <option value="">
-                                                --- Select template ---
+                                            {t("admin.global.selectTemplate")}
                                             </option>
                                             <option value="leads">
                                                 {" "}
-                                                leads{" "}
+                                                {t("admin.global.leads")}{" "}
                                             </option>
                                         </select>
                                     </div>
@@ -390,7 +392,7 @@ export default function Messenger() {
                                 className="btn btn-primary"
                                 onClick={(e) => restartChat()}
                             >
-                                Send
+                                {t("global.send")}
                             </button>
                             <button
                                 type="button"
@@ -398,7 +400,7 @@ export default function Messenger() {
                                 id="cbtn"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("global.close")}
                             </button>
                         </div>
                     </div>

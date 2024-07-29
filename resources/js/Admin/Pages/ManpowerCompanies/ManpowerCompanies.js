@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import Swal from "sweetalert2";
 
 import $ from "jquery";
@@ -12,6 +13,8 @@ import Sidebar from "../../Layouts/Sidebar";
 import ManpowerCompanyModal from "../../Components/Modals/ManpowerCompanyModal";
 
 export default function ManpowerCompanies() {
+
+    const { t } = useTranslation();
     const [isOpenCompanyModal, setIsOpenCompanyModal] = useState(false);
     const [selectedCompany, setSelectedCompany] = useState(null);
 
@@ -149,7 +152,7 @@ export default function ManpowerCompanies() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Manpower Companies</h1>
+                            <h1 className="page-title">{t("admin.sidebar.settings.manpower")}</h1>
                         </div>
                         <div className="col-sm-6">
                             <button
@@ -157,7 +160,7 @@ export default function ManpowerCompanies() {
                                 className="ml-2 btn btn-success addButton"
                                 onClick={handleAddCompany}
                             >
-                                Add Manpower Company
+                                {t("modal.add")} {t("admin.sidebar.settings.manpower")}
                             </button>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 export default function OfferCommentModal({
     setIsOpen,
@@ -8,6 +9,7 @@ export default function OfferCommentModal({
     comment,
     onChange,
 }) {
+    const { t } = useTranslation();
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         comment: comment ? comment : "",
@@ -39,14 +41,14 @@ export default function OfferCommentModal({
             backdrop="static"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Contract Comment</Modal.Title>
+                <Modal.Title>{t("client.sidebar.contracts")} {t("worker.jobs.view.cmt")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Comment</label>
+                            <label className="control-label">{t("worker.jobs.view.cmt")}</label>
 
                             <textarea
                                 type="text"
@@ -71,14 +73,14 @@ export default function OfferCommentModal({
                     className="btn btn-secondary"
                     onClick={() => setIsOpen(false)}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >
-                    Save
+                    {t("modal.save")}
                 </Button>
             </Modal.Footer>
         </Modal>

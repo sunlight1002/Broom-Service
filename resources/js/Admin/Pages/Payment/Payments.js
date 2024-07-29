@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Moment from "moment";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -18,6 +19,7 @@ import FilterButtons from "../../../Components/common/FilterButton";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Payments() {
+    const { t } = useTranslation();
     const [dateRange, setDateRange] = useState({
         start_date: "",
         end_date: "",
@@ -422,7 +424,7 @@ export default function Payments() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Payments</h1>
+                            <h1 className="page-title">{t("client.common.payments")}</h1>
                         </div>
                     </div>
                 </div>
@@ -433,38 +435,38 @@ export default function Payments() {
                                 className="mr-3"
                                 style={{ fontWeight: "bold" }}
                             >
-                                Status
+                                {t("global.status")}
                             </div>
                             <FilterButtons
-                                text="all"
+                                text={t("admin.global.All")}
                                 className="px-3 mr-1"
                                 selectedFilter={paidStatusFilter}
                                 setselectedFilter={setPaidStatusFilter}
                             />
 
                             <FilterButtons
-                                text="unpaid"
+                                text={t("global.unPaid")}
                                 className="px-3 mr-1"
                                 selectedFilter={paidStatusFilter}
                                 setselectedFilter={setPaidStatusFilter}
                             />
 
                             <FilterButtons
-                                text="paid"
+                                text={t("global.paid")}
                                 className="px-3 mr-1"
                                 selectedFilter={paidStatusFilter}
                                 setselectedFilter={setPaidStatusFilter}
                             />
 
                             <FilterButtons
-                                text="problem"
+                                text={t("global.problem")}
                                 className="px-3 mr-1"
                                 selectedFilter={paidStatusFilter}
                                 setselectedFilter={setPaidStatusFilter}
                             />
 
                             <FilterButtons
-                                text="undone"
+                                text={t("admin.global.undone")}
                                 className="px-3 mr-1"
                                 selectedFilter={paidStatusFilter}
                                 setselectedFilter={setPaidStatusFilter}
@@ -478,34 +480,34 @@ export default function Payments() {
                                     style={{ fontWeight: "bold" }}
                                     className="mr-2"
                                 >
-                                    Date Period
+                                    {t("global.date_period")}
                                 </div>
                                 <FilterButtons
-                                    text="Day"
+                                    text={t("global.day")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text="Week"
+                                    text={t("global.week")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text="Month"
+                                    text={t("global.month")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text="Year"
+                                    text={t("global.year")}
                                     className="px-4 mr-1"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text="All Time"
+                                    text={t("modal.alltime")}
                                     className="px-4 mr-3"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}
@@ -513,7 +515,7 @@ export default function Payments() {
                                 {selectedDateRange !== "All Time" && (
                                     <>
                                         <FilterButtons
-                                            text="Previous"
+                                            text={t("client.previous")}
                                             className="px-3 mr-1"
                                             selectedFilter={selectedDateStep}
                                             setselectedFilter={
@@ -521,7 +523,7 @@ export default function Payments() {
                                             }
                                         />
                                         <FilterButtons
-                                            text="Current"
+                                            text={t("global.current")}
                                             className="px-3 mr-1"
                                             selectedFilter={selectedDateStep}
                                             setselectedFilter={
@@ -529,7 +531,7 @@ export default function Payments() {
                                             }
                                         />
                                         <FilterButtons
-                                            text="Next"
+                                            text={t("global.next")}
                                             className="px-3"
                                             selectedFilter={selectedDateStep}
                                             setselectedFilter={
@@ -546,7 +548,7 @@ export default function Payments() {
                                     className="mr-3"
                                     style={{ fontWeight: "bold" }}
                                 >
-                                    Custom Date Range
+                                    {t("global.custom_date")}
                                 </div>
 
                                 <input
@@ -563,7 +565,7 @@ export default function Payments() {
                                         });
                                     }}
                                 />
-                                <div className="mx-2">to</div>
+                                <div className="mx-2">{t("global.to")}</div>
                                 <input
                                     className="form-control"
                                     type="date"

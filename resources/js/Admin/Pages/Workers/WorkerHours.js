@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Moment from "moment";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -13,6 +14,7 @@ import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function WorkerHours() {
+    const { t } = useTranslation();
     const [dateRange, setDateRange] = useState({
         start_date: "",
         end_date: "",
@@ -278,15 +280,15 @@ export default function WorkerHours() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Worker Hours</h1>
+                            <h1 className="page-title">{t("price_offer.worker_hours")}</h1>
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">-- Sort By--</option>
-                                <option value="0">Worker Name</option>
+                                <option value="">{t("admin.leads.sortBy")}</option>
+                                <option value="0">{t("admin.leads.AddLead.AddLeadClient.jobMenu.WorkerName")}</option>
                             </select>
                         </div>
                     </div>
@@ -298,42 +300,42 @@ export default function WorkerHours() {
                                 style={{ fontWeight: "bold" }}
                                 className="mr-2"
                             >
-                                Date Period
+                                {t("worker.jobs.date_period")}
                             </div>
                             <FilterButtons
-                                text="Day"
+                                text={t("global.day")}
                                 className="px-4 mr-1"
                                 selectedFilter={selectedDateRange}
                                 setselectedFilter={setSelectedDateRange}
                             />
                             <FilterButtons
-                                text="Week"
+                                text={t("global.week")}
                                 className="px-4 mr-1"
                                 selectedFilter={selectedDateRange}
                                 setselectedFilter={setSelectedDateRange}
                             />
 
                             <FilterButtons
-                                text="Month"
+                                text={t("global.month")}
                                 className="px-4 mr-3"
                                 selectedFilter={selectedDateRange}
                                 setselectedFilter={setSelectedDateRange}
                             />
 
                             <FilterButtons
-                                text="Previous"
+                                text={t("client.previous")}
                                 className="px-3 mr-1"
                                 selectedFilter={selectedDateStep}
                                 setselectedFilter={setSelectedDateStep}
                             />
                             <FilterButtons
-                                text="Current"
+                                text={t("global.current")}
                                 className="px-3 mr-1"
                                 selectedFilter={selectedDateStep}
                                 setselectedFilter={setSelectedDateStep}
                             />
                             <FilterButtons
-                                text="Next"
+                                text={t("global.next")}
                                 className="px-3"
                                 selectedFilter={selectedDateStep}
                                 setselectedFilter={setSelectedDateStep}
@@ -370,7 +372,7 @@ export default function WorkerHours() {
                                 className="mr-3"
                                 style={{ fontWeight: "bold" }}
                             >
-                                Custom Date Range
+                                {t("worker.jobs.custom_date_range")}
                             </div>
 
                             <input
@@ -387,7 +389,7 @@ export default function WorkerHours() {
                                     });
                                 }}
                             />
-                            <div className="mx-2">to</div>
+                            <div className="mx-2">{t("global.to")}</div>
                             <input
                                 className="form-control"
                                 type="date"
@@ -411,7 +413,7 @@ export default function WorkerHours() {
                                     color: "white",
                                 }}
                             >
-                                Export
+                                {t("admin.client.Export")}
                             </button>
                         </div>
                     </div>
@@ -420,7 +422,7 @@ export default function WorkerHours() {
                             className="mr-3 align-items-center"
                             style={{ fontWeight: "bold" }}
                         >
-                            Manpower Company
+                              {t("admin.global.manpower_company")}
                         </div>
                         <div className="d-flex">
                             <select
@@ -434,7 +436,7 @@ export default function WorkerHours() {
                                 }}
                                 value={filters.manpower_company_id}
                             >
-                                <option value="">--- Select ---</option>
+                                <option value="">{t("admin.global.select")}</option>
 
                                 {manpowerCompanies.map((company, _index) => (
                                     <option key={_index} value={company.id}>
@@ -461,7 +463,7 @@ export default function WorkerHours() {
                                     });
                                 }}
                             >
-                                My Company
+                                 {t("admin.global.myCompany")}
                             </button>
                             <button
                                 className={`btn border rounded px-3 mx-1`}
@@ -482,7 +484,7 @@ export default function WorkerHours() {
                                     });
                                 }}
                             >
-                                All
+                               {t("admin.global.All")}
                             </button>
                         </div>
                     </div>

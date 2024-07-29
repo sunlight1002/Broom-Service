@@ -112,7 +112,7 @@ export default function Dashboard() {
     }, []);
 
     return (
-        <div id="container">
+        <div id="container column-left">
             <Sidebar />
             <div id="content">
                 <div className="adminDash">

@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
+
+    const { t } = useTranslation();
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         extra_amount: job.extra_amount ?? 0,
@@ -49,7 +52,7 @@ export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
             }}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Job Extra</Modal.Title>
+                <Modal.Title>{t("admin.global.jobExtra")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -57,7 +60,7 @@ export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                                Extra Amount
+                            {t("admin.global.extraAmount")}
                             </label>
 
                             <input
@@ -85,7 +88,7 @@ export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
@@ -93,7 +96,7 @@ export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
                     className="btn btn-primary"
                     disabled={loading}
                 >
-                    Save
+                    {t("modal.save")}
                 </Button>
             </Modal.Footer>
         </Modal>

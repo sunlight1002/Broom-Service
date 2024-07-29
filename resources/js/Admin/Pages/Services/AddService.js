@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import Sidebar from "../../Layouts/Sidebar";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function AddService() {
+
+    const { t } = useTranslation();
     const [service, setService] = useState([]);
     const [serviceHeb, setServiceHeb] = useState([]);
     const [template, setTemplate] = useState([]);
@@ -46,7 +49,7 @@ export default function AddService() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title addEmployer">Add Service</h1>
+                    <h1 className="page-title addEmployer">{t("global.addService")}</h1>
                     <div className="card">
                         <div className="card-body">
                             <form>
@@ -54,7 +57,7 @@ export default function AddService() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Service name - En*
+                                            {t("global.service")} {t("admin.global.Name")} - En*
                                             </label>
                                             <input
                                                 type="text"
@@ -75,7 +78,7 @@ export default function AddService() {
 
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Service name - Heb*
+                                            {t("global.service")} {t("admin.global.Name")} - Heb*
                                             </label>
                                             <input
                                                 type="text"
@@ -100,7 +103,7 @@ export default function AddService() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Template
+                                            {t("admin.global.template")}
                                             </label>
                                             <select
                                                 className="form-control"
@@ -110,29 +113,29 @@ export default function AddService() {
                                                 }
                                             >
                                                 <option value="">
-                                                    --- Please select ---
+                                                    {t("worker.settings.pleaseSelect")}
                                                 </option>
                                                 <option value="regular">
-                                                    Regular Services( 2*, 3*,
+                                                {t("services.regularServices")}( 2*, 3*,
                                                     4*, 5* )
                                                 </option>
                                                 <option value="office_cleaning">
-                                                    Office Cleaning
+                                                {t("services.officeCleaning")}
                                                 </option>
                                                 <option value="after_renovation">
-                                                    After Renovation
+                                                {t("services.afterRenovation")}
                                                 </option>
                                                 <option value="thorough_cleaning">
-                                                    Thorough Cleaning
+                                                {t("services.throughCleaning")}
                                                 </option>
                                                 <option value="window_cleaning">
-                                                    Window Cleaning
+                                                {t("services.windowCleaning")}
                                                 </option>
                                                 <option value="polish">
-                                                    Polish
+                                                {t("services.polish")}
                                                 </option>
                                                 <option value="others">
-                                                    Others
+                                                {t("services.others")}
                                                 </option>
                                             </select>
                                             {errors.template && (
@@ -146,7 +149,7 @@ export default function AddService() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Status
+                                            {t("global.status")}
                                             </label>
                                             <select
                                                 className="form-control"
@@ -156,13 +159,13 @@ export default function AddService() {
                                                 }
                                             >
                                                 <option value="">
-                                                    --- Please select ---
+                                                {t("worker.settings.pleaseSelect")}
                                                 </option>
                                                 <option value="1">
-                                                    Active
+                                                {t("admin.global.active")}
                                                 </option>
                                                 <option value="0">
-                                                    Inactive
+                                                {t("admin.global.inactive")}
                                                 </option>
                                             </select>
                                             {errors.status && (
@@ -177,7 +180,8 @@ export default function AddService() {
                                         <input
                                             type="submit"
                                             onClick={handleSubmit}
-                                            className="btn btn-pink saveBtn"
+                                            value={t("client.jobs.review.Submit")}
+                                            className="btn navyblue saveBtn"
                                         />
                                     </div>
                                 </div>

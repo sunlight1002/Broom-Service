@@ -1,27 +1,30 @@
 import React, { useState } from "react";
 import Sidebar from "../../Layouts/Sidebar";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Templates() {
+
+    const { t } = useTranslation();
 
     return (
         <div id="container">
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                    <h1 className="page-title addEmployer">Service Templates</h1>
+                    <h1 className="page-title addEmployer">{t("admin.global.serviceTemplates")}</h1>
                     <div className="card">
                         <div className="card-body">
                         <table className="table table-bordered">
                         <thead>
                             <tr>
-                                <th scope="col" >Template</th>
-                                <th scope="col" >View</th>
+                                <th scope="col" >{t("admin.global.template")}</th>
+                                <th scope="col" >{t("admin.global.view")}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Regular Services</td>
+                                <td>{t("services.regularServices")}</td>
                                 <td>
                                 <Link
                                     to="/admin/template/regular-service"
@@ -31,7 +34,7 @@ export default function Templates() {
                                 </td>
                             </tr>
                             <tr>
-                                <td>Office Cleaning</td>
+                                <td>{t("services.officeCleaning")}</td>
                                 <td>
                                 <Link
                                     to="/admin/template/office-cleaning"
@@ -41,7 +44,7 @@ export default function Templates() {
                                 </td>
                             </tr>
                             <tr>
-                                <td>Cleaning after renovation</td>
+                                <td>{t("services.cleaning/renovation")}</td>
                                 <td>
                                 <Link
                                     to="/admin/template/after-renovation"
@@ -51,7 +54,7 @@ export default function Templates() {
                                 </td>
                             </tr>
                             <tr>
-                                <td>Thorough Cleaning</td>
+                                <td>{t("services.throughCleaning")}</td>
                                 <td>
                                 <Link
                                     to="/admin/template/thorough-cleaning"
@@ -61,7 +64,7 @@ export default function Templates() {
                                 </td>
                             </tr>
                             <tr>
-                                <td>Window Cleaning</td>
+                                <td>{t("services.windowCleaning")}</td>
                                 <td>
                                 <Link
                                     to="/admin/template/window-cleaning"
@@ -71,7 +74,7 @@ export default function Templates() {
                                 </td>
                             </tr>
                             <tr>
-                                <td>Others</td>
+                                <td>{t("services.others")}</td>
                                 <td>
                                 <Link
                                     to="/admin/template/others"

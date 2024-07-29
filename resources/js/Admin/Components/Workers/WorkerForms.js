@@ -4,8 +4,10 @@ import { Link, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Base64 } from "js-base64";
 import Form101Table from "./Form101Table";
+import { useTranslation } from "react-i18next";
 
 export default function WorkerForms({ worker, getWorkerDetails }) {
+    const { t } = useTranslation();
     const [forms, setForms] = useState([]);
     const [contractForm, setContractForm] = useState(false);
     const [safetyAndGearForm, setSafetyAndGearForm] = useState(false);
@@ -143,7 +145,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                             className="btn btn-success m-3"
                             disabled={isSubmitting}
                         >
-                            Send Form101
+                            {t("global.sendForm101")}
                         </button>
                     </div>
                     <div
@@ -164,7 +166,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                         className="noteDate"
                                         style={{ fontWeight: "600" }}
                                     >
-                                        Contract
+                                        {t("formTxt.contractForm")}
                                     </span>
                                 </div>
                                 <div className="col-sm-2 col-2">
@@ -172,12 +174,12 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                     worker.worker_contract ? (
                                         <div>
                                             <span className="btn btn-success m-3">
-                                                Signed
+                                            {t("global.signed")}
                                             </span>
                                         </div>
                                     ) : (
                                         <span className="btn btn-warning m-3">
-                                            Not Signed{" "}
+                                            {t("global.notSigned")}{" "}
                                         </span>
                                     )}
                                 </div>
@@ -198,7 +200,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 }
                                                 className="m-2 btn navyblue"
                                             >
-                                                View Contract
+                                                {t("worker.settings.view_contract")}
                                             </Link>
                                         </div>
                                     ) : (
@@ -253,19 +255,19 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             className="noteDate"
                                             style={{ fontWeight: "600" }}
                                         >
-                                            Form 101
+                                            {t("form101.title")}
                                         </span>
                                     </div>
                                     <div className="col-sm-2 col-2">
                                         {!form && worker.form_101 ? (
                                             <div>
                                                 <span className="btn btn-success m-3">
-                                                    Signed{" "}
+                                                {t("global.signed")}{" "}
                                                 </span>
                                             </div>
                                         ) : (
                                             <span className="btn btn-warning m-3">
-                                                Not Signed{" "}
+                                                {t("global.notSigned")}{" "}
                                             </span>
                                         )}
                                     </div>
@@ -284,7 +286,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                     }
                                                     className="m-2 m-2 btn navyblue"
                                                 >
-                                                    View Form
+                                                    {t("global.viewForm")}
                                                 </Link>
                                             </div>
                                         ) : (
@@ -341,7 +343,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                         className="noteDate"
                                         style={{ fontWeight: "600" }}
                                     >
-                                        Safety and Gear
+                                        {t("global.safetyAbdGear")}
                                     </span>
                                 </div>
                                 <div className="col-sm-2 col-2">
@@ -349,12 +351,12 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                     worker.safety_and_gear_form ? (
                                         <div>
                                             <span className="btn btn-success m-3">
-                                                Signed
+                                            {t("global.signed")}
                                             </span>
                                         </div>
                                     ) : (
                                         <span className="btn btn-warning m-3">
-                                            Not Signed{" "}
+                                            {t("global.notSigned")}{" "}
                                         </span>
                                     )}
                                 </div>
@@ -374,7 +376,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 }
                                                 className="m-2 m-2 btn navyblue"
                                             >
-                                                View Safety and Gear Form
+                                                {t("global.viewSafetyAndGearForm")}
                                             </Link>
                                         </div>
                                     ) : (
@@ -432,19 +434,19 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                     className="noteDate"
                                     style={{ fontWeight: "600" }}
                                 >
-                                    Insurance
+                                    {t("formTxt.insuranceForm")}
                                 </span>
                             </div>
                             <div className="col-sm-2 col-2">
                                 {insuranceForm || worker.form_insurance ? (
                                     <div>
                                         <span className="btn btn-success m-3">
-                                            Signed
+                                        {t("global.signed")}
                                         </span>
                                     </div>
                                 ) : (
                                     <span className="btn btn-warning m-3">
-                                        Not Signed{" "}
+                                        {t("global.notSigned")}{" "}
                                     </span>
                                 )}
                             </div>
@@ -463,7 +465,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             }
                                             className="m-2 m-2 btn navyblue"
                                         >
-                                            View Insurance Form
+                                            {t("global.viewInsuranceForm")}
                                         </Link>
                                     </div>
                                 ) : (

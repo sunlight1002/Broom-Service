@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 export default function JobDiscountModal({
     setIsOpen,
@@ -9,6 +10,7 @@ export default function JobDiscountModal({
     job,
     onSuccess,
 }) {
+    const { t } = useTranslation();
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         discount_type: job.discount_type ?? "fixed",
@@ -58,7 +60,7 @@ export default function JobDiscountModal({
             }}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Job Discount</Modal.Title>
+                <Modal.Title>{t("admin.global.jobDiscount")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -66,7 +68,7 @@ export default function JobDiscountModal({
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                                Discount Type
+                            {t("admin.global.discountType")}
                             </label>
 
                             <select
@@ -88,7 +90,7 @@ export default function JobDiscountModal({
 
                         <div className="form-group">
                             <label className="control-label">
-                                Discount Value
+                            {t("admin.global.discountValue")}
                             </label>
 
                             <input
@@ -116,7 +118,7 @@ export default function JobDiscountModal({
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
@@ -124,7 +126,7 @@ export default function JobDiscountModal({
                     className="btn btn-primary"
                     disabled={loading}
                 >
-                    Save
+                   {t("modal.save")}
                 </Button>
             </Modal.Footer>
         </Modal>

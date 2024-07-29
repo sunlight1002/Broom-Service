@@ -5,8 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Comments from "../../Components/common/Comments";
+import { useTranslation } from "react-i18next";
 
 export default function ViewService() {
+    const { t } = useTranslation();
     const [service, setService] = useState(null);
     const [serviceHeb, setServiceHeb] = useState("");
     const [template, setTemplate] = useState("");
@@ -50,25 +52,25 @@ export default function ViewService() {
         <div id="container">
             <Sidebar />
             <div id="content">
-                <h1 className="page-title">View Service</h1>
+                <h1 className="page-title">{t("global.view")} {t("global.service")}</h1>
                 <div className="card">
                     <div className="card-body">
                         <div className="row">
                             <div className="col-sm-4">
                                 <div className="form-group">
-                                    <label>Service - En</label>
+                                    <label>{t("global.service")} - En</label>
                                     <p>{service ? service.name : "NA"}</p>
                                 </div>
                             </div>
                             <div className="col-sm-4">
                                 <div className="form-group">
-                                    <label>Service - Heb</label>
+                                    <label>{t("global.service")} - Heb</label>
                                     <p>{service ? service.heb_name : "NA"}</p>
                                 </div>
                             </div>
                             <div className="col-sm-4">
                                 <div className="form-group">
-                                    <label>Template</label>
+                                    <label>{t("admin.global.template")}</label>
                                     <p>
                                         {service
                                             ? templates[service.template]
@@ -78,12 +80,12 @@ export default function ViewService() {
                             </div>
                             <div className="col-sm-4">
                                 <div className="form-group">
-                                    <label>Status</label>
+                                    <label>{t("global.status")}</label>
                                     <p>
                                         {service
                                             ? service.status == "1"
-                                                ? "Active"
-                                                : "Inactive"
+                                                ? t("admin.global.active")
+                                                : t("admin.global.inactive")
                                             : "NA"}
                                     </p>
                                 </div>
@@ -105,7 +107,7 @@ export default function ViewService() {
                                             aria-selected="true"
                                             role="tab"
                                         >
-                                            Comments
+                                            {t("admin.leads.leadDetails.Comments")}
                                         </a>
                                     </li>
                                 </ul>

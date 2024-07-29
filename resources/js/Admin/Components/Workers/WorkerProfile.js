@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function WorkerProfile({ worker }) {
+    const { t } = useTranslation();
     const [pass, setPass] = useState(null);
     const [passVal, setPassVal] = useState(null);
 
@@ -51,7 +53,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Phone
+                                        {t("admin.leads.viewLead.Phone")}
                                     </label>
                                     <p>
                                         <a href={`tel:${worker.phone}`}>
@@ -64,7 +66,7 @@ export default function WorkerProfile({ worker }) {
                                 <div className="col-sm-4">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Renewal of Visa
+                                        {t("worker.settings.renewal_visa")}
                                         </label>
                                         <p>{worker.renewal_date}</p>
                                     </div>
@@ -73,7 +75,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Gender
+                                    {t("worker.settings.gender")}
                                     </label>
                                     <p>{worker.gender}</p>
                                 </div>
@@ -81,7 +83,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Payment Per Hour
+                                    {t("worker.settings.p_ph")}
                                     </label>
                                     <p>{worker.payment_per_hour}</p>
                                 </div>
@@ -89,7 +91,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Worker Id
+                                    {t("worker.settings.w_id")}
                                     </label>
                                     <p>{worker.worker_id}</p>
                                 </div>
@@ -97,7 +99,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Worker email
+                                    {t("global.worker")}{t("work-contract.email")}
                                     </label>
                                     <p className="word-break">{worker.email}</p>
                                 </div>
@@ -105,7 +107,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Password
+                                    {t("worker.settings.pass")}
                                     </label>
 
                                     {pass == null ? (
@@ -133,7 +135,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Status
+                                    {t("worker.settings.status")}
                                     </label>
                                     <p>
                                         {worker.status ? "Active" : "Inactive"}
@@ -144,7 +146,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-8">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Address
+                                    {t("worker.settings.address")}
                                     </label>
                                     <a
                                         href={`https://maps.google.com?q=${worker.address}`}
@@ -182,7 +184,7 @@ export default function WorkerProfile({ worker }) {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Enter your password
+                                               {t("admin.client.Enter_password")}
                                             </label>
                                             <input
                                                 type="password"
@@ -191,7 +193,7 @@ export default function WorkerProfile({ worker }) {
                                                 }
                                                 className="form-control"
                                                 required
-                                                placeholder="Enter your password"
+                                                placeholder={t("admin.client.Enter_password")}
                                                 autoComplete="new-password"
                                             />
                                         </div>
@@ -204,14 +206,14 @@ export default function WorkerProfile({ worker }) {
                                     className="btn btn-secondary closeb1"
                                     data-dismiss="modal"
                                 >
-                                    Close
+                                    {t("modal.close")}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={viewPass}
                                     className="btn btn-primary"
                                 >
-                                    Submit
+                                    {t("workerInviteForm.submit")}
                                 </button>
                             </div>
                         </div>

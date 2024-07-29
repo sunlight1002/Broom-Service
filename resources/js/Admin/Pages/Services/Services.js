@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -12,6 +13,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function Services() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const tableRef = useRef(null);
 
@@ -180,26 +182,26 @@ export default function Services() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Services</h1>
+                            <h1 className="page-title">{t("client.common.services")}</h1>
                         </div>
                         <div className="col-sm-6">
                             <Link
                                 to="/admin/services/create"
                                 className="ml-2 btn btn-success addButton"
                             >
-                                Add Service
+                                {t("global.addService")}
                             </Link>
                             <Link
                                 to="/admin/service-schedules"
                                 className="ml-2 btn btn-warning addButton"
                             >
-                                Schedules
+                                {t("global.schedule")}
                             </Link>
                             <Link
                                 to="/admin/templates"
                                 className="btn btn-pink addButton"
                             >
-                                Templates
+                                {t("admin.global.template")}
                             </Link>
                         </div>
                     </div>

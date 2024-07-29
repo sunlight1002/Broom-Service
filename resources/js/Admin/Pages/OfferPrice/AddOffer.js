@@ -7,8 +7,10 @@ import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import OfferServiceMenu from "../../Pages/OfferPrice/OfferServiceMenu";
 import OfferCommentModal from "../../Components/Modals/OfferCommentModal";
+import { useTranslation } from "react-i18next";
 
 export default function AddOffer() {
+    const { t } = useTranslation();
     const alert = useAlert();
     const navigate = useNavigate();
     const queryParams = new URLSearchParams(window.location.search);
@@ -196,7 +198,7 @@ export default function AddOffer() {
             <Sidebar />
             <div id="content">
                 <div className="AddOffer">
-                    <h1 className="page-title addEmployer">Add Offer</h1>
+                    <h1 className="page-title addEmployer">{t("global.add")} {t("client.offer.title")}</h1>
                     <div className="card">
                         <div className="card-body">
                             <form>
@@ -204,7 +206,7 @@ export default function AddOffer() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Client
+                                                {t("client.dashboard.client")}
                                             </label>
                                             <SelectPicker
                                                 data={clientOptions}
@@ -228,7 +230,7 @@ export default function AddOffer() {
                                             }}
                                             style={{ marginInline: "6px" }}
                                         >
-                                            Comment
+                                            {t("worker.jobs.view.cmt")}
                                         </button>
                                         {isOpenCommentModal && (
                                             <OfferCommentModal
@@ -252,7 +254,7 @@ export default function AddOffer() {
                                         <div className="card-dark">
                                             <div className="card-black">
                                                 <h3 className="card-title">
-                                                    Services
+                                                {t("client.common.services")}
                                                 </h3>
                                             </div>
                                             <div className="mt-2">
@@ -281,7 +283,7 @@ export default function AddOffer() {
                                         }}
                                         style={{ marginInline: "6px" }}
                                     >
-                                        Save
+                                        {t("modal.save")}
                                     </button>
                                     <button
                                         type="submit"
@@ -291,7 +293,7 @@ export default function AddOffer() {
                                             handleSubmit(e, "Save and Send");
                                         }}
                                     >
-                                        Save and Send
+                                        {t("client.jobs.change.SaveAndSend")}
                                     </button>
                                 </div>
                             </form>

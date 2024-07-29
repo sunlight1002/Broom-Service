@@ -5,8 +5,11 @@ import WorkerAvailabilty from "./WorkerAvailabilty";
 import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import Document from "../Documents/Document";
 import WorkerForms from "./WorkerForms";
+import { useTranslation } from "react-i18next";
 
 export default function WorkerHistory({ worker, getWorkerDetails }) {
+
+    const {t} = useTranslation()
     const [days, setDays] = useState([]);
 
     const headers = {
@@ -40,7 +43,7 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         aria-selected="true"
                         role="tab"
                     >
-                        Worker Availability
+                        {t("client.jobs.change.worker_availability")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -52,7 +55,7 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         aria-selected="true"
                         role="tab"
                     >
-                        Current Job
+                       {t("worker.jobs.current_jobs")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -64,7 +67,7 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         aria-selected="false"
                         role="tab"
                     >
-                        Past Job
+                        {t("worker.dashboard.past_jobs")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -76,7 +79,7 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         aria-selected="false"
                         role="tab"
                     >
-                        Forms
+                        {t("worker.settings.forms")}
                     </a>
                 </li>
                 {/* <li className="nav-item" role="presentation">
@@ -100,7 +103,7 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         aria-selected="false"
                         role="tab"
                     >
-                        Documents
+                        {t("worker.settings.manage_form")}
                     </a>
                 </li>
             </ul>

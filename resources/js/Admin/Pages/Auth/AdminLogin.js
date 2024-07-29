@@ -3,6 +3,8 @@ import { useAlert } from "react-alert";
 import logo from "../../../Assets/image/sample.svg";
 import { useNavigate } from "react-router-dom";
 import FullLoader from "../../../../../public/js/FullLoader";
+import i18next from "i18next";
+
 
 export default function AdminLogin() {
     const navigate = useNavigate()
@@ -14,7 +16,9 @@ export default function AdminLogin() {
             navigate("/admin/dashboard");
         }    
     }, [navigate])
-    
+
+    const adminLng = localStorage.getItem("admin-lng")
+
 
     const alert = useAlert();
     const [email, setEmail] = useState("");
@@ -40,18 +44,28 @@ export default function AdminLogin() {
                     localStorage.setItem("admin-email", result.data.email);
                     localStorage.setItem("admin-lng", result.data.lng);
 
-                    console.log(result);
+                    // console.log(result);
                     window.location = "/admin/login-otp";
                     setLoading(false)
                 }else{
                     localStorage.setItem("admin-token", result.data.token);
                     localStorage.setItem("admin-name", result.data.name);
                     localStorage.setItem("admin-id", result.data.id);
+                    localStorage.setItem("admin-lng", result.data.lng);
+                    const adminLng = localStorage.getItem("admin-lng")
+                    i18next.changeLanguage(adminLng);
                     window.location = "/admin/dashboard";
                 }
             }
         });
     };
+
+    // console.log(adminLng,"lng");
+    
+    // useEffect(() => {
+    //     i18next.changeLanguage(adminLng);
+    // }, [adminLng]);
+    
 
     if (loading) {
         return <FullLoader/>

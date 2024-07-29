@@ -2,14 +2,16 @@ import React from "react";
 import Acc from "../../Components/Settings/Acc";
 import ChangePass from "../../Components/Settings/ChangePass";
 import Sidebar from "../../Layouts/Sidebar";
+import { useTranslation } from "react-i18next";
 
 export default function Setting() {
+    const { t } = useTranslation();
     return (
         <div id="container">
             <Sidebar />
             <div id="content">
                 <div className="settings-page">
-                    <h1 className="page-title revTitle">Settings</h1>
+                    <h1 className="page-title revTitle">{t("admin.sidebar.settings.title")}</h1>
                     <ul className="nav nav-tabs mb-2" role="tablist">
                         <li className="nav-item" role="presentation">
                             <a
@@ -20,7 +22,7 @@ export default function Setting() {
                                 aria-selected="false"
                                 role="tab"
                             >
-                                My Account
+                                {t("admin.sidebar.settings.account")}
                             </a>
                         </li>
                         <li className="nav-item" role="presentation">
@@ -32,7 +34,7 @@ export default function Setting() {
                                 aria-selected="false"
                                 role="tab"
                             >
-                                Change Password
+                                {t("client.settings.change_pass")}
                             </a>
                         </li>
                     </ul>

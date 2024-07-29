@@ -4,6 +4,7 @@ import { useAlert } from "react-alert";
 import moment from "moment";
 import Swal from "sweetalert2";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import { useTranslation } from "react-i18next";
 
 export default function AddPaymentModal({
     setIsOpen,
@@ -12,6 +13,7 @@ export default function AddPaymentModal({
     onSuccess,
     handleAddNewCard,
 }) {
+    const { t } = useTranslation();
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         amount: "",
@@ -40,6 +42,12 @@ export default function AddPaymentModal({
             cash: "Cash",
             cheque: "Cheque",
         };
+        // const pm = {
+        //     cc: t("admin.leads.AddLead.Options.PaymentMethod.CreditCard"),
+        //     mt: t("admin.leads.AddLead.Options.PaymentMethod.ByBanktransfer"),
+        //     cash: t("admin.leads.AddLead.Options.PaymentMethod.ByCash"),
+        //     cheque: t("admin.leads.AddLead.Options.PaymentMethod.ByCheque"),
+        // };
 
         const mdata = {
             paid_amount: formValues.amount,
@@ -167,7 +175,7 @@ export default function AddPaymentModal({
             backdrop="static"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Add Payment</Modal.Title>
+                <Modal.Title>{t("admin.leads.AddLead.Options.addPayment")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -175,7 +183,7 @@ export default function AddPaymentModal({
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                                Amount{" "}
+                            {t("admin.leads.AddLead.Options.amount")}{" "}
                                 <small className="text-danger">
                                     (max - {maxAmount})
                                 </small>
@@ -199,8 +207,8 @@ export default function AddPaymentModal({
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                                Transaction / Reference ID
-                                <small> (Optional in credit card mode)</small>
+                            {t("admin.leads.AddLead.Options.tandb")}
+                                <small> ({t("admin.leads.AddLead.Options.optionalCCMode")})</small>
                             </label>
                             <input
                                 type="text"
@@ -213,7 +221,7 @@ export default function AddPaymentModal({
                                 }
                                 className="form-control"
                                 required
-                                placeholder="Enter Transaction / Reference ID"
+                                placeholder={t("admin.leads.AddLead.Options.tandb")}
                             ></input>
                         </div>
                     </div>
@@ -223,7 +231,7 @@ export default function AddPaymentModal({
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                                Payment Mode
+                            {t("admin.leads.AddLead.Options.paymentMode")}
                             </label>
                             <select
                                 name="mode"
@@ -250,7 +258,7 @@ export default function AddPaymentModal({
                             <div className="col-sm-12">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Bank Transfer Date
+                                    {t("admin.leads.AddLead.Options.transferDate")}
                                     </label>
                                     <input
                                         type="date"
@@ -272,7 +280,7 @@ export default function AddPaymentModal({
                             <div className="col-sm-12">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Account
+                                    {t("admin.leads.AddLead.Options.account")}
                                     </label>
                                     <input
                                         type="number"
@@ -284,7 +292,7 @@ export default function AddPaymentModal({
                                                 account: e.target.value,
                                             })
                                         }
-                                        placeholder="Bank account ID where BankTransfer was deposited"
+                                        placeholder={t("admin.leads.AddLead.Options.accountIdPlaceholder")}
                                         required
                                     ></input>
                                 </div>
@@ -299,7 +307,7 @@ export default function AddPaymentModal({
                             <div className="col-sm-12">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Cheque Date
+                                    {t("admin.leads.AddLead.Options.chequeDate")}
                                     </label>
                                     <input
                                         type="date"
@@ -321,7 +329,7 @@ export default function AddPaymentModal({
                             <div className="col-sm-12">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Cheque Bank
+                                    {t("admin.leads.AddLead.Options.chequeBank")}
                                     </label>
                                     <input
                                         type="text"
@@ -334,7 +342,7 @@ export default function AddPaymentModal({
                                             })
                                         }
                                         required
-                                        placeholder="Cheque Bank"
+                                        placeholder={t("admin.leads.AddLead.Options.chequeBank")}
                                     ></input>
                                 </div>
                             </div>
@@ -344,7 +352,7 @@ export default function AddPaymentModal({
                             <div className="col-sm-12">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Cheque Branch
+                                    {t("admin.leads.AddLead.Options.chequeBranch")}
                                     </label>
                                     <input
                                         type="text"
@@ -357,7 +365,7 @@ export default function AddPaymentModal({
                                             })
                                         }
                                         required
-                                        placeholder="Cheque Branch"
+                                        placeholder={t("admin.leads.AddLead.Options.chequeBranch")}
                                     ></input>
                                 </div>
                             </div>
@@ -367,7 +375,7 @@ export default function AddPaymentModal({
                             <div className="col-sm-12">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Cheque account
+                                    {t("admin.leads.AddLead.Options.chequeAccount")}
                                     </label>
                                     <input
                                         type="number"
@@ -380,7 +388,7 @@ export default function AddPaymentModal({
                                             })
                                         }
                                         required
-                                        placeholder="Cheque account"
+                                        placeholder={t("admin.leads.AddLead.Options.chequeAccount")}
                                     ></input>
                                 </div>
                             </div>
@@ -390,7 +398,7 @@ export default function AddPaymentModal({
                             <div className="col-sm-12">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Cheque number
+                                    {t("admin.leads.AddLead.Options.chequeNumber")}
                                     </label>
                                     <input
                                         type="number"
@@ -403,7 +411,7 @@ export default function AddPaymentModal({
                                             })
                                         }
                                         required
-                                        placeholder="Cheque number"
+                                        placeholder={t("admin.leads.AddLead.Options.chequeNumber")}
                                     ></input>
                                 </div>
                             </div>
@@ -420,7 +428,7 @@ export default function AddPaymentModal({
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
@@ -428,7 +436,7 @@ export default function AddPaymentModal({
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >
-                    Save
+                    {t("modal.save")}
                 </Button>
             </Modal.Footer>
 

@@ -3,8 +3,11 @@ import React, { useState } from "react";
 import Sidebar from "../../Layouts/Sidebar";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
 
 export default function AddTeam() {
+
+    const { t } = useTranslation();
     const [name, setName] = useState(null);
     const [hebname, setHebName] = useState(null);
     const [email, setEmail] = useState(null);
@@ -57,14 +60,14 @@ export default function AddTeam() {
         <div id="container">
             <Sidebar />
             <div id="content">
-                <h1 className="page-title">Add Team member</h1>
+                <h1 className="page-title">{t("admin.global.addTeamMember")}</h1>
                 <form>
                     <div className="row">
                         <div className="col-lg-6 col-12">
                             <div className="dashBox p-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Name - En
+                                    {t("admin.global.NameEn")}
                                     </label>
                                     <input
                                         type="text"
@@ -77,7 +80,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Name - Heb
+                                    {t("admin.global.NameHev")}
                                     </label>
                                     <input
                                         type="text"
@@ -90,7 +93,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Email
+                                    {t("admin.global.Email")}
                                     </label>
                                     <input
                                         type="email"
@@ -104,7 +107,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Phone
+                                    {t("admin.global.Phone")}
                                     </label>
                                     <input
                                         type="tel"
@@ -117,7 +120,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Address
+                                    {t("client.meeting.address_txt")}
                                     </label>
                                     <input
                                         type="text"
@@ -141,7 +144,7 @@ export default function AddTeam() {
                                             className="form-check-label"
                                             htmlFor="title"
                                         >
-                                            Color
+                                            {t("client.settings.color")}
                                         </label>
                                     </div>
                                     <div className="swatch white mb-3">
@@ -156,7 +159,7 @@ export default function AddTeam() {
                                         <label htmlFor="swatch_7">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>white</span>
+                                        <span>{t("admin.leads.AddLead.white")}</span>
                                     </div>
                                     <div className="swatch green mb-3">
                                         <input
@@ -172,7 +175,7 @@ export default function AddTeam() {
                                         <label htmlFor="swatch_2">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Green</span>
+                                        <span>{t("admin.leads.AddLead.Green")}</span>
                                     </div>
                                     <div className="swatch blue mb-3">
                                         <input
@@ -188,7 +191,7 @@ export default function AddTeam() {
                                         <label htmlFor="swatch_3">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Blue</span>
+                                        <span>{t("admin.leads.AddLead.Blue")}</span>
                                     </div>
                                     <div className="swatch purple mb-3">
                                         <input
@@ -204,7 +207,7 @@ export default function AddTeam() {
                                         <label htmlFor="swatch_1">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Voilet</span>
+                                        <span>{t("admin.leads.AddLead.Voilet")}</span>
                                     </div>
                                     <div className="swatch red mb-3">
                                         <input
@@ -220,7 +223,7 @@ export default function AddTeam() {
                                         <label htmlFor="swatch_5">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Red</span>
+                                        <span>{t("admin.leads.AddLead.Red")}</span>
                                     </div>
                                     <div className="swatch orange mb-3">
                                         <input
@@ -236,7 +239,7 @@ export default function AddTeam() {
                                         <label htmlFor="swatch_4">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Orange</span>
+                                        <span>{t("admin.leads.AddLead.Orange")}</span>
                                     </div>
                                     <div className="swatch yellow mb-3">
                                         <input
@@ -252,13 +255,13 @@ export default function AddTeam() {
                                         <label htmlFor="swatch_6">
                                             <i className="fa fa-check"></i>
                                         </label>
-                                        <span>Yellow</span>
+                                        <span>{t("admin.leads.AddLead.Yellow")}</span>
                                     </div>
                                 </div>
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Password
+                                    {t("worker.settings.pass")}
                                     </label>
                                     <input
                                         type="password"
@@ -273,7 +276,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Confirm password
+                                        {t("client.settings.confirmPass")}
                                     </label>
                                     <input
                                         type="password"
@@ -287,7 +290,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Status
+                                        {t("global.status")}
                                     </label>
                                     <select
                                         className="form-control"
@@ -295,15 +298,15 @@ export default function AddTeam() {
                                             setStatus(e.target.value)
                                         }
                                     >
-                                        <option value={1}>Enable</option>
-                                        <option value={0}>Disable</option>
+                                        <option value={1}>{t("worker.settings.Enable")}</option>
+                                        <option value={0}>{t("worker.settings.Disable")}</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                         <div className="col-sm-12">
                             <div className="dashBox p-4 mt-3">
-                                <h4 className="mb-2">Preset permissions</h4>
+                                <h4 className="mb-2">{t("worker.settings.Presetpermissions")}</h4>
                                 <div className="form-group">
                                     <input
                                         type="radio"
@@ -315,7 +318,7 @@ export default function AddTeam() {
                                             setRole(e.target.value)
                                         }
                                     />{" "}
-                                    Make Member
+                                    {t("worker.settings.makeMember")}
                                     <input
                                         type="radio"
                                         name="role"
@@ -329,7 +332,7 @@ export default function AddTeam() {
                                             setRole(e.target.value)
                                         }
                                     />{" "}
-                                    Make Administrator
+                                    {t("worker.settings.makeAdministrator")}
                                 </div>
                                 <div className="form-group">
                                     <input

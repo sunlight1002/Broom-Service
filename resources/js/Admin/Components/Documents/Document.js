@@ -5,8 +5,11 @@ import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 import DocumentList from "../Documents/DocumentList";
 import DocumentModal from "../Documents/DocumentModal";
+import { useTranslation } from "react-i18next";
 
 export default function Document({ worker }) {
+
+    const { t } = useTranslation();
     const [alldocumentTypes, setAllDocumentTypes] = useState([]);
     const [documents, setDocuments] = useState([]);
     const [isOpenDocumentModal, setIsOpenDocumentModal] = useState(false);
@@ -157,7 +160,7 @@ export default function Document({ worker }) {
                                     onClick={() => btnSelect("visaSelect")}
                                     className="btn btn-success m-3"
                                 >
-                                    Upload Visa
+                                   {t("global.uploadVisa")}
                                 </button>
                                 <input
                                     className="form-control d-none"
@@ -177,7 +180,7 @@ export default function Document({ worker }) {
                                     onClick={() => btnSelect("passportSelect")}
                                     className="btn btn-success m-3"
                                 >
-                                    Upload Passport
+                                    {t("global.uploadPassport")}
                                 </button>
                                 <input
                                     className="form-control d-none"
@@ -197,7 +200,7 @@ export default function Document({ worker }) {
                     onClick={() => handleAddDocument()}
                     className="btn btn-success m-3"
                 >
-                    Add Document
+                    {t("global.addDocument")}
                 </button>
             </div>
             <DocumentList

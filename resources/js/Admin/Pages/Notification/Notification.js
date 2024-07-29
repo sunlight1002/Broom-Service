@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import Moment from "moment";
 import ReactPaginate from "react-paginate";
 import Swal from "sweetalert2";
-
+import { useTranslation } from "react-i18next";
 import Sidebar from "../../Layouts/Sidebar";
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Notification() {
+    const { t } = useTranslation();
     const [notices, setNotices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
@@ -84,14 +85,14 @@ export default function Notification() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">Notifications</h1>
+                            <h1 className="page-title">{t("admin.dashboard.pending.notifications")}</h1>
                         </div>
                         <div className="col-sm-6">
                             <button
                                 onClick={(e) => clearAll(e)}
                                 className="btn btn-danger float-right addButton"
                             >
-                                Clear All
+                                {t("modal.clear")} {t("admin.global.All")} 
                             </button>
                         </div>
                     </div>
@@ -105,10 +106,10 @@ export default function Notification() {
                                     className="mr-3"
                                     style={{ fontWeight: "bold" }}
                                 >
-                                    Status
+                                    {t("global.status")} 
                                 </div>
                                 <FilterButtons
-                                    text="all"
+                                    text={t("admin.global.All")} 
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
                                     setselectedFilter={
@@ -117,7 +118,7 @@ export default function Notification() {
                                 />
 
                                 <FilterButtons
-                                    text="payment-status"
+                                    text={t("admin.leads.AddLead.Options.paymentStatus")}
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
                                     setselectedFilter={
@@ -126,7 +127,7 @@ export default function Notification() {
                                 />
 
                                 <FilterButtons
-                                    text="changes-and-cancellation"
+                                    text={t("admin.leads.AddLead.Options.changes-and-cancellation")}
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
                                     setselectedFilter={
@@ -135,7 +136,7 @@ export default function Notification() {
                                 />
 
                                 <FilterButtons
-                                    text="lead-client"
+                                    text={t("admin.leads.AddLead.Options.lead-client")}
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
                                     setselectedFilter={
@@ -144,7 +145,7 @@ export default function Notification() {
                                 />
 
                                 <FilterButtons
-                                    text="reviews-of-clients"
+                                    text={t("admin.leads.AddLead.Options.reviews-of-clients")}
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
                                     setselectedFilter={
@@ -153,7 +154,7 @@ export default function Notification() {
                                 />
 
                                 <FilterButtons
-                                    text="problem-with-workers"
+                                    text={t("admin.leads.AddLead.Options.problem-with-workers")}
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
                                     setselectedFilter={
@@ -162,7 +163,7 @@ export default function Notification() {
                                 />
 
                                 <FilterButtons
-                                    text="worker-forms"
+                                    text={t("admin.leads.AddLead.Options.worker-forms")}
                                     className="px-3 mr-1"
                                     selectedFilter={notificationGrpTypeFilter}
                                     setselectedFilter={
@@ -201,7 +202,7 @@ export default function Notification() {
                                 })
                             ) : (
                                 <div className="form-control text-center">
-                                    No record found
+                                    {t("admin.leads.AddLead.Options.norecord")}
                                 </div>
                             )}
 

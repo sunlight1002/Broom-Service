@@ -7,8 +7,11 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 import { template } from "lodash";
 import CustomOffcanvas from "../../Components/shared/CustomOffcanvas";
+import { useTranslation } from "react-i18next";
 
 export default function chat() {
+
+    const { t } = useTranslation();
     const [data, setData] = useState(null);
     const [messages, setMessages] = useState(null);
     const [selectNumber, setSelectNumber] = useState(null);
@@ -235,7 +238,7 @@ export default function chat() {
                 <div className="view-applicant">
                     <div className="row">
                         <div className="col-lg-6 col-12">
-                            <h1 className="page-title">Chat History</h1>
+                            <h1 className="page-title">{t("admin.global.chatHistory")}</h1>
                         </div>
                         <div className="col-sm-6 d-none d-lg-block text-right page-title">
                             <input
@@ -261,7 +264,7 @@ export default function chat() {
                             className="btn btn-danger d-flex d-xl-none mb-3"
                             onClick={handleOpen}
                         >
-                            Clients
+                            {t("admin.sidebar.clients")}
                         </button>
                     </div>
                     <CustomOffcanvas isOpen={isOpen} handleClose={handleClose}>
@@ -272,7 +275,7 @@ export default function chat() {
                             <div className="row">
                                 <div className="col-xl-8  col-12">
                                     <h4 className="header-title mb-3">
-                                        Replies
+                                    {t("admin.global.replies")}
                                         <button
                                             type="button"
                                             className="btn btn-danger text-right float-right"
@@ -450,7 +453,7 @@ export default function chat() {
                                                         data-toggle="modal"
                                                         data-target="#exampleModalTemplate"
                                                     >
-                                                        Restart Chat{" "}
+                                                        {t("admin.global.restartChat")}{" "}
                                                         <i className="fas fa-refresh"></i>
                                                     </button>
                                                 </div>
@@ -486,7 +489,7 @@ export default function chat() {
                     <div className="modal-content" style={{ width: "130%" }}>
                         <div className="modal-header">
                             <h5 className="modal-title" id="exampleModalLabel">
-                                Template
+                            {t("admin.global.template")}
                             </h5>
                             <button
                                 type="button"
@@ -508,11 +511,11 @@ export default function chat() {
                                             id="template"
                                         >
                                             <option value="">
-                                                --- Select template ---
+                                            {t("admin.global.selectTemplate")}
                                             </option>
                                             <option value="leads">
                                                 {" "}
-                                                leads{" "}
+                                                {t("admin.global.leads")}{" "}
                                             </option>
                                         </select>
                                     </div>
@@ -525,7 +528,7 @@ export default function chat() {
                                 className="btn btn-primary"
                                 onClick={(e) => restartChat()}
                             >
-                                Send
+                                {t("global.send")}
                             </button>
                             <button
                                 type="button"
@@ -533,7 +536,7 @@ export default function chat() {
                                 id="cbtn"
                                 data-dismiss="modal"
                             >
-                                Close
+                                {t("global.close")}
                             </button>
                         </div>
                     </div>

@@ -26,7 +26,7 @@ export default function Services({ job, updateJob }) {
                         className="btn btn-primary float-right mb-2 mb-sm-0"
                         onClick={() => setIsOpenDiscountModal(true)}
                     >
-                        Discount
+                        {t("admin.global.discount")}
                     </button>
 
                     <button
@@ -34,7 +34,7 @@ export default function Services({ job, updateJob }) {
                         className="btn btn-primary float-right mr-2  mb-2 mb-sm-0"
                         onClick={() => setIsOpenExtraModal(true)}
                     >
-                        Extra amount
+                        {t("admin.global.extraAmount")}
                     </button>
                 </div>
             </div>
@@ -75,7 +75,9 @@ export default function Services({ job, updateJob }) {
                                         {convertMinsToDecimalHrs(
                                             service.duration_minutes
                                         )}{" "}
-                                        hours
+                                            {t(
+                                            "admin.schedule.jobs.serviceDetails.hours"
+                                        )}
                                     </p>
                                 </div>
                             </div>

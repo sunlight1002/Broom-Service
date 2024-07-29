@@ -3,8 +3,10 @@ import WorkerHistory from "../../Components/Workers/WorkerHistory";
 import WorkerProfile from "../../Components/Workers/WorkerProfile";
 import Sidebar from "../../Layouts/Sidebar";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function ViewWorker() {
+    const { t } = useTranslation();
     const [worker, setWorker] = useState(null);
 
     const params = useParams();
@@ -33,7 +35,7 @@ export default function ViewWorker() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">View Worker</h1>
+                            <h1 className="page-title">{t("worker.viewWorker")}</h1>
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
@@ -42,7 +44,7 @@ export default function ViewWorker() {
                                     className="btn navyblue no-hover addButton"
                                 >
                                     <i className="btn-icon fas fa-pencil"></i>
-                                    Edit
+                                    {t("admin.global.Edit")}
                                 </Link>
                             </div>
                         </div>

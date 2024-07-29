@@ -5,30 +5,34 @@ import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import Moment from "moment";
 import moment from "moment-timezone";
+import { useTranslation } from "react-i18next";
 
 import WeekCard from "./Components/WeekCard";
 import TimeSlot from "./Components/TimeSlot";
 import { createHourlyTimeArray } from "../../../Utils/job.utils";
 
-const tabList = [
-    {
-        key: "current-week",
-        label: "Current Week",
-    },
-    {
-        key: "first-next-week",
-        label: "Next Week",
-    },
-    {
-        key: "first-next-next-week",
-        label: "Next To Next Week",
-    },
-];
 
 export default function WorkerAvailabilty({ days }) {
+
+    const { t } = useTranslation();
+    const tabList = [
+        {
+            key: "current-week",
+            label: t("worker.jobs.current_week"),
+        },
+        {
+            key: "first-next-week",
+            label: t("global.nextweek"),
+        },
+        {
+            key: "first-next-next-week",
+            label: t("global.next")+t("global.to")+ t("global.nextweek"),
+        },
+    ];
+    
     const [notAvailableDates, setNotAvailableDates] = useState([]);
     const [timeSlots, setTimeSlots] = useState([]);
-    const [activeTab, setActiveTab] = useState("current-week");
+    const [activeTab, setActiveTab] = useState(t("worker.jobs.current_week"));
     const [defaultTimeSlots, setDefaultTimeSlots] = useState([]);
     const [formValues, setFormValues] = useState({
         default_repeatancy: "forever",
@@ -296,7 +300,7 @@ export default function WorkerAvailabilty({ days }) {
                         role="tab"
                         onClick={() => handleTab("custom")}
                     >
-                        Custom
+                        {t("worker.schedule.custom")}
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -310,7 +314,7 @@ export default function WorkerAvailabilty({ days }) {
                         role="tab"
                         onClick={() => handleTab("default")}
                     >
-                        Default
+                         {t("worker.schedule.default")}
                     </a>
                 </li>
             </ul>
@@ -348,7 +352,7 @@ export default function WorkerAvailabilty({ days }) {
                     <div className="offset-sm-4 col-sm-4">
                         <div className="form-group">
                             <label className="control-label">
-                                Select Date Range
+                            {t("client.jobs.change.selectDate")}
                             </label>
                             <Flatpickr
                                 name="date"
@@ -462,7 +466,7 @@ export default function WorkerAvailabilty({ days }) {
                         <div className="offset-sm-4 col-sm-4">
                             <div className="form-group">
                                 <label className="control-label">
-                                    Repeatancy
+                                {t("client.jobs.change.Repeatancy")}
                                 </label>
                                 <select
                                     className="form-control"
@@ -474,10 +478,10 @@ export default function WorkerAvailabilty({ days }) {
                                         });
                                     }}
                                 >
-                                    <option value="">--Select--</option>
-                                    <option value="forever">Forever</option>
+                                    <option value="">{t("global.select_default_option")}</option>
+                                    <option value="forever">{t("client.jobs.change.Forever")}</option>
                                     <option value="until_date">
-                                        Until Date
+                                    {t("client.jobs.CancelModal.options.UntilDate")}
                                     </option>
                                 </select>
                             </div>
@@ -485,7 +489,7 @@ export default function WorkerAvailabilty({ days }) {
                             {formValues.default_repeatancy == "until_date" && (
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Until Date
+                                    {t("client.jobs.CancelModal.options.UntilDate")}
                                     </label>
                                     <Flatpickr
                                         name="date"

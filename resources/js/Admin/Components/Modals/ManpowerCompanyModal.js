@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export default function ManpowerCompanyModal({
     setIsOpen,
@@ -9,6 +10,7 @@ export default function ManpowerCompanyModal({
     company,
     onSuccess,
 }) {
+    const { t } = useTranslation();
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         name: company ? company.name : "",
@@ -101,7 +103,7 @@ export default function ManpowerCompanyModal({
         >
             <Modal.Header closeButton>
                 <Modal.Title>
-                    {company ? "Edit Manpower Company" : "Add Manpower Company"}
+                    {company ? t("global.edit") + t("admin.sidebar.settings.manpower") : t("modal.add") + t("admin.sidebar.settings.manpower")}
                 </Modal.Title>
             </Modal.Header>
 
@@ -109,7 +111,7 @@ export default function ManpowerCompanyModal({
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Name</label>
+                            <label className="control-label">{t("admin.global.Name")}</label>
 
                             <input
                                 type="text"
@@ -129,7 +131,7 @@ export default function ManpowerCompanyModal({
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label htmlFor="file" className="form-label">
-                                Contract
+                            {t("formTxt.contractForm")}
                             </label>
                             <input
                                 ref={fileRef}
@@ -151,7 +153,7 @@ export default function ManpowerCompanyModal({
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
@@ -159,7 +161,7 @@ export default function ManpowerCompanyModal({
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >
-                    {company ? "Update" : "Add"}
+                    {company ? t("global.update") : t("global.add")}
                 </Button>
             </Modal.Footer>
         </Modal>

@@ -4,12 +4,14 @@ import axios from "axios";
 import moment from "moment";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeWorkerCalender from "../../Components/Job/ChangeWorkerCalender";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 
 export default function ChangeWorker() {
+    const { t } = useTranslation();
     const params = useParams();
     const [job, setJob] = useState(null);
 
@@ -43,7 +45,7 @@ export default function ChangeWorker() {
             <Sidebar />
             <div id="content">
                 <div className="view-applicant">
-                    <h1 className="page-title editJob">Change Worker</h1>
+                    <h1 className="page-title editJob">{t("admin.global.changeWorker")}</h1>
                     <div id="calendar"></div>
                     <div className="card">
                         {job && (
@@ -52,7 +54,7 @@ export default function ChangeWorker() {
                                     <div className="row">
                                         <div className="col-lg-2 col-sm-4 col-12">
                                             <div className="form-group">
-                                                <label>Client</label>
+                                                <label>{t("client.jobs.client")}</label>
                                                 <p>
                                                     {job.client.firstname +
                                                         " " +
@@ -62,13 +64,13 @@ export default function ChangeWorker() {
                                         </div>
                                         <div className="col-lg-2 col-sm-4 col-12">
                                             <div className="form-group">
-                                                <label>Services</label>
+                                                <label>{t("client.jobs.service")}</label>
                                                 <p>{job.jobservice.name}</p>
                                             </div>
                                         </div>
                                         <div className="col-lg-2 col-sm-4 col-12">
                                             <div className="form-group">
-                                                <label>Frequency</label>
+                                                <label>{t("client.jobs.change.frequency")}</label>
                                                 <p>
                                                     {job.jobservice.freq_name}
                                                 </p>
@@ -76,19 +78,19 @@ export default function ChangeWorker() {
                                         </div>
                                         <div className="col-lg-2 col-sm-4 col-12">
                                             <div className="form-group">
-                                                <label>Time to Complete</label>
+                                                <label>{t("client.jobs.change.time_to_complete")}</label>
                                                 <p>
                                                     {convertMinsToDecimalHrs(
                                                         job.jobservice
                                                             .duration_minutes
                                                     )}{" "}
-                                                    hours
+                                                    {t("client.jobs.review.hours")}
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group">
-                                                <label>Property</label>
+                                                <label>{t("client.jobs.review.Property")}</label>
                                                 <p>
                                                     {
                                                         job.property_address
@@ -99,14 +101,14 @@ export default function ChangeWorker() {
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group">
-                                                <label>Pet animals</label>
+                                                <label>{t("client.jobs.change.pet_animals")}</label>
                                                 <p>
                                                     {job.property_address
                                                         .is_cat_avail
-                                                        ? "Cat ,"
+                                                        ? t("admin.leads.AddLead.addAddress.Cat")
                                                         : job.property_address
                                                               .is_dog_avail
-                                                        ? "Dog"
+                                                        ? t("admin.leads.AddLead.addAddress.Dog")
                                                         : !job.property_address
                                                               .is_cat_avail &&
                                                           !job.property_address
@@ -118,7 +120,7 @@ export default function ChangeWorker() {
                                         </div>
                                         <div className="col-sm-4">
                                             <div className="form-group">
-                                                <label>Gender preference</label>
+                                                <label>{t("client.jobs.change.gender_preference")}</label>
                                                 <p
                                                     style={{
                                                         textTransform:
@@ -136,7 +138,7 @@ export default function ChangeWorker() {
                                     <div className="row">
                                         <div className="col-4 col-lg-2">
                                             <div className="form-group">
-                                                <label>Worker</label>
+                                                <label>{t("client.jobs.change.worker")}</label>
                                                 {job.worker ? (
                                                     <p>
                                                         {job.worker.firstname +
@@ -150,7 +152,7 @@ export default function ChangeWorker() {
                                         </div>
                                         <div className="col-sm-4 col-12 col-lg-2">
                                             <div className="form-group">
-                                                <label>Date</label>
+                                                <label>{t("client.jobs.change.date")}</label>
                                                 <p>
                                                     {moment(job.start_date)
                                                         .toString()
@@ -160,7 +162,7 @@ export default function ChangeWorker() {
                                         </div>
                                         <div className="col-sm-4 col-12 col-lg-2">
                                             <div className="form-group">
-                                                <label>Shift</label>
+                                                <label>{t("client.jobs.change.shift")}</label>
                                                 <p>{job.shifts}</p>
                                             </div>
                                         </div>

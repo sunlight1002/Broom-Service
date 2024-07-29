@@ -43,7 +43,7 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
             }}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Add Document</Modal.Title>
+                <Modal.Title>{t("global.addDocument")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -51,10 +51,10 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                                Document type
+                            {t("worker.settings.document_type")}
                             </label>
                             <select className="form-control" ref={docTypeRef}>
-                                <option value={""}>--Select--</option>
+                                <option value={""}>{t("global.select_default_option")}</option>
                                 {docTypes.map((d) => (
                                     <option value={d.id} key={d.id}>
                                         {d.name}
@@ -66,7 +66,7 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label htmlFor="cmtFiles" className="form-label">
-                                Upload file
+                                {t("client.jobs.view.file")}
                             </label>
                             <input
                                 ref={docFile}
@@ -88,14 +88,14 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
                     onClick={(e) => handleDocData(e)}
                     className="btn btn-primary"
                 >
-                    Save
+                    {t("modal.save")}
                 </Button>
             </Modal.Footer>
         </Modal>

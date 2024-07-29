@@ -14,6 +14,7 @@ export default function SwitchWorkerModal({
     job,
     onSuccess,
 }) {
+    const { t } = useTranslation();
     const alert = useAlert();
     const [workers, setWorkers] = useState([]);
     const [formValues, setFormValues] = useState({
@@ -25,7 +26,6 @@ export default function SwitchWorkerModal({
     const [minUntilDate, setMinUntilDate] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    const { t } = useTranslation();
     const flatpickrRef = useRef(null);
 
     const headers = {
@@ -146,14 +146,14 @@ export default function SwitchWorkerModal({
             backdrop="static"
         >
             <Modal.Header closeButton>
-                <Modal.Title>Switch worker</Modal.Title>
+                <Modal.Title>{t("global.switchWorker")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Worker</label>
+                            <label className="control-label">{t("global.worker")}</label>
                             <select
                                 name="worker_id"
                                 className="form-control"
@@ -162,7 +162,7 @@ export default function SwitchWorkerModal({
                                     handleInputChange(e);
                                 }}
                             >
-                                <option value="">--Please select--</option>
+                                <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
                                 {workers.map((w, i) => (
                                     <option value={w.id} key={i}>
                                         {w.firstname} {w.lastname}
@@ -174,7 +174,7 @@ export default function SwitchWorkerModal({
 
                     <div className="col-sm-12">
                         <div className="form-group">
-                            <label className="control-label">Repeatancy</label>
+                            <label className="control-label">{t("global.repeatancy")}</label>
 
                             <select
                                 name="repeatancy"
@@ -188,10 +188,10 @@ export default function SwitchWorkerModal({
                                 className="form-control mb-3"
                             >
                                 <option value="one_time">
-                                    One Time ( for single job )
+                                    {t("client.jobs.change.oneTime")}
                                 </option>
-                                <option value="until_date">Until Date</option>
-                                <option value="forever">Forever</option>
+                                <option value="until_date">{t("client.jobs.change.UntilDate")}</option>
+                                <option value="forever">{t("client.jobs.change.Forever")}</option>
                             </select>
                         </div>
                     </div>
@@ -200,7 +200,7 @@ export default function SwitchWorkerModal({
                         <div className="col-sm-12">
                             <div className="form-group">
                                 <label className="control-label">
-                                    Until Date
+                                {t("client.jobs.change.UntilDate")}
                                 </label>
                                 <Flatpickr
                                     name="date"
@@ -294,7 +294,7 @@ export default function SwitchWorkerModal({
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
@@ -302,7 +302,7 @@ export default function SwitchWorkerModal({
                     onClick={handleSubmit}
                     className="btn btn-primary"
                 >
-                    Save
+                    {t("modal.save")}
                 </Button>
             </Modal.Footer>
 

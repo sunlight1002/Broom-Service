@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -14,6 +15,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import ViewOfferModal from "./ViewOfferModal";
 
 export default function OfferPrice() {
+    const { t } = useTranslation();
     const tableRef = useRef(null);
 
     const navigate = useNavigate();
@@ -25,7 +27,7 @@ export default function OfferPrice() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    const offerStatuses = ["sent", "accepted", "declined"];
+    const offerStatuses = [t("global.sent"), t("modal.accepted"), t("admin.schedule.options.meetingStatus.Declined")];
 
 
 
@@ -239,7 +241,7 @@ export default function OfferPrice() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-5">
-                            <h1 className="page-title">Offers</h1>
+                            <h1 className="page-title">{t("client.common.offers")}</h1>
                         </div>
                         <div className="col-sm-7">
                             <div className="search-data">
@@ -248,7 +250,7 @@ export default function OfferPrice() {
                                     className="btn navyblue no-hover addButton"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
-                                    Add New
+                                    {t("admin.global.AddNew")}
                                 </Link>
                             </div>
                         </div>
@@ -258,9 +260,9 @@ export default function OfferPrice() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">-- Sort By--</option>
-                                <option value="5">Total</option>
-                                <option value="4">Status</option>
+                                <option value="">{t("admin.leads.Options.sortBy")}</option>
+                                <option value="5">{t("client.dashboard.total")}</option>
+                                <option value="4">{t("client.dashboard.status")}</option>
                             </select>
                         </div>
                     </div>
@@ -274,11 +276,11 @@ export default function OfferPrice() {
                                 marginLeft: 15,
                             }}
                         >
-                            Filter
+                            {t("global.filter")}
                         </div>
                         <div>
                             <FilterButtons
-                                text="All"
+                                text={t("admin.global.All")}
                                 className="px-3 mr-1 ml-4"
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}

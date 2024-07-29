@@ -4,8 +4,13 @@ import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 import DatePicker from "react-datepicker";
 import * as moment from "moment";
+import { useTranslation } from "react-i18next";
+
 
 export default function LeaveJobWorkerModal({ setIsOpen, isOpen, workerId }) {
+
+    const { t } = useTranslation();
+    
     const alert = useAlert();
  
     const [isLoading, setIsLoading] = useState(false);
