@@ -98,13 +98,16 @@ import Thankyou from "./Pages/Thankyou";
 import ManageTime from "./Admin/Pages/Setting/Time/ManageTime";
 import AddTime from "./Admin/Pages/Setting/Time/AddTime";
 import EditTime from "./Admin/Pages/Setting/Time/EditTime";
+
 import ServiceTemplate from "./Admin/Pages/Services/Templates";
 import RegularServiceTemplate from "./Pages/offertemplates/template_regular";
 import OfficeCleaningTemplate from "./Pages/offertemplates/template_officeCleaning";
 import AfterRenovationTemplate from "./Pages/offertemplates/template_cleaningAfterRenovation";
 import ThoroughCleaningTemplate from "./Pages/offertemplates/template_throughoutCleaning";
 import TemplateWindowCleaning from "./Pages/offertemplates/template_windowCleaning";
+import TemplateAirbnbCleaning from "./Pages/offertemplates/template_airbnbCleaning";
 import TemplateOthers from "./Pages/offertemplates/template_others";
+
 import WorkerContract from "./Pages/WorkerContract";
 import Form101 from "./Pages/Form101";
 import Languages from "./Admin/Pages/Languages/language";
@@ -570,6 +573,11 @@ export default function MyRoutes() {
                                 exact
                                 path="template/window-cleaning"
                                 element={<TemplateWindowCleaning />}
+                            />
+                                 <Route
+                                exact
+                                path="template/airbnb-servce"
+                                element={<TemplateAirbnbCleaning />}
                             />
                             <Route
                                 exact

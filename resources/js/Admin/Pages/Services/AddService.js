@@ -131,7 +131,7 @@ export default function AddService() {
                                                 <option value="polish">
                                                     Polish
                                                 </option>
-                                                <option value="AirBnb">
+                                                <option value="airbnb">
                                                     AirBnb
                                                 </option>
                                                 <option value="others">

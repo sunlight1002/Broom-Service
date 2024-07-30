@@ -29,6 +29,7 @@ export default function ViewService() {
         thorough_cleaning: "Thorough Cleaning",
         window_cleaning: "Window Cleaning",
         polish: "Polish",
+        airbnb: "airbnb",
         others: "Others",
     };
 

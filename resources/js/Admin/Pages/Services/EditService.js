@@ -149,6 +149,9 @@ export default function EditService() {
                                                 <option value="polish">
                                                     Polish
                                                 </option>
+                                                <option value="airbnb">
+                                                    AirBnb
+                                                </option>
                                                 <option value="others">
                                                     Others
                                                 </option>

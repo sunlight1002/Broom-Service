@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument } from 'pdf-lib'
+import fontkit from "@pdf-lib/fontkit";
 import { pdfjs } from "react-pdf";
 import { Document, Page } from "react-pdf";
 import i18next from "i18next";
@@ -15,12 +16,16 @@ import "react-pdf/dist/Page/TextLayer.css";
 import { objectToFormData } from "../Utils/common.utils";
 import { useTranslation } from "react-i18next";
 import SignatureCanvas from "react-signature-canvas";
+import companySign from '../Assets/image/company-sign.png'
+import Font from '../../../public/fonts/OSAran400FFC.ttf'
+
 import moment from "moment";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.js",
     import.meta.url
 ).toString();
+
 
 const InsuranceForm = () => {
     const [show, setShow] = useState(false);
@@ -84,6 +89,7 @@ const InsuranceForm = () => {
         // page 4
         canDate: currentDate,
         signature: "",
+        // stamp: companySign
     };
 
     const formSchema = yup.object({
@@ -145,6 +151,8 @@ const InsuranceForm = () => {
         );
         const pdfDoc = await PDFDocument.load(formPdfBytes);
         // setPdfDoc(PdfDoc);
+        console.log(pdfDoc);
+        pdfDoc.registerFontkit(fontkit);
 
         const pdfForm = pdfDoc.getForm();
 
@@ -222,13 +230,45 @@ const InsuranceForm = () => {
                 res.arrayBuffer()
             );
 
+            const companyStamp = await fetch(companySign).then((res) =>
+                res.arrayBuffer()
+            );
+
+            const stamp = await pdfDoc.embedPng(companyStamp);
+
             const pngImage = await pdfDoc.embedPng(pngImageBytes);
 
             const pngDims1 = pngImage.scale(0.28);
             const pngDims2 = pngImage.scale(0.24);
+            const stamp1 = stamp.scale(0.35);
+            const stamp2 = stamp.scale(0.20);
 
+            const page2 = pdfDoc.getPage(1);
             const page3 = pdfDoc.getPage(2);
             const page4 = pdfDoc.getPage(3);
+
+            const fontBytes = await fetch(Font).then((res) => res.arrayBuffer());
+            const hebrewFont = await pdfDoc.embedFont(fontBytes);
+
+            page2.drawText(values.canDate, {
+                x: 480,
+                y: page2.getHeight() / 2 - pngDims1.height / 2 - 190,
+                size: 14,
+              });
+
+            page2.drawText("ברום סרוויס ל.מ בע\'מ", {
+                x: 320,
+                y: page2.getHeight() / 2 - pngDims1.height / 2 - 190,
+                size: 18,
+                font: hebrewFont
+              });
+
+            page2.drawImage(stamp, {
+                x: page3.getWidth() / 2 - pngDims1.width / 2 - 150,
+                y: page3.getHeight() / 2 - pngDims1.height / 2 - 190,
+                width: stamp1.width,
+                height: stamp2.height,
+            });
 
             page3.drawImage(pngImage, {
                 x: page3.getWidth() / 2 - pngDims1.width / 2 - 90,
@@ -388,6 +428,8 @@ const InsuranceForm = () => {
         sigRef.current.clear();
         setFieldValue("signature", "");
     };
+
+    // console.log(formValues);
 
 
     return (

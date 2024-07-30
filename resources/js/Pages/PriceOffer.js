@@ -325,7 +325,7 @@ export default function PriceOffer() {
                                     <table border="1" style={{ width: "100%", textAlign: "center", borderCollapse: "collapse" }}>
                                         <thead>
                                             <tr>
-                                                <th>{t("price_offer.airbnb.service.title")}</th>
+                                                <th>{t("price_offer.airbnb.services.title")}</th>
                                                 <th>{t("price_offer.airbnb.size_apt.title")}</th>
                                                 <th>{t("price_offer.airbnb.price.title")}</th>
                                             </tr>
