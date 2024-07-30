@@ -28,6 +28,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('worker:notify-yearly-insurance-form')->yearlyOn(1, 1, '09:00');
         $schedule->command('meeting:reminder')->hourly();
         $schedule->command('client:update-lead-status')->hourly();
+        $schedule->command('worker:send_invitation')->dailyAt('09:00');
+        $schedule->command('report')->twiceDaily(10, 18);
     }
 
     /**
