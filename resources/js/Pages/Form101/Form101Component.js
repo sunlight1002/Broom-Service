@@ -54,14 +54,19 @@ const Form101Component = () => {
         }
     };
 
+    // const [type, setType] = useState(values.employeecountry);
+    // useEffect(() => {
+    //     setType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
+    // }, [values])
+
     const formSchema = yup.object({
         employerName: yup.string().trim().nullable(),
         employerAddress: yup.string().trim().nullable(),
-        employerPhone: yup
-            .string()
-            .trim()
-            .matches(/^\d{10}$/, t("form101.errorMsg.invalidPhone"))
-            .nullable(),
+        // employerPhone: yup
+        //     .string()
+        //     .trim()
+        //     .matches(/^\d{10}$/, t("form101.errorMsg.invalidPhone"))
+        //     .nullable(),
         employerDeductionsFileNo: yup
             .number()
             .typeError(t("form101.errorMsg.deductionsFileNumber"))
@@ -1192,7 +1197,8 @@ const Form101Component = () => {
             if (res.data.form) {
                 // console.log(res.data.form, "form");
                 setFormValues(res.data.form.data);
-                setFieldValue("employeePassportNumber", res.data.worker.passport );
+                // setFieldValue("employeePassportNumber", res.data.worker.passport );
+                // setFieldValue("employeeLastName", )
                 if (res.data.form.submitted_at) {
                     setTimeout(() => {
                         disableInputs();

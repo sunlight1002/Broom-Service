@@ -15,10 +15,11 @@ export default function EmployeeDetails({
     setFieldValue,
 }) {
 
-    const [type, setType] = useState(values.employeecountry);
+    const [indentityType, setIndentityType] = useState(values.employeecountry);
     useEffect(() => {
-        setType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
+        setIndentityType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
     }, [values])
+    // console.log(indentityType);
 
 
     const { t } = useTranslation();
@@ -56,6 +57,8 @@ export default function EmployeeDetails({
         { label: "Meuhedet", value: "Meuhedet" },
         { label: "Leumit", value: "Leumit" },
     ];
+
+    // console.log(values);
 
 
     return (
@@ -105,7 +108,7 @@ export default function EmployeeDetails({
                             name="employeeIdentityType"
                             value="IDNumber"
                             className="mr-2"
-                            checked={type === "IDNumber"}
+                            checked={indentityType === "IDNumber"}
                             onChange={handleChange}
                         />
                         {t("form101.id_num")}
@@ -116,7 +119,7 @@ export default function EmployeeDetails({
                             name="employeeIdentityType"
                             value="Passport"
                             className="mr-2"
-                            checked={type === "Passport"}
+                            checked={indentityType === "Passport"}
                             onChange={handleChange}
                         />
                         {t("form101.passport_foreign")}
@@ -128,24 +131,26 @@ export default function EmployeeDetails({
                             </p>
                         )}
                 </div>
-                {type === "Passport" ? (
+
+                <div className="col-md-4 col-sm-6 col-xs-6">
+                    <SelectElement
+                        name={"employeecountry"}
+                        label={t("form101.country_passport")}
+                        value={values.employeecountry}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={
+                            touched.employeecountry &&
+                                errors.employeecountry
+                                ? errors.employeecountry
+                                : ""
+                        }
+                        options={countryOption}
+                    />
+                </div>
+                {indentityType === "Passport" ? (
                     <>
-                        <div className="col-md-4 col-sm-6 col-xs-6">
-                            <SelectElement
-                                name={"employeecountry"}
-                                label={t("form101.country_passport")}
-                                value={values.employeecountry}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={
-                                    touched.employeecountry &&
-                                        errors.employeecountry
-                                        ? errors.employeecountry
-                                        : ""
-                                }
-                                options={countryOption}
-                            />
-                        </div>
+
                         <div className="col-sm-4 col-xs-6">
                             <div>
                                 <TextField
@@ -161,7 +166,7 @@ export default function EmployeeDetails({
                                             : ""
                                     }
                                     required
-                                    readonly={values.employeePassportNumber === null ? false : true}
+                                    // readonly={values.employeePassportNumber === null ? false : true}
                                 />
                             </div>
                             <div className="col-md-4 col-sm-6 col-xs-6">
@@ -232,7 +237,7 @@ export default function EmployeeDetails({
                                         : ""
                                 }
                                 required
-                                readonly={values.employeeIdNumber === null ? false : true}
+                            // readonly={values.employeeIdNumber === null ? false : true}
                             />
                         </div>
                         <div className="col-sm-4 col-xs-6">
