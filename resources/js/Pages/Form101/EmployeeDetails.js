@@ -109,7 +109,11 @@ export default function EmployeeDetails({
                             value="IDNumber"
                             className="mr-2"
                             checked={indentityType === "IDNumber"}
-                            onChange={handleChange}
+                            onChange={(e)=>{
+                                setIndentityType(e.target.value);
+                                handleChange(e);
+                                setFieldValue("employeeIdentityType",e.target.value);
+                            }}
                         />
                         {t("form101.id_num")}
                     </label>
@@ -120,7 +124,13 @@ export default function EmployeeDetails({
                             value="Passport"
                             className="mr-2"
                             checked={indentityType === "Passport"}
-                            onChange={handleChange}
+                            onChange={(e)=>{
+                                console.log(e.target.value);
+                                setIndentityType(e.target.value);
+                                handleChange(e);
+                                setFieldValue("employeeIdentityType",e.target.value);
+
+                            }}
                         />
                         {t("form101.passport_foreign")}
                     </label>
@@ -137,7 +147,11 @@ export default function EmployeeDetails({
                         name={"employeecountry"}
                         label={t("form101.country_passport")}
                         value={values.employeecountry}
-                        onChange={handleChange}
+                        onChange={(e)=>{
+                            setIndentityType(e.target.value === "Israel"? "IDNumber" : "Passport");
+                            handleChange(e);
+                            setFieldValue("employeeIdentityType",e.target.value === "Israel"? "IDNumber" : "Passport");
+                        }}
                         onBlur={handleBlur}
                         error={
                             touched.employeecountry &&

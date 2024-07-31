@@ -54,10 +54,6 @@ const Form101Component = () => {
         }
     };
 
-    // const [type, setType] = useState(values.employeecountry);
-    // useEffect(() => {
-    //     setType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
-    // }, [values])
 
     const formSchema = yup.object({
         employerName: yup.string().trim().nullable(),
@@ -1240,7 +1236,6 @@ const Form101Component = () => {
             handleSubmit();
         }, 200);
     };
-
 
 
     return (
