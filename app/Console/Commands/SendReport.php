@@ -31,8 +31,8 @@ class SendReport extends Command
 
         // Iterate over worker invitations to find matching users
         foreach ($workerInvitations as $invitation) {
-            $user = User::where('email', $invitation->email)
-                        ->orWhere('phone', $invitation->phone)
+            $user = User::orWhere('email', $invitation->email ?? '')
+                        ->orWhere('phone', $invitation->phone ?? '')
                         ->first();
                              
 
