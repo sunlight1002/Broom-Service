@@ -1453,6 +1453,32 @@ class WorkerFormService
         }
 
         if (
+            isset($formData['employeeIdentityType']) &&
+            $formData['employeeIdentityType'] == 'IDNumber'
+        ) {
+            //create a page
+            $pdf->AddPage();
+
+            $text = 'B. Employee details | Photocopy of ID Card';
+            $w = 500;
+            $h = 100;
+            $x = 85;
+            $y = 20;
+            $fontsize = 20;
+
+            $pdf->SetTextColor(0, 0, 0);
+            $this->addTextContent($pdf, $text, $fontsize, $w, $h, $x, $y);
+
+            $pdf->SetTextColor(0, 7, 224);
+            $w = 530;
+            $h = 300;
+            $x = $lng == "heb" ? 560 : 30;
+            $y = 60;
+
+            $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeeIdCardCopy']), $x, $y, $w, $h, '', '', '', true);
+        }
+
+        if (
             isset($formData['TaxExemption']['disabled']) &&
             $formData['TaxExemption']['disabled'] === true
         ) {
