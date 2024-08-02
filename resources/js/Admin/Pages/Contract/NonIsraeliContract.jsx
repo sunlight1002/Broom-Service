@@ -47,7 +47,6 @@ export function NonIsraeliContract({
         role: "",
     };
 
-
     const formSchema = yup.object(workerDetail.passport? {
         fullName: yup
             .string()
@@ -92,7 +91,7 @@ export function NonIsraeliContract({
         //     .string()
         //     .trim()
         //     .required(t("nonIsrailContract.errorMsg.Role")),
-        IdNumber: yup
+        passport: yup
             .string()
             .trim()
             .required(t("nonIsrailContract.errorMsg.passportNumReq")),
@@ -207,7 +206,6 @@ export function NonIsraeliContract({
         setFieldValue("companySignature2", "");
     };
 
-
     return (
         <div className="container targetDiv" ref={contentRef}>
             <div id="content">
@@ -263,9 +261,9 @@ export function NonIsraeliContract({
                                                 required={true}
                                                 error={
                                                     touched.IdNumber &&
-                                                    errors.IdNumber
+                                                    errors.passport
                                                 }
-                                                readonly={true}
+                                                readonly={workerDetail.passport === null ? false : true}
                                             />
                                         </div>
                                     </div>

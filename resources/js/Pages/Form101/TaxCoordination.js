@@ -1,4 +1,4 @@
-import React from "react";
+import React , {useEffect} from "react";
 import CheckBox from "./inputElements/CheckBox";
 import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import TextField from "./inputElements/TextField";
@@ -21,6 +21,12 @@ const TaxCoordination = ({
     setFieldValue,
 }) => {
     const { t } = useTranslation();
+
+useEffect(() => {
+    if (!values.TaxCoordination.hasTaxCoordination) {
+        setFieldValue('TaxCoordination.requestReason', '');
+    }
+}, [values.TaxCoordination.hasTaxCoordination,setFieldValue]);
 
     return (
         <div>
@@ -78,7 +84,7 @@ const TaxCoordination = ({
                             required
                         />
                     )}
-                    {values.TaxCoordination.requestReason === "reason1" && (
+                    {values.TaxCoordination.requestReason === "reason1" && values.TaxCoordination.hasTaxCoordination && (
                         <div>
                             <label htmlFor="TaxCoordination.requestReason1Certificate">
                                 {t("form101.requestReason1Certificate")}
@@ -112,7 +118,7 @@ const TaxCoordination = ({
                                 )}
                         </div>
                     )}
-                    {values.TaxCoordination.requestReason === "reason3" && (
+                    {values.TaxCoordination.requestReason === "reason3" && values.TaxCoordination.hasTaxCoordination &&(
                         <div>
                             <label htmlFor="TaxCoordination.requestReason3Certificate">
                                 {t("form101.requestReason3Certificate")}
@@ -146,7 +152,7 @@ const TaxCoordination = ({
                                 )}
                         </div>
                     )}
-                    {values.TaxCoordination.requestReason === "reason2" && (
+                    {values.TaxCoordination.requestReason === "reason2" && values.TaxCoordination.hasTaxCoordination &&(
                         <div>
                             {values.TaxCoordination.employer.map(
                                 (child, index) => (

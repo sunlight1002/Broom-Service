@@ -74,7 +74,17 @@ export default function Templates() {
                                 </td>
                             </tr>
                             <tr>
-                                <td>{t("services.others")}</td>
+                                <td>AirBnb</td>
+                                <td>
+                                <Link
+                                    to="/admin/template/airbnb-servce"
+                                    className="btn bg-yellow">
+                                    <i className="fa fa-eye"></i>
+                                </Link>
+                                </td>
+                            </tr>
+                            <tr>
+                            <td>{t("services.others")}</td>
                                 <td>
                                 <Link
                                     to="/admin/template/others"

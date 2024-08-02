@@ -51,6 +51,7 @@ export default function AddOffer() {
         axios
             .get(`/api/admin/clients/${clientID}/edit`, { headers })
             .then((response) => {
+                // console.log(response);
                 if (response.data.client) {
                     setAddresses(response.data.client.property_addresses);
                 } else {

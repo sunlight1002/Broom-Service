@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
+import Select from "react-select";
+
 // import Select from "react-select";
 import { useTranslation } from "react-i18next";
 
@@ -66,6 +68,33 @@ export default function OfferServiceModal({
         isAdd ? initialValues : tmpFormValues
     );
     const [toggleOtherService, setToggleOtherService] = useState(false);
+    const [toggleAirbnbService, setToggleAirbnbService] = useState(false);
+    const [selectedSubServices, setSelectedSubServices] = useState(offerServiceTmp.subService || []);
+    const [subData, setSubData] = useState([]);
+
+    const adminlng = localStorage.getItem("admin-lng");
+
+    const transformedSubData = subData.map(s => ({
+        value: s.id,
+        label: adminlng === "en" ? s.name_en : s.name_heb
+    }));
+
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+
+    useEffect(() => {
+        if (offerServiceTmp.service === '29') {
+            setToggleAirbnbService(true);
+            handleGetSubServices(29);
+        } else if (offerServiceTmp.service === '10') {
+            setToggleOtherService(true);
+        }
+    }, [offerServiceTmp.service]);
 
     const handleChangeWorkerCount = (e) => {
         const _noOfWorker = e.target.value > 0 ? e.target.value : 1;
@@ -173,6 +202,35 @@ export default function OfferServiceModal({
 
         return true;
     };
+
+    const handleGetSubServices = async (id) => {
+        try {
+            const res = await axios.get(`/api/admin/get-sub-services/${id}`, { headers });
+            setSubData(res.data.subServices || []);
+        } catch (error) {
+            console.log("Error fetching sub-services:", error);
+        }
+    };
+
+
+    const selectedOptions = transformedSubData.filter(option => selectedSubServices.includes(option.value));
+
+    const handleSubServices = (selectedOptions) => {
+        const selectedValues = selectedOptions ? selectedOptions.map(option => option.value) : [];
+        setSelectedSubServices(selectedValues);
+
+        setOfferServiceTmp((prevState) => ({
+            ...prevState,
+            sub_services: selectedValues
+        }));
+    };
+
+    // console.log(offerServiceTmp);
+
+    // useEffect(() => {
+    //     handleGetSubServices();
+    // }, [toggleAirbnbService])
+
 
     const handleWorkerForm = (index, tmpvalue) => {
         const _workers = offerServiceTmp.workers.map((worker, wIndex) => {
@@ -335,7 +393,6 @@ export default function OfferServiceModal({
     //         return [];
     //     }
     // };
-
     return (
         <Modal
             size="lg"
@@ -398,7 +455,11 @@ export default function OfferServiceModal({
                                     handleInputChange(e);
                                     if (e.target.value === "10") {
                                         setToggleOtherService(true);
+                                    } else if (e.target.value === '29') {
+                                        setToggleAirbnbService(true);
+                                        handleGetSubServices(29);
                                     } else {
+                                        setToggleAirbnbService(false);
                                         setToggleOtherService(false);
                                     }
                                 }}
@@ -417,8 +478,34 @@ export default function OfferServiceModal({
                                         </option>
                                     );
                                 })}
+
                             </select>
                         </div>
+                        {toggleAirbnbService && (
+                            <div className="form-group">
+                                <label className="control-label">Sub-Service</label>
+                                <Select
+                                    value={selectedOptions}
+                                    name="subService"
+                                    isMulti
+                                    options={transformedSubData}
+                                    className="basic-multi-select"
+                                    isClearable={true}
+                                    placeholder="-- Please select --"
+                                    classNamePrefix="select"
+                                    onChange={(selectedOptions) => {
+                                        handleSubServices(selectedOptions);
+                                        const event = {
+                                            target: {
+                                                name: 'subService',
+                                                value: selectedOptions ? selectedOptions.map(option => option.value) : []
+                                            }
+                                        };
+                                        handleInputChange(event);
+                                    }}
+                                />
+                            </div>
+                        )}
                         {toggleOtherService && (
                             <div className="form-group">
                                 <textarea
@@ -468,7 +555,7 @@ export default function OfferServiceModal({
                         style={{
                             display: showWeekDayOption ? "block" : "none",
                         }}
-                    >
+                        >
                         <div className="d-inline">
                             <span> On </span>
 

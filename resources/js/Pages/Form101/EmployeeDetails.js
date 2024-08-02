@@ -15,10 +15,11 @@ export default function EmployeeDetails({
     setFieldValue,
 }) {
 
-    const [type, setType] = useState(values.employeecountry);
+    const [indentityType, setIndentityType] = useState(values.employeecountry);
     useEffect(() => {
-        setType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
+        setIndentityType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
     }, [values])
+    // console.log(indentityType);
 
 
     const { t } = useTranslation();
@@ -56,6 +57,8 @@ export default function EmployeeDetails({
         { label: "Meuhedet", value: "Meuhedet" },
         { label: "Leumit", value: "Leumit" },
     ];
+
+    // console.log(values);
 
 
     return (
@@ -105,8 +108,12 @@ export default function EmployeeDetails({
                             name="employeeIdentityType"
                             value="IDNumber"
                             className="mr-2"
-                            checked={type === "IDNumber"}
-                            onChange={handleChange}
+                            checked={indentityType === "IDNumber"}
+                            onChange={(e)=>{
+                                setIndentityType(e.target.value);
+                                handleChange(e);
+                                setFieldValue("employeeIdentityType",e.target.value);
+                            }}
                         />
                         {t("form101.id_num")}
                     </label>
@@ -116,8 +123,14 @@ export default function EmployeeDetails({
                             name="employeeIdentityType"
                             value="Passport"
                             className="mr-2"
-                            checked={type === "Passport"}
-                            onChange={handleChange}
+                            checked={indentityType === "Passport"}
+                            onChange={(e)=>{
+                                console.log(e.target.value);
+                                setIndentityType(e.target.value);
+                                handleChange(e);
+                                setFieldValue("employeeIdentityType",e.target.value);
+
+                            }}
                         />
                         {t("form101.passport_foreign")}
                     </label>
@@ -128,24 +141,30 @@ export default function EmployeeDetails({
                             </p>
                         )}
                 </div>
-                {type === "Passport" ? (
+
+                <div className="col-md-4 col-sm-6 col-xs-6">
+                    <SelectElement
+                        name={"employeecountry"}
+                        label={t("form101.country_passport")}
+                        value={values.employeecountry}
+                        onChange={(e)=>{
+                            setIndentityType(e.target.value === "Israel"? "IDNumber" : "Passport");
+                            handleChange(e);
+                            setFieldValue("employeeIdentityType",e.target.value === "Israel"? "IDNumber" : "Passport");
+                        }}
+                        onBlur={handleBlur}
+                        error={
+                            touched.employeecountry &&
+                                errors.employeecountry
+                                ? errors.employeecountry
+                                : ""
+                        }
+                        options={countryOption}
+                    />
+                </div>
+                {indentityType === "Passport" ? (
                     <>
-                        <div className="col-md-4 col-sm-6 col-xs-6">
-                            <SelectElement
-                                name={"employeecountry"}
-                                label={t("form101.country_passport")}
-                                value={values.employeecountry}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={
-                                    touched.employeecountry &&
-                                        errors.employeecountry
-                                        ? errors.employeecountry
-                                        : ""
-                                }
-                                options={countryOption}
-                            />
-                        </div>
+
                         <div className="col-sm-4 col-xs-6">
                             <div>
                                 <TextField
@@ -161,6 +180,7 @@ export default function EmployeeDetails({
                                             : ""
                                     }
                                     required
+                                    // readonly={values.employeePassportNumber === null ? false : true}
                                 />
                             </div>
                             <div className="col-md-4 col-sm-6 col-xs-6">
@@ -231,6 +251,7 @@ export default function EmployeeDetails({
                                         : ""
                                 }
                                 required
+                            // readonly={values.employeeIdNumber === null ? false : true}
                             />
                         </div>
                         <div className="col-sm-4 col-xs-6">

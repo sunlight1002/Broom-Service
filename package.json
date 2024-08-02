@@ -38,6 +38,7 @@
         "@fullcalendar/resource-daygrid": "^6.1.4",
         "@fullcalendar/resource-timegrid": "^6.1.4",
         "@fullcalendar/resource-timeline": "^6.1.4",
+        "@pdf-lib/fontkit": "^1.1.1",
         "@react-google-maps/api": "^2.18.1",
         "@react-icons/all-files": "^4.1.0",
         "ace-builds": "^1.22.1",

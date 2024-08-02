@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 const initialValue = {
     service: "",
+    sub_service: "",
     name: "",
     type: "fixed",
     freq_name: "",

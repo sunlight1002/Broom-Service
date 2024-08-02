@@ -152,6 +152,9 @@ export default function EditService() {
                                                 <option value="polish">
                                                 {t("services.polish")}
                                                 </option>
+                                                <option value="airbnb">
+                                                    AirBnb
+                                                </option>
                                                 <option value="others">
                                                 {t("services.others")}
                                                 </option>

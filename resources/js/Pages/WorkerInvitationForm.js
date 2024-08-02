@@ -549,7 +549,7 @@ export default function WorkerInvitationForm() {
                                                 {country === "Israel" ? t("workerInviteForm.workerId") : t("workerInviteForm.passportId")} *
                                             </label>
                                             <input
-                                                type={country === "Israel" ? "number" : "text"}
+                                                type="text"
 
                                                 name={country === "Israel"? "worker_id" : "passport"}
                                                 value={country === "Israel"? formValues.worker_id : formValues.passport}

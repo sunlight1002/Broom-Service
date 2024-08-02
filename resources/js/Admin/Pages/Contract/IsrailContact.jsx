@@ -53,15 +53,15 @@ export function IsrailContact({
             .date()
             .required(t("israilContract.errorMsg.StartDateOfJob")),
         signatureDate: yup.date().required(t("israilContract.errorMsg.Date")),
-        // PhoneNo: yup
-        //     .string()
-        //     .trim()
-        //     .required(t("israilContract.errorMsg.Phone")),
-        MobileNo: yup
+        PhoneNo: yup
             .string()
             .trim()
-            // .matches(/^\d{10}$/, t("israilContract.errorMsg.mobile"))
-            .required(t("israilContract.errorMsg.mobileRequired")),
+            .required(t("israilContract.errorMsg.Phone")),
+        // MobileNo: yup
+        //     .string()
+        //     .trim()
+        //     // .matches(/^\d{10}$/, t("israilContract.errorMsg.mobile"))
+        //     .required(t("israilContract.errorMsg.mobileRequired")),
         signature: yup
             .mixed()
             .required(t("israilContract.errorMsg.signRequired")),
@@ -97,7 +97,7 @@ export function IsrailContact({
             setFieldValue("Address", workerDetail.address);
             setFieldValue("MobileNo", workerDetail.phone);
             setFieldValue("role", workerDetail.role);
-            setFieldValue("first_date", workerDetail.first_date);
+            setFieldValue("startDate", workerDetail.first_date);
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);
 
@@ -199,19 +199,19 @@ export function IsrailContact({
                                 </li>
                                 <li>
                                     <DateField
-                                        name={"first_date"}
+                                        name={"startDate"}
                                         onBlur={handleBlur}
                                         onChange={handleChange}
                                         label={t(
                                             "israilContract.StartDateOfJob"
                                         )}
-                                        value={values.first_date}
+                                        value={values.startDate}
                                         required={true}
                                         error={
-                                            touched.first_date &&
-                                            errors.first_date
+                                            touched.startDate &&
+                                            errors.startDate
                                         }
-                                        readOnly={values.first_date === null ? false : true}
+                                        readOnly={values.startDate === null ? false : true}
                                     />
                                     <div className="row">
                                         <div
@@ -232,8 +232,8 @@ export function IsrailContact({
                                                 // required={true}
                                                 readonly={true}
                                                 error={
-                                                    touched.PhoneNo &&
-                                                    errors.PhoneNo
+                                                    touched.MobileNo &&
+                                                    errors.MobileNo
                                                 }
                                             />
                                         </div>
@@ -254,8 +254,8 @@ export function IsrailContact({
 
                                                 required={true}
                                                 error={
-                                                    touched.MobileNo &&
-                                                    errors.MobileNo
+                                                    touched.PhoneNo &&
+                                                    "mobile is required"
                                                 }
                                             />
                                         </div>

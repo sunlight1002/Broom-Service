@@ -414,8 +414,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     </div>
                 </>
             )}
-            {(worker.company_type === "manpower" ||
-                worker.country === "Israel") && (
+            {(worker && worker.country !== "Israel") && (
                 <div
                     className="card card-widget widget-user-2"
                     style={{ boxShadow: "none" }}
@@ -458,7 +457,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             to={
                                                 worker.form_insurance
                                                     ? `/storage/uploads/worker/insurance/${worker.form_insurance}`
-                                                    : `/worker-safe-gear/` +
+                                                    : `/insurance-form/` +
                                                       Base64.encode(
                                                           worker.id.toString()
                                                       )
