@@ -20,42 +20,77 @@ export default function PriceOffer() {
     const [client, setClient] = useState([]);
     const [allTemplates, setAllTemplates] = useState([]);
     const [status, setStatus] = useState("");
+    const [subService, setSubService] = useState([])
+    const [clientLng, setClientLng] = useState("")
+    const [airbnb, setAirbnb] = useState({
+        id: "",
+        subServiceId: [],
+    })
 
-    const getOffer = () => {
-        axios
-            .post(`/api/client/get-offer/${Base64.decode(param.id)}`)
-            .then((res) => {
-                setOffer(res.data.data);
-                setStatus(res.data.data.status);
-                setClient(res.data.data.client);
-                i18next.changeLanguage(res.data.data.client.lng);
-                let _services = JSON.parse(res.data.data.services);
 
-                setServices(_services);
+    const getOffer = async () => {
+        try {
+            const res = await axios.post(`/api/client/get-offer/${Base64.decode(param.id)}`);
+            const data = res.data.data;
+            setClientLng(data.client?.lng);
+            setOffer(data);
+            setStatus(data.status);
+            setClient(data.client);
+            i18next.changeLanguage(clientLng);
+            let _services = JSON.parse(data.services);
 
-                if (res.data.data.client.lng == "heb") {
-                    import("../Assets/css/rtl.css");
-                    document.querySelector("html").setAttribute("dir", "rtl");
-                } else {
-                    document.querySelector("html").removeAttribute("dir");
-                }
-
-                let tm = [];
-                _services.map(async (s, i) => {
-                    //const d  = await axiosTemplate(s.service);
-                    tm[i] = s.template;
-                    tm = tm.filter((v, i, a) => {
-                        return a.indexOf(v) === i;
-                    });
-                });
-
-                setAllTemplates(tm);
+            setServices(_services);
+            setAirbnb({
+                id: _services[0].service,
+                subServiceId: _services[0].subService
             });
+
+            if (data.client.lng === "heb") {
+                import("../Assets/css/rtl.css");
+                document.querySelector("html").setAttribute("dir", "rtl");
+            } else {
+                document.querySelector("html").removeAttribute("dir");
+            }
+
+            let tm = [];
+            _services.forEach(s => {
+                tm.push(s.template);
+            });
+
+            tm = Array.from(new Set(tm)); // Remove duplicates
+            setAllTemplates(tm);
+
+        } catch (error) {
+            console.error("Error fetching offer data:", error);
+        }
     };
 
-    const axiosTemplate = async (id) => {
-        return await axios.post(`/api/client/get-service-template`, { id: id });
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
+    useEffect(() => {
+        if (airbnb.id) {
+            handleGetSubServices(airbnb.id);
+        }
+    }, [airbnb.id, airbnb.subServiceId]);
+
+    const handleGetSubServices = async (id) => {
+        try {
+            const res = await axios.get(`/api/admin/get-sub-services/${id}`, { headers });
+            const allSubServices = res.data.subServices;
+
+            // Filter sub-services based on subServiceId in airbnb state
+            const filteredSubServices = allSubServices.filter(sub => airbnb.subServiceId.includes(sub.id));
+
+            setSubService(filteredSubServices);
+        } catch (error) {
+            console.log("Error fetching sub-services:", error);
+        }
+    }
 
     const handleOffer = (e, id) => {
         e.preventDefault();
@@ -141,22 +176,22 @@ export default function PriceOffer() {
         return services.filter((i) => i.type !== "fixed").length > 0;
     }, [services]);
 
-    // console.log(allTemplates);
+    // console.log(allTemplates);  
 
-    const data = [
-        { col1: t("price_offer.airbnb.services.s2"), col2: t("price_offer.airbnb.size_apt.s2"), col3: t("price_offer.airbnb.price.p1") },
-        { col1: t("price_offer.airbnb.services.s3"), col2: t("price_offer.airbnb.size_apt.s3"), col3: t("price_offer.airbnb.price.p2") },
-        { col1: t("price_offer.airbnb.services.s1"), col2: t("price_offer.airbnb.size_apt.s1"), col3: t("price_offer.airbnb.price.p3") },
-        { col1: t("price_offer.airbnb.services.s4"), col2: t("price_offer.airbnb.size_apt.s4"), col3: t("price_offer.airbnb.price.p4") },
-        { col1: t("price_offer.airbnb.services.s5"), col2: t("price_offer.airbnb.size_apt.s5"), col3: t("price_offer.airbnb.price.p5") },
-        { col1: t("price_offer.airbnb.services.s6"), col2: t("price_offer.airbnb.size_apt.s6"), col3: t("price_offer.airbnb.price.p6") },
-        { col1: t("price_offer.airbnb.services.s7"), col2: t("price_offer.airbnb.size_apt.s7"), col3: t("price_offer.airbnb.price.p7") },
-        { col1: t("price_offer.airbnb.services.s8"), col2: t("price_offer.airbnb.size_apt.s8"), col3: t("price_offer.airbnb.price.p8") },
-        { col1: t("price_offer.airbnb.services.s9"), col2: t("price_offer.airbnb.size_apt.s9"), col3: t("price_offer.airbnb.price.p9") },
-        { col1: t("price_offer.airbnb.services.s10"), col2: t("price_offer.airbnb.size_apt.s10"), col3: t("price_offer.airbnb.price.p10") },
-        { col1: t("price_offer.airbnb.services.s11"), col2: t("price_offer.airbnb.size_apt.s11"), col3: t("price_offer.airbnb.price.p11") },
-        { col1: t("price_offer.airbnb.services.s12"), col2: t("price_offer.airbnb.size_apt.s12"), col3: t("price_offer.airbnb.price.p12") },
-    ];
+    // const data = [
+    //     { col1: t("price_offer.airbnb.services.s2"), col2: t("price_offer.airbnb.size_apt.s2"), col3: t("price_offer.airbnb.price.p1") },
+    //     { col1: t("price_offer.airbnb.services.s3"), col2: t("price_offer.airbnb.size_apt.s3"), col3: t("price_offer.airbnb.price.p2") },
+    //     { col1: t("price_offer.airbnb.services.s1"), col2: t("price_offer.airbnb.size_apt.s1"), col3: t("price_offer.airbnb.price.p3") },
+    //     { col1: t("price_offer.airbnb.services.s4"), col2: t("price_offer.airbnb.size_apt.s4"), col3: t("price_offer.airbnb.price.p4") },
+    //     { col1: t("price_offer.airbnb.services.s5"), col2: t("price_offer.airbnb.size_apt.s5"), col3: t("price_offer.airbnb.price.p5") },
+    //     { col1: t("price_offer.airbnb.services.s6"), col2: t("price_offer.airbnb.size_apt.s6"), col3: t("price_offer.airbnb.price.p6") },
+    //     { col1: t("price_offer.airbnb.services.s7"), col2: t("price_offer.airbnb.size_apt.s7"), col3: t("price_offer.airbnb.price.p7") },
+    //     { col1: t("price_offer.airbnb.services.s8"), col2: t("price_offer.airbnb.size_apt.s8"), col3: t("price_offer.airbnb.price.p8") },
+    //     { col1: t("price_offer.airbnb.services.s9"), col2: t("price_offer.airbnb.size_apt.s9"), col3: t("price_offer.airbnb.price.p9") },
+    //     { col1: t("price_offer.airbnb.services.s10"), col2: t("price_offer.airbnb.size_apt.s10"), col3: t("price_offer.airbnb.price.p10") },
+    //     { col1: t("price_offer.airbnb.services.s11"), col2: t("price_offer.airbnb.size_apt.s11"), col3: t("price_offer.airbnb.price.p11") },
+    //     { col1: t("price_offer.airbnb.services.s12"), col2: t("price_offer.airbnb.size_apt.s12"), col3: t("price_offer.airbnb.price.p12") },
+    // ];
 
     return (
         <>
@@ -331,11 +366,11 @@ export default function PriceOffer() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {data.map((row, index) => (
+                                            {subService && subService.map((row, index) => (
                                                 <tr key={index}>
-                                                    <td>{row.col1}</td>
-                                                    <td>{row.col2}</td>
-                                                    <td>{row.col3}</td>
+                                                    <td>{clientLng == "en" ? row.name_en : row.name_heb}</td>
+                                                    <td>{row.apartment_size}</td>
+                                                    <td>{row.price}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

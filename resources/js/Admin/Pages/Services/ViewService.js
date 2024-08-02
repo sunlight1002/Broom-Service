@@ -5,10 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Comments from "../../Components/common/Comments";
+import { SubService } from "./SubService";
 
 export default function ViewService() {
     const [service, setService] = useState(null);
-    const [serviceHeb, setServiceHeb] = useState("");
     const [template, setTemplate] = useState("");
     const [status, setStatus] = useState("0");
     const [errors, setErrors] = useState([]);
@@ -42,6 +42,8 @@ export default function ViewService() {
                 setStatus(res.data.service.status);
             });
     };
+
+ 
 
     useEffect(() => {
         getService();
@@ -109,6 +111,21 @@ export default function ViewService() {
                                             Comments
                                         </a>
                                     </li>
+                                    <li
+                                        className="nav-item"
+                                        role="presentation"
+                                    >
+                                        <a
+                                            id="comments-tab"
+                                            className="nav-link "
+                                            data-toggle="tab"
+                                            href="#tab-subServices"
+                                            aria-selected="true"
+                                            role="tab"
+                                        >
+                                            Sub Services
+                                        </a>
+                                    </li>
                                 </ul>
 
                                 <div className="tab-content">
@@ -122,6 +139,16 @@ export default function ViewService() {
                                             relationID={service.id}
                                             routeType="services"
                                         />
+                                    </div>
+                                    <div
+                                        id="tab-subServices"
+                                        className="tab-pane"
+                                        role="tab-panel"
+                                        aria-labelledby="subServices-tab"
+                                    >
+                                       <SubService
+                                       params={params}
+                                       />
                                     </div>
                                 </div>
                             </>

@@ -15,6 +15,7 @@ const jobActions = [
 ];
 const initialValue = {
     service: "",
+    sub_service: "",
     name: "",
     type: "fixed",
     freq_name: "",

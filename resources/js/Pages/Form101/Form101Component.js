@@ -24,6 +24,7 @@ import TextField from "./inputElements/TextField";
 import ChangeYear from "./ChangeYear";
 import { objectToFormData } from "../../Utils/common.utils";
 import moment from "moment";
+import FullPageLoader from "../../Components/common/FullPageLoader";
 
 const currentDate = moment().format("YYYY-MM-DD");
 
@@ -33,25 +34,30 @@ const Form101Component = () => {
     const { t } = useTranslation();
     const alert = useAlert();
     const param = useParams();
+    const [loading, setLoading] = useState(false)
     const id = Base64.decode(param.id);
     const formId = param.formId ? Base64.decode(param.formId) : null;
 
     const [formValues, setFormValues] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [savingType, setSavingType] = useState("submit");
+    const [formSubmitted, setFormSubmitted] = useState(false);
 
     const currentYear = new Date().getFullYear();
 
     const scrollToError = (errors) => {
-        const errorFields = Object.keys(errors);
-        if (errorFields.length > 0) {
-            const firstErrorField = errorFields[0];
-            const errorElement = document.getElementById(firstErrorField);
-            if (errorElement) {
-                errorElement.scrollIntoView({ behavior: "smooth" });
-                errorElement.focus();
+        if (formSubmitted) {
+            const errorFields = Object.keys(errors);
+            if (errorFields.length > 0) {
+                const firstErrorField = errorFields[0];
+                const errorElement = document.getElementById(firstErrorField);
+                if (errorElement) {
+                    errorElement.scrollIntoView({ behavior: "smooth" });
+                    errorElement.focus();
+                }
             }
         }
+        setFormSubmitted(false)
     };
 
 
@@ -115,7 +121,7 @@ const Form101Component = () => {
             .required(t("form101.errorMsg.HouseNoReq")),
         employeePostalCode: yup
             .string(),
-            // .required(t("form101.errorMsg.PostalCodeReq")),
+        // .required(t("form101.errorMsg.PostalCodeReq")),
         employeeMobileNo: yup
             .string()
             .required(t("form101.errorMsg.MobileNoReq")),
@@ -724,52 +730,52 @@ const Form101Component = () => {
             otherIncome: {
                 haveincome:
                     formValues &&
-                    formValues.otherIncome &&
-                    formValues.otherIncome.haveincome
+                        formValues.otherIncome &&
+                        formValues.otherIncome.haveincome
                         ? formValues.otherIncome.haveincome
                         : "",
                 incomeType:
                     formValues &&
-                    formValues.otherIncome &&
-                    formValues.otherIncome.incomeType
+                        formValues.otherIncome &&
+                        formValues.otherIncome.incomeType
                         ? formValues.otherIncome.incomeType
                         : [],
                 taxCreditsAtOtherIncome:
                     formValues &&
-                    formValues.otherIncome &&
-                    formValues.otherIncome.taxCreditsAtOtherIncome
+                        formValues.otherIncome &&
+                        formValues.otherIncome.taxCreditsAtOtherIncome
                         ? formValues.otherIncome.taxCreditsAtOtherIncome
                         : "",
                 allowance:
                     formValues &&
-                    formValues.otherIncome &&
-                    formValues.otherIncome.allowance
+                        formValues.otherIncome &&
+                        formValues.otherIncome.allowance
                         ? formValues.otherIncome.allowance
                         : false,
                 scholarship:
                     formValues &&
-                    formValues.otherIncome &&
-                    formValues.otherIncome.scholarship
+                        formValues.otherIncome &&
+                        formValues.otherIncome.scholarship
                         ? formValues.otherIncome.scholarship
                         : false,
             },
             Spouse: {
                 firstName:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.firstName
+                        formValues.Spouse &&
+                        formValues.Spouse.firstName
                         ? formValues.Spouse.firstName
                         : "",
                 lastName:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.lastName
+                        formValues.Spouse &&
+                        formValues.Spouse.lastName
                         ? formValues.Spouse.lastName
                         : "",
                 Identity:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.Identity
+                        formValues.Spouse &&
+                        formValues.Spouse.Identity
                         ? formValues.Spouse.Identity
                         : "",
                 Country:
@@ -778,14 +784,14 @@ const Form101Component = () => {
                         : "",
                 passportNumber:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.passportNumber
+                        formValues.Spouse &&
+                        formValues.Spouse.passportNumber
                         ? formValues.Spouse.passportNumber
                         : "",
                 IdNumber:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.IdNumber
+                        formValues.Spouse &&
+                        formValues.Spouse.IdNumber
                         ? formValues.Spouse.IdNumber
                         : "",
                 Dob:
@@ -794,307 +800,307 @@ const Form101Component = () => {
                         : "",
                 DateOFAliyah:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.DateOFAliyah
+                        formValues.Spouse &&
+                        formValues.Spouse.DateOFAliyah
                         ? formValues.Spouse.DateOFAliyah
                         : "",
                 hasIncome:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.hasIncome
+                        formValues.Spouse &&
+                        formValues.Spouse.hasIncome
                         ? formValues.Spouse.hasIncome
                         : "",
                 incomeType:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.incomeType
+                        formValues.Spouse &&
+                        formValues.Spouse.incomeType
                         ? formValues.Spouse.incomeType
                         : "",
                 incomeTypeOpt1:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.incomeTypeOpt1
+                        formValues.Spouse &&
+                        formValues.Spouse.incomeTypeOpt1
                         ? formValues.Spouse.incomeTypeOpt1
                         : false,
                 incomeTypeOpt2:
                     formValues &&
-                    formValues.Spouse &&
-                    formValues.Spouse.incomeTypeOpt2
+                        formValues.Spouse &&
+                        formValues.Spouse.incomeTypeOpt2
                         ? formValues.Spouse.incomeTypeOpt2
                         : false,
             },
             TaxExemption: {
                 isIsraelResident:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.isIsraelResident
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.isIsraelResident
                         ? formValues.TaxExemption.isIsraelResident
                         : "", // Initial value for isIsraelResident
                 disabled:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.disabled
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.disabled
                         ? formValues.TaxExemption.disabled
                         : false,
                 disabledCertificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.disabledCertificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.disabledCertificate
                         ? formValues.TaxExemption.disabledCertificate
                         : "",
                 disabledCompensation:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.disabledCompensation
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.disabledCompensation
                         ? formValues.TaxExemption.disabledCompensation
                         : false,
                 disabledCompensationCertificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.disabledCompensationCertificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.disabledCompensationCertificate
                         ? formValues.TaxExemption
-                              .disabledCompensationCertificate
+                            .disabledCompensationCertificate
                         : "",
                 exm3:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm3
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm3
                         ? formValues.TaxExemption.exm3
                         : false,
                 exm3Date:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm3Date
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm3Date
                         ? formValues.TaxExemption.exm3Date
                         : "",
                 exm3Locality:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm3Locality
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm3Locality
                         ? formValues.TaxExemption.exm3Locality
                         : "",
                 exm3Certificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm3Certificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm3Certificate
                         ? formValues.TaxExemption.exm3Certificate
                         : "",
                 exm4:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm4
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm4
                         ? formValues.TaxExemption.exm4
                         : false,
                 exm4FromDate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm4FromDate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm4FromDate
                         ? formValues.TaxExemption.exm4FromDate
                         : "",
                 exm4ImmigrationCertificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm4ImmigrationCertificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm4ImmigrationCertificate
                         ? formValues.TaxExemption.exm4ImmigrationCertificate
                         : "",
                 exm4NoIncomeDate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm4NoIncomeDate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm4NoIncomeDate
                         ? formValues.TaxExemption.exm4NoIncomeDate
                         : "",
                 exm5:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm5
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm5
                         ? formValues.TaxExemption.exm5
                         : false,
                 exm5disabledCirtificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm5disabledCirtificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm5disabledCirtificate
                         ? formValues.TaxExemption.exm5disabledCirtificate
                         : "",
                 exm6:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm6
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm6
                         ? formValues.TaxExemption.exm6
                         : false,
                 exm7:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm7
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm7
                         ? formValues.TaxExemption.exm7
                         : false,
                 exm7NoOfChild:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm7NoOfChild
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm7NoOfChild
                         ? formValues.TaxExemption.exm7NoOfChild
                         : 0,
                 exm7NoOfChild1to5:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm7NoOfChild1to5
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm7NoOfChild1to5
                         ? formValues.TaxExemption.exm7NoOfChild1to5
                         : 0,
                 exm7NoOfChild6to17:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm7NoOfChild6to17
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm7NoOfChild6to17
                         ? formValues.TaxExemption.exm7NoOfChild6to17
                         : 0,
                 exm7NoOfChild18:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm7NoOfChild18
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm7NoOfChild18
                         ? formValues.TaxExemption.exm7NoOfChild18
                         : 0,
                 exm8:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm8
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm8
                         ? formValues.TaxExemption.exm8
                         : false,
                 exm8NoOfChild:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm8NoOfChild
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm8NoOfChild
                         ? formValues.TaxExemption.exm8NoOfChild
                         : 0,
                 exm8NoOfChild1to5:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm8NoOfChild1to5
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm8NoOfChild1to5
                         ? formValues.TaxExemption.exm8NoOfChild1to5
                         : 0,
                 exm8NoOfChild6to17:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm8NoOfChild6to17
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm8NoOfChild6to17
                         ? formValues.TaxExemption.exm8NoOfChild6to17
                         : 0,
                 exm9:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm9
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm9
                         ? formValues.TaxExemption.exm9
                         : false,
                 exm10:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm10
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm10
                         ? formValues.TaxExemption.exm10
                         : false,
                 exm10Certificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm10Certificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm10Certificate
                         ? formValues.TaxExemption.exm10Certificate
                         : "",
                 exm11:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm11
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm11
                         ? formValues.TaxExemption.exm11
                         : false,
                 exm11NoOfChildWithDisibility:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm11NoOfChildWithDisibility
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm11NoOfChildWithDisibility
                         ? formValues.TaxExemption.exm11NoOfChildWithDisibility
                         : 0,
                 exm11Certificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm11Certificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm11Certificate
                         ? formValues.TaxExemption.exm11Certificate
                         : "",
                 exm12:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm12
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm12
                         ? formValues.TaxExemption.exm12
                         : false,
                 exm12Certificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm12Certificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm12Certificate
                         ? formValues.TaxExemption.exm12Certificate
                         : "",
                 exm13:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm13
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm13
                         ? formValues.TaxExemption.exm13
                         : false,
                 exm14:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm14
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm14
                         ? formValues.TaxExemption.exm14
                         : false,
                 exm14BeginingDate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm14BeginingDate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm14BeginingDate
                         ? formValues.TaxExemption.exm14BeginingDate
                         : "",
                 exm14EndDate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm14EndDate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm14EndDate
                         ? formValues.TaxExemption.exm14EndDate
                         : "",
                 exm14Certificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm14Certificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm14Certificate
                         ? formValues.TaxExemption.exm14Certificate
                         : "",
                 exm15:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm15
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm15
                         ? formValues.TaxExemption.exm15
                         : false,
                 exm15Certificate:
                     formValues &&
-                    formValues.TaxExemption &&
-                    formValues.TaxExemption.exm15Certificate
+                        formValues.TaxExemption &&
+                        formValues.TaxExemption.exm15Certificate
                         ? formValues.TaxExemption.exm15Certificate
                         : "",
             },
             TaxCoordination: {
                 hasTaxCoordination:
                     formValues &&
-                    formValues.TaxCoordination &&
-                    formValues.TaxCoordination.hasTaxCoordination
+                        formValues.TaxCoordination &&
+                        formValues.TaxCoordination.hasTaxCoordination
                         ? formValues.TaxCoordination.hasTaxCoordination
                         : false,
                 requestReason:
                     formValues &&
-                    formValues.TaxCoordination &&
-                    formValues.TaxCoordination.requestReason
+                        formValues.TaxCoordination &&
+                        formValues.TaxCoordination.requestReason
                         ? formValues.TaxCoordination.requestReason
                         : "",
                 requestReason1Certificate:
                     formValues &&
-                    formValues.TaxCoordination &&
-                    formValues.TaxCoordination.requestReason1Certificate
+                        formValues.TaxCoordination &&
+                        formValues.TaxCoordination.requestReason1Certificate
                         ? formValues.TaxCoordination.requestReason1Certificate
                         : null,
                 requestReason3Certificate:
                     formValues &&
-                    formValues.TaxCoordination &&
-                    formValues.TaxCoordination.requestReason3Certificate
+                        formValues.TaxCoordination &&
+                        formValues.TaxCoordination.requestReason3Certificate
                         ? formValues.TaxCoordination.requestReason3Certificate
                         : null,
                 employer:
                     formValues &&
-                    formValues.TaxCoordination &&
-                    formValues.TaxCoordination.employer
+                        formValues.TaxCoordination &&
+                        formValues.TaxCoordination.employer
                         ? formValues.TaxCoordination.employer
                         : [employerInitial],
             },
@@ -1102,8 +1108,8 @@ const Form101Component = () => {
             sender: {
                 employeeEmail:
                     formValues &&
-                    formValues.sender &&
-                    formValues.sender.employeeEmail
+                        formValues.sender &&
+                        formValues.sender.employeeEmail
                         ? formValues.sender.employeeEmail
                         : "",
                 employerEmail:
@@ -1117,6 +1123,7 @@ const Form101Component = () => {
         enableReinitialize: true,
         validationSchema: savingType === "draft" ? yup.object({}) : formSchema,
         onSubmit: (values) => {
+            setLoading(true);
             // Convert JSON object to FormData
             let formData = objectToFormData(values);
             formData.append("savingType", savingType);
@@ -1130,6 +1137,7 @@ const Form101Component = () => {
                     },
                 })
                 .then((response) => {
+                    setLoading(false);
                     setSavingType("submit");
                     alert.success(response.data.message);
                     setTimeout(() => {
@@ -1138,6 +1146,7 @@ const Form101Component = () => {
                     }, 2000);
                 })
                 .catch((e) => {
+                    setLoading(false);
                     setSavingType("submit");
                     Swal.fire({
                         title: "Error!",
@@ -1150,6 +1159,14 @@ const Form101Component = () => {
         validateOnChange: false,
         validateOnMount: false,
     });
+
+    useEffect(() => {
+        if (!isValid && formSubmitted) {
+            scrollToError(errors);
+        }
+    }, [errors, isValid, formSubmitted]);
+
+
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
     };
@@ -1181,7 +1198,7 @@ const Form101Component = () => {
     const getForm = () => {
         axios.get(`/api/get101/${id}/${formId}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
-            
+
 
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
@@ -1209,11 +1226,11 @@ const Form101Component = () => {
                 setFieldValue("employeeLastName", _worker.lastname);
                 setFieldValue("employeeAddress", _worker.address);
                 setFieldValue("employeeMobileNo", _worker.phone);
-                setFieldValue("employeeIdNumber", _worker.worker_id  );
-                setFieldValue("employeecountry", _worker.country  );
-                setFieldValue("employeePassportNumber", _worker.passport  );
-                setFieldValue("DateOfBeginningWork", _worker.first_date );
-                
+                setFieldValue("employeeIdNumber", _worker.worker_id);
+                setFieldValue("employeecountry", _worker.country);
+                setFieldValue("employeePassportNumber", _worker.passport);
+                setFieldValue("DateOfBeginningWork", _worker.first_date);
+
                 const workerGender = _worker.gender;
                 const gender =
                     workerGender.charAt(0).toUpperCase() +
@@ -1479,9 +1496,9 @@ const Form101Component = () => {
                                 readonly={true}
                                 error={
                                     touched.sender &&
-                                    errors.sender &&
-                                    touched.sender.employerEmail &&
-                                    errors.sender.employerEmail
+                                        errors.sender &&
+                                        touched.sender.employerEmail &&
+                                        errors.sender.employerEmail
                                         ? errors.sender.employerEmail
                                         : ""
                                 }
@@ -1496,9 +1513,9 @@ const Form101Component = () => {
                                 readonly={true}
                                 error={
                                     touched.sender &&
-                                    errors.sender &&
-                                    touched.sender.employeeEmail &&
-                                    errors.sender.employeeEmail
+                                        errors.sender &&
+                                        touched.sender.employeeEmail &&
+                                        errors.sender.employeeEmail
                                         ? errors.sender.employeeEmail
                                         : ""
                                 }
@@ -1519,10 +1536,9 @@ const Form101Component = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    onClick={() => scrollToError(errors)}
                                     className="btn btn-success ml-2"
                                     disabled={isSubmitting}
-                                >
+                                    onClick={()=>setFormSubmitted(true)}>
                                     {t("form101.Accept")}
                                 </button>
                             </>
@@ -1530,6 +1546,7 @@ const Form101Component = () => {
                     </form>
                 </div>
             </div>
+            {loading && <FullPageLoader visible="true" />}
         </div>
     );
 };

@@ -43,6 +43,7 @@ Route::get('countries', [SettingController::class, 'getCountries']);
 Route::get('get_services', [ServicesController::class, 'create']);
 Route::any('save-lead', [LeadWebhookController::class, 'saveLead']);
 
+
 Route::get('clients-sample-file', [ClientController::class, 'sampleFileExport']);
 Route::get('workers/import/sample', [WorkerController::class, 'sampleFileExport']);
 
@@ -129,6 +130,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('services', ServicesController::class)->except('show');
     Route::get('all-services', [ServicesController::class, 'AllServices']);
     Route::post('all-services', [ServicesController::class, 'AllServicesByLng']);
+    Route::post('add-sub-service/{id}', [ServicesController::class, 'addSubService']);
+    Route::delete('remove-sub-service/{id}', [ServicesController::class, 'removeSubService']);
+    Route::get('get-sub-services/{id}', [ServicesController::class, 'getSubServices']);
+    Route::put('edit-sub-service/{id}', [ServicesController::class, 'editSubService']);
 
     // Services Comments
     Route::get('services/{id}/comments', [ServicesController::class, 'getComments']);

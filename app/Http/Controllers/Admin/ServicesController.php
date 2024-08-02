@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\Comment;
 use App\Models\Services;
 use App\Models\User;
+use App\Models\subservices;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -262,4 +263,107 @@ class ServicesController extends Controller
             'message' => 'Comment has been deleted successfully'
         ]);
     }
+
+    public function addSubService(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'name_en' => 'required|string|max:255',
+            'name_heb' => 'required|string|max:255',
+            'apartment_size' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+
+        try {
+            $subService = subservices::create([
+                'name_en' => $validatedData['name_en'],
+                'name_heb' => $validatedData['name_heb'],
+                'apartment_size' => $validatedData['apartment_size'],
+                'price' => $validatedData['price'],
+                'service_id' => $id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sub-service created successfully',
+                'subService' => $subService
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create sub-service',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getSubServices($id)
+    {
+        $subServices = subservices::where('service_id', $id)->get();
+        return response()->json([
+            'success' => true,
+            'subServices' => $subServices
+        ]);
+    }
+
+    public function removeSubService($id)
+    {
+        try {
+            $subService = subservices::findOrFail($id);
+            if (!$subService) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sub-service not found'
+                ]);
+            }
+            $subService->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sub-service removed successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove sub-service',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function editSubService(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'name_en' => 'required|string|max:255',
+            'name_heb' => 'required|string|max:255',
+            'apartment_size' => 'required|string|max:255',
+            'price' => 'required|numeric',
+        ]);
+        
+        try {
+            $subService = subservices::findOrFail($id);
+            if (!$subService) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sub-service not found'
+                ]);
+            }
+            $subService->update($validatedData);
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Sub-service updated successfully',
+                'subService' => $subService
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update sub-service',
+                'error' => $th->getMessage() // Optionally return error message for debugging
+            ], 500);
+        }
+    }
+    
+    
+    
 }

@@ -15,6 +15,7 @@ export default function EditOffer() {
     const [formValues, setFormValues] = useState([
         {
             service: "",
+            sub_service: "",
             name: "",
             type: "",
             freq_name: "",
