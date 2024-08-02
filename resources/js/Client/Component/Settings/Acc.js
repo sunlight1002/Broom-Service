@@ -233,7 +233,7 @@ export default function Acc() {
                         <select
                             className="form-control"
                             value={lng}
-                            onChange={(e) => e.target.value}
+                            onChange={(e) => setLng(e.target.value)}
                         >
                             <option value="">
                                 {t("client.settings.select")}

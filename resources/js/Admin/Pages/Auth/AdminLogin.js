@@ -25,6 +25,7 @@ export default function AdminLogin() {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(false)
+    const [dir, setDir] = useState([])
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -65,6 +66,11 @@ export default function AdminLogin() {
     // useEffect(() => {
     //     i18next.changeLanguage(adminLng);
     // }, [adminLng]);
+
+    useEffect(() => {
+        let d = document.querySelector("html").getAttribute("dir");
+        d == "rtl" ? setDir("heb") : setDir("en");
+    }, []);
     
 
     if (loading) {

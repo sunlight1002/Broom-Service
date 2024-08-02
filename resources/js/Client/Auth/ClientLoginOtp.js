@@ -22,7 +22,7 @@ export default function ClientLoginOtp() {
     const clientLng = localStorage.getItem("client-lng")
     
     useEffect(() => {
-        i18next.changeLanguage("clientLng");
+        i18next.changeLanguage(clientLng);
     }, [clientLng]);
 
     useEffect(() => {

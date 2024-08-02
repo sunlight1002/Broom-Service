@@ -138,6 +138,7 @@ body:dir(rtl) {
 .AdminHeader .float-right{
     float: none !important;
     direction: rtl;
+    justify-content: end;
 }
 .AdminHeader h1{
     text-align: right;
@@ -178,8 +179,24 @@ body:dir(rtl) {
 }
 .search-data{
     float: left;
-    display: unset;
+    /* display: unset; */
     direction: rtl;
+}
+
+.search-icon{
+    left: 10px !important;
+}
+
+.switch input:checked + label > .slider.round {
+    transform: translateX(calc(100% - 43px)) !important;
+}
+
+.clearfix{
+    display: flex !important;
+    direction: ltr;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
 }
 .ViewOffer{
     padding: 0;
@@ -284,6 +301,7 @@ body:dir(rtl) {
 }
 .search-data{
     float: right;
+    display: flex;
     direction: rtl;
 }
 .search-data input{

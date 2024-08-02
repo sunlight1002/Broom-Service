@@ -32,7 +32,7 @@ i18n
 const lng = localStorage.getItem('i18nextLng');
 const url = window.location.href;
 if(lng == 'heb' 
-    && !url.includes('admin')
+    // && !url.includes('admin')
     && !url.includes('price-offer')
     && !url.includes('work-contract')
     && !url.includes('meeting-status')

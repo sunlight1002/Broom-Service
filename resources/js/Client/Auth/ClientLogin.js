@@ -3,6 +3,7 @@ import logo from "../../Assets/image/sample.svg";
 import i18next from "i18next";
 import { useNavigate } from "react-router-dom";
 import FullLoader from "../../../../public/js/FullLoader";
+import FullPageLoader from "../../Components/common/FullPageLoader";
 
 export default function ClientLogin() {
     const [email, setEmail] = useState("");
@@ -57,11 +58,12 @@ export default function ClientLogin() {
 
     useEffect(() => {
         let d = document.querySelector("html").getAttribute("dir");
+        console.log(d);
         d == "rtl" ? setDir("heb") : setDir("en");
     }, []);
 
     if (loading) {
-        return <FullLoader/>
+        return <FullPageLoader visible={loading}/>
     }
 
     return (

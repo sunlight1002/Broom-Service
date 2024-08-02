@@ -28,6 +28,7 @@ class Admin extends Authenticatable
         'status',
         'role',
         'password',
+        'lng',
         'otp',
         'otp_expiry',
         'two_factor_enabled',

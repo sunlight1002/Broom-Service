@@ -6,6 +6,7 @@
 
 body {
   font-family: 'Rubik', sans-serif !important;
+  direction: ltr;
   font-size: 14px;
   color: #2F2F3B !important;
   background: #f9f9fc !important;
