@@ -201,7 +201,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     ]);
                 }
 
-                if ($row['has_offer'] == "Yes") {
+                if ($row['has_offer'] == "No") {
                     $clientpropertyaddress = ClientPropertyAddress::Where('client_id', $client->id)
                         ->first();
 
@@ -308,7 +308,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         ]);
                     }
 
-                    if ($row['has_contract'] == "Yes") {
+                    if ($row['has_contract'] == "No") {
                         $hash = md5($client->email . $offer->id);
 
                         $offer->update([
