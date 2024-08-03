@@ -131,8 +131,8 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'payment_method'     => $paymentMethodOptions[$row['payment_method']],
                 ];
 
-                $client = Client::where('phone', $clientData['phone'])
-                    ->orWhere('email', $clientData['email'])
+                $client = Client::where('phone', $clientData['phone'] ?? '')
+                    ->orWhere('email', $clientData['email'] ?? '')
                     ->first();
 
                 if (empty($client)) {
@@ -142,64 +142,69 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         [],
                         ['lead_status' => LeadStatusEnum::PENDING]
                     );
+                } else {
+                    $client->update($clientData);
                 }
 
                 // Create client address if not already exists
-                if (!ClientPropertyAddress::where('client_id', $client->id)->exists()) {
-                    if (empty($row['full_address'])) {
-                        throw new Exception('Invalid address');
-                    }
-
-                    if (!in_array($row['prefered_type'], array_keys($preferTypeOptions))) {
-                        throw new Exception('Invalid prefered type');
-                    }
-
-                    $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
-                        'address' => $row['full_address'],
-                        'key' => config('services.google.map_key')
-                    ]);
-
-                    if (!$response->successful()) {
-                        throw new Exception('Invalid address');
-                    }
-
-                    $data = $response->object();
-                    $result = $data->results[0] ?? null;
-
-                    if (!$result) {
-                        throw new Exception('Invalid address');
-                    }
-
-                    $zipcode = null;
-                    $city = null;
-
-                    foreach ($result->address_components ?? [] as $key => $address_component) {
-                        if (in_array('locality', $address_component->types)) {
-                            $city = $address_component->long_name;
-                        }
-
-                        if (in_array('postal_code', $address_component->types)) {
-                            $zipcode = $address_component->long_name;
-                        }
-                    }
-
-                    ClientPropertyAddress::create([
-                        'address_name' => $row['property_name'] ?? null,
-                        'city' => $city ?? NULL,
-                        'floor' => $row['floor'] ?? NULL,
-                        'apt_no' => $row['apt_number'] ?? NULL,
-                        'entrence_code' => $row['enterance'] ?? NULL,
-                        'zipcode' => $zipcode ?? NULL,
-                        'geo_address' => $result->formatted_address ?? NULL,
-                        'latitude' => $result->geometry->location->lat ?? NULL,
-                        'longitude' => $result->geometry->location->lng ?? NULL,
-                        'client_id' => $client->id,
-                        'prefer_type' => $preferTypeOptions[$row['prefered_type']],
-                        'is_dog_avail' => $row['dog_in_the_property'] == 'Yes' ? 1 : 0,
-                        'is_cat_avail' => $row['cat_in_the_property'] == 'Yes' ? 1 : 0,
-                        'parking' => $row['parking'] ?? NULL
-                    ]);
+                // if (!ClientPropertyAddress::where('client_id', $client->id)->exists()) {
+                if (empty($row['full_address'])) {
+                    throw new Exception('Invalid address');
                 }
+
+                if (!in_array($row['prefered_type'], array_keys($preferTypeOptions))) {
+                    throw new Exception('Invalid prefered type');
+                }
+
+                $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
+                    'address' => $row['full_address'],
+                    'key' => config('services.google.map_key')
+                ]);
+
+                if (!$response->successful()) {
+                    throw new Exception('Invalid address');
+                }
+
+                $data = $response->object();
+                $result = $data->results[0] ?? null;
+
+                if (!$result) {
+                    throw new Exception('Invalid address');
+                }
+
+                $zipcode = null;
+                $city = null;
+
+                foreach ($result->address_components ?? [] as $key => $address_component) {
+                    if (in_array('locality', $address_component->types)) {
+                        $city = $address_component->long_name;
+                    }
+
+                    if (in_array('postal_code', $address_component->types)) {
+                        $zipcode = $address_component->long_name;
+                    }
+                }
+
+                ClientPropertyAddress::updateOrCreate([
+                    'address_name' => $row['property_name'] ?? null,
+                    'client_id' => $client->id,
+                ], [
+                    'address_name' => $row['property_name'] ?? null,
+                    'city' => $city ?? NULL,
+                    'floor' => $row['floor'] ?? NULL,
+                    'apt_no' => $row['apt_number'] ?? NULL,
+                    'entrence_code' => $row['enterance'] ?? NULL,
+                    'zipcode' => $zipcode ?? NULL,
+                    'geo_address' => $result->formatted_address ?? NULL,
+                    'latitude' => $result->geometry->location->lat ?? NULL,
+                    'longitude' => $result->geometry->location->lng ?? NULL,
+                    'client_id' => $client->id,
+                    'prefer_type' => $preferTypeOptions[$row['prefered_type']],
+                    'is_dog_avail' => $row['dog_in_the_property'] == 'Yes' ? 1 : 0,
+                    'is_cat_avail' => $row['cat_in_the_property'] == 'Yes' ? 1 : 0,
+                    'parking' => $row['parking'] ?? NULL
+                ]);
+                // }
 
                 if ($row['has_offer'] == "No") {
                     $clientpropertyaddress = ClientPropertyAddress::Where('client_id', $client->id)
