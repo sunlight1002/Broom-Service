@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Events\ClientLeadStatusChanged;
+use App\Events\OfferAccepted;
 use App\Models\Client;
 use App\Models\ClientPropertyAddress;
 use App\Models\Offer;
@@ -24,6 +25,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use App\Events\OfferSaved;
 
 class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 {
@@ -205,12 +207,16 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'parking' => $row['parking'] ?? NULL
                 ]);
                 // }
-
-                if ($row['has_offer'] == "No") {
-                    $clientpropertyaddress = ClientPropertyAddress::Where('client_id', $client->id)
+                $offer = null;
+                if (!empty($row['worker_hours']) && !empty($row['service_name']) && !empty($row['frequency']) && !empty($row['type'])) {
+                    $clientpropertyaddress = ClientPropertyAddress::where('client_id', $client->id)->where('address_name', $row['property_name'])
                         ->first();
 
-                    $offer = Offer::where('client_id', $client->id)->where('status', 'sent')->first();
+                    if(isset($row['offer_id']) && !empty($row['offer_id'])) {
+                        $offer = Offer::find($row['offer_id'])->where('status', 'sent')->first();
+                    } else {
+                        $offer = Offer::where('client_id', $client->id)->where('status', 'sent')->first();
+                    }
 
                     $existing_services = [];
                     if ($offer) {
@@ -234,7 +240,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
                     if ($row['type'] == 'hourly') {
                         foreach ($workerJobHours as $key => $worker) {
-                            $total_amount += $worker['jobHours'] * $row['fixed_price'];
+                            $total_amount += $worker['jobHours'] * $row['rateperhour'];
                         }
                     } else {
                         $total_amount += $row['fixed_price'];
@@ -304,6 +310,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         );
 
                         event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL_CLIENT));
+                        event(new OfferSaved($offer->toArray()));
                     } else {
                         $offer->update([
                             'services' => json_encode($existing_services, JSON_UNESCAPED_UNICODE),
@@ -312,49 +319,60 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'status' => 'sent',
                         ]);
                     }
+                } else {
+                    if (empty($row['offer_id'])) {
+                        throw new Exception('Offer ID required.');
+                    }
 
-                    if ($row['has_contract'] == "No") {
-                        $hash = md5($client->email . $offer->id);
+                    $offer = Offer::find($row['offer_id'])->first();
+                }
 
-                        $offer->update([
-                            'status' => 'accepted'
-                        ]);
+                if ($row['has_contract'] == "No" && $offer && $offer->status == 'accepted') {
+                    $hash = md5($client->email . $offer->id);
 
+                    $contract = null;
+                    if(isset($row['contract_id']) && !empty($row['contract_id'])) {
+                        $contract = Contract::find($row['contract_id']);
+                    } else {
                         $contract = Contract::where('unique_hash', $hash)->first();
+                    }
 
-                        if (!$contract) {
-                            $contract = Contract::create([
-                                'offer_id' => $offer->id,
-                                'client_id' => $client->id,
-                                'status' => ContractStatusEnum::VERIFIED,
-                                'unique_hash' => $hash
-                            ]);
-                        } else {
-                            $contract->update([
-                                'offer_id' => $offer->id,
-                                'client_id' => $client->id,
-                                'status' => ContractStatusEnum::VERIFIED,
-                                'unique_hash' => $hash
-                            ]);
-                        }
+                    if (!$contract) {
+                        $contract = Contract::create([
+                            'offer_id' => $offer->id,
+                            'client_id' => $client->id,
+                            'status' => ContractStatusEnum::VERIFIED,
+                            'unique_hash' => $hash
+                        ]);
+                        $ofr = $offer->toArray();
+                        $ofr['contract_id'] = $hash;
 
-                        $client->lead_status()->updateOrCreate(
-                            [],
-                            ['lead_status' => LeadStatusEnum::FREEZE_CLIENT]
-                        );
+                        event(new OfferAccepted($ofr));
+                    } else {
+                        $contract->update([
+                            'offer_id' => $offer->id,
+                            'client_id' => $client->id,
+                            'status' => ContractStatusEnum::VERIFIED,
+                            'unique_hash' => $hash
+                        ]);
+                    }
 
-                        event(new ClientLeadStatusChanged($client, LeadStatusEnum::FREEZE_CLIENT));
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => LeadStatusEnum::FREEZE_CLIENT]
+                    );
 
-                        $card = ClientCard::query()
-                            ->where('client_id', $client->id)
-                            ->first();
+                    event(new ClientLeadStatusChanged($client, LeadStatusEnum::FREEZE_CLIENT));
 
-                        if (
-                            config('services.app.old_contract') == true ||
-                            (config('services.app.old_contract') == false && !empty($card))
-                        ) {
-                            $client->update(['status' => 2]);
-                        }
+                    $card = ClientCard::query()
+                        ->where('client_id', $client->id)
+                        ->first();
+
+                    if (
+                        config('services.app.old_contract') == true ||
+                        (config('services.app.old_contract') == false && !empty($card))
+                    ) {
+                        $client->update(['status' => 2]);
                     }
                 }
 
