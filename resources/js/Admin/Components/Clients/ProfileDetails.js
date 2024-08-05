@@ -166,9 +166,9 @@ export default function ProfileDetails({
                             <Link
                                 to={`/admin/create-client-job/${param.id}`}
                                 id="bookBtn"
-                                style={{ display: "none" , width: "30%"}}
-                                className="navyblue  align-items-center"
-                            >
+                                style={{ display: "none" , width: "30%", borderRadius: "5px"}}
+                                className="navyblue no-hover pl-2 pr-2 mr-2 d-flex align-items-center"
+                                >
                                 <i className="fas fa-hand-point-right"></i>{t("admin.schedule.bookClient")}
                             </Link>
                             <p>

@@ -41,7 +41,6 @@ export default function ViewContract() {
             .post(`/api/admin/get-contract/${params.id}`, {}, { headers })
             .then((res) => {
                 const _contract = res.data.contract;
-                console.log(_contract);
                 setOffer(_contract.offer);
                 setServices(JSON.parse(_contract.offer.services));
                 setClient(_contract.client);
@@ -49,7 +48,7 @@ export default function ViewContract() {
                 setStatus(_contract.status);
                 setConsentToAds(_contract.consent_to_ads ? true : false);
 
-                setClientCards([_contract.card]);
+                setClientCards([_contract?.card == null ? '' : _contract?.card]);
                 setSelectedClientCardID(_contract.card_id);
                 if (_contract.status != "not-signed") {
                     setIsCardAdded(true);
@@ -110,10 +109,9 @@ export default function ViewContract() {
     }, [services]);
 
     const selectedClientCard = useMemo(() => {
-        // return clientCards.find((i) => i.id == selectedClientCardID);
+        return clientCards != null ? clientCards.find((i) => i.id == selectedClientCardID) : clientCards;
     }, [clientCards, selectedClientCardID]);
 
-    console.log(clientCards);
 
     return (
         <div className="container parent">
@@ -426,31 +424,31 @@ export default function ViewContract() {
                                         )}
                                     </p>
 
-                                    {clientCards && clientCards.map((_card, _index) => {
+                                    {clientCards.length > 0 && clientCards.map((_card, _index) => {
                                         return (
-                                            <div>{_card}</div>
-                                        //     <div className="my-3" key={_index}>
-                                        //         <label className="form-check-label ">
-                                        //             <input
-                                        //                 type="checkbox"
-                                        //                 className="form-check-input"
-                                        //                 value={_card.id}
-                                        //                 checked={
-                                        //                     _card.id ==
-                                        //                     selectedClientCardID
-                                        //                 }
-                                        //                 disabled={
-                                        //                     contract &&
-                                        //                     contract.status !=
-                                        //                         "not-signed"
-                                        //                 }
-                                        //             />
-                                        //             **** **** ****{" "}
-                                        //             {_card.card_number} -{" "}
-                                        //             {_card.valid} (
-                                        //             {_card.card_type})
-                                        //         </label>
-                                        //     </div>
+                                            // <div>{_card}</div>
+                                            <div className="my-3" key={_index}>
+                                                <label className="form-check-label ">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="form-check-input"
+                                                        value={_card.id}
+                                                        checked={
+                                                            _card.id ==
+                                                            selectedClientCardID
+                                                        }
+                                                        disabled={
+                                                            contract &&
+                                                            contract.status !=
+                                                                "not-signed"
+                                                        }
+                                                    />
+                                                    **** **** ****{" "}
+                                                    {_card.card_number} -{" "}
+                                                    {_card.valid} (
+                                                    {_card.card_type})
+                                                </label>
+                                            </div>
                                         );
                                     })}
 
