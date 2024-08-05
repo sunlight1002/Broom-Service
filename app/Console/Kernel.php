@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('meeting:reminder')->hourly();
         $schedule->command('client:update-lead-status')->hourly();
         $schedule->command('worker:send_invitation')->dailyAt('09:00');
-        $schedule->command('report')->twiceDaily(10, 18);
+        $schedule->command('report')->twiceDailyAt(8, 18);
     }
 
     /**
