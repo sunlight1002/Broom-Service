@@ -7,6 +7,7 @@ import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import JobMenu from "../../Components/Job/JobMenu";
 import { IoSaveOutline } from "react-icons/io5";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 
 
@@ -29,6 +30,7 @@ export default function AddClient() {
     const [notificationType, setNotificationType] = useState("both");
     const [vatNumber, setVatNumber] = useState("");
     const [addresses, setAddresses] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -42,6 +44,7 @@ export default function AddClient() {
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
+        setLoading(true);
 
         {
             /* Job Data*/
@@ -108,8 +111,10 @@ export default function AddClient() {
             )
             .then((response) => {
                 if (response.data.errors) {
+                    setLoading(false);
                     setErrors(response.data.errors);
                 } else {
+                    setLoading(false);
                     alert.success("Client has been created successfully");
                     setTimeout(() => {
                         navigate("/admin/clients");
@@ -807,6 +812,7 @@ export default function AddClient() {
                     </form>
                 </div>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

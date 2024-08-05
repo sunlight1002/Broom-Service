@@ -18,6 +18,8 @@ export default function AdminLogin() {
     }, [navigate])
 
     const adminLng = localStorage.getItem("admin-lng")
+    console.log(adminLng);
+    
 
 
     const alert = useAlert();
@@ -37,6 +39,7 @@ export default function AdminLogin() {
         };
 
         await axios.post(`/api/admin/login`, data).then((result) => {
+            
             if (result.data.errors) {
                 setLoading(false)
                 setErrors(result.data.errors);
@@ -45,10 +48,10 @@ export default function AdminLogin() {
                     localStorage.setItem("admin-email", result.data.email);
                     localStorage.setItem("admin-lng", result.data.lng);
 
-                    // console.log(result);
                     window.location = "/admin/login-otp";
                     setLoading(false)
                 }else{
+                    
                     localStorage.setItem("admin-token", result.data.token);
                     localStorage.setItem("admin-name", result.data.name);
                     localStorage.setItem("admin-id", result.data.id);

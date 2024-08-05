@@ -10,6 +10,8 @@ export default function CreateJob() {
     const params = useParams();
     const [services, setServices] = useState([]);
     const [client, setClient] = useState(null);
+    const [loading, setLoading] = useState(false);
+
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -18,6 +20,7 @@ export default function CreateJob() {
     };
 
     const getJob = () => {
+        setLoading(true);
         axios
             .get(`/api/admin/contract/${params.id}`, { headers })
             .then((res) => {
@@ -26,6 +29,7 @@ export default function CreateJob() {
                 let _services = JSON.parse(r.offer.services);
                 _services = _services.map((n) => {
                     n["contract_id"] = parseInt(params.id);
+                    setLoading(false)
                     return n;
                 });
 
@@ -53,7 +57,7 @@ export default function CreateJob() {
                 <div className="view-applicant">
                     <h1 className="page-title editJob">Add Job</h1>
                     <div id="calendar"></div>
-                    <div className="card">
+                    <div className="card" style={{ boxShadow: "none" }}>
                         {client && (
                             <div className="card-body">
                                 <form>
@@ -78,7 +82,7 @@ export default function CreateJob() {
                                                             key={index}
                                                         >
                                                             {item.service ==
-                                                            "10"
+                                                                "10"
                                                                 ? item.other_title
                                                                 : item.name}
                                                         </p>
@@ -149,14 +153,14 @@ export default function CreateJob() {
                                                             ?.is_cat_avail
                                                             ? "Cat ,"
                                                             : item?.address
-                                                                  ?.is_dog_avail
-                                                            ? "Dog"
-                                                            : !item?.address
-                                                                  ?.is_cat_avail &&
-                                                              !item?.address
-                                                                  ?.is_dog_avail
-                                                            ? "NA"
-                                                            : ""}
+                                                                ?.is_dog_avail
+                                                                ? "Dog"
+                                                                : !item?.address
+                                                                    ?.is_cat_avail &&
+                                                                    !item?.address
+                                                                        ?.is_dog_avail
+                                                                    ? "NA"
+                                                                    : ""}
                                                     </p>
                                                 ))}
                                             </div>
@@ -188,14 +192,15 @@ export default function CreateJob() {
                                                 </h3>
                                             </div>
                                         </div> */}
-                                        <div className="col-sm-12">
-                                            <CreateJobCalender
-                                                services={services}
-                                                client={client}
-                                            />
-                                            <div className="mb-3">&nbsp;</div>
+                                            <div className="col-sm-12">
+                                                    <CreateJobCalender
+                                                    services={services}
+                                                    client={client}
+                                                    loading={loading}
+                                                />
+                                                <div className="mb-3">&nbsp;</div>
+                                            </div>
                                         </div>
-                                    </div>
                                 </form>
                             </div>
                         )}

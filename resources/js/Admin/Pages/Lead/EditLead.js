@@ -5,6 +5,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import { useTranslation } from "react-i18next";
 import { IoSaveOutline } from "react-icons/io5";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 
 export default function EditWorker() {
@@ -24,6 +25,7 @@ export default function EditWorker() {
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [vatNumber, setVatNumber] = useState("");
     const [addresses, setAddresses] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const alert = useAlert();
     const params = useParams();
@@ -63,6 +65,7 @@ export default function EditWorker() {
 
     const handleUpdate = (e) => {
         e.preventDefault();
+        setLoading(true);
 
         var phoneClc = "";
         var phones = document.querySelectorAll(".pphone");
@@ -96,8 +99,10 @@ export default function EditWorker() {
             )
             .then((response) => {
                 if (response.data.errors) {
+                    setLoading(false);
                     setErrors(response.data.errors);
                 } else {
+                    setLoading(false);
                     alert.success("Lead has been updated successfully");
                     setTimeout(() => {
                         navigate("/admin/leads");
@@ -737,6 +742,7 @@ export default function EditWorker() {
                             </form>
                         </div>
                     </div>
+                    { loading && <FullPageLoader visible={loading}/>}
                 </div>
     );
 }

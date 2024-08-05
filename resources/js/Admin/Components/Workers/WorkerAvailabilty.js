@@ -32,7 +32,7 @@ export default function WorkerAvailabilty({ days }) {
     
     const [notAvailableDates, setNotAvailableDates] = useState([]);
     const [timeSlots, setTimeSlots] = useState([]);
-    const [activeTab, setActiveTab] = useState(t("worker.jobs.current_week"));
+    const [activeTab, setActiveTab] = useState("current-week");
     const [defaultTimeSlots, setDefaultTimeSlots] = useState([]);
     const [formValues, setFormValues] = useState({
         default_repeatancy: "forever",
@@ -318,7 +318,7 @@ export default function WorkerAvailabilty({ days }) {
                     </a>
                 </li>
             </ul>
-            <div className="tab-content" style={{ background: "#fff" }}>
+            <div className="tab-content" style={{ background: "#fff" , border: "none"}}>
                 {tabList
                     .filter((t) => activeTab == t.key)
                     .map((t) => {

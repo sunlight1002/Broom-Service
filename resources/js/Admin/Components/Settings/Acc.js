@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Acc() {
     const { t } = useTranslation();
@@ -15,6 +16,7 @@ export default function Acc() {
     const [avatar, setAvatar] = useState("");
     const [lng, setLng] = useState("");
     const [errors, setErrors] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [twostepverification, setTwostepverification] = useState(false);
     const alert = useAlert();
 
@@ -30,7 +32,9 @@ export default function Acc() {
     };
 
     const getSetting = async () => {
+
         try {
+            setLoading(true);
             const response = await axios.get("/api/admin/my-account", { headers });
             setName(response.data.account.name);
             setColor(response.data.account.color);
@@ -40,7 +44,9 @@ export default function Acc() {
             setAddress(response.data.account.address);
             setFile(response.data.account.avatar);
             setTwostepverification(response.data.account.two_factor_enabled === 1);
+            setLoading(false)
         } catch (error) {
+            setLoading(false)
             console.error("Error fetching settings:", error);
         }
     };
@@ -51,6 +57,7 @@ export default function Acc() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const formData = new FormData();
         formData.append("name", name);
         formData.append("email", email);
@@ -69,17 +76,20 @@ export default function Acc() {
         try {
             const response = await axios.post(`/api/admin/my-account`, formData, { headers });
             if (response.data.errors) {
+                setLoading(false);
                 setErrors(response.data.errors);
             } else {
+                setLoading(false);
                 alert.success("Account details have been updated successfully");
             }
         } catch (error) {
+            setLoading(false);
             console.error("Error updating account:", error);
         }
     };
 
     return (
-        <div className="card">
+        <div className="card" style={{boxShadow: "none"}}> 
             <div className="card-body">
                 <form>
                     <div className="form-group">
@@ -196,11 +206,12 @@ export default function Acc() {
                         <input
                             type="submit"
                             onClick={handleSubmit}
-                            className="btn btn-danger saveBtn"
+                            className="btn navyblue saveBtn"
                         />
                     </div>
                 </form>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

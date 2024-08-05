@@ -5,10 +5,13 @@ import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
 
 import Sidebar from "../../../Layouts/Sidebar";
+import FullPageLoader from "../../../../Components/common/FullPageLoader";
 
 export default function ManageTime() {
     const {t} = useTranslation()
     const alert = useAlert();
+    const [loading, setLoading] = useState(false);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -16,7 +19,7 @@ export default function ManageTime() {
     };
     const handleSubmit = (e) => {
         e.preventDefault();
-
+        setLoading(true);
         const days = document.querySelectorAll('input[name="days[]"]:checked');
         const start = document.querySelector("#timing_starts").value;
         const end = document.querySelector("#timing_ends").value;
@@ -38,10 +41,12 @@ export default function ManageTime() {
 
         axios.post(`/api/admin/update-time`, data, { headers }).then((res) => {
             if (res.data.errors) {
+                setLoading(false);
                 for (let e in res.data.errors) {
                     alert.error(res.data.errors[e]);
                 }
             } else {
+                setLoading(false);
                 alert.success(res.data.message);
             }
         });
@@ -86,7 +91,7 @@ export default function ManageTime() {
                         <div className="col-sm-6">
                             <div className="search-data">
                                 <button
-                                    className="btn btn-danger addButton"
+                                    className="btn navyblue addButton"
                                     onClick={(e) => handleSubmit(e)}
                                 >
                                     <i className="btn-icon fas fa-upload"></i>
@@ -237,6 +242,7 @@ export default function ManageTime() {
                     </div>
                 </div>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

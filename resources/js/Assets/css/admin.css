@@ -139,6 +139,15 @@ a:hover {
   background: #2F4054;
 }
 
+.list-group-item #fencehead2 a .active {
+  text-decoration: none;
+  color: #ffffff !important;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  font-weight: 600;
+  background: #2F4054;
+}
+
 .list-group-item .active i {
   color: #ffffff !important;
 }

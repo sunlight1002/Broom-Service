@@ -5,25 +5,13 @@ import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import Moment from "moment";
 import moment from "moment-timezone";
-
+import { useTranslation } from "react-i18next";
 import WeekCard from "./Components/WeekCard";
 import TimeSlot from "./Components/TimeSlot";
 import { createHalfHourlyTimeArray } from "../../Utils/job.utils";
+import FullPageLoader from "../../Components/common/FullPageLoader";
 
-const tabList = [
-    {
-        key: "current-week",
-        label: "Current Week",
-    },
-    {
-        key: "first-next-week",
-        label: "Next Week",
-    },
-    {
-        key: "first-next-next-week",
-        label: "Next To Next Week",
-    },
-];
+
 
 const AvailabilityForm = () => {
     const [days, setDays] = useState([]);
@@ -36,10 +24,27 @@ const AvailabilityForm = () => {
         custom_end_date: null,
     });
     const [customRange, setCustomRange] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const params = useParams();
     const alert = useAlert();
     const flatpickrRef = useRef(null);
+    const { t } = useTranslation();
+
+    const tabList = [
+        {
+            key: "current-week",
+            label: t("worker.jobs.current_week"),
+        },
+        {
+            key: "first-next-week",
+            label: t("global.nextweek"),
+        },
+        {
+            key: "first-next-next-week",
+            label: t("global.next")+t("global.to")+ t("global.nextweek"),
+        },
+    ];
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -194,6 +199,7 @@ const AvailabilityForm = () => {
         if (!Object.values(timeSlots).length) {
             return false;
         }
+        setLoading(true);
 
         axios
             .post(
@@ -210,9 +216,13 @@ const AvailabilityForm = () => {
                 { headers }
             )
             .then((res) => {
+                setLoading(false);
                 alert.success(res.data.message);
             })
-            .catch((err) => alert.error("Something went wrong!"));
+            .catch((err) => {
+                setLoading(false);
+                alert.error("Something went wrong!")
+            });
     };
 
     const handleCustomDateSelect = (selectedDates, dateStr) => {
@@ -276,7 +286,8 @@ const AvailabilityForm = () => {
                         role="tab"
                         onClick={() => handleTab("custom")}
                     >
-                        Custom
+                     {t("worker.schedule.custom")}
+
                     </a>
                 </li>
                 <li className="nav-item" role="presentation">
@@ -290,7 +301,7 @@ const AvailabilityForm = () => {
                         role="tab"
                         onClick={() => handleTab("default")}
                     >
-                        Default
+                        {t("worker.schedule.default")}
                     </a>
                 </li>
             </ul>
@@ -327,7 +338,7 @@ const AvailabilityForm = () => {
                     <div className="offset-sm-4 col-sm-4">
                         <div className="form-group">
                             <label className="control-label">
-                                Select Date Range
+                            {t("client.jobs.change.selectDate")}
                             </label>
                             <Flatpickr
                                 name="date"
@@ -440,7 +451,7 @@ const AvailabilityForm = () => {
                             <div className="offset-sm-4 col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Until Date
+                                    {t("client.jobs.change.UntilDate")}
                                     </label>
                                     <Flatpickr
                                         name="date"
@@ -472,7 +483,7 @@ const AvailabilityForm = () => {
                                             });
                                         }}
                                     >
-                                        Clear
+                                        {t("modal.clear")}
                                     </button>
                                 </div>
                             </div>
@@ -483,11 +494,12 @@ const AvailabilityForm = () => {
             <div className="text-center mt-3">
                 <input
                     type="button"
-                    value={"Update Availability"}
-                    className="btn btn-primary"
+                    value={t("worker.schedule.update")}
+                    className="btn navyblue"
                     onClick={handleSubmit}
                 />
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 };

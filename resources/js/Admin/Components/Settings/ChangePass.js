@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function ChangePass() {
 
@@ -9,6 +10,7 @@ export default function ChangePass() {
     const [password, setPassword] = useState("");
     const [passwordConfirmed, setPasswordConfirmed] = useState("");
     const [errors, setErrors] = useState([]);
+    const [loading, setLoading] = useState(false);
     const alert = useAlert();
 
     const headers = {
@@ -19,6 +21,7 @@ export default function ChangePass() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setLoading(true);
         const formData = new FormData();
         formData.append("current_password", currentPassword);
         formData.append("password", password);
@@ -27,8 +30,10 @@ export default function ChangePass() {
             .post(`/api/admin/change-password`, formData, { headers })
             .then((response) => {
                 if (response.data.errors) {
+                    setLoading(false)
                     setErrors(response.data.errors);
                 } else {
+                    setLoading(false)
                     setCurrentPassword("");
                     setPassword("");
                     setPasswordConfirmed("");
@@ -38,7 +43,7 @@ export default function ChangePass() {
     };
 
     return (
-        <div className="card">
+        <div className="card" style={{boxShadow: "none"}}>
             <div className="card-body">
                 <form>
                     <div className="form-group">
@@ -106,6 +111,7 @@ export default function ChangePass() {
                     </div>
                 </form>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

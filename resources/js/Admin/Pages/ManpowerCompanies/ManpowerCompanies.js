@@ -157,7 +157,7 @@ export default function ManpowerCompanies() {
                         <div className="col-sm-6">
                             <button
                                 type="button"
-                                className="ml-2 btn btn-success addButton"
+                                className="ml-2 btn navyblue addButton"
                                 onClick={handleAddCompany}
                             >
                                 {t("modal.add")} {t("admin.sidebar.settings.manpower")}

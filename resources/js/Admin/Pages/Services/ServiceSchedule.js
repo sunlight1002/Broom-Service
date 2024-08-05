@@ -166,14 +166,14 @@ export default function ServiceSchedule() {
                         <div className="col-sm-6">
                             <Link
                                 to="/admin/service-schedules/create"
-                                className="ml-2 btn btn-success addButton"
+                                className="ml-2 btn navyblue addButton no-hover"
                             >
                                 {t("global.add")} {t("global.schedule")}
                             </Link>
                         </div>
                     </div>
                 </div>
-                <div className="card">
+                <div className="card" style={{boxShadow: "none"}}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

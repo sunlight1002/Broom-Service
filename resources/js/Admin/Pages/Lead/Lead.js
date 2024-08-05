@@ -309,7 +309,7 @@ export default function Lead() {
 
                                 <Link
                                     to="/admin/leads/create"
-                                    className="btn navyblue add-btn"
+                                    className="btn navyblue no-hover add-btn"
                                 >
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     <span className="d-lg-block d-none">

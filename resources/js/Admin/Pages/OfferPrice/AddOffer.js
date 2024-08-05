@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import OfferServiceMenu from "../../Pages/OfferPrice/OfferServiceMenu";
 import OfferCommentModal from "../../Components/Modals/OfferCommentModal";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function AddOffer() {
     const { t } = useTranslation();
@@ -24,6 +25,8 @@ export default function AddOffer() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
     const [comment, setComment] = useState("");
+    const [loading, setLoading] = useState(false);
+
 
     const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
@@ -105,6 +108,7 @@ export default function AddOffer() {
 
     let handleSubmit = (event, _action) => {
         event.preventDefault();
+        setLoading(true);
 
         for (let t in formValues) {
             if (formValues[t].service == "" || formValues[t].service == 0) {
@@ -171,10 +175,12 @@ export default function AddOffer() {
             .post(`/api/admin/offers`, data, { headers })
             .then((response) => {
                 if (response.data.errors) {
+                    setLoading(false);
                     for (let e in response.data.errors) {
                         alert.error(response.data.errors[e]);
                     }
                 } else {
+                    setLoading(false);
                     alert.success(response.data.message);
                     setTimeout(() => {
                         navigate(`/admin/offered-price`);
@@ -183,6 +189,7 @@ export default function AddOffer() {
                 setIsSubmitting(false);
             })
             .catch((e) => {
+                setLoading(false);
                 setIsSubmitting(false);
                 alert.error(e.response.data.message);
             });
@@ -302,6 +309,7 @@ export default function AddOffer() {
                     </div>
                 </div>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

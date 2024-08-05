@@ -9,8 +9,9 @@ import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import JobMenu from "../../Components/Job/JobMenu";
 import { useTranslation } from "react-i18next";
 import { IoSaveOutline } from "react-icons/io5";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
-export default function     EditClient() {
+export default function EditClient() {
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -26,6 +27,7 @@ export default function     EditClient() {
     const [notificationType, setNotificationType] = useState("both");
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [vatNumber, setVatNumber] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const alert = useAlert();
     const params = useParams();
@@ -44,9 +46,7 @@ export default function     EditClient() {
 
     const handleUpdate = (e) => {
         e.preventDefault();
-        {
-            /* Job Data*/
-        }
+        setLoading(true);
         let to = 0;
         let taxper = 17;
         if (cjob == 1) {
@@ -107,14 +107,17 @@ export default function     EditClient() {
             .then((response) => {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
+                    setLoading(false);
                 } else {
                     alert.success("Client has been updated successfully");
+                    setLoading(false);
                     setTimeout(() => {
                         navigate("/admin/clients");
                     }, 1000);
                 }
             })
             .catch((e) => {
+                setLoading(false);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -269,7 +272,7 @@ export default function     EditClient() {
                                     <div className="col">
                                         <div className="form-group d-flex w-100">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t("admin.leads.AddLead.Notification_Type")}
+                                                {t("admin.leads.AddLead.Notification_Type")}
                                             </label>
 
                                             <select
@@ -808,6 +811,7 @@ export default function     EditClient() {
                     </form>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

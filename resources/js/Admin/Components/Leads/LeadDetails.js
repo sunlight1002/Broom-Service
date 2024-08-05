@@ -36,7 +36,8 @@ export default function LeadDetails({ lead }) {
                             </label> */}
                             <Link
                                 to={`/admin/add-lead-client/${param.id}`}
-                                className="btn navyblue  no-hover addButton mr-2"
+                                // to={`/admin/leads/${param.id}/edit`}
+                                className="btn navyblue no-hover addButton mr-2"
                             >
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 {t(
@@ -47,8 +48,9 @@ export default function LeadDetails({ lead }) {
                         <div className="">
                             <div className="search-data">
                                 <Link
-                                    to={`/admin/add-lead-client/${param.id}`}
-                                    className="btn navyblue addButton"
+                                    // to={`/admin/add-lead-client/${param.id}`}
+                                    to={`/admin/leads/${param.id}/edit`}
+                                    className="btn navyblue no-hover addButton"
                                 >
                                     <i className="btn-icon fas fa-pencil"></i>
                                     {t("admin.global.Edit")}
@@ -210,7 +212,7 @@ export default function LeadDetails({ lead }) {
                                             </div>
                                         </div>
 
-                                        <div className="col-sm-12">
+                                        {/* <div className="col-sm-12">
                                             <div className="form-group navyblueColor">
                                                 <p>
                                                     <Link
@@ -223,7 +225,7 @@ export default function LeadDetails({ lead }) {
                                                     </Link>
                                                 </p>
                                             </div>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                                 <div

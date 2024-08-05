@@ -123,6 +123,19 @@ export default function Form101Table({ formdata, workerId }) {
                                                 >
                                                     <i className="fa fa-eye"></i>
                                                 </Link>
+                                                {
+                                                    item.pdf_name ? (
+                                                        <Link
+                                                        target="_blank"
+                                                        to={`/storage/signed-docs/${item.pdf_name}`}
+                                                        className="ml-2 btn btn-warning"
+                                                    >
+                                                        <i class="fa-solid fa-download"></i>
+                                                    </Link>
+                                                    ) : ''
+                                                }
+                                    
+                                                
                                             </div>
                                         </td>
                                     </tr>

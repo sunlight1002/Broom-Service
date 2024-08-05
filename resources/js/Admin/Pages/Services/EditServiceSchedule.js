@@ -13,6 +13,7 @@ export default function EditServiceSchedule() {
     const [period, setPeriod] = useState([]);
     const [status, setStatus] = useState(0);
     const [errors, setErrors] = useState([]);
+    const [loading, setLoading] = useState(false);
     const pe = [
         { value: "na", label: "Not Required" },
         { value: "d", label: "Day" },
@@ -39,6 +40,7 @@ export default function EditServiceSchedule() {
 
     const handleUpdate = (e) => {
         e.preventDefault();
+        setLoading(true);
         const data = {
             name: name,
             name_heb: nameHeb,
@@ -51,8 +53,10 @@ export default function EditServiceSchedule() {
             .put(`/api/admin/service-schedule/${params.id}`, data, { headers })
             .then((response) => {
                 if (response.data.errors) {
+                    setLoading(false);
                     setErrors(response.data.errors);
                 } else {
+                    setLoading(false);
                     alert.success("schedule has been updated successfully");
                     setTimeout(() => {
                         navigate("/admin/service-schedules");
@@ -83,7 +87,7 @@ export default function EditServiceSchedule() {
             <div id="content">
                 <div className="edit-customer">
                     <h1 className="page-title addEmployer">Edit Schedule</h1>
-                    <div className="card card-body">
+                    <div className="card card-body" style={{boxShadow: "none"}}>
                         <form>
                             <div className="row">
                                 <div className="col-sm-12">
@@ -218,7 +222,7 @@ export default function EditServiceSchedule() {
                                     <input
                                         type="submit"
                                         onClick={handleUpdate}
-                                        className="btn btn-pink saveBtn"
+                                        className="btn navyblue saveBtn"
                                     />
                                 </div>
                             </div>
@@ -226,6 +230,7 @@ export default function EditServiceSchedule() {
                     </div>
                 </div>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

@@ -6,6 +6,7 @@ import axios from "axios";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import { useTranslation } from "react-i18next";
 import { IoSaveOutline } from "react-icons/io5";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 // import i18next from "i18next";
 
 
@@ -13,6 +14,7 @@ export default function AddLead() {
     const [status, setStatus] = useState(0);
     const [errors, setErrors] = useState([]);
     const alert = useAlert();
+    const [loading, setLoading] = useState(false);
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [addresses, setAddresses] = useState([]);
     const {t} = useTranslation()
@@ -43,6 +45,7 @@ export default function AddLead() {
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
+        setLoading(true);
         var phoneClc = "";
         var phones = document.querySelectorAll(".pphone");
         phones.forEach((p, i) => {
@@ -81,10 +84,12 @@ export default function AddLead() {
                 { headers }
             )
             .then((response) => {
-                console.log(response);
+                setLoading(false);
                 if (response.data.errors) {
+                    setLoading(false);
                     setErrors(response.data.errors);
                 } else {
+                    setLoading(false);
                     alert.success("Lead has been created successfully");
                     setTimeout(() => {
                         navigate("/admin/leads");
@@ -117,7 +122,6 @@ export default function AddLead() {
         extraValues.splice(i, 1);
         setExtra(extraValues);
     };
-    console.log(addresses);
     return (
         <div id="container">
             <Sidebar />
@@ -752,6 +756,7 @@ export default function AddLead() {
                     </form>
                 </div>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

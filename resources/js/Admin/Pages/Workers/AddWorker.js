@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 
 import Sidebar from "../../Layouts/Sidebar";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 const animalArray = [
     {
@@ -61,6 +62,7 @@ export default function AddWorker() {
     const [libraries] = useState(["places", "geometry"]);
     const [latitude, setLatitude] = useState(-33.865143);
     const [longitude, setLongitude] = useState(151.2099);
+    const [loading, setLoading] = useState(false);
     const [place, setPlace] = useState();
     Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
     const containerStyle = {
@@ -107,6 +109,7 @@ export default function AddWorker() {
     };
     const handleSubmit = (e) => {
         e.preventDefault();
+        setLoading(true);
         const data = {
             ...formValues,
             address: address,
@@ -130,17 +133,19 @@ export default function AddWorker() {
             .then((response) => {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
+                    setLoading(false);
                     setIsLoading(false);
                 } else {
                     alert.success("Worker has been created successfully");
                     setTimeout(() => {
                         navigate("/admin/workers");
                     }, 1000);
+                    setLoading(false);
                 }
             })
             .catch((e) => {
                 setIsLoading(false);
-
+                setLoading(false);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -816,6 +821,7 @@ export default function AddWorker() {
                     </div>
                 </div>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

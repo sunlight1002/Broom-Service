@@ -11,6 +11,7 @@ import {
 } from "@react-google-maps/api";
 import Geocode from "react-geocode";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 const animalArray = [
     {
@@ -60,6 +61,8 @@ export default function EditWorker() {
     const [latitude, setLatitude] = useState(-33.865143);
     const [longitude, setLongitude] = useState(151.2099);
     const [place, setPlace] = useState();
+    const [loading, setLoading] = useState(false);
+
     Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
     const containerStyle = {
         width: "100%",
@@ -106,6 +109,7 @@ export default function EditWorker() {
 
     const handleUpdate = (e) => {
         e.preventDefault();
+        setLoading(true);
         setIsSubmitting(true);
 
         const data = {
@@ -128,7 +132,9 @@ export default function EditWorker() {
             .then((response) => {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
+                    setLoading(false);
                 } else {
+                    setLoading(false);
                     alert.success("Worker has been updated successfully");
                     setTimeout(() => {
                         navigate("/admin/workers");
@@ -137,6 +143,7 @@ export default function EditWorker() {
                 setIsSubmitting(false);
             })
             .catch((e) => {
+                setLoading(false);
                 setIsSubmitting(false);
             });
     };
@@ -228,7 +235,7 @@ export default function EditWorker() {
             <div id="content">
                 <div className="edit-customer">
                     <h1 className="page-title editEmployer">Edit Worker</h1>
-                    <div className="dashBox p-4">
+                    <div className="dashBox p-4" style={{background: "inherit", border: "none"}}>
                         <form>
                             <div className="row">
                                 <div className="col-sm-6">
@@ -677,7 +684,7 @@ export default function EditWorker() {
                                                 <></>
                                             )}
                                             <Marker />
-                                        </GoogleMap>*/}
+                                        </GoogleMap> */}
                                     <Autocomplete
                                         onLoad={(e) => setPlace(e)}
                                         onPlaceChanged={handlePlaceChanged}
@@ -800,7 +807,7 @@ export default function EditWorker() {
                                 <input
                                     type="submit"
                                     onClick={handleUpdate}
-                                    className="btn btn-danger"
+                                    className="btn navyblue"
                                     disabled={isSubmitting}
                                     value={t("workerInviteForm.submit")}
                                 />
@@ -809,6 +816,7 @@ export default function EditWorker() {
                     </div>
                 </div>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

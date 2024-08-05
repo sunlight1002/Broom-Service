@@ -27,35 +27,46 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string', 'min:6'],
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-
+    
         // Authenticate the admin
         $admin = Admin::where('email', $request->email)->first();
-
+    
         if (!$admin || !Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
             return response()->json(['errors' => ['email' => 'These credentials do not match our records.']]);
         }
-
+    
         // Generate 6-digit numeric OTP
         $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
-
-        // Send OTP via email
+    
+        // Send OTP via email and SMS if two-factor authentication is enabled
         if ($admin->two_factor_enabled) {
+
+            // Save OTP and expiry to the database
+            $admin->otp = $otp;
+            $admin->otp_expiry = now()->addMinutes(10); 
+            $admin->save();
+            
+            $emailSent = false;
+            $smsSent = false;
+
             try {
-                $admin->otp = $otp;
-                $admin->otp_expiry = now()->addMinutes(10); 
-                $admin->save();
-
-                Mail::to($admin->email)->send(new LoginOtpMail($otp,$admin)); 
-
+                // Send OTP via email
+                Mail::to($admin->email)->send(new LoginOtpMail($otp, $admin));
+                $emailSent = true;
+            } catch (\Exception $e) {
+                $emailError = $e->getMessage();
+            }
+    
+            try {
                 // Send OTP via SMS using Twilio
                 $twilioAccountSid = config('services.twilio.twilio_id');
                 $twilioAuthToken = config('services.twilio.twilio_token');
                 $twilioPhoneNumber = config('services.twilio.twilio_number');
-
+    
                 $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
                 $phone_number = '+91'.$admin->phone;
                 
@@ -63,27 +74,51 @@ class AuthController extends Controller
                     $phone_number,
                     ['from' => $twilioPhoneNumber, 'body' => 'Your OTP for login: ' . $otp]
                 );
-            
+                $smsSent = true;
+            } catch (\Exception $e) {
+                $smsError = $e->getMessage();
+            }
+    
+            // Return response based on the results of email and SMS sending
+            if ($emailSent && $smsSent) {
                 return response()->json([
-                    "two_factor_enabled" =>$admin->two_factor_enabled,
+                    "two_factor_enabled" => $admin->two_factor_enabled,
                     "email" => $admin->email,
                     "lng" => $admin->lng,
                     'message' => 'OTP sent to your email and phone number for verification'
                 ]);
-            } catch (\Exception $e) {
+            } elseif ($emailSent) {
                 return response()->json([
-                    'errors' => ['otp' => 'Failed to send OTP. Please try again.'],
-                    'exception' => $e->getMessage()
+                    "two_factor_enabled" => $admin->two_factor_enabled,
+                    "email" => $admin->email,
+                    "lng" => $admin->lng,
+                    'message' => 'OTP sent to your email for verification. Failed to send OTP via SMS.',
+                    // 'errors' => ['sms' => $smsError]
+                ]);
+            } elseif ($smsSent) {
+                return response()->json([
+                    "two_factor_enabled" => $admin->two_factor_enabled,
+                    "email" => $admin->email,
+                    "lng" => $admin->lng,
+                    'message' => 'OTP sent to your phone number for verification. Failed to send OTP via email.',
+                    // 'errors' => ['email' => $emailError]
+                ]);
+            } else {
+                return response()->json([
+                    'errors' => ['otp' => 'Failed to send OTP via both email and SMS.'],
+                    'email_error' => $emailError ?? null,
+                    'sms_error' => $smsError ?? null
                 ], 500);
             }
         } else {
             // Login without OTP
             $admin = Admin::find(auth()->guard('admin')->user()->id);
             $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
-
+    
             return response()->json($admin);
         }
     }
+    
 
 
 

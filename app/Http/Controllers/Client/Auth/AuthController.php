@@ -30,59 +30,90 @@ class AuthController extends Controller
             'email'     => ['required', 'string', 'email', 'max:255'],
             'password'  => ['required', 'string', 'min:6'],
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->messages()
             ]);
         }
-
+    
         if (Auth::guard('client')->attempt([
             'email'     => $request->email,
             'password'  => $request->password
         ])) {
             $client = Client::find(auth()->guard('client')->user()->id);
             if ($client->status == 2) {
-                if($client->two_factor_enabled){
+                if ($client->two_factor_enabled) {
+                    $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
+                    $client->otp = $otp;
+                    $client->otp_expiry = now()->addMinutes(10); 
+                    $client->save();
+    
+                    $emailSent = false;
+                    $smsSent = false;
+                    $emailError = null;
+                    $smsError = null;
+    
                     try {
-                        $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
-
-                        $client->otp = $otp;
-                        $client->otp_expiry = now()->addMinutes(10); 
-                        $client->save();
-
-                        Mail::to($client->email)->send(new LoginOtpMail($otp,$client)); 
-
-                        App::setLocale($client->lng);
+                        // Send OTP via email
+                        Mail::to($client->email)->send(new LoginOtpMail($otp, $client));
+                        $emailSent = true;
+                    } catch (\Exception $e) {
+                        $emailError = $e->getMessage();
+                    }
+    
+                    try {
                         // Send OTP via SMS using Twilio
+                        App::setLocale($client->lng);
                         $otpMessage = __('mail.otp.body', ['otp' => $otp]);
-                        
+    
                         $twilioAccountSid = config('services.twilio.twilio_id');
                         $twilioAuthToken = config('services.twilio.twilio_token');
                         $twilioPhoneNumber = config('services.twilio.twilio_number');
-
+    
                         $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-                        $phone_number = '+91'.$client->phone;
-                    
+                        $phone_number = '+91' . $client->phone;
+                        
                         $twilioClient->messages->create(
                             $phone_number,
                             ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
                         );
-            
+                        $smsSent = true;
+                    } catch (\Exception $e) {
+                        $smsError = $e->getMessage();
+                    }
+    
+                    if ($emailSent && $smsSent) {
                         return response()->json([
                             "two_factor_enabled" => $client->two_factor_enabled,
                             "email" => $client->email,
                             "lng" => $client->lng,
                             'message' => 'OTP sent to your email and phone number for verification'
                         ]);
-
-                    } catch (\Exception $e) {
+                    } elseif ($emailSent) {
                         return response()->json([
-                            'errors' => ['otp' => 'Failed to send OTP. Please try again.'],
-                            'exception' => $e->getMessage()
+                            "two_factor_enabled" => $client->two_factor_enabled,
+                            "email" => $client->email,
+                            "lng" => $client->lng,
+                            'message' => 'OTP sent to your email for verification. Failed to send OTP via SMS.',
+                            // 'errors' => ['sms' => $smsError]
+                        ]);
+                    } elseif ($smsSent) {
+                        return response()->json([
+                            "two_factor_enabled" => $client->two_factor_enabled,
+                            "email" => $client->email,
+                            "lng" => $client->lng,
+                            'message' => 'OTP sent to your phone number for verification. Failed to send OTP via email.',
+                            // 'errors' => ['email' => $emailError]
+                        ]);
+                    } else {
+                        return response()->json([
+                            'errors' => ['otp' => 'Failed to send OTP via both email and SMS.'],
+                            'email_error' => $emailError,
+                            'sms_error' => $smsError
                         ], 500);
                     }
-                }else{ 
+                } else {
                     $client->token = $client->createToken('Client', ['client'])->accessToken;
                     return response()->json($client);
                 }

@@ -4,6 +4,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import { useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function AddTeam() {
 
@@ -18,6 +19,7 @@ export default function AddTeam() {
     const [status, setStatus] = useState(null);
     const [color, setColor] = useState(null);
     const [role, setRole] = useState("member");
+    const [loading, setLoading] = useState(false);
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -28,6 +30,7 @@ export default function AddTeam() {
     };
 
     const handleSubmit = () => {
+        setLoading(true);
         const data = {
             name: name,
             heb_name: hebname,
@@ -47,7 +50,9 @@ export default function AddTeam() {
                 for (let e in res.data.errors) {
                     alert.error(res.data.errors[e]);
                 }
+                setLoading(false);
             } else {
+                setLoading(false);
                 alert.success(res.data.message);
                 setTimeout(() => {
                     navigate("/admin/manage-team");
@@ -156,7 +161,7 @@ export default function AddTeam() {
                                             color="#fff"
                                             onChange={(e) => setColor("#fff")}
                                         />
-                                        <label htmlFor="swatch_7">
+                                        <label htmlFor="swatch_7" style={{background: "white"}}>
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>{t("admin.leads.AddLead.white")}</span>
@@ -338,7 +343,7 @@ export default function AddTeam() {
                                     <input
                                         type="submit"
                                         onClick={handleSubmit}
-                                        className="btn btn-pink saveBtn"
+                                        className="btn navyblue no-hover saveBtn"
                                     />
                                 </div>
                             </div>
@@ -346,6 +351,7 @@ export default function AddTeam() {
                     </div>
                 </form>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

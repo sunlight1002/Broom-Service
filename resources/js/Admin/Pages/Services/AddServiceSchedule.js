@@ -4,6 +4,7 @@ import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import { SelectPicker } from "rsuite";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function AddServiceSchedule() {
 
@@ -14,6 +15,7 @@ export default function AddServiceSchedule() {
     const [period, setPeriod] = useState([]);
     const [status, setStatus] = useState(0);
     const [errors, setErrors] = useState([]);
+    const [loading, setLoading] = useState(false);
     const pe = [
         { value: "na", label: "Not Required" },
         { value: "d", label: "Day" },
@@ -39,6 +41,7 @@ export default function AddServiceSchedule() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setLoading(true);
         const data = {
             name: name,
             name_heb: nameHeb,
@@ -51,8 +54,10 @@ export default function AddServiceSchedule() {
             .post(`/api/admin/service-schedule`, data, { headers })
             .then((response) => {
                 if (response.data.errors) {
+                    setLoading(false);
                     setErrors(response.data.errors);
                 } else {
+                    setLoading(false);
                     alert.success("Schedule has been created successfully");
                     setTimeout(() => {
                         navigate("/admin/service-schedules");
@@ -67,7 +72,7 @@ export default function AddServiceSchedule() {
             <div id="content">
                 <div className="edit-customer">
                     <h1 className="page-title addEmployer">{t("global.add")} {t("global.schedule")}</h1>
-                    <div className="card card-body">
+                    <div className="card card-body" style={{boxShadow: "none"}}>
                         <form>
                             <div className="row">
                                 <div className="col-sm-12">
@@ -211,6 +216,7 @@ export default function AddServiceSchedule() {
                     </div>
                 </div>
             </div>
+            { loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }
