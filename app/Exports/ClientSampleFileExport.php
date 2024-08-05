@@ -26,7 +26,7 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
 
     /**
      * Set export header
-     * 
+     *
      * @return array
      */
     public function headings(): array
@@ -157,6 +157,7 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 "cat_in_the_property" => "No",
                 "prefered_type" => "Male",
                 "has_offer" => "Yes",
+                "offer_id" => "",
                 "service_name" => $this->serviceNameOptions[0],
                 "frequency" => $this->frequencyOptions[0],
                 "type" => "fixed",
@@ -165,6 +166,7 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 "other_title" => "",
                 "worker_hours" => "5,7,10",
                 "has_contract" => "Yes",
+                "contract_id" => "",
                 "card_number" => "0000000000000000",
                 "card_type" => "Visa",
                 "card_holder_id" => "123456789",
