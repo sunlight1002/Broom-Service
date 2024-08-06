@@ -66,7 +66,7 @@ export default function WorkerProfile({ worker }) {
                                 <div className="col-sm-4">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.renewal_visa")}
+                                            {t("worker.settings.renewal_visa")}
                                         </label>
                                         <p>{worker.renewal_date}</p>
                                     </div>
@@ -75,7 +75,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("worker.settings.gender")}
+                                        {t("worker.settings.gender")}
                                     </label>
                                     <p>{worker.gender}</p>
                                 </div>
@@ -83,7 +83,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("worker.settings.p_ph")}
+                                        {t("worker.settings.p_ph")}
                                     </label>
                                     <p>{worker.payment_per_hour}</p>
                                 </div>
@@ -91,7 +91,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("worker.settings.w_id")}
+                                        {t("worker.settings.w_id")}
                                     </label>
                                     <p>{worker.worker_id}</p>
                                 </div>
@@ -99,7 +99,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("global.worker")}{t("work-contract.email")}
+                                        {t("global.worker")}{t("work-contract.email")}
                                     </label>
                                     <p className="word-break">{worker.email}</p>
                                 </div>
@@ -107,7 +107,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("worker.settings.pass")}
+                                        {t("worker.settings.pass")}
                                     </label>
 
                                     {pass == null ? (
@@ -135,7 +135,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("worker.settings.status")}
+                                        {t("worker.settings.status")}
                                     </label>
                                     <p>
                                         {worker.status ? "Active" : "Inactive"}
@@ -146,7 +146,7 @@ export default function WorkerProfile({ worker }) {
                             <div className="col-sm-8">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("worker.settings.address")}
+                                        {t("worker.settings.address")}
                                     </label>
                                     <a
                                         href={`https://maps.google.com?q=${worker.address}`}
@@ -156,6 +156,47 @@ export default function WorkerProfile({ worker }) {
                                     </a>
                                 </div>
                             </div>
+
+                            <div className="col-sm-8">
+                                <p className="font-18">Bank Details</p>
+                            {
+                                worker.payment_type === "money_transfer" ? (
+                                    <div className="row mt-2">
+                                    <div className="col-md-6">
+                                        <div className="d-flex align-items-center mb-3">
+                                            <label className="control-label mr-2" style={{margin: "0"}}>Full name:</label>
+                                            <p className="mb-0">{worker.full_name}</p>
+                                        </div>
+                                        <div className="d-flex align-items-center mb-3">
+                                            <label className="control-label mr-2" style={{margin: "0"}}>Bank Name:</label>
+                                            <p className="mb-0">{worker.bank_name}</p>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <div className="d-flex align-items-center mb-3">
+                                            <label className="control-label mr-2" style={{margin: "0"}}>Bank Number:</label>
+                                            <p className="mb-0">{worker.bank_number}</p>
+                                        </div>
+                                        <div className="d-flex align-items-center mb-3">
+                                            <label className="control-label mr-2" style={{margin: "0"}}>Branch Number:</label>
+                                            <p className="mb-0">{worker.branch_number}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                ) : (
+                                    <div className="row mt-2">
+                                        <div className="col-md-6">
+                                        <div className="d-flex align-items-center mb-3">
+                                            <label className="control-label mr-2" style={{margin: "0"}}>Payment type:</label>
+                                            <p className="mb-0">{worker.payment_type}</p>
+                                        </div>
+                                        </div>
+                                    </div>
+                                )
+                            }
+                            </div>
+
+
                         </div>
                     </form>
                 </div>
@@ -184,7 +225,7 @@ export default function WorkerProfile({ worker }) {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                               {t("admin.client.Enter_password")}
+                                                {t("admin.client.Enter_password")}
                                             </label>
                                             <input
                                                 type="password"

@@ -63,6 +63,12 @@ class User extends Authenticatable
         'otp',
         'otp_expiry',
         'two_factor_enabled',
+        'payment_type',
+        'full_name',
+        'bank_name',
+        'bank_number',
+        'branch_number',
+        'account_number'
     ];
 
     /**

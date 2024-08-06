@@ -27,7 +27,7 @@ export default function ViewWorker() {
     useEffect(() => {
         getWorker();
     }, []);
-
+    
     return (
         <div id="container">
             <Sidebar />

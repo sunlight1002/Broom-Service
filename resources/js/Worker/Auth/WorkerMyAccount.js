@@ -31,11 +31,29 @@ export default function WorkerMyAccount() {
 
     const [countries, setCountries] = useState([]);
     const [twostepverification, setTwostepverification] = useState(false);
-
+    const [bankDetails, setBankDetails] = useState({
+        payment_type: "",
+        full_name: "",
+        bank_name: "",
+        bank_no: null,
+        branch_no: null,
+        account_no: null
+    })
 
     const [errors, setErrors] = useState([]);
     const alert = useAlert();
     const { t } = useTranslation();
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setBankDetails((prevDetails) => ({
+            ...prevDetails,
+            [name]: value
+        }));
+    };
+
+    console.log(bankDetails);
+    
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -60,8 +78,13 @@ export default function WorkerMyAccount() {
             // status: itemStatus,
             country: country,
             email: email,
-            twostepverification: twostepverification
-
+            twostepverification: twostepverification,
+            payment_type: bankDetails.payment_type,
+            bank_name: bankDetails.bank_name,
+            full_name: bankDetails.full_name,
+            bank_number: bankDetails.bank_no,
+            branch_number: bankDetails.branch_no,
+            account_number: bankDetails.account_no,
         };
 
         elementsRef.current.map(
@@ -79,6 +102,7 @@ export default function WorkerMyAccount() {
     const getWorker = () => {
         axios.get(`/api/details`, { headers }).then((response) => {
             let w = response.data.success;
+
             setFirstName(w.firstname);
             setLastName(w.lastname);
             setEmail(w.email);
@@ -90,13 +114,21 @@ export default function WorkerMyAccount() {
             setAddress(w.address);
             setLng(w.lng);
             setCountry(w.country);
+            setBankDetails({
+                payment_type: w.payment_type,
+                full_name: w.full_name,
+                bank_name: w.bank_name,
+                account_no: w.account_number,
+                branch_no: w.branch_number,
+                bank_no: w.bank_number
+            })
             setTwostepverification(w.two_factor_enabled === 1);
             elementsRef.current.map(
                 (ref) =>
-                    (ref.current.checked =
-                        ref.current.name === animalArray[0].key
-                            ? w.is_afraid_by_dog
-                            : w.is_afraid_by_cat)
+                (ref.current.checked =
+                    ref.current.name === animalArray[0].key
+                        ? w.is_afraid_by_dog
+                        : w.is_afraid_by_cat)
             );
         });
     };
@@ -362,6 +394,81 @@ export default function WorkerMyAccount() {
                                     </div>
                                 </div>
                             )}
+
+                            <div className="col-sm-6">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Payment Method
+                                    </label>
+
+                                    <select
+                                        className="form-control"
+                                        name="payment_type"
+                                        value={bankDetails.payment_type}
+                                        onChange={handleChange}
+
+                                    >
+                                        <option value="">--- please select ---</option>
+                                        <option value="cheque">Cheque</option>
+                                        <option value="money_transfer">Money Transfer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            {
+                                bankDetails.payment_type === "money_transfer" && (
+                                    <>
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">Full Name</label>
+                                                <input
+                                                    type="text"
+                                                    name="full_name"
+                                                    value={bankDetails.full_name}
+                                                    onChange={handleChange}
+                                                    className="form-control"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">Bank Name</label>
+                                                <input
+                                                    type="text"
+                                                    name="bank_name"
+                                                    value={bankDetails.bank_name}
+                                                    onChange={handleChange}
+                                                    className="form-control"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">Account Number</label>
+                                                <input
+                                                    type="text"
+                                                    name="account_no"
+                                                    value={bankDetails.account_no}
+                                                    onChange={handleChange}
+                                                    className="form-control"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">Branch Number</label>
+                                                <input
+                                                    type="text"
+                                                    name="branch_no"
+                                                    value={bankDetails.branch_no}
+                                                    onChange={handleChange}
+                                                    className="form-control"
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                )
+                            }
+
                         </div>
                         <div className="form-group">
                             <label className="control-label">
@@ -401,22 +508,22 @@ export default function WorkerMyAccount() {
                                 </label>
                             </div>
                         ))}
-                      <div className="form-group d-flex align-items-center">
-                        <div className="toggle-switch">
-                            <div className="switch">
-                                <span className="mr-2">Two step Verification</span>
-                                <input
-                                    onChange={() => setTwostepverification(prev => !prev)}
-                                    type="checkbox"
-                                    id="switch"
-                                    checked={twostepverification}
-                                />
-                                <label htmlFor="switch">
-                                    <span className="slider round"></span>
-                                </label>
+                        <div className="form-group d-flex align-items-center">
+                            <div className="toggle-switch">
+                                <div className="switch">
+                                    <span className="mr-2">Two step Verification</span>
+                                    <input
+                                        onChange={() => setTwostepverification(prev => !prev)}
+                                        type="checkbox"
+                                        id="switch"
+                                        checked={twostepverification}
+                                    />
+                                    <label htmlFor="switch">
+                                        <span className="slider round"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
                         <div className="form-group text-center mb-0">
                             <input
                                 type="submit"

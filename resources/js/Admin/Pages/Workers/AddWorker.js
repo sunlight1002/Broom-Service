@@ -56,6 +56,16 @@ export default function AddWorker() {
 
     const [errors, setErrors] = useState([]);
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
+    const [payment, setPayment] = useState("")
+    const [bankDetails, setBankDetails] = useState({
+        full_name: "",
+        bank_name: "",
+        bank_no: null,
+        branch_no: null,
+        account_no: null
+    })
+    // console.log(bankDetails);
+
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -73,6 +83,11 @@ export default function AddWorker() {
         lat: latitude,
         lng: longitude,
     };
+
+    const handleBankDetails = (e) => {
+        const { name, value } = e.target;
+        setBankDetails(prev => ({ ...prev, [name]: value }));
+    }
 
     const handlePlaceChanged = () => {
         if (place) {
@@ -121,7 +136,15 @@ export default function AddWorker() {
             country: country,
             latitude: latitude,
             longitude: longitude,
+            payment_type: payment,
+            bank_name: bankDetails.bank_name,
+            full_name: bankDetails.full_name,
+            bank_number: bankDetails.bank_no,
+            branch_number: bankDetails.branch_no,
+            account_number: bankDetails.account_no,
         };
+        console.log(data);
+        
         elementsRef.current.map(
             (ref) => (data[ref.current.name] = ref.current.checked)
         );
@@ -183,20 +206,21 @@ export default function AddWorker() {
         getCountries();
         getManpowerCompanies();
     }, []);
+    
     return (
         <div id="container">
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
                     <h1 className="page-title addEmployer">{t("global.addWorker")}</h1>
-                    <div className="card" style={{boxShadow: "none"}}>
+                    <div className="card" style={{ boxShadow: "none" }}>
                         <div className="card-body">
                             <form>
                                 <div className="row">
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.f_name")} *
+                                                {t("worker.settings.f_name")} *
                                             </label>
                                             <input
                                                 type="text"
@@ -224,7 +248,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.l_name")}
+                                                {t("worker.settings.l_name")}
                                             </label>
                                             <input
                                                 type="text"
@@ -244,7 +268,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.email")}
+                                                {t("worker.settings.email")}
                                             </label>
                                             <input
                                                 type="email"
@@ -270,7 +294,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.phone")}
+                                                {t("worker.settings.phone")}
                                             </label>
                                             <input
                                                 type="tel"
@@ -297,7 +321,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.gender")}
+                                                {t("worker.settings.gender")}
                                             </label>
                                         </div>
                                         <div className="form-check-inline">
@@ -355,7 +379,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("nonIsrailContract.role")}
+                                                {t("nonIsrailContract.role")}
                                             </label>
                                             <input
                                                 type="text"
@@ -379,7 +403,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                               {t("worker.settings.p_ph")}(ILS)
+                                                {t("worker.settings.p_ph")}(ILS)
                                             </label>
                                             <input
                                                 type="text"
@@ -399,7 +423,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.w_id")}
+                                                {t("worker.settings.w_id")}
                                             </label>
                                             <input
                                                 type="text"
@@ -426,7 +450,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.pass")} *
+                                                {t("worker.settings.pass")} *
                                             </label>
                                             <input
                                                 type="password"
@@ -451,7 +475,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.lng")}
+                                                {t("worker.settings.lng")}
                                             </label>
 
                                             <select
@@ -479,7 +503,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.country")}
+                                                {t("worker.settings.country")}
                                             </label>
 
                                             <select
@@ -509,7 +533,7 @@ export default function AddWorker() {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                {t("worker.settings.renewal_visa")}
+                                                    {t("worker.settings.renewal_visa")}
                                                 </label>
                                                 <input
                                                     type="date"
@@ -526,6 +550,146 @@ export default function AddWorker() {
                                             </div>
                                         </div>
                                     )}
+
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">
+                                                Payment Method
+                                            </label>
+
+                                            <select
+                                                className="form-control"
+                                                value={payment}
+                                                onChange={(e) =>
+                                                    setPayment(e.target.value)
+                                                }
+                                            >
+                                                <option value="">--- please select ---</option>
+                                                <option value="cheque">Cheque</option>
+                                                <option value="money_transfer">Money Transfer</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+
+                                    {
+                                        payment === "money_transfer" && (
+                                    
+                                            <>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Full Name
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.full_name}
+                                                            name="full_name"
+                                                            onChange={handleBankDetails}
+                                                            className="form-control"
+                                                            placeholder="Enter Full Name"
+                                                        />
+                                                        {errors.full_name ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors.full_name}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Bank Name
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.bank_name}
+                                                            name="bank_name"
+                                                            onChange={handleBankDetails}
+                                                            className="form-control"
+                                                            placeholder="Enter Bank name"
+                                                        />
+                                                        {errors.bank_name ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors.bank_name}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Bank Number
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.bank_no}
+                                                            name="bank_no"
+                                                            onChange={handleBankDetails}
+                                                            className="form-control"
+                                                            placeholder="Enter Bank Number"
+                                                        />
+                                                        {errors.bank_number ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors.bank_number}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Branch Number
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.branch_no}
+                                                            name="branch_no"
+                                                            onChange={handleBankDetails}
+                                                            className="form-control"
+                                                            placeholder="Enter Branch Number"
+                                                        />
+                                                        {errors.branch_number ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors.branch_number}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm-6">
+                                                    <div className="form-group">
+                                                        <label className="control-label">
+                                                            Acount Number
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={bankDetails.account_no}
+                                                            name="account_no"
+                                                            onChange={handleBankDetails}
+                                                            className="form-control"
+                                                            placeholder="Enter Account Number"
+                                                        />
+                                                        {errors.account_number ? (
+                                                            <small className="text-danger mb-1">
+                                                                {errors.account_number}
+                                                            </small>
+                                                        ) : (
+                                                            ""
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )
+                                    }
 
                                     <div className="col-sm-6">
                                         <div className="form-group">
@@ -574,7 +738,7 @@ export default function AddWorker() {
                                                         "manpower"
                                                     }
                                                 />
-                                                  {t("admin.global.manpower")}
+                                                {t("admin.global.manpower")}
                                             </label>
                                         </div>
                                         <div>
@@ -591,7 +755,7 @@ export default function AddWorker() {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                {t("admin.global.manpower")}
+                                                    {t("admin.global.manpower")}
                                                 </label>
 
                                                 <select
@@ -609,7 +773,7 @@ export default function AddWorker() {
                                                     }
                                                 >
                                                     <option value="">
-                                                    {t("admin.global.select_manpower")}
+                                                        {t("admin.global.select_manpower")}
                                                     </option>
                                                     {manpowerCompanies.map(
                                                         (mpc, index) => (
@@ -640,7 +804,7 @@ export default function AddWorker() {
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("admin.global.location")}
+                                        {t("admin.global.location")}
                                     </label>
                                     <LoadScript
                                         googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
@@ -771,7 +935,7 @@ export default function AddWorker() {
                                                 <input
                                                     ref={
                                                         elementsRef.current[
-                                                            index
+                                                        index
                                                         ]
                                                     }
                                                     type="checkbox"
@@ -786,7 +950,7 @@ export default function AddWorker() {
                                 </div>
                                 <div className="form-group mt-4">
                                     <label className="control-label">
-                                    {t("worker.settings.status")}
+                                        {t("worker.settings.status")}
                                     </label>
                                     <select
                                         className="form-control"
@@ -821,7 +985,7 @@ export default function AddWorker() {
                     </div>
                 </div>
             </div>
-            { loading && <FullPageLoader visible={loading}/>}
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

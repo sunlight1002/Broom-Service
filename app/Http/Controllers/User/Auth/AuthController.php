@@ -280,6 +280,11 @@ class AuthController extends Controller
         $worker->is_afraid_by_cat  = $request->is_afraid_by_cat;
         $worker->is_afraid_by_dog  = $request->is_afraid_by_dog;
         $worker->two_factor_enabled = $request->twostepverification;
+        $worker->payment_type = $request->payment_type;
+        $worker->full_name = $request->full_name;
+        $worker->bank_name = $request->bank_name;
+        $worker->branch_number = $request->branch_number;
+        $worker->account_number = $request->account_number;
         $worker->save();
 
         return response()->json([

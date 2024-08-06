@@ -63,7 +63,20 @@ class TeamMemberController extends Controller
             'phone' => ['required'],
             'password' => ['required', 'min:6', 'required_with:confirmation', 'same:confirmation'],
             'status' => ['required'],
-        ]);
+            'payment_type' => ['required', 'string'],
+            'full_name' => ['required_if:payment_type,money_transfer', 'string'],
+            'bank_name' => ['required_if:payment_type,money_transfer', 'string'],
+            'bank_number' => ['required_if:payment_type,money_transfer', 'string'],
+            'branch_number' => ['required_if:payment_type,money_transfer', 'string'],
+            'account_number' => ['required_if:payment_type,money_transfer', 'string'],
+        ], [
+            'payment_type.required' => 'The payment type is required.',
+            'full_name.required_if' => 'The full name is required.',
+            'bank_name.required_if' => 'The bank name is required.',
+            'bank_number.required_if' => 'The bank number is required.',
+            'branch_number.required_if' => 'The branch number is required.',
+            'account_number.required_if' => 'The account number is required.',
+        ]); 
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
@@ -115,8 +128,21 @@ class TeamMemberController extends Controller
             'phone' => ['required'],
             'password' => $request->password ? ['min:6', 'required_with:confirmation', 'same:confirmation'] : [],
             'status' => ['required'],
+            'payment_type' => ['required', 'string'],
+            'full_name' => ['required_if:payment_type,money_transfer', 'string'],
+            'bank_name' => ['required_if:payment_type,money_transfer', 'string'],
+            'bank_number' => ['required_if:payment_type,money_transfer', 'string'],
+            'branch_number' => ['required_if:payment_type,money_transfer', 'string'],
+            'account_number' => ['required_if:payment_type,money_transfer', 'string'],
+        ], [
+            'payment_type.required' => 'The payment type is required.',
+            'full_name.required_if' => 'The full name is required.',
+            'bank_name.required_if' => 'The bank name is required .',
+            'bank_number.required_if' => 'The bank number is required .',
+            'branch_number.required_if' => 'The branch number is required.',
+            'account_number.required_if' => 'The account number is required.',
         ]);
-
+        
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }

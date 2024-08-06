@@ -36,6 +36,7 @@ export default function Acc() {
         try {
             setLoading(true);
             const response = await axios.get("/api/admin/my-account", { headers });
+            
             setName(response.data.account.name);
             setColor(response.data.account.color);
             setEmail(response.data.account.email);

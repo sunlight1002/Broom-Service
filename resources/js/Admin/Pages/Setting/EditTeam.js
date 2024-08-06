@@ -15,6 +15,15 @@ export default function EditTeam() {
     const [status, setStatus] = useState(null);
     const [color, setColor] = useState(null);
     const [role, setRole] = useState(null);
+    const [payment, setPayment] = useState("")
+    const [bankDetails, setBankDetails] = useState({
+        payment_type: "",
+        full_name: "",
+        bank_name: "",
+        bank_no: null,
+        branch_no: null,
+        account_no: null
+    }) 
 
     const alert = useAlert();
     const param = useParams();
@@ -25,7 +34,17 @@ export default function EditTeam() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const handleUpdate = () => {
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setBankDetails((prevDetails) => ({
+            ...prevDetails,
+            [name]: value
+        }));
+    };
+
+    const handleUpdate = (e) => {
+        e.preventDefault()
         const data = {
             name: name,
             heb_name: hebname,
@@ -38,11 +57,19 @@ export default function EditTeam() {
             confirmation: confirmPassword,
             status: !status ? 1 : status,
             role: role,
+            payment_type: payment,
+            bank_name: bankDetails.bank_name,
+            full_name: bankDetails.full_name,
+            bank_number: bankDetails.bank_no,
+            branch_number: bankDetails.branch_no,
+            account_number: bankDetails.account_no,
         };
 
         axios
             .put(`/api/admin/teams/${param.id}`, data, { headers })
             .then((res) => {
+                console.log(res);
+                
                 if (res.data.errors) {
                     for (let e in res.data.errors) {
                         alert.error(res.data.errors[e]);
@@ -69,6 +96,14 @@ export default function EditTeam() {
                 setAddress(d.address);
                 setStatus(d.status);
                 setRole(d.role);
+                setBankDetails({
+                    bank_name: d.bank_name,
+                    account_no: d.account_number,
+                    bank_no: d.bank_number,
+                    branch_no: d.branch_number,
+                    full_name: d.full_name
+                })
+                setPayment(d.payment_type)
                 if (d.color) {
                     let clr = document.querySelectorAll(
                         'input[name="swatch_demo"]'
@@ -166,7 +201,7 @@ export default function EditTeam() {
                             </div>
                         </div>
                         <div className="col-lg-6 col-12">
-                            <div className="dashBox p-4">
+                            <div className="dashBox pl-4 pt-4 pr-4">
                                 <div className="form-group">
                                     <div
                                         className="form-check form-check-inline1 pl-0"
@@ -336,8 +371,105 @@ export default function EditTeam() {
                                         <option value={0}>Disable</option>
                                     </select>
                                 </div>
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Payment Method
+                                    </label>
+
+                                    <select
+                                        className="form-control"
+                                        value={payment}
+                                        onChange={(e) =>
+                                            setPayment(e.target.value)
+                                        }
+                                    >
+                                        <option value="">--- please select ---</option>
+                                        <option value="cheque">Cheque</option>
+                                        <option value="money_transfer">Money Transfer</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
+                        {
+                            payment === "money_transfer" && (
+                                <div className="col-sm-12 mt-2">
+                                    <div className="dashBox p-4">
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Full Name</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.full_name}
+                                                        name="full_name"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Full Name"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Bank Name</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.bank_name}
+                                                        name="bank_name"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Bank Name"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Bank Number</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.bank_no}
+                                                        name="bank_no"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Bank Number"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Branch Number</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.branch_no}
+                                                        name="branch_no"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Branch Number"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Account Number</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.account_no}
+                                                        name="account_no"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Account Number"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            )
+                        }
                         <div className="col-sm-12">
                             <div className="dashBox p-4 mt-3">
                                 <h4 className="mb-2">Preset permissions</h4>

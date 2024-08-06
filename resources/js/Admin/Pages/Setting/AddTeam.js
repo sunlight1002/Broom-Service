@@ -21,6 +21,15 @@ export default function AddTeam() {
     const [role, setRole] = useState("member");
     const [loading, setLoading] = useState(false);
 
+    const [payment, setPayment] = useState("")
+    const [bankDetails, setBankDetails] = useState({
+        full_name: "",
+        bank_name: "",
+        bank_no: null,
+        branch_no: null,
+        account_no: null
+    })
+
     const alert = useAlert();
     const navigate = useNavigate();
     const headers = {
@@ -29,8 +38,15 @@ export default function AddTeam() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const handleSubmit = () => {
-        setLoading(true);
+
+    const handleBankDetails = (e) => {
+        const { name, value } = e.target;
+        setBankDetails(prev => ({ ...prev, [name]: value }));
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // setLoading(true);
         const data = {
             name: name,
             heb_name: hebname,
@@ -43,14 +59,21 @@ export default function AddTeam() {
             confirmation: confirmPassword,
             status: !status ? 1 : status,
             role: role,
+            payment_type: payment,
+            bank_name: bankDetails.bank_name,
+            full_name: bankDetails.full_name,
+            bank_number: bankDetails.bank_no,
+            branch_number: bankDetails.branch_no,
+            account_number: bankDetails.account_no,
         };
 
         axios.post(`/api/admin/teams`, data, { headers }).then((res) => {
+
             if (res.data.errors) {
+                    setLoading(false);
                 for (let e in res.data.errors) {
                     alert.error(res.data.errors[e]);
                 }
-                setLoading(false);
             } else {
                 setLoading(false);
                 alert.success(res.data.message);
@@ -72,7 +95,7 @@ export default function AddTeam() {
                             <div className="dashBox p-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("admin.global.NameEn")}
+                                        {t("admin.global.NameEn")}
                                     </label>
                                     <input
                                         type="text"
@@ -85,7 +108,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("admin.global.NameHev")}
+                                        {t("admin.global.NameHev")}
                                     </label>
                                     <input
                                         type="text"
@@ -98,7 +121,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("admin.global.Email")}
+                                        {t("admin.global.Email")}
                                     </label>
                                     <input
                                         type="email"
@@ -112,7 +135,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("admin.global.Phone")}
+                                        {t("admin.global.Phone")}
                                     </label>
                                     <input
                                         type="tel"
@@ -125,7 +148,7 @@ export default function AddTeam() {
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("client.meeting.address_txt")}
+                                        {t("client.meeting.address_txt")}
                                     </label>
                                     <input
                                         type="text"
@@ -139,7 +162,7 @@ export default function AddTeam() {
                             </div>
                         </div>
                         <div className="col-lg-6 col-12">
-                            <div className="dashBox p-4">
+                            <div className="dashBox pt-4 pl-4 pr-4">
                                 <div className="form-group">
                                     <div
                                         className="form-check form-check-inline1 pl-0"
@@ -161,7 +184,7 @@ export default function AddTeam() {
                                             color="#fff"
                                             onChange={(e) => setColor("#fff")}
                                         />
-                                        <label htmlFor="swatch_7" style={{background: "white"}}>
+                                        <label htmlFor="swatch_7" style={{ background: "white" }}>
                                             <i className="fa fa-check"></i>
                                         </label>
                                         <span>{t("admin.leads.AddLead.white")}</span>
@@ -266,7 +289,7 @@ export default function AddTeam() {
 
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("worker.settings.pass")}
+                                        {t("worker.settings.pass")}
                                     </label>
                                     <input
                                         type="password"
@@ -307,8 +330,108 @@ export default function AddTeam() {
                                         <option value={0}>{t("worker.settings.Disable")}</option>
                                     </select>
                                 </div>
+
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        Payment Method
+                                    </label>
+
+                                    <select
+                                        className="form-control"
+                                        value={payment}
+                                        onChange={(e) =>
+                                            setPayment(e.target.value)
+                                        }
+                                    >
+                                        <option value="">--- please select ---</option>
+                                        <option value="cheque">Cheque</option>
+                                        <option value="money_transfer">Money Transfer</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
+
+                        {
+                            payment === "money_transfer" && (
+                                <div className="col-sm-12 mt-2">
+                                    <div className="dashBox p-4">
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Full Name</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.full_name}
+                                                        name="full_name"
+                                                        onChange={handleBankDetails}
+                                                        className="form-control"
+                                                        placeholder="Enter Full Name"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Bank Name</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.bank_name}
+                                                        name="bank_name"
+                                                        onChange={handleBankDetails}
+                                                        className="form-control"
+                                                        placeholder="Enter Bank Name"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Bank Number</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.bank_no}
+                                                        name="bank_no"
+                                                        onChange={handleBankDetails}
+                                                        className="form-control"
+                                                        placeholder="Enter Bank Number"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Branch Number</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.branch_no}
+                                                        name="branch_no"
+                                                        onChange={handleBankDetails}
+                                                        className="form-control"
+                                                        placeholder="Enter Branch Number"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">Account Number</label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.account_no}
+                                                        name="account_no"
+                                                        onChange={handleBankDetails}
+                                                        className="form-control"
+                                                        placeholder="Enter Account Number"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            )
+                        }
+
                         <div className="col-sm-12">
                             <div className="dashBox p-4 mt-3">
                                 <h4 className="mb-2">{t("worker.settings.Presetpermissions")}</h4>
@@ -351,7 +474,7 @@ export default function AddTeam() {
                     </div>
                 </form>
             </div>
-            { loading && <FullPageLoader visible={loading}/>}
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

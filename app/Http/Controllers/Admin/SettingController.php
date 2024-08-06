@@ -161,6 +161,41 @@ class SettingController extends Controller
         ]);
     }
 
+    public function changeBankDetails(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'payment_type' => ['required', 'string'],
+            'full_name' => ['required_if:payment_type,money_transfer', 'string'],
+            'bank_name' => ['required_if:payment_type,money_transfer', 'string'],
+            'bank_number' => ['required_if:payment_type,money_transfer', 'string'],
+            'branch_number' => ['required_if:payment_type,money_transfer', 'string'],
+            'account_number' => ['required_if:payment_type,money_transfer', 'string'],
+        ], [
+            'payment_type.required' => 'The payment type is required.',
+            'full_name.required_if' => 'The full name is required.',
+            'bank_name.required_if' => 'The bank name is required.',
+            'bank_number.required_if' => 'The bank number is required.',
+            'branch_number.required_if' => 'The branch number is required.',
+            'account_number.required_if' => 'The account number is required.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+
+        $admin = Admin::find(Auth::user()->id);
+        $admin->payment_type = $request->input('payment_type');
+        $admin->full_name = $request->input('full_name');
+        $admin->bank_name = $request->input('bank_name');
+        $admin->bank_number = $request->input('bank_number');
+        $admin->branch_number = $request->input('branch_number');
+        $admin->account_number = $request->input('account_number');
+    
+        $admin->save();
+    
+        return response()->json(['message' => 'Bank details updated successfully'], 200);
+    }
+
     public function getCountries()
     {
         $countries = Countries::get();

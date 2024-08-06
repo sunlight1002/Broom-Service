@@ -1,11 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Acc from "../../Components/Settings/Acc";
 import ChangePass from "../../Components/Settings/ChangePass";
 import Sidebar from "../../Layouts/Sidebar";
 import { useTranslation } from "react-i18next";
+import BankDetails from "../../Components/Settings/BankDetails";
 
 export default function Setting() {
     const { t } = useTranslation();
+    const [role, setRole] = useState("")
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+    const getSetting = async () => {
+
+        try {
+            const response = await axios.get("/api/admin/my-account", { headers });
+            const data = response.data.account;
+            setRole(data.role)
+        } catch (error) {
+            console.error("Error fetching settings:", error);
+        }
+    };
+
+    useEffect(() => {
+        getSetting();
+    }, []);
+
     return (
         <div id="container">
             <Sidebar />
@@ -37,6 +61,22 @@ export default function Setting() {
                                 {t("client.settings.change_pass")}
                             </a>
                         </li>
+                      {
+                        role !== "superadmin" && (
+                            <li className="nav-item" role="presentation">
+                            <a
+                                id="bank-tab"
+                                className="nav-link"
+                                data-toggle="tab"
+                                href="#tab-bank"
+                                aria-selected="false"
+                                role="tab"
+                            >
+                                Bank details
+                            </a>
+                        </li>
+                        )
+                      }
                     </ul>
                     <div className="tab-content">
                         <div
@@ -55,6 +95,18 @@ export default function Setting() {
                         >
                             <ChangePass />
                         </div>
+                        {
+                            role !== "superadmin" && (
+                                <div
+                                    id="tab-bank"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="tab-bank"
+                                >
+                                    <BankDetails />
+                                </div>
+                            )
+                        }
                     </div>
                 </div>
             </div>
