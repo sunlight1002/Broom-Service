@@ -11,6 +11,7 @@ use App\Events\ClientReviewed;
 use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
 use App\Jobs\CreateJobOrder;
+use App\Jobs\GenerateJobInvoice;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\Admin;
 use App\Models\Job;
@@ -26,6 +27,7 @@ use App\Events\JobNotificationToAdmin;
 use App\Events\JobWorkerChanged;
 use App\Models\ManageTime;
 use App\Events\JobNotificationToWorker;
+use App\Enums\OrderPaidStatusEnum;
 use App\Models\Client;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -120,6 +122,8 @@ class JobController extends Controller
             ], 404);
         }
 
+        $requestedJob = $job;
+
         $client = $job->client;
         if (!$client) {
             return response()->json([
@@ -172,6 +176,8 @@ class JobController extends Controller
             $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
             $feeAmount = ($feePercentage / 100) * $job->total_amount;
 
+            \Log::info("JobCancellationFee Save for Job : ". $job->id);
+
             JobCancellationFee::create([
                 'job_id' => $job->id,
                 'job_group_id' => $job->job_group_id,
@@ -195,7 +201,13 @@ class JobController extends Controller
                 'cancel_until_date' => $until_date,
             ]);
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+
+            \Log::info("CreateJobOrder dispatch from cancel job");
+
             CreateJobOrder::dispatch($job->id);
+
+            \Log::info("CreateJobOrder dispatch from cancel job end here");
+
             ScheduleNextJobOccurring::dispatch($job->id);
 
             Notification::create([
@@ -255,12 +267,45 @@ class JobController extends Controller
             //send notification to worker
             $job = $job->toArray();
             $worker = $job['worker'];
-            $emailData = [
-                'emailSubject'  => $emailSubject,
-                'emailTitle'  => __('mail.job_common.job_status'),
-                'emailContent'  => $emailContent
-            ];
-            event(new JobNotificationToWorker($worker, $job, $emailData));
+            if($worker) {
+                $emailData = [
+                    'emailSubject'  => $emailSubject,
+                    'emailTitle'  => __('mail.job_common.job_status'),
+                    'emailContent'  => $emailContent
+                ];
+                event(new JobNotificationToWorker($worker, $job, $emailData));
+            }
+        }
+
+        $monthEndDate = Carbon::parse($requestedJob->start_date)->endOfMonth()->toDateString();
+
+        $upcomingJobCountInCurrentMonth = Job::query()
+            ->where('client_id', $client->id)
+            ->whereDate('start_date', '>=', $requestedJob->start_date)
+            ->where(function ($q) use ($monthEndDate) {
+                $q->whereDate('start_date', '<=', $monthEndDate)
+                    ->orWhereDate('next_start_date', '<=', $monthEndDate);
+            })
+            ->whereIn('status', [
+                JobStatusEnum::PROGRESS,
+                JobStatusEnum::SCHEDULED,
+                JobStatusEnum::UNSCHEDULED
+            ])
+            ->where('is_paid', false)
+            ->count();
+
+        if($upcomingJobCountInCurrentMonth <= 0) {
+            $completedJobs = Job::query()
+                ->where('status', JobStatusEnum::COMPLETED)
+                ->where('job_group_id', $requestedJob->job_group_id)
+                ->where('is_paid', false)
+                ->get();
+
+            foreach ($completedJobs as $key => $completedJob) {
+                if($completedJob->order->paid_status != OrderPaidStatusEnum::PAID) {
+                    GenerateJobInvoice::dispatch($completedJob->order->id);
+                }
+            }
         }
 
         return response()->json([

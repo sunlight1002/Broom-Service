@@ -59,6 +59,8 @@ class CreateJobOrder implements ShouldQueue
             })
             ->find($this->jobID);
 
+        \Log::info('job', $job->toArray());
+
         if ($job) {
             $items = [];
             $client = $job->client;
@@ -100,6 +102,8 @@ class CreateJobOrder implements ShouldQueue
 
             $job->refresh();
 
+            \Log::info('upcomingJobCountInCurrentMonth : ' . $upcomingJobCountInCurrentMonth . '. Job Final Refresh : ', $job->toArray());
+
             App::setLocale($client->lng);
 
             if ($job->is_job_done) {
@@ -110,17 +114,30 @@ class CreateJobOrder implements ShouldQueue
                 ];
             }
 
-            $cancellationFees = JobCancellationFee::query()
-                ->where('job_group_id', $job->job_group_id)
-                ->where('is_order_generated', false)
-                ->get(['cancellation_fee_amount', 'action']);
+            // $cancellationFees = JobCancellationFee::query()
+            //     ->where('job_group_id', $job->job_group_id)
+            //     ->where('is_order_generated', false)
+            //     ->get(['cancellation_fee_amount', 'action']);
 
-            foreach ($cancellationFees as $key => $fee) {
+            // foreach ($cancellationFees as $key => $fee) {
+            //     $items[] = [
+            //         "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d, M Y') . " - " . __('mail.job_status.cancellation_fee'),
+            //         "unitprice"   => $fee->cancellation_fee_amount,
+            //         "quantity"    => 1,
+            //     ];
+            // }
+
+            $cancellationFees = JobCancellationFee::query()
+                ->where('job_id', $job->id)
+                ->where('is_order_generated', false)
+                ->first(['cancellation_fee_amount', 'action']);
+
+            if($cancellationFees) {
                 $items[] = [
-                    "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d, M Y') . " - " . __('mail.job_status.cancellation_fee'),
-                    "unitprice"   => $fee->cancellation_fee_amount,
-                    "quantity"    => 1,
-                ];
+                        "description" => (($client->lng == 'en') ?  $service->name : $service->heb_name) . " - " . Carbon::today()->format('d, M Y') . " - " . __('mail.job_status.cancellation_fee'),
+                        "unitprice"   => $cancellationFees->cancellation_fee_amount,
+                        "quantity"    => 1,
+                    ];
             }
 
             if ($job->extra_amount) {
@@ -153,7 +170,12 @@ class CreateJobOrder implements ShouldQueue
             }
 
             if ($job->is_one_time_in_month_job) {
+
+                \Log::info("GenerateJobInvoice Payment Initiate Call");
+
                 GenerateJobInvoice::dispatch($order->id);
+
+                \Log::info("GenerateJobInvoice Payment Call Complete");
             }
         }
     }

@@ -67,9 +67,17 @@ trait ICountDocument
         $isPaymentProcessed = false;
         /* Auto payment */
         if ($payment_method == 'cc') {
+
+            \Log::info('Payment IcountDoc commitInvoicePayment Initiate');
+
             $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $subtotal);
 
+            \Log::info('Payment IcountDoc commitInvoicePayment Finish');
+
             if ($paymentResponse['HasError'] == true) {
+
+                \Log::info('Payment IcountDoc commitInvoicePayment Error');
+
                 $order->update([
                     'paid_status' => OrderPaidStatusEnum::PROBLEM
                 ]);
@@ -103,6 +111,9 @@ trait ICountDocument
         }
 
         if ($doctype == 'invoice') {
+
+            \Log::info('Payment IcountDoc generateInvoiceDocument doctype : invoice');
+
             $json = $this->generateInvoiceDocument(
                 $client,
                 $order,
@@ -110,6 +121,9 @@ trait ICountDocument
                 $otherInvDocOptions
             );
         } else {
+
+            \Log::info('Payment IcountDoc generateInvRecDocument');
+
             $json = $this->generateInvRecDocument(
                 $client,
                 $services,
@@ -119,9 +133,12 @@ trait ICountDocument
                 $order->discount_amount,
             );
         }
+        \Log::info('Payment IcountDoc generateDocument Finish');
 
         $discount = isset($json['doc_info']['discount']) ? $json['doc_info']['discount'] : NULL;
         $totalAmount = isset($json['doc_info']['afterdiscount']) ? $json['doc_info']['afterdiscount'] : NULL;
+
+        \Log::info('Payment IcountDoc Invoice create');
 
         $invoice = Invoices::create([
             'invoice_id'        => $json['docnum'],
@@ -155,6 +172,8 @@ trait ICountDocument
             'is_invoice_generated'  => true,
         ]);
 
+        \Log::info('Payment IcountDoc close order');
+
         /*Close Order */
         $this->closeDoc($order->order_id, 'order');
 
@@ -185,6 +204,8 @@ trait ICountDocument
 
         $order->update($orderUpdateData);
 
+        \Log::info('Payment IcountDoc update Job and JobCancellationFee for paid status');
+
         if ($doctype == 'invrec') {
             Job::where('order_id', $order->id)
                 ->update([
@@ -204,6 +225,8 @@ trait ICountDocument
         if ($isPaymentProcessed) {
             event(new ClientPaymentPaid($client, $subtotal));
         }
+
+        \Log::info('Payment IcountDoc finish');
     }
 
 

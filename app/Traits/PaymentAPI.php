@@ -751,6 +751,8 @@ trait PaymentAPI
 
         $json = $response->json();
 
+        \Log::info('generateInvRecDocument doc create response : ', $json);
+
         $http_code = $response->status();
 
         if ($http_code != 200) {
