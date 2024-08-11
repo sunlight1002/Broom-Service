@@ -115,12 +115,12 @@ class SettingController extends Controller
             if (Storage::disk('public')->putFileAs("uploads/admin", $image, $name)) {
                 $input['avatar'] = $name;
             }
-        
+
         }
         if ($request->has('twostepverification')) {
             $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
         }
-        
+
         $admin->update($input);
 
         return response()->json([
@@ -165,11 +165,11 @@ class SettingController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'payment_type' => ['required', 'string'],
-            'full_name' => ['required_if:payment_type,money_transfer', 'string'],
-            'bank_name' => ['required_if:payment_type,money_transfer', 'string'],
-            'bank_number' => ['required_if:payment_type,money_transfer', 'string'],
-            'branch_number' => ['required_if:payment_type,money_transfer', 'string'],
-            'account_number' => ['required_if:payment_type,money_transfer', 'string'],
+            'full_name' => ['required_if:payment_type,money_transfer'],
+            'bank_name' => ['required_if:payment_type,money_transfer'],
+            'bank_number' => ['required_if:payment_type,money_transfer'],
+            'branch_number' => ['required_if:payment_type,money_transfer'],
+            'account_number' => ['required_if:payment_type,money_transfer'],
         ], [
             'payment_type.required' => 'The payment type is required.',
             'full_name.required_if' => 'The full name is required.',
@@ -190,9 +190,9 @@ class SettingController extends Controller
         $admin->bank_number = $request->input('bank_number');
         $admin->branch_number = $request->input('branch_number');
         $admin->account_number = $request->input('account_number');
-    
+
         $admin->save();
-    
+
         return response()->json(['message' => 'Bank details updated successfully'], 200);
     }
 
@@ -272,7 +272,7 @@ class SettingController extends Controller
             );
         }
 
-        
+
 
         return response()->json([
             'success' => 'Settings has been updated'

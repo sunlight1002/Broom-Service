@@ -144,7 +144,7 @@ export default function AddWorker() {
             account_number: bankDetails.account_no,
         };
         console.log(data);
-        
+
         elementsRef.current.map(
             (ref) => (data[ref.current.name] = ref.current.checked)
         );
@@ -206,7 +206,7 @@ export default function AddWorker() {
         getCountries();
         getManpowerCompanies();
     }, []);
-    
+
     return (
         <div id="container">
             <Sidebar />
@@ -569,13 +569,20 @@ export default function AddWorker() {
                                                 <option value="money_transfer">Money Transfer</option>
                                             </select>
                                         </div>
+                                        {errors.payment_type ? (
+                                            <small className="text-danger mb-1">
+                                                {errors.payment_type}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
                                     </div>
 
 
 
                                     {
                                         payment === "money_transfer" && (
-                                    
+
                                             <>
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
