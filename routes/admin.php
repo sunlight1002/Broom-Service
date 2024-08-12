@@ -24,6 +24,9 @@ use App\Http\Controllers\Admin\ManpowerCompaniesController;
 use App\Http\Controllers\Admin\WorkerAffectedAvailabilitiesController;
 use App\Http\Controllers\Api\LeadWebhookController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\PhaseController;
+use App\Http\Controllers\Admin\LeadChartsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -109,6 +112,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('present-workers-for-job', [WorkerController::class, 'presentWorkersForJob']);
     Route::get('workers/working-hours', [WorkerController::class, 'workingHoursReport']);
     Route::post('workers/working-hours/export', [WorkerController::class, 'exportWorkingHoursReport']);
+    Route::post('workers/working-hours/pdf', [WorkerController::class, 'generateWorkerHoursPDF']);
     Route::post('form/send', [WorkerController::class, 'formSend']);
 
     Route::post('workers/import', [WorkerController::class, 'import']);
@@ -304,4 +308,28 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('worker-affected-availability/{id}', [WorkerAffectedAvailabilitiesController::class, 'show']);
     Route::post('worker-affected-availability/{id}/approve', [WorkerAffectedAvailabilitiesController::class, 'approve']);
     Route::post('worker-affected-availability/{id}/reject', [WorkerAffectedAvailabilitiesController::class, 'reject']);
+
+    //phase and task management
+    Route::apiResource('/tasks', TaskController::class);
+    Route::apiResource('/phase', PhaseController::class);
+    Route::post('tasks/sort', [TaskController::class, 'sort']);
+    Route::post('/tasks/{taskId}/comments', [TaskController::class, 'addComment']);
+    Route::delete('/comments/{commentId}', [TaskController::class, 'deleteComment']);
+    Route::put('/tasks/{taskId}/comments/{commentId}', [TaskController::class, 'updateComment']);
+    Route::get('/tasks/list', [TaskController::class, 'tasksByPhase']);
+
+    
+
 });
+Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
+
+ Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);
+ Route::get('/facebook/campaigns/{id}/cost', [LeadChartsController::class, 'cost']);
+// Route::get('/facebook/campaign-cost', [LeadChartsController::class, 'getCampaignCost'])->name('facebook.api.campaign.cost');
+
+// Route::post('/campaigns/create', [LeadChartsController::class, 'createCampaign']);
+
+
+
+
+

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Mpdf\Mpdf;
 use App\Models\User;
+use App\Models\ManpowerCompany;
 use App\Models\Job;
 use App\Models\WorkerAvailability;
 use App\Models\WorkerFreezeDate;
@@ -28,7 +30,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
-
+use PDF;
 class WorkerController extends Controller
 {
     use JobSchedule;
@@ -924,6 +926,121 @@ class WorkerController extends Controller
             $isMyCompany
         ), 'Worker Hours.csv');
     }
+
+    public function generateWorkerHoursPDF(Request $request)
+    {
+        
+        $worker_ids = $request->get('worker_ids', []);
+        $start_date = $request->get('start_date', null);
+        $end_date = $request->get('end_date', null);
+        $manpowerCompanyID = $request->get('manpower_company_id', '');
+        $isMyCompany = $request->get('is_my_company', '');
+    
+        $startDate = Carbon::parse($start_date);
+        $endDate = Carbon::parse($end_date);
+    
+        // Generate the date range
+        $dates = [];
+        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+            $dates[] = $date->format('Y-m-d');
+        }
+    
+        $allPdfData = []; // Initialize an array to store data for all workers
+    
+        foreach ($worker_ids as $worker_id) {
+            $worker = User::find($worker_id);
+           
+            if ($worker) {
+                //Determine the company name based on the worker's manpower_company_id and isMyCompany flag
+                if ($worker->manpower_company_id) {
+                    $company = ManpowerCompany::find($worker->manpower_company_id);
+                    $companyName = $company ? $company->name : 'Unknown Company';
+                } elseif ($isMyCompany == 'true') {
+                    $companyName = 'My Company';
+                } else {
+                    $companyName = 'Creative Development';
+                }
+
+                $workerName = $worker->firstname . ' ' . $worker->lastname;
+                $department = $worker->role; // Fetch department name based on role
+                $pdfData = []; // Reset the pdfData array for each worker
+            
+            foreach ($dates as $date) {
+                // Fetch all records for the current worker and date
+                $data = Job::where('jobs.worker_id', $worker_id)
+                    ->whereDate('jobs.start_date', $date)
+                    ->when($worker->manpower_company_id, function ($q) use ($worker) {
+                        return $q->where('users.manpower_company_id',$worker->manpower_company_id);
+                    })
+                    ->where(function ($q) {
+                        $q->whereNull('users.last_work_date')
+                            ->orWhereDate('users.last_work_date', '>=', today()->toDateString());
+                    })
+                    ->when($isMyCompany == 'true' && !$worker->manpower_company_id, function ($q) {
+                        return $q->where('company_type', 'my-company');
+                    })
+                    ->join('users', 'jobs.worker_id', '=', 'users.id')
+                    ->select(
+                        DB::raw('MIN(jobs.start_time) as entry_time'), 
+                        DB::raw('MAX(jobs.end_time) as exit_time'),    
+                        DB::raw('SUM(jobs.actual_time_taken_minutes) as total_minutes') // Sum of working hours
+                    )
+                    ->groupBy('jobs.worker_id', 'jobs.start_date')
+                    ->get();
+    
+                    // Initialize daily data with null and 0 values
+                    $dailyData = [
+                        'entry_time' => null,
+                        'exit_time' => null,
+                        'total_hours' => 0,
+                    ];
+    
+                    // Process each record to aggregate data
+                    foreach ($data as $record) {
+                        $dailyData['entry_time'] = $record->entry_time ?: $dailyData['entry_time'];
+                        $dailyData['exit_time'] = $record->exit_time ?: $dailyData['exit_time'];
+                        $dailyData['total_hours'] += $record->total_minutes / 60; // Convert minutes to hours
+                    }
+    
+                // Store daily data for the specific date
+                $pdfData[$date] = $dailyData;
+            }
+    
+            // Store the data for this worker
+                $allPdfData[$workerName] = [
+                    'dates' => $dates,
+                    'pdfData' => $pdfData,
+                    'department' => $department,
+                    'companyName' => $companyName,
+                ];
+            }
+        }
+    
+        if (empty($allPdfData)) {
+            return response()->json(['message' => 'No data found for the given criteria'], 404);
+        }
+    
+        $pdf = new Mpdf(['mode' => 'rtl']);
+        $pdf->WriteHTML(view('pdf.workers_hours_report', [
+            'allPdfData' => $allPdfData,
+        ])->render());
+        
+        $pdfFilePath = 'pdfs/worker_hours_report.pdf';
+        $pdfOutput = $pdf->Output('', 'S');
+    
+        // Save the PDF to the specified path
+        Storage::put($pdfFilePath, $pdfOutput);
+    
+        // Generate the public URL for the PDF
+        $pdfUrl = Storage::url($pdfFilePath);
+    
+        return response()->json([
+            'status' => 'success',
+            'pdf_url' => $pdfUrl,
+        ]);
+    }
+    
+
 
     public function formSend(Request $request, Form101FieldEnum $formEnum)
     {

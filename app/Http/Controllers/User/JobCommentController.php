@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Google\Cloud\Translate\V2\TranslateClient;
+use Illuminate\Support\Facades\Log;
 
 class JobCommentController extends Controller
 {
@@ -36,6 +38,15 @@ class JobCommentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    private $translateClient;
+
+    public function __construct()
+    {
+        $this->translateClient = new TranslateClient([
+            'key' => env('GOOGLE_TRANSLATE_API_KEY'),
+        ]);
+    }
+
     public function index(request $request)
     {
         $comments = JobComments::query()
@@ -55,10 +66,30 @@ class JobCommentController extends Controller
             ->latest()
             ->get();
 
+            // Translate comments if a target language is provided
+            $targetLanguage = $request->input('target_language', 'en');
+            if ($targetLanguage !== 'en') { 
+                foreach ($comments as $comment) {
+                    $textToTranslate = $comment->comment; 
+        
+                    if (!empty($textToTranslate)) {
+                        try {
+                            $translation = $this->translateClient->translate($textToTranslate, [
+                                'target' => $targetLanguage,
+                            ]);       
+                            $comment->comment = $translation['text'];
+                        } catch (\Exception $e) {
+                            $comment->translated_text = $textToTranslate; 
+                        }
+                    }
+                }
+            }
+        
         return response()->json([
             'comments' => $comments
         ]);
     }
+    
 
     /**
      * Store a newly created resource in storage.

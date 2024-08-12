@@ -31,6 +31,8 @@ export default function WorkerViewJob() {
     const [isCompleteBtnDisable, setIsCompleteBtnDisable] = useState(false);
     const [isButtonEnabled, setIsButtonEnabled] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [targetLanguage, setTargetLanguage] = useState('en'); 
+    
 
     const alert = useAlert();
     const { t } = useTranslation();
@@ -200,11 +202,7 @@ export default function WorkerViewJob() {
         });
     };
 
-    useEffect(() => {
-        getTimes();
-        getTime();
-        getComments();
-    }, []);
+
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -237,14 +235,21 @@ export default function WorkerViewJob() {
         return `${hours}h:${minutes}m:${seconds}s`;
     };
 
+  
     const getComments = () => {
         axios
-            .get(`/api/jobs/${params.id}/comments`, { headers })
+            .get(`/api/jobs/${params.id}/comments`, {
+                headers,
+                params: { target_language: targetLanguage },
+            })
             .then((res) => {
                 setAllComment(res.data.comments);
+            })
+            .catch((error) => {
+                console.error("Error fetching comments: ", error);
             });
     };
-
+    
     const handleStartTime = (start_date) => {
         const today = new Date();
         const startDate = new Date(start_date);
@@ -254,6 +259,14 @@ export default function WorkerViewJob() {
             setIsButtonEnabled(true);
         }
     };
+    const handleLanguageChange = (e) => {
+        setTargetLanguage(e.target.value);
+    };
+    useEffect(() => {
+        getTimes();
+        getTime();
+        getComments();
+    }, [targetLanguage]);
 
     return (
         <div id="container">
@@ -487,16 +500,32 @@ export default function WorkerViewJob() {
                                             )}
                                         </div>
                                     </div>
-                                    <Comment
-                                        allComment={allComment}
-                                        handleGetComments={() => getComments()}
-                                    />
+                                    
+                                  
+                                    <div className="d-flex justify-content-between align-items-start">
+                                            <Comment allComment={allComment} />
+
+                                            <div className="col-sm-2 ml-auto">
+                                                <select
+                                                    className="form-control"
+                                                    value={targetLanguage}
+                                                    onChange={handleLanguageChange}
+                                                >
+                                                    <option value="he">עִברִית</option>
+                                                    <option value="ru">Русский</option>
+                                                    <option value="en">English</option>
+                                                    {/* Add more languages as needed */}
+                                                </select>
+                                            </div>
+                                        </div>
                                 </div>
                             </div>
                         )}
                     </div>
+                   
                 </div>
             </div>
+           
 
             {isOpenChangeJobStatus && (
                 <ChangeJobStatusModal
@@ -515,3 +544,6 @@ export default function WorkerViewJob() {
         </div>
     );
 }
+
+
+    
