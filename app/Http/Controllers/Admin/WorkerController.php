@@ -433,13 +433,27 @@ class WorkerController extends Controller
             //'worker_id' => ['required','unique:users,worker_id,'.$id],
             'status'    => ['required'],
             'email'     => ['nullable',  'unique:users,email,' . $id],
+            'payment_type' => ['required', 'string'],
+            'full_name' => ['required_if:payment_type,money_transfer'],
+            'bank_name' => ['required_if:payment_type,money_transfer'],
+            'bank_number' => ['required_if:payment_type,money_transfer'],
+            'branch_number' => ['required_if:payment_type,money_transfer'],
+            'account_number' => ['required_if:payment_type,money_transfer'],
             'role'      => ['required', 'max:50'],
             'company_type'    => [
                 'required',
                 Rule::in(['my-company', 'manpower']),
             ],
             'manpower_company_id' => ['required_if:company_type,manpower']
-        ], [], [
+        ], [
+            'payment_type.required' => 'The payment type is required.',
+            'full_name.required_if' => 'The full name is required.',
+            'bank_name.required_if' => 'The bank name is required .',
+            'bank_number.required_if' => 'The bank number is required.',
+            'branch_number.required_if' => 'The branch number is required.',
+            'account_number.required_if' => 'The account number is required.',
+            'manpower_company_id.required_if' => 'Manpower Company ID is required.'
+        ], [
             'manpower_company_id' => 'Manpower'
         ]);
 
@@ -474,6 +488,12 @@ class WorkerController extends Controller
             'company_type'  => $request->company_type,
             'status'        => $request->status,
             'country'       => $request->country,
+            'payment_type'  => $request->payment_type,
+            'full_name'  => $request->full_name,
+            'bank_name'  => $request->bank_name,
+            'bank_number'  => $request->bank_number,
+            'branch_number'  => $request->branch_number,
+            'account_number'  => $request->account_number,
             'is_afraid_by_cat'          => $request->is_afraid_by_cat,
             'is_afraid_by_dog'          => $request->is_afraid_by_dog,
             'manpower_company_id'       => $request->company_type == "manpower" ? $request->manpower_company_id : NULL,

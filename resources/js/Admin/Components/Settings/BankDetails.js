@@ -19,6 +19,8 @@ function BankDetails() {
         account_no: null
     })
 
+    console.log(errors);
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -47,7 +49,7 @@ function BankDetails() {
         axios
             .post(`/api/admin/change-bank-details`, formData, { headers })
             .then((response) => {
-                if (response.data.errors) {                    
+                if (response.data.errors) {
                     setLoading(false)
                     setErrors(response.data.errors);
                     for (let e in response.data.errors) {
@@ -106,7 +108,13 @@ function BankDetails() {
                             <option value="cheque">Cheque</option>
                             <option value="money_transfer">Money Transfer</option>
                         </select>
-
+                        {errors?.payment_type ? (
+                            <small className="text-danger mb-1">
+                                {errors?.payment_type}
+                            </small>
+                        ) : (
+                            ""
+                        )}
                     </div>
                     {
                         payment === "money_transfer" && (
@@ -124,6 +132,13 @@ function BankDetails() {
                                                     className="form-control"
                                                     placeholder="Enter Full Name"
                                                 />
+                                                {errors?.full_name ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.full_name}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                         <div className="col-md-6">
@@ -137,6 +152,13 @@ function BankDetails() {
                                                     className="form-control"
                                                     placeholder="Enter Bank Name"
                                                 />
+                                                {errors?.bank_name ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.bank_name}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -152,6 +174,13 @@ function BankDetails() {
                                                     className="form-control"
                                                     placeholder="Enter Bank Number"
                                                 />
+                                                {errors?.bank_number ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.bank_number}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                         <div className="col-md-6">
@@ -165,6 +194,13 @@ function BankDetails() {
                                                     className="form-control"
                                                     placeholder="Enter Branch Number"
                                                 />
+                                                {errors?.branch_number ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.branch_number}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -180,6 +216,13 @@ function BankDetails() {
                                                     className="form-control"
                                                     placeholder="Enter Account Number"
                                                 />
+                                                {errors?.account_number ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.account_number}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                     </div>

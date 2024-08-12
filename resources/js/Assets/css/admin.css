@@ -343,7 +343,7 @@ a:hover {
 
 .fence .card-body {
   padding: 0;
-  background: #f9f9fd;
+  /* background: #f9f9fd; */
 }
 
 .fence .card-body ul {

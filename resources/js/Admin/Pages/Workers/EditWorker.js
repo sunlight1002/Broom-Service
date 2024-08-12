@@ -61,7 +61,16 @@ export default function EditWorker() {
     const [latitude, setLatitude] = useState(-33.865143);
     const [longitude, setLongitude] = useState(151.2099);
     const [place, setPlace] = useState();
+    const [payment, setPayment] = useState("")
     const [loading, setLoading] = useState(false);
+    const [bankDetails, setBankDetails] = useState({
+        payment_type: "",
+        full_name: "",
+        bank_name: "",
+        bank_no: null,
+        branch_no: null,
+        account_no: null
+    })
 
     Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
     const containerStyle = {
@@ -71,6 +80,15 @@ export default function EditWorker() {
     const center = {
         lat: latitude,
         lng: longitude,
+    };
+
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setBankDetails((prevDetails) => ({
+            ...prevDetails,
+            [name]: value
+        }));
     };
 
     const handlePlaceChanged = () => {
@@ -123,6 +141,12 @@ export default function EditWorker() {
             country: country,
             latitude: latitude,
             longitude: longitude,
+            payment_type: payment,
+            bank_name: bankDetails.bank_name,
+            full_name: bankDetails.full_name,
+            bank_number: bankDetails.bank_no,
+            branch_number: bankDetails.branch_no,
+            account_number: bankDetails.account_no,
         };
         elementsRef.current.map(
             (ref) => (data[ref.current.name] = ref.current.checked)
@@ -181,6 +205,15 @@ export default function EditWorker() {
                     manpower_company_id: _worker.manpower_company_id,
                 });
 
+                setBankDetails({
+                    bank_name: _worker.bank_name,
+                    account_no: _worker.account_number,
+                    bank_no: _worker.bank_number,
+                    branch_no: _worker.branch_number,
+                    full_name: _worker.full_name
+                })
+                setPayment(_worker.payment_type)
+
                 setPassword(passcode);
                 setSkill(skill ? JSON.parse(skill) : []);
                 setAddress(address);
@@ -191,10 +224,10 @@ export default function EditWorker() {
                 setLongitude(longitude);
                 elementsRef.current.map(
                     (ref) =>
-                        (ref.current.checked =
-                            ref.current.name === animalArray[0].key
-                                ? is_afraid_by_dog
-                                : is_afraid_by_cat)
+                    (ref.current.checked =
+                        ref.current.name === animalArray[0].key
+                            ? is_afraid_by_dog
+                            : is_afraid_by_cat)
                 );
             });
     };
@@ -235,13 +268,13 @@ export default function EditWorker() {
             <div id="content">
                 <div className="edit-customer">
                     <h1 className="page-title editEmployer">Edit Worker</h1>
-                    <div className="dashBox p-4" style={{background: "inherit", border: "none"}}>
+                    <div className="dashBox p-4" style={{ background: "inherit", border: "none" }}>
                         <form>
                             <div className="row">
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.f_name")} *
+                                            {t("worker.settings.f_name")} *
                                         </label>
                                         <input
                                             type="text"
@@ -268,7 +301,7 @@ export default function EditWorker() {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.l_name")}
+                                            {t("worker.settings.l_name")}
                                         </label>
                                         <input
                                             type="text"
@@ -287,7 +320,7 @@ export default function EditWorker() {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.email")}
+                                            {t("worker.settings.email")}
                                         </label>
                                         <input
                                             type="tyoe"
@@ -314,7 +347,7 @@ export default function EditWorker() {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.phone")}
+                                            {t("worker.settings.phone")}
                                         </label>
                                         <input
                                             type="tel"
@@ -340,7 +373,7 @@ export default function EditWorker() {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.gender")}
+                                            {t("worker.settings.gender")}
                                         </label>
                                     </div>
                                     <div className="form-check-inline">
@@ -386,7 +419,7 @@ export default function EditWorker() {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("nonIsrailContract.role")}
+                                            {t("nonIsrailContract.role")}
                                         </label>
                                         <input
                                             type="text"
@@ -410,7 +443,7 @@ export default function EditWorker() {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.p_ph")} (ILS)
+                                            {t("worker.settings.p_ph")} (ILS)
                                         </label>
                                         <input
                                             type="text"
@@ -423,14 +456,14 @@ export default function EditWorker() {
                                                 });
                                             }}
                                             className="form-control"
-                                            placeholder= {t("worker.settings.p_ph")}
+                                            placeholder={t("worker.settings.p_ph")}
                                         />
                                     </div>
                                 </div>
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.w_id")}
+                                            {t("worker.settings.w_id")}
                                         </label>
                                         <input
                                             type="text"
@@ -456,7 +489,7 @@ export default function EditWorker() {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.pass")} *
+                                            {t("worker.settings.pass")} *
                                         </label>
                                         <input
                                             type="password"
@@ -473,7 +506,7 @@ export default function EditWorker() {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.lng")}
+                                            {t("worker.settings.lng")}
                                         </label>
 
                                         <select
@@ -493,7 +526,7 @@ export default function EditWorker() {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("worker.settings.country")}
+                                            {t("worker.settings.country")}
                                         </label>
 
                                         <select
@@ -515,11 +548,37 @@ export default function EditWorker() {
                                         </select>
                                     </div>
                                 </div>
+                                <div className="col-sm-6">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Payment Method
+                                        </label>
+
+                                        <select
+                                            className="form-control"
+                                            value={payment}
+                                            onChange={(e) =>
+                                                setPayment(e.target.value)
+                                            }
+                                        >
+                                            <option value="">--- please select ---</option>
+                                            <option value="cheque">Cheque</option>
+                                            <option value="money_transfer">Money Transfer</option>
+                                        </select>
+                                        {errors?.payment_type ? (
+                                            <small className="text-danger mb-1">
+                                                {errors?.payment_type}
+                                            </small>
+                                        ) : (
+                                            ""
+                                        )}
+                                    </div>
+                                </div>
                                 {country != "Israel" && (
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.renewal_visa")}{" "}
+                                                {t("worker.settings.renewal_visa")}{" "}
                                             </label>
                                             <input
                                                 type="date"
@@ -538,10 +597,128 @@ export default function EditWorker() {
                                     </div>
                                 )}
 
+                                {
+                                    payment === "money_transfer" && (
+
+                                        <>
+                                            <div className="col-sm-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Full Name
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.full_name}
+                                                        name="full_name"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Full Name"
+                                                    />
+                                                    {errors?.full_name ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.full_name}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="col-sm-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Bank Name
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.bank_name}
+                                                        name="bank_name"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Bank Name"
+                                                    />
+                                                    {errors?.bank_name ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.bank_name}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="col-sm-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Bank Number
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.bank_no}
+                                                        name="bank_no"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Bank Number"
+                                                    />
+                                                    {errors?.bank_number ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.bank_number}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="col-sm-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Branch Number
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.branch_no}
+                                                        name="branch_no"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Branch Number"
+                                                    />
+                                                    {errors?.branch_number ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.branch_number}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="col-sm-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        Acount Number
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={bankDetails.account_no}
+                                                        name="account_no"
+                                                        onChange={handleChange}
+                                                        className="form-control"
+                                                        placeholder="Enter Account Number"
+                                                    />
+                                                    {errors?.account_number ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.account_number}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )
+                                }
+
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("global.company")}
+                                            {t("global.company")}
                                         </label>
                                     </div>
                                     <div className="form-check-inline">
@@ -601,7 +778,7 @@ export default function EditWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("admin.global.manpower")}
+                                                {t("admin.global.manpower")}
                                             </label>
 
                                             <select
@@ -619,7 +796,7 @@ export default function EditWorker() {
                                                 }
                                             >
                                                 <option value="">
-                                                {t("admin.global.select_manpower")}
+                                                    {t("admin.global.select_manpower")}
                                                 </option>
                                                 {manpowerCompanies.map(
                                                     (mpc, index) => (
@@ -647,7 +824,7 @@ export default function EditWorker() {
                             </div>
                             <div className="form-group">
                                 <label className="control-label">
-                                {t("admin.global.location")}
+                                    {t("admin.global.location")}
                                 </label>
                                 <LoadScript
                                     googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
@@ -699,7 +876,7 @@ export default function EditWorker() {
                             </div>
                             <div className="form-group">
                                 <label className="control-label">
-                                {t("workerInviteForm.full_address")}{" "}
+                                    {t("workerInviteForm.full_address")}{" "}
                                     <small className="text-pink mb-1">
                                         &nbsp; ({t("workerInviteForm.auto_complete")})
                                     </small>
@@ -722,7 +899,7 @@ export default function EditWorker() {
                             <div className="col-sm-12">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("worker.settings.skills")}
+                                        {t("worker.settings.skills")}
                                     </label>
                                 </div>
                                 <div className="form-check mb-3">
@@ -757,7 +934,7 @@ export default function EditWorker() {
                             <div className="col-sm-12 mt-4">
                                 <div className="form-group">
                                     <label className="control-label">
-                                    {t("worker.settings.areYouAfraid")}
+                                        {t("worker.settings.areYouAfraid")}
                                     </label>
                                 </div>
                                 {animalArray &&
@@ -770,7 +947,7 @@ export default function EditWorker() {
                                                 <input
                                                     ref={
                                                         elementsRef.current[
-                                                            index
+                                                        index
                                                         ]
                                                     }
                                                     type="checkbox"
@@ -816,7 +993,7 @@ export default function EditWorker() {
                     </div>
                 </div>
             </div>
-            { loading && <FullPageLoader visible={loading}/>}
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

@@ -20,6 +20,7 @@ export default function AddTeam() {
     const [color, setColor] = useState(null);
     const [role, setRole] = useState("member");
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState(null);
 
     const [payment, setPayment] = useState("")
     const [bankDetails, setBankDetails] = useState({
@@ -46,7 +47,7 @@ export default function AddTeam() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // setLoading(true);
+        setLoading(true);
         const data = {
             name: name,
             heb_name: hebname,
@@ -70,7 +71,8 @@ export default function AddTeam() {
         axios.post(`/api/admin/teams`, data, { headers }).then((res) => {
 
             if (res.data.errors) {
-                    setLoading(false);
+                setLoading(false);
+                setErrors(res.data.errors)
                 for (let e in res.data.errors) {
                     alert.error(res.data.errors[e]);
                 }
@@ -83,6 +85,9 @@ export default function AddTeam() {
             }
         });
     };
+
+    console.log(errors);
+
 
     return (
         <div id="container">
@@ -132,6 +137,13 @@ export default function AddTeam() {
                                         }
                                         placeholder="Enter email"
                                     />
+                                    {errors?.email ? (
+                                        <small className="text-danger mb-1">
+                                            {errors?.email}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
@@ -145,6 +157,13 @@ export default function AddTeam() {
                                         }
                                         placeholder="Enter phone"
                                     />
+                                    {errors?.phone ? (
+                                        <small className="text-danger mb-1">
+                                            {errors?.phone}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
@@ -301,6 +320,13 @@ export default function AddTeam() {
                                         placeholder="Enter password"
                                         autoComplete="new-password"
                                     />
+                                    {errors?.password ? (
+                                        <small className="text-danger mb-1">
+                                            {errors?.password}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
@@ -347,6 +373,13 @@ export default function AddTeam() {
                                         <option value="cheque">Cheque</option>
                                         <option value="money_transfer">Money Transfer</option>
                                     </select>
+                                    {errors?.payment_type ? (
+                                        <small className="text-danger mb-1">
+                                            {errors?.payment_type}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                             </div>
                         </div>

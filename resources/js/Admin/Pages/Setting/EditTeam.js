@@ -3,6 +3,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import axios from "axios";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function EditTeam() {
     const [name, setName] = useState(null);
@@ -16,6 +17,8 @@ export default function EditTeam() {
     const [color, setColor] = useState(null);
     const [role, setRole] = useState(null);
     const [payment, setPayment] = useState("")
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState(null)
     const [bankDetails, setBankDetails] = useState({
         payment_type: "",
         full_name: "",
@@ -23,7 +26,7 @@ export default function EditTeam() {
         bank_no: null,
         branch_no: null,
         account_no: null
-    }) 
+    })
 
     const alert = useAlert();
     const param = useParams();
@@ -45,6 +48,7 @@ export default function EditTeam() {
 
     const handleUpdate = (e) => {
         e.preventDefault()
+        setLoading(true);
         const data = {
             name: name,
             heb_name: hebname,
@@ -68,13 +72,14 @@ export default function EditTeam() {
         axios
             .put(`/api/admin/teams/${param.id}`, data, { headers })
             .then((res) => {
-                console.log(res);
-                
                 if (res.data.errors) {
+                    setLoading(false)
+                    setErrors(res.data.errors)
                     for (let e in res.data.errors) {
                         alert.error(res.data.errors[e]);
                     }
                 } else {
+                    setLoading(false)
                     alert.success(res.data.message);
                     setTimeout(() => {
                         navigate("/admin/manage-team");
@@ -169,6 +174,13 @@ export default function EditTeam() {
                                         value={email}
                                         placeholder="Enter email"
                                     />
+                                    {errors?.email ? (
+                                        <small className="text-danger mb-1">
+                                            {errors?.email}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
@@ -183,6 +195,13 @@ export default function EditTeam() {
                                         value={phone}
                                         placeholder="Enter phone"
                                     />
+                                    {errors?.phone ? (
+                                        <small className="text-danger mb-1">
+                                            {errors?.phone}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
@@ -340,6 +359,13 @@ export default function EditTeam() {
                                         placeholder="Enter password"
                                         autoComplete="new-password"
                                     />
+                                    {errors?.password ? (
+                                        <small className="text-danger mb-1">
+                                            {errors?.password}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label className="control-label">
@@ -387,6 +413,13 @@ export default function EditTeam() {
                                         <option value="cheque">Cheque</option>
                                         <option value="money_transfer">Money Transfer</option>
                                     </select>
+                                    {errors?.payment_type ? (
+                                        <small className="text-danger mb-1">
+                                            {errors?.payment_type}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -406,6 +439,13 @@ export default function EditTeam() {
                                                         className="form-control"
                                                         placeholder="Enter Full Name"
                                                     />
+                                                    {errors?.full_name ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.full_name}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="col-md-6">
@@ -419,6 +459,13 @@ export default function EditTeam() {
                                                         className="form-control"
                                                         placeholder="Enter Bank Name"
                                                     />
+                                                    {errors?.bank_name ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.bank_name}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -434,6 +481,13 @@ export default function EditTeam() {
                                                         className="form-control"
                                                         placeholder="Enter Bank Number"
                                                     />
+                                                    {errors?.bank_number ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.bank_number}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="col-md-6">
@@ -447,6 +501,13 @@ export default function EditTeam() {
                                                         className="form-control"
                                                         placeholder="Enter Branch Number"
                                                     />
+                                                    {errors?.branch_number ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.branch_number}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -462,6 +523,13 @@ export default function EditTeam() {
                                                         className="form-control"
                                                         placeholder="Enter Account Number"
                                                     />
+                                                    {errors?.account_number ? (
+                                                        <small className="text-danger mb-1">
+                                                            {errors?.account_number}
+                                                        </small>
+                                                    ) : (
+                                                        ""
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -509,6 +577,7 @@ export default function EditTeam() {
                     </div>
                 </form>
             </div>
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

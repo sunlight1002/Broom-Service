@@ -262,6 +262,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // My Account Api
     Route::get('my-account', [SettingController::class, 'getAccountDetails']);
     Route::post('my-account', [SettingController::class, 'saveAccountDetails']);
+    Route::post('change-bank-details', [SettingController::class, 'changeBankDetails']);
 
     // Change Password Api
     Route::post('change-password', [SettingController::class, 'changePassword']);

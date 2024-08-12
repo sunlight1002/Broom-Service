@@ -290,7 +290,21 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'address'   => ['required', 'string'],
             'phone'     => ['required'],
-            'two_factor_enabled' => ['nullable', 'boolean']
+            'two_factor_enabled' => ['nullable', 'boolean'],
+            'payment_type' => ['required', 'string'],
+            'full_name' => ['required_if:payment_type,money_transfer'],
+            'bank_name' => ['required_if:payment_type,money_transfer'],
+            'bank_number' => ['required_if:payment_type,money_transfer'],
+            'branch_number' => ['required_if:payment_type,money_transfer'],
+            'account_number' => ['required_if:payment_type,money_transfer'],
+        ], [
+            'payment_type.required' => 'The payment type is required.',
+            'full_name.required_if' => 'The full name is required.',
+            'bank_name.required_if' => 'The bank name is required .',
+            'bank_number.required_if' => 'The bank number is required.',
+            'branch_number.required_if' => 'The branch number is required.',
+            'account_number.required_if' => 'The account number is required.',
+            'manpower_company_id.required_if' => 'Manpower Company ID is required.'
         ]);
 
         if ($validator->fails()) {

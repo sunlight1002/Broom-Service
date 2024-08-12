@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link , useLocation} from "react-router-dom";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -18,6 +18,7 @@ import logo from "../../Assets/image/sample.svg";
 import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
+    const location = useLocation();
     const alert = useAlert();
     const navigate = useNavigate();
     const [role, setRole] = useState(null);
@@ -51,6 +52,21 @@ export default function Sidebar() {
                 alert.success("Logged Out Successfully");
             }
         });
+    };
+
+    const routes = {
+        manageTeam: "/admin/manage-team",
+        services: "/admin/services",
+        manpowerCompanies: "/admin/manpower-companies",
+        manageTime: "/admin/manage-time",
+        accountSettings: "/admin/settings",
+    };
+
+    const isActive = (path) => location.pathname === path;
+
+    // Check if any of the children are active to apply the active class to the parent
+    const isParentActive = () => {
+        return Object.values(routes).some((route) => isActive(route));
     };
 
     // console.log(lng);

@@ -2,6 +2,7 @@ import React, { createRef, useEffect, useRef, useState } from "react";
 import { useAlert } from "react-alert";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../../Components/common/FullPageLoader";
 
 const animalArray = [
     {
@@ -28,6 +29,7 @@ export default function WorkerMyAccount() {
     const [lng, setLng] = useState("");
     const [address, setAddress] = useState("");
     const [country, setCountry] = useState("Israel");
+    const [loading, setLoading] = useState(false)
 
     const [countries, setCountries] = useState([]);
     const [twostepverification, setTwostepverification] = useState(false);
@@ -52,8 +54,6 @@ export default function WorkerMyAccount() {
         }));
     };
 
-    console.log(bankDetails);
-    
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -63,7 +63,7 @@ export default function WorkerMyAccount() {
 
     const handleUpdate = (e) => {
         e.preventDefault();
-
+        setLoading(true)
         const data = {
             firstname: firstname,
             lastname: lastname,
@@ -92,8 +92,11 @@ export default function WorkerMyAccount() {
         );
         axios.post(`/api/profile`, data, { headers }).then((response) => {
             if (response.data.errors) {
+                setLoading(false)
                 setErrors(response.data.errors);
             } else {
+                setLoading(false)
+                setErrors([])
                 alert.success(t("worker.settings.profileUpdated"));
             }
         });
@@ -412,57 +415,127 @@ export default function WorkerMyAccount() {
                                         <option value="cheque">Cheque</option>
                                         <option value="money_transfer">Money Transfer</option>
                                     </select>
+                                    {errors?.payment_type ? (
+                                        <small className="text-danger mb-1">
+                                            {errors?.payment_type}
+                                        </small>
+                                    ) : (
+                                        ""
+                                    )}
                                 </div>
                             </div>
                             {
                                 bankDetails.payment_type === "money_transfer" && (
+
                                     <>
                                         <div className="col-sm-6">
                                             <div className="form-group">
-                                                <label className="control-label">Full Name</label>
+                                                <label className="control-label">
+                                                    Full Name
+                                                </label>
                                                 <input
                                                     type="text"
-                                                    name="full_name"
                                                     value={bankDetails.full_name}
+                                                    name="full_name"
                                                     onChange={handleChange}
                                                     className="form-control"
+                                                    placeholder="Enter Full Name"
                                                 />
+                                                {errors?.full_name ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.full_name}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                         <div className="col-sm-6">
                                             <div className="form-group">
-                                                <label className="control-label">Bank Name</label>
+                                                <label className="control-label">
+                                                    Bank Name
+                                                </label>
                                                 <input
                                                     type="text"
-                                                    name="bank_name"
                                                     value={bankDetails.bank_name}
+                                                    name="bank_name"
                                                     onChange={handleChange}
                                                     className="form-control"
+                                                    placeholder="Enter Bank Name"
                                                 />
+                                                {errors?.bank_name ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.bank_name}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                         <div className="col-sm-6">
                                             <div className="form-group">
-                                                <label className="control-label">Account Number</label>
+                                                <label className="control-label">
+                                                    Bank Number
+                                                </label>
                                                 <input
                                                     type="text"
-                                                    name="account_no"
-                                                    value={bankDetails.account_no}
+                                                    value={bankDetails.bank_no}
+                                                    name="bank_no"
                                                     onChange={handleChange}
                                                     className="form-control"
+                                                    placeholder="Enter Bank Number"
                                                 />
+                                                {errors?.bank_number ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.bank_number}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                         <div className="col-sm-6">
                                             <div className="form-group">
-                                                <label className="control-label">Branch Number</label>
+                                                <label className="control-label">
+                                                    Branch Number
+                                                </label>
                                                 <input
                                                     type="text"
-                                                    name="branch_no"
                                                     value={bankDetails.branch_no}
+                                                    name="branch_no"
                                                     onChange={handleChange}
                                                     className="form-control"
+                                                    placeholder="Enter Branch Number"
                                                 />
+                                                {errors?.branch_number ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.branch_number}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">
+                                                    Acount Number
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={bankDetails.account_no}
+                                                    name="account_no"
+                                                    onChange={handleChange}
+                                                    className="form-control"
+                                                    placeholder="Enter Account Number"
+                                                />
+                                                {errors?.account_number ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors?.account_number}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                     </>
@@ -534,6 +607,7 @@ export default function WorkerMyAccount() {
                         </div>
                     </form>
                 </div>
+                {loading && <FullPageLoader visible={loading} />}
             </div>
         </>
     );
