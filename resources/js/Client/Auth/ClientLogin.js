@@ -4,6 +4,7 @@ import i18next from "i18next";
 import { useNavigate } from "react-router-dom";
 import FullLoader from "../../../../public/js/FullLoader";
 import FullPageLoader from "../../Components/common/FullPageLoader";
+import { getCookie } from "../../Admin/Components/common/Cookies";
 
 export default function ClientLogin() {
     const [email, setEmail] = useState("");
@@ -11,15 +12,24 @@ export default function ClientLogin() {
     const [errors, setErrors] = useState([]);
     const [dir, setDir] = useState([]);
     const [loading, setLoading] = useState(false)
+    const [isRemembered, setIsRemembered] = useState(false)
     const navigate = useNavigate()
 
-        useEffect(() => {
-            const clientLogin = localStorage.getItem("client-id")
-            // console.log(adminLogin);
-            if (clientLogin) {
-                navigate("/client/dashboard");
-            }
-        }, [navigate])
+    useEffect(() => {
+        const clientLogin = localStorage.getItem("client-id")
+        // console.log(adminLogin);
+        if (clientLogin) {
+            navigate("/client/dashboard");
+        }
+    }, [navigate])
+
+
+    useEffect(() => {
+        const token = getCookie('remember_device_token');
+        if (token) {
+            setIsRemembered(true);
+        }
+    }, []);
 
     const HandleLogin = (e) => {
         e.preventDefault();
@@ -35,13 +45,7 @@ export default function ClientLogin() {
                 setLoading(false)
                 setErrors(result.data.errors);
             } else {
-                if(result.data.two_factor_enabled === 1 || result.data[0] === 1){
-                    localStorage.setItem("client-email", result.data.email);
-                    localStorage.setItem("client-lng", result.data.lng);
-
-                    window.location = "/client/login-otp";
-                    setLoading(false)
-                }else{
+                if (isRemembered) {
                     localStorage.setItem("client-token", result.data.token);
                     i18next.changeLanguage(result.data.lng);
                     localStorage.setItem(
@@ -51,7 +55,26 @@ export default function ClientLogin() {
                     localStorage.setItem("client-id", result.data.id);
                     setLoading(false)
                     window.location = "/client/dashboard";
+                } else {
+                    if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
+                        localStorage.setItem("client-email", result.data.email);
+                        localStorage.setItem("client-lng", result.data.lng);
+
+                        window.location = "/client/login-otp";
+                        setLoading(false)
+                    } else {
+                        localStorage.setItem("client-token", result.data.token);
+                        i18next.changeLanguage(result.data.lng);
+                        localStorage.setItem(
+                            "client-name",
+                            result.data.firstname + " " + result.data.lastname
+                        );
+                        localStorage.setItem("client-id", result.data.id);
+                        setLoading(false)
+                        window.location = "/client/dashboard";
+                    }
                 }
+
             }
         });
     };
@@ -61,11 +84,7 @@ export default function ClientLogin() {
         console.log(d);
         d == "rtl" ? setDir("heb") : setDir("en");
     }, []);
-
-    if (loading) {
-        return <FullPageLoader visible={loading}/>
-    }
-
+    
     return (
         <div id="loginPage">
             <div className="container adminLogin">
@@ -168,6 +187,7 @@ export default function ClientLogin() {
                     </form>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

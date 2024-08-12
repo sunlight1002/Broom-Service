@@ -9,6 +9,7 @@ import UserIcon from "../Assets/image/icons/user-client.jpeg";
 import Jobs from "./Components/Dashboard/jobs";
 import Pendings from "./Components/Dashboard/pendings";
 import { useTranslation } from "react-i18next";
+import { getCookie } from "./Components/common/Cookies";
 
 export default function Dashboard() {
     const [totalJobs, setTotalJobs] = useState([0]);

@@ -179,21 +179,31 @@ class AuthController extends Controller
         $client->otp = null;
         $client->otp_expiry = null;
 
+         // Initialize rememberDeviceToken to null
+         $rememberDeviceToken = null;
+         
         if ($request->remember_device) {
             $rememberDeviceToken = Str::random(60);
             DeviceToken::updateOrCreate(
                 ['tokenable_id' => $client->id, 'tokenable_type' => get_class($client)],
                 ['token' => $rememberDeviceToken, 'expires_at' => now()->addDays(30)]
             );
-            Cookie::queue('remember_device_token', $rememberDeviceToken, 43200); // 30 days
         }
 
         $client->save();
     
         // Generate token for the authenticated admin
         $client->token = $client->createToken('Client', ['client'])->accessToken;
+        $response = [
+            'client' => $client,
+        ];
     
-        return response()->json($client);
+        // Add remember_token to response only if it exists
+        if ($rememberDeviceToken) {
+            $response['remember_token'] = $rememberDeviceToken;
+        }
+    
+        return response()->json($response);
     }
 
 

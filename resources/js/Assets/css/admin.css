@@ -69,14 +69,14 @@ a:hover {
   border-radius: 0;
 }
 
-#column-left .list-group-item.active a {
+/* #column-left .list-group-item.active a {
   background: #f1f0ff;
   color: #7366FF;
 }
 
 #column-left .list-group-item.active a i {
   color: #7366FF;
-}
+} */
 
 #column-left .list-group-item .card-header {
   background: unset;

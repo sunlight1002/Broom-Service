@@ -188,20 +188,34 @@ class AuthController extends Controller
         // Clear OTP after successful verification
         $admin->otp = null;
         $admin->otp_expiry = null;
+    
+        // Initialize rememberDeviceToken to null
+        $rememberDeviceToken = null;
+    
         if ($request->remember_device) {
             $rememberDeviceToken = Str::random(60);
             DeviceToken::updateOrCreate(
                 ['tokenable_id' => $admin->id, 'tokenable_type' => get_class($admin)],
                 ['token' => $rememberDeviceToken, 'expires_at' => now()->addDays(30)]
             );
-            Cookie::queue('remember_device_token', $rememberDeviceToken, 43200); // 30 days
         }
+    
         $admin->save();
     
         // Generate token for the authenticated admin
         $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
     
-        return response()->json($admin);
+        // Prepare the response
+        $response = [
+            'admin' => $admin,
+        ];
+    
+        // Add remember_token to response only if it exists
+        if ($rememberDeviceToken) {
+            $response['remember_token'] = $rememberDeviceToken;
+        }
+    
+        return response()->json($response);
     }
 
     public function resendOtp(Request $request)

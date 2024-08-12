@@ -3,6 +3,8 @@ import logo from "../../Assets/image/sample.svg";
 import i18next from "i18next";
 import { useNavigate } from "react-router-dom";
 import FullLoader from "../../../../public/js/FullLoader";
+import { getCookie } from "../../Admin/Components/common/Cookies";
+import FullPageLoader from "../../Components/common/FullPageLoader";
 
 
 export default function WorkerLogin() {
@@ -10,17 +12,25 @@ export default function WorkerLogin() {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(false)
+    const [isRemembered, setIsRemembered] = useState(false)
 
     const navigate = useNavigate()
 
 
+    // useEffect(() => {
+    //     const workerLogin = localStorage.getItem("worker-id")
+    //     // console.log(adminLogin);
+    //     if (workerLogin) {
+    //         navigate("/worker/dashboard");
+    //     }
+    // }, [navigate])
+
     useEffect(() => {
-        const workerLogin = localStorage.getItem("worker-id")
-        // console.log(adminLogin);
-        if (workerLogin) {
-            navigate("/worker/dashboard");
+        const token = getCookie('remember_device_token');
+        if (token) {
+            setIsRemembered(true);
         }
-    }, [navigate])
+    }, []);
 
     const HandleLogin = (e) => {
         e.preventDefault();
@@ -29,18 +39,12 @@ export default function WorkerLogin() {
             worker_id: worker,
             password: password,
         };
-        axios.post(`/api/login`, data).then((result) => {
+        axios.post(`/api/login`, data).then((result) => {            
             if (result.data.errors) {
                 setLoading(false)
                 setErrors(result.data.errors);
             } else {
-                // console.log(result.data);
-                if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
-                    localStorage.setItem("worker-email", result.data.email);
-                    localStorage.setItem("worker-lng", result.data.lng);
-                    window.location = "/worker/login-otp";
-                    setLoading(false)
-                }else{
+                if (isRemembered) {
                     localStorage.setItem("worker-token", result.data.token);
                     i18next.changeLanguage(result.data.lng);
                     localStorage.setItem(
@@ -50,15 +54,27 @@ export default function WorkerLogin() {
                     localStorage.setItem("worker-id", result.data.id);
     
                     window.location = "/worker/dashboard";
+                }else{
+                    if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
+                        localStorage.setItem("worker-email", result.data.email);
+                        localStorage.setItem("worker-lng", result.data.lng);
+                        window.location = "/worker/login-otp";
+                        setLoading(false)
+                    }else{
+                        localStorage.setItem("worker-token", result.data.token);
+                        i18next.changeLanguage(result.data.lng);
+                        localStorage.setItem(
+                            "worker-name",
+                            result.data.firstname + " " + result.data.lastname
+                        );
+                        localStorage.setItem("worker-id", result.data.id);
+        
+                        window.location = "/worker/dashboard";
+                    }
                 }
             }
         });
     };
-
-    if (loading) {
-        return <FullLoader/>
-    }
-
 
     return (
         <div>
@@ -163,6 +179,7 @@ export default function WorkerLogin() {
                     </div>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

@@ -4,6 +4,7 @@ import logo from "../../../Assets/image/sample.svg";
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
+import { getCookie } from '../../Components/common/Cookies';
 
 export default function AdminLoginOtp() {
     const navigate = useNavigate()
@@ -12,18 +13,19 @@ export default function AdminLoginOtp() {
     const inputsRef = useRef([]);
     const [timer, setTimer] = useState(60); // 1 minutes in seconds
     const [canResend, setCanResend] = useState(false);
+    const [remind, setRemind] = useState(false)
     const buttonRef = useRef(null);
     const [errors, setErrors] = useState([]);
-    const { t } = useTranslation()  
-
+    const { t } = useTranslation()
     const adminEmail = localStorage.getItem("admin-email")
     const adminLng = localStorage.getItem("admin-lng")
-    
+
     useEffect(() => {
         i18next.changeLanguage(adminLng);
     }, [adminLng]);
 
 
+    
     useEffect(() => {
         const countdown = setInterval(() => {
             setTimer(prevTimer => {
@@ -48,15 +50,15 @@ export default function AdminLoginOtp() {
     }, [navigate])
 
 
-    const handleResend = async(e) =>{
+    const handleResend = async (e) => {
         e.preventDefault();
 
-        const data ={
+        const data = {
             email: adminEmail
         }
 
         try {
-            const result = await axios.post(`/api/admin/resendOtp`,data);
+            const result = await axios.post(`/api/admin/resendOtp`, data);
             // console.log(result);
             if (result.data.errors) {
                 setErrors(result.data.errors.otp);
@@ -64,7 +66,7 @@ export default function AdminLoginOtp() {
             } else {
                 console.log(result.data.message);
                 alert.success(result.data.message)
-                
+
                 setTimer(60);
                 setCanResend(false);
                 const countdown = setInterval(() => {
@@ -92,19 +94,27 @@ export default function AdminLoginOtp() {
         // let numOtp = Number(stringOtp);
         const data = {
             otp: stringOtp,
+            remember_device: remind
         };
 
         try {
             const result = await axios.post(`/api/admin/verifyOtp`, data);
+            console.log(result);
             if (result.data.errors) {
                 setErrors(result.data.errors.otp);
                 console.log(errors);
             } else {
-                localStorage.setItem("admin-token", result.data.token);
-                localStorage.setItem("admin-name", result.data.name);
-                localStorage.setItem("admin-id", result.data.id);
+
+                localStorage.setItem("admin-token", result.data.admin.token);
+                localStorage.setItem("admin-name", result.data.admin.name);
+                localStorage.setItem("admin-id", result.data.admin.id);
+                
+                const rememberToken = result?.data?.remember_token;
+
+                if (rememberToken) {
+                    document.cookie = `remember_device_token=${rememberToken}; path=/; max-age=2592000`; // 30 days
+                }
                 window.location = "/admin/dashboard";
-                // console.log(result);
             }
         } catch (error) {
             console.error("Error verifying OTP:", error);
@@ -131,7 +141,7 @@ export default function AdminLoginOtp() {
             }
         }
         setOtp(newOtp);
-        focusNextEmptyInput(newOtp);    
+        focusNextEmptyInput(newOtp);
     };
 
     const handleChange = (e, index) => {
@@ -181,6 +191,7 @@ export default function AdminLoginOtp() {
         }
     };
 
+
     return (
         <div id="loginPage">
             <div className="container adminLogin">
@@ -215,7 +226,7 @@ export default function AdminLoginOtp() {
                     </div>
                     <h1 className="page-title text-center">{t("resendOtp.adminLoginOtpTitle")}</h1>
                     <form onSubmit={handleLogin}>
-                         <div className="form-group">
+                        <div className="form-group">
                             <div className="container-fluid bg-body-tertiary d-block">
                                 <div className="row justify-content-center">
                                     <div className="col-12 col-md-6 col-lg-4" style={{ minWidth: "500px" }}>
@@ -239,12 +250,12 @@ export default function AdminLoginOtp() {
                                                     ))}
                                                 </div>
                                                 <button type='submit' className="btn btn-danger mb-3" ref={buttonRef}>
-                                                {t("resendOtp.verify")}
+                                                    {t("resendOtp.verify")}
                                                 </button>
 
                                                 {canResend ? (
                                                     <p className="resend text-muted mb-0">
-                                                       {t("resendOtp.receiveCode")} <a href="" onClick={handleResend}>{t("resendOtp.requestAgain")}</a>
+                                                        {t("resendOtp.receiveCode")} <a href="" onClick={handleResend}>{t("resendOtp.requestAgain")}</a>
                                                     </p>
                                                 ) : (
                                                     <p className="resend text-muted mb-0">
@@ -252,12 +263,19 @@ export default function AdminLoginOtp() {
                                                     </p>
                                                 )}
                                             </div>
-                                                {errors && (
-                                                    <small className="text-danger text-center mb-1">
-                                                        {errors}
-                                                    </small>
-                                                )}
+                                            {errors && (
+                                                <small className="text-danger text-center mb-1">
+                                                    {errors}
+                                                </small>
+                                            )}
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label htmlFor='remind' 
+                                                style={{marginBottom: "0", marginRight: "5px"}}
+                                                >Remember this device</label>
+                                                <input onChange={e => setRemind(prev => !prev)} type='checkbox' id='remind' name='remember' />
+                                            </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>

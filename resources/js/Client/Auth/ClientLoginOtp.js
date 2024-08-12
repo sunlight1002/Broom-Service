@@ -16,11 +16,12 @@ export default function ClientLoginOtp() {
     const [timer, setTimer] = useState(60); // 1 minutes in seconds
     const [canResend, setCanResend] = useState(false);
     const { t } = useTranslation()
+    const [remind, setRemind] = useState(false)
 
 
     const clientEmail = localStorage.getItem("client-email");
     const clientLng = localStorage.getItem("client-lng")
-    
+
     useEffect(() => {
         i18next.changeLanguage(clientLng);
     }, [clientLng]);
@@ -94,21 +95,27 @@ export default function ClientLoginOtp() {
         const stringOtp = otp.join(""); // Join array into a single string
         const data = {
             otp: stringOtp,
+            remember_device: remind
         };
 
         try {
             const result = await axios.post(`/api/client/verifyOtp`, data);
             if (result.data.errors) {
                 setErrors(result.data.errors.otp);
-                console.log(errors);
             } else {
-                localStorage.setItem("client-token", result.data.token);
-                i18next.changeLanguage(result.data.lng);
+                localStorage.setItem("client-token", result.data.client.token);
+                i18next.changeLanguage(result.data.client.lng);
                 localStorage.setItem(
                     "client-name",
-                    result.data.firstname + " " + result.data.lastname
+                    result.data.client.firstname + " " + result.data.client.lastname
                 );
-                localStorage.setItem("client-id", result.data.id);
+                localStorage.setItem("client-id", result.data.client.id);
+
+                const rememberToken = result?.data?.remember_token;
+
+                if (rememberToken) {
+                    document.cookie = `remember_device_token=${rememberToken}; path=/; max-age=2592000`; // 30 days
+                }
 
                 window.location = "/client/dashboard";
             }
@@ -222,7 +229,7 @@ export default function ClientLoginOtp() {
                         {dir === "heb" ? "כניסת לקוחות" : "Client Login otp"}
                     </h1>
                     <form onSubmit={HandleLogin}>
-                    <div className="form-group">
+                        <div className="form-group">
                             <div className="container-fluid bg-body-tertiary d-block">
                                 <div className="row justify-content-center">
                                     <div className="col-12 col-md-6 col-lg-4" style={{ minWidth: "500px" }}>
@@ -246,12 +253,12 @@ export default function ClientLoginOtp() {
                                                     ))}
                                                 </div>
                                                 <button type='submit' className="btn btn-danger mb-3" ref={buttonRef}>
-                                                {t("resendOtp.verify")}
+                                                    {t("resendOtp.verify")}
                                                 </button>
 
                                                 {canResend ? (
                                                     <p className="resend text-muted mb-0">
-                                                       {t("resendOtp.receiveCode")} <a href="" onClick={handleResend}>{t("resendOtp.requestAgain")}</a>
+                                                        {t("resendOtp.receiveCode")} <a href="" onClick={handleResend}>{t("resendOtp.requestAgain")}</a>
                                                     </p>
                                                 ) : (
                                                     <p className="resend text-muted mb-0">
@@ -259,11 +266,17 @@ export default function ClientLoginOtp() {
                                                     </p>
                                                 )}
                                             </div>
-                                                {errors && (
-                                                    <small className="text-danger text-center mb-1">
-                                                        {errors}
-                                                    </small>
-                                                )}
+                                            {errors && (
+                                                <small className="text-danger text-center mb-1">
+                                                    {errors}
+                                                </small>
+                                            )}
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label htmlFor='remind'
+                                                    style={{ marginBottom: "0", marginRight: "5px" }}
+                                                >Remember this device</label>
+                                                <input onChange={e => setRemind(prev => !prev)} type='checkbox' id='remind' name='remember' />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

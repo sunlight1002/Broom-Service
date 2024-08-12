@@ -4,6 +4,8 @@ import logo from "../../../Assets/image/sample.svg";
 import { useNavigate } from "react-router-dom";
 import FullLoader from "../../../../../public/js/FullLoader";
 import i18next from "i18next";
+import { getCookie } from "../../Components/common/Cookies";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 
 export default function AdminLogin() {
@@ -18,9 +20,6 @@ export default function AdminLogin() {
     }, [navigate])
 
     const adminLng = localStorage.getItem("admin-lng")
-    console.log(adminLng);
-    
-
 
     const alert = useAlert();
     const [email, setEmail] = useState("");
@@ -28,6 +27,16 @@ export default function AdminLogin() {
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(false)
     const [dir, setDir] = useState([])
+
+    const [isRemembered, setIsRemembered] = useState(false);
+
+    useEffect(() => {
+        const token = getCookie('remember_device_token');           
+        if (token) {
+            setIsRemembered(true);
+        }
+    }, []);
+    
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -39,19 +48,13 @@ export default function AdminLogin() {
         };
 
         await axios.post(`/api/admin/login`, data).then((result) => {
+            // console.log(result);
             
             if (result.data.errors) {
                 setLoading(false)
                 setErrors(result.data.errors);
             } else {
-                if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
-                    localStorage.setItem("admin-email", result.data.email);
-                    localStorage.setItem("admin-lng", result.data.lng);
-
-                    window.location = "/admin/login-otp";
-                    setLoading(false)
-                }else{
-                    
+                if(isRemembered){
                     localStorage.setItem("admin-token", result.data.token);
                     localStorage.setItem("admin-name", result.data.name);
                     localStorage.setItem("admin-id", result.data.id);
@@ -59,26 +62,33 @@ export default function AdminLogin() {
                     const adminLng = localStorage.getItem("admin-lng")
                     i18next.changeLanguage(adminLng);
                     window.location = "/admin/dashboard";
+                }else{
+                    if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
+                        localStorage.setItem("admin-email", result.data.email);
+                        localStorage.setItem("admin-lng", result.data.lng);
+                        setLoading(false)
+                        window.location = "/admin/login-otp";
+                    }else{
+                        localStorage.setItem("admin-token", result.data.token);
+                        localStorage.setItem("admin-name", result.data.name);
+                        localStorage.setItem("admin-id", result.data.id);
+                        localStorage.setItem("admin-lng", result.data.lng);
+                        const adminLng = localStorage.getItem("admin-lng")
+                        i18next.changeLanguage(adminLng);
+                        window.location = "/admin/dashboard";
+                    }
                 }
             }
         });
     };
 
-    // console.log(adminLng,"lng");
-    
-    // useEffect(() => {
-    //     i18next.changeLanguage(adminLng);
-    // }, [adminLng]);
+
 
     useEffect(() => {
         let d = document.querySelector("html").getAttribute("dir");
         d == "rtl" ? setDir("heb") : setDir("en");
     }, []);
-    
 
-    if (loading) {
-        return <FullLoader/>
-    }
 
     return (
         <div id="loginPage">
@@ -178,6 +188,7 @@ export default function AdminLogin() {
                     </form>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

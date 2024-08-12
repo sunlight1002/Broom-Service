@@ -17,12 +17,13 @@ export default function WorkerLoginOtp() {
     const [canResend, setCanResend] = useState(false);
     const [loading, setLoading] = useState(false)
     const { t } = useTranslation()
+    const [remind, setRemind] = useState(false)
 
     const [errors, setErrors] = useState([]);
 
     const workerEmail = localStorage.getItem("worker-email")
     const workerLng = localStorage.getItem("worker-lng")
-    
+
     useEffect(() => {
         i18next.changeLanguage(workerLng);
     }, [workerLng]);
@@ -44,7 +45,6 @@ export default function WorkerLoginOtp() {
 
     useEffect(() => {
         const workerLogin = localStorage.getItem("worker-id")
-        // console.log(adminLogin);
         if (workerLogin) {
             navigate("/worker/dashboard");
         }
@@ -52,15 +52,15 @@ export default function WorkerLoginOtp() {
 
 
 
-    const handleResend = async(e) =>{
+    const handleResend = async (e) => {
         e.preventDefault();
 
-        const data ={
+        const data = {
             email: workerEmail
         }
 
         try {
-            const result = await axios.post(`/api/resendOtp`,data);
+            const result = await axios.post(`/api/resendOtp`, data);
             // console.log(result);
             if (result.data.errors) {
                 setErrors(result.data.errors.otp);
@@ -91,30 +91,36 @@ export default function WorkerLoginOtp() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setLoading(true)
+        setLoading(true) 
 
-        const stringOtp = otp.join(""); // Join array into a single string
-        // let numOtp = Number(stringOtp);
+        const stringOtp = otp.join("");
+
         const data = {
             otp: stringOtp,
+            remember_device: remind
         };
         try {
             const result = await axios.post(`/api/verifyOtp`, data);
+            
             if (result.data.errors) {
                 setErrors(result.data.errors.otp);
-                // console.log(errors);
             } else {
                 setLoading(false)
-                // console.log(result);
-                localStorage.setItem("worker-token", result.data.token);
-                    i18next.changeLanguage(result.data.lng);
-                    localStorage.setItem(
-                        "worker-name",
-                        result.data.firstname + " " + result.data.lastname
-                    );
-                    localStorage.setItem("worker-id", result.data.id);
-    
-                    window.location = "/worker/dashboard";
+                localStorage.setItem("worker-token", result.data.user.token);
+                i18next.changeLanguage(result.data.user.lng);
+                localStorage.setItem(
+                    "worker-name",
+                    result.data.user.firstname + " " + result.data.user.lastname
+                );
+                localStorage.setItem("worker-id", result.data.user.id);
+
+                const rememberToken = result?.data?.remember_token;
+
+                if (rememberToken) {
+                    document.cookie = `remember_device_token=${rememberToken}; path=/; max-age=2592000`; // 30 days
+                }
+
+                window.location = "/worker/dashboard";
             }
         } catch (error) {
             console.error("Error verifying OTP:", error);
@@ -254,12 +260,12 @@ export default function WorkerLoginOtp() {
                                                     ))}
                                                 </div>
                                                 <button type='submit' className="btn btn-danger mb-3" ref={buttonRef}>
-                                                {t("resendOtp.verify")}
+                                                    {t("resendOtp.verify")}
                                                 </button>
 
                                                 {canResend ? (
                                                     <p className="resend text-muted mb-0">
-                                                       {t("resendOtp.receiveCode")} <a href="" onClick={handleResend}>{t("resendOtp.requestAgain")}</a>
+                                                        {t("resendOtp.receiveCode")} <a href="" onClick={handleResend}>{t("resendOtp.requestAgain")}</a>
                                                     </p>
                                                 ) : (
                                                     <p className="resend text-muted mb-0">
@@ -267,11 +273,17 @@ export default function WorkerLoginOtp() {
                                                     </p>
                                                 )}
                                             </div>
-                                                {errors && (
-                                                    <small className="text-danger text-center mb-1">
-                                                        {errors}
-                                                    </small>
-                                                )}
+                                            {errors && (
+                                                <small className="text-danger text-center mb-1">
+                                                    {errors}
+                                                </small>
+                                            )}
+                                            <div className='d-flex justify-content-center align-items-center'>
+                                                <label htmlFor='remind'
+                                                    style={{ marginBottom: "0", marginRight: "5px" }}
+                                                >Remember this device</label>
+                                                <input onChange={e => setRemind(prev => !prev)} type='checkbox' id='remind' name='remember' />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
