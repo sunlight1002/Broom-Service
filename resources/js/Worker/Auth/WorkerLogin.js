@@ -17,13 +17,13 @@ export default function WorkerLogin() {
     const navigate = useNavigate()
 
 
-    // useEffect(() => {
-    //     const workerLogin = localStorage.getItem("worker-id")
-    //     // console.log(adminLogin);
-    //     if (workerLogin) {
-    //         navigate("/worker/dashboard");
-    //     }
-    // }, [navigate])
+    useEffect(() => {
+        const workerLogin = localStorage.getItem("worker-id")
+        // console.log(adminLogin);
+        if (workerLogin) {
+            navigate("/worker/dashboard");
+        }
+    }, [navigate])
 
     useEffect(() => {
         const token = getCookie('remember_device_token');

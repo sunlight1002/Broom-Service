@@ -84,7 +84,7 @@ export default function ClientLogin() {
         console.log(d);
         d == "rtl" ? setDir("heb") : setDir("en");
     }, []);
-    
+
     return (
         <div id="loginPage">
             <div className="container adminLogin">
