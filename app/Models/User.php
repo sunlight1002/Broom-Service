@@ -90,6 +90,7 @@ class User extends Authenticatable
         'is_afraid_by_cat' => 'boolean',
         'is_afraid_by_dog' => 'boolean',
     ];
+    
 
     public static function boot()
     {
@@ -168,5 +169,15 @@ class User extends Authenticatable
     public function setPhoneAttribute($value)
     {
         $this->attributes['phone'] = preg_replace('/\D/', '', $value);
+    }
+
+    public function tasks()
+    {
+        return $this->morphToMany(TaskManagement::class, 'assignable','task_workers','assignable_id', 'task_management_id');
+    }
+
+    public function tokens()
+    {
+        return $this->morphMany(DeviceToken::class, 'tokenable');
     }
 }

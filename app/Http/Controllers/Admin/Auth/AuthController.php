@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\TeamMember;
+use App\Models\DeviceToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\Admin\LoginOtpMail;
 use Illuminate\Support\Str;
 use Twilio\Rest\Client as TwilioClient;
+use Illuminate\Support\Facades\Cookie;
 
 class AuthController extends Controller
 {
@@ -27,23 +29,58 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string', 'min:6'],
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
     
         // Authenticate the admin
         $admin = Admin::where('email', $request->email)->first();
-    
+
         if (!$admin || !Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
             return response()->json(['errors' => ['email' => 'These credentials do not match our records.']]);
+        }
+            DeviceToken::where('tokenable_id', $admin->id)
+            ->where('tokenable_type', Admin::class)
+            ->where('expires_at', '<', now())
+            ->delete();
+
+        $rememberDeviceToken = $request->cookie('remember_device_token');
+        if ($rememberDeviceToken) {
+            $storedToken = DeviceToken::where('tokenable_id', $admin->id)
+                ->where('tokenable_type', Admin::class)
+                ->where('token', $rememberDeviceToken)
+                ->where('expires_at', '>', now())
+                ->first();
+                if ($storedToken) {
+                // Device is remembered
+                $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
+                return response()->json($admin);
+            } 
         }
     
         // Generate 6-digit numeric OTP
         $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
-    
-        // Send OTP via email and SMS if two-factor authentication is enabled
+        
+        // Send OTP via email and SMS if two-factor authentication is enabled and SMS if two-factor authentication is enabled
         if ($admin->two_factor_enabled) {
+
+            // Save OTP and expiry to the database
+            $admin->otp = $otp;
+            $admin->otp_expiry = now()->addMinutes(10); 
+            $admin->save();
+            
+            $emailSent = false;
+            $smsSent = false;
+
+            try {
+                // Send OTP via email
+                Mail::to($admin->email)->send(new LoginOtpMail($otp, $admin));
+                $emailSent = true;
+            } catch (\Exception $e) {
+                $emailError = $e->getMessage();
+            }
+    
 
             // Save OTP and expiry to the database
             $admin->otp = $otp;
@@ -68,7 +105,7 @@ class AuthController extends Controller
                 $twilioPhoneNumber = config('services.twilio.twilio_number');
     
                 $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-                $phone_number = '+91'.$admin->phone;
+                $phone_number = '+'.$admin->phone;
                 
                 $twilioClient->messages->create(
                     $phone_number,
@@ -100,6 +137,14 @@ class AuthController extends Controller
                     "two_factor_enabled" => $admin->two_factor_enabled,
                     "email" => $admin->email,
                     "lng" => $admin->lng,
+                    'message' => 'OTP sent to your email for verification. Failed to send OTP via SMS.',
+                    // 'errors' => ['sms' => $smsError]
+                ]);
+            } elseif ($smsSent) {
+                return response()->json([
+                    "two_factor_enabled" => $admin->two_factor_enabled,
+                    "email" => $admin->email,
+                    "lng" => $admin->lng,
                     'message' => 'OTP sent to your phone number for verification. Failed to send OTP via email.',
                     // 'errors' => ['email' => $emailError]
                 ]);
@@ -110,22 +155,22 @@ class AuthController extends Controller
                     'sms_error' => $smsError ?? null
                 ], 500);
             }
+        
         } else {
             // Login without OTP
             $admin = Admin::find(auth()->guard('admin')->user()->id);
             $admin->token = $admin->createToken('Admin', ['admin'])->accessToken;
-    
+        
             return response()->json($admin);
         }
+     
     }
-    
-
-
 
     public function verifyOtp(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'otp' => ['required', 'string', 'digits:6'],
+            'remember_device' => 'boolean',
         ]);
     
         if ($validator->fails()) {
@@ -143,6 +188,14 @@ class AuthController extends Controller
         // Clear OTP after successful verification
         $admin->otp = null;
         $admin->otp_expiry = null;
+        if ($request->remember_device) {
+            $rememberDeviceToken = Str::random(60);
+            DeviceToken::updateOrCreate(
+                ['tokenable_id' => $admin->id, 'tokenable_type' => get_class($admin)],
+                ['token' => $rememberDeviceToken, 'expires_at' => now()->addDays(30)]
+            );
+            Cookie::queue('remember_device_token', $rememberDeviceToken, 43200); // 30 days
+        }
         $admin->save();
     
         // Generate token for the authenticated admin
@@ -174,7 +227,7 @@ class AuthController extends Controller
             $twilioPhoneNumber = config('services.twilio.twilio_number');
 
             $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-            $phone_number = '+91'.$admin->phone;
+            $phone_number = '+'.$admin->phone;
             
             $twilioClient->messages->create(
                 $phone_number,
@@ -191,6 +244,7 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
     
     /** 
      * Register api 
@@ -238,3 +292,4 @@ class AuthController extends Controller
 
     
 }
+

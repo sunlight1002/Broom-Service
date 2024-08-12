@@ -25,6 +25,8 @@ use App\Mail\Worker\LoginOtpMail;
 use Carbon\Carbon;
 use Twilio\Rest\Client;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cookie;
+use App\Models\DeviceToken;
 
 class AuthController extends Controller
 {
@@ -60,7 +62,25 @@ class AuthController extends Controller
              'password'  => $request->password
          ])) {
              $user = User::find(auth()->user()->id);
-     
+             DeviceToken::where('tokenable_id', $user->id)
+             ->where('tokenable_type', User::class)
+             ->where('expires_at', '<', now())
+             ->delete();
+
+             $rememberDeviceToken = $request->cookie('remember_device_token');
+             if ($rememberDeviceToken) {
+                 $storedToken = DeviceToken::where('tokenable_id', $user->id)
+                     ->where('tokenable_type', User::class)
+                     ->where('token', $rememberDeviceToken)
+                     ->where('expires_at', '>', now())
+                     ->first();
+                     if ($storedToken) {
+                        // Device is remembered
+                        $user->token = $user->createToken('User', ['user'])->accessToken;
+                        return response()->json($user);
+                    } 
+                }
+                
              if ($user->two_factor_enabled) {
                  $otp = strval(random_int(100000, 999999)); // Generate a random 6-digit number
                  $user->otp = $otp;
@@ -160,6 +180,14 @@ class AuthController extends Controller
         // Clear OTP after successful verification
         $user->otp = null;
         $user->otp_expiry = null;
+        if ($request->remember_device) {
+            $rememberDeviceToken = Str::random(60);
+            DeviceToken::updateOrCreate(
+                ['tokenable_id' => $user->id, 'tokenable_type' => get_class($user)],
+                ['token' => $rememberDeviceToken, 'expires_at' => now()->addDays(30)]
+            );
+            Cookie::queue('remember_device_token', $rememberDeviceToken, 43200); // 30 days
+        }
         $user->save();
 
         // Generate token for the authenticated user
@@ -210,7 +238,6 @@ class AuthController extends Controller
             ], 500);
         }
     }
-
 
     /** 
      * Register api 

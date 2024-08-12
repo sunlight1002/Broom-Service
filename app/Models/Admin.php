@@ -74,13 +74,13 @@ class Admin extends Authenticatable
         $this->attributes['phone'] = preg_replace('/\D/', '', $value);
     }
 
-    
-   
+    public function tasks()
+    {
+        return $this->morphToMany(TaskManagement::class, 'assignable','task_workers','assignable_id', 'task_management_id');
+    }
 
-    // public function generateCode(){
-    //     $this->timestamps = false;
-    //     $this->otp = rand(1000,9999);
-    //     $this->otp_expiry = now()->addMinute(5);
-    //     $this->save();
-    // }
+    public function tokens()
+    {
+        return $this->morphMany(DeviceToken::class, 'tokenable');
+    }
 }

@@ -182,4 +182,9 @@ class Client extends Authenticatable
     {
         $this->attributes['phone'] = preg_replace('/\D/', '', $value);
     }
+
+    public function tokens()
+    {
+        return $this->morphMany(DeviceToken::class, 'tokenable');
+    }
 }

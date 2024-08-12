@@ -11,10 +11,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Client\LoginOtpMail;
 use Illuminate\Support\Facades\App;
-
+use Illuminate\Support\Facades\Cookie;
+use App\Models\DeviceToken;
 
 
 class AuthController extends Controller
@@ -41,28 +43,49 @@ class AuthController extends Controller
             'email'     => $request->email,
             'password'  => $request->password
         ])) {
-            $client = Client::find(auth()->guard('client')->user()->id);
+            $client = Auth::guard('client')->user();
+        
+             DeviceToken::where('tokenable_id', $client->id)
+             ->where('tokenable_type', Client::class)
+             ->where('expires_at', '<', now())
+             ->delete();
+
+             $rememberDeviceToken = $request->cookie('remember_device_token');
+             if ($rememberDeviceToken) {
+                 $storedToken = DeviceToken::where('tokenable_id', $client->id)
+                     ->where('tokenable_type', Client::class)
+                     ->where('token', $rememberDeviceToken)
+                     ->where('expires_at', '>', now())
+                     ->first();
+                     if ($storedToken) {
+                        // Device is remembered
+                        $client->token = $client->createToken('Client', ['client'])->accessToken;
+                        return response()->json($client);
+                    } 
+                }
+
             if ($client->status == 2) {
-                if ($client->two_factor_enabled) {
-                    $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
-                    $client->otp = $otp;
-                    $client->otp_expiry = now()->addMinutes(10); 
-                    $client->save();
-    
-                    $emailSent = false;
-                    $smsSent = false;
-                    $emailError = null;
-                    $smsError = null;
-    
+                if($client->two_factor_enabled){
                     try {
-                        // Send OTP via email
-                        Mail::to($client->email)->send(new LoginOtpMail($otp, $client));
-                        $emailSent = true;
-                    } catch (\Exception $e) {
-                        $emailError = $e->getMessage();
-                    }
-    
-                    try {
+                        $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
+
+                        $client->otp = $otp;
+                        $client->otp_expiry = now()->addMinutes(10); 
+                        $client->save();
+
+                        $emailSent = false;
+                        $smsSent = false;
+                        $emailError = null;
+                        $smsError = null;
+        
+                        try {
+                            // Send OTP via email
+                            Mail::to($client->email)->send(new LoginOtpMail($otp, $client));
+                            $emailSent = true;
+                        } catch (\Exception $e) {
+                            $emailError = $e->getMessage();
+                        }
+        
                         // Send OTP via SMS using Twilio
                         App::setLocale($client->lng);
                         $otpMessage = __('mail.otp.body', ['otp' => $otp]);
@@ -72,8 +95,8 @@ class AuthController extends Controller
                         $twilioPhoneNumber = config('services.twilio.twilio_number');
     
                         $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-                        $phone_number = '+91' . $client->phone;
-                        
+                        $phone_number = '+'.$client->phone;
+                    
                         $twilioClient->messages->create(
                             $phone_number,
                             ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
@@ -137,6 +160,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'otp' => ['required', 'string', 'digits:6'],
+            'remember_device' => 'boolean',
         ]);
     
         if ($validator->fails()) {
@@ -154,6 +178,16 @@ class AuthController extends Controller
         // Clear OTP after successful verification
         $client->otp = null;
         $client->otp_expiry = null;
+
+        if ($request->remember_device) {
+            $rememberDeviceToken = Str::random(60);
+            DeviceToken::updateOrCreate(
+                ['tokenable_id' => $client->id, 'tokenable_type' => get_class($client)],
+                ['token' => $rememberDeviceToken, 'expires_at' => now()->addDays(30)]
+            );
+            Cookie::queue('remember_device_token', $rememberDeviceToken, 43200); // 30 days
+        }
+
         $client->save();
     
         // Generate token for the authenticated admin
@@ -189,7 +223,7 @@ class AuthController extends Controller
             $twilioPhoneNumber = config('services.twilio.twilio_number');
 
             $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-            $phone_number = '+91'.$client->phone;
+            $phone_number = '+'.$client->phone;
             
             $twilioClient->messages->create(
                 $phone_number,
