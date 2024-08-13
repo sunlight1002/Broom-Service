@@ -554,7 +554,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Payment Method
+                                            {t("worker.settings.paymentMethod")}
                                             </label>
 
                                             <select
@@ -564,9 +564,9 @@ export default function AddWorker() {
                                                     setPayment(e.target.value)
                                                 }
                                             >
-                                                <option value="">--- please select ---</option>
-                                                <option value="cheque">Cheque</option>
-                                                <option value="money_transfer">Money Transfer</option>
+                                                <option value="">{t("worker.settings.pleaseSelect")}</option>
+                                                <option value="cheque">{t("worker.settings.cheque")}</option>
+                                                <option value="money_transfer">{t("worker.settings.moneyTrasnfer")}</option>
                                             </select>
                                         </div>
                                         {errors.payment_type ? (
@@ -587,7 +587,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                            Full Name
+                                                        {t("worker.settings.fullName")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -595,7 +595,7 @@ export default function AddWorker() {
                                                             name="full_name"
                                                             onChange={handleBankDetails}
                                                             className="form-control"
-                                                            placeholder="Enter Full Name"
+                                                            placeholder= {t("worker.settings.enterFullname")}
                                                         />
                                                         {errors.full_name ? (
                                                             <small className="text-danger mb-1">
@@ -609,7 +609,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                            Bank Name
+                                                        {t("worker.settings.bankName")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -617,7 +617,7 @@ export default function AddWorker() {
                                                             name="bank_name"
                                                             onChange={handleBankDetails}
                                                             className="form-control"
-                                                            placeholder="Enter Bank name"
+                                                            placeholder={t("worker.settings.enterBankname")}
                                                         />
                                                         {errors.bank_name ? (
                                                             <small className="text-danger mb-1">
@@ -631,7 +631,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                            Bank Number
+                                                        {t("worker.settings.bankNumber")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -639,7 +639,7 @@ export default function AddWorker() {
                                                             name="bank_no"
                                                             onChange={handleBankDetails}
                                                             className="form-control"
-                                                            placeholder="Enter Bank Number"
+                                                            placeholder={t("worker.settings.enterBanknumber")}
                                                         />
                                                         {errors.bank_number ? (
                                                             <small className="text-danger mb-1">
@@ -653,7 +653,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                            Branch Number
+                                                        {t("worker.settings.branchNumber")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -661,7 +661,7 @@ export default function AddWorker() {
                                                             name="branch_no"
                                                             onChange={handleBankDetails}
                                                             className="form-control"
-                                                            placeholder="Enter Branch Number"
+                                                            placeholder={t("worker.settings.enterBranchnumber")}
                                                         />
                                                         {errors.branch_number ? (
                                                             <small className="text-danger mb-1">
@@ -675,7 +675,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                            Acount Number
+                                                        {t("worker.settings.accountNumber")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -683,7 +683,7 @@ export default function AddWorker() {
                                                             name="account_no"
                                                             onChange={handleBankDetails}
                                                             className="form-control"
-                                                            placeholder="Enter Account Number"
+                                                            placeholder={t("worker.settings.enterAccountnumber")}
                                                         />
                                                         {errors.account_number ? (
                                                             <small className="text-danger mb-1">

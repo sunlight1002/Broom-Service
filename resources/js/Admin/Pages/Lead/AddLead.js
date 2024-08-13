@@ -172,12 +172,12 @@ export default function AddLead() {
                                                     });
                                                 }}
                                             >
-                                                <option value="both">Both</option>
+                                                <option value="both">{t("admin.leads.AddLead.both")}</option>
                                                 <option value="email">
-                                                    Email
+                                                {t("admin.leads.AddLead.email")}
                                                 </option>
                                                 <option value="whatsapp">
-                                                    WhatsApp
+                                                {t("admin.leads.AddLead.whatsapp")}
                                                 </option>
                                             </select>
                                         </div>
@@ -275,8 +275,8 @@ export default function AddLead() {
                                                     });
                                                 }}
                                             >
-                                                <option value="heb">Hebrew</option>
-                                                <option value="en">English</option>
+                                                <option value="heb">{t("admin.leads.AddLead.hebrew")}</option>
+                                                <option value="en">{t("admin.leads.AddLead.english")}</option>
                                             </select>
                                         </div>
                                     </div>

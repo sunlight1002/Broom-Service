@@ -507,7 +507,7 @@ export default function Payments() {
                                     setselectedFilter={setSelectedDateRange}
                                 />
                                 <FilterButtons
-                                    text={t("modal.alltime")}
+                                    text={t("global.alltime")}
                                     className="px-4 mr-3"
                                     selectedFilter={selectedDateRange}
                                     setselectedFilter={setSelectedDateRange}

@@ -86,23 +86,23 @@ export default function Lead() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "Date",
+                    title: t("admin.global.Date"),
                     data: "created_at",
                 },
                 {
-                    title: "Name",
+                    title: t("admin.global.Name"),
                     data: "name",
                 },
                 {
-                    title: "Email",
+                    title:t("admin.global.Email"),
                     data: "email",
                 },
                 {
-                    title: "Phone",
+                    title: t("admin.global.Phone"),
                     data: "phone",
                 },
                 {
-                    title: "Status",
+                    title: t("admin.global.Status"),
                     data: "lead_status",
                     orderable: false,
                     render: function (data, type, row, meta) {
@@ -114,7 +114,7 @@ export default function Lead() {
                     },
                 },
                 {
-                    title: "Action",
+                    title: t("admin.global.Action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,

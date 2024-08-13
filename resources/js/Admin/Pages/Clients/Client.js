@@ -62,23 +62,23 @@ export default function Clients() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "Date",
+                    title:t("admin.global.Date"),
                     data: "created_at",
                 },
                 {
-                    title: "Name",
+                    title: t("admin.global.Name"),
                     data: "name",
                 },
                 {
-                    title: "Email",
+                    title: t("admin.global.Email"),
                     data: "email",
                 },
                 {
-                    title: "Phone",
+                    title: t("admin.global.Phone"),
                     data: "phone",
                 },
                 {
-                    title: "Status",
+                    title: t("admin.global.Status"),
                     data: "lead_status",
                     orderable: false,
                     render: function (data, type, row, meta) {
@@ -92,7 +92,7 @@ export default function Clients() {
                     },
                 },
                 {
-                    title: "Action",
+                    title: t("admin.global.Action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,
@@ -104,13 +104,13 @@ export default function Clients() {
                             _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
                         }
 
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">Change status</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
 
                         _html += "</div> </div>";
 

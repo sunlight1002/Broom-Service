@@ -53,26 +53,26 @@ export default function OfferPrice() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "Date",
+                    title:t("admin.global.Date"),
                     data: "created_at",
                 },
                 {
-                    title: "Client",
+                    title: t("admin.dashboard.clients"),
                     data: "name",
                     render: function (data, type, row, meta) {
                         return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name" style="color: black; text-decoration: underline;"> ${data} </a>`;
                     },
                 },
                 {
-                    title: "Email",
+                    title: t("admin.global.Email"),
                     data: "email",
                 },
                 {
-                    title: "Phone",
+                    title:  t("admin.global.Phone"),
                     data: "phone",
                 },
                 {
-                    title: "Status",
+                    title:  t("admin.global.Status"),
                     data: "status",
                     render: function (data, type, row, meta) {
                         let color = "";
@@ -99,7 +99,7 @@ export default function OfferPrice() {
                     },
                 },
                 {
-                    title: "Action",
+                    title:  t("admin.global.Action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,
@@ -107,11 +107,11 @@ export default function OfferPrice() {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
 
                         _html += "</div> </div>";
 

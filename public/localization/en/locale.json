@@ -4,6 +4,9 @@
         "continue": "Continue"
     },
     "global": {
+        "alltime":"All time",
+        "name":"Name",
+        "Email":"Email",
         "cycle": "Cycle",
         "open": "Open",
         "openDays": "Open Days",
@@ -931,10 +934,11 @@
             "payments": "Payments"
         },
         "global": {
+            "Action":"Action",
             "addTeamMember": "Add Team member",
             "NameEn": "Name - En",
             "NameHev": "Name - Heb",
-            "status": "Status",
+            "Status": "Status",
             "action": "Action",
             "view": "View",
             "Edit": "Edit",
@@ -987,7 +991,8 @@
             "selectTemplate": "--- Select template ---",
             "leads": "Leads",
             "messengerChat": "Messenger Chat",
-            "submit": "Submit"
+            "submit": "Submit",
+            "Address":"Address"
         },
         "dashboard": {
             "jobPosted": "Job Posted",
@@ -1070,6 +1075,11 @@
             "change_status": "Change status",
             "save": "Save",
             "AddLead": {
+                "both":"Both",
+                "email":"Email",
+                "whatsapp":"Whatsapp",
+                "hebrew":"Hebrew",
+                "english":"English",
                 "AddLead": "Add Lead",
                 "FirstName": "First name",
                 "LastName": "Last name",
@@ -1707,7 +1717,21 @@
             "save_file": "Save File",
             "forms": "Forms",
             "document_type": "Document type",
-            "document_name": "Document name"
+            "document_name": "Document name",
+            "paymentMethod":"Payment Method",
+            "cheque":"Cheque",
+            "moneyTrasnfer":"Money Transfer",
+            "fullName":"Full Name",
+            "bankName":"Bank Name",
+            "bankNumber":"Bank Number",
+            "branchNumber":"Branch Number",
+            "accountNumber":"Account Number",
+            "enterFullname":"Enter Full Name",
+            "enterBankname":"Enter Bank name",
+            "enterBanknumber":"Enter Bank Number",
+            "enterBranchnumber":"Enter Branch Number",
+            "enterAccountnumber":"Enter Account Number"
+
         }
     },
     "worker_contract": {

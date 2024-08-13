@@ -161,8 +161,8 @@ export default function Acc() {
                             onChange={(e) => setLng(e.target.value)}
                         >
                             <option value="">{t("admin.sidebar.settings.selectLang")}</option>
-                            <option value="heb">Hebrew</option>
-                            <option value="en">English</option>
+                            <option value="heb">{t("worker.settings.Hebrew")}</option>
+                            <option value="en">{t("worker.settings.English")}</option>
                         </select>
                     </div>
                     <div className="form-group">

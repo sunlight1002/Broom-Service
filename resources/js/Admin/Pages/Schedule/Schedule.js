@@ -52,7 +52,7 @@ export default function Schedule() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "Scheduled",
+                    title:  t("admin.dashboard.pending.scheduled"),
                     data: "start_date",
                     render: function (data, type, row, meta) {
                         let _html = "";
@@ -76,18 +76,18 @@ export default function Schedule() {
                     },
                 },
                 {
-                    title: "Name",
+                    title:  t("admin.global.Name"),
                     data: "name",
                     render: function (data, type, row, meta) {
                         return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
                     },
                 },
                 {
-                    title: "Contact",
+                    title:  t("admin.dashboard.pending.contact"),
                     data: "phone",
                 },
                 {
-                    title: "Address",
+                    title:  t("admin.global.Address"),
                     data: "address_name",
                     render: function (data, type, row, meta) {
                         if (data) {
@@ -98,11 +98,11 @@ export default function Schedule() {
                     },
                 },
                 {
-                    title: "Attender",
+                    title: t("client.meeting.attender"),
                     data: "attender_name",
                 },
                 {
-                    title: "Status",
+                    title:  t("admin.global.Status"),
                     data: "booking_status",
                     render: function (data, type, row, meta) {
                         let color = "";
@@ -121,7 +121,7 @@ export default function Schedule() {
                     },
                 },
                 {
-                    title: "Action",
+                    title: t("admin.global.Action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,
@@ -129,9 +129,9 @@ export default function Schedule() {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}" data-client-id="${row.client_id}">View</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}" data-client-id="${row.client_id}">${t("admin.leads.view")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
 
                         _html += "</div> </div>";
 

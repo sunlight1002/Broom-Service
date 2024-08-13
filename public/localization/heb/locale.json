@@ -4,6 +4,9 @@
         "continue": "לְהַמשִׁיך"
     },
     "global": {
+        "alltime":"כל הזמנים",
+        "name":"שם",
+        "Email":"אימייל",
         "cycle": "מחזור",
         "open": "פתוח",
         "openDays": "ימים פתוחים",
@@ -930,6 +933,7 @@
             "payments": "תשלומים"
         },
         "global": {
+            "Action":"פעולה",
             "addTeamMember": "הוסף חבר צוות",
             "NameEn": "שם - אנגלית",
             "NameHev": "שם - עברית",
@@ -937,6 +941,7 @@
             "action": "פעולה",
             "view": "צפייה",
             "Edit": "עריכה",
+            "Date":"תַאֲרִיך",
             "Delete": "מחק",
             "Name": "שם",
             "Email": "אימייל",
@@ -987,7 +992,8 @@
             "selectTemplate": "--- בחר תבנית ---",
             "leads": "לידים",
             "messengerChat": "צ'אט מסנג'ר",
-            "submit": "שלח"
+            "submit": "שלח",
+            "Address":"כתובת"
         },
         "modal": {
             "title": "מודל",
@@ -1105,6 +1111,11 @@
             "save": "שמור",
             "change_status": "שנה סטטוס",
             "AddLead": {
+                "both":"שְׁנֵיהֶם",
+                "email":"אימייל",
+                "whatsapp":"ווטסאפ",
+                "hebrew":"עברית",
+                "english":"אנגלית",
                 "AddLead": "הוסף ליד",
                 "FirstName": "שם פרטי",
                 "LastName": "שם משפחה",
@@ -1744,7 +1755,20 @@
             "document_name": "שם המסמך",
             "Presetpermissions": "הרשאות מוגדרות מראש",
             "makeMember": "הפוך לחבר",
-            "makeAdministrator": "הפוך למנהל"
+            "makeAdministrator": "הפוך למנהל",
+            "paymentMethod":"שיטת תשלום",
+            "cheque":"לִבדוֹק",
+            "moneyTrasnfer":"העברת כספים",
+            "fullName":"שם מלא",
+            "bankName":"שם הבנק",
+            "bankNumber":"מספר בנק",
+            "branchNumber":"מספר סניף",
+            "accountNumber":"מספר חשבון",
+            "enterFullname":"הזן שם מלא",
+            "enterBankname":"הזן את שם הבנק",
+            "enterBanknumber":"הזן מספר בנק",
+            "enterBranchnumber":"הזן מספר סניף",
+            "enterAccountnumber":"הזן מספר חשבון"
         }
     },
     "worker_contract": {

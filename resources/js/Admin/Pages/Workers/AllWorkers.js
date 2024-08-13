@@ -70,19 +70,19 @@ export default function AllWorkers() {
                     visible: false,
                 },
                 {
-                    title: "Name",
+                    title: t("admin.global.Name"),
                     data: "name",
                 },
                 {
-                    title: "Email",
+                    title: t("admin.global.Email"),
                     data: "email",
                 },
                 {
-                    title: "Phone",
+                    title: t("admin.global.Phone"), 
                     data: "phone",
                 },
                 {
-                    title: "Address",
+                    title:  t("admin.global.Address"), 
                     data: "address",
                     orderable: false,
                     render: function (data, type, row, meta) {
@@ -94,7 +94,7 @@ export default function AllWorkers() {
                     },
                 },
                 {
-                    title: "Status",
+                    title:  t("admin.global.Status"),
                     data: "status",
                     orderable: false,
                     render: function (data, type, row, meta) {
@@ -107,7 +107,7 @@ export default function AllWorkers() {
                     },
                 },
                 {
-                    title: "Action",
+                    title: t("admin.global.Action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,
@@ -115,15 +115,15 @@ export default function AllWorkers() {
                         let _html =
                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">Freeze Shift</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">${t("global.freezeShift")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">Leave Job</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">${t("admin.modal.leave_job")}</button>`;
 
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
 
                         _html += "</div> </div>";
 
