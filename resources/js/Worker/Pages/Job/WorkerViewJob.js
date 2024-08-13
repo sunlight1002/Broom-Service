@@ -31,8 +31,9 @@ export default function WorkerViewJob() {
     const [isCompleteBtnDisable, setIsCompleteBtnDisable] = useState(false);
     const [isButtonEnabled, setIsButtonEnabled] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [targetLanguage, setTargetLanguage] = useState('en'); 
-    
+    const [targetLanguage, setTargetLanguage] = useState('en');
+    const [jobId, setJobId] = useState(null)
+    const [commentId, setCommentId] = useState(null)
 
     const alert = useAlert();
     const { t } = useTranslation();
@@ -235,21 +236,25 @@ export default function WorkerViewJob() {
         return `${hours}h:${minutes}m:${seconds}s`;
     };
 
-  
+
     const getComments = () => {
         axios
             .get(`/api/jobs/${params.id}/comments`, {
                 headers,
-                params: { target_language: targetLanguage },
+                params: {
+                    id: jobId,
+                    comment_id: commentId,
+                    target_language: targetLanguage
+                },
             })
-            .then((res) => {
+            .then((res) => {                                
                 setAllComment(res.data.comments);
             })
             .catch((error) => {
                 console.error("Error fetching comments: ", error);
             });
     };
-    
+
     const handleStartTime = (start_date) => {
         const today = new Date();
         const startDate = new Date(start_date);
@@ -259,9 +264,7 @@ export default function WorkerViewJob() {
             setIsButtonEnabled(true);
         }
     };
-    const handleLanguageChange = (e) => {
-        setTargetLanguage(e.target.value);
-    };
+
     useEffect(() => {
         getTimes();
         getTime();
@@ -287,7 +290,7 @@ export default function WorkerViewJob() {
                                         </div>
 
                                         {job.job_opening_timestamp === null &&
-                                        job.worker_approved_at === null ? (
+                                            job.worker_approved_at === null ? (
                                             <div className="col-sm-3 col-xl-2 col-6">
                                                 <button
                                                     type="button"
@@ -301,8 +304,8 @@ export default function WorkerViewJob() {
                                                 </button>
                                             </div>
                                         ) : job.job_opening_timestamp ===
-                                              null &&
-                                          job.worker_approved_at !== null ? (
+                                            null &&
+                                            job.worker_approved_at !== null ? (
                                             <div className="col-sm-3 col-xl-2 col-6">
                                                 <button
                                                     type="button"
@@ -321,7 +324,7 @@ export default function WorkerViewJob() {
                                                     {job_status !=
                                                         "completed" &&
                                                         job_status !=
-                                                            "cancel" && (
+                                                        "cancel" && (
                                                             <button
                                                                 type="button"
                                                                 onClick={
@@ -339,7 +342,7 @@ export default function WorkerViewJob() {
                                                         )}
                                                 </div>
                                                 {job_status != "completed" &&
-                                                job_status != "cancel" ? (
+                                                    job_status != "cancel" ? (
                                                     <div className="col-sm-2 col-6">
                                                         {!isRunning && (
                                                             <>
@@ -353,20 +356,20 @@ export default function WorkerViewJob() {
                                                                     className="btn btn-primary"
                                                                 >
                                                                     {job_time.length >
-                                                                    0
+                                                                        0
                                                                         ? t(
-                                                                              "worker.jobs.view.resbtn"
-                                                                          )
+                                                                            "worker.jobs.view.resbtn"
+                                                                        )
                                                                         : t(
-                                                                              "worker.jobs.view.startbtn"
-                                                                          )}
+                                                                            "worker.jobs.view.startbtn"
+                                                                        )}
                                                                 </button>
                                                                 <h4>
                                                                     {job_time.length >
-                                                                    0
+                                                                        0
                                                                         ? calculateTime(
-                                                                              total_time
-                                                                          )
+                                                                            total_time
+                                                                        )
                                                                         : ""}
                                                                 </h4>
                                                             </>
@@ -448,9 +451,9 @@ export default function WorkerViewJob() {
                                                                 let w_t =
                                                                     item.end_time
                                                                         ? time_difference(
-                                                                              item.start_time,
-                                                                              item.end_time
-                                                                          )
+                                                                            item.start_time,
+                                                                            item.end_time
+                                                                        )
                                                                         : "";
                                                                 return (
                                                                     <Tr
@@ -500,32 +503,25 @@ export default function WorkerViewJob() {
                                             )}
                                         </div>
                                     </div>
-                                    
-                                  
-                                    <div className="d-flex justify-content-between align-items-start">
-                                            <Comment allComment={allComment} />
 
-                                            <div className="col-sm-2 ml-auto">
-                                                <select
-                                                    className="form-control"
-                                                    value={targetLanguage}
-                                                    onChange={handleLanguageChange}
-                                                >
-                                                    <option value="he">עִברִית</option>
-                                                    <option value="ru">Русский</option>
-                                                    <option value="en">English</option>
-                                                    {/* Add more languages as needed */}
-                                                </select>
-                                            </div>
-                                        </div>
+
+                                    <div className="">
+                                        <Comment 
+                                        allComment={allComment} 
+                                        handleGetComments={getComments} 
+                                        setTargetLanguage={setTargetLanguage} 
+                                        setJobId={setJobId} 
+                                        setCommentId={setCommentId}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </div>
-                   
+
                 </div>
             </div>
-           
+
 
             {isOpenChangeJobStatus && (
                 <ChangeJobStatusModal
@@ -534,6 +530,10 @@ export default function WorkerViewJob() {
                     jobStatus={job_status}
                     setIsOpen={setIsOpenChangeJobStatus}
                     isOpen={isOpenChangeJobStatus}
+                    handleGetComments={getComments} 
+                    setTargetLanguage={setTargetLanguage} 
+                    setJobId={setJobId} 
+                    setCommentId={setCommentId}
                     onSuccess={() => {
                         getComments();
                         getJob();
@@ -546,4 +546,3 @@ export default function WorkerViewJob() {
 }
 
 
-    

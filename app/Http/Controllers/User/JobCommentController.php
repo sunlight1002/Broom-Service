@@ -65,13 +65,16 @@ class JobCommentController extends Controller
             })
             ->latest()
             ->get();
-
-            // Translate comments if a target language is provided
-            $targetLanguage = $request->input('target_language', 'en');
-            if ($targetLanguage !== 'en') { 
-                foreach ($comments as $comment) {
-                    $textToTranslate = $comment->comment; 
-        
+    
+        // Get the target language and comment ID
+        $targetLanguage = $request->input('target_language', 'en');
+        $commentId = $request->input('comment_id', null);
+    
+        // Translate the specific comment if a target language is provided
+        if ($targetLanguage !== 'en' && $commentId) { 
+            foreach ($comments as $comment) {
+                if ($comment->id == $commentId) {
+                    $textToTranslate = $comment->comment;
                     if (!empty($textToTranslate)) {
                         try {
                             $translation = $this->translateClient->translate($textToTranslate, [
@@ -84,11 +87,14 @@ class JobCommentController extends Controller
                     }
                 }
             }
-        
+        }
+    
         return response()->json([
             'comments' => $comments
         ]);
     }
+    
+    
     
 
     /**

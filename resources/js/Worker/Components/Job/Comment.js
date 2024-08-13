@@ -1,11 +1,21 @@
 import axios from "axios";
-import React from "react";
+import React, { useState } from "react";
 import Moment from "moment";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 
-export default function Comment({ allComment, handleGetComments }) {
+export default function Comment({ allComment = [], handleGetComments, setTargetLanguage, setJobId , setCommentId }) {
+    const [commentLanguageMap, setCommentLanguageMap] = useState({});
+
     const { t } = useTranslation();
+
+    const [dropdownOpen, setDropdownOpen] = useState(Array(allComment && allComment?.length).fill(false));
+    const languageOptions = [
+        { value: 'he', label: 'עִברִית' },
+        { value: 'ru', label: 'Русский' },
+        { value: 'en', label: 'English' },
+    ];
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "multipart/form-data",
@@ -37,6 +47,40 @@ export default function Comment({ allComment, handleGetComments }) {
                         }, 1000);
                     });
             }
+        });
+    };
+
+    const handleLanguageChange = async (language, index, comment) => {
+        try {
+            setJobId(comment.job_id);
+            setCommentId(comment.id);
+            setTargetLanguage(language);
+            setDropdownOpen((prev) => {
+                const newState = [...prev];
+                newState[index] = false;
+                return newState;
+            });
+
+            await handleGetComments();
+
+            setCommentLanguageMap(prev => ({
+                ...prev,
+                [comment.id]: language
+            }));
+    
+        } catch (error) {
+            console.error("Error updating language:", error);
+
+        }
+    };
+    
+    
+
+    const toggleDropdown = (index) => {
+        setDropdownOpen((prev) => {
+            const newState = [...prev];
+            newState[index] = !newState[index];
+            return newState;
         });
     };
 
@@ -82,11 +126,11 @@ export default function Comment({ allComment, handleGetComments }) {
                                             <br />
                                         </span>
                                     </p>
+                           
                                 </div>
                                 <div className="col-sm-2 col-2">
                                     <div className="float-right noteUser">
-                                        {c.name ==
-                                        localStorage.getItem("worker-name") ? (
+                                        {c.name === localStorage.getItem("worker-name") ? (
                                             <button
                                                 className="ml-2 btn bg-red"
                                                 onClick={(e) =>
@@ -99,6 +143,32 @@ export default function Comment({ allComment, handleGetComments }) {
                                             ""
                                         )}
                                         &nbsp;
+                                            <div className="dropdown">
+                                                <button
+                                                    className="btn btn-default dropdown-toggle droptoggle"
+                                                    type="button"
+                                                    onClick={() => toggleDropdown(i)}
+                                                    aria-haspopup="true"
+                                                    aria-expanded={dropdownOpen[i]}
+                                                    style={{backgroundColor: "#f7f3f3"}}
+                                                >
+                                                    {/* <i className="fa fa-ellipsis-vertical"></i> */}
+                                                    <i className="fa-solid fa-language"></i>
+                                                </button>
+                                                    <div className="dropdown-menu"
+                                                    style={dropdownOpen[i] ? { display: "block" , left: "-100px"} : { display: "none" }}
+                                                    >
+                                                        {languageOptions.map(option => (
+                                                            <button
+                                                                key={option.value}
+                                                                className="dropdown-item"
+                                                                onClick={() => handleLanguageChange(option.value, i, c)}
+                                                            >
+                                                                {option.label}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                            </div>
                                     </div>
                                 </div>
                                 <div className="col-sm-12">

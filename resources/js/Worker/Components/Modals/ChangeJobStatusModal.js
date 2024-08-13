@@ -9,15 +9,21 @@ export default function ChangeJobStatusModal({
     setIsOpen,
     isOpen,
     jobId,
-    allComment,
+    allComment =[],
     jobStatus,
     onSuccess,
+    handleGetComments, 
+    setTargetLanguage, 
+    setJobId, 
+    setCommentId 
 }) {
     const alert = useAlert();
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState("");
     const [allCommentsChecked, setAllCommentsChecked] = useState(false);
     const [comment, setComment] = useState("");
+
+   
 
     let cmtFileRef = useRef(null);
 
@@ -71,6 +77,8 @@ export default function ChangeJobStatusModal({
             });
     };
 
+   
+
     return (
         <Modal
             size="md"
@@ -93,6 +101,10 @@ export default function ChangeJobStatusModal({
                                 <AllCommentsWithCheckBox
                                     allComment={allComment}
                                     setAllCommentChecked={setAllCommentsChecked}
+                                    handleGetComments={handleGetComments} 
+                                    setTargetLanguage={setTargetLanguage} 
+                                    setJobId={setJobId} 
+                                    setCommentId={setCommentId}
                                 />
                             )}
                             {/* <label className="control-label">
@@ -166,8 +178,44 @@ export default function ChangeJobStatusModal({
     );
 }
 
-const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked }) => {
+const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked , setJobId, handleGetComments, setCommentId, setTargetLanguage}) => {
     const [modifiedComments, setModifiedComments] = useState([]);
+
+    const [dropdownOpen, setDropdownOpen] = useState(Array(allComment && allComment?.length).fill(false));
+    const languageOptions = [
+        { value: 'he', label: 'עִברִית' },
+        { value: 'ru', label: 'Русский' },
+        { value: 'en', label: 'English' },
+    ];
+
+    const handleLanguageChange = async (language, index, comment) => {
+        try {
+            setJobId(comment.job_id);
+            setCommentId(comment.id);
+            setTargetLanguage(language);
+            setDropdownOpen((prev) => {
+                const newState = [...prev];
+                newState[index] = false;
+                return newState;
+            });
+
+            await handleGetComments();
+    
+        } catch (error) {
+            console.error("Error updating language:", error);
+
+        }
+    };
+    
+
+    const toggleDropdown = (index) => {
+        setDropdownOpen((prev) => {
+            const newState = [...prev];
+            newState[index] = !newState[index];
+            return newState;
+        });
+    };
+
 
     useEffect(() => {
         const addCheckProperty = allComment.map((c) => ({
@@ -232,6 +280,32 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked }) => {
                                 </span>
                             </p>
                         </div>
+                        <div className="dropdown">
+                                                <button
+                                                    className="btn btn-default dropdown-toggle droptoggle"
+                                                    type="button"
+                                                    onClick={() => toggleDropdown(i)}
+                                                    aria-haspopup="true"
+                                                    aria-expanded={dropdownOpen[i]}
+                                                    style={{backgroundColor: "#f7f3f3"}}
+                                                >
+                                                    {/* <i className="fa fa-ellipsis-vertical"></i> */}
+                                                    <i className="fa-solid fa-language"></i>
+                                                </button>
+                                                    <div className="dropdown-menu"
+                                                    style={dropdownOpen[i] ? { display: "block" , left: "-100px"} : { display: "none" }}
+                                                    >
+                                                        {languageOptions.map(option => (
+                                                            <button
+                                                                key={option.value}
+                                                                className="dropdown-item"
+                                                                onClick={() => handleLanguageChange(option.value, i, c)}
+                                                            >
+                                                                {option.label}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                            </div>
                         <div className="col-sm-12">
                             <p>{c.comment}</p>
                             {c.attachments &&
