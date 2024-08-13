@@ -3278,5 +3278,42 @@ button.time-counter, span.time-counter {
 }
 
 
+.custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.custom-select {
+    appearance: none; /* Remove default arrow in most browsers */
+    -webkit-appearance: none; /* Remove default arrow in Chrome/Safari */
+    -moz-appearance: none; /* Remove default arrow in Firefox */
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Optionally add a custom arrow */
+.custom-select-wrapper::after {
+    content: '\f078'; /* FontAwesome icon for a down arrow */
+    font-family: FontAwesome;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    pointer-events: none;
+    transform: translateY(-50%);
+    color: #333;
+}
+
+.dropdown-toggle {
+    appearance: none; /* Removes the default arrow */
+    -webkit-appearance: none; /* Removes the default arrow for WebKit browsers */
+    -moz-appearance: none; /* Removes the default arrow for Firefox */
+}
+
+
 
 /*******End*************/

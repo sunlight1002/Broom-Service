@@ -209,47 +209,75 @@ class AuthController extends Controller
 
     public function resendOtp(Request $request)
     {
+        // Retrieve the client by email
         $client = Client::where('email', $request->email)->first();
-
+    
         if (!$client) {
             return response()->json(['errors' => ['user' => 'User not authenticated']], 401);
         }
-
-
+    
+        // Generate a new OTP and set the expiration time
         $otp = strval(random_int(100000, 999999));
+        $client->otp = $otp;
+        $client->otp_expiry = now()->addMinutes(10);
+        $client->save();
+    
+        $emailSent = false;
+        $smsSent = false;
+        $emailError = null;
+        $smsError = null;
+    
+        // Attempt to send the OTP via email
         try {
-            $client->otp = $otp;
-            $client->otp_expiry = now()->addMinutes(10);
-            $client->save();
-
-            Mail::to($client->email)->send(new LoginOtpMail($otp,$client));
-
+            Mail::to($client->email)->send(new LoginOtpMail($otp, $client));
+            $emailSent = true;
+        } catch (\Exception $e) {
+            $emailError = $e->getMessage();
+        }
+    
+        // Attempt to send the OTP via SMS using Twilio
+        try {
             App::setLocale($client->lng);
-            // Send OTP via SMS using Twilio
             $otpMessage = __('mail.otp.body', ['otp' => $otp]);
-
+    
             $twilioAccountSid = config('services.twilio.twilio_id');
             $twilioAuthToken = config('services.twilio.twilio_token');
             $twilioPhoneNumber = config('services.twilio.twilio_number');
-
+    
             $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-            $phone_number = '+'.$client->phone;
-            
+            $phone_number = '+' . $client->phone;
+    
             $twilioClient->messages->create(
                 $phone_number,
                 ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
             );
-
-            return response()->json([
-                'message' => 'OTP sent to your email and phone number for verification'
-            ]);
+            $smsSent = true;
         } catch (\Exception $e) {
+            $smsError = $e->getMessage();
+        }
+    
+        // Determine the appropriate response based on the success or failure of each attempt
+        if ($emailSent && $smsSent) {
+            return response()->json(['message' => 'OTP sent to your email and phone number for verification']);
+        } elseif ($emailSent) {
             return response()->json([
-                'errors' => ['otp' => 'Failed to send OTP. Please try again.'],
-                'exception' => $e->getMessage()
+                'message' => 'OTP sent to your email. Failed to send OTP via SMS.',
+                // 'sms_error' => $smsError
+            ]);
+        } elseif ($smsSent) {
+            return response()->json([
+                'message' => 'OTP sent to your phone number. Failed to send OTP via email.',
+                // 'email_error' => $emailError
+            ]);
+        } else {
+            return response()->json([
+                'errors' => ['otp' => 'Failed to send OTP via both email and SMS.'],
+                // 'email_error' => $emailError ?? null,
+                // 'sms_error' => $smsError ?? null
             ], 500);
         }
     }
+    
 
     /** 
      * Register api 

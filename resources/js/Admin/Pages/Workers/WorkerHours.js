@@ -196,6 +196,54 @@ export default function WorkerHours() {
             });
     };
 
+    const handlepdf = async () => {
+
+        let _filters = {};
+
+        if (filters.manpower_company_id !== "") {
+            _filters.manpower_company_id = filters.manpower_company_id;
+        }
+
+        _filters.worker_ids = selectedWorkerIDs;
+        _filters.start_date = dateRange.start_date;
+        _filters.end_date = dateRange.end_date;
+
+        await axios
+            .post(
+                "/api/admin/workers/working-hours/pdf",
+                {
+                    ..._filters,
+                },
+                {
+                    headers,
+                    responseType: "blob",
+                }
+            )
+            .then((response) => {
+                const fileName =
+                    "Worker Hours - (" +
+                    dateRange.start_date +
+                    " - " +
+                    dateRange.end_date +
+                    ")";
+
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+
+                // create "a" HTML element with href to file & click
+                const link = document.createElement("a");
+                link.href = href;
+                link.setAttribute("download", `${fileName}.pdf`); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+    };
+
+
     useEffect(() => {
         $(tableRef.current).DataTable().draw();
     }, [dateRange, filters]);
@@ -414,6 +462,17 @@ export default function WorkerHours() {
                                 }}
                             >
                                 {t("admin.client.Export")}
+                            </button>
+                            <button
+                                type="button"
+                                className="m-0 ml-4 btn border rounded px-3"
+                                onClick={handlepdf}
+                                style={{
+                                    background: "#2c3f51",
+                                    color: "white",
+                                }}
+                            >
+                               Export Pdf
                             </button>
                         </div>
                     </div>

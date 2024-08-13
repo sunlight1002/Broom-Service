@@ -208,47 +208,71 @@ class AuthController extends Controller
     }
 
     public function resendOtp(Request $request)
-    {
-        $user = User::where('email', $request->email)->first();
+        {
+            $user = User::where('email', $request->email)->first();
 
+            if (!$user) {
+                return response()->json(['errors' => ['user' => 'User not authenticated']], 401);
+            }
 
-        if (!$user) {
-            return response()->json(['errors' => ['user' => 'User not authenticated']], 401);
-        }
-
-        $otp = strval(random_int(100000, 999999));
-        try {
+            $otp = strval(random_int(100000, 999999));
             $user->otp = $otp;
             $user->otp_expiry = now()->addMinutes(10);
             $user->save();
 
-            Mail::to($user->email)->send(new LoginOtpMail($otp,$user));
+            // Attempt to send OTP via Email
+            try {
+                Mail::to($user->email)->send(new LoginOtpMail($otp, $user));
+                $emailSent = true;
+            } catch (\Exception $e) {
+                $emailSent = false;
+                $emailError = $e->getMessage();
+            }
 
-            App::setLocale($user->lng);
-            // Send OTP via SMS using Twilio
-            $otpMessage = __('mail.otp.body', ['otp' => $otp]);
+            // Attempt to send OTP via SMS using Twilio
+            try {
+                App::setLocale($user->lng);
+                $otpMessage = __('mail.otp.body', ['otp' => $otp]);
 
-            $twilioAccountSid = config('services.twilio.twilio_id');
-            $twilioAuthToken = config('services.twilio.twilio_token');
-            $twilioPhoneNumber = config('services.twilio.twilio_number');
+                $twilioAccountSid = config('services.twilio.twilio_id');
+                $twilioAuthToken = config('services.twilio.twilio_token');
+                $twilioPhoneNumber = config('services.twilio.twilio_number');
 
-            $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
-            $phone_number = '+'.$user->phone;
-            
-            $twilioClient->messages->create(
-                $phone_number,
-                ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
-            );
+                $twilioClient = new Client($twilioAccountSid, $twilioAuthToken);
+                $phone_number = '+' . $user->phone;
 
-            return response()->json(['message' => 'OTP sent to your email and phone number for verification']);
+                $twilioClient->messages->create(
+                    $phone_number,
+                    ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
+                );
+                $smsSent = true;
+            } catch (\Exception $e) {
+                $smsSent = false;
+                $smsError = $e->getMessage();
+            }
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'errors' => ['otp' => 'Failed to send OTP. Please try again.'],
-                'exception' => $e->getMessage()
-            ], 500);
+            // Return the appropriate response
+            if ($emailSent && $smsSent) {
+                return response()->json(['message' => 'OTP sent to your email and phone number for verification']);
+            } elseif ($emailSent) {
+                return response()->json([
+                    'message' => 'OTP sent to your email. Failed to send OTP via SMS.',
+                    'sms_error' => $smsError
+                ]);
+            } elseif ($smsSent) {
+                return response()->json([
+                    'message' => 'OTP sent to your phone number. Failed to send OTP via email.',
+                    'email_error' => $emailError
+                ]);
+            } else {
+                return response()->json([
+                    'errors' => ['otp' => 'Failed to send OTP via both email and SMS.'],
+                    'email_error' => $emailError ?? null,
+                    'sms_error' => $smsError ?? null
+                ], 500);
+            }
         }
-    }
+
 
     /** 
      * Register api 

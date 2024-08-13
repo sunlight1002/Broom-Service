@@ -1025,19 +1025,21 @@ class WorkerController extends Controller
             'allPdfData' => $allPdfData,
         ])->render());
         
-        $pdfFilePath = 'pdfs/worker_hours_report.pdf';
-        $pdfOutput = $pdf->Output('', 'S');
-    
-        // Save the PDF to the specified path
-        Storage::put($pdfFilePath, $pdfOutput);
-    
-        // Generate the public URL for the PDF
-        $pdfUrl = Storage::url($pdfFilePath);
-    
-        return response()->json([
-            'status' => 'success',
-            'pdf_url' => $pdfUrl,
-        ]);
+        $pdfFileName = 'worker_hours_report_' . time() . '.pdf';
+    $pdfFilePath = 'pdfs/' . $pdfFileName;
+    $pdfOutput = $pdf->Output('', 'S');
+
+    // Save the PDF to the specified path
+    Storage::put($pdfFilePath, $pdfOutput);
+
+    // Generate the full URL for the PDF
+    $pdfUrl = url(Storage::url($pdfFilePath));
+
+    // Serve the PDF directly if preferred
+    return response($pdfOutput, 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'attachment; filename="' . $pdfFileName . '"');
+
     }
     
 

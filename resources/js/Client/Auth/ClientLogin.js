@@ -15,13 +15,13 @@ export default function ClientLogin() {
     const [isRemembered, setIsRemembered] = useState(false)
     const navigate = useNavigate()
 
-    useEffect(() => {
-        const clientLogin = localStorage.getItem("client-id")
-        // console.log(adminLogin);
-        if (clientLogin) {
-            navigate("/client/dashboard");
-        }
-    }, [navigate])
+    // useEffect(() => {
+    //     const clientLogin = localStorage.getItem("client-id")
+    //     // console.log(adminLogin);
+    //     if (clientLogin) {
+    //         navigate("/client/dashboard");
+    //     }
+    // }, [navigate])
 
 
     useEffect(() => {

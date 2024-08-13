@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import { getCookie } from '../../Components/common/Cookies';
+import FullPageLoader from '../../../Components/common/FullPageLoader';
 
 export default function AdminLoginOtp() {
     const navigate = useNavigate()
@@ -19,6 +20,8 @@ export default function AdminLoginOtp() {
     const { t } = useTranslation()
     const adminEmail = localStorage.getItem("admin-email")
     const adminLng = localStorage.getItem("admin-lng")
+    const [loading, setLoading] = useState(false)
+
 
     useEffect(() => {
         i18next.changeLanguage(adminLng);
@@ -52,7 +55,7 @@ export default function AdminLoginOtp() {
 
     const handleResend = async (e) => {
         e.preventDefault();
-
+        setLoading(true)
         const data = {
             email: adminEmail
         }
@@ -61,10 +64,10 @@ export default function AdminLoginOtp() {
             const result = await axios.post(`/api/admin/resendOtp`, data);
             // console.log(result);
             if (result.data.errors) {
+                setLoading(false)
                 setErrors(result.data.errors.otp);
-                console.log(errors);
             } else {
-                console.log(result.data.message);
+                setLoading(false)
                 alert.success(result.data.message)
 
                 setTimer(60);
@@ -292,6 +295,7 @@ export default function AdminLoginOtp() {
                     </form>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }
