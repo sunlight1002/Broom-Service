@@ -62,8 +62,8 @@ export default function WorkerMyAccount() {
     };
 
     const handleUpdate = (e) => {
-        e.preventDefault();
         setLoading(true)
+        location.reload();
         const data = {
             firstname: firstname,
             lastname: lastname,
@@ -97,6 +97,7 @@ export default function WorkerMyAccount() {
             } else {
                 setLoading(false)
                 setErrors([])
+                localStorage.setItem("worker-lng", lng)
                 alert.success(t("worker.settings.profileUpdated"));
             }
         });

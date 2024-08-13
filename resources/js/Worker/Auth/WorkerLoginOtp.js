@@ -206,7 +206,7 @@ export default function WorkerLoginOtp() {
         <div id="loginPage">
             <div className="container adminLogin">
                 <div className="formSide pb-0">
-                    <div className="hidden-xs ifRTL d-flex justify-content-center">
+                    <div className="hidden-xs ifRTL text-center">
                         <svg
                             width="333"
                             height="135"
@@ -220,7 +220,7 @@ export default function WorkerLoginOtp() {
                             ></image>
                         </svg>
                     </div>
-                    <div className="hidden-xl ifRTL">
+                    <div className="hidden-xl ifRTL text-center">
                         <svg
                             width="250"
                             height="94"

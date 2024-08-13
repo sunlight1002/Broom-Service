@@ -211,7 +211,7 @@ export default function ClientLoginOtp() {
                             ></image>
                         </svg>
                     </div>
-                    <div className="hidden-xl ifRTL">
+                    <div className="hidden-xl ifRTL text-center">
                         <svg
                             width="250"
                             height="94"

@@ -70,7 +70,7 @@ export default function Acc() {
     };
 
     const handleSubmit = (e) => {
-        e.preventDefault();
+        location.reload();
 
         const formData = new FormData();
         formData.append("firstname", firstname);
@@ -97,6 +97,7 @@ export default function Acc() {
                 if (response.data.errors) {
                     setErrors(response.data.errors);
                 } else {
+                    localStorage.setItem("client-lng", lng)
                     alert.success(t("client.settings.updateSuccess"));
                 }
             });

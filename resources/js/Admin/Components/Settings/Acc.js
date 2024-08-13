@@ -57,7 +57,7 @@ export default function Acc() {
     }, []);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        location.reload();
         setLoading(true);
         const formData = new FormData();
         formData.append("name", name);
@@ -80,6 +80,7 @@ export default function Acc() {
                 setLoading(false);
                 setErrors(response.data.errors);
             } else {
+                localStorage.setItem("admin-lng", lng)
                 setLoading(false);
                 alert.success("Account details have been updated successfully");
             }
