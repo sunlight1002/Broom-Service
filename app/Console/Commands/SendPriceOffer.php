@@ -50,7 +50,7 @@ class SendPriceOffer extends Command
             $offer = Offer::where('client_id', $client->id)->first();
 
             if ($offer) {
-                $message = "{$client->firstname} שלום,
+                $message = " שלום {$client->firstname},
 
                             אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם. 
                             בקרוב ישלח אליכם הסכם חדש לחתימה דרך המערכת החדשה.
@@ -62,7 +62,7 @@ class SendPriceOffer extends Command
                             בברכה,
                             צוות ברום סרוויס";
             } else {
-                $message = "{$client->firstname} שלום,
+                $message = " שלום {$client->firstname},
 
                             אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם. 
                             בקרוב תישלח אליכם הצעת מחיר חדשה לאישורכם. לאחר אישור ההצעה, ישלח אליכם הסכם לחתימה.
