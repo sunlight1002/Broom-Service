@@ -530,7 +530,7 @@ export default function FreezeShiftWorkers() {
                                 <input
                                     type="button"
                                     value="Save"
-                                    className="btn btn-pink viewBtn"
+                                    className="btn navyblue viewBtn"
                                     onClick={handleSubmit}
                                 />
                             </div>

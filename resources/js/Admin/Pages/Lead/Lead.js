@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import i18next from "i18next";
-import { useTranslation } from "react-i18next";
+    import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -18,12 +18,12 @@ import { leadStatusColor } from "../../../Utils/client.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Lead() {
-    const { t } = useTranslation();
-    const adminLng = localStorage.getItem("admin-lng");
+    const { t, i18n } = useTranslation();
+    // const adminLng = localStorage.getItem("admin-lng");
 
-    useEffect(() => {
-        i18next.changeLanguage(adminLng);
-    }, [adminLng]);
+    // useEffect(() => {
+    //     i18next.changeLanguage(adminLng);
+    // }, [adminLng]);
 
     const statusArr = {
         pending: t("admin.leads.Pending"),
@@ -60,15 +60,157 @@ export default function Lead() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-   
+    const actionTranslations = {
+        edit: t("admin.leads.Edit"),
+        view: t("admin.leads.view"),
+        change_status: t("admin.leads.change_status"),
+        delete: t("admin.leads.Delete"),
+    };
+    
+    // useEffect(() => {
+    //     const handleLanguageChange = () => {
+    //         $(tableRef.current).DataTable().destroy(); // Destroy the existing table
+    //         $(tableRef.current).DataTable({
+    //             processing: true,
+    //             serverSide: true,
+    //             ajax: {
+    //                 url: "/api/admin/leads",
+    //                 type: "GET",
+    //                 beforeSend: function (request) {
+    //                     request.setRequestHeader(
+    //                         "Authorization",
+    //                         `Bearer ` + localStorage.getItem("admin-token")
+    //                     );
+    //                 },
+    //             },
+    //             order: [[0, "desc"]],
+    //             columns: [
+    //                 {
+    //                     title: t("global.date"),
+    //                     data: "created_at",
+    //                 },
+    //                 {
+    //                     title: t("admin.global.Name"),
+    //                     data: "name",
+    //                 },
+    //                 {
+    //                     title: t("admin.global.Email"),
+    //                     data: "email",
+    //                 },
+    //                 {
+    //                     title: t("admin.global.Phone"),
+    //                     data: "phone",
+    //                 },
+    //                 {
+    //                     title: t("admin.global.Status"),
+    //                     data: "lead_status",
+    //                     orderable: false,
+    //                     render: function (data, type, row, meta) {
+    //                         const _statusColor = leadStatusColor(data);
+    
+    //                         return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+    //                         ${data}
+    //                     </p>`;
+    //                     },
+    //                 },
+    //                 {
+    //                     title: t("admin.global.Action"),
+    //                     data: "action",
+    //                     orderable: false,
+    //                     responsivePriority: 1,
+    //                     render: function (data, type, row, meta) {
+    //                         let _html =
+    //                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+    
+    //                         _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${actionTranslations.edit}</button>`;
+    //                         _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${actionTranslations.view}</button>`;
+    //                         _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${actionTranslations.change_status}</button>`;
+    //                         _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${actionTranslations.delete}</button>`;
+    
+    //                         _html += "</div> </div>";
+    
+    //                         return _html;
+    //                     },
+    //                 },
+    //             ],
+    //             ordering: true,
+    //             searching: true,
+    //             responsive: true,
+    //             createdRow: function (row, data, dataIndex) {
+    //                 $(row).addClass("dt-row custom-row-class");
+    //                 $(row).attr("data-id", data.id);
+    //             },
+    //             columnDefs: [
+    //                 {
+    //                     targets: "_all",
+    //                     createdCell: function (td, cellData, rowData, row, col) {
+    //                         $(td).addClass("custom-cell-class ");
+    //                     },
+    //                 },
+    //             ],
+    //         });
+    //     };
+    //     const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+    //     $("div.dt-search").append(searchInputWrapper);
+    //     $("div.dt-search").addClass("position-relative");
+
+    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+    //         let _id = null;
+    //         if (e.target.closest("tr.dt-row")) {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 (!tableRef.current.classList.contains("collapsed") ||
+    //                     !e.target.closest(".dtr-control")) &&
+    //                 !e.target.closest(".dt-change-status-btn")
+    //             ) {
+    //                 _id = $(this).data("id");
+    //             }
+    //         } else {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-change-status-btn")
+    //             ) {
+    //                 _id = $(e.target).closest("tr.child").prev().data("id");
+    //             }
+    //         }
+
+    //         if (_id) {
+    //             navigate(`/admin/leads/view/${_id}`);
+    //         }
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-edit-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/leads/${_id}/edit`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/leads/view/${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-change-status-btn", function () {
+    //         const _id = $(this).data("id");
+    //         toggleChangeStatusModal(_id);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
+    //         const _id = $(this).data("id");
+    //         handleDelete(_id);
+    //     });
+
+    //     i18n.on("languageChanged", handleLanguageChange);
+    
+    //     // Cleanup listener on unmount
+    //     return () => {
+    //         i18n.off("languageChanged", handleLanguageChange);
+    //     };
+    // }, []);
 
     useEffect(() => {
-        const actionTranslations = {
-            edit: t("admin.leads.Edit"),
-            view: t("admin.leads.view"),
-            change_status: t("admin.leads.change_status"),
-            delete: t("admin.leads.Delete"),
-        };
+  
         // console.log(actionTranslations);
         $(tableRef.current).DataTable({
             processing: true,
@@ -86,7 +228,7 @@ export default function Lead() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: t("admin.global.Date"),
+                    title: t("global.date"),
                     data: "created_at",
                 },
                 {
@@ -311,8 +453,8 @@ export default function Lead() {
                                     to="/admin/leads/create"
                                     className="btn navyblue no-hover add-btn"
                                 >
-                                    <i className="btn-icon fas fa-plus-circle"></i>
-                                    <span className="d-lg-block d-none">
+                                    <i className="fas fa-plus-circle"></i>
+                                    <span className="d-lg-block ml-2 d-none">
                                         {t("admin.leads.AddNew")}
                                     </span>
                                 </Link>

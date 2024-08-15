@@ -142,7 +142,9 @@ export default function notes() {
                                     <div className="col-sm-2 col-2">
                                         <div className="float-right noteUser">
                                             <button
-                                                className="ml-2 btn bg-red"
+                                                style={{fontSize: "22px", color: "#2F4054",  padding: "1px 9px", background: "rgb(197 197 197)", borderRadius: "5px"}}
+
+                                                className="ml-2 btn"
                                                 onClick={(e) =>
                                                     handleDelete(e, n.id)
                                                 }

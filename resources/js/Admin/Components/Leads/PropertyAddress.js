@@ -845,68 +845,68 @@ const PropertyAddress = memo(function PropertyAddress({
                                         addresses.map((item, index) => {
                                             return (
                                                 <Tr key={index}>
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {"  "}
                                                         {item.address_name
                                                             ? item.address_name
                                                             : "NA"}{" "}
                                                     </Td>
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {"  "}
                                                         {item.geo_address
                                                             ? item.geo_address
                                                             : "NA"}{" "}
                                                     </Td>
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {"  "}
                                                         {item.floor
                                                             ? item.floor
                                                             : "NA"}
                                                     </Td>
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {"  "}
                                                         {item.apt_no
                                                             ? item.apt_no
                                                             : "NA"}
                                                     </Td>
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {"  "}
                                                         {item.entrence_code
                                                             ? item.entrence_code
                                                             : "NA"}
                                                     </Td>
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {"  "}
                                                         {item.zipcode
                                                             ? item.zipcode
                                                             : "NA"}
                                                     </Td>
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {"  "}
                                                         {item.prefer_type
                                                             ? item.prefer_type
                                                             : "NA"}
                                                     </Td>
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {"  "}
                                                         <label
                                                             className="form-check-label custom-checkbox navyblueColor"
-                                                            htmlFor="isDogAvail"
+                                                            htmlFor="isCatAvail"
                                                             style={{ fontWeight: "500", fontSize: "14px" }}
                                                         >
                                                             <input
                                                                 // ref={is_dog_avail}
                                                                 className="form-check-input"
                                                                 type="checkbox"
-                                                                id="isDogAvail"
-                                                                name="is_dog_avail"
+                                                                id="isCatAvail"
+                                                                name="is_cat_avail"
                                                                 defaultChecked={item.is_cat_avail}
                                                             />
                                                             <span className="checkmark"></span>
                                                         </label>
 
                                                     </Td>
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {" "}
                                                         <label
                                                             className="form-check-label custom-checkbox navyblueColor"
@@ -942,7 +942,7 @@ const PropertyAddress = memo(function PropertyAddress({
 
                                                     </Td> */}
 
-                                                    <Td>
+                                                    <Td className="my-3">
                                                         {" "}
                                                         <div className="action-dropdown dropdown">
                                                             <button

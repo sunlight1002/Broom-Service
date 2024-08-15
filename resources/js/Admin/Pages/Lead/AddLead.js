@@ -151,7 +151,7 @@ export default function AddLead() {
                         </div>
                     </div>
                         <div className="container-box d-flex justify-content-between">
-                            <div className="card-item" style={{marginRight: "15px", background: "#FAFBFC"}}>
+                            <div className="card-item mr-3 resMarginRight" style={{background: "#FAFBFC"}}>
                                 <div className="card-heading">
                                     <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.General_Information")}</p>
                                 </div>
@@ -614,7 +614,7 @@ export default function AddLead() {
                                         extra.map((ex, i) => {
                                             return (
                                                 <React.Fragment key={i}>
-                                                <div className="d-flex">
+                                                <div className="d-flex flex-wrap">
                                                     <div className="">
                                                         <div className="form-group" style={{marginRight: "6px"}}>
                                                             <label className="control-label">
@@ -719,7 +719,8 @@ export default function AddLead() {
                                                         ) : (
                                                             <>
                                                                 <button
-                                                                    className="mt-25 btn bg-red"
+                                                                style={{fontSize: "24px", color: "#2F4054",  padding: "1px 9px", background: "#E5EBF1", borderRadius: "5px"}}
+                                                                    className="mt-25 btn"
                                                                     onClick={(
                                                                         e
                                                                     ) => {

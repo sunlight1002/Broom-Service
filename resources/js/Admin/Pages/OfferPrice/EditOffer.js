@@ -235,11 +235,11 @@ export default function EditOffer() {
                     <div className="card">
                         <div className="card-body">
                             <form>
-                                <div className="row">
+                                <div className="row mb-3 align-items-center">
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("client.dashboard.client")}
+                                                {t("client.dashboard.client")}
                                             </label>
                                             <SelectPicker
                                                 data={clientOptions}
@@ -258,7 +258,7 @@ export default function EditOffer() {
                                     <div className="col-sm-6">
                                         <button
                                             type="button"
-                                            className="btn btn-info mt-25"
+                                            className="btn btn-info"
                                             onClick={(e) => {
                                                 setIsOpenCommentModal(true);
                                             }}
@@ -288,7 +288,7 @@ export default function EditOffer() {
                                         <div className="card-dark">
                                             <div className="card-black">
                                                 <h3 className="card-title">
-                                                {t("client.common.services")}
+                                                    {t("client.common.services")}
                                                 </h3>
                                             </div>
                                             <div className="mt-2">
@@ -326,7 +326,7 @@ export default function EditOffer() {
                                             handleUpdate(e, "Save and Send");
                                         }}
                                     >
-                                         {t("client.jobs.change.SaveAndSend")}
+                                        {t("client.jobs.change.SaveAndSend")}
                                     </button>
                                 </div>
                             </form>

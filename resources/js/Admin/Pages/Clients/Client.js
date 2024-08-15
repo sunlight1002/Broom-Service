@@ -62,7 +62,7 @@ export default function Clients() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title:t("admin.global.Date"),
+                    title:t("global.date"),
                     data: "created_at",
                 },
                 {
@@ -344,7 +344,7 @@ export default function Clients() {
                             </h1>
                             <Link
                                 to="/admin/clients/create"
-                                className="btn navyblue addButton no-hover"
+                                className="btn navyblue align-content-center addButton no-hover"
                             >
                                 <i className="btn-icon fas fa-plus-circle"></i>
                                 {t("admin.client.AddNew")}

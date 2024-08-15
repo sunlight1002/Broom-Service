@@ -503,7 +503,7 @@ export default function CreateJobCalender({
                 <input
                     type="button"
                     value="View Job"
-                    className="btn btn-pink viewBtn"
+                    className="btn navyblue viewBtn"
                     data-toggle="modal"
                     data-target="#exampleModal"
                 />

@@ -18,7 +18,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
 
 export default function AllWorkers() {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const [isOpenLeaveJobWorker, setIsOpenLeaveJobWorker] = useState(false);
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const [filters, setFilters] = useState({
@@ -78,11 +78,11 @@ export default function AllWorkers() {
                     data: "email",
                 },
                 {
-                    title: t("admin.global.Phone"), 
+                    title: t("admin.global.Phone"),
                     data: "phone",
                 },
                 {
-                    title:  t("admin.global.Address"), 
+                    title: t("admin.global.Address"),
                     data: "address",
                     orderable: false,
                     render: function (data, type, row, meta) {
@@ -94,12 +94,12 @@ export default function AllWorkers() {
                     },
                 },
                 {
-                    title:  t("admin.global.Status"),
+                    title: t("admin.global.Status"),
                     data: "status",
                     orderable: false,
                     render: function (data, type, row, meta) {
                         // return data == 1 ? "Active" : "Inactive";
-                        return data == 1 ?  `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                        return data == 1 ? `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                                     Active
                                 </p>` : `<p style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                                     Inactive
@@ -148,10 +148,10 @@ export default function AllWorkers() {
             ]
         });
 
-         // Customize the search input
-         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-         $("div.dt-search").append(searchInputWrapper);
-         $("div.dt-search").addClass("position-relative");
+        // Customize the search input
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -311,29 +311,22 @@ export default function AllWorkers() {
             <Sidebar />
             <div id="content">
                 <div className="titleBox customer-title">
-                    <div className="row">
-                        <div className="col-sm-6 d-flex justify-content-between">
+                    <div className="d-flex justify-content-between align-items-center flex-wrap">
+                        <div className=" d-flex justify-content-between mt-3">
                             <h1 className="page-title d-none d-md-block">
                                 {t("admin.dashboard.workers")}
                             </h1>
                             <h1 className="page-title p-0 d-block d-md-none">
-                            {t("admin.dashboard.workers")}
+                                {t("admin.dashboard.workers")}
                             </h1>
-                            <Link
-                                to="/admin/add-worker"
-                                className="btn navyblue d-block d-md-none addButton no-hover"
-                            >
-                                <i className="btn-icon fas fa-plus-circle"></i>
-                                {t("admin.leads.AddNew")}
-                            </Link>
+
                         </div>
-                        <div className="col-sm-6">
                             <div className="search-data">
                                 <button
                                     className="btn navyblue mt-4 mr-2 no-hover"
                                     onClick={handleShow}
                                 >
-                                   {t("admin.global.Import")}
+                                    {t("admin.global.Import")}
                                 </button>
                                 <Link
                                     to="/admin/workers/working-hours"
@@ -348,21 +341,27 @@ export default function AllWorkers() {
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     {t("admin.leads.AddNew")}
                                 </Link>
+                                <Link
+                                    to="/admin/add-worker"
+                                    className="btn ml-2 navyblue d-block d-md-none addButton no-hover align-content-center"
+                                >
+                                    <i className="btn-icon fas fa-plus-circle"></i>
+                                    {t("admin.leads.AddNew")}
+                                </Link>
                             </div>
-                        </div>
-                        <div className="col-sm-6 hidden-xl mt-4">
-                            <select
-                                className="form-control"
-                                onChange={(e) => sortTable(e.target.value)}
-                            >
-                                <option value="">{t("admin.leads.Options.sortBy")}</option>
-                                <option value="0">{t("admin.leads.Options.ID")}</option>
-                                <option value="1">{t("admin.leads.Options.Name")}</option>
-                                <option value="2">{t("admin.leads.Options.Email")}</option>
-                                <option value="3">{t("admin.leads.Options.Phone")}</option>
-                                <option value="4">{t("admin.leads.AddLead.addAddress.Address")}</option>
-                            </select>
-                        </div>
+                    </div>
+                    <div className="col-sm-6 hidden-xl mt-4">
+                        <select
+                            className="form-control"
+                            onChange={(e) => sortTable(e.target.value)}
+                        >
+                            <option value="">{t("admin.leads.Options.sortBy")}</option>
+                            <option value="0">{t("admin.leads.Options.ID")}</option>
+                            <option value="1">{t("admin.leads.Options.Name")}</option>
+                            <option value="2">{t("admin.leads.Options.Email")}</option>
+                            <option value="3">{t("admin.leads.Options.Phone")}</option>
+                            <option value="4">{t("admin.leads.AddLead.addAddress.Address")}</option>
+                        </select>
                     </div>
                 </div>
                 <div className="row mb-2 d-none d-lg-block">
@@ -376,9 +375,9 @@ export default function AllWorkers() {
                                 filters.status === "active"
                                     ? { background: "white" }
                                     : {
-                                          background: "#2c3f51",
-                                          color: "white",
-                                      }
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }
                             }
                             onClick={() => {
                                 setFilters({
@@ -395,9 +394,9 @@ export default function AllWorkers() {
                                 filters.status === "past"
                                     ? { background: "white" }
                                     : {
-                                          background: "#2c3f51",
-                                          color: "white",
-                                      }
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }
                             }
                             onClick={() => {
                                 setFilters({
@@ -443,9 +442,9 @@ export default function AllWorkers() {
                                     filters.is_my_company === true
                                         ? { background: "white" }
                                         : {
-                                              background: "#2c3f51",
-                                              color: "white",
-                                          }
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
                                 }
                                 onClick={() => {
                                     setFilters({
@@ -461,12 +460,12 @@ export default function AllWorkers() {
                                 className={`btn border rounded px-3 mx-1`}
                                 style={
                                     filters.is_my_company !== true &&
-                                    filters.manpower_company_id === ""
+                                        filters.manpower_company_id === ""
                                         ? { background: "white" }
                                         : {
-                                              background: "#2c3f51",
-                                              color: "white",
-                                          }
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
                                 }
                                 onClick={() => {
                                     setFilters({
@@ -476,7 +475,7 @@ export default function AllWorkers() {
                                     });
                                 }}
                             >
-                               {t("admin.global.All")}
+                                {t("admin.global.All")}
                             </button>
                         </div>
 
@@ -499,7 +498,7 @@ export default function AllWorkers() {
                         />
                     </div>
                 </div>
-                <div className="card" style={{boxShadow: "none"}}>
+                <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table
@@ -524,7 +523,7 @@ export default function AllWorkers() {
                     </Modal.Header>
                     <Modal.Body>
                         <a href="/api/admin/workers/import/sample">
-                        {t("admin.global.download_sample_file")}
+                            {t("admin.global.download_sample_file")}
                         </a>
                         <form encType="multipart/form-data">
                             <div className="row mt-2">
@@ -545,7 +544,7 @@ export default function AllWorkers() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleClose}>
-                        {t("global.close")}
+                            {t("global.close")}
                         </Button>
                         <Button
                             className="btn btn-pink"

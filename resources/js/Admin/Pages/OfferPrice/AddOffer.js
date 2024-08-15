@@ -210,7 +210,7 @@ export default function AddOffer() {
                     <div className="card">
                         <div className="card-body">
                             <form>
-                                <div className="row">
+                                <div className="row mb-3 align-items-center">
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
@@ -232,7 +232,7 @@ export default function AddOffer() {
                                     <div className="col-sm-6">
                                         <button
                                             type="button"
-                                            className="btn btn-info mt-25"
+                                            className="btn btn-info"
                                             onClick={(e) => {
                                                 setIsOpenCommentModal(true);
                                             }}

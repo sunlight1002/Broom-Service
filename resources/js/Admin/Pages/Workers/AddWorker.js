@@ -981,7 +981,7 @@ export default function AddWorker() {
                                     <button
                                         type="submit"
                                         onClick={handleSubmit}
-                                        className="btn btn-pink"
+                                        className="btn navyblue"
                                         disabled={isLoading}
                                     >
                                         {t("workerInviteForm.submit")}

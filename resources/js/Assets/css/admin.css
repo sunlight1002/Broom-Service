@@ -730,6 +730,9 @@ table tr td .dropdown-item {
     font-size: 24px !important;
     padding-left: 22px;
   }
+  .titleBox .addButton{
+    margin-top: 24px !important;
+  }
 }
 
 .btn-icon {
@@ -2933,6 +2936,9 @@ button.time-counter, span.time-counter {
   .container-box .card-item{
     margin-bottom: 20px;
   }
+  .resMarginRight{
+    margin-right: 0 !important;
+  }
 }
 
 @media screen and (max-width: 1085px) {
@@ -3313,6 +3319,21 @@ button.time-counter, span.time-counter {
     -webkit-appearance: none; /* Removes the default arrow for WebKit browsers */
     -moz-appearance: none; /* Removes the default arrow for Firefox */
 }
+
+
+.worker-avail1 .fc-button-group{
+  gap: 10px !important;
+}
+.worker-avail1 .fc-button-group button{
+  border-radius: 5px !important;
+}
+
+@media screen and (max-width: 917px) {
+    .worker-avail1 .fc-toolbar{
+    flex-direction: column !important;
+  }
+}
+
 
 
 

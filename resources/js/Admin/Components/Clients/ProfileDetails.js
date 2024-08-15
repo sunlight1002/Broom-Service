@@ -136,15 +136,14 @@ export default function ProfileDetails({
                 <div className="d-flex align-items-center justify-content-between"
                 style={{padding: "30px 0 10px"}}
                 >
-                    <h1 className="navyblueColor">
+                    <h1 className="navyblueColor w-100">
                         <span>#{client.id}</span>{" "}
                         {client.firstname + " " + client.lastname}
                     </h1>
-                    <div className="profile">
-                        <div className="form-group mb-0 d-flex">
+                        <div className="form-group w-100 mb-0 d-flex justify-content-end flex-wrap">
                         <Link to={`/admin/schedule/view/${param.id}`}
-                            style={{borderRadius: "5px"}}
-                            className="navyblue no-hover pl-2 pr-2 mr-2 d-flex align-items-center"
+                            style={{borderRadius: "5px", padding: "10px"}}
+                            className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
                             >
                                 <i className="fas fa-hand-point-right mr-2"></i>
 
@@ -154,8 +153,8 @@ export default function ProfileDetails({
                                     : t("admin.schedule.reSchedule")}
                             </Link>
                             <Link to={`/admin/offers/create?c=${param.id}`}
-                            style={{borderRadius: "5px"}}
-                            className="navyblue no-hover pl-2 pr-2 mr-2 d-flex align-items-center"
+                            style={{borderRadius: "5px", padding: "10px"}}
+                            className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
                             >
                                 <i className="fas fa-hand-point-right mr-2"></i>
                                 {offerStatus == "Not Sent" ||
@@ -166,21 +165,18 @@ export default function ProfileDetails({
                             <Link
                                 to={`/admin/create-client-job/${param.id}`}
                                 id="bookBtn"
-                                style={{ display: "none" , width: "30%", borderRadius: "5px"}}
-                                className="navyblue no-hover pl-2 pr-2 mr-2 d-flex align-items-center"
+                                style={{ display: "none" , borderRadius: "5px", padding: "10px"}}
+                                className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
                                 >
                                 <i className="fas fa-hand-point-right mr-2"></i>{t("admin.schedule.bookClient")}
                             </Link>
-                            <p>
                                 <Link
-                                    className="btn navyblue no-hover"
+                                    className="btn navyblue no-hover mt-2 "
                                     to={`/admin/clients/${param.id}/edit`}
                                 >
                                     {t("admin.global.Edit")}
                                 </Link>
-                            </p>
                         </div>
-                    </div>
                 </div>
                 <div className="row d-inline">
                     <div className="">

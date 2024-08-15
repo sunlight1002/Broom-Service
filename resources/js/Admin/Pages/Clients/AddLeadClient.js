@@ -507,7 +507,7 @@ export default function AddLeadClient() {
                                                         {i == 0 ? (
                                                             <>
                                                                 <button
-                                                                    className="mt-25 btn btn-success"
+                                                                    className="mt-25 btn navyblue"
                                                                     onClick={(
                                                                         e
                                                                     ) => {
@@ -892,7 +892,7 @@ export default function AddLeadClient() {
                                     <input
                                         type="submit"
                                         onClick={handleSubmit}
-                                        className="btn btn-pink saveBtn"
+                                        className="btn navyblue saveBtn"
                                     />
                                 </div>
                             </form>
