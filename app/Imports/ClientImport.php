@@ -221,7 +221,33 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     $existing_services = [];
                     if ($offer) {
                         $existing_services = json_decode($offer->services, true);
+
+                        $message = " שלום {$client->firstname},
+
+                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם. 
+                            בקרוב ישלח אליכם הסכם חדש לחתימה דרך המערכת החדשה.
+
+                            שימו לב, בהסכם החדש תתבקשו להזין פרטי כרטיס אשראי בצורה מאובטחת, אשר יחוייב אחת לחודש, לאחר קבלת השירות האחרון שלכם מאיתנו באותו חודש.
+
+                            נשמח לעמוד לרשותכם בכל שאלה או בקשה.
+
+                            בברכה,
+                            צוות ברום סרוויס";
+                    } else {
+                        $message = " שלום {$client->firstname},
+
+                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם. 
+                            בקרוב תישלח אליכם הצעת מחיר חדשה לאישורכם. לאחר אישור ההצעה, ישלח אליכם הסכם לחתימה.
+
+                            בהסכם החדש תתבקשו להזין פרטי כרטיס אשראי בצורה מאובטחת, אשר יחוייב אחת לחודש, לאחר קבלת השירות האחרון שלכם מאיתנו באותו חודש.
+
+                            נשמח לעמוד לרשותכם בכל שאלה או בקשה.
+
+                            בברכה,
+                            צוות ברום סרוויס";
                     }
+
+                    $this->sendWhatsAppMessage($client->phone, $message);
 
                     $existing_services_names = array_column($existing_services, 'name');
 
@@ -303,6 +329,8 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             'total' => ($subtotal + $tax),
                             'status' => 'sent',
                         ]);
+
+                        $offer->load(['client', 'service']);
 
                         $client->lead_status()->updateOrCreate(
                             [],
@@ -420,8 +448,27 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             } catch (Exception $e) {
                 Log::error($e);
                 $failedImports->push($row);
+                Log::error($failedImports);
                 continue;
             }
+        }
+    }
+
+    public function sendWhatsAppMessage($phoneNumber, $message)
+    {
+        try {
+            $whapiApiEndpoint = config('services.whapi.url');
+            $whapiApiToken = config('services.whapi.token');
+
+            $response = Http::withToken($whapiApiToken)
+                            ->post($whapiApiEndpoint . 'messages/text', [
+                                'to' => $phoneNumber . '@s.whatsapp.net',
+                                'body' => $message
+                            ]);
+            Log::info($response->json());
+        } catch (\Throwable $th) {
+            Log::alert('WA NOTIFICATION ERROR');
+            Log::alert($th->getMessage());
         }
     }
 }

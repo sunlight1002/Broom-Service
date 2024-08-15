@@ -62,11 +62,11 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 $validationAB = $event->sheet->getCell("AB2")->getDataValidation();
                 $validationAC = $event->sheet->getCell("AC2")->getDataValidation();
                 $validationAD = $event->sheet->getCell("AD2")->getDataValidation();
-                $validationAE = $event->sheet->getCell("AE2")->getDataValidation();
                 $validationAF = $event->sheet->getCell("AF2")->getDataValidation();
                 $validationAG = $event->sheet->getCell("AG2")->getDataValidation();
-                $validationAL = $event->sheet->getCell("AL2")->getDataValidation();
-                $validationAS = $event->sheet->getCell("AS2")->getDataValidation();
+                $validationAH = $event->sheet->getCell("AH2")->getDataValidation();
+                $validationAM = $event->sheet->getCell("AM2")->getDataValidation();
+                $validationAU = $event->sheet->getCell("AU2")->getDataValidation();
 
 
                 $validationN = $this->setDropDownValidation($validationN, $paymentMethodOptions);
@@ -77,11 +77,11 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 $validationAB = $this->setDropDownValidation($validationAB, $yesNoOptions);
                 $validationAC = $this->setDropDownValidation($validationAC, $preferTypeOptions);
                 $validationAD = $this->setDropDownValidation($validationAD, $yesNoOptions);
-                $validationAE = $this->setDropDownValidation($validationAE, $this->serviceNameOptions);
-                $validationAF = $this->setDropDownValidation($validationAF, $this->frequencyOptions);
-                $validationAG = $this->setDropDownValidation($validationAG, $rateTypeOptions);
-                $validationAL = $this->setDropDownValidation($validationAL, $yesNoOptions);
-                $validationAS = $this->setDropDownValidation($validationAS, $notificationTypes);
+                $validationAF = $this->setDropDownValidation($validationAF, $this->serviceNameOptions);
+                $validationAG = $this->setDropDownValidation($validationAG, $this->frequencyOptions);
+                $validationAH = $this->setDropDownValidation($validationAH, $rateTypeOptions);
+                $validationAM = $this->setDropDownValidation($validationAM, $yesNoOptions);
+                $validationAU = $this->setDropDownValidation($validationAU, $notificationTypes);
 
                 // clone validation to remaining rows
                 for ($i = 3; $i <= $row_count; $i++) {
@@ -93,11 +93,11 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                     $event->sheet->getCell("AB{$i}")->setDataValidation(clone $validationAB);
                     $event->sheet->getCell("AC{$i}")->setDataValidation(clone $validationAC);
                     $event->sheet->getCell("AD{$i}")->setDataValidation(clone $validationAD);
-                    $event->sheet->getCell("AE{$i}")->setDataValidation(clone $validationAE);
                     $event->sheet->getCell("AF{$i}")->setDataValidation(clone $validationAF);
                     $event->sheet->getCell("AG{$i}")->setDataValidation(clone $validationAG);
-                    $event->sheet->getCell("AL{$i}")->setDataValidation(clone $validationAL);
-                    $event->sheet->getCell("AS{$i}")->setDataValidation(clone $validationAS);
+                    $event->sheet->getCell("AH{$i}")->setDataValidation(clone $validationAH);
+                    $event->sheet->getCell("AM{$i}")->setDataValidation(clone $validationAM);
+                    $event->sheet->getCell("AU{$i}")->setDataValidation(clone $validationAU);
                 }
             },
         ];
