@@ -160,79 +160,66 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                 borderRadius: "5px",
                             }}
                         >
-                            <div className="row">
-                                <div className="col-sm-4 col-4">
-                                    <span
-                                        className="noteDate"
-                                        style={{ fontWeight: "600" }}
-                                    >
+                            <div className="row align-items-center">
+                                <div className="col-lg-4 col-md-6 col-sm-12 mb-2">
+                                    <span className="noteDate font-weight-bold">
                                         {t("formTxt.contractForm")}
                                     </span>
                                 </div>
-                                <div className="col-sm-2 col-2">
-                                    {(contractForm && worker) ||
-                                    worker.worker_contract ? (
-                                        <div>
-                                            <span className="btn btn-success m-3">
+
+                                <div className="col-lg-2 col-md-3 col-sm-6 mb-2 text-center">
+                                    {(contractForm && worker) || worker.worker_contract ? (
+                                        <span className="btn btn-success">
                                             {t("global.signed")}
-                                            </span>
-                                        </div>
+                                        </span>
                                     ) : (
-                                        <span className="btn btn-warning m-3">
-                                            {t("global.notSigned")}{" "}
+                                        <span className="btn btn-warning ">
+                                            {t("global.notSigned")}
                                         </span>
                                     )}
                                 </div>
-                                <div className="col-sm-4 col-4">
-                                    {(contractForm && worker) ||
-                                    worker.worker_contract ? (
-                                        <div>
-                                            <Link
-                                                target="_blank"
-                                                to={
-                                                    worker.worker_contract
-                                                        ? `/storage/uploads/worker/contract/${worker.worker_contract}`
-                                                        : `/worker-contract/` +
-                                                          Base64.encode(
-                                                            worker.id.toString()
-                                                          )
-                                                        
-                                                }
-                                                className="m-2 btn navyblue"
-                                            >
-                                                {t("worker.settings.view_contract")}
-                                            </Link>
-                                        </div>
+
+                                <div className="col mb-2 text-center">
+                                    {(contractForm && worker) || worker.worker_contract ? (
+                                        <Link
+                                            target="_blank"
+                                            to={
+                                                worker.worker_contract
+                                                    ? `/storage/uploads/worker/contract/${worker.worker_contract}`
+                                                    : `/worker-contract/` +
+                                                    Base64.encode(worker.id.toString())
+                                            }
+                                            className="btn btn-warning"
+                                        >
+                                            <i className="fa fa-eye"></i>
+                                        </Link>
                                     ) : (
-                                        <span className="btn btn-warning m-3">
-                                            -
-                                        </span>
+                                        <span className="btn btn-warning">-</span>
                                     )}
                                 </div>
-                                <div className="col-sm-2 col-2">
+
+                                <div className="col mb-2 text-center">
                                     {((contractForm || worker.form_insurance) && contractForm?.pdf_name) ? (
-                                        <div>
-                                            <a
-                                                href={`/storage/signed-docs/${contractForm.pdf_name}`}
-                                                target={"_blank"}
-                                                download={`${contractForm.type}.pdf`}
-                                                className="m-2 m-2 btn navyblue"
-                                            >
-                                                <span className="btn-default">
-                                                    <i className="fa fa-download"></i>
-                                                </span>
-                                            </a>
-                                        </div>
+                                        <a
+                                            href={`/storage/signed-docs/${contractForm.pdf_name}`}
+                                            target={"_blank"}
+                                            download={`${contractForm.type}.pdf`}
+                                            className="btn btn-warning"
+                                        >
+                                            <i className="fa fa-download"></i>
+                                        </a>
                                     ) : (
-                                        <span className="btn btn-warning m-3">
-                                            -
-                                        </span>
+                                        <span className="btn btn-warning w-100">-</span>
                                     )}
                                 </div>
-                                {Object.is(worker.worker_contract, null) &&
-                                worker.is_exist
-                                    ? uploadFormDiv("worker_contract")
-                                    : ""}
+
+                                {Object.is(worker.worker_contract, null) && worker.is_exist ? (
+                                    <div className="col-lg-12">
+                                        {uploadFormDiv("worker_contract")}
+                                    </div>
+                                ) : (
+                                    ""
+                                )}
                             </div>
                         </div>
                     </div>
@@ -249,77 +236,65 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                     borderRadius: "5px",
                                 }}
                             >
-                                <div className="row">
-                                    <div className="col-sm-4 col-4">
-                                        <span
-                                            className="noteDate"
-                                            style={{ fontWeight: "600" }}
-                                        >
+                                <div className="row align-items-center">
+                                    <div className="col-lg-4 col-md-6 col-sm-12 mb-2">
+                                        <span className="noteDate font-weight-bold">
                                             {t("form101.title")}
                                         </span>
                                     </div>
-                                    <div className="col-sm-2 col-2">
+
+                                    <div className="col-lg-2 col-md-3 col-sm-6 mb-2 text-center">
                                         {!form && worker.form_101 ? (
-                                            <div>
-                                                <span className="btn btn-success m-3">
-                                                {t("global.signed")}{" "}
-                                                </span>
-                                            </div>
+                                            <span className="btn btn-success">
+                                                {t("global.signed")}
+                                            </span>
                                         ) : (
-                                            <span className="btn btn-warning m-3">
-                                                {t("global.notSigned")}{" "}
+                                            <span className="btn btn-warning w-100">
+                                                {t("global.notSigned")}
                                             </span>
                                         )}
                                     </div>
-                                    <div className="col-sm-4 col-4">
+
+                                    <div className="col mb-2 text-center">
                                         {!form && worker.form_101 ? (
-                                            <div>
-                                                <Link
-                                                    target="_blank"
-                                                    to={
-                                                        worker.form_101
-                                                            ? `/storage/uploads/worker/form101/${worker.form_101}`
-                                                            : `/form101/` +
-                                                              Base64.encode(
-                                                                  worker.id.toString()
-                                                              )
-                                                    }
-                                                    className="m-2 m-2 btn navyblue"
-                                                >
-                                                    {t("global.viewForm")}
-                                                </Link>
-                                            </div>
+                                            <Link
+                                                target="_blank"
+                                                to={
+                                                    worker.form_101
+                                                        ? `/storage/uploads/worker/form101/${worker.form_101}`
+                                                        : `/form101/` + Base64.encode(worker.id.toString())
+                                                }
+                                                className="btn btn-warning"
+                                            >
+                                                <i className="fa fa-eye"></i>
+                                            </Link>
                                         ) : (
-                                            <span className="btn btn-warning m-3">
-                                                -
-                                            </span>
+                                            <span className="btn btn-warning">-</span>
                                         )}
                                     </div>
-                                    <div className="col-sm-2 col-2">
+
+                                    <div className="col mb-2 text-center">
                                         {((form || worker.form_insurance) && form?.pdf_name) ? (
-                                            <div>
-                                                <a
-                                                    href={`/storage/signed-docs/${form.pdf_name}`}
-                                                    target={"_blank"}
-                                                    download={`${form.type}.pdf`}
-                                                    className="m-2 m-2 btn navyblue"
-                                                >
-                                                    <span className="btn-default">
-                                                        <i className="fa fa-download"></i>
-                                                    </span>
-                                                </a>
-                                            </div>
+                                            <a
+                                                href={`/storage/signed-docs/${form.pdf_name}`}
+                                                target={"_blank"}
+                                                download={`${form.type}.pdf`}
+                                                className="btn btn-warning"
+                                            >
+                                                <i className="fa fa-download"></i>
+                                            </a>
                                         ) : (
-                                            <span className="btn btn-warning m-3">
-                                                -
-                                            </span>
+                                            <span className="btn btn-warning">-</span>
                                         )}
                                     </div>
-                                    {Object.is(worker.form_101, null) &&
-                                    worker.is_exist
-                                        ? uploadFormDiv("form_101")
-                                        : ""}
+
+                                    {Object.is(worker.form_101, null) && worker.is_exist && (
+                                        <div className="col-12">
+                                            {uploadFormDiv("form_101")}
+                                        </div>
+                                    )}
                                 </div>
+
                             </div>
                         </div>
                     ) : (
@@ -337,76 +312,59 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                 borderRadius: "5px",
                             }}
                         >
-                            <div className="row">
-                                <div className="col-sm-4 col-4">
-                                    <span
-                                        className="noteDate"
-                                        style={{ fontWeight: "600" }}
-                                    >
+                            <div className="row align-items-center">
+                                <div className="col-lg-4 col-md-6 col-sm-12 mb-2">
+                                    <span className="noteDate font-weight-bold">
                                         {t("global.safetyAbdGear")}
                                     </span>
                                 </div>
-                                <div className="col-sm-2 col-2">
-                                    {safetyAndGearForm ||
-                                    worker.safety_and_gear_form ? (
-                                        <div>
-                                            <span className="btn btn-success m-3">
+
+                                <div className="col-lg-2 col-md-3 col-sm-6 mb-2 text-center">
+                                    {safetyAndGearForm || worker.safety_and_gear_form ? (
+                                        <span className="btn btn-success ">
                                             {t("global.signed")}
-                                            </span>
-                                        </div>
+                                        </span>
                                     ) : (
-                                        <span className="btn btn-warning m-3">
-                                            {t("global.notSigned")}{" "}
+                                        <span className="btn btn-warning">
+                                            {t("global.notSigned")}
                                         </span>
                                     )}
                                 </div>
-                                <div className="col-sm-4 col-4">
-                                    {safetyAndGearForm ||
-                                    worker.safety_and_gear_form ? (
-                                        <div>
-                                            <Link
-                                                target="_blank"
-                                                to={
-                                                    worker.safety_and_gear_form
-                                                        ? `/storage/uploads/worker/safetygear/${worker.safety_and_gear_form}`
-                                                        : `/worker-safe-gear/` +
-                                                          Base64.encode(
-                                                              worker.id.toString()
-                                                          )
-                                                }
-                                                className="m-2 m-2 btn navyblue"
-                                            >
-                                                {t("global.viewSafetyAndGearForm")}
-                                            </Link>
-                                        </div>
+
+                                <div className="col mb-2 text-center">
+                                    {safetyAndGearForm || worker.safety_and_gear_form ? (
+                                        <Link
+                                            target="_blank"
+                                            to={
+                                                worker.safety_and_gear_form
+                                                    ? `/storage/uploads/worker/safetygear/${worker.safety_and_gear_form}`
+                                                    : `/worker-safe-gear/` + Base64.encode(worker.id.toString())
+                                            }
+                                            className="btn btn-warning"
+                                        >
+                                            <i className="fa fa-eye"></i>
+                                        </Link>
                                     ) : (
-                                        <span className="btn btn-warning m-3">
-                                            -
-                                        </span>
+                                        <span className="btn btn-warning">-</span>
                                     )}
                                 </div>
-                                <div className="col-sm-2 col-2">
+
+                                <div className="col mb-2 text-center">
                                     {((safetyAndGearForm || worker.form_insurance) && safetyAndGearForm?.pdf_name) ? (
-                                        <div>
-                                            <a
-                                                href={`/storage/signed-docs/${safetyAndGearForm.pdf_name}`}
-                                                target={"_blank"}
-                                                download={`${safetyAndGearForm.type}.pdf`}
-                                                className="m-2 m-2 btn navyblue"
-                                            >
-                                                <span className="btn-default">
-                                                    <i className="fa fa-download"></i>
-                                                </span>
-                                            </a>
-                                        </div>
+                                        <a
+                                            href={`/storage/signed-docs/${safetyAndGearForm.pdf_name}`}
+                                            target="_blank"
+                                            download={`${safetyAndGearForm.type}.pdf`}
+                                            className="btn btn-warning"
+                                        >
+                                            <i className="fa fa-download"></i>
+                                        </a>
                                     ) : (
-                                        <span className="btn btn-warning m-3">
-                                            -
-                                        </span>
+                                        <span className="btn btn-warning">-</span>
                                     )}
                                 </div>
                                 {Object.is(worker.safety_and_gear_form, null) &&
-                                worker.is_exist
+                                    worker.is_exist
                                     ? uploadFormDiv("safety_and_gear_form")
                                     : ""}
                             </div>
@@ -427,77 +385,65 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                             borderRadius: "5px",
                         }}
                     >
-                        <div className="row">
-                            <div className="col-sm-4 col-4">
-                                <span
-                                    className="noteDate"
-                                    style={{ fontWeight: "600" }}
-                                >
+                        <div className="row align-items-center">
+                            <div className="col-lg-4 col-md-6 col-sm-12 mb-2">
+                                <span className="noteDate font-weight-bold">
                                     {t("formTxt.insuranceForm")}
                                 </span>
                             </div>
-                            <div className="col-sm-2 col-2">
+
+                            <div className="col-lg-2 col-md-3 col-sm-6 mb-2 text-center">
                                 {insuranceForm || worker.form_insurance ? (
-                                    <div>
-                                        <span className="btn btn-success m-3">
+                                    <span className="btn btn-success">
                                         {t("global.signed")}
-                                        </span>
-                                    </div>
+                                    </span>
                                 ) : (
-                                    <span className="btn btn-warning m-3">
-                                        {t("global.notSigned")}{" "}
+                                    <span className="btn btn-warning">
+                                        {t("global.notSigned")}
                                     </span>
                                 )}
                             </div>
-                            <div className="col-sm-4 col-4">
+
+                            <div className="col mb-2 text-center">
                                 {insuranceForm || worker.form_insurance ? (
-                                    <div>
-                                        <Link
-                                            target="_blank"
-                                            to={
-                                                worker.form_insurance
-                                                    ? `/storage/uploads/worker/insurance/${worker.form_insurance}`
-                                                    : `/insurance-form/` +
-                                                      Base64.encode(
-                                                          worker.id.toString()
-                                                      )
-                                            }
-                                            className="m-2 m-2 btn navyblue"
-                                        >
-                                            {t("global.viewInsuranceForm")}
-                                        </Link>
-                                    </div>
+                                    <Link
+                                        target="_blank"
+                                        to={
+                                            worker.form_insurance
+                                                ? `/storage/uploads/worker/insurance/${worker.form_insurance}`
+                                                : `/insurance-form/` + Base64.encode(worker.id.toString())
+                                        }
+                                        className="btn btn-warning"
+                                    >
+                                     <i className="fa fa-eye"></i>
+
+                                    </Link>
                                 ) : (
-                                    <span className="btn btn-warning m-3">
-                                        -
-                                    </span>
+                                    <span className="btn btn-warning">-</span>
                                 )}
                             </div>
-                            <div className="col-sm-2 col-2">
+
+                            <div className="col mb-2 text-center">
                                 {((insuranceForm || worker.form_insurance) && insuranceForm?.pdf_name) ? (
-                                    <div>
-                                        <a
-                                            href={`/storage/signed-docs/${insuranceForm.pdf_name}`}
-                                            target={"_blank"}
-                                            download={`${insuranceForm.type}.pdf`}
-                                            className="m-2 m-2 btn navyblue"
-                                        >
-                                            <span className="btn-default">
-                                                <i className="fa fa-download"></i>
-                                            </span>
-                                        </a>
-                                    </div>
+                                    <a
+                                        href={`/storage/signed-docs/${insuranceForm.pdf_name}`}
+                                        target="_blank"
+                                        download={`${insuranceForm.type}.pdf`}
+                                        className="btn btn-warning "
+                                    >
+                                        <i className="fa fa-download"></i>
+                                    </a>
                                 ) : (
-                                    <span className="btn btn-warning m-3">
-                                        -
-                                    </span>
+                                    <span className="btn btn-warning">-</span>
                                 )}
                             </div>
+
                             {Object.is(worker.form_insurance, null) &&
-                            worker.is_exist
+                                worker.is_exist
                                 ? uploadFormDiv("form_insurance")
                                 : ""}
                         </div>
+
                     </div>
                 </div>
             )}

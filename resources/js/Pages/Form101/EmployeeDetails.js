@@ -17,9 +17,10 @@ export default function EmployeeDetails({
 
     const [indentityType, setIndentityType] = useState(values.employeecountry);
     useEffect(() => {
+        console.log(values.employeecountry);
         setIndentityType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
     }, [values])
-    // console.log(indentityType);
+
 
 
     const { t } = useTranslation();
@@ -125,7 +126,6 @@ export default function EmployeeDetails({
                             className="mr-2"
                             checked={indentityType === "Passport"}
                             onChange={(e)=>{
-                                console.log(e.target.value);
                                 setIndentityType(e.target.value);
                                 handleChange(e);
                                 setFieldValue("employeeIdentityType",e.target.value);

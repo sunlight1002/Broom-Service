@@ -8,6 +8,7 @@ export default function DateField({
     onBlur,
     error,
     required,
+    id = name,
     readOnly,
 }) {
     return (
@@ -20,7 +21,7 @@ export default function DateField({
                 type="date"
                 className="form-control"
                 name={name}
-                id={name}
+                id={id}
                 value={value}
                 onChange={onChange}
                 onBlur={onBlur}

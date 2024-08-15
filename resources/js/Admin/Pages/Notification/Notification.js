@@ -90,7 +90,7 @@ export default function Notification() {
                         <div className="col-sm-6">
                             <button
                                 onClick={(e) => clearAll(e)}
-                                className="btn btn-danger float-right addButton"
+                                className="btn navyblue float-right addButton"
                             >
                                 {t("modal.clear")} {t("admin.global.All")} 
                             </button>
@@ -218,7 +218,7 @@ export default function Notification() {
                                         setCurrentPage(data.selected + 1);
                                     }}
                                     containerClassName={
-                                        "pagination justify-content-end mt-3"
+                                        "pagination justify-content-end mt-3 flex-wrap"
                                     }
                                     pageClassName={"page-item"}
                                     pageLinkClassName={"page-link"}

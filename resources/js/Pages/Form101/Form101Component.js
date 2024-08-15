@@ -49,7 +49,7 @@ const Form101Component = () => {
         if (formSubmitted) {
             const errorFields = Object.keys(errors);
             if (errorFields.length > 0) {
-                const firstErrorField = errorFields[0];
+                const firstErrorField = errorFields[0];                
                 const errorElement = document.getElementById(firstErrorField);
                 if (errorElement) {
                     errorElement.scrollIntoView({ behavior: "smooth" });
@@ -1460,6 +1460,14 @@ const Form101Component = () => {
                                             ref={sigRef}
                                             onEnd={handleSignatureEnd}
                                         />
+                                        {touched.signature &&
+                                            errors.signature && (
+                                                <p className="text-danger">
+                                                    {
+                                                        errors.signature
+                                                    }
+                                                </p>
+                                            )}
                                         <p>
                                             <button
                                                 className="btn btn-warning mb-2"
@@ -1538,7 +1546,7 @@ const Form101Component = () => {
                                     type="submit"
                                     className="btn btn-success ml-2"
                                     disabled={isSubmitting}
-                                    onClick={()=>setFormSubmitted(true)}>
+                                    onClick={() => setFormSubmitted(true)}>
                                     {t("form101.Accept")}
                                 </button>
                             </>
