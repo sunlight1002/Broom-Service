@@ -933,6 +933,7 @@
             "payments": "תשלומים"
         },
         "global": {
+            "resumejob": "לחדש עבודה",
             "Action":"פעולה",
             "addTeamMember": "הוסף חבר צוות",
             "NameEn": "שם - אנגלית",

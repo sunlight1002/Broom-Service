@@ -67,262 +67,84 @@ export default function Lead() {
         delete: t("admin.leads.Delete"),
     };
     
-    // useEffect(() => {
-    //     const handleLanguageChange = () => {
-    //         $(tableRef.current).DataTable().destroy(); // Destroy the existing table
-    //         $(tableRef.current).DataTable({
-    //             processing: true,
-    //             serverSide: true,
-    //             ajax: {
-    //                 url: "/api/admin/leads",
-    //                 type: "GET",
-    //                 beforeSend: function (request) {
-    //                     request.setRequestHeader(
-    //                         "Authorization",
-    //                         `Bearer ` + localStorage.getItem("admin-token")
-    //                     );
-    //                 },
-    //             },
-    //             order: [[0, "desc"]],
-    //             columns: [
-    //                 {
-    //                     title: t("global.date"),
-    //                     data: "created_at",
-    //                 },
-    //                 {
-    //                     title: t("admin.global.Name"),
-    //                     data: "name",
-    //                 },
-    //                 {
-    //                     title: t("admin.global.Email"),
-    //                     data: "email",
-    //                 },
-    //                 {
-    //                     title: t("admin.global.Phone"),
-    //                     data: "phone",
-    //                 },
-    //                 {
-    //                     title: t("admin.global.Status"),
-    //                     data: "lead_status",
-    //                     orderable: false,
-    //                     render: function (data, type, row, meta) {
-    //                         const _statusColor = leadStatusColor(data);
-    
-    //                         return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-    //                         ${data}
-    //                     </p>`;
-    //                     },
-    //                 },
-    //                 {
-    //                     title: t("admin.global.Action"),
-    //                     data: "action",
-    //                     orderable: false,
-    //                     responsivePriority: 1,
-    //                     render: function (data, type, row, meta) {
-    //                         let _html =
-    //                             '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-    
-    //                         _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${actionTranslations.edit}</button>`;
-    //                         _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${actionTranslations.view}</button>`;
-    //                         _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${actionTranslations.change_status}</button>`;
-    //                         _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${actionTranslations.delete}</button>`;
-    
-    //                         _html += "</div> </div>";
-    
-    //                         return _html;
-    //                     },
-    //                 },
-    //             ],
-    //             ordering: true,
-    //             searching: true,
-    //             responsive: true,
-    //             createdRow: function (row, data, dataIndex) {
-    //                 $(row).addClass("dt-row custom-row-class");
-    //                 $(row).attr("data-id", data.id);
-    //             },
-    //             columnDefs: [
-    //                 {
-    //                     targets: "_all",
-    //                     createdCell: function (td, cellData, rowData, row, col) {
-    //                         $(td).addClass("custom-cell-class ");
-    //                     },
-    //                 },
-    //             ],
-    //         });
-    //     };
-    //     const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-    //     $("div.dt-search").append(searchInputWrapper);
-    //     $("div.dt-search").addClass("position-relative");
-
-    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
-    //         let _id = null;
-    //         if (e.target.closest("tr.dt-row")) {
-    //             if (
-    //                 !e.target.closest(".dropdown-toggle") &&
-    //                 !e.target.closest(".dropdown-menu") &&
-    //                 (!tableRef.current.classList.contains("collapsed") ||
-    //                     !e.target.closest(".dtr-control")) &&
-    //                 !e.target.closest(".dt-change-status-btn")
-    //             ) {
-    //                 _id = $(this).data("id");
-    //             }
-    //         } else {
-    //             if (
-    //                 !e.target.closest(".dropdown-toggle") &&
-    //                 !e.target.closest(".dropdown-menu") &&
-    //                 !e.target.closest(".dt-change-status-btn")
-    //             ) {
-    //                 _id = $(e.target).closest("tr.child").prev().data("id");
-    //             }
-    //         }
-
-    //         if (_id) {
-    //             navigate(`/admin/leads/view/${_id}`);
-    //         }
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-edit-btn", function () {
-    //         const _id = $(this).data("id");
-    //         navigate(`/admin/leads/${_id}/edit`);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
-    //         const _id = $(this).data("id");
-    //         navigate(`/admin/leads/view/${_id}`);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-change-status-btn", function () {
-    //         const _id = $(this).data("id");
-    //         toggleChangeStatusModal(_id);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
-    //         const _id = $(this).data("id");
-    //         handleDelete(_id);
-    //     });
-
-    //     i18n.on("languageChanged", handleLanguageChange);
-    
-    //     // Cleanup listener on unmount
-    //     return () => {
-    //         i18n.off("languageChanged", handleLanguageChange);
-    //     };
-    // }, []);
+    const initializeDataTable = () => {
+        // Ensure DataTable is initialized only if it hasn't been already
+        if (!$.fn.DataTable.isDataTable(tableRef.current)) {
+            $(tableRef.current).DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "/api/admin/leads",
+                    type: "GET",
+                    beforeSend: function (request) {
+                        request.setRequestHeader(
+                            "Authorization",
+                            `Bearer ` + localStorage.getItem("admin-token")
+                        );
+                    },
+                },
+                order: [[0, "desc"]],
+                columns: [
+                    { title: t("global.date"), data: "created_at" },
+                    { title: t("admin.global.Name"), data: "name" },
+                    { title: t("admin.global.Email"), data: "email" },
+                    { title: t("admin.global.Phone"), data: "phone" },
+                    {
+                        title: t("admin.global.Status"),
+                        data: "lead_status",
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            const _statusColor = leadStatusColor(data);
+                            return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                ${data}
+                            </p>`;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Action"),
+                        data: "action",
+                        orderable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            let _html =
+                                `<div class="action-dropdown dropdown">
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-ellipsis-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${actionTranslations.edit}</button>
+                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${actionTranslations.view}</button>
+                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${actionTranslations.change_status}</button>
+                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${actionTranslations.delete}</button>
+                                    </div>
+                                </div>`;
+                            return _html;
+                        },
+                    },
+                ],
+                ordering: true,
+                searching: true,
+                responsive: true,
+                createdRow: function (row, data, dataIndex) {
+                    $(row).addClass("dt-row custom-row-class");
+                    $(row).attr("data-id", data.id);
+                },
+                columnDefs: [
+                    {
+                        targets: "_all",
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).addClass("custom-cell-class ");
+                        },
+                    },
+                ],
+            });
+        }
+    };
 
     useEffect(() => {
-  
-        // console.log(actionTranslations);
-        $(tableRef.current).DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "/api/admin/leads",
-                type: "GET",
-                beforeSend: function (request) {
-                    request.setRequestHeader(
-                        "Authorization",
-                        `Bearer ` + localStorage.getItem("admin-token")
-                    );
-                },
-            },
-            order: [[0, "desc"]],
-            columns: [
-                {
-                    title: t("global.date"),
-                    data: "created_at",
-                },
-                {
-                    title: t("admin.global.Name"),
-                    data: "name",
-                },
-                {
-                    title:t("admin.global.Email"),
-                    data: "email",
-                },
-                {
-                    title: t("admin.global.Phone"),
-                    data: "phone",
-                },
-                {
-                    title: t("admin.global.Status"),
-                    data: "lead_status",
-                    orderable: false,
-                    render: function (data, type, row, meta) {
-                        const _statusColor = leadStatusColor(data);
+        initializeDataTable();
 
-                        return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                        ${data}
-                    </p>`;
-                    },
-                },
-                {
-                    title: t("admin.global.Action"),
-                    data: "action",
-                    orderable: false,
-                    responsivePriority: 1,
-                    render: function (data, type, row, meta) {
-                        let _html =
-                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${actionTranslations.edit}</button>`;
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${actionTranslations.view}</button>`;
-                        _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${actionTranslations.change_status}</button>`;
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${actionTranslations.delete}</button>`;
-
-                        _html += "</div> </div>";
-
-                        return _html;
-                    },
-                },
-            ],
-            ordering: true,
-            searching: true,
-            responsive: true,
-            createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row custom-row-class");
-                $(row).attr("data-id", data.id);
-            },
-            columnDefs: [
-                {
-                    targets: "_all",
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).addClass("custom-cell-class ");
-                    },
-                },
-            ],
-        });
-
-        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-        $("div.dt-search").append(searchInputWrapper);
-        $("div.dt-search").addClass("position-relative");
-
-        $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
-            let _id = null;
-            if (e.target.closest("tr.dt-row")) {
-                if (
-                    !e.target.closest(".dropdown-toggle") &&
-                    !e.target.closest(".dropdown-menu") &&
-                    (!tableRef.current.classList.contains("collapsed") ||
-                        !e.target.closest(".dtr-control")) &&
-                    !e.target.closest(".dt-change-status-btn")
-                ) {
-                    _id = $(this).data("id");
-                }
-            } else {
-                if (
-                    !e.target.closest(".dropdown-toggle") &&
-                    !e.target.closest(".dropdown-menu") &&
-                    !e.target.closest(".dt-change-status-btn")
-                ) {
-                    _id = $(e.target).closest("tr.child").prev().data("id");
-                }
-            }
-
-            if (_id) {
-                navigate(`/admin/leads/view/${_id}`);
-            }
-        });
-
+        // Event Listeners
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/leads/${_id}/edit`);
@@ -343,10 +165,21 @@ export default function Lead() {
             handleDelete(_id);
         });
 
-        return function cleanup() {
-            $(tableRef.current).DataTable().destroy(true);
+        // Handle language changes
+        i18n.on("languageChanged", () => {
+            $(tableRef.current).DataTable().destroy(); // Destroy the table
+            initializeDataTable(); // Reinitialize the table with updated language
+        });
+
+        // Cleanup event listeners and destroy DataTable when unmounting
+        return () => {
+            if ($.fn.DataTable.isDataTable(tableRef.current)) {
+                $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
+                $(tableRef.current).off("click");
+            }
         };
     }, []);
+    
 
     const handleDelete = (id) => {
         Swal.fire({

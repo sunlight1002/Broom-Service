@@ -30,115 +30,123 @@ export default function Clients() {
     const [filters, setFilters] = useState({
         action: "",
     });
-    
+
     const tableRef = useRef(null);
     const actionRef = useRef(null);
-    
+
     const alert = useAlert();
-    const { t } = useTranslation();
-    
+    const { t, i18n } = useTranslation();
+
     const statusArr = {
         "pending client": t("admin.client.Pending_client"),
         "freeze client": t("admin.client.Freeze_client"),
         "active client": t("admin.client.Active_client"),
     };
-    useEffect(() => {
-        $(tableRef.current).DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "/api/admin/clients",
-                type: "GET",
-                beforeSend: function (request) {
-                    request.setRequestHeader(
-                        "Authorization",
-                        `Bearer ` + localStorage.getItem("admin-token")
-                    );
-                },
-                data: function (d) {
-                    d.action = actionRef.current.value;
-                },
-            },
-            order: [[0, "desc"]],
-            columns: [
-                {
-                    title:t("global.date"),
-                    data: "created_at",
-                },
-                {
-                    title: t("admin.global.Name"),
-                    data: "name",
-                },
-                {
-                    title: t("admin.global.Email"),
-                    data: "email",
-                },
-                {
-                    title: t("admin.global.Phone"),
-                    data: "phone",
-                },
-                {
-                    title: t("admin.global.Status"),
-                    data: "lead_status",
-                    orderable: false,
-                    render: function (data, type, row, meta) {
-                        const _statusColor = leadStatusColor(data);
-                        // console.log(data);
 
-                        // return `<span class="badge" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
-                        return `<p style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                        ${data}
-                    </p>`;
+    const initializeDataTable = () => {
+        // Ensure DataTable is initialized only if it hasn't been already
+        if (!$.fn.DataTable.isDataTable(tableRef.current)) {
+            $(tableRef.current).DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "/api/admin/clients",
+                    type: "GET",
+                    beforeSend: function (request) {
+                        request.setRequestHeader(
+                            "Authorization",
+                            `Bearer ` + localStorage.getItem("admin-token")
+                        );
+                    },
+                    data: function (d) {
+                        d.action = actionRef.current.value;
                     },
                 },
-                {
-                    title: t("admin.global.Action"),
-                    data: "action",
-                    orderable: false,
-                    responsivePriority: 1,
-                    render: function (data, type, row, meta) {
-                        let _html =
-                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                order: [[0, "desc"]],
+                columns: [
+                    {
+                        title: t("global.date"),
+                        data: "created_at",
+                    },
+                    {
+                        title: t("admin.global.Name"),
+                        data: "name",
+                    },
+                    {
+                        title: t("admin.global.Email"),
+                        data: "email",
+                    },
+                    {
+                        title: t("admin.global.Phone"),
+                        data: "phone",
+                    },
+                    {
+                        title: t("admin.global.Status"),
+                        data: "lead_status",
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            const _statusColor = leadStatusColor(data);
+                            // console.log(data);
 
-                        if (row.has_contract == 1) {
-                            _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
+                            // return `<span class="badge" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
+                            return `<p style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            ${data}
+                        </p>`;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Action"),
+                        data: "action",
+                        orderable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            let _html =
+                                '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                            if (row.has_contract == 1) {
+                                _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
+                            }
+
+                            _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+
+                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+
+                            _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>`;
+
+                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+
+                            _html += "</div> </div>";
+
+                            return _html;
+                        },
+                    },
+                ],
+                ordering: true,
+                searching: true,
+                responsive: true,
+                createdRow: function (row, data, dataIndex) {
+                    $(row).addClass("dt-row custom-row-class");
+                    $(row).attr("data-id", data.id);
+                },
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).addClass('custom-cell-class ');
                         }
-
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
-
-                        _html += "</div> </div>";
-
-                        return _html;
-                    },
-                },
-            ],
-            ordering: true,
-            searching: true,
-            responsive: true,
-            createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row custom-row-class");
-                $(row).attr("data-id", data.id);
-            },
-            columnDefs: [
-                {
-                    targets: '_all',
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).addClass('custom-cell-class ');
                     }
-                }
-            ]
-        });
+                ]
+            });
+        }
+    };
 
-          // Customize the search input
-          const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-          $("div.dt-search").append(searchInputWrapper);
-          $("div.dt-search").addClass("position-relative");
+    useEffect(() => {
+        initializeDataTable();
+
+        // Customize the search input
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -192,10 +200,176 @@ export default function Clients() {
             handleDelete(_id);
         });
 
-        return function cleanup() {
-            $(tableRef.current).DataTable().destroy(true);
+
+        // Handle language changes
+        i18n.on("languageChanged", () => {
+            $(tableRef.current).DataTable().destroy(); // Destroy the table
+            initializeDataTable(); // Reinitialize the table with updated language
+        });
+
+        // Cleanup event listeners and destroy DataTable when unmounting
+        return () => {
+            if ($.fn.DataTable.isDataTable(tableRef.current)) {
+                $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
+                $(tableRef.current).off("click");
+            }
         };
     }, []);
+
+    // useEffect(() => {
+    //     $(tableRef.current).DataTable({
+    //         processing: true,
+    //         serverSide: true,
+    //         ajax: {
+    //             url: "/api/admin/clients",
+    //             type: "GET",
+    //             beforeSend: function (request) {
+    //                 request.setRequestHeader(
+    //                     "Authorization",
+    //                     `Bearer ` + localStorage.getItem("admin-token")
+    //                 );
+    //             },
+    //             data: function (d) {
+    //                 d.action = actionRef.current.value;
+    //             },
+    //         },
+    //         order: [[0, "desc"]],
+    //         columns: [
+    //             {
+    //                 title:t("global.date"),
+    //                 data: "created_at",
+    //             },
+    //             {
+    //                 title: t("admin.global.Name"),
+    //                 data: "name",
+    //             },
+    //             {
+    //                 title: t("admin.global.Email"),
+    //                 data: "email",
+    //             },
+    //             {
+    //                 title: t("admin.global.Phone"),
+    //                 data: "phone",
+    //             },
+    //             {
+    //                 title: t("admin.global.Status"),
+    //                 data: "lead_status",
+    //                 orderable: false,
+    //                 render: function (data, type, row, meta) {
+    //                     const _statusColor = leadStatusColor(data);
+    //                     // console.log(data);
+
+    //                     // return `<span class="badge" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
+    //                     return `<p style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+    //                     ${data}
+    //                 </p>`;
+    //                 },
+    //             },
+    //             {
+    //                 title: t("admin.global.Action"),
+    //                 data: "action",
+    //                 orderable: false,
+    //                 responsivePriority: 1,
+    //                 render: function (data, type, row, meta) {
+    //                     let _html =
+    //                         '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+    //                     if (row.has_contract == 1) {
+    //                         _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
+    //                     }
+
+    //                     _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+
+    //                     _html += "</div> </div>";
+
+    //                     return _html;
+    //                 },
+    //             },
+    //         ],
+    //         ordering: true,
+    //         searching: true,
+    //         responsive: true,
+    //         createdRow: function (row, data, dataIndex) {
+    //             $(row).addClass("dt-row custom-row-class");
+    //             $(row).attr("data-id", data.id);
+    //         },
+    //         columnDefs: [
+    //             {
+    //                 targets: '_all',
+    //                 createdCell: function (td, cellData, rowData, row, col) {
+    //                     $(td).addClass('custom-cell-class ');
+    //                 }
+    //             }
+    //         ]
+    //     });
+
+    //       // Customize the search input
+    //       const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+    //       $("div.dt-search").append(searchInputWrapper);
+    //       $("div.dt-search").addClass("position-relative");
+
+    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+    //         let _id = null;
+    //         if (e.target.closest("tr.dt-row")) {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 (!tableRef.current.classList.contains("collapsed") ||
+    //                     !e.target.closest(".dtr-control")) &&
+    //                 !e.target.closest(".dt-change-status-btn")
+    //             ) {
+    //                 _id = $(this).data("id");
+    //             }
+    //         } else {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-change-status-btn")
+    //             ) {
+    //                 _id = $(e.target).closest("tr.child").prev().data("id");
+    //             }
+    //         }
+
+    //         if (_id) {
+    //             navigate(`/admin/clients/view/${_id}`);
+    //         }
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-create-job-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/create-job/${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-edit-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/clients/${_id}/edit`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/clients/view/${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-change-status-btn", function () {
+    //         const _id = $(this).data("id");
+    //         toggleChangeStatusModal(_id);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
+    //         const _id = $(this).data("id");
+    //         handleDelete(_id);
+    //     });
+
+    //     return function cleanup() {
+    //         $(tableRef.current).DataTable().destroy(true);
+    //     };
+    // }, []);
 
     const handleClose = () => {
         setImportFile("");
@@ -353,7 +527,7 @@ export default function Clients() {
 
                         <div className="clearfix w-100 justify-content-between align-items-center">
                             <h1 className="page-title d-none d-lg-block float-left">
-                            {t("admin.sidebar.clients")}
+                                {t("admin.sidebar.clients")}
                             </h1>
                             <div className="search-data">
                                 <div
@@ -524,7 +698,7 @@ export default function Clients() {
                         />
                     </div>
                 </div>
-                <div className="card" style={{boxShadow: "none"}}>
+                <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table
@@ -591,9 +765,9 @@ const FilterButtons = ({ text, className, selectedFilter, onClick, value }) => (
             selectedFilter === value
                 ? { background: "white" }
                 : {
-                      background: "#2c3f51",
-                      color: "white",
-                  }
+                    background: "#2c3f51",
+                    color: "white",
+                }
         }
         onClick={() => {
             onClick?.();

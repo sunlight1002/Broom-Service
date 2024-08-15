@@ -13,7 +13,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 
 export default function ServiceSchedule() {
-    const { t } = useTranslation();
+    const { t , i18n} = useTranslation();
     const navigate = useNavigate();
     const tableRef = useRef(null);
 
@@ -23,69 +23,77 @@ export default function ServiceSchedule() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+
+    const initializeDataTable = () => {
+        // Ensure DataTable is initialized only if it hasn't been already
+        if (!$.fn.DataTable.isDataTable(tableRef.current)) {
+            $(tableRef.current).DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "/api/admin/service-schedule",
+                    type: "GET",
+                    beforeSend: function (request) {
+                        request.setRequestHeader(
+                            "Authorization",
+                            `Bearer ` + localStorage.getItem("admin-token")
+                        );
+                    },
+                },
+                order: [[0, "desc"]],
+                columns: [
+                    {
+                        title: "ID",
+                        data: "id",
+                        visible: false,
+                    },
+                    {
+                        title: "Schedule - En",
+                        data: "name",
+                    },
+                    {
+                        title: "Schedule - Heb",
+                        data: "name_heb",
+                    },
+                    {
+                        title: "Status",
+                        data: "status",
+                        render: function (data, type, row, meta) {
+                            return data == 0 ? "Inactive" : "Active";
+                        },
+                    },
+                    {
+                        title: "Action",
+                        data: "action",
+                        orderable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            let _html =
+                                '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+    
+                            _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+    
+                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+    
+                            _html += "</div> </div>";
+    
+                            return _html;
+                        },
+                    },
+                ],
+                ordering: true,
+                searching: true,
+                responsive: true,
+                createdRow: function (row, data, dataIndex) {
+                    $(row).addClass("dt-row");
+                    $(row).attr("data-id", data.id);
+                },
+            });
+        }
+    };
+
     useEffect(() => {
-        $(tableRef.current).DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "/api/admin/service-schedule",
-                type: "GET",
-                beforeSend: function (request) {
-                    request.setRequestHeader(
-                        "Authorization",
-                        `Bearer ` + localStorage.getItem("admin-token")
-                    );
-                },
-            },
-            order: [[0, "desc"]],
-            columns: [
-                {
-                    title: "ID",
-                    data: "id",
-                    visible: false,
-                },
-                {
-                    title: "Schedule - En",
-                    data: "name",
-                },
-                {
-                    title: "Schedule - Heb",
-                    data: "name_heb",
-                },
-                {
-                    title: "Status",
-                    data: "status",
-                    render: function (data, type, row, meta) {
-                        return data == 0 ? "Inactive" : "Active";
-                    },
-                },
-                {
-                    title: "Action",
-                    data: "action",
-                    orderable: false,
-                    responsivePriority: 1,
-                    render: function (data, type, row, meta) {
-                        let _html =
-                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
-
-                        _html += "</div> </div>";
-
-                        return _html;
-                    },
-                },
-            ],
-            ordering: true,
-            searching: true,
-            responsive: true,
-            createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row");
-                $(row).attr("data-id", data.id);
-            },
-        });
+        initializeDataTable();
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -122,10 +130,124 @@ export default function ServiceSchedule() {
             handleDelete(_id);
         });
 
-        return function cleanup() {
-            $(tableRef.current).DataTable().destroy(true);
+        // Handle language changes
+        i18n.on("languageChanged", () => {
+            $(tableRef.current).DataTable().destroy(); // Destroy the table
+            initializeDataTable(); // Reinitialize the table with updated language
+        });
+
+        // Cleanup event listeners and destroy DataTable when unmounting
+        return () => {
+            if ($.fn.DataTable.isDataTable(tableRef.current)) {
+                $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
+                $(tableRef.current).off("click");
+            }
         };
     }, []);
+
+    // useEffect(() => {
+    //     $(tableRef.current).DataTable({
+    //         processing: true,
+    //         serverSide: true,
+    //         ajax: {
+    //             url: "/api/admin/service-schedule",
+    //             type: "GET",
+    //             beforeSend: function (request) {
+    //                 request.setRequestHeader(
+    //                     "Authorization",
+    //                     `Bearer ` + localStorage.getItem("admin-token")
+    //                 );
+    //             },
+    //         },
+    //         order: [[0, "desc"]],
+    //         columns: [
+    //             {
+    //                 title: "ID",
+    //                 data: "id",
+    //                 visible: false,
+    //             },
+    //             {
+    //                 title: "Schedule - En",
+    //                 data: "name",
+    //             },
+    //             {
+    //                 title: "Schedule - Heb",
+    //                 data: "name_heb",
+    //             },
+    //             {
+    //                 title: "Status",
+    //                 data: "status",
+    //                 render: function (data, type, row, meta) {
+    //                     return data == 0 ? "Inactive" : "Active";
+    //                 },
+    //             },
+    //             {
+    //                 title: "Action",
+    //                 data: "action",
+    //                 orderable: false,
+    //                 responsivePriority: 1,
+    //                 render: function (data, type, row, meta) {
+    //                     let _html =
+    //                         '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+    //                     _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">Edit</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+    //                     _html += "</div> </div>";
+
+    //                     return _html;
+    //                 },
+    //             },
+    //         ],
+    //         ordering: true,
+    //         searching: true,
+    //         responsive: true,
+    //         createdRow: function (row, data, dataIndex) {
+    //             $(row).addClass("dt-row");
+    //             $(row).attr("data-id", data.id);
+    //         },
+    //     });
+
+    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+    //         let _id = null;
+    //         if (e.target.closest("tr.dt-row")) {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 (!tableRef.current.classList.contains("collapsed") ||
+    //                     !e.target.closest(".dtr-control"))
+    //             ) {
+    //                 _id = $(this).data("id");
+    //             }
+    //         } else {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu")
+    //             ) {
+    //                 _id = $(e.target).closest("tr.child").prev().data("id");
+    //             }
+    //         }
+
+    //         if (_id) {
+    //             navigate(`/admin/service-schedules/${_id}/edit`);
+    //         }
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-edit-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/service-schedules/${_id}/edit`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
+    //         const _id = $(this).data("id");
+    //         handleDelete(_id);
+    //     });
+
+    //     return function cleanup() {
+    //         $(tableRef.current).DataTable().destroy(true);
+    //     };
+    // }, []);
 
     const handleDelete = (id) => {
         Swal.fire({

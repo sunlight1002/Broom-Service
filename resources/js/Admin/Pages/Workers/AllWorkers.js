@@ -18,7 +18,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import LeaveJobWorkerModal from "../../Components/Modals/LeaveJobWorkerModal";
 
 export default function AllWorkers() {
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
     const [isOpenLeaveJobWorker, setIsOpenLeaveJobWorker] = useState(false);
     const [selectedWorkerId, setSelectedWorkerId] = useState(null);
     const [filters, setFilters] = useState({
@@ -43,110 +43,118 @@ export default function AllWorkers() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    useEffect(() => {
-        $(tableRef.current).DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "/api/admin/workers",
-                type: "GET",
-                beforeSend: function (request) {
-                    request.setRequestHeader(
-                        "Authorization",
-                        `Bearer ` + localStorage.getItem("admin-token")
-                    );
+
+    const initializeDataTable = () => {
+        // Ensure DataTable is initialized only if it hasn't been already
+        if (!$.fn.DataTable.isDataTable(tableRef.current)) {
+            $(tableRef.current).DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "/api/admin/workers",
+                    type: "GET",
+                    beforeSend: function (request) {
+                        request.setRequestHeader(
+                            "Authorization",
+                            `Bearer ` + localStorage.getItem("admin-token")
+                        );
+                    },
+                    data: function (d) {
+                        d.status = statusRef.current.value;
+                        d.manpower_company_id = manpowerCompanyRef.current.value;
+                        d.is_my_company = isMyCompanyRef.current.value;
+                    },
                 },
-                data: function (d) {
-                    d.status = statusRef.current.value;
-                    d.manpower_company_id = manpowerCompanyRef.current.value;
-                    d.is_my_company = isMyCompanyRef.current.value;
+                order: [[0, "desc"]],
+                columns: [
+                    {
+                        title: "ID",
+                        data: "id",
+                        visible: false,
+                    },
+                    {
+                        title: t("admin.global.Name"),
+                        data: "name",
+                    },
+                    {
+                        title: t("admin.global.Email"),
+                        data: "email",
+                    },
+                    {
+                        title: t("admin.global.Phone"),
+                        data: "phone",
+                    },
+                    {
+                        title: t("admin.global.Address"),
+                        data: "address",
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            if (data) {
+                                return `<a href="https://maps.google.com?q=${row.address}" target="_blank" class="dt-address-link"> ${data} </a>`;
+                            } else {
+                                return "NA";
+                            }
+                        },
+                    },
+                    {
+                        title: t("admin.global.Status"),
+                        data: "status",
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            // return data == 1 ? "Active" : "Inactive";
+                            return data == 1 ? `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                        Active
+                                    </p>` : `<p style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                        Inactive
+                                    </p>` ;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Action"),
+                        data: "action",
+                        orderable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            let _html =
+                                '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+    
+                            _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+    
+                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+    
+                            _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">${t("global.freezeShift")}</button>`;
+    
+                            _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">${t("admin.modal.leave_job")}</button>`;
+    
+                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+    
+                            _html += "</div> </div>";
+    
+                            return _html;
+                        },
+                    },
+                ],
+                ordering: true,
+                searching: true,
+                responsive: true,
+                createdRow: function (row, data, dataIndex) {
+                    $(row).addClass("dt-row custom-row-class");
+                    $(row).attr("data-id", data.id);
                 },
-            },
-            order: [[0, "desc"]],
-            columns: [
-                {
-                    title: "ID",
-                    data: "id",
-                    visible: false,
-                },
-                {
-                    title: t("admin.global.Name"),
-                    data: "name",
-                },
-                {
-                    title: t("admin.global.Email"),
-                    data: "email",
-                },
-                {
-                    title: t("admin.global.Phone"),
-                    data: "phone",
-                },
-                {
-                    title: t("admin.global.Address"),
-                    data: "address",
-                    orderable: false,
-                    render: function (data, type, row, meta) {
-                        if (data) {
-                            return `<a href="https://maps.google.com?q=${row.address}" target="_blank" class="dt-address-link"> ${data} </a>`;
-                        } else {
-                            return "NA";
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).addClass('custom-cell-class ');
                         }
-                    },
-                },
-                {
-                    title: t("admin.global.Status"),
-                    data: "status",
-                    orderable: false,
-                    render: function (data, type, row, meta) {
-                        // return data == 1 ? "Active" : "Inactive";
-                        return data == 1 ? `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                    Active
-                                </p>` : `<p style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                    Inactive
-                                </p>` ;
-                    },
-                },
-                {
-                    title: t("admin.global.Action"),
-                    data: "action",
-                    orderable: false,
-                    responsivePriority: 1,
-                    render: function (data, type, row, meta) {
-                        let _html =
-                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">${t("global.freezeShift")}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">${t("admin.modal.leave_job")}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
-
-                        _html += "</div> </div>";
-
-                        return _html;
-                    },
-                },
-            ],
-            ordering: true,
-            searching: true,
-            responsive: true,
-            createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row custom-row-class");
-                $(row).attr("data-id", data.id);
-            },
-            columnDefs: [
-                {
-                    targets: '_all',
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).addClass('custom-cell-class ');
                     }
-                }
-            ]
-        });
+                ]
+            });
+        }
+    };
+
+    useEffect(() => {
+        initializeDataTable();
 
         // Customize the search input
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
@@ -205,10 +213,187 @@ export default function AllWorkers() {
             handleDelete(_id);
         });
 
-        return function cleanup() {
-            $(tableRef.current).DataTable().destroy(true);
+        // Handle language changes
+        i18n.on("languageChanged", () => {
+            $(tableRef.current).DataTable().destroy(); // Destroy the table
+            initializeDataTable(); // Reinitialize the table with updated language
+        });
+
+        // Cleanup event listeners and destroy DataTable when unmounting
+        return () => {
+            if ($.fn.DataTable.isDataTable(tableRef.current)) {
+                $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
+                $(tableRef.current).off("click");
+            }
         };
     }, []);
+
+    // useEffect(() => {
+    //     $(tableRef.current).DataTable({
+    //         processing: true,
+    //         serverSide: true,
+    //         ajax: {
+    //             url: "/api/admin/workers",
+    //             type: "GET",
+    //             beforeSend: function (request) {
+    //                 request.setRequestHeader(
+    //                     "Authorization",
+    //                     `Bearer ` + localStorage.getItem("admin-token")
+    //                 );
+    //             },
+    //             data: function (d) {
+    //                 d.status = statusRef.current.value;
+    //                 d.manpower_company_id = manpowerCompanyRef.current.value;
+    //                 d.is_my_company = isMyCompanyRef.current.value;
+    //             },
+    //         },
+    //         order: [[0, "desc"]],
+    //         columns: [
+    //             {
+    //                 title: "ID",
+    //                 data: "id",
+    //                 visible: false,
+    //             },
+    //             {
+    //                 title: t("admin.global.Name"),
+    //                 data: "name",
+    //             },
+    //             {
+    //                 title: t("admin.global.Email"),
+    //                 data: "email",
+    //             },
+    //             {
+    //                 title: t("admin.global.Phone"),
+    //                 data: "phone",
+    //             },
+    //             {
+    //                 title: t("admin.global.Address"),
+    //                 data: "address",
+    //                 orderable: false,
+    //                 render: function (data, type, row, meta) {
+    //                     if (data) {
+    //                         return `<a href="https://maps.google.com?q=${row.address}" target="_blank" class="dt-address-link"> ${data} </a>`;
+    //                     } else {
+    //                         return "NA";
+    //                     }
+    //                 },
+    //             },
+    //             {
+    //                 title: t("admin.global.Status"),
+    //                 data: "status",
+    //                 orderable: false,
+    //                 render: function (data, type, row, meta) {
+    //                     // return data == 1 ? "Active" : "Inactive";
+    //                     return data == 1 ? `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+    //                                 Active
+    //                             </p>` : `<p style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+    //                                 Inactive
+    //                             </p>` ;
+    //                 },
+    //             },
+    //             {
+    //                 title: t("admin.global.Action"),
+    //                 data: "action",
+    //                 orderable: false,
+    //                 responsivePriority: 1,
+    //                 render: function (data, type, row, meta) {
+    //                     let _html =
+    //                         '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+    //                     _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">${t("global.freezeShift")}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">${t("admin.modal.leave_job")}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+
+    //                     _html += "</div> </div>";
+
+    //                     return _html;
+    //                 },
+    //             },
+    //         ],
+    //         ordering: true,
+    //         searching: true,
+    //         responsive: true,
+    //         createdRow: function (row, data, dataIndex) {
+    //             $(row).addClass("dt-row custom-row-class");
+    //             $(row).attr("data-id", data.id);
+    //         },
+    //         columnDefs: [
+    //             {
+    //                 targets: '_all',
+    //                 createdCell: function (td, cellData, rowData, row, col) {
+    //                     $(td).addClass('custom-cell-class ');
+    //                 }
+    //             }
+    //         ]
+    //     });
+
+    //     // Customize the search input
+    //     const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+    //     $("div.dt-search").append(searchInputWrapper);
+    //     $("div.dt-search").addClass("position-relative");
+
+    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+    //         let _id = null;
+    //         if (e.target.closest("tr.dt-row")) {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-address-link") &&
+    //                 (!tableRef.current.classList.contains("collapsed") ||
+    //                     !e.target.closest(".dtr-control"))
+    //             ) {
+    //                 _id = $(this).data("id");
+    //             }
+    //         } else {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-address-link")
+    //             ) {
+    //                 _id = $(e.target).closest("tr.child").prev().data("id");
+    //             }
+    //         }
+
+    //         if (_id) {
+    //             navigate(`/admin/workers/view/${_id}`);
+    //         }
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-edit-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/workers/edit/${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/workers/view/${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-freeze-shift-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/workers/freeze-shift/${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-leave-job-btn", function () {
+    //         const _id = $(this).data("id");
+    //         handleLeaveJob(_id);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
+    //         const _id = $(this).data("id");
+    //         handleDelete(_id);
+    //     });
+
+    //     return function cleanup() {
+    //         $(tableRef.current).DataTable().destroy(true);
+    //     };
+    // }, []);
 
     useEffect(() => {
         $(tableRef.current).DataTable().draw();
@@ -321,34 +506,34 @@ export default function AllWorkers() {
                             </h1>
 
                         </div>
-                            <div className="search-data">
-                                <button
-                                    className="btn navyblue mt-4 mr-2 no-hover"
-                                    onClick={handleShow}
-                                >
-                                    {t("admin.global.Import")}
-                                </button>
-                                <Link
-                                    to="/admin/workers/working-hours"
-                                    className="btn navyblue addButton mr-0 mr-md-2  ml-auto no-hover"
-                                >
-                                    {t("price_offer.worker_hours")}
-                                </Link>
-                                <Link
-                                    to="/admin/add-worker"
-                                    className="btn navyblue d-none d-md-block addButton no-hover"
-                                >
-                                    <i className="btn-icon fas fa-plus-circle"></i>
-                                    {t("admin.leads.AddNew")}
-                                </Link>
-                                <Link
-                                    to="/admin/add-worker"
-                                    className="btn ml-2 navyblue d-block d-md-none addButton no-hover align-content-center"
-                                >
-                                    <i className="btn-icon fas fa-plus-circle"></i>
-                                    {t("admin.leads.AddNew")}
-                                </Link>
-                            </div>
+                        <div className="search-data">
+                            <button
+                                className="btn navyblue mt-4 mr-2 no-hover"
+                                onClick={handleShow}
+                            >
+                                {t("admin.global.Import")}
+                            </button>
+                            <Link
+                                to="/admin/workers/working-hours"
+                                className="btn navyblue addButton mr-0 mr-md-2  ml-auto no-hover"
+                            >
+                                {t("price_offer.worker_hours")}
+                            </Link>
+                            <Link
+                                to="/admin/add-worker"
+                                className="btn navyblue d-none d-md-block addButton no-hover"
+                            >
+                                <i className="btn-icon fas fa-plus-circle"></i>
+                                {t("admin.leads.AddNew")}
+                            </Link>
+                            <Link
+                                to="/admin/add-worker"
+                                className="btn ml-2 navyblue d-block d-md-none addButton no-hover align-content-center"
+                            >
+                                <i className="btn-icon fas fa-plus-circle"></i>
+                                {t("admin.leads.AddNew")}
+                            </Link>
+                        </div>
                     </div>
                     <div className="col-sm-6 hidden-xl mt-4">
                         <select

@@ -3334,6 +3334,12 @@ button.time-counter, span.time-counter {
   }
 }
 
+@media screen and (max-width: 505px) {
+  .flex-res-column-505{
+  flex-direction: column !important;
+}
+}
+
 
 
 

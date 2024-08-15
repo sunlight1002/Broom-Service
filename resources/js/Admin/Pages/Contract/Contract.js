@@ -14,7 +14,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Contract() {
-    const { t } = useTranslation();
+    const { t , i18n} = useTranslation();
     const navigate = useNavigate();
     const tableRef = useRef(null);
     const statusRef = useRef(null);
@@ -34,149 +34,156 @@ export default function Contract() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    useEffect(() => {
-        $(tableRef.current).DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "/api/admin/contract",
-                type: "GET",
-                beforeSend: function (request) {
-                    request.setRequestHeader(
-                        "Authorization",
-                        `Bearer ` + localStorage.getItem("admin-token")
-                    );
-                },
-                data: function (d) {
-                    d.status = statusRef.current.value;
-                },
-            },
-            order: [[0, "desc"]],
-            columns: [
-                {
-                    title: "Date",
-                    data: "created_at",
-                    visible: false,
-                },
-                {
-                    title: "Client",
-                    data: "client_name",
-                    render: function (data, type, row, meta) {
-                        return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
+    const initializeDataTable = () => {
+        // Ensure DataTable is initialized only if it hasn't been already
+        if (!$.fn.DataTable.isDataTable(tableRef.current)) {
+            $(tableRef.current).DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "/api/admin/contract",
+                    type: "GET",
+                    beforeSend: function (request) {
+                        request.setRequestHeader(
+                            "Authorization",
+                            `Bearer ` + localStorage.getItem("admin-token")
+                        );
+                    },
+                    data: function (d) {
+                        d.status = statusRef.current.value;
                     },
                 },
-                {
-                    title: "Email",
-                    data: "email",
+                order: [[0, "desc"]],
+                columns: [
+                    {
+                        title: t("global.date"),
+                        data: "created_at",
+                        visible: false,
+                    },
+                    {
+                        title: t("client.dashboard.client"),
+                        data: "client_name",
+                        render: function (data, type, row, meta) {
+                            return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Email"),
+                        data: "email",
+                    },
+                    {
+                        title: t("admin.global.Phone"),
+                        data: "phone",
+                    },
+                    {
+                        title: t("global.service"),
+                        data: "services",
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            if (data == null) {
+                                return "-";
+                            }
+
+                            return data.map((s, j) => {
+                                return data.length - 1 != j
+                                    ? s.service == "10"
+                                        ? s.other_title + " | "
+                                        : s.name + " | "
+                                    : s.name;
+                            });
+                        },
+                    },
+                    {
+                        title: t("admin.global.Status"),
+                        data: "status",
+                        render: function (data, type, row, meta) {
+                            let color = "";
+                            if (data == "un-verified" || data == "not-signed") {
+                                color = "purple";
+                            } else if (data == "verified") {
+                                color = "green";
+                            } else {
+                                color = "red";
+                            }
+
+                            // return `<span style="color: ${color};">${data}</span>`;
+
+                            return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                        ${data}
+                                    </p>`;
+                        },
+                    },
+                    {
+                        title: t("client.dashboard.total"),
+                        data: "subtotal",
+                        render: function (data, type, row, meta) {
+                            return data ? `${data} ILS + VAT` : "NA";
+                        },
+                    },
+                    {
+                        title: t("client.jobs.view.job_status"),
+                        data: "job_status",
+                        render: function (data, type, row, meta) {
+                            // return data ? "Inactive" : "Active";
+                            return data ? `<p style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                        Inactive
+                                    </p>` : `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                        Active
+                                    </p>`;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Action"),
+                        data: "action",
+                        orderable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            let _html =
+                                '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                            if (row.status == "verified") {
+                                _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">${t("admin.client.createJob")}</button>`;
+                            }
+
+                            if (row.job_status == 1 && row.status == "verified") {
+                                _html += `<button type="button" class="dropdown-item dt-cancel-job-btn" data-id="${row.id}">${t("admin.global.cancelJob")}</button>`;
+                            }
+
+                            if (row.job_status == 0 && row.status == "verified") {
+                                _html += `<button type="button" class="dropdown-item dt-resume-job-btn" data-id="${row.id}">${t("admin.global.resumejob")}</button>`;
+                            }
+
+                            // _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+
+                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("global.delete")}</button>`;
+
+                            _html += "</div> </div>";
+
+                            return _html;
+                        },
+                    },
+                ],
+                ordering: true,
+                searching: true,
+                responsive: true,
+                createdRow: function (row, data, dataIndex) {
+                    $(row).addClass("dt-row custom-row-class");
+                    $(row).attr("data-id", data.id);
                 },
-                {
-                    title: "Phone",
-                    data: "phone",
-                },
-                {
-                    title: "Service",
-                    data: "services",
-                    orderable: false,
-                    render: function (data, type, row, meta) {
-                        if (data == null) {
-                            return "-";
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).addClass('custom-cell-class ');
                         }
-
-                        return data.map((s, j) => {
-                            return data.length - 1 != j
-                                ? s.service == "10"
-                                    ? s.other_title + " | "
-                                    : s.name + " | "
-                                : s.name;
-                        });
-                    },
-                },
-                {
-                    title: "Status",
-                    data: "status",
-                    render: function (data, type, row, meta) {
-                        let color = "";
-                        if (data == "un-verified" || data == "not-signed") {
-                            color = "purple";
-                        } else if (data == "verified") {
-                            color = "green";
-                        } else {
-                            color = "red";
-                        }
-
-                        // return `<span style="color: ${color};">${data}</span>`;
-
-                        return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                    ${data}
-                                </p>`;
-                    },
-                },
-                {
-                    title: "Total",
-                    data: "subtotal",
-                    render: function (data, type, row, meta) {
-                        return data ? `${data} ILS + VAT` : "NA";
-                    },
-                },
-                {
-                    title: "Job Status",
-                    data: "job_status",
-                    render: function (data, type, row, meta) {
-                        // return data ? "Inactive" : "Active";
-                        return data ? `<p style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                    Inactive
-                                </p>` : `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                    Active
-                                </p>`;
-                    },
-                },
-                {
-                    title: "Action",
-                    data: "action",
-                    orderable: false,
-                    responsivePriority: 1,
-                    render: function (data, type, row, meta) {
-                        let _html =
-                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-                        if (row.status == "verified") {
-                            _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
-                        }
-
-                        if (row.job_status == 1 && row.status == "verified") {
-                            _html += `<button type="button" class="dropdown-item dt-cancel-job-btn" data-id="${row.id}">Cancel Job</button>`;
-                        }
-
-                        if (row.job_status == 0 && row.status == "verified") {
-                            _html += `<button type="button" class="dropdown-item dt-resume-job-btn" data-id="${row.id}">Resume Job</button>`;
-                        }
-
-                        // _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
-
-                        _html += "</div> </div>";
-
-                        return _html;
-                    },
-                },
-            ],
-            ordering: true,
-            searching: true,
-            responsive: true,
-            createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row custom-row-class");
-                $(row).attr("data-id", data.id);
-            },
-            columnDefs: [
-                {
-                    targets: '_all',
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).addClass('custom-cell-class ');
                     }
-                }
-            ]
-        });
+                ]
+            });
+        }
+    };
+
+    useEffect(() => {
+        initializeDataTable();
 
         // Customize the search input
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
@@ -235,10 +242,226 @@ export default function Contract() {
             handleDelete(_id);
         });
 
-        return function cleanup() {
-            $(tableRef.current).DataTable().destroy(true);
+        // Handle language changes
+        i18n.on("languageChanged", () => {
+            $(tableRef.current).DataTable().destroy(); // Destroy the table
+            initializeDataTable(); // Reinitialize the table with updated language
+        });
+
+        // Cleanup event listeners and destroy DataTable when unmounting
+        return () => {
+            if ($.fn.DataTable.isDataTable(tableRef.current)) {
+                $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
+                $(tableRef.current).off("click");
+            }
         };
     }, []);
+
+    // useEffect(() => {
+    //     $(tableRef.current).DataTable({
+    //         processing: true,
+    //         serverSide: true,
+    //         ajax: {
+    //             url: "/api/admin/contract",
+    //             type: "GET",
+    //             beforeSend: function (request) {
+    //                 request.setRequestHeader(
+    //                     "Authorization",
+    //                     `Bearer ` + localStorage.getItem("admin-token")
+    //                 );
+    //             },
+    //             data: function (d) {
+    //                 d.status = statusRef.current.value;
+    //             },
+    //         },
+    //         order: [[0, "desc"]],
+    //         columns: [
+    //             {
+    //                 title: "Date",
+    //                 data: "created_at",
+    //                 visible: false,
+    //             },
+    //             {
+    //                 title: "Client",
+    //                 data: "client_name",
+    //                 render: function (data, type, row, meta) {
+    //                     return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name"> ${data} </a>`;
+    //                 },
+    //             },
+    //             {
+    //                 title: "Email",
+    //                 data: "email",
+    //             },
+    //             {
+    //                 title: "Phone",
+    //                 data: "phone",
+    //             },
+    //             {
+    //                 title: "Service",
+    //                 data: "services",
+    //                 orderable: false,
+    //                 render: function (data, type, row, meta) {
+    //                     if (data == null) {
+    //                         return "-";
+    //                     }
+
+    //                     return data.map((s, j) => {
+    //                         return data.length - 1 != j
+    //                             ? s.service == "10"
+    //                                 ? s.other_title + " | "
+    //                                 : s.name + " | "
+    //                             : s.name;
+    //                     });
+    //                 },
+    //             },
+    //             {
+    //                 title: "Status",
+    //                 data: "status",
+    //                 render: function (data, type, row, meta) {
+    //                     let color = "";
+    //                     if (data == "un-verified" || data == "not-signed") {
+    //                         color = "purple";
+    //                     } else if (data == "verified") {
+    //                         color = "green";
+    //                     } else {
+    //                         color = "red";
+    //                     }
+
+    //                     // return `<span style="color: ${color};">${data}</span>`;
+
+    //                     return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+    //                                 ${data}
+    //                             </p>`;
+    //                 },
+    //             },
+    //             {
+    //                 title: "Total",
+    //                 data: "subtotal",
+    //                 render: function (data, type, row, meta) {
+    //                     return data ? `${data} ILS + VAT` : "NA";
+    //                 },
+    //             },
+    //             {
+    //                 title: "Job Status",
+    //                 data: "job_status",
+    //                 render: function (data, type, row, meta) {
+    //                     // return data ? "Inactive" : "Active";
+    //                     return data ? `<p style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+    //                                 Inactive
+    //                             </p>` : `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+    //                                 Active
+    //                             </p>`;
+    //                 },
+    //             },
+    //             {
+    //                 title: "Action",
+    //                 data: "action",
+    //                 orderable: false,
+    //                 responsivePriority: 1,
+    //                 render: function (data, type, row, meta) {
+    //                     let _html =
+    //                         '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+    //                     if (row.status == "verified") {
+    //                         _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
+    //                     }
+
+    //                     if (row.job_status == 1 && row.status == "verified") {
+    //                         _html += `<button type="button" class="dropdown-item dt-cancel-job-btn" data-id="${row.id}">Cancel Job</button>`;
+    //                     }
+
+    //                     if (row.job_status == 0 && row.status == "verified") {
+    //                         _html += `<button type="button" class="dropdown-item dt-resume-job-btn" data-id="${row.id}">Resume Job</button>`;
+    //                     }
+
+    //                     // _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
+
+    //                     _html += "</div> </div>";
+
+    //                     return _html;
+    //                 },
+    //             },
+    //         ],
+    //         ordering: true,
+    //         searching: true,
+    //         responsive: true,
+    //         createdRow: function (row, data, dataIndex) {
+    //             $(row).addClass("dt-row custom-row-class");
+    //             $(row).attr("data-id", data.id);
+    //         },
+    //         columnDefs: [
+    //             {
+    //                 targets: '_all',
+    //                 createdCell: function (td, cellData, rowData, row, col) {
+    //                     $(td).addClass('custom-cell-class ');
+    //                 }
+    //             }
+    //         ]
+    //     });
+
+    //     // Customize the search input
+    //     const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+    //     $("div.dt-search").append(searchInputWrapper);
+    //     $("div.dt-search").addClass("position-relative");
+
+    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+    //         let _id = null;
+    //         if (e.target.closest("tr.dt-row")) {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-client-name") &&
+    //                 (!tableRef.current.classList.contains("collapsed") ||
+    //                     !e.target.closest(".dtr-control"))
+    //             ) {
+    //                 _id = $(this).data("id");
+    //             }
+    //         } else {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-client-name")
+    //             ) {
+    //                 _id = $(e.target).closest("tr.child").prev().data("id");
+    //             }
+    //         }
+
+    //         if (_id) {
+    //             navigate(`/admin/view-contract/${_id}`);
+    //         }
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-create-job-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/create-job/${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-cancel-job-btn", function () {
+    //         const _id = $(this).data("id");
+    //         cancelJob(_id, "disable");
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-resume-job-btn", function () {
+    //         const _id = $(this).data("id");
+    //         cancelJob(_id, "enable");
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/view-contract/${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
+    //         const _id = $(this).data("id");
+    //         handleDelete(_id);
+    //     });
+
+    //     return function cleanup() {
+    //         $(tableRef.current).DataTable().destroy(true);
+    //     };
+    // }, []);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -362,7 +585,7 @@ export default function Contract() {
                         </div>
                     </div>
                 </div>
-                <div className="card" style={{boxShadow: "none"}}>
+                <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

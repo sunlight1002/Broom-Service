@@ -967,6 +967,7 @@
             "select_manpower": " --Select Manpower---",
             "manpower": "Manpower",
             "cancelJob": "Cancel Job",
+            "resumejob": "Resume Job",
             "willBeCharged": "will be charged",
             "discount": "Discount",
             "discountPlaceholder": "Enter discount",

@@ -17,7 +17,7 @@ import FilterButtons from "../../../Components/common/FilterButton";
 
 
 export default function Schedule() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [filter, setFilter] = useState("All");
@@ -35,133 +35,142 @@ export default function Schedule() {
         t("admin.schedule.options.meetingStatus.Declined"),
         t("admin.schedule.options.meetingStatus.rescheduled"),
     ];
-    useEffect(() => {
-        $(tableRef.current).DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "/api/admin/schedule",
-                type: "GET",
-                beforeSend: function (request) {
-                    request.setRequestHeader(
-                        "Authorization",
-                        `Bearer ` + localStorage.getItem("admin-token")
-                    );
+
+
+    const initializeDataTable = () => {
+        // Ensure DataTable is initialized only if it hasn't been already
+        if (!$.fn.DataTable.isDataTable(tableRef.current)) {
+            $(tableRef.current).DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "/api/admin/schedule",
+                    type: "GET",
+                    beforeSend: function (request) {
+                        request.setRequestHeader(
+                            "Authorization",
+                            `Bearer ` + localStorage.getItem("admin-token")
+                        );
+                    },
                 },
-            },
-            order: [[0, "desc"]],
-            columns: [
-                {
-                    title:  t("admin.dashboard.pending.scheduled"),
-                    data: "start_date",
-                    render: function (data, type, row, meta) {
-                        let _html = "";
+                order: [[0, "desc"]],
+                columns: [
+                    {
+                        title: t("admin.dashboard.pending.scheduled"),
+                        data: "start_date",
+                        render: function (data, type, row, meta) {
+                            let _html = "";
 
-                        if (row.start_date) {
-                            _html += `<span class="text-blue"> ${Moment(
-                                row.start_date
-                            ).format("DD/MM/Y")} </span>`;
+                            if (row.start_date) {
+                                _html += `<span class="text-blue"> ${Moment(
+                                    row.start_date
+                                ).format("DD/MM/Y")} </span>`;
 
-                            _html += `<br /> <span class="text-blue"> ${Moment(
-                                row.start_date
-                            ).format("dddd")} </span>`;
+                                _html += `<br /> <span class="text-blue"> ${Moment(
+                                    row.start_date
+                                ).format("dddd")} </span>`;
 
-                            if (row.start_time && row.end_time) {
-                                _html += `<br /> <span class="text-green"> Start : ${row.start_time} </span>`;
-                                _html += `<br /> <span class="text-danger"> End : ${row.end_time} </span>`;
+                                if (row.start_time && row.end_time) {
+                                    _html += `<br /> <span class="text-green"> Start : ${row.start_time} </span>`;
+                                    _html += `<br /> <span class="text-danger"> End : ${row.end_time} </span>`;
+                                }
                             }
+
+                            return _html;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Name"),
+                        data: "name",
+                        render: function (data, type, row, meta) {
+                            return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
+                        },
+                    },
+                    {
+                        title: t("admin.dashboard.pending.contact"),
+                        data: "phone",
+                    },
+                    {
+                        title: t("admin.global.Address"),
+                        data: "address_name",
+                        render: function (data, type, row, meta) {
+                            if (data) {
+                                return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="color: black; text-decoration: underline;"> ${data} </a>`;
+                            } else {
+                                return "NA";
+                            }
+                        },
+                    },
+                    {
+                        title: t("client.meeting.attender"),
+                        data: "attender_name",
+                    },
+                    {
+                        title: t("admin.global.Status"),
+                        data: "booking_status",
+                        render: function (data, type, row, meta) {
+                            let color = "";
+                            if (data == "pending") {
+                                color = "purple";
+                            } else if (data == "confirmed" || data == "completed") {
+                                color = "green";
+                            } else {
+                                color = "red";
+                            }
+
+                            // return `<span style="color: ${color};">${data}</span>`;
+                            return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                        ${data}
+                                    </p>`;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Action"),
+                        data: "action",
+                        orderable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            let _html =
+                                '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}" data-client-id="${row.client_id}">${t("admin.leads.view")}</button>`;
+
+                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+
+                            _html += "</div> </div>";
+
+                            return _html;
+                        },
+                    },
+                ],
+                ordering: true,
+                searching: true,
+                responsive: true,
+                createdRow: function (row, data, dataIndex) {
+                    $(row).addClass("dt-row custom-row-class");
+                    $(row).attr("data-id", data.id);
+                    $(row).attr("data-client-id", data.client_id);
+                },
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).addClass('custom-cell-class ');
                         }
-
-                        return _html;
-                    },
-                },
-                {
-                    title:  t("admin.global.Name"),
-                    data: "name",
-                    render: function (data, type, row, meta) {
-                        return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
-                    },
-                },
-                {
-                    title:  t("admin.dashboard.pending.contact"),
-                    data: "phone",
-                },
-                {
-                    title:  t("admin.global.Address"),
-                    data: "address_name",
-                    render: function (data, type, row, meta) {
-                        if (data) {
-                            return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="color: black; text-decoration: underline;"> ${data} </a>`;
-                        } else {
-                            return "NA";
-                        }
-                    },
-                },
-                {
-                    title: t("client.meeting.attender"),
-                    data: "attender_name",
-                },
-                {
-                    title:  t("admin.global.Status"),
-                    data: "booking_status",
-                    render: function (data, type, row, meta) {
-                        let color = "";
-                        if (data == "pending") {
-                            color = "purple";
-                        } else if (data == "confirmed" || data == "completed") {
-                            color = "green";
-                        } else {
-                            color = "red";
-                        }
-
-                        // return `<span style="color: ${color};">${data}</span>`;
-                        return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                                    ${data}
-                                </p>`;
-                    },
-                },
-                {
-                    title: t("admin.global.Action"),
-                    data: "action",
-                    orderable: false,
-                    responsivePriority: 1,
-                    render: function (data, type, row, meta) {
-                        let _html =
-                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}" data-client-id="${row.client_id}">${t("admin.leads.view")}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
-
-                        _html += "</div> </div>";
-
-                        return _html;
-                    },
-                },
-            ],
-            ordering: true,
-            searching: true,
-            responsive: true,
-            createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row custom-row-class");
-                $(row).attr("data-id", data.id);
-                $(row).attr("data-client-id", data.client_id);
-            },
-            columnDefs: [
-                {
-                    targets: '_all',
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).addClass('custom-cell-class ');
                     }
-                }
-            ]
-        });
+                ]
+            });
+        }
+    };
 
-           // Customize the search input
-           const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-           $("div.dt-search").append(searchInputWrapper);
-           $("div.dt-search").addClass("position-relative");
-   
+    useEffect(() => {
+        initializeDataTable();
+
+        // Customize the search input
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
+
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
@@ -209,10 +218,200 @@ export default function Schedule() {
             handleDelete(_id);
         });
 
-        return function cleanup() {
-            $(tableRef.current).DataTable().destroy(true);
+
+        // Handle language changes
+        i18n.on("languageChanged", () => {
+            $(tableRef.current).DataTable().destroy(); // Destroy the table
+            initializeDataTable(); // Reinitialize the table with updated language
+        });
+
+        // Cleanup event listeners and destroy DataTable when unmounting
+        return () => {
+            if ($.fn.DataTable.isDataTable(tableRef.current)) {
+                $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
+                $(tableRef.current).off("click");
+            }
         };
     }, []);
+
+    // useEffect(() => {
+    //     $(tableRef.current).DataTable({
+    //         processing: true,
+    //         serverSide: true,
+    //         ajax: {
+    //             url: "/api/admin/schedule",
+    //             type: "GET",
+    //             beforeSend: function (request) {
+    //                 request.setRequestHeader(
+    //                     "Authorization",
+    //                     `Bearer ` + localStorage.getItem("admin-token")
+    //                 );
+    //             },
+    //         },
+    //         order: [[0, "desc"]],
+    //         columns: [
+    //             {
+    //                 title:  t("admin.dashboard.pending.scheduled"),
+    //                 data: "start_date",
+    //                 render: function (data, type, row, meta) {
+    //                     let _html = "";
+
+    //                     if (row.start_date) {
+    //                         _html += `<span class="text-blue"> ${Moment(
+    //                             row.start_date
+    //                         ).format("DD/MM/Y")} </span>`;
+
+    //                         _html += `<br /> <span class="text-blue"> ${Moment(
+    //                             row.start_date
+    //                         ).format("dddd")} </span>`;
+
+    //                         if (row.start_time && row.end_time) {
+    //                             _html += `<br /> <span class="text-green"> Start : ${row.start_time} </span>`;
+    //                             _html += `<br /> <span class="text-danger"> End : ${row.end_time} </span>`;
+    //                         }
+    //                     }
+
+    //                     return _html;
+    //                 },
+    //             },
+    //             {
+    //                 title:  t("admin.global.Name"),
+    //                 data: "name",
+    //                 render: function (data, type, row, meta) {
+    //                     return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
+    //                 },
+    //             },
+    //             {
+    //                 title:  t("admin.dashboard.pending.contact"),
+    //                 data: "phone",
+    //             },
+    //             {
+    //                 title:  t("admin.global.Address"),
+    //                 data: "address_name",
+    //                 render: function (data, type, row, meta) {
+    //                     if (data) {
+    //                         return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="color: black; text-decoration: underline;"> ${data} </a>`;
+    //                     } else {
+    //                         return "NA";
+    //                     }
+    //                 },
+    //             },
+    //             {
+    //                 title: t("client.meeting.attender"),
+    //                 data: "attender_name",
+    //             },
+    //             {
+    //                 title:  t("admin.global.Status"),
+    //                 data: "booking_status",
+    //                 render: function (data, type, row, meta) {
+    //                     let color = "";
+    //                     if (data == "pending") {
+    //                         color = "purple";
+    //                     } else if (data == "confirmed" || data == "completed") {
+    //                         color = "green";
+    //                     } else {
+    //                         color = "red";
+    //                     }
+
+    //                     // return `<span style="color: ${color};">${data}</span>`;
+    //                     return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+    //                                 ${data}
+    //                             </p>`;
+    //                 },
+    //             },
+    //             {
+    //                 title: t("admin.global.Action"),
+    //                 data: "action",
+    //                 orderable: false,
+    //                 responsivePriority: 1,
+    //                 render: function (data, type, row, meta) {
+    //                     let _html =
+    //                         '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+    //                     _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}" data-client-id="${row.client_id}">${t("admin.leads.view")}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+
+    //                     _html += "</div> </div>";
+
+    //                     return _html;
+    //                 },
+    //             },
+    //         ],
+    //         ordering: true,
+    //         searching: true,
+    //         responsive: true,
+    //         createdRow: function (row, data, dataIndex) {
+    //             $(row).addClass("dt-row custom-row-class");
+    //             $(row).attr("data-id", data.id);
+    //             $(row).attr("data-client-id", data.client_id);
+    //         },
+    //         columnDefs: [
+    //             {
+    //                 targets: '_all',
+    //                 createdCell: function (td, cellData, rowData, row, col) {
+    //                     $(td).addClass('custom-cell-class ');
+    //                 }
+    //             }
+    //         ]
+    //     });
+
+    //        // Customize the search input
+    //        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+    //        $("div.dt-search").append(searchInputWrapper);
+    //        $("div.dt-search").addClass("position-relative");
+
+
+    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+    //         let _id = null;
+    //         let _clientID = null;
+    //         if (e.target.closest("tr.dt-row")) {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-client-link") &&
+    //                 !e.target.closest(".dt-address-link") &&
+    //                 (!tableRef.current.classList.contains("collapsed") ||
+    //                     !e.target.closest(".dtr-control"))
+    //             ) {
+    //                 _id = $(this).data("id");
+    //                 _clientID = $(this).data("client-id");
+    //             }
+    //         } else {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-client-link") &&
+    //                 !e.target.closest(".dt-address-link")
+    //             ) {
+    //                 _id = $(e.target).closest("tr.child").prev().data("id");
+    //                 _clientID = $(e.target)
+    //                     .closest("tr.child")
+    //                     .prev()
+    //                     .data("client-id");
+    //             }
+    //         }
+
+    //         if (_id) {
+    //             navigate(`/admin/schedule/view/${_clientID}?sid=${_id}`);
+    //         }
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
+    //         const _id = $(this).data("id");
+    //         const _clientID = $(this).data("client-id");
+    //         navigate(`/admin/schedule/view/${_clientID}?sid=${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
+    //         const _id = $(this).data("id");
+    //         handleDelete(_id);
+    //     });
+
+    //     return function cleanup() {
+    //         $(tableRef.current).DataTable().destroy(true);
+    //     };
+    // }, []);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -318,8 +517,8 @@ export default function Schedule() {
                         </div>
                     </div>
                 </div>
-                <div className="card" style={{boxShadow: "none"}}>
-                    <div className="card-body">
+                <div className="card " style={{ boxShadow: "none" }}>
+                    <div className="card-body pl-0 pr-0">
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}

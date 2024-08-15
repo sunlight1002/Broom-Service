@@ -15,7 +15,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import ViewOfferModal from "./ViewOfferModal";
 
 export default function OfferPrice() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const tableRef = useRef(null);
 
     const navigate = useNavigate();
@@ -29,171 +29,346 @@ export default function OfferPrice() {
     };
     const offerStatuses = [t("global.sent"), t("modal.accepted"), t("admin.schedule.options.meetingStatus.Declined")];
 
-
-
     const handleModal = (id) => {
         setSelectedOfferId(id);
         setModalStatus(true);
     };
 
-    useEffect(() => {
-        $(tableRef.current).DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "/api/admin/offers",
-                type: "GET",
-                beforeSend: function (request) {
-                    request.setRequestHeader(
-                        "Authorization",
-                        `Bearer ` + localStorage.getItem("admin-token")
-                    );
-                },
-            },
-            order: [[0, "desc"]],
-            columns: [
-                {
-                    title:t("admin.global.Date"),
-                    data: "created_at",
-                },
-                {
-                    title: t("admin.dashboard.clients"),
-                    data: "name",
-                    render: function (data, type, row, meta) {
-                        return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name" style="color: black; text-decoration: underline;"> ${data} </a>`;
+    const initializeDataTable = () => {
+        // Ensure DataTable is initialized only if it hasn't been already
+        if (!$.fn.DataTable.isDataTable(tableRef.current)) {
+            $(tableRef.current).DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "/api/admin/offers",
+                    type: "GET",
+                    beforeSend: function (request) {
+                        request.setRequestHeader(
+                            "Authorization",
+                            `Bearer ` + localStorage.getItem("admin-token")
+                        );
                     },
                 },
-                {
-                    title: t("admin.global.Email"),
-                    data: "email",
+                order: [[0, "desc"]],
+                columns: [
+                    {
+                        title: t("global.date"),
+                        data: "created_at",
+                    },
+                    {
+                        title: t("admin.dashboard.clients"),
+                        data: "name",
+                        render: function (data, type, row, meta) {
+                            return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name" style="color: black; text-decoration: underline;"> ${data} </a>`;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Email"),
+                        data: "email",
+                    },
+                    {
+                        title: t("admin.global.Phone"),
+                        data: "phone",
+                    },
+                    {
+                        title: t("admin.global.Status"),
+                        data: "status",
+                        render: function (data, type, row, meta) {
+                            let color = "";
+                            if (data == "sent") {
+                                color = "purple";
+                            } else if (data == "accepted") {
+                                color = "green";
+                            } else {
+                                color = "red";
+                            }
+    
+                            // return `<span style="color: ${color};">${data}</span>`;
+                            return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            ${data}
+                        </p>`;
+    
+                        },
+                    },
+                    {
+                        title: "Total",
+                        data: "subtotal",
+                        render: function (data, type, row, meta) {
+                            return `${data} ILS + VAT`;
+                        },
+                    },
+                    {
+                        title: t("admin.global.Action"),
+                        data: "action",
+                        orderable: false,
+                        responsivePriority: 1,
+                        render: function (data, type, row, meta) {
+                            let _html =
+                                '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+    
+                            _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+    
+                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+    
+                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+    
+                            _html += "</div> </div>";
+    
+                            return _html;
+                        },
+                    },
+                ],
+                ordering: true,
+                searching: true,
+                responsive: true,
+                createdRow: function (row, data, dataIndex) {
+                    $(row).addClass("dt-row custom-row-class");
+                    $(row).attr("data-id", data.id);
                 },
-                {
-                    title:  t("admin.global.Phone"),
-                    data: "phone",
-                },
-                {
-                    title:  t("admin.global.Status"),
-                    data: "status",
-                    render: function (data, type, row, meta) {
-                        let color = "";
-                        if (data == "sent") {
-                            color = "purple";
-                        } else if (data == "accepted") {
-                            color = "green";
-                        } else {
-                            color = "red";
+                columnDefs: [
+                    {
+                        targets: '_all',
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            $(td).addClass('custom-cell-class ');
                         }
-
-                        // return `<span style="color: ${color};">${data}</span>`;
-                        return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                        ${data}
-                    </p>`;
-
-                    },
-                },
-                {
-                    title: "Total",
-                    data: "subtotal",
-                    render: function (data, type, row, meta) {
-                        return `${data} ILS + VAT`;
-                    },
-                },
-                {
-                    title:  t("admin.global.Action"),
-                    data: "action",
-                    orderable: false,
-                    responsivePriority: 1,
-                    render: function (data, type, row, meta) {
-                        let _html =
-                            '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-                        _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
-
-                        _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
-
-                        _html += "</div> </div>";
-
-                        return _html;
-                    },
-                },
-            ],
-            ordering: true,
-            searching: true,
-            responsive: true,
-            createdRow: function (row, data, dataIndex) {
-                $(row).addClass("dt-row custom-row-class");
-                $(row).attr("data-id", data.id);
-            },
-            columnDefs: [
-                {
-                    targets: '_all',
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).addClass('custom-cell-class ');
                     }
-                }
-            ]
+                ]
+            });
+        }
+    };
+
+    useEffect(() => {
+        initializeDataTable();
+
+       // Customize the search input
+       const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+       $("div.dt-search").append(searchInputWrapper);
+       $("div.dt-search").addClass("position-relative");
+
+       // document.addEventListener('click', function (e) {
+       //     if (e.target && e.target.classList.contains('dt-view-btn')) {
+       //         const id = e.target.getAttribute('data-id');
+       //         handleModal();
+       //     }})
+
+       $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+           let _id = null;
+           if (e.target.closest("tr.dt-row")) {
+               if (
+                   !e.target.closest(".dropdown-toggle") &&
+                   !e.target.closest(".dropdown-menu") &&
+                   !e.target.closest(".dt-client-name") &&
+                   (!tableRef.current.classList.contains("collapsed") ||
+                       !e.target.closest(".dtr-control"))
+               ) {
+                   _id = $(this).data("id");
+               }
+           } else {
+               if (
+                   !e.target.closest(".dropdown-toggle") &&
+                   !e.target.closest(".dropdown-menu") &&
+                   !e.target.closest(".dt-client-name")
+               ) {
+                   _id = $(e.target).closest("tr.child").prev().data("id");
+               }
+           }
+
+           if (_id) {
+               handleModal(_id);
+           }
+       });
+
+       $(tableRef.current).on("click", ".dt-edit-btn", function () {
+           const _id = $(this).data("id");
+           navigate(`/admin/offered-price/edit/${_id}`);
+       });
+
+       $(tableRef.current).on("click", ".dt-view-btn", function () {
+           const _id = $(this).data("id");
+           // navigate(`/admin/view-offer/${_id}`);
+           handleModal(_id);
+       });
+
+       $(tableRef.current).on("click", ".dt-delete-btn", function () {
+           const _id = $(this).data("id");
+           handleDelete(_id);
+       });
+
+        // Handle language changes
+        i18n.on("languageChanged", () => {
+            $(tableRef.current).DataTable().destroy(); // Destroy the table
+            initializeDataTable(); // Reinitialize the table with updated language
         });
 
-        // Customize the search input
-        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-        $("div.dt-search").append(searchInputWrapper);
-        $("div.dt-search").addClass("position-relative");
-
-        // document.addEventListener('click', function (e) {
-        //     if (e.target && e.target.classList.contains('dt-view-btn')) {
-        //         const id = e.target.getAttribute('data-id');
-        //         handleModal();
-        //     }})
-
-        $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
-            let _id = null;
-            if (e.target.closest("tr.dt-row")) {
-                if (
-                    !e.target.closest(".dropdown-toggle") &&
-                    !e.target.closest(".dropdown-menu") &&
-                    !e.target.closest(".dt-client-name") &&
-                    (!tableRef.current.classList.contains("collapsed") ||
-                        !e.target.closest(".dtr-control"))
-                ) {
-                    _id = $(this).data("id");
-                }
-            } else {
-                if (
-                    !e.target.closest(".dropdown-toggle") &&
-                    !e.target.closest(".dropdown-menu") &&
-                    !e.target.closest(".dt-client-name")
-                ) {
-                    _id = $(e.target).closest("tr.child").prev().data("id");
-                }
+        // Cleanup event listeners and destroy DataTable when unmounting
+        return () => {
+            if ($.fn.DataTable.isDataTable(tableRef.current)) {
+                $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
+                $(tableRef.current).off("click");
             }
-
-            if (_id) {
-                handleModal(_id);
-            }
-        });
-
-        $(tableRef.current).on("click", ".dt-edit-btn", function () {
-            const _id = $(this).data("id");
-            navigate(`/admin/offered-price/edit/${_id}`);
-        });
-
-        $(tableRef.current).on("click", ".dt-view-btn", function () {
-            const _id = $(this).data("id");
-            // navigate(`/admin/view-offer/${_id}`);
-            handleModal(_id);
-        });
-
-        $(tableRef.current).on("click", ".dt-delete-btn", function () {
-            const _id = $(this).data("id");
-            handleDelete(_id);
-        });
-
-        return function cleanup() {
-            $(tableRef.current).DataTable().destroy(true);
         };
     }, []);
+
+
+    // useEffect(() => {
+    //     $(tableRef.current).DataTable({
+    //         processing: true,
+    //         serverSide: true,
+    //         ajax: {
+    //             url: "/api/admin/offers",
+    //             type: "GET",
+    //             beforeSend: function (request) {
+    //                 request.setRequestHeader(
+    //                     "Authorization",
+    //                     `Bearer ` + localStorage.getItem("admin-token")
+    //                 );
+    //             },
+    //         },
+    //         order: [[0, "desc"]],
+    //         columns: [
+    //             {
+    //                 title: t("admin.global.Date"),
+    //                 data: "created_at",
+    //             },
+    //             {
+    //                 title: t("admin.dashboard.clients"),
+    //                 data: "name",
+    //                 render: function (data, type, row, meta) {
+    //                     return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-name" style="color: black; text-decoration: underline;"> ${data} </a>`;
+    //                 },
+    //             },
+    //             {
+    //                 title: t("admin.global.Email"),
+    //                 data: "email",
+    //             },
+    //             {
+    //                 title: t("admin.global.Phone"),
+    //                 data: "phone",
+    //             },
+    //             {
+    //                 title: t("admin.global.Status"),
+    //                 data: "status",
+    //                 render: function (data, type, row, meta) {
+    //                     let color = "";
+    //                     if (data == "sent") {
+    //                         color = "purple";
+    //                     } else if (data == "accepted") {
+    //                         color = "green";
+    //                     } else {
+    //                         color = "red";
+    //                     }
+
+    //                     // return `<span style="color: ${color};">${data}</span>`;
+    //                     return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+    //                     ${data}
+    //                 </p>`;
+
+    //                 },
+    //             },
+    //             {
+    //                 title: "Total",
+    //                 data: "subtotal",
+    //                 render: function (data, type, row, meta) {
+    //                     return `${data} ILS + VAT`;
+    //                 },
+    //             },
+    //             {
+    //                 title: t("admin.global.Action"),
+    //                 data: "action",
+    //                 orderable: false,
+    //                 responsivePriority: 1,
+    //                 render: function (data, type, row, meta) {
+    //                     let _html =
+    //                         '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+    //                     _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
+
+    //                     _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+
+    //                     _html += "</div> </div>";
+
+    //                     return _html;
+    //                 },
+    //             },
+    //         ],
+    //         ordering: true,
+    //         searching: true,
+    //         responsive: true,
+    //         createdRow: function (row, data, dataIndex) {
+    //             $(row).addClass("dt-row custom-row-class");
+    //             $(row).attr("data-id", data.id);
+    //         },
+    //         columnDefs: [
+    //             {
+    //                 targets: '_all',
+    //                 createdCell: function (td, cellData, rowData, row, col) {
+    //                     $(td).addClass('custom-cell-class ');
+    //                 }
+    //             }
+    //         ]
+    //     });
+
+    //     // Customize the search input
+    //     const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+    //     $("div.dt-search").append(searchInputWrapper);
+    //     $("div.dt-search").addClass("position-relative");
+
+    //     // document.addEventListener('click', function (e) {
+    //     //     if (e.target && e.target.classList.contains('dt-view-btn')) {
+    //     //         const id = e.target.getAttribute('data-id');
+    //     //         handleModal();
+    //     //     }})
+
+    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+    //         let _id = null;
+    //         if (e.target.closest("tr.dt-row")) {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-client-name") &&
+    //                 (!tableRef.current.classList.contains("collapsed") ||
+    //                     !e.target.closest(".dtr-control"))
+    //             ) {
+    //                 _id = $(this).data("id");
+    //             }
+    //         } else {
+    //             if (
+    //                 !e.target.closest(".dropdown-toggle") &&
+    //                 !e.target.closest(".dropdown-menu") &&
+    //                 !e.target.closest(".dt-client-name")
+    //             ) {
+    //                 _id = $(e.target).closest("tr.child").prev().data("id");
+    //             }
+    //         }
+
+    //         if (_id) {
+    //             handleModal(_id);
+    //         }
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-edit-btn", function () {
+    //         const _id = $(this).data("id");
+    //         navigate(`/admin/offered-price/edit/${_id}`);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
+    //         const _id = $(this).data("id");
+    //         // navigate(`/admin/view-offer/${_id}`);
+    //         handleModal(_id);
+    //     });
+
+    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
+    //         const _id = $(this).data("id");
+    //         handleDelete(_id);
+    //     });
+
+    //     return function cleanup() {
+    //         $(tableRef.current).DataTable().destroy(true);
+    //     };
+    // }, []);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -299,7 +474,7 @@ export default function OfferPrice() {
                         </div>
                     </div>
                 </div>
-                <div className="card" style={{boxShadow: "none"}}>
+                <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body">
                         <div className="boxPanel">
                             <table

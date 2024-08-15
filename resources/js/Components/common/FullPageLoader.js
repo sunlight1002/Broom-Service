@@ -9,9 +9,7 @@ const FullPageLoader = ({ visible = false }) => {
             //     <div className="loader"></div>
             // </div>
             <div className="loader-container">
-                <div className="w-full">
                     <img src={gif} />
-                </div>
             </div>
         )
     );

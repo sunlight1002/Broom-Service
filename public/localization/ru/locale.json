@@ -815,6 +815,7 @@
             "payments": "Платежи"
         },
         "global": {
+            "resumejob": "Возобновить работу",
             "addTeamMember": "Добавить члена команды",
             "NameEn": "Имя - англ.",
             "NameHev": "Имя - евр.",
