@@ -993,7 +993,11 @@
             "leads": "Leads",
             "messengerChat": "Messenger Chat",
             "submit": "Submit",
-            "Address":"Address"
+            "Address":"Address",
+            "if_job_was_done": "If Job Was Done",
+            "time_for_job": "Time For Job",
+            "time_worker_actually": "Time Worker Actually",
+            "client_review": "Client Review"
         },
         "dashboard": {
             "jobPosted": "Job Posted",

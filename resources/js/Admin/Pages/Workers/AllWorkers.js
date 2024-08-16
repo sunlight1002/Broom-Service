@@ -124,7 +124,7 @@ export default function AllWorkers() {
     
                             _html += `<button type="button" class="dropdown-item dt-freeze-shift-btn" data-id="${row.id}">${t("global.freezeShift")}</button>`;
     
-                            _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">${t("admin.modal.leave_job")}</button>`;
+                            _html += `<button type="button" class="dropdown-item dt-leave-job-btn" data-id="${row.id}">${t("modal.leave_job")}</button>`;
     
                             _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
     
@@ -552,7 +552,7 @@ export default function AllWorkers() {
                 <div className="row mb-2 d-none d-lg-block">
                     <div className="col-sm-12 d-flex align-items-center">
                         <div className="mr-3" style={{ fontWeight: "bold" }}>
-                            {t("admin.global.status")}
+                            {t("admin.global.Status")}
                         </div>
                         <button
                             className={`btn border rounded px-3 mr-1`}

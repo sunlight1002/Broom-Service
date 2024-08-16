@@ -60,12 +60,6 @@ export default function Lead() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const actionTranslations = {
-        edit: t("admin.leads.Edit"),
-        view: t("admin.leads.view"),
-        change_status: t("admin.leads.change_status"),
-        delete: t("admin.leads.Delete"),
-    };
     
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -112,10 +106,10 @@ export default function Lead() {
                                         <i class="fa fa-ellipsis-vertical"></i>
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${actionTranslations.edit}</button>
-                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${actionTranslations.view}</button>
-                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${actionTranslations.change_status}</button>
-                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${actionTranslations.delete}</button>
+                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t("admin.leads.Edit")}</button>
+                                        <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>
+                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>
+                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>
                                     </div>
                                 </div>`;
                             return _html;
@@ -179,7 +173,7 @@ export default function Lead() {
             }
         };
     }, []);
-    
+
 
     const handleDelete = (id) => {
         Swal.fire({

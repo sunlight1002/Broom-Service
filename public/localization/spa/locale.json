@@ -383,6 +383,12 @@
             },
             "logout": "Cerrar sesión"
         },
+        "global": {
+            "if_job_was_done": "Si el trabajo fue realizado",
+            "time_for_job": "Tiempo para el trabajo",
+            "time_worker_actually": "Tiempo que el trabajador realmente trabajó",
+            "client_review": "Reseña del cliente"
+        },
         "leads": {
         "All": "Todo",
         "Potential": "Potencial",

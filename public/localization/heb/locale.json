@@ -994,7 +994,11 @@
             "leads": "לידים",
             "messengerChat": "צ'אט מסנג'ר",
             "submit": "שלח",
-            "Address":"כתובת"
+            "Address":"כתובת",
+            "if_job_was_done": "אם העבודה נעשתה",
+            "time_for_job": "זמן לעבודה",
+            "time_worker_actually": "הזמן שהעובד עבד בפועל",
+            "client_review": "ביקורת לקוח"
         },
         "modal": {
             "title": "מודל",
