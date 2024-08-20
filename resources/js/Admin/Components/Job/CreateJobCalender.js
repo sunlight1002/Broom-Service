@@ -19,7 +19,9 @@ import Loader from "../../../Components/common/Loader";
 export default function CreateJobCalender({
     services: clientServices,
     client,
-    loading
+    loading,
+    setSelectedService,
+    setSelectedServiceIndex
 }) {
     const params = useParams();
     const navigate = useNavigate();
@@ -29,7 +31,6 @@ export default function CreateJobCalender({
     const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [days, setDays] = useState([]);
-    const [selectedService, setSelectedService] = useState(0);
     const [currentFilter, setcurrentFilter] = useState("Current Week");
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -57,24 +58,17 @@ export default function CreateJobCalender({
         getTime();
     }, []);
 
-    const handleServices = (value) => {
-        services.forEach((_s) => {
-            if (_s.service != value) {
-                $(".services-" + _s.service + "-" + _s.contract_id).css(
-                    "display",
-                    "none"
-                );
-            }
-        });
-
-        const _service = services.find((_s, _index) => _s.service == value);
-
-        setServices([_service]);
-        setSelectedService(_service);
-
+    const handleServices = (index) => {
+        setSelectedServiceIndex(index);  // Store the selected index
+    
+        const _service = services[index];  // Get the service using the index
+        setSelectedService(_service);  // Set the selected service
+    
+        if (!_service) return;
+    
         const hours = [];
         if (_service?.cycle) {
-            for (let index = 0; index < parseInt(_service?.cycle); index++) {
+            for (let i = 0; i < parseInt(_service?.cycle); i++) {
                 _service?.workers?.forEach((worker) => {
                     hours.push({
                         jobHours: worker?.jobHours,
@@ -84,9 +78,8 @@ export default function CreateJobCalender({
                 });
             }
         }
-
+    
         setSelectedHours(hours);
-
         getWorkers(_service);
         $("#edit-work-time").modal("hide");
     };
@@ -772,10 +765,10 @@ export default function CreateJobCalender({
                                         <option value="">
                                             --- Please Select Service ---
                                         </option>
-                                        {services.map((item, index) => {
+                                        {services && services.map((item, index) => {
                                             return (
                                                 <option
-                                                    value={item.service}
+                                                    value={index}
                                                     key={index}
                                                 >
                                                     {item.service != "10"
