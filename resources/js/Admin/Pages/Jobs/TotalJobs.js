@@ -21,6 +21,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 import CancelJobModal from "../../Components/Modals/CancelJobModal";
 import FilterButtons from "../../../Components/common/FilterButton";
+import { Card, ListGroup } from "react-bootstrap";
 
 export default function TotalJobs() {
     const { t, i18n } = useTranslation();
@@ -37,8 +38,11 @@ export default function TotalJobs() {
     const [isOpenCancelModal, setIsOpenCancelModal] = useState(false);
     const [selectedDateRange, setSelectedDateRange] = useState("Week");
     const [selectedDateStep, setSelectedDateStep] = useState("Current");
+    const [probbtn, setProbbtn] = useState(false)
+    const [problems, setProblems] = useState([])
 
     const tableRef = useRef(null);
+    const tableRef2 = useRef(null);
     const doneFilterRef = useRef(null);
     const startTimeFilterRef = useRef(null);
     const startDateRef = useRef(null);
@@ -59,6 +63,109 @@ export default function TotalJobs() {
         const hours = Math.floor(minutes / 60);
         return `${hours} hours`;
     };
+
+    const deleteProblem = async (id) => {
+        try {
+            const response = await axios.delete(`/api/client/jobs/delete-problem/${id}`, {
+                headers: headers
+            });
+            console.log(response);
+
+            fetchProblems(); // Re-fetch the problems to refresh the table
+        } catch (error) {
+            console.error('Error deleting problem:', error);
+        }
+    };
+
+
+
+
+    const initializeDataTable1 = (data) => {
+        if ($.fn.DataTable.isDataTable(tableRef2.current)) {
+            $(tableRef2.current).DataTable().destroy(true);
+        }
+
+        $(tableRef2.current).DataTable({
+            data: data,
+            columns: [
+                { title: 'Description', data: 'problem' },
+                { title: 'Created At', data: 'created_at' },
+                { title: 'Client Name', data: 'client.name' },
+                { title: 'Client Address', data: 'client.address' },
+                { title: 'Job ID', data: 'job_id' },
+                {
+                    title: 'Action',
+                    data: 'id',
+                    orderable: false,
+                    render: function (data, type, row) {
+                        let _html = `
+                            <div class="action-dropdown dropdown" style="text-align: center">
+                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-ellipsis-vertical"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>
+                                    <button type="button" class="dropdown-item dt-take-action-btn" data-id="${row.job_id}">Take action</button>
+                                    <button type="button" class="dropdown-item dt-take-all-btn" data-id="${row.job_id}">Take all</button>
+                                </div>
+                                
+                            </div>`;
+                        return _html;
+                    }
+                }
+            ],
+            responsive: true,
+            order: [[0, 'desc']], // Default sorting
+        });
+
+        // Attach event listener for delete buttons (event delegation)
+        $(tableRef2.current).on('click', '.dt-delete-btn', function () {
+            const problemId = $(this).data('id');
+            deleteProblem(problemId);
+        });
+
+        $(tableRef2.current).on('click', '.dt-take-action-btn', function () {
+            const jobid = $(this).data('id');
+            window.location = `/admin/jobs/${jobid}/change-worker`
+        });
+
+        $(tableRef2.current).on('click', '.dt-take-all-btn', function () {
+            const jobid = $(this).data('id');
+            setProbbtn(false)
+        });
+    };
+
+
+
+
+    const fetchProblems = () => {
+        $.ajax({
+            url: '/api/client/jobs/get-problem',
+            type: 'POST',
+            headers: headers,
+            success: function (response) {
+                initializeDataTable1(response.problems);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching problems:', error);
+            }
+        });
+    };
+
+    useEffect(() => {
+        if (probbtn && tableRef2.current) {
+            fetchProblems();
+        }
+
+        return () => {
+            if ($.fn.DataTable.isDataTable(tableRef2.current)) {
+                $(tableRef2.current).DataTable().destroy(true);
+            }
+        };
+    }, [probbtn, tableRef2.current]);
+    ;
+
+
 
 
     const initializeDataTable = () => {
@@ -102,13 +209,13 @@ export default function TotalJobs() {
                         render: function (data, type, row, meta) {
                             let _html = `<span class="client-name-badge dt-client-badge" style=" color: white; background-color: ${row.client_color ?? "#FFFFFF"
                                 };" data-client-id="${row.client_id}">`;
-    
+
                             _html += `<i class="fa-solid fa-user"></i>`;
-    
+
                             _html += data;
-    
+
                             _html += `</span>`;
-    
+
                             return _html;
                         },
                     },
@@ -118,11 +225,11 @@ export default function TotalJobs() {
                         render: function (data, type, row, meta) {
                             let _html = `<span class="service-name-badge" style="background-color: ${row.service_color ?? "#FFFFFF"
                                 };">`;
-    
+
                             _html += data;
-    
+
                             _html += `</span>`;
-    
+
                             return _html;
                         },
                     },
@@ -131,13 +238,13 @@ export default function TotalJobs() {
                         data: "worker_name",
                         render: function (data, type, row, meta) {
                             let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
-    
+
                             _html += `<i class="fa-solid fa-user"></i>`;
-    
+
                             _html += data;
-    
+
                             _html += `</span>`;
-    
+
                             return _html;
                         },
                     },
@@ -146,7 +253,7 @@ export default function TotalJobs() {
                         data: "shifts",
                         render: function (data, type, row, meta) {
                             const _slots = data.split(",");
-    
+
                             return _slots
                                 .map((_slot, index) => {
                                     return `<div class="rounded mb-1 shifts-badge"> ${_slot} </div>`;
@@ -187,10 +294,10 @@ export default function TotalJobs() {
                                     row.actual_time_taken_minutes / 60
                                 ).toFixed(2)
                                 : 0;
-    
+
                             const isOrderClosed =
                                 row.status == "cancel" || row.is_order_closed == 1;
-    
+
                             let _timeBGColor = "white";
                             if (
                                 row.actual_time_taken_minutes > row.duration_minutes
@@ -199,22 +306,22 @@ export default function TotalJobs() {
                             } else if (isOrderClosed) {
                                 _timeBGColor = "#e7e7e7";
                             }
-    
+
                             let _html = `<div class="d-flex justify-content-sm-start justify-content-md-center"> <div class="d-flex align-items-center">`;
-    
+
                             _html += `<button type="button" class="time-counter dt-time-counter-dec" data-id="${row.id
                                 }" data-hours="${_hours}" ${isOrderClosed ? "disabled" : ""
                                 } style="pointer-events: ${_hours === 0 ? "none" : "auto"
                                 }, opacity: ${_hours === 0 ? 0.5 : 1};"> - </button>`;
-    
+
                             _html += `<span class="mx-1 time-counter" style="background-color: ${_timeBGColor}"> ${_hours} </span>`;
-    
+
                             _html += `<button type="button" class="time-counter dt-time-counter-inc" ${isOrderClosed ? "disabled" : ""
                                 } data-id="${row.id
                                 }" data-hours="${_hours}"> + </button>`;
-    
+
                             _html += `</div> </div>`;
-    
+
                             return _html;
                         },
                     },
@@ -229,7 +336,7 @@ export default function TotalJobs() {
                         orderable: false,
                         render: function (data, type, row, meta) {
                             let _html = `-`;
-    
+
                             if (row.rating) {
                                 _html = renderToString(
                                     <div
@@ -246,7 +353,7 @@ export default function TotalJobs() {
                                     </div>
                                 );
                             }
-    
+
                             return _html;
                         },
                     },
@@ -258,16 +365,16 @@ export default function TotalJobs() {
                         render: function (data, type, row, meta) {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-    
+
                             if (
                                 row.status == "completed" &&
                                 !row.is_order_generated
                             ) {
                                 _html += `<button type="button" class="dropdown-item dt-create-order-btn" data-id="${row.id}" data-client-id="${row.client_id}">${t("global.createOrder")}</button>`;
                             }
-    
+
                             _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("global.view")}</button>`;
-    
+
                             if (
                                 [
                                     "not-started",
@@ -277,16 +384,16 @@ export default function TotalJobs() {
                                 ].includes(row.status)
                             ) {
                                 _html += `<button type="button" class="dropdown-item dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">${t("global.switchWorker")}</button>`;
-    
+
                                 _html += `<button type="button" class="dropdown-item dt-change-worker-btn" data-id="${row.id}">${t("admin.global.changeWorker")}</button>`;
-    
+
                                 // _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-id="${row.id}">Change Shift</button>`;
-    
+
                                 _html += `<button type="button" class="dropdown-item dt-cancel-btn" data-id="${row.id}" data-group-id="${row.job_group_id}">${t("modal.cancel")}</button>`;
                             }
-    
+
                             _html += "</div> </div>";
-    
+
                             return _html;
                         },
                     },
@@ -313,120 +420,120 @@ export default function TotalJobs() {
     useEffect(() => {
         initializeDataTable();
 
-       // Customize the search input
-       const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-       $("div.dt-search").append(searchInputWrapper);
-       $("div.dt-search").addClass("position-relative");
+        // Customize the search input
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
-       $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
-           let _id = null;
-           if (e.target.closest("tr.dt-row")) {
-               if (
-                   !e.target.closest(".dropdown-toggle") &&
-                   !e.target.closest(".dropdown-menu") &&
-                   !e.target.closest(".dt-client-badge") &&
-                   !e.target.closest(".dt-time-counter-dec") &&
-                   !e.target.closest(".dt-time-counter-inc") &&
-                   !e.target.closest(".dt-switch-worker-btn") &&
-                   !e.target.closest(".dt-if-job-done-checkbox") &&
-                   (!tableRef.current.classList.contains("collapsed") ||
-                       !e.target.closest(".dtr-control"))
-               ) {
-                   _id = $(this).data("id");
-               }
-           } else {
-               if (
-                   !e.target.closest(".dropdown-toggle") &&
-                   !e.target.closest(".dropdown-menu") &&
-                   !e.target.closest(".dt-client-badge") &&
-                   !e.target.closest(".dt-time-counter-dec") &&
-                   !e.target.closest(".dt-time-counter-inc") &&
-                   !e.target.closest(".dt-switch-worker-btn") &&
-                   !e.target.closest(".dt-if-job-done-checkbox")
-               ) {
-                   _id = $(e.target).closest("tr.child").prev().data("id");
-               }
-           }
+        $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+            let _id = null;
+            if (e.target.closest("tr.dt-row")) {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-client-badge") &&
+                    !e.target.closest(".dt-time-counter-dec") &&
+                    !e.target.closest(".dt-time-counter-inc") &&
+                    !e.target.closest(".dt-switch-worker-btn") &&
+                    !e.target.closest(".dt-if-job-done-checkbox") &&
+                    (!tableRef.current.classList.contains("collapsed") ||
+                        !e.target.closest(".dtr-control"))
+                ) {
+                    _id = $(this).data("id");
+                }
+            } else {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-client-badge") &&
+                    !e.target.closest(".dt-time-counter-dec") &&
+                    !e.target.closest(".dt-time-counter-inc") &&
+                    !e.target.closest(".dt-switch-worker-btn") &&
+                    !e.target.closest(".dt-if-job-done-checkbox")
+                ) {
+                    _id = $(e.target).closest("tr.child").prev().data("id");
+                }
+            }
 
-           if (_id) {
-               navigate(`/admin/jobs/view/${_id}`);
-           }
-       });
+            if (_id) {
+                navigate(`/admin/jobs/view/${_id}`);
+            }
+        });
 
-       $(tableRef.current).on("click", ".dt-client-badge", function () {
-           const _clientID = $(this).data("client-id");
-           navigate(`/admin/clients/view/${_clientID}`);
-       });
+        $(tableRef.current).on("click", ".dt-client-badge", function () {
+            const _clientID = $(this).data("client-id");
+            navigate(`/admin/clients/view/${_clientID}`);
+        });
 
-       $(tableRef.current).on(
-           "change",
-           ".dt-if-job-done-checkbox",
-           function () {
-               const _id = $(this).data("id");
-               handleJobDone(_id, this.checked);
-           }
-       );
+        $(tableRef.current).on(
+            "change",
+            ".dt-if-job-done-checkbox",
+            function () {
+                const _id = $(this).data("id");
+                handleJobDone(_id, this.checked);
+            }
+        );
 
-       $(tableRef.current).on("click", ".dt-time-counter-dec", function () {
-           const _id = $(this).data("id");
-           const _hours = parseFloat($(this).data("hours"));
+        $(tableRef.current).on("click", ".dt-time-counter-dec", function () {
+            const _id = $(this).data("id");
+            const _hours = parseFloat($(this).data("hours"));
 
-           const _changedHours = (
-               _hours > 0 ? parseFloat(_hours) - 0.25 : 0
-           ).toFixed(2);
+            const _changedHours = (
+                _hours > 0 ? parseFloat(_hours) - 0.25 : 0
+            ).toFixed(2);
 
-           handleWorkerActualTime(_id, _changedHours * 60);
-       });
+            handleWorkerActualTime(_id, _changedHours * 60);
+        });
 
-       $(tableRef.current).on("click", ".dt-time-counter-inc", function () {
-           const _id = $(this).data("id");
-           const _hours = $(this).data("hours");
+        $(tableRef.current).on("click", ".dt-time-counter-inc", function () {
+            const _id = $(this).data("id");
+            const _hours = $(this).data("hours");
 
-           const _changedHours = (parseFloat(_hours) + 0.25).toFixed(2);
+            const _changedHours = (parseFloat(_hours) + 0.25).toFixed(2);
 
-           handleWorkerActualTime(_id, _changedHours * 60);
-       });
+            handleWorkerActualTime(_id, _changedHours * 60);
+        });
 
-       $(tableRef.current).on("click", ".dt-create-order-btn", function () {
-           const _id = $(this).data("id");
-           const _clientID = $(this).data("client-id");
-           navigate(`/admin/add-order?j=${_id}&c=${_clientID}`);
-       });
+        $(tableRef.current).on("click", ".dt-create-order-btn", function () {
+            const _id = $(this).data("id");
+            const _clientID = $(this).data("client-id");
+            navigate(`/admin/add-order?j=${_id}&c=${_clientID}`);
+        });
 
-       $(tableRef.current).on("click", ".dt-view-btn", function () {
-           const _id = $(this).data("id");
-           navigate(`/admin/jobs/view/${_id}`);
-       });
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/jobs/view/${_id}`);
+        });
 
-       $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
-           const _id = $(this).data("id");
-           const _totalAmount = $(this).data("total-amount");
+        $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
+            const _id = $(this).data("id");
+            const _totalAmount = $(this).data("total-amount");
 
-           handleSwitchWorker({
-               id: _id,
-               total_amount: _totalAmount,
-           });
-       });
+            handleSwitchWorker({
+                id: _id,
+                total_amount: _totalAmount,
+            });
+        });
 
-       $(tableRef.current).on("click", ".dt-change-worker-btn", function () {
-           const _id = $(this).data("id");
-           navigate(`/admin/jobs/${_id}/change-worker`);
-       });
+        $(tableRef.current).on("click", ".dt-change-worker-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/jobs/${_id}/change-worker`);
+        });
 
-       // $(tableRef.current).on("click", ".dt-change-shift-btn", function () {
-       //     const _id = $(this).data("id");
-       //     navigate(`/admin/jobs/${_id}/change-shift`);
-       // });
+        // $(tableRef.current).on("click", ".dt-change-shift-btn", function () {
+        //     const _id = $(this).data("id");
+        //     navigate(`/admin/jobs/${_id}/change-shift`);
+        // });
 
-       $(tableRef.current).on("click", ".dt-cancel-btn", function () {
-           const _id = $(this).data("id");
-           const _groupID = $(this).data("group-id");
+        $(tableRef.current).on("click", ".dt-cancel-btn", function () {
+            const _id = $(this).data("id");
+            const _groupID = $(this).data("group-id");
 
-           handleCancel({
-               id: _id,
-               job_group_id: _groupID,
-           });
-       });
+            handleCancel({
+                id: _id,
+                job_group_id: _groupID,
+            });
+        });
 
         // Handle language changes
         i18n.on("languageChanged", () => {
@@ -441,373 +548,7 @@ export default function TotalJobs() {
                 $(tableRef.current).off("click");
             }
         };
-    }, []);
-
-    // useEffect(() => {
-    //     $(tableRef.current).DataTable({
-    //         processing: true,
-    //         serverSide: true,
-    //         ajax: {
-    //             url: "/api/admin/jobs",
-    //             type: "GET",
-    //             beforeSend: function (request) {
-    //                 request.setRequestHeader(
-    //                     "Authorization",
-    //                     `Bearer ` + localStorage.getItem("admin-token")
-    //                 );
-    //             },
-    //             data: function (d) {
-    //                 d.done_filter = doneFilterRef.current.value;
-    //                 d.start_time_filter = startTimeFilterRef.current.value;
-    //                 d.actual_time_exceed_filter = actualTimeExceedFilterRef
-    //                     .current.checked
-    //                     ? 1
-    //                     : 0;
-    //                 d.has_no_worker = hasNoWorkerFilterRef.current.checked
-    //                     ? 1
-    //                     : 0;
-    //                 d.start_date = startDateRef.current.value;
-    //                 d.end_date = endDateRef.current.value;
-    //             },
-    //         },
-    //         order: [[0, "desc"]],
-    //         columns: [
-    //             {
-    //                 title: "Date",
-    //                 data: "start_date",
-    //             },
-    //             {
-    //                 title: "Client",
-    //                 data: "client_name",
-    //                 render: function (data, type, row, meta) {
-    //                     let _html = `<span class="client-name-badge dt-client-badge" style=" color: white; background-color: ${row.client_color ?? "#FFFFFF"
-    //                         };" data-client-id="${row.client_id}">`;
-
-    //                     _html += `<i class="fa-solid fa-user"></i>`;
-
-    //                     _html += data;
-
-    //                     _html += `</span>`;
-
-    //                     return _html;
-    //                 },
-    //             },
-    //             {
-    //                 title: "Service",
-    //                 data: "service_name",
-    //                 render: function (data, type, row, meta) {
-    //                     let _html = `<span class="service-name-badge" style="background-color: ${row.service_color ?? "#FFFFFF"
-    //                         };">`;
-
-    //                     _html += data;
-
-    //                     _html += `</span>`;
-
-    //                     return _html;
-    //                 },
-    //             },
-    //             {
-    //                 title: "Worker",
-    //                 data: "worker_name",
-    //                 render: function (data, type, row, meta) {
-    //                     let _html = `<span class="worker-name-badge dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">`;
-
-    //                     _html += `<i class="fa-solid fa-user"></i>`;
-
-    //                     _html += data;
-
-    //                     _html += `</span>`;
-
-    //                     return _html;
-    //                 },
-    //             },
-    //             {
-    //                 title: "Shift",
-    //                 data: "shifts",
-    //                 render: function (data, type, row, meta) {
-    //                     const _slots = data.split(",");
-
-    //                     return _slots
-    //                         .map((_slot, index) => {
-    //                             return `<div class="rounded mb-1 shifts-badge"> ${_slot} </div>`;
-    //                         })
-    //                         .join(" ");
-    //                 },
-    //             },
-    //             {
-    //                 title: "If Job Was Done",
-    //                 data: "is_job_done",
-    //                 orderable: false,
-    //                 render: function (data, type, row, meta) {
-    //                     return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded " style="border: 1px solid #ebebeb; overflow: hidden"> <input type="checkbox" data-id="${row.id
-    //                         }" class="form-control dt-if-job-done-checkbox" ${row.is_job_done ? "checked" : ""
-    //                         } ${row.status == "cancel" || row.is_order_closed == 1
-    //                             ? "disabled"
-    //                             : ""
-    //                         }/> </span> </div>`;
-    //                 },
-    //             },
-    //             {
-    //                 title: "Time For Job",
-    //                 data: "duration_minutes",
-    //                 orderable: false,
-    //                 render: function (data, type, row, meta) {
-    //                     return `<span class="text-nowrap"> ${minutesToHours(
-    //                         data
-    //                     )} </span>`;
-    //                 },
-    //             },
-    //             {
-    //                 title: "Time Worker Actually",
-    //                 data: "actual_time_taken_minutes",
-    //                 orderable: false,
-    //                 render: function (data, type, row, meta) {
-    //                     const _hours = row.actual_time_taken_minutes
-    //                         ? parseFloat(
-    //                             row.actual_time_taken_minutes / 60
-    //                         ).toFixed(2)
-    //                         : 0;
-
-    //                     const isOrderClosed =
-    //                         row.status == "cancel" || row.is_order_closed == 1;
-
-    //                     let _timeBGColor = "white";
-    //                     if (
-    //                         row.actual_time_taken_minutes > row.duration_minutes
-    //                     ) {
-    //                         _timeBGColor = "#ff0000";
-    //                     } else if (isOrderClosed) {
-    //                         _timeBGColor = "#e7e7e7";
-    //                     }
-
-    //                     let _html = `<div class="d-flex justify-content-sm-start justify-content-md-center"> <div class="d-flex align-items-center">`;
-
-    //                     _html += `<button type="button" class="time-counter dt-time-counter-dec" data-id="${row.id
-    //                         }" data-hours="${_hours}" ${isOrderClosed ? "disabled" : ""
-    //                         } style="pointer-events: ${_hours === 0 ? "none" : "auto"
-    //                         }, opacity: ${_hours === 0 ? 0.5 : 1};"> - </button>`;
-
-    //                     _html += `<span class="mx-1 time-counter" style="background-color: ${_timeBGColor}"> ${_hours} </span>`;
-
-    //                     _html += `<button type="button" class="time-counter dt-time-counter-inc" ${isOrderClosed ? "disabled" : ""
-    //                         } data-id="${row.id
-    //                         }" data-hours="${_hours}"> + </button>`;
-
-    //                     _html += `</div> </div>`;
-
-    //                     return _html;
-    //                 },
-    //             },
-    //             {
-    //                 title: "Comments",
-    //                 data: "comment",
-    //                 orderable: false,
-    //             },
-    //             {
-    //                 title: "Client Review",
-    //                 data: "review",
-    //                 orderable: false,
-    //                 render: function (data, type, row, meta) {
-    //                     let _html = `-`;
-
-    //                     if (row.rating) {
-    //                         _html = renderToString(
-    //                             <div
-    //                                 data-tooltip-hidden={!row.review}
-    //                                 data-tooltip-id="slot-tooltip"
-    //                                 data-tooltip-content={row.review}
-    //                             >
-    //                                 <Rating
-    //                                     initialValue={20 * row.rating}
-    //                                     allowFraction
-    //                                     size={15}
-    //                                     readonly
-    //                                 />
-    //                             </div>
-    //                         );
-    //                     }
-
-    //                     return _html;
-    //                 },
-    //             },
-    //             {
-    //                 title: "Action",
-    //                 data: "action",
-    //                 orderable: false,
-    //                 responsivePriority: 1,
-    //                 render: function (data, type, row, meta) {
-    //                     let _html =
-    //                         '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-    //                     if (
-    //                         row.status == "completed" &&
-    //                         !row.is_order_generated
-    //                     ) {
-    //                         _html += `<button type="button" class="dropdown-item dt-create-order-btn" data-id="${row.id}" data-client-id="${row.client_id}">Create Order</button>`;
-    //                     }
-
-    //                     _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">View</button>`;
-
-    //                     if (
-    //                         [
-    //                             "not-started",
-    //                             "scheduled",
-    //                             "unscheduled",
-    //                             "re-scheduled",
-    //                         ].includes(row.status)
-    //                     ) {
-    //                         _html += `<button type="button" class="dropdown-item dt-switch-worker-btn" data-id="${row.id}" data-total-amount="${row.total_amount}">Switch Worker</button>`;
-
-    //                         _html += `<button type="button" class="dropdown-item dt-change-worker-btn" data-id="${row.id}">Change Worker</button>`;
-
-    //                         // _html += `<button type="button" class="dropdown-item dt-change-shift-btn" data-id="${row.id}">Change Shift</button>`;
-
-    //                         _html += `<button type="button" class="dropdown-item dt-cancel-btn" data-id="${row.id}" data-group-id="${row.job_group_id}">Cancel</button>`;
-    //                     }
-
-    //                     _html += "</div> </div>";
-
-    //                     return _html;
-    //                 },
-    //             },
-    //         ],
-    //         ordering: true,
-    //         searching: true,
-    //         responsive: true,
-    //         createdRow: function (row, data, dataIndex) {
-    //             $(row).addClass("dt-row custom-row-class");
-    //             $(row).attr("data-id", data.id);
-    //         },
-    //         columnDefs: [
-    //             {
-    //                 targets: '_all',
-    //                 createdCell: function (td, cellData, rowData, row, col) {
-    //                     $(td).addClass('custom-cell-class ');
-    //                 }
-    //             }
-    //         ]
-    //     });
-
-
-    //     // Customize the search input
-    //     const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-    //     $("div.dt-search").append(searchInputWrapper);
-    //     $("div.dt-search").addClass("position-relative");
-
-    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
-    //         let _id = null;
-    //         if (e.target.closest("tr.dt-row")) {
-    //             if (
-    //                 !e.target.closest(".dropdown-toggle") &&
-    //                 !e.target.closest(".dropdown-menu") &&
-    //                 !e.target.closest(".dt-client-badge") &&
-    //                 !e.target.closest(".dt-time-counter-dec") &&
-    //                 !e.target.closest(".dt-time-counter-inc") &&
-    //                 !e.target.closest(".dt-switch-worker-btn") &&
-    //                 !e.target.closest(".dt-if-job-done-checkbox") &&
-    //                 (!tableRef.current.classList.contains("collapsed") ||
-    //                     !e.target.closest(".dtr-control"))
-    //             ) {
-    //                 _id = $(this).data("id");
-    //             }
-    //         } else {
-    //             if (
-    //                 !e.target.closest(".dropdown-toggle") &&
-    //                 !e.target.closest(".dropdown-menu") &&
-    //                 !e.target.closest(".dt-client-badge") &&
-    //                 !e.target.closest(".dt-time-counter-dec") &&
-    //                 !e.target.closest(".dt-time-counter-inc") &&
-    //                 !e.target.closest(".dt-switch-worker-btn") &&
-    //                 !e.target.closest(".dt-if-job-done-checkbox")
-    //             ) {
-    //                 _id = $(e.target).closest("tr.child").prev().data("id");
-    //             }
-    //         }
-
-    //         if (_id) {
-    //             navigate(`/admin/jobs/view/${_id}`);
-    //         }
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-client-badge", function () {
-    //         const _clientID = $(this).data("client-id");
-    //         navigate(`/admin/clients/view/${_clientID}`);
-    //     });
-
-    //     $(tableRef.current).on(
-    //         "change",
-    //         ".dt-if-job-done-checkbox",
-    //         function () {
-    //             const _id = $(this).data("id");
-    //             handleJobDone(_id, this.checked);
-    //         }
-    //     );
-
-    //     $(tableRef.current).on("click", ".dt-time-counter-dec", function () {
-    //         const _id = $(this).data("id");
-    //         const _hours = parseFloat($(this).data("hours"));
-
-    //         const _changedHours = (
-    //             _hours > 0 ? parseFloat(_hours) - 0.25 : 0
-    //         ).toFixed(2);
-
-    //         handleWorkerActualTime(_id, _changedHours * 60);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-time-counter-inc", function () {
-    //         const _id = $(this).data("id");
-    //         const _hours = $(this).data("hours");
-
-    //         const _changedHours = (parseFloat(_hours) + 0.25).toFixed(2);
-
-    //         handleWorkerActualTime(_id, _changedHours * 60);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-create-order-btn", function () {
-    //         const _id = $(this).data("id");
-    //         const _clientID = $(this).data("client-id");
-    //         navigate(`/admin/add-order?j=${_id}&c=${_clientID}`);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
-    //         const _id = $(this).data("id");
-    //         navigate(`/admin/jobs/view/${_id}`);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
-    //         const _id = $(this).data("id");
-    //         const _totalAmount = $(this).data("total-amount");
-
-    //         handleSwitchWorker({
-    //             id: _id,
-    //             total_amount: _totalAmount,
-    //         });
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-change-worker-btn", function () {
-    //         const _id = $(this).data("id");
-    //         navigate(`/admin/jobs/${_id}/change-worker`);
-    //     });
-
-    //     // $(tableRef.current).on("click", ".dt-change-shift-btn", function () {
-    //     //     const _id = $(this).data("id");
-    //     //     navigate(`/admin/jobs/${_id}/change-shift`);
-    //     // });
-
-    //     $(tableRef.current).on("click", ".dt-cancel-btn", function () {
-    //         const _id = $(this).data("id");
-    //         const _groupID = $(this).data("group-id");
-
-    //         handleCancel({
-    //             id: _id,
-    //             job_group_id: _groupID,
-    //         });
-    //     });
-
-    //     return function cleanup() {
-    //         $(tableRef.current).DataTable().destroy(true);
-    //     };
-    // }, []);
+    }, [probbtn]);
 
     useEffect(() => {
         $(tableRef.current).DataTable().draw();
@@ -1129,6 +870,20 @@ export default function TotalJobs() {
                                     {t("global.exportTimeReport")}
                                 </button>
 
+                                <button
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    style={!probbtn ? {
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    } : {
+                                        background: "white",
+                                        color: "black",
+                                    }}
+                                    onClick={() => setProbbtn(prev => !prev)}
+                                >
+                                    Problems
+                                </button>
+
                                 <input
                                     type="hidden"
                                     value={startTimeFilter}
@@ -1224,12 +979,27 @@ export default function TotalJobs() {
                 </div>
                 <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body getjobslist">
-                        <div className="boxPanel-Th-border-none">
-                            <table
-                                ref={tableRef}
-                                className="display table table-bordered"
-                            />
-                        </div>
+                        {
+                            !probbtn && (
+                                <div className="boxPanel-Th-border-none">
+                                    <table
+                                        ref={tableRef}
+                                        className="display table table-bordered"
+                                    />
+                                </div>
+                            )
+                        }
+
+                        {
+                            probbtn && (
+                                <div className="boxPanel-Th-border-none">
+                                    <table
+                                        ref={tableRef2}
+                                        className="display table table-bordered"
+                                    />
+                                </div>
+                            )
+                        }
 
                         <div
                             className="modal fade"

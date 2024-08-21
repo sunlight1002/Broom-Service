@@ -14,6 +14,7 @@ use App\Jobs\CreateJobOrder;
 use App\Jobs\GenerateJobInvoice;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\Admin;
+use App\Models\Problems;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
 use App\Models\Notification;
@@ -29,12 +30,20 @@ use App\Models\ManageTime;
 use App\Events\JobNotificationToWorker;
 use App\Enums\OrderPaidStatusEnum;
 use App\Models\Client;
+use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 
 class JobController extends Controller
 {
     use JobSchedule;
+    protected $whapiApiEndpoint;
+    protected $whapiApiToken;
 
+    public function __construct()
+    {
+        $this->whapiApiEndpoint = config('services.whapi.url');
+        $this->whapiApiToken = config('services.whapi.token');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -592,4 +601,98 @@ class JobController extends Controller
             'total_amount' => $jobs->total_amount
         ]);
     }
+
+    public function addProblems(Request $request)
+    {
+        $validated = $request->validate([
+            'problem' => 'required|string|max:1000',
+        ]);
+
+        $client = Client::with('property_addresses')->find($request->input('client_id'));
+
+        $problem = new Problems();
+        $problem->client_id = $client->id;
+        $problem->job_id = $request->input('job_id');
+        $problem->problem = $validated['problem'];
+        $problem->save();
+
+        $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+
+        $text = sprintf(
+            "Date/Time: %s\nClient: %s\nProperty: %s\nProblem: %s",
+            Carbon::now()->format('M d Y H:i'),
+            $client->firstname . ' ' . $client->lastname,
+            $client->property_addresses->first()->address_name ?? 'NA',
+            $validated['problem']
+        );
+
+        $response = Http::withToken($this->whapiApiToken)
+            ->post($this->whapiApiEndpoint . 'messages/text', [
+                'to' => $receiverNumber,
+                'body' => $text  
+            ]);
+
+        if ($response->successful()) {
+            return response()->json(['message' => 'Problem saved succesfully'], 201);
+        } else {
+            return response()->json(['error' => 'Failed to send WhatsApp message'], $response->status());
+        }
+    }
+
+    public function getProblems(Request $request)
+    {
+        // Query the Problems table
+        $query = Problems::with(['client', 'client.property_addresses']);
+    
+        // Apply filters if present
+        if (!empty($request->input('client_id'))) {
+            $query->where('client_id', $request->input('client_id'));
+        }
+    
+        if (!empty($request->input('job_id'))) {
+            $query->where('job_id', $request->input('job_id'));
+        }
+    
+        // Execute the query and retrieve the results
+        $problems = $query->get();
+    
+        // Transform the result if needed
+        $problems = $problems->map(function ($problem) {
+            return [
+                'id' => $problem->id,
+                'problem' => $problem->problem,
+                'created_at' => $problem->created_at->format('M d Y H:i'),
+                'client' => [
+                    'id' => $problem->client->id,
+                    'name' => $problem->client->firstname . ' ' . $problem->client->lastname,
+                    'address' => $problem->client->property_addresses->first()->address_name ?? 'NA',
+                ],
+                'job_id' => $problem->job_id,
+            ];
+        });
+    
+        return response()->json(['problems' => $problems], 200);
+    }
+    
+
+    public function deleteProblem($id)
+    {
+        \Log::info($id); // Log the id
+    
+        // Find the problem entry
+        $problem = Problems::find($id);
+    
+        if (!$problem) {
+            return response()->json(['error' => 'Problem not found'], 404);
+        }
+    
+        // Delete the problem entry
+        try {
+            $problem->delete();
+            return response()->json(['message' => 'Problem deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete problem'], 500);
+        }
+    }
+    
 }

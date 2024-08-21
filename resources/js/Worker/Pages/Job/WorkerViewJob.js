@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, memo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
+import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
 import Swal from "sweetalert2";
@@ -34,6 +35,9 @@ export default function WorkerViewJob() {
     const [targetLanguage, setTargetLanguage] = useState('en');
     const [jobId, setJobId] = useState(null)
     const [commentId, setCommentId] = useState(null)
+    const [speakModal, setSpeakModal] = useState(false)
+    const [problem, setProblem] = useState("")
+    const [clientID, setClientID] = useState(null)
 
     const alert = useAlert();
     const { t } = useTranslation();
@@ -49,12 +53,15 @@ export default function WorkerViewJob() {
             .get(`/api/jobs/${params.id}`, { headers })
             .then((res) => {
                 const r = res.data.job;
+                console.log(r);
+                
                 setJob(r);
                 setJobStatus(r.status);
                 setClient(r.client);
                 setWorker(r.worker);
                 setAddress(r.property_address ? r.property_address : null);
                 handleStartTime(res.data.job.start_date);
+                setClientID(r.client.id)
             })
             .catch((e) => {
                 Swal.fire({
@@ -247,7 +254,7 @@ export default function WorkerViewJob() {
                     target_language: targetLanguage
                 },
             })
-            .then((res) => {                                
+            .then((res) => {
                 setAllComment(res.data.comments);
             })
             .catch((error) => {
@@ -264,6 +271,32 @@ export default function WorkerViewJob() {
             setIsButtonEnabled(true);
         }
     };
+
+    const handleSpeakToManager = async (e) => {
+        e.preventDefault();  
+        
+        const data = {
+            job_id: params.id,  
+            client_id: clientID, 
+            problem: problem 
+        };
+    
+        try {
+            const res = await axios.post(`/api/client/jobs/speak-to-manager`, data, { headers });
+            alert.success(res?.data?.message)
+            setProblem("")
+            setSpeakModal(false)
+        } catch (error) {
+            if (error.response) {
+                console.error("Error response: ", error.response.data);
+            } else if (error.request) {
+                console.error("No response received: ", error.request);
+            } else {
+                console.error("Error in request setup: ", error.message);
+            }
+        }
+    };
+    
 
     useEffect(() => {
         getTimes();
@@ -291,7 +324,7 @@ export default function WorkerViewJob() {
 
                                         {job.job_opening_timestamp === null &&
                                             job.worker_approved_at === null ? (
-                                            <div className="col-sm-3 col-xl-2 col-6">
+                                            <div className="d-flex" style={{ gap: "10px" }}>
                                                 <button
                                                     type="button"
                                                     onClick={handleApproveJob}
@@ -301,6 +334,15 @@ export default function WorkerViewJob() {
                                                     {t(
                                                         "worker.jobs.view.approve"
                                                     )}
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSpeakModal(prev => !prev)}
+                                                    // disabled={isApproving}
+                                                    className="btn btn-primary"
+                                                >
+                                                    Speak to manager
                                                 </button>
                                             </div>
                                         ) : job.job_opening_timestamp ===
@@ -506,12 +548,12 @@ export default function WorkerViewJob() {
 
 
                                     <div className="">
-                                        <Comment 
-                                        allComment={allComment} 
-                                        handleGetComments={getComments} 
-                                        setTargetLanguage={setTargetLanguage} 
-                                        setJobId={setJobId} 
-                                        setCommentId={setCommentId}
+                                        <Comment
+                                            allComment={allComment}
+                                            handleGetComments={getComments}
+                                            setTargetLanguage={setTargetLanguage}
+                                            setJobId={setJobId}
+                                            setCommentId={setCommentId}
                                         />
                                     </div>
                                 </div>
@@ -521,6 +563,56 @@ export default function WorkerViewJob() {
 
                 </div>
             </div>
+            {
+                speakModal && (
+                    <Modal
+                    size="md"
+                    className="modal-container"
+                    show={speakModal}
+                    onHide={() => setSpeakModal(false)}
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>Speak to Manager</Modal.Title>
+                    </Modal.Header>
+        
+                    <Modal.Body>
+                        <div className="row">
+                            <div className="col-sm-12">
+                                <div className="form-group">
+                                    <label className="control-label">{t("worker.jobs.view.cmt")}</label>
+        
+                                    <textarea
+                                        type="text"
+                                        value={problem}
+                                        onChange={(e) => setProblem(e.target.value)}
+                                        className="form-control"
+                                        required
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal.Body>
+        
+                    <Modal.Footer>
+                        <Button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => setSpeakModal(false)}
+                        >
+                            {t("modal.close")}
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={handleSpeakToManager}
+                            className="btn btn-primary"
+                        >
+                            {t("global.send")}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+                )
+            }
 
 
             {isOpenChangeJobStatus && (
@@ -530,9 +622,9 @@ export default function WorkerViewJob() {
                     jobStatus={job_status}
                     setIsOpen={setIsOpenChangeJobStatus}
                     isOpen={isOpenChangeJobStatus}
-                    handleGetComments={getComments} 
-                    setTargetLanguage={setTargetLanguage} 
-                    setJobId={setJobId} 
+                    handleGetComments={getComments}
+                    setTargetLanguage={setTargetLanguage}
+                    setJobId={setJobId}
                     setCommentId={setCommentId}
                     onSuccess={() => {
                         getComments();

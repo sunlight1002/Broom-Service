@@ -43,6 +43,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('jobs/{id}/change-worker', [JobController::class, 'changeWorker']);
     Route::post('jobs/{id}/review', [JobController::class, 'saveReview']);
     Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
+    Route::resource('jobs/{id}/comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
 
     // My Account Api
     Route::get('my-account', [DashboardController::class, 'getAccountDetails']);
@@ -51,7 +52,6 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     // Change Password Api
     Route::post('change-password', [DashboardController::class, 'changePassword']);
 
-    Route::resource('jobs/{id}/comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
 
     Route::get('get-card', [ClientCardController::class, 'index']);
     Route::post('cards/initialize-adding', [ClientCardController::class, 'createCardSession']);
@@ -62,6 +62,9 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
 
     Route::get('invoices', [InvoiceController::class, 'index']);
 });
+Route::post('jobs/speak-to-manager', [JobController::class, 'addProblems']);
+Route::post('jobs/get-problem', [JobController::class, 'getProblems']);
+Route::delete('jobs/delete-problem/{id}', [JobController::class, 'deleteProblem']);
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('verifyOtp', [AuthController::class, 'verifyOtp']);
