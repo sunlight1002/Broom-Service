@@ -21,7 +21,8 @@ export default function CreateJobCalender({
     client,
     loading,
     setSelectedService,
-    setSelectedServiceIndex
+    setSelectedServiceIndex,
+    selectedService
 }) {
     const params = useParams();
     const navigate = useNavigate();

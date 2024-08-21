@@ -144,6 +144,7 @@ export default function CreateJob() {
                                                 services={services}
                                                 client={client}
                                                 loading={loading}
+                                                selectedService={selectedService}
                                                 setSelectedService={setSelectedService}
                                                 setSelectedServiceIndex={setSelectedServiceIndex}
                                             />
