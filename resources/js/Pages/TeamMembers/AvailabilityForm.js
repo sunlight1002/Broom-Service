@@ -23,6 +23,8 @@ const AvailabilityForm = () => {
         custom_start_date: null,
         custom_end_date: null,
     });
+    
+    
     const [customRange, setCustomRange] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -90,7 +92,7 @@ const AvailabilityForm = () => {
         });
     };
 
-    const setAvailability = (_data) => {
+    const setAvailability = (_data) => {        
         const next2WeekLastDate = moment().endOf("week").add(2, "week");
 
         let _timeslots = {};
@@ -175,7 +177,7 @@ const AvailabilityForm = () => {
                     : `/api/admin/my-availability`,
                 { headers }
             )
-            .then((response) => {
+            .then((response) => {                
                 if (response.data.data) {
                     setAvailability(response.data.data);
                 }

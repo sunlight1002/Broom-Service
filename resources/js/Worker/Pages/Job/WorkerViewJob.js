@@ -38,6 +38,7 @@ export default function WorkerViewJob() {
     const [speakModal, setSpeakModal] = useState(false)
     const [problem, setProblem] = useState("")
     const [clientID, setClientID] = useState(null)
+    const [workerID, setWorkerID] = useState(null)
 
     const alert = useAlert();
     const { t } = useTranslation();
@@ -62,6 +63,7 @@ export default function WorkerViewJob() {
                 setAddress(r.property_address ? r.property_address : null);
                 handleStartTime(res.data.job.start_date);
                 setClientID(r.client.id)
+                setWorkerID(r.worker_id)
             })
             .catch((e) => {
                 Swal.fire({
@@ -277,7 +279,8 @@ export default function WorkerViewJob() {
         
         const data = {
             job_id: params.id,  
-            client_id: clientID, 
+            client_id: clientID,
+            worker_id: workerID,
             problem: problem 
         };
     

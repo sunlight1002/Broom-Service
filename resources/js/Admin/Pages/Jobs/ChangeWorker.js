@@ -25,6 +25,8 @@ export default function ChangeWorker() {
         axios
             .get(`/api/admin/jobs/${params.id}`, { headers })
             .then((res) => {
+                console.log(res);
+                
                 setJob(res.data.job);
             })
             .catch((e) => {

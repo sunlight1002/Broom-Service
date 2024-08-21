@@ -613,18 +613,24 @@ class JobController extends Controller
         $problem = new Problems();
         $problem->client_id = $client->id;
         $problem->job_id = $request->input('job_id');
+        $problem->worker_id = $request->input('worker_id');
         $problem->problem = $validated['problem'];
         $problem->save();
 
         $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+        $text = 'Worker Speak To Manager | Broom Service';
 
-        $text = sprintf(
-            "Date/Time: %s\nClient: %s\nProperty: %s\nProblem: %s",
+        $text .= "\n\nHi, everyone\n\n";
+        
+        $text .= 'The worker has not yet left for the job.' . "\n\n";
+        
+        $text .= sprintf(
+            "Date/Time: %s\nClient: %s\nWorker: %s\nService: %s\nProperty: %s",
             Carbon::now()->format('M d Y H:i'),
             $client->firstname . ' ' . $client->lastname,
-            $client->property_addresses->first()->address_name ?? 'NA',
-            $validated['problem']
+            $client->property_addresses->first()->address_name ?? 'NA'
         );
+        
 
         $response = Http::withToken($this->whapiApiToken)
             ->post($this->whapiApiEndpoint . 'messages/text', [

@@ -10,6 +10,7 @@ use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Problems;
 use App\Models\Job;
 use App\Models\User;
 use App\Models\Contract;
@@ -875,9 +876,26 @@ class JobController extends Controller
             false
         ));
 
+        $this->checkAndDeleteProblems($job->id);
+
         return response()->json([
             'message' => 'Job has been updated successfully'
         ]);
+    }
+
+    private function checkAndDeleteProblems($jobId)
+    {
+        // Find problems associated with the job_id
+        $problems = Problems::where('job_id', $jobId)->get();
+
+        // If there are problems associated with the job_id, delete them
+        if ($problems->count() > 0) {
+            foreach ($problems as $problem) {
+                $problem->delete();
+            }
+
+            \Log::info("Problems related to job_id $jobId have been deleted.");
+        }
     }
 
     public function changeJobShift(Request $request, $id)

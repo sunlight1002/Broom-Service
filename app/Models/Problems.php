@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Problems extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     
     public function client()
     {
@@ -17,6 +18,7 @@ class Problems extends Model
     protected $fillable = [
         'client_id',
         'job_id',
-        'problem'
+        'problem',
+        'worker_id'
     ];
 }
