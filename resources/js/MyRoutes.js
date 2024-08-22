@@ -516,7 +516,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="team-member/availability/:id"
+                                path="manage-team/team-member/availability/:id"
                                 element={<Availibility />}
                             />
                             <Route

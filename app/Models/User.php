@@ -126,6 +126,11 @@ class User extends Authenticatable
         return $this->attributes['skill'] = $value;
     }
 
+    public function problems()
+    {
+        return $this->hasMany(Problems::class, 'worker_id');
+    }
+
     public function jobs()
     {
         return $this->hasMany(Job::class, 'worker_id');

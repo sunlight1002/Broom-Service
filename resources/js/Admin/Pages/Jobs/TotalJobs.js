@@ -64,22 +64,6 @@ export default function TotalJobs() {
         return `${hours} hours`;
     };
 
-    const deleteProblem = async (id) => {
-        try {
-            const response = await axios.delete(`/api/client/jobs/delete-problem/${id}`, {
-                headers: headers
-            });
-            console.log(response);
-
-            fetchProblems(); // Re-fetch the problems to refresh the table
-        } catch (error) {
-            console.error('Error deleting problem:', error);
-        }
-    };
-
-
-
-
     const initializeDataTable1 = (data) => {
         if ($.fn.DataTable.isDataTable(tableRef2.current)) {
             $(tableRef2.current).DataTable().destroy(true);
@@ -88,11 +72,21 @@ export default function TotalJobs() {
         $(tableRef2.current).DataTable({
             data: data,
             columns: [
-                { title: 'Description', data: 'problem' },
+                { title: 'Comments', data: 'problem' },
                 { title: 'Created At', data: 'created_at' },
                 { title: 'Client Name', data: 'client.name' },
                 { title: 'Client Address', data: 'client.address' },
-                { title: 'Job ID', data: 'job_id' },
+                {
+                    title: 'Worker Name',
+                    data: 'worker', 
+                    render: function (data, type, row) {
+                        if (data && data.firstname && data.lastname) {
+                            return `${data.firstname} ${data.lastname}`;
+                        } else {
+                            return 'NA';
+                        }
+                    }
+                },
                 {
                     title: 'Action',
                     data: 'id',
@@ -104,9 +98,8 @@ export default function TotalJobs() {
                                     <i class="fa fa-ellipsis-vertical"></i>
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>
                                     <button type="button" class="dropdown-item dt-take-action-btn" data-id="${row.job_id}">Take action</button>
-                                    <button type="button" class="dropdown-item dt-take-all-btn" data-id="${row.job_id}">Take all</button>
+                                    <button type="button" class="dropdown-item dt-take-all-btn" data-id="${row.job_id}">all ok</button>
                                 </div>
                                 
                             </div>`;
@@ -116,12 +109,6 @@ export default function TotalJobs() {
             ],
             responsive: true,
             order: [[0, 'desc']], // Default sorting
-        });
-
-        // Attach event listener for delete buttons (event delegation)
-        $(tableRef2.current).on('click', '.dt-delete-btn', function () {
-            const problemId = $(this).data('id');
-            deleteProblem(problemId);
         });
 
         $(tableRef2.current).on('click', '.dt-take-action-btn', function () {

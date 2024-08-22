@@ -14,6 +14,7 @@ use App\Jobs\CreateJobOrder;
 use App\Jobs\GenerateJobInvoice;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\Admin;
+use App\Models\User;
 use App\Models\Problems;
 use App\Models\Job;
 use App\Models\JobCancellationFee;
@@ -607,8 +608,9 @@ class JobController extends Controller
         $validated = $request->validate([
             'problem' => 'required|string|max:1000',
         ]);
-
+    
         $client = Client::with('property_addresses')->find($request->input('client_id'));
+        $worker = User::find($request->input('worker_id'));
 
         $problem = new Problems();
         $problem->client_id = $client->id;
@@ -616,52 +618,52 @@ class JobController extends Controller
         $problem->worker_id = $request->input('worker_id');
         $problem->problem = $validated['problem'];
         $problem->save();
-
+    
         $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-        $text = 'Worker Speak To Manager | Broom Service';
-
+        $text = '*Worker Speak To Manager | Broom Service*';
+    
         $text .= "\n\nHi, everyone\n\n";
         
-        $text .= 'The worker has not yet left for the job.' . "\n\n";
+        $text .= 'The Worker Need to Speak with Manager.' . "\n\n";
         
         $text .= sprintf(
-            "Date/Time: %s\nClient: %s\nWorker: %s\nService: %s\nProperty: %s",
+            "Date/Time: %s\nClient: %s\nWorker: %s\nProperty: %s",
             Carbon::now()->format('M d Y H:i'),
             $client->firstname . ' ' . $client->lastname,
+            $worker->firstname . ' ' . $worker->lastname ?? 'NA',
             $client->property_addresses->first()->address_name ?? 'NA'
         );
-        
-
+    
         $response = Http::withToken($this->whapiApiToken)
             ->post($this->whapiApiEndpoint . 'messages/text', [
                 'to' => $receiverNumber,
                 'body' => $text  
             ]);
-
+    
         if ($response->successful()) {
-            return response()->json(['message' => 'Problem saved succesfully'], 201);
+            return response()->json(['message' => 'Problem saved successfully'], 201);
         } else {
             return response()->json(['error' => 'Failed to send WhatsApp message'], $response->status());
         }
     }
-
+    
     public function getProblems(Request $request)
     {
-        // Query the Problems table
-        $query = Problems::with(['client', 'client.property_addresses']);
-    
+        // Query the Problems table with related client and worker details
+        $query = Problems::with(['client', 'client.property_addresses', 'worker']); // Assuming 'worker' is the relationship name
+        
         // Apply filters if present
         if (!empty($request->input('client_id'))) {
             $query->where('client_id', $request->input('client_id'));
         }
-    
+        
         if (!empty($request->input('job_id'))) {
             $query->where('job_id', $request->input('job_id'));
         }
-    
+        
         // Execute the query and retrieve the results
         $problems = $query->get();
-    
+        
         // Transform the result if needed
         $problems = $problems->map(function ($problem) {
             return [
@@ -673,32 +675,36 @@ class JobController extends Controller
                     'name' => $problem->client->firstname . ' ' . $problem->client->lastname,
                     'address' => $problem->client->property_addresses->first()->address_name ?? 'NA',
                 ],
+                'worker' => [
+                    'id' => $problem->worker->id ?? 'NA',
+                    'firstname' => $problem->worker->firstname ?? 'NA',
+                    'lastname' => $problem->worker->lastname ?? 'NA',
+                ],
                 'job_id' => $problem->job_id,
             ];
         });
-    
+        
         return response()->json(['problems' => $problems], 200);
     }
-    
 
-    public function deleteProblem($id)
-    {
-        \Log::info($id); // Log the id
+    // public function deleteProblem($id)
+    // {
+    //     \Log::info($id); // Log the id
     
-        // Find the problem entry
-        $problem = Problems::find($id);
+    //     // Find the problem entry
+    //     $problem = Problems::find($id);
     
-        if (!$problem) {
-            return response()->json(['error' => 'Problem not found'], 404);
-        }
+    //     if (!$problem) {
+    //         return response()->json(['error' => 'Problem not found'], 404);
+    //     }
     
-        // Delete the problem entry
-        try {
-            $problem->delete();
-            return response()->json(['message' => 'Problem deleted successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete problem'], 500);
-        }
-    }
+    //     // Delete the problem entry
+    //     try {
+    //         $problem->delete();
+    //         return response()->json(['message' => 'Problem deleted successfully'], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'Failed to delete problem'], 500);
+    //     }
+    // }
     
 }

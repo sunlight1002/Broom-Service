@@ -135,7 +135,7 @@ export default function ManageTeam() {
 
         $(tableRef.current).on("click", ".dt-availability-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/team-member/availability/${_id}`);
+            navigate(`/admin/manage-team/team-member/availability/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
