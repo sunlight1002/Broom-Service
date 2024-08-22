@@ -157,7 +157,7 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                     role="tab-panel"
                     aria-labelledby="forms"
                 >
-                    <Document worker={worker} />
+                    <Document worker={worker}  getWorkerDetails={getWorkerDetails}/>
                 </div>
             </div>
         </div>

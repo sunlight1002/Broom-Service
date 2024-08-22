@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import WorkerHistory from "../../Components/Workers/WorkerHistory";
 import WorkerProfile from "../../Components/Workers/WorkerProfile";
 import Sidebar from "../../Layouts/Sidebar";
@@ -24,10 +24,18 @@ export default function ViewWorker() {
             });
     };
 
+    const data = useCallback(
+        () => {
+            getWorker();
+        },
+        [worker],
+    )
+
+
     useEffect(() => {
         getWorker();
     }, []);
-    
+
     return (
         <div id="container">
             <Sidebar />
@@ -55,7 +63,7 @@ export default function ViewWorker() {
                         <WorkerProfile worker={worker} />
                         <WorkerHistory
                             worker={worker}
-                            getWorkerDetails={getWorker}
+                            getWorkerDetails={data}
                         />
                     </div>
                 )}

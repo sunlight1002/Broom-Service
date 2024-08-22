@@ -7,7 +7,7 @@ import DocumentList from "../Documents/DocumentList";
 import DocumentModal from "../Documents/DocumentModal";
 import { useTranslation } from "react-i18next";
 
-export default function Document({ worker }) {
+export default function Document({ worker ,getWorkerDetails}) {
 
     const { t } = useTranslation();
     const [alldocumentTypes, setAllDocumentTypes] = useState([]);
@@ -44,9 +44,8 @@ export default function Document({ worker }) {
                             "Document has been deleted.",
                             "success"
                         );
-                        setTimeout(() => {
                             getDocuments();
-                        }, 1000);
+                            getWorkerDetails()
                     });
             }
         });
@@ -56,22 +55,20 @@ export default function Document({ worker }) {
         axios
             .get(`/api/admin/documents/${parseInt(worker.id)}`, { headers })
             .then((response) => {
+                
                 setDocuments(response.data.documents);
             });
     };
 
     const getDocumentTypes = () => {
-        axios.get(`/api/admin/get-doc-types`, { headers }).then((res) => {
+        axios.get(`/api/admin/get-doc-types`, { headers }).then((res) => {            
             if (res.data && res.data.documentTypes.length > 0) {
                 setAllDocumentTypes(res.data.documentTypes);
             }
         });
     };
 
-    useEffect(() => {
-        getDocuments();
-        getDocumentTypes();
-    }, []);
+ 
 
     const handleAddDocument = () => {
         if (
@@ -103,6 +100,7 @@ export default function Document({ worker }) {
                 } else {
                     alert.success(res.data.message);
                     getDocuments();
+                    getWorkerDetails()
                     setIsOpenDocumentModal(false);
                 }
             })
@@ -142,6 +140,13 @@ export default function Document({ worker }) {
 
         return alldocumentTypes;
     }, [worker, alldocumentTypes]);
+
+    useEffect(() => {
+        getDocuments();
+        getDocumentTypes();
+    }, [worker]);
+    // console.log(worker);
+    
 
     return (
         <div
