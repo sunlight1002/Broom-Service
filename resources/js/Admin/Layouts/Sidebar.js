@@ -32,7 +32,7 @@ export default function Sidebar() {
     const [isDropdownOpen, setDropdownOpen] = useState(false); // Manage dropdown open state
 
     // Check if the current path matches any of the routes in the dropdown
-    const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time", "/admin/settings"].includes(location.pathname);
+    const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time","/admin/holidays", "/admin/settings"].includes(location.pathname);
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
@@ -62,6 +62,7 @@ export default function Sidebar() {
         services: "/admin/services",
         manpowerCompanies: "/admin/manpower-companies",
         manageTime: "/admin/manage-time",
+        holidays:"/admin/holidays",
         accountSettings: "/admin/settings",
     };
 
@@ -122,6 +123,13 @@ export default function Sidebar() {
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-users font-20"></i>{t("admin.sidebar.workers")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
+                    <NavLink to="/admin/workers-leaves"
+                        className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-calendar-minus font-20"></i>{t("admin.sidebar.workerLeave")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
@@ -233,6 +241,12 @@ export default function Sidebar() {
                                         <Link to={routes.manageTime}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.manageTime")}
+                                        </Link>
+                                    </li>
+                                    <li className={`list-group-item ${isActive(routes.holidays) ? "active" : ""}`}>
+                                        <Link to={routes.holidays}>
+                                            <i className="fa fa-angle-right"></i>{" "}
+                                            {t("admin.sidebar.settings.holidays")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.accountSettings) ? "active" : ""}`}>

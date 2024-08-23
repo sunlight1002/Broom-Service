@@ -60,6 +60,8 @@ const Form101Component = () => {
         setFormSubmitted(false)
     };
 
+    console.log(values);
+
 
     const formSchema = yup.object({
         employerName: yup.string().trim().nullable(),

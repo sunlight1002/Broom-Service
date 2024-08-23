@@ -146,7 +146,8 @@
         "repeatancy": "חזרתיות",
         "problem": "בעיה",
         "noProblem": "אין בעיה",
-        "noOfProblem": "מספר בעיות"
+        "noOfProblem": "מספר בעיות",
+        "Submit": "שלח"
     },
     "modal": {
         "title": "מודל",
@@ -998,7 +999,8 @@
             "if_job_was_done": "אם העבודה נעשתה",
             "time_for_job": "זמן לעבודה",
             "time_worker_actually": "הזמן שהעובד עבד בפועל",
-            "client_review": "ביקורת לקוח"
+            "client_review": "ביקורת לקוח",
+            "visits":"ביקורים"
         },
         "modal": {
             "title": "מודל",
@@ -1554,6 +1556,14 @@
                 }
             }
         },
+        "holidays":{
+            "addNewHoliday":"הוסף חג חדש",
+            "holidayName":"שם החג",
+            "startDate":"תאריך התחלה",
+            "endDate" : "תאריך סיום",
+            "editHoliday":"עדכון לחג",
+            "update":"לְעַדְכֵּן"  
+        },
         "sidebar": {
             "dashboard": "לוח מחוונים",
             "leads": "לידים",
@@ -1568,6 +1578,7 @@
             "payments": "תשלומים",
             "earnings": "הכנסות",
             "notification": "התראות",
+            "workerLeave":"עובדים עוזבים",
             "settings": {
                 "title": "הגדרות",
                 "manage_team": "ניהול צוות",
@@ -1593,9 +1604,18 @@
                 "selectLang": "--- בחר שפה ---",
                 "selectCurrency": "--- בחר מטבע ---",
                 "uploadProfile": "העלאת תמונת פרופיל",
-                "verification": "אימות דו-שלבי"
+                "verification": "אימות דו-שלבי",
+                "holidays":"חגים"
             },
             "logout": "התנתק"
+        },
+        "leaves":{
+            "confirmation": "אִשׁוּר",
+            "confirmationText": "הערה לדחייה",
+            "rejectionReason" : "סיבה לדחייה",
+            "confirm" : "לְאַשֵׁר",
+            "cancel" :"לְבַטֵל",
+            "approveConfirm":"אתה בטוח שאתה מאשר?"
         }
     },
     "worker": {
@@ -1606,12 +1626,21 @@
         "search": "לחפש",
         "next": "הַבָּא",
         "previous": "קודם",
+        "workerName":"שם העובד",
+        "endDate":"תאריך סיום",
+        "doctorReport":"דוח רופא",
+        "reason":"לְנַמֵק",
+        "status":"סטָטוּס",
+        "action":"פְּעוּלָה",
+        "approve":"לְאַשֵׁר",
+        "reject":"דחה",
         "sidebar": {
             "dashboard": "לוּחַ מַחווָנִים",
             "jobs": "מקומות תעסוקה",
             "schedule": "לוח זמנים",
             "not_available": "תאריכים לא זמינים",
-            "workingHours": "שעה (ות"
+            "workingHours": "שעה (ות",
+            "leaves":"עלים"
         },
         "dashboard": {
             "past_jobs": "משרות קודמות",
@@ -1773,7 +1802,20 @@
             "enterBankname":"הזן את שם הבנק",
             "enterBanknumber":"הזן מספר בנק",
             "enterBranchnumber":"הזן מספר סניף",
-            "enterAccountnumber":"הזן מספר חשבון"
+            "enterAccountnumber":"הזן מספר חשבון",
+            "advance":"מקדמה/הלוואה",
+            "type":"סוּג",
+            "amount":"סְכוּם",
+            "pendingAmount":"כמות בהמתנה",
+            "action":"פְּעוּלָה",
+            "addAdvance":"הוסף מקדמה/הלוואה",
+            "editAdvance":"ערוך מראש/הלוואה",
+            "selectType":"בחר סוג",
+            "Advance":"לְקַדֵם",
+            "loan":"לְהַלווֹת",
+            "monthlyPayment":"תשלום חודשי",
+            "loanStart":"תאריך תחילת ההלוואה",
+            "submit":"לְהַגִישׁ"
         }
     },
     "worker_contract": {
