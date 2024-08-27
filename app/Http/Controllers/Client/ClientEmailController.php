@@ -314,13 +314,13 @@ class ClientEmailController extends Controller
         ], 404);
       }
 
-      $card = ClientCard::query()->find($request->card_id);
+      // $card = ClientCard::query()->find($request->card_id);
 
-      if (!$card) {
-        return response()->json([
-          'message' => "No card found"
-        ], 404);
-      }
+      // if (!$card) {
+      //   return response()->json([
+      //     'message' => "No card found"
+      //   ], 404);
+      // }
 
       $input = $request->input();
       $input['signed_at'] = now()->toDateTimeString();

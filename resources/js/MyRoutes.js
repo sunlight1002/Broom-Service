@@ -205,6 +205,11 @@ export default function MyRoutes() {
                         path="work-contract/:id"
                         element={<WorkContract />}
                     />
+                      <Route
+                        exact
+                        path="work-contract/:id/:hash"
+                        element={<WorkContract />}
+                    />
                     <Route exact path="form101/:id" element={<Form101 />} />
                     <Route
                         exact

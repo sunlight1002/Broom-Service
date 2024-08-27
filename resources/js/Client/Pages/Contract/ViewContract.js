@@ -24,6 +24,7 @@ export default function ViewContract() {
     const [signature, setSignature] = useState(null);
     const [Aaddress, setAaddress] = useState(null);
     const [clientCard, setClientCard] = useState(null);
+    const [status, setStatus] = useState("")
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -73,6 +74,8 @@ export default function ViewContract() {
 
     const getOffer = () => {
         axios.post(`/api/client/contracts/${param.hash}`).then((res) => {
+            console.log(res);
+            
             setOffer(res.data.offer);
             setClient(res.data.offer.client);
             setServices(JSON.parse(res.data.offer.services));
@@ -88,6 +91,9 @@ export default function ViewContract() {
                 { headers }
             )
             .then((res) => {
+                console.log(res,"get");
+                
+                setStatus(res.data?.contract?.status)
                 setContract(res.data.contract);
             });
     };
@@ -99,7 +105,7 @@ export default function ViewContract() {
 
     return (
         <div className="container parent">
-            <Sidebar />
+            {/* <Sidebar /> */}
             <div className="send-offer client-contract sendOfferRtl">
                 <div className="maxWidthControl dashBox mb-4">
                     <div className="row">
