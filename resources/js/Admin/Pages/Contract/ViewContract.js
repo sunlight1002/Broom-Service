@@ -637,11 +637,13 @@ export default function WorkContract() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+
+    
     const getContract = () => {
         axios
-            .post(`/api/admin/get-contract`, { id: param.id }, { headers })
-            .then((res) => {
-                setLng(res.data.contract[0].client.lng)
+            .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
+            .then((res) => {                
+                setLng(res.data?.contract?.client?.lng)
             })
     }
     useEffect(() => {

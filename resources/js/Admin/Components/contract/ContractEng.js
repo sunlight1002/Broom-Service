@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect , useMemo} from "react";
 import Sidebar from "../../Layouts/Sidebar";
 import logo from "../../../Assets/image/sample.svg";
 import star from "../../../Assets/image/icons/blue-star.png";
@@ -8,15 +8,28 @@ import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import swal from "sweetalert";
-import Moment from "moment";
+import moment from "moment";
 import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 import { frequencyDescription } from "../../../Utils/job.utils";
 
 export default function ContractEng() {
-    const [contract, setContract] = useState([]);
+    const [offer, setOffer] = useState(null);
     const [services, setServices] = useState([]);
-    const [client, setClient] = useState([]);
-    const [clientCard, setClientCard] = useState(null);
+    const [client, setClient] = useState(null);
+    const [contract, setContract] = useState(null);
+    const [signature, setSignature] = useState(null);
+    const [cardSignature, setCardSignature] = useState(null);
+    const [Aaddress, setAaddress] = useState(null);
+    const [status, setStatus] = useState("");
+    const [sessionURL, setSessionURL] = useState("");
+    const [addCardBtnDisabled, setAddCardBtnDisabled] = useState(false);
+    const [checkingForCard, setCheckingForCard] = useState(false);
+    const [clientCards, setClientCards] = useState([]);
+    const [selectedClientCardID, setSelectedClientCardID] = useState(null);
+    const [isCardAdded, setIsCardAdded] = useState(false);
+    const [consentToAds, setConsentToAds] = useState(true);
+    const [signDate, setSignDate] = useState(moment().format("DD/MM/YYYY"));
 
     const param = useParams();
     const sigRef = useRef();
@@ -25,6 +38,39 @@ export default function ContractEng() {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+    const getContract = () => {
+        axios
+            .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
+            .then((res) => {
+                const _contract = res.data.contract;
+                setOffer(_contract.offer);
+                setServices(JSON.parse(_contract.offer.services));
+                setClient(_contract.client);
+                setContract(_contract);
+                setStatus(_contract.status);
+                setConsentToAds(_contract.consent_to_ads ? true : false);
+
+                setClientCards([_contract?.card == null ? '' : _contract?.card]);
+                setSelectedClientCardID(_contract.card_id);
+                if (_contract.status != "not-signed") {
+                    setIsCardAdded(true);
+                }
+                if (_contract.signed_at) {
+                    setSignDate(
+                        moment(_contract.signed_at).format("DD/MM/YYYY")
+                    );
+                }
+                i18next.changeLanguage(_contract.client.lng);
+
+                if (_contract.client.lng == "heb") {
+                    import("../../../Assets/css/rtl.css");
+                    document.querySelector("html").setAttribute("dir", "rtl");
+                } else {
+                    document.querySelector("html").removeAttribute("dir");
+                }
+            });
     };
 
     const handleVerify = (e) => {
@@ -46,24 +92,29 @@ export default function ContractEng() {
             });
     };
 
-    const handleSignatureEnd = () => {
-        setSignature(sigRef.current.toDataURL());
-    };
-
-    const getContract = () => {
-        axios
-            .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
-            .then((res) => {
-                setContract(res.data.contract);
-                setClient(res.data.contract.client);
-                setServices(JSON.parse(res.data.contract.offer.services));
-                setClientCard(res.data.contract.card);
-            });
-    };
-
     useEffect(() => {
         getContract();
     }, []);
+
+    const workerHours = (_service) => {
+        if (_service.type === "hourly") {
+            return _service.workers.map((i) => i.jobHours).join(", ");
+        }
+
+        return "-";
+    };
+
+    const clientName = useMemo(() => {
+        return client ? `${client.firstname} ${client.lastname}` : "";
+    }, [client]);
+
+    const showWorkerHours = useMemo(() => {
+        return services.filter((i) => i.type !== "fixed").length > 0;
+    }, [services]);
+
+    const selectedClientCard = useMemo(() => {
+        return clientCards.find((i) => i.id === parseInt(selectedClientCardID));
+    }, [clientCards, selectedClientCardID]);
 
     return (
         <>
@@ -131,10 +182,10 @@ export default function ContractEng() {
                         <div className="signed">
                             <p>
                                 Made and Signed in:{" "}
-                                <span>{client.city ? client.city : "NA"}</span>{" "}
+                                <span>{client && client?.city ? client.city : "NA"}</span>{" "}
                                 on{" "}
                                 <span>
-                                    {Moment(contract.created_at).format(
+                                    {moment(contract && contract?.created_at).format(
                                         "DD MMMM,Y"
                                     )}
                                 </span>
@@ -153,9 +204,9 @@ export default function ContractEng() {
                                 <li className="list-inline-item">
                                     Full Name:{" "}
                                     <span>
-                                        {client.firstname +
+                                        {client && client.firstname +
                                             " " +
-                                            client.lastname}
+                                            client && client.lastname}
                                     </span>
                                 </li>
                                 {/* <li className="list-inline-item">
@@ -184,13 +235,13 @@ export default function ContractEng() {
                                 <li className="list-inline-item">
                                     Telephone:{" "}
                                     <span>
-                                        {client.phone ? client.phone : "NA"}
+                                        {client && client.phone ? client.phone : "NA"}
                                     </span>
                                 </li>
                                 <li className="list-inline-item">
                                     Email:{" "}
                                     <span>
-                                        {client.email ? client.email : "NA"}
+                                        { client && client.email ? client.email : "NA"}
                                     </span>
                                 </li>
                             </ul>
@@ -516,15 +567,69 @@ export default function ContractEng() {
                                         </tr>
 
 
-                                      {/* <tr>
-                                            <td>
-                                                {t("client.contract-form.cc_card_type")}
-                                                :{" "}
-                                               
-                                            </td>
-                                            <td></td>
-                                        </tr>
                                         <tr>
+                                            <td>
+                                                <p>
+                                                    {t("client.contract-form.cc_details")}
+                                                </p>
+                                                <p>
+                                                    {t("client.contract-form.cc_card_type")}
+                                                    :{" "}
+                                                    {selectedClientCard
+                                                        ? selectedClientCard.card_type
+                                                        : ""}
+                                                </p>
+                                                <p>
+                                                    {t(
+                                                        "client.contract-form.cc_holder_name"
+                                                    )}
+                                                    :{" "}
+                                                    {selectedClientCard
+                                                        ? selectedClientCard.card_holder_name
+                                                        : ""}
+                                                </p>
+                                                <p>
+                                                    {t("client.contract-form.cc_id_number")}
+                                                    :{" "}
+                                                    {selectedClientCard
+                                                        ? selectedClientCard.card_holder_id
+                                                        : ""}
+                                                </p>
+                                                <p>
+                                                    {t("client.contract-form.cc_signature")}
+                                                    :
+                                                </p>
+                                                {clientCards.length > 0 && clientCards.map((_card, _index) => {
+                                                    return (
+                                                        // <div>{_card}</div>
+                                                        <div className="my-3 ml-3" key={_index}>
+                                                            <label className="form-check-label ">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="form-check-input"
+                                                                    value={_card.id}
+                                                                    checked={
+                                                                        _card.id ==
+                                                                        selectedClientCardID
+                                                                    }
+                                                                    disabled={
+                                                                        contract &&
+                                                                        contract.status !=
+                                                                        "not-signed"
+                                                                    }
+                                                                />
+                                                                **** **** ****{" "}
+                                                                {_card.card_number} -{" "}
+                                                                {_card.valid} (
+                                                                {_card.card_type})
+                                                            </label>
+                                                        </div>
+                                                    );
+                                                })}
+                                                
+                                            </td>
+                                        </tr>
+                                        {/* <tr>
                                             <td>
                                                 {t(
                                                     "client.contract-form.cc_holder_name"
@@ -559,7 +664,7 @@ export default function ContractEng() {
                                             </td>
                                             <td>&nbsp;</td>
                                         </tr>
-                                        {clientCard && (
+                                        {clientCards && (
                                             <tr>
                                                 <td style={{ width: "60%" }}>
                                                     {t(
@@ -568,9 +673,9 @@ export default function ContractEng() {
                                                 </td>
                                                 <td>
                                                     **** **** ****{" "}
-                                                    {clientCard.card_number} -{" "}
-                                                    {clientCard.valid} (
-                                                    {clientCard.card_type})
+                                                    {clientCards.card_number} -{" "}
+                                                    {clientCards.valid} (
+                                                    {clientCards.card_type})
                                                 </td>
                                             </tr>
                                         )}
