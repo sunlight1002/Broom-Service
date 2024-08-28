@@ -730,7 +730,7 @@ export default function WorkContract() {
     const handleAccept = (e) => {
 
         // if (!ctype) { swal('Please select card type', '', 'error'); return false; }
-        if (!cname) { swal('Please enter card holder name', '', 'error'); return false; }
+        // if (!cname) { swal('Please enter card holder name', '', 'error'); return false; }
         // if (!cvv) { swal('Please select card cvv', '', 'error'); return false; }
         if (!signature) { swal('Please sign the contract', '', 'error'); return false; }
         if (!signature2) { swal('Please enter signature on the card', '', 'error'); return false; }
@@ -742,8 +742,8 @@ export default function WorkContract() {
             client_id: offer[0]?.client.id,
             additional_address: Aaddress,
             // card_type: ctype,
-            name_on_card: cname,
-            cvv: cvv.substring(0, 3),
+            // name_on_card: cname,
+            // cvv: cvv.substring(0, 3),
             status: 'un-verified',
             signature: signature,
             card_sign: signature2
@@ -949,9 +949,9 @@ export default function WorkContract() {
 
                                         <br /> <span style={{ fontWeight: "600" }} className='d-block mt-2'>{t('work-contract.other_address_txt')}</span> <br />
                                         {contract && contract.additional_address != null ?
-                                            <input type='text' value={contract.additional_address} readOnly className='form-control' />
+                                            <input type='text' value={contract.additional_address} readOnly className='form-control' style={{border: "2px solid #ccc"}}  />
                                             :
-                                            <input type='text' name="additional_address" onChange={(e) => setAaddress(e.target.value)} placeholder={t('work-contract.placeholder_address')} className='form-control' />
+                                            <input type='text' name="additional_address" onChange={(e) => setAaddress(e.target.value)} placeholder={t('work-contract.placeholder_address')} className='form-control' style={{border: "2px solid #ccc"}}  />
                                         }
                                     </td>
                                 </tr>
@@ -989,13 +989,13 @@ export default function WorkContract() {
                                     <td colSpan="2">{t('work-contract.hereby_permit_txt')}</td>
                                     {/* <td>&nbsp;</td> */}
                                 </tr>
-                                {/* <tr>
+                                <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_type')}</td>
                                     <td>
                                     { contract && contract.card_type != null ?
-                                        <input type="text" value={contract.card_type} className="form-control" readOnly />
+                                        <input type="text" value={contract.card_type} className="form-control" style={{border: "2px solid #ccc"}} readOnly />
                                         :
-                                        <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
+                                        <select className='form-control' style={{border: "2px solid #ccc"}}  onChange={(e) => setCtype(e.target.value)}>
                                             <option>Please Select</option>
                                             <option value='Visa'>Visa</option>
                                             <option value='Master Card'>Master Card</option>
@@ -1003,28 +1003,28 @@ export default function WorkContract() {
                                         </select>
                                     }
                                     </td>
-                                </tr>*/}
+                                </tr>
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_name')}</td>
                                     <td>
                                         {contract && contract.name_on_card != null ?
                                             <input type="text" value={contract.name_on_card} className="form-control" readOnly />
                                             :
-                                            <input type='text' name="name_on_card" onChange={(e) => setCname(e.target.value)} className='form-control' placeholder={t('work-contract.card_name')} />
+                                            <input type='text' name="name_on_card" onChange={(e) => setCname(e.target.value)} className='form-control' style={{border: "2px solid #ccc"}} placeholder={t('work-contract.card_name')} />
                                         }
                                     </td>
                                 </tr>
 
-                                {/*<tr>
+                                <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</td>
                                     <td>
                                     { contract && contract.cvv != null ?
-                                        <input type="text" value={contract.cvv} className="form-control" readOnly/>
+                                        <input type="text" value={contract.cvv} className="form-control" style={{border: "2px solid #ccc"}} readOnly/>
                                         :
-                                        <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
+                                        <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' style={{border: "2px solid #ccc"}} placeholder={t('work-contract.card_cvv')} />
                                     }
                                     </td>
-                                </tr>*/}
+                                </tr>
 
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.signature')}</td>

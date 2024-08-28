@@ -349,9 +349,9 @@ export default function ContractEng() {
                                                         <p key={i}>
                                                             {s.address
                                                                 ? s.address
-                                                                      .address_name
+                                                                    .address_name
                                                                     ? s.address
-                                                                          .address_name
+                                                                        .address_name
                                                                     : ""
                                                                 : ""}
                                                         </p>
@@ -362,16 +362,16 @@ export default function ContractEng() {
                                                         {contract.additional_address && (
                                                             <>
                                                                 {contract.status ==
-                                                                "not-signed" ? (
+                                                                    "not-signed" ? (
                                                                     <React.Fragment>
                                                                         <span>
                                                                             {contract
                                                                                 .client
                                                                                 .geo_address
                                                                                 ? contract
-                                                                                      .client
-                                                                                      .geo_address +
-                                                                                  ", "
+                                                                                    .client
+                                                                                    .geo_address +
+                                                                                ", "
                                                                                 : ""}
                                                                         </span>
                                                                         <span
@@ -410,9 +410,9 @@ export default function ContractEng() {
                                                                                 .client
                                                                                 .geo_address
                                                                                 ? contract
-                                                                                      .client
-                                                                                      .geo_address +
-                                                                                  ", "
+                                                                                    .client
+                                                                                    .geo_address +
+                                                                                ", "
                                                                                 : ""}
                                                                         </span>
                                                                         <span
@@ -498,7 +498,7 @@ export default function ContractEng() {
                                                                 ) +
                                                                 " " +
                                                                 (s.service !=
-                                                                "10"
+                                                                    "10"
                                                                     ? s.name
                                                                     : s.other_title) +
                                                                 ", " +
@@ -514,6 +514,36 @@ export default function ContractEng() {
                                             </td>
                                             <td>&nbsp;</td>
                                         </tr>
+
+
+                                      {/* <tr>
+                                            <td>
+                                                {t("client.contract-form.cc_card_type")}
+                                                :{" "}
+                                               
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                {t(
+                                                    "client.contract-form.cc_holder_name"
+                                                )}
+                                                :{" "}
+                                               
+                                            </td>
+                                            <td></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>
+                                                {t("client.contract-form.cc_id_number")}
+                                                :{" "}
+                                               
+                                            </td>
+                                            <td></td>
+                                        </tr>  */}
+
                                         <tr>
                                             <td style={{ width: "60%" }}>
                                                 I the undersigned hereby permit
@@ -548,32 +578,32 @@ export default function ContractEng() {
                                             <>
                                                 {contract.status ==
                                                     "not-signed" && (
-                                                    <React.Fragment>
-                                                        <tr>
-                                                            <td>
-                                                                Signature on the
-                                                                Card
-                                                            </td>
-                                                            <td>
-                                                                {" "}
-                                                                <SignatureCanvas
-                                                                    penColor="black"
-                                                                    canvasProps={{
-                                                                        width: 250,
-                                                                        height: 100,
-                                                                        className:
-                                                                            "sigCanvas",
-                                                                    }}
-                                                                    ref={sigRef}
-                                                                    onEnd={
-                                                                        handleSignatureEnd
-                                                                    }
-                                                                />
-                                                                &nbsp;
-                                                            </td>
-                                                        </tr>
-                                                    </React.Fragment>
-                                                )}
+                                                        <React.Fragment>
+                                                            <tr>
+                                                                <td>
+                                                                    Signature on the
+                                                                    Card
+                                                                </td>
+                                                                <td>
+                                                                    {" "}
+                                                                    <SignatureCanvas
+                                                                        penColor="black"
+                                                                        canvasProps={{
+                                                                            width: 250,
+                                                                            height: 100,
+                                                                            className:
+                                                                                "sigCanvas",
+                                                                        }}
+                                                                        ref={sigRef}
+                                                                        onEnd={
+                                                                            handleSignatureEnd
+                                                                        }
+                                                                    />
+                                                                    &nbsp;
+                                                                </td>
+                                                            </tr>
+                                                        </React.Fragment>
+                                                    )}
                                             </>
                                         )}
 
@@ -1015,3 +1045,103 @@ export default function ContractEng() {
         </>
     );
 }
+
+
+
+
+
+{/* <div className="mt-2">
+                                    <p>
+                                        {t(
+                                            "client.contract-form.cc_card_charge_auth"
+                                        )}
+                                    </p>
+                                    <p>
+                                        {t(
+                                            "client.contract-form.cc_declaration"
+                                        )}
+                                    </p>
+                                    <p>
+                                        {t("client.contract-form.cc_details")}
+                                    </p>
+                                    <p>
+                                        {t("client.contract-form.cc_card_type")}
+                                        :{" "}
+                                        {selectedClientCard
+                                            ? selectedClientCard.card_type
+                                            : ""}
+                                    </p>
+                                    <p>
+                                        {t(
+                                            "client.contract-form.cc_holder_name"
+                                        )}
+                                        :{" "}
+                                        {selectedClientCard
+                                            ? selectedClientCard.card_holder_name
+                                            : ""}
+                                    </p>
+                                    <p>
+                                        {t("client.contract-form.cc_id_number")}
+                                        :{" "}
+                                        {selectedClientCard
+                                            ? selectedClientCard.card_holder_id
+                                            : ""}
+                                    </p>
+                                    <p>
+                                        {t("client.contract-form.cc_signature")}
+                                        :
+                                    </p>
+                                    <div>
+                                        {contract && contract.signed_at && (
+                                            <>
+                                                {contract.form_data && (
+                                                    <img
+                                                        src={
+                                                            contract.form_data
+                                                                .card_signature
+                                                        }
+                                                    />
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                    <p>
+                                        {t(
+                                            "client.contract-form.add_cc_click_here"
+                                        )}
+                                    </p>
+
+                                    {clientCards.length > 0 && clientCards.map((_card, _index) => {
+                                        return (
+                                            // <div>{_card}</div>
+                                            <div className="my-3" key={_index}>
+                                                <label className="form-check-label ">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="form-check-input"
+                                                        value={_card.id}
+                                                        checked={
+                                                            _card.id ==
+                                                            selectedClientCardID
+                                                        }
+                                                        disabled={
+                                                            contract &&
+                                                            contract.status !=
+                                                                "not-signed"
+                                                        }
+                                                    />
+                                                    **** **** ****{" "}
+                                                    {_card.card_number} -{" "}
+                                                    {_card.valid} (
+                                                    {_card.card_type})
+                                                </label>
+                                            </div>
+                                        );
+                                    })}
+
+                                    <p>
+                                        {t(
+                                            "client.contract-form.cc_compensation"
+                                        )}
+                                    </p>
+                                </div> */}
