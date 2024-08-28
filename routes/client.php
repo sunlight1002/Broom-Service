@@ -80,6 +80,7 @@ Route::post('reject-meeting', [ClientEmailController::class, 'rejectMeeting']);
 Route::post('meeting/{id}/reschedule', [ClientEmailController::class, 'rescheduleMeeting']);
 Route::post('meetings/{id}/slot-save', [ClientEmailController::class, 'saveMeetingSlot']);
 Route::post('get-offer/{id}', [ClientEmailController::class, 'GetOffer']);
+
 Route::post('accept-offer', [ClientEmailController::class, 'AcceptOffer']);
 Route::post('reject-offer', [ClientEmailController::class, 'RejectOffer']);
 Route::post('contracts/{hash}', [ClientEmailController::class, 'contractByHash']);
