@@ -346,7 +346,7 @@ return [
         ],
         'client_job_updated' => [
             'header' => "*Job Completed | Broom Service*",
-            'content' => "Your job has been completed.\n\nDate: :date\nService: :service_name\n\nPlease, rate us and send your review.",
+            'content' => "Your service has been completed.\n\nDate: :date\nService: :service_name\n\nPlease, rate us and send your review.",
         ],
         'delete_meeting' => [
             'header' => "*Meeting cancelled*",
@@ -386,7 +386,7 @@ return [
             'content' => "The worker has not finished the job on time.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_exceed_job_time' => [
-            'header' => "*Worker Exceed Job Time | Broom Service*",
+            'header' => "*Worker Exceeded Job Time | Broom Service*",
             'content' => "The worker has exceeded the job time.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_remind_job' => [

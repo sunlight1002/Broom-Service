@@ -52,7 +52,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     // Change Password Api
     Route::post('change-password', [DashboardController::class, 'changePassword']);
 
-
+    Route::post('save-card',[ClientEmailController::class,'saveCard'])->name('save-card');
     Route::get('get-card', [ClientCardController::class, 'index']);
     Route::post('cards/initialize-adding', [ClientCardController::class, 'createCardSession']);
     Route::delete('cards/{id}', [ClientCardController::class, 'destroy']);

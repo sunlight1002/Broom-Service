@@ -25,7 +25,7 @@ export default function ContractEng() {
     const [sessionURL, setSessionURL] = useState("");
     const [addCardBtnDisabled, setAddCardBtnDisabled] = useState(false);
     const [checkingForCard, setCheckingForCard] = useState(false);
-    const [clientCards, setClientCards] = useState([]);
+    const [clientCards, setClientCards] = useState({});
     const [selectedClientCardID, setSelectedClientCardID] = useState(null);
     const [isCardAdded, setIsCardAdded] = useState(false);
     const [consentToAds, setConsentToAds] = useState(true);
@@ -44,6 +44,8 @@ export default function ContractEng() {
         axios
             .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
             .then((res) => {
+                console.log(res);
+                
                 const _contract = res.data.contract;
                 setOffer(_contract.offer);
                 setServices(JSON.parse(_contract.offer.services));
@@ -52,7 +54,7 @@ export default function ContractEng() {
                 setStatus(_contract.status);
                 setConsentToAds(_contract.consent_to_ads ? true : false);
 
-                setClientCards([_contract?.card == null ? '' : _contract?.card]);
+                setClientCards(_contract?.card);
                 setSelectedClientCardID(_contract.card_id);
                 if (_contract.status != "not-signed") {
                     setIsCardAdded(true);
@@ -96,29 +98,11 @@ export default function ContractEng() {
         getContract();
     }, []);
 
-    const workerHours = (_service) => {
-        if (_service.type === "hourly") {
-            return _service.workers.map((i) => i.jobHours).join(", ");
-        }
-
-        return "-";
-    };
-
-    const clientName = useMemo(() => {
-        return client ? `${client.firstname} ${client.lastname}` : "";
-    }, [client]);
-
-    const showWorkerHours = useMemo(() => {
-        return services.filter((i) => i.type !== "fixed").length > 0;
-    }, [services]);
-
-    const selectedClientCard = useMemo(() => {
-        return clientCards.find((i) => i.id === parseInt(selectedClientCardID));
-    }, [clientCards, selectedClientCardID]);
 
     return (
         <>
             <div className="container">
+            {/* <Sidebar /> */}
                 <div className="send-offer client-contract">
                     <div className="maxWidthControl dashBox mb-4">
                         <div className="row mb-3">
@@ -567,68 +551,12 @@ export default function ContractEng() {
                                         </tr>
 
 
-                                        <tr>
+                                        {/* <tr>
                                             <td>
-                                                <p>
-                                                    {t("client.contract-form.cc_details")}
-                                                </p>
-                                                <p>
-                                                    {t("client.contract-form.cc_card_type")}
-                                                    :{" "}
-                                                    {selectedClientCard
-                                                        ? selectedClientCard.card_type
-                                                        : ""}
-                                                </p>
-                                                <p>
-                                                    {t(
-                                                        "client.contract-form.cc_holder_name"
-                                                    )}
-                                                    :{" "}
-                                                    {selectedClientCard
-                                                        ? selectedClientCard.card_holder_name
-                                                        : ""}
-                                                </p>
-                                                <p>
-                                                    {t("client.contract-form.cc_id_number")}
-                                                    :{" "}
-                                                    {selectedClientCard
-                                                        ? selectedClientCard.card_holder_id
-                                                        : ""}
-                                                </p>
-                                                <p>
-                                                    {t("client.contract-form.cc_signature")}
-                                                    :
-                                                </p>
-                                                {clientCards.length > 0 && clientCards.map((_card, _index) => {
-                                                    return (
-                                                        // <div>{_card}</div>
-                                                        <div className="my-3 ml-3" key={_index}>
-                                                            <label className="form-check-label ">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    className="form-check-input"
-                                                                    value={_card.id}
-                                                                    checked={
-                                                                        _card.id ==
-                                                                        selectedClientCardID
-                                                                    }
-                                                                    disabled={
-                                                                        contract &&
-                                                                        contract.status !=
-                                                                        "not-signed"
-                                                                    }
-                                                                />
-                                                                **** **** ****{" "}
-                                                                {_card.card_number} -{" "}
-                                                                {_card.valid} (
-                                                                {_card.card_type})
-                                                            </label>
-                                                        </div>
-                                                    );
-                                                })}
+                                           
                                                 
                                             </td>
-                                        </tr>
+                                        </tr> */}
                                         {/* <tr>
                                             <td>
                                                 {t(
@@ -666,18 +594,14 @@ export default function ContractEng() {
                                         </tr>
                                         {clientCards && (
                                             <tr>
-                                                <td style={{ width: "60%" }}>
-                                                    {t(
-                                                        "credit-card.added-card"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    **** **** ****{" "}
-                                                    {clientCards.card_number} -{" "}
-                                                    {clientCards.valid} (
-                                                    {clientCards.card_type})
-                                                </td>
-                                            </tr>
+                                            <td style={{ width: "60%" }}>
+                                                {t("credit-card.added-card")}
+                                            </td>
+                                            <td>
+                                                **** **** **** {clientCards.card_number} - {clientCards.valid} (
+                                                {clientCards.card_type})
+                                            </td>
+                                        </tr>
                                         )}
                                         {contract && (
                                             <>

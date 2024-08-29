@@ -314,7 +314,21 @@ class ClientEmailController extends Controller
         ], 404);
       }
 
-      // $card = ClientCard::query()->find($request->card_id);
+
+      $args = [
+        'client_id'   => $client->id,
+        'card_type'   => $request->input('card_type'),
+        'card_number' => $request->input('card_number'),
+        'cvv'         => $request->input('cvv'),
+        'card_holder_id' => $client->id,
+        'card_holder_name' => $request->input('card_holder_name')
+      ];
+  
+      $card = ClientCard::create($args);
+      
+      $contract->update(['card_id' => $card->id]);
+      
+      // $card = ClientCard::query()->find($request->id);
 
       // if (!$card) {
       //   return response()->json([
@@ -371,6 +385,24 @@ class ClientEmailController extends Controller
         'error' => $e->getMessage()
       ], 500);
     }
+  }
+
+  public function saveCard(Request $request)
+  {
+    $args = [
+      'client_id'   => $request->cdata['cid'],
+      'card_type'   => $request->cdata['card_type'],
+      'card_number' => $request->cdata['card_number'],
+      'valid'       => $request->cdata['valid'],
+      'cvv'         => $request->cdata['cvv'],
+      'cc_charge'   => $request->cdata['cc_charge'],
+      'card_token'  => $request->cdata['card_token'],
+    ];
+
+    ClientCard::create($args);
+    return response()->json([
+      'message' => "Card validated successfully"
+    ], 200);
   }
 
   public function RejectContract(Request $request)
@@ -431,14 +463,15 @@ class ClientEmailController extends Controller
       ], 404);
     }
 
-    $cards = $client->cards()
-      ->when(
-        $contract->status != ContractStatusEnum::NOT_SIGNED,
-        function ($q) use ($contract) {
-          return $q->where('id', $contract->card_id);
-        }
-      )
-      ->get(['id', 'card_number', 'valid', 'card_type', 'card_holder_name', 'card_holder_id']);
+    $cards = ClientCard::query()
+        ->where('client_id', $client->id) // Filter by client_id
+        ->when(
+            $contract->status != ContractStatusEnum::NOT_SIGNED,
+            function ($q) use ($contract) {
+                return $q->where('id', $contract->card_id);
+            }
+        )
+        ->get(['id', 'card_number', 'valid', 'card_type', 'card_holder_name', 'card_holder_id']);
 
     $offer['services'] = $this->formatServices($offer);
 
