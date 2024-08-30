@@ -84,6 +84,8 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use App\Events\WhatsappNotificationEvent;
+use App\Listeners\WhatsappNotification;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -96,8 +98,8 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        'App\Events\WhatsappNotificationEvent' => [
-            'App\Listeners\WhatsappNotification'
+        WhatsappNotificationEvent::class => [
+            WhatsappNotification::class,
         ],
         JobWorkerChanged::class => [
             SendWorkerChangedNotification::class,
@@ -215,7 +217,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         ClientOrderWithDiscount::class => [
             NotifyForClientOrderWithDiscount::class
-        ]
+        ],
+       
     ];
 
     /**

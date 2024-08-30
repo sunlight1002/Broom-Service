@@ -46,4 +46,5 @@ final class NotificationTypeEnum extends AbstractEnum
     public const CLIENT_INVOICE_PAID_CREATED_RECEIPT = "client-invoice-paid-created-receipt";
     public const ORDER_CREATED_WITH_EXTRA = "order-created-with-extra";
     public const ORDER_CREATED_WITH_DISCOUNT = "order-created-with-discount";
+    public const SICK_LEAVE_CREATED = "sick_leave_created";
 }

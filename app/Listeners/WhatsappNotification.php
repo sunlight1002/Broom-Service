@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class WhatsappNotification
 {
+    use InteractsWithQueue;
     protected $whapiApiEndpoint, $whapiApiToken;
 
     /**
@@ -38,7 +39,7 @@ class WhatsappNotification
             $eventData = $event;
             $eventType = $eventData->type;
             $eventData = $eventData->notificationData;
-
+            //Log::info('Handling WhatsappNotificationEvent', ['type' => $type, 'data' => $eventData]);
             $headers = array();
             $url = "https://graph.facebook.com/v18.0/" . config('services.whatsapp_api.from_id') . "/messages";
             $headers[] = 'Authorization: Bearer ' . config('services.whatsapp_api.auth_token');
@@ -1285,6 +1286,37 @@ class WhatsappNotification
                     ]);
 
                     break;
+                    
+                case WhatsappMessageTemplateEnum::SICK_LEAVE_NOTIFICATION:
+                    $userData = $eventData['user'];
+                    $leaveData = $eventData['sickleave'];
+                    
+                    $receiverNumber = $userData['phone'];
+                    App::setLocale('en');
+
+                    $text = __('mail.wa-message.sick-leave.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => $userData['firstname']. ' ' . $userData['lastname']
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.sick-leave.body',[
+                        'status' => $leaveData['status'],
+                    ]);
+
+                    if ($leaveData['status'] !== 'approved' && !is_null($leaveData['rejection_comment'])) {
+                        $text .= "\n\n";
+                        $text .= __('mail.wa-message.sick-leave.reason', [
+                            'reason' => $leaveData['rejection_comment']
+                        ]);
+                    }
+                     
+
+                    break;    
             }
 
             if ($receiverNumber && $text) {
@@ -1295,7 +1327,7 @@ class WhatsappNotification
                         'to' => $receiverNumber,
                         'body' => $text
                     ]);
-
+                   
                 Log::info($response->json());
             }
         } catch (\Throwable $th) {

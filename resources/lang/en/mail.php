@@ -545,6 +545,12 @@ return [
             'view_worker' => 'View worker',
             'check_file' => 'Check file',
             'view_client' => 'View Client'
+        ],
+        'sick-leave'=>
+        [
+            'header' => "*Your Leave Status | Broom Service*",
+            'body' => 'Your sick leave request has been :status.',
+            'reason' => 'Reason for reject: :reason.'
         ]
         ],
     
@@ -553,6 +559,12 @@ return [
         'subject' => 'Your OTP for Login',
         'body' => 'Your OTP (One-Time Password) for login is: :otp',
         'expiration' => 'Please use this OTP to proceed with your login. OTP will expire in 10 minutes.',
+    ],
+
+    'sick_leave' => [
+        'subject' => 'Sick Leave Status',
+        'body' => 'Your sick leave request has been :status.',
+        'reason'=> 'Reason for reject: :reason.'
     ],
 
     
