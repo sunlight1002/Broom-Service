@@ -59,4 +59,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const ORDER_CREATED_WITH_DISCOUNT = "order_created_with_discount";
     public const LEAD_NEED_HUMAN_REPRESENTATIVE = "lead_need_human_representative";
     public const NO_SLOT_AVAIL_CALLBACK = "no_slot_avail_callback";
+    public const USER_STATUS_CHANGED = "user_status_changed";
 }

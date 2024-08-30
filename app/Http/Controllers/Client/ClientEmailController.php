@@ -23,6 +23,9 @@ use Illuminate\Http\Request;
 use App\Events\OfferAccepted;
 use App\Events\ReScheduleMeetingJob;
 use App\Events\SendClientLogin;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
+use Illuminate\Support\Facades\Mail;
 
 class ClientEmailController extends Controller
 {
@@ -109,6 +112,47 @@ class ClientEmailController extends Controller
       );
 
       event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        $emailData = [
+          'client' => $client->toArray(),
+          'status' => $client['status'],
+        ];
+
+      if ($client->notification_type === "both") {
+          // Trigger WhatsApp Notification
+          event(new WhatsappNotificationEvent([
+              "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+              "notificationData" => [
+                  'client' => $client->toArray(),
+                  'status' => $client['status'],
+              ]
+          ]));
+
+          // Send Email Notification
+          Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+              $messages->to('pratik.panchal@spexiontechnologies.com');
+              $sub = __('mail.user_status_changed.header');
+              $messages->subject($sub);
+          });
+
+      } elseif ($client->notification_type === "email") {
+          // Send Email Notification Only
+          Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+              $messages->to($emailData['client']['email']);
+              $sub = __('mail.user_status_changed.header');
+              $messages->subject($sub);
+          });
+
+      } else {
+          // Trigger WhatsApp Notification Only
+          event(new WhatsappNotificationEvent([
+              "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+              "notificationData" => [
+                  'client' => $client->toArray(),
+                  'status' => $client['status'],
+              ]
+          ]));
+      }
+
     }
 
     Notification::create([
@@ -349,6 +393,47 @@ class ClientEmailController extends Controller
         );
 
         event(new ClientLeadStatusChanged($client, $newLeadStatus));
+
+            $emailData = [
+              'client' => $client->toArray(),
+              'status' => $client['status'],
+            ];
+
+          if ($client->notification_type === "both") {
+              // Trigger WhatsApp Notification
+              event(new WhatsappNotificationEvent([
+                  "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                  "notificationData" => [
+                      'client' => $client->toArray(),
+                      'status' => $client['status'],
+                  ]
+              ]));
+
+              // Send Email Notification
+              Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+                  $messages->to('pratik.panchal@spexiontechnologies.com');
+                  $sub = __('mail.user_status_changed.header');
+                  $messages->subject($sub);
+              });
+
+          } elseif ($client->notification_type === "email") {
+              // Send Email Notification Only
+              Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+                  $messages->to($emailData['client']['email']);
+                  $sub = __('mail.user_status_changed.header');
+                  $messages->subject($sub);
+              });
+
+          } else {
+              // Trigger WhatsApp Notification Only
+              event(new WhatsappNotificationEvent([
+                  "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                  "notificationData" => [
+                      'client' => $client->toArray(),
+                      'status' => $client['status'],
+                  ]
+              ]));
+          }
       }
 
       Notification::create([
@@ -496,6 +581,47 @@ class ClientEmailController extends Controller
       );
 
       event(new ClientLeadStatusChanged($client, $newLeadStatus));
+
+      $emailData = [
+        'client' => $client->toArray(),
+        'status' => $client['status'],
+    ];
+
+    if ($client->notification_type === "both") {
+        // Trigger WhatsApp Notification
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'status' => $client['status'],
+            ]
+        ]));
+
+        // Send Email Notification
+        Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+            $messages->to('pratik.panchal@spexiontechnologies.com');
+            $sub = __('mail.user_status_changed.header');
+            $messages->subject($sub);
+        });
+
+    } elseif ($client->notification_type === "email") {
+        // Send Email Notification Only
+        Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+            $messages->to($emailData['client']['email']);
+            $sub = __('mail.user_status_changed.header');
+            $messages->subject($sub);
+        });
+
+    } else {
+        // Trigger WhatsApp Notification Only
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'status' => $client['status'],
+            ]
+        ]));
+    }
     }
 
     $schedule->load(['client', 'team', 'propertyAddress']);

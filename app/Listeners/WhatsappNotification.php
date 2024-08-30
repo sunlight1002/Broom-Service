@@ -1262,6 +1262,29 @@ class WhatsappNotification
                     ]);
 
                     break;
+                case WhatsappMessageTemplateEnum::USER_STATUS_CHANGED:
+                    $clientData = $eventData['client'];
+                
+                    // $receiverNumber = $clientData["phone"];
+                    $receiverNumber = '918469138538';
+                    if (!$receiverNumber) {
+                        return;
+                    }
+                
+                    // Set locale if needed
+                    App::setLocale('en');
+                
+                    // Build the WhatsApp message content
+                    $text = __('mail.wa-message.user_status_changed.header');
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.common.salutation', ['name' => $clientData['firstname']]);
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.user_status_changed.content', [
+                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'status' => $eventData['status']
+                    ]);
+
+                    break;
             }
 
             if ($receiverNumber && $text) {

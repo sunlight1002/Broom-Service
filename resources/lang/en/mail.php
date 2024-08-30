@@ -319,6 +319,10 @@ return [
         'end_time_nxt_step_email_title' => 'Job time ended',
         'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
     ],
+    'user_status_changed' => [
+        'header' => "*Status Changed | Broom Service*",
+        'content' =>  ":name changed the Status to :status."
+    ],
     'wa-message' => [
         'common' => [
             'salutation' => "Hi, *:name*"
@@ -520,6 +524,10 @@ return [
         'no_slot_avail_callback' => [
             'header' => "*No Available Meeting Slot | Broom Service*",
             'content' =>  "There are no available meeting slots. Please arrange a callback for :client_name."
+        ],
+        'user_status_changed' => [
+            'header' => "*Status Changed | Broom Service*",
+            'content' =>  ":name changed the Status to :status."
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
