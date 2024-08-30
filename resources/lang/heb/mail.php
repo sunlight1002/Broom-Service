@@ -374,7 +374,7 @@ return [
             'content' => "העובד עדיין לא התחיל את העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_not_finished_job_on_time' => [
-            'header' => "*העובד לא סיים את העבודה בזמן | Broom Service*",
+            'header' => "*העובד לא סיים את העבודה בזמן | שירות מטאטא*",
             'content' => "העובד לא סיים את העבודה בזמן.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_exceed_job_time' => [

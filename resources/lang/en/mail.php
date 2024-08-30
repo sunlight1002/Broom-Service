@@ -1,7 +1,7 @@
 <?php
 return [
     'meeting' => [
-        'subject'     => 'Meeting Schedule #:id | Broom Service',
+        'subject'     => 'Meeting Schedule from Broom Service #:id',
         'resubject'     => 'Re-schedule Meeting #:id | Broom Service',
         'file_subject'     => 'Files #:id | Broom Service',
         'file'     => 'Files',
@@ -26,23 +26,23 @@ return [
         'content_without_date_time'     => 'Just a friendly reminder that you have an upcoming appointment with :team_name at Address :address for a :purpose.',
     ],
     'cancel_meeting' => [
-        'subject'     => 'Meeting Cancelled #:id | Broom Service',
+        'subject'     => 'Meeting Cancelled from Broom Service #:id',
         'content'     => 'Just a friendly reminder that your meeting on :date between :start_time to :end_time has been cancelled.',
     ],
     'offer' => [
-        'subject'     => 'Offer Received #:id | Broom Service',
+        'subject'     => 'Offer Received from Broom Service #:id',
         'content'     => 'Please check the price offer for the service(s) :service_names. After your approval, an engagement agreement will be sent to you which you will need to fill out and sign. Then we will be ready to start the work.',
         'below_txt'   => 'Click the below button to see the price offer.',
         'btn_txt'     => 'Price Offer',
     ],
     'contract' => [
-        'subject'     => 'Contract for Offer #:id | Broom Service',
+        'subject'     => 'Contract with Broom Service for Offer #:id',
         'content'     => 'A work agreement for digital signature is attached. Please add your credit card details to the secure system. It will be charged 1 ILS, which will be refunded after verification. The details will be stored securely. Then, please sign and accept the contract. If you have any questions, please contact us: 03-525-70-60 or reply to this email.',
         'below_txt'   => 'Click the below button to check the contract.',
         'btn_txt'     => 'Check Contract',
     ],
     'form_101' => [
-        'subject'     => 'Form 101 #:id | Broom Service',
+        'subject'     => 'Form 101 | Broom Service #:id',
         'content'     => 'You have successfully registered on our portal. Please sign Form 101 to start working.',
         'below_txt'   => 'Click the button below to fill Form 101.',
         'btn_txt'     => 'Form 101',

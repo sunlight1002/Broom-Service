@@ -9,14 +9,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
     Test Invoice Mail ! CONTENT SOON
+    <p style="text-align: center;line-height: 30px">{{ __('mail.common.greetings') }}</p>
     <div style="text-align:center;margin:3%;display:flex;">
-        <a href="{{ $data['docurl'] }}" target="_blank" style="margin:3%;background: #004b80;color: #fff;border: 1px solid #4385f5;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;text-align: center"> View invoice</a><br>
+        <a href="{{ $data['docurl'] }}" target="_blank"
+            style="margin:3%;background: #004b80;color: #fff;border: 1px solid #4385f5;font-size: 16px;padding: 10px 24px;border-radius: 4px;cursor: pointer;text-decoration: none;min-width:135px;text-align: center">
+            View invoice</a><br>
     </div>
+    <p style="margin-top: 40px">{{ __('mail.common.dont_hesitate_to_get_in_touch') }}</p>
+    <p style="font-weight: 700;margin-bottom: 0;">{{ __('mail.common.regards') }}</p>
+    <p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px;">{{ __('mail.common.company') }}</p>
+    <p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px">{{ __('mail.common.tel') }}: 03-525-70-60</p>
+    <p style="margin-top: 3px;font-size: 14px;margin-bottom: 3px"><a
+            href="mailto:office@broomservice.co.il">office@broomservice.co.il</a></p>
 </body>
-
 </html>
