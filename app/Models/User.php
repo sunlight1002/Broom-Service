@@ -117,6 +117,11 @@ class User extends Authenticatable
         });
     }
 
+    public function leadStatuses()
+    {
+        return $this->hasMany(LeadStatus::class, 'client_id');
+    }
+
     public function setSkillAttribute($value)
     {
         $this->attributes['skill'] = json_encode($value);
