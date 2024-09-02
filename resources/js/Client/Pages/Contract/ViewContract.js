@@ -48,6 +48,7 @@ export default function WorkContract() {
             
             setCtype(cards.card_type)
             setCname(cards.card_holder_name)
+            setCnumber(cards.card_number)
         }
         if (!signature) { swal('Please sign the contract', '', 'error'); return false; }
         if (!signature2) { swal('Please enter signature on the card', '', 'error'); return false; }
