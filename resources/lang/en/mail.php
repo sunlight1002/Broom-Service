@@ -158,6 +158,10 @@ return [
         'shift_changed' => 'Job shift changed.',
         'shift_changed_subject' => 'Job shift changed | Broom Service',
     ],
+    'worker_re_scheduled' => [
+        'header' => 'Worker Re-scheduled Availability | Broom Service',
+        'content' => 'has changed availability that affects the job on'
+    ],
     'common' => [
         'salutation' => 'Hi, :name',
         'greetings' => 'Greetings from Broom Service',
@@ -215,7 +219,7 @@ return [
         ],
         'contract-signed' => [
             'subject' => 'Contract Form Signed | Broom Service',
-            'message' => 'You have completed the signing of the Contract Form. Kindly find the signed document attached in PDF format for your reference.',
+            'message' => 'You has completed the signing of the Contract Form. Kindly find the signed document attached in PDF format for your reference.',
         ],
         'insurance-signed' => [
             'subject' => 'Insurance Form Signed | Broom Service',

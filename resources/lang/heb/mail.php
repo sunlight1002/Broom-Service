@@ -6,7 +6,7 @@ return [
         'file_subject'     => 'קבצים | ברום סרוויס #:id',
         'file'     => 'קבצים',
         'file_content'     => "נוספו קבצים חדשים בפרטי הפגישה המוזכרים למטה",
-        'appointment' => 'רצינו לתזכר אותכם על הפגישה שנקבעה לכם',
+        'appointment' => 'זוהי תזכורת לכך שיש לך פגישה קרובה.',
         'select_preferred_slot' => 'אנא בחר משבצת פגישה מועדפת',
         'with'        => 'עם',
         'on'          => 'ב',
@@ -158,6 +158,10 @@ return [
         'shift_changed' => 'המשמרת הוחלפה.',
         'shift_changed_subject' => 'המשמרת הוחלפה. אנא בדוק את הפרטים.'
     ],
+    'worker_re_scheduled' => [
+        'header' => 'שינוי זמינות עובד | ברום סרוויס',
+        'content' => 'שינה את זמינותו שמשפיעה על העבודה בתאריך'
+    ],
     'common' => [
         'salutation' => 'שלום, :name',
         'greetings' => 'ברכות מצוות הברזל',
@@ -168,19 +172,19 @@ return [
     ],
     'admin' => [
         'form101-signed' => [
-            'subject' => 'הטופס 101 חתום | צוות הברזל',
+            'subject' => 'הושלם חתימה על טופס 101 | ברום סרוויס',
             'message' => ':worker_name השלים את חתימת הטופס 101. אנא מצא את המסמך החתום מצורף בפורמט PDF להפנייתך.'
         ],
         'safety-and-gear-signed' => [
-            'subject' => 'הושלם טופס בטיחות וציוד | שירות מטופל',
+            'subject' => 'הושלם חתימה על טופס בטיחות וציוד | ברום סרוויס',
             'message' => ':worker_name השלים את תהליך החתימה על טופס הבטיחות והציוד. ניתן למצוא את המסמך החתום מצורף בפורמט PDF לצורך התייחסותך.',
         ],
         'contract-signed' => [
-            'subject' => 'הושלם חתימה על טופס חוזה | שירות מטופל',
+            'subject' => 'הושלם חתימה על טופס חוזה | ברום סרוויס',
             'message' => ':worker_name השלים את תהליך החתימה על טופס החוזה. ניתן למצוא את המסמך החתום מצורף בפורמט PDF לצורך התייחסותך.',
         ],
         'insurance-signed' => [
-            'subject' => 'הושלם חתימה על טופס ביטוח | שירות מטופל',
+            'subject' => 'הושלם חתימה על טופס ביטוח | ברום סרוויס',
             'message' => ':worker_name השלים את תהליך החתימה על טופס הביטוח. ניתן למצוא את המסמך החתום מצורף בפורמט PDF לצורך התייחסותך.',
         ],
         'client-payment-failed' => [
@@ -414,7 +418,7 @@ return [
             'content' => "עובד שינה את סטטוס העבודה ל-:status. אנא בדוק את הפרטים למטה.\n\nתאריך/שעה: :date\nעובד: :worker_name\nלקוח: :client_name\nשירות: :service_name\nסטטוס: :status",
         ],
         'admin_job_status_notification' => [
-            'header' => "*המשרה בוטלה | שירות מטאטא*",
+            'header' => "*עבודה בוטלה | ברום סרוויס*",
             'content' => "העבודה בוטלה. אנא בדוק את הפרטים.\n\nתאריך/שעה: :date\nעובד: :worker_name\nלקוח: :client_name\nשירות: :service_name\nסטטוס: :status\nהערה: :comment",
         ],
         'admin_reschedule_meeting' => [
@@ -426,7 +430,7 @@ return [
             'content' => ":client_name נוספו קבצים חדשים בפרטי הפגישה המוזכרים למטה.\n\nתאריך/שעה: :date",
         ],
         'worker_changed_availability_affect_job' => [
-            'header' => "*זמינות שונתה עובד | שירות מטאטאים*",
+            'header' => "*עובד שינה זמינות | ברום סרוויס*",
             'content' => ":name שינה זמינות שמשפיעה על עבודה ב-:date.",
         ],
         'worker_form101_signed' => [
@@ -446,7 +450,7 @@ return [
             'content' => ":name חתם על טופס בטיחות והציוד.",
         ],
         'client_payment_failed' => [
-            'header' => "*תשלום לקוח נכשל | שירות מטאטאים*",
+            'header' => "*תשלום לקוח נכשל | ברום סרוויס*",
             'content' => "התשלום של :name עם הכרטיס [**** **** **** :card_number] נכשל.",
         ],
         'client_reviewed' => [
@@ -454,11 +458,11 @@ return [
             'content' => ":client_name נתן דירוג של :rating עבור עבודה בתאריך :date_time.\n\n-: :review",
         ],
         'client_commented' => [
-            'header' => "*לקוח הגיב | שירות מטאטאים*",
-            'content' => "הלקוח :client_name השאיר תגובה עבור עבודה בתאריך :date_time.",
+            'header' => "*לקוח הגיב | ברום סרוויס*",
+            'content' => "הלקוח :client_name השאיר תגובה לעבודה בתאריך :date_time.",
         ],
         'admin_commented' => [
-            'header' => "*מנהל הגיב | שירות מטאטאים*",
+            'header' => "*מנהל הגיב | ברום סרוויס*",
             'content' => ":admin_name השאיר תגובה עבור עבודה בתאריך :date_time.",
         ],
         'worker_commented' => [
@@ -474,11 +478,11 @@ return [
             'content' => "הסטטוס של :client_name שונה ל-:new_status.",
         ],
         'worker_leaves_job' => [
-            'header' => "*תאריך עזיבה של עובד | שירות מטאטאים*",
+            'header' => "*תאריך עזיבת עבודה של עובד | ברום סרוויס*",
             'content' => "העובד :name קבע תאריך לעזיבת עבודה ל-:date.",
         ],
         'client_changed_job_schedule' => [
-            'header' => "*לוח זמנים שונה ללקוח | שירות מטאטאים*",
+            'header' => "*לקוח שינה לוח זמנים | ברום סרוויס*",
             'content' => "הלקוח :client_name שינה את לוח הזמנים לעבודה בתאריך :date_time.",
         ],
         'order_cancelled' => [
@@ -486,19 +490,19 @@ return [
             'content' => "ההזמנה של הלקוח :client_name (:order_id) בוטלה.",
         ],
         'payment_paid' => [
-            'header' => "*תשלום שולם | שירות מטאטאים*",
+            'header' => "*תשלום שולם | ברום סרוויס*",
             'content' => "הלקוח :client_name ביצע תשלום.",
         ],
         'client_invoice_created_and_sent_to_pay' => [
-            'header' => "*חשבונית נוצרה ושליחה | שירות מטאטאים*",
+            'header' => "*חשבונית נוצרה ונשלחה | ברום סרוויס*",
             'content' => "חשבונית (:invoice_id) נוצרה ונשלחה ל-:client_name.",
         ],
         'client_invoice_paid_created_receipt' => [
-            'header' => "*הקבלה נוצרה | שירות מטאטאים*",
+            'header' => "*קבלה נוצרה | ברום סרוויס*",
             'content' => "קבלה לחשבונית (:invoice_id) נוצרה עבור :client_name.",
         ],
         'order_created_with_extra' => [
-            'header' => "*הזמנה נוצרה עם תוספת | שירות מטאטאים*",
+            'header' => "*הזמנה נוצרה עם תוספת תשלום | ברום סרוויס*",
             'content' => "הזמנה (:order_id) נוצרה עבור :client_name בתוספת תשלום של ₪:extra ובסך הכל ₪:total.",
         ],
         'order_created_with_discount' => [

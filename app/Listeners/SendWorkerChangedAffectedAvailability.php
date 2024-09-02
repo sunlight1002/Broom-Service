@@ -69,7 +69,7 @@ class SendWorkerChangedAffectedAvailability implements ShouldQueue
 
             Mail::send('Mails.admin.worker-availability-changed', $emailData, function ($messages) use ($emailData) {
                 $messages->to($emailData['email']);
-                $messages->subject('Worker Re-scheduled Availability | Broom Service');
+                $messages->subject(__('mail.worker_re_scheduled.header'));
             });
         }
     }

@@ -82,12 +82,14 @@ export default function Lead() {
                     {
                         title: t("global.date"),
                         data: "created_at",
-                        responsivePriority: 1,
+                        responsivePriority: 1, // Highest priority to keep this column visible
+                        width: "10%", // Optional: You can specify a fixed width
                     },
                     {
                         title: t("admin.global.Name"),
                         data: "name",
-                        responsivePriority: 1,
+                        responsivePriority: 2, // Second priority to keep this column visible
+                        width: "15%", // Optional: You can specify a fixed width
                     },
                     { title: t("admin.global.Email"), data: "email" },
                     { title: t("admin.global.Phone"), data: "phone" },
@@ -106,7 +108,7 @@ export default function Lead() {
                         title: t("admin.global.Action"),
                         data: "action",
                         orderable: false,
-                        responsivePriority: 1,
+                        responsivePriority: 3, // Third priority to keep this column visible
                         render: function (data, type, row, meta) {
                             let _html =
                                 `<div class="action-dropdown dropdown">
