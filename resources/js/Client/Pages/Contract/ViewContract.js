@@ -130,6 +130,34 @@ export default function WorkContract() {
             });
     };
 
+        const RejectContract = (e, id) => {
+        e.preventDefault();
+        Swal.fire({
+            title: t('work-contract.messages.reject_title'),
+            text: t('work-contract.messages.reject_text'),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            cancelButtonText: t('work-contract.messages.cancel'),
+            confirmButtonText: t('work-contract.messages.yes_reject'),
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .post(`/api/client/reject-contract`, { id: id })
+                    .then((response) => {
+                        Swal.fire(
+                            t('work-contract.messages.reject'),
+                            t('work-contract.messages.reject_msg'),
+                            "success"
+                        );
+
+                    });
+                setStatus('declined');
+            }
+        });
+    }
+
     useEffect(() => {
         getOffer();
         getContract();
