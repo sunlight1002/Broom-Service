@@ -699,7 +699,7 @@ export default function Clients() {
                     </div>
                 </div>
                 <div className="card" style={{ boxShadow: "none" }}>
-                    <div className="card-body">
+                    <div className="card-body px-0">
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}
