@@ -112,6 +112,15 @@ export default function WorkContract() {
                 setoffer(res.data.offer);
                 setClient(res.data.offer?.client);
                 setServices(JSON.parse(res.data.offer?.services))
+                if (res.data.cards[0].card_type) {
+                    setCtype(res.data.cards[0].card_type)
+                }
+                if (res.data.cards[0].card_number) {
+                    setCnumber(res.data.cards[0].card_number)
+                }
+                if (res.data.cards[0].card_holder_name) {
+                    setCname(res.data.cards[0].card_holder_name)
+                }
 
             })
     }
