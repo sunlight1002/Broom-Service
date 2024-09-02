@@ -109,10 +109,7 @@ export default function Contract() {
         return function cleanup() {
             $(tableRef.current).DataTable().destroy(true);
         };
-    }, []);
-
-    console.log(tableRef.current);
-    
+    }, []);    
 
     return (
         <div id="container">

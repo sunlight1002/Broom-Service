@@ -39,9 +39,16 @@ export default function WorkContract() {
 
     const handleAccept = (e) => {
 
-        if (!ctype) { swal('Please select card type', '', 'error'); return false; }
-        if (!cname) { swal('Please enter card holder name', '', 'error'); return false; }
-        // if (!cvv) { swal('Please select card cvv', '', 'error'); return false; }
+        if (!cards) {
+            if (!ctype) { swal('Please select card type', '', 'error'); return false; }
+            if (!cname) { swal('Please enter card holder name', '', 'error'); return false; }
+            if (!cvv) { swal('Please select card cvv', '', 'error'); return false; }
+        }else{
+            // console.log(cards.card_type, "fef");
+            
+            setCtype(cards.card_type)
+            setCname(cards.card_holder_name)
+        }
         if (!signature) { swal('Please sign the contract', '', 'error'); return false; }
         if (!signature2) { swal('Please enter signature on the card', '', 'error'); return false; }
         // if (cvv.length < 3) { swal('Invalid cvv', '', 'error'); return false; }
@@ -116,9 +123,7 @@ export default function WorkContract() {
                 {},
                 { headers }
             )
-            .then((res) => {
-                console.log(res,"con");
-                
+            .then((res) => {                
                 setStatus(res.data?.contract?.status)
                 setContract(res.data.contract);
             });
@@ -332,7 +337,7 @@ export default function WorkContract() {
                                     </td>
                                 </tr>
 
-                                {/* <tr>
+                                <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</td>
                                     <td>
                                         {contract && cards.cvv != null ?
@@ -341,7 +346,7 @@ export default function WorkContract() {
                                             <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
                                         }
                                     </td>
-                                </tr> */}
+                                </tr>
 
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.signature')}</td>
