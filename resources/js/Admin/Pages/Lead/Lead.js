@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import i18next from "i18next";
-    import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -60,7 +60,7 @@ export default function Lead() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    
+
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -79,8 +79,16 @@ export default function Lead() {
                 },
                 order: [[0, "desc"]],
                 columns: [
-                    { title: t("global.date"), data: "created_at" },
-                    { title: t("admin.global.Name"), data: "name" },
+                    {
+                        title: t("global.date"),
+                        data: "created_at",
+                        responsivePriority: 1,
+                    },
+                    {
+                        title: t("admin.global.Name"),
+                        data: "name",
+                        responsivePriority: 1,
+                    },
                     { title: t("admin.global.Email"), data: "email" },
                     { title: t("admin.global.Phone"), data: "phone" },
                     {
@@ -122,10 +130,6 @@ export default function Lead() {
                 createdRow: function (row, data, dataIndex) {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);
-                    $(row).on("click", function () {
-                        const _id = $(this).attr("data-id");
-                        navigate(`/admin/leads/view/${_id}`);
-                    });
                 },
                 columnDefs: [
                     {
@@ -141,6 +145,33 @@ export default function Lead() {
 
     useEffect(() => {
         initializeDataTable();
+
+        $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+            let _id = null;
+            if (e.target.closest("tr.dt-row")) {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    (!tableRef.current.classList.contains("collapsed") ||
+                        !e.target.closest(".dtr-control")) &&
+                    !e.target.closest(".dt-change-status-btn")
+                ) {
+                    _id = $(this).data("id");
+                }
+            } else {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-change-status-btn")
+                ) {
+                    _id = $(e.target).closest("tr.child").prev().data("id");
+                }
+            }
+
+            if (_id) {
+                navigate(`/admin/leads/view/${_id}`);
+            }
+        });
 
         // Event Listeners
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
