@@ -122,6 +122,7 @@ export default function Lead() {
                 createdRow: function (row, data, dataIndex) {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);
+;
                 },
                 columnDefs: [
                     {
@@ -137,6 +138,33 @@ export default function Lead() {
 
     useEffect(() => {
         initializeDataTable();
+
+        $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+            let _id = null;
+            if (e.target.closest("tr.dt-row")) {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    (!tableRef.current.classList.contains("collapsed") ||
+                        !e.target.closest(".dtr-control")) &&
+                    !e.target.closest(".dt-change-status-btn")
+                ) {
+                    _id = $(this).data("id");
+                }
+            } else {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-change-status-btn")
+                ) {
+                    _id = $(e.target).closest("tr.child").prev().data("id");
+                }
+            }
+
+            if (_id) {
+                navigate(`/admin/leads/view/${_id}`);
+            }
+        });
 
         // Event Listeners
         $(tableRef.current).on("click", ".dt-edit-btn", function () {

@@ -54,13 +54,14 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
+        // Retrieve filter values from the request
         $done_filter = $request->get('done_filter');
         $start_time_filter = $request->get('start_time_filter');
         $actual_time_exceed_filter = $request->get('actual_time_exceed_filter');
         $has_no_worker = $request->get('has_no_worker');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
-
+    
         $query = Job::query()
             ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
             ->leftJoin('users', 'jobs.worker_id', '=', 'users.id')
@@ -95,18 +96,48 @@ class JobController extends Controller
             ->when($has_no_worker == 1, function ($q) {
                 return $q->whereNull('jobs.worker_id');
             })
-            ->select('jobs.id', 'jobs.start_date', 'clients.id as client_id', 'clients.color as client_color', 'users.id as worker_id', 'services.color_code as service_color', 'jobs.shifts', 'jobs.is_job_done', 'jobs.status', 'job_services.duration_minutes', 'jobs.actual_time_taken_minutes', 'jobs.comment', 'jobs.review', 'jobs.rating', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id')
-            ->selectRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) as client_name")
-            ->selectRaw("CONCAT_WS(' ', users.firstname, users.lastname) as worker_name")
-            ->selectRaw('IF(order.status = "Closed", 1, 0) AS is_order_closed')
-            ->selectRaw('IF(clients.lng = "en", job_services.name, job_services.heb_name) AS service_name')
+            ->select(
+                'jobs.id', 
+                'jobs.start_date', 
+                'clients.id as client_id', 
+                'clients.color as client_color', 
+                'users.id as worker_id',
+                'jobs.shifts', 
+                'jobs.is_job_done', 
+                'jobs.status', 
+                'job_services.duration_minutes', 
+                'job_services.freq_name', // Include freq_name
+                'jobs.actual_time_taken_minutes', 
+                'jobs.comment', 
+                'jobs.review', 
+                'jobs.rating', 
+                'jobs.total_amount', 
+                'jobs.is_order_generated', 
+                'jobs.job_group_id',
+                DB::raw("CONCAT_WS(' ', clients.firstname, clients.lastname) as client_name"),
+                DB::raw("CONCAT_WS(' ', users.firstname, users.lastname) as worker_name"),
+                DB::raw('IF(order.status = "Closed", 1, 0) AS is_order_closed'),
+                DB::raw('IF(clients.lng = "en", job_services.name, job_services.heb_name) AS service_name'),
+                DB::raw('
+                CASE 
+                    WHEN job_services.name = "AirBnb" THEN "#00FF00" -- This condition should come first
+                    WHEN job_services.freq_name = "Once Time week" AND job_services.name LIKE "%Star%" THEN "#FFFFFF"
+                    WHEN job_services.freq_name = "Once in every two weeks" AND job_services.name LIKE "%Star%" THEN "#00FF"
+                    WHEN job_services.freq_name = "One Time" OR job_services.name = "Cleaning After Renovation" OR job_services.name = "Window cleaning" OR job_services.name LIKE "%Basic%" OR job_services.name LIKE "%Standard%" OR job_services.name LIKE "%Premium%" THEN "#D3D3D3"
+                    WHEN job_services.name LIKE "%Star%" THEN "#FFFFFF" 
+                    WHEN job_services.name = "Office Cleaning" THEN "#FFA07A"
+                    ELSE services.color_code
+                END AS service_color
+            ')            
+            
+            )
             ->groupBy('jobs.id');
-
+    
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if (request()->has('search')) {
                     $keyword = request()->get('search')['value'];
-
+    
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
@@ -133,6 +164,8 @@ class JobController extends Controller
             ->rawColumns(['action'])
             ->toJson();
     }
+    
+    
 
     public function shiftChangeWorker($sid, $date)
     {
@@ -588,7 +621,7 @@ class JobController extends Controller
 
             $emailData = [
                 'client' => $client->toArray(),
-                'status' => $data['status'],
+                'status' => $client->lead_status->lead_status,
             ];
 
             if ($client->notification_type === "both") {
@@ -597,7 +630,7 @@ class JobController extends Controller
                     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                     "notificationData" => [
                         'client' => $client->toArray(),
-                        'status' => $data['status'],
+                        'status' => $client->lead_status->lead_status,
                     ]
                 ]));
 
@@ -622,7 +655,7 @@ class JobController extends Controller
                     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                     "notificationData" => [
                         'client' => $client->toArray(),
-                        'status' => $data['status'],
+                        'status' => $client->lead_status->lead_status,
                     ]
                 ]));
             }
@@ -630,6 +663,7 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Job has been created successfully'
+
         ]);
     }
 

@@ -194,7 +194,7 @@ export default function TotalJobs() {
                         title: t("client.dashboard.client"),
                         data: "client_name",
                         render: function (data, type, row, meta) {
-                            let _html = `<span class="client-name-badge dt-client-badge" style=" color: white; background-color: ${row.client_color ?? "#FFFFFF"
+                            let _html = `<span class="client-name-badge dt-client-badge" style=" color: black; background-color: ${row.client_color ?? "#FFFFFF"
                                 };" data-client-id="${row.client_id}">`;
 
                             _html += `<i class="fa-solid fa-user"></i>`;
@@ -210,7 +210,7 @@ export default function TotalJobs() {
                         title: t("global.service"),
                         data: "service_name",
                         render: function (data, type, row, meta) {
-                            let _html = `<span class="service-name-badge" style="background-color: ${row.service_color ?? "#FFFFFF"
+                            let _html = `<span class="service-name-badge" style=" color: ${row.service_color == "#00FF"? 'white': 'black'}; background-color: ${row.service_color ?? "#FFFFFF"
                                 };">`;
 
                             _html += data;

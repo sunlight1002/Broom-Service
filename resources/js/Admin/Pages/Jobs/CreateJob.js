@@ -25,9 +25,11 @@ export default function CreateJob() {
         axios
             .get(`/api/admin/contract/${params.id}`, { headers })
             .then((res) => {
+                
                 const r = res.data.contract;
                 setClient(r.client);
                 let _services = JSON.parse(r.offer.services);
+                console.log(_services);
                 _services = _services.map((n) => {
                     n["contract_id"] = parseInt(params.id);
                     setLoading(false);
