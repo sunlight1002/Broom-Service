@@ -323,6 +323,36 @@ return [
         'end_time_nxt_step_email_title' => 'Job time ended',
         'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
     ],
+    'unanswered_lead' => [
+        'header' => 'We Tried to Contact You | Broom Service',
+        'greeting' => 'Hi, :name,',
+        'content' => 'Thank you for reaching out to us at Broom Service. We wanted to let you know that we tried to contact you but were unable to reach you. We are here and available to assist you from Sunday to Thursday, between 8:00 AM and 4:00 PM.',
+        'assistance' => 'You can contact us at:',
+        'alternative' => 'Alternatively, we would be happy to know when it would be convenient for you to have us call you during our business hours.',
+    ],
+    'irrelevant_lead' => [
+        'header' => 'Regarding Your Inquiry | Broom Service',
+        'greeting' => 'Hi, :name,',
+        'content' => 'Thank you for your interest in Broom Service. We have reviewed your inquiry, and unfortunately, we do not provide services in your area or offer the specific service you are looking for.',
+        'service_areas' => 'Our service areas include:',
+        'future_contact' => 'If your needs change or if you are located within these areas, we would be delighted to assist you in the future.',
+    ],
+    'pending_lead' => [
+        'header' => 'Follow-Up Required: Pending Lead | Broom Service',
+        'greeting' => 'Hi, Team,',
+        'reminder' => 'This is a reminder that the following lead has remained in the "Pending" status for over 24 hours. Please review the lead\'s details and update the status as needed.',
+        'lead_name' => 'Lead Name',
+        'contact_info' => 'Contact Info',
+        'inquiry_date' => 'Inquiry Date',
+    ],
+    'file_submission_request' => [
+        'subject' => 'File Submission Request for Quote | Broom Service',
+        'header' => 'File Submission Request',
+        'greeting' => 'Hi, :name,',
+        'content' => 'Thank you for your interest in Broom Service!',
+        'request' => 'To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned.',
+        'instructions' => 'Please reply to this email with the requested files at your earliest convenience.',
+    ],
     'wa-message' => [
         'common' => [
             'salutation' => "Hi, *:name*"
@@ -478,8 +508,8 @@ return [
             'content' => "Worker :worker_name has added a comment for the job :date_time.",
         ],
         'new_lead_arrived' => [
-            'header' => "*New Lead Arrived | Broom Service*",
-            'content' => "A new lead (:client_name) has arrived.",
+            'header' => "*New Lead Received | Broom Service*",
+            'content' => "A new lead (:client_name) has arrived with the following details:\nContact: :contact\nEmail: :email\nAddress: :address"
         ],
         'client_lead_status_changed' => [
             'header' => "*Lead Status Changed | Broom Service*",
@@ -540,7 +570,8 @@ return [
             'check_form' => 'Check Forms',
             'view_worker' => 'View worker',
             'check_file' => 'Check file',
-            'view_client' => 'View Client'
+            'view_client' => 'View Client',
+            'view' => 'View'
         ]
         ],
     

@@ -1220,26 +1220,78 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED:
                     $clientData = $eventData['client'];
-
+                
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('en');
-
+                
                     $text = __('mail.wa-message.new_lead_arrived.header');
-
+                
                     $text .= "\n\n";
-
+                
                     $text .= __('mail.wa-message.common.salutation', [
                         'name' => 'everyone'
                     ]);
-
+                
                     $text .= "\n\n";
-
+                
                     $text .= __('mail.wa-message.new_lead_arrived.content', [
                         'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'contact' => $clientData['phone'],
+                        'email' => $clientData['email'],
+                        'address' => $clientData['geo_address'],
                     ]);
 
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view') . ": " . url("admin/leads/view/" . $clientData['id']);
+                
                     break;
-
+                    
+                case WhatsappMessageTemplateEnum::UNANSWERED_LEAD:
+                    $clientData = $eventData['client'];
+                
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('en');
+                
+                    $text = __('mail.wa-message.unanswered_lead.header');
+                
+                    $text .= "\n\n";
+                
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => $clientData['firstname']
+                    ]);
+                
+                    $text .= "\n\n";
+                
+                    $text .= __('mail.wa-message.unanswered_lead.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'contact' => '03-525-70-60',
+                        'business_hours' => 'Sunday to Thursday, between 8:00 AM and 4:00 PM',
+                        'website' => 'www.broomservice.co.il',
+                        'email' => 'office@broomservice.co.il'
+                    ]);
+                
+                    break;
+                
+                case WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER:
+                    $clientData = $eventData['client'];
+                
+                    // $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    $receiverNumber = '918000318833'. '@s.whatsapp.net';
+                    App::setLocale('en');
+                
+                    // Create the message
+                    $text = __('mail.wa-message.follow_up_price_offer.header', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+                
+                    $text .= "\n\n";
+                
+                    $text .= __('mail.wa-message.follow_up_price_offer.content', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+                    
+                    break;
+                        
+                    
                 case WhatsappMessageTemplateEnum::CLIENT_LEAD_STATUS_CHANGED:
                     $clientData = $eventData['client'];
 
