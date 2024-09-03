@@ -353,6 +353,29 @@ return [
         'request' => 'To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned.',
         'instructions' => 'Please reply to this email with the requested files at your earliest convenience.',
     ],
+    'price_offer_reminder' => [
+        'header' => 'Reminder: Your Price Offer from Broom Service',
+        'greeting' => 'Hi, :name,',
+        'content' => 'We wanted to remind you that we recently sent you a price offer for the services you requested. If you are still interested, we would love to move forward and provide you with our professional and high-quality service.',
+        'assistance' => 'For any questions or requests, we are here to assist you.',
+    ],
+    'price_offer_decline' => [
+        'header' => 'Lead Declined Price Offer',
+        'greeting' => 'Hi Team,',
+        'content' => 'The following client has declined the price offer for the service:',
+        'details' => "Client Details:\n- Name: :client_name\n- Reason for Decline: :reason",
+        'no_reason_provided' => 'No reason provided.',
+        'assistance' => 'Please review the details and update the status accordingly.'
+    ],
+    'follow_up_conversation' => [
+        'header' => 'Follow-up on Our Conversation',
+        'greeting' => 'Dear :name,',
+        'content' => 'First of all, thank you for reaching out to us. It was a pleasure to meet and talk with you.',
+        'details' => 'Following our conversation, I am attaching for your review some testimonials from our existing clients: [testimonials_link] and our Service Brochure: [brochure_link].',
+        'brochure' => 'Additionally, I am attaching our Service Brochure for you to review the services we offer.',
+        'details1' => 'Following our conversation, I am attaching for your review some testimonials from our existinng clients: ',
+        'assistance' => 'I am here to help and answer any further questions you may have. I am always at your service.',
+    ],
     'wa-message' => [
         'common' => [
             'salutation' => "Hi, *:name*"
@@ -554,6 +577,48 @@ return [
         'no_slot_avail_callback' => [
             'header' => "*No Available Meeting Slot | Broom Service*",
             'content' =>  "There are no available meeting slots. Please arrange a callback for :client_name."
+        ],
+        'follow_up_price_offer' => [
+            'header' => 'Reminder: Follow-up on Price Offer for :client_name',
+            'content' => "Hi Team,\n\nPlease be reminded that it's been 3 days since :client_name received the price offer. Kindly follow up with the client to see if they are ready to proceed or if they need any further assistance.\n\nThank you,\nBroom Service",
+        ],
+        'final_follow_up_price_offer' => [
+            'header' => 'Final Reminder: Follow-up on Price Offer for :client_name',
+            'content' => "Hi Team,\n\nThis is a final reminder that it's been 7 days since :client_name received the price offer. Please follow up with the client to confirm their decision and update the status accordingly.\n\nThank you,\nBroom Service",
+        ],
+        'lead_accepted_price_offer' => [
+            'header' => 'Action Required: Contract Signing for :client_name',
+            'content' => "Hi Team,\n\n:client_name has accepted the price offer. Please ensure that the contract is signed and all necessary details are confirmed so we can proceed with scheduling the service.\n\nThank you,\nBroom Service",
+        ],
+        'book_client_after_signed_contract' => [
+            'header' => 'Action Required: Book Client After Signed Contract',
+            'content' => ":client_name has signed the contract. Please proceed to schedule the client's service.\n\nClient Details:\n- Name: :client_name\n- Contact Information: :client_contact_info\n\nPlease ensure the client is booked and the schedule is confirmed as soon as possible.",
+        ],
+        'lead_declined_contract' => [
+            'header' => 'Lead Declined Contract',
+            'greeting' => 'Hi Team,',
+            'content' => "The following client has declined to sign the contract for the service:",
+            'details' => "Client Details:\n- Name: :client_name\n- Reason for Decline: :reason",
+            'no_reason_provided' => 'No reason provided.',
+            'assistance' => 'Please review the details and update the status accordingly.',
+        ],
+        'lead_declined_price_offer' => [
+            'header' => 'Lead Declined Price Offer',
+            'greeting' => 'Hi Team,',
+            'content' => "The following client has declined the price offer for the service:",
+            'details' => "Client Details:\n- Name: :client_name\n- Reason for Decline: :reason",
+            'no_reason_provided' => 'No reason provided.',
+            'assistance' => 'Please review the details and update the status accordingly.',
+        ],
+        'client_in_freeze_status' => [
+            'header' => 'Client in Freeze Status - Action Required',
+            'content' => 'A client named :client_name has been placed in Freeze status because they haven\'t received a service for 7 days since their last scheduled service date.',
+            'action_required' => 'Please check the status and update accordingly. If necessary, contact the client to reschedule the service.',
+        ],
+        'status_not_updated' => [
+            'header' => 'Status Not Updated - Action Required',
+            'content' => 'The status for the lead :client_name has not been updated for over 24 hours.',
+            'action_required' => 'Please review the information and update the status as soon as possible. It’s important to track lead progress and ensure each lead is in its correct status.',
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',

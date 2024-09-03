@@ -61,4 +61,13 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const NO_SLOT_AVAIL_CALLBACK = "no_slot_avail_callback";
     public const UNANSWERED_LEAD = "unanswered-lead-notification";
     public const FOLLOW_UP_PRICE_OFFER = "follow-up-price-offer";
+    public const FINAL_FOLLOW_UP_PRICE_OFFER = "final_follow-up-price-offer";
+    public const BOOK_CLIENT_AFTER_SIGNED_CONTRACT = "book-client-after-signed-contract";
+    public const LEAD_ACCEPTED_PRICE_OFFER = "lead-accepted-price-offer";
+    public const LEAD_DECLINED_CONTRACT = "lead-declined-contract";
+    public const LEAD_DECLINED_PRICE_OFFER = "lead-declined-price-offer";
+    public const CLIENT_IN_FREEZE_STATUS = "client-in-freeze-status";
+    public const STATUS_NOT_UPDATED = "status-not-updated";
+
+
 }
