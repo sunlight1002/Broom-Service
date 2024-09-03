@@ -1901,8 +1901,8 @@ class JobController extends Controller
 
         if ($job->is_job_done) {
             $this->updateJobAmount($job->id);
-
             CreateJobOrder::dispatch($job->id);
+            ScheduleNextJobOccurring::dispatch($job->id);
         } else {
             if ($job->is_order_generated) {
                 $order = $job->order;
