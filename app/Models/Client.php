@@ -11,9 +11,10 @@ use App\Enums\LeadStatusEnum;
 use App\Events\NewLeadArrived;
 use Laravel\Passport\HasApiTokens;
 
-class Client extends Authenticatable
+class Client extends Authenticatable implements Auditable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use \OwenIt\Auditing\Auditable;
 
     /**
      * The attributes that are mass assignable.

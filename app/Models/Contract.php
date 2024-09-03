@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Contract extends Model
+class Contract extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
+    
     protected $fillable = [
         'offer_id',
         'client_id',

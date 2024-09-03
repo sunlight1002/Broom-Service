@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Form extends Model
+class Form extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
+    
     protected $fillable = [
         'user_type',
         'user_id',

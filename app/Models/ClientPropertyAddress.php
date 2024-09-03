@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ClientPropertyAddress extends Model
+class ClientPropertyAddress extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
     protected $table = "client_property_addresses";
 
     protected $fillable = [

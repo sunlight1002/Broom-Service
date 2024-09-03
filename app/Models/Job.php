@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Events\JobNotificationToWorker;
 
-class Job extends Model
+class Job extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
+
+    
     use HasFactory;
 
     protected $fillable = [

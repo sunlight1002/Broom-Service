@@ -10,9 +10,11 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use \OwenIt\Auditing\Auditable;
+
 
     /**
      * The attributes that are mass assignable.

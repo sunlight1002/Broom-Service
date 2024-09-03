@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Invoices extends Model
+class Invoices extends Model implements Auditable
 {
+
+    use \OwenIt\Auditing\Auditable;
+
     protected $fillable = [
         'invoice_id',
         'order_id',

@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class AdvanceLoan extends Model
+class AdvanceLoan extends Model implements Auditable
 {
     use HasFactory,SoftDeletes;
+    use \OwenIt\Auditing\Auditable;
 
     protected $table = 'advances_loans';
 
