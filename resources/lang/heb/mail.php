@@ -316,6 +316,10 @@ return [
         'end_time_nxt_step_email_title' => 'זמן עבודה הסתיים',
         'end_time_nxt_step_email_content' => 'זמן העבודה הופסק על ידך. בדוק את הקישור למטה ולחץ על :l1 אם אתה רוצה להשלים את העבודה שלך אחרת לחץ על :l2 כדי להמשיך את העבודה.',
     ],
+    'user_status_changed' => [
+        'header' => "*שינוי סטטוס | שירות מטאטא*",
+        'content' => ":name שינה את הסטטוס ל-:status."
+    ],
     'unanswered_lead' => [
         'header' => 'ניסינו ליצור קשר | שירות בְּרוֹם',
         'greeting' => 'שלום, :name,',
@@ -373,7 +377,9 @@ return [
 
     'wa-message' => [
         'common' => [
-            'salutation' => "שלום, *:name*"
+            'salutation' => "שלום, *:name*",
+            'closing' => 'נשמח לעזור לך.',
+            'signature' => "בברכה,\nBroom Service 🌹\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il",
         ],
         'client_meeting_reminder' => [
             'header' => "*תזכורת לפגישה*",
@@ -613,6 +619,17 @@ return [
             'header' => 'הסטטוס לא עודכן - דרושה פעולה',
             'content' => 'הסטטוס עבור הליד :client_name לא עודכן במשך יותר מ-24 שעות.',
             'action_required' => 'אנא עיין במידע ועדכן את הסטטוס בהקדם האפשרי. חשוב לעקוב אחרי התקדמות הלידים ולוודא שכל ליד נמצא בסטטוס הנכון.',
+        ],
+        'tried_to_contact_you' => [
+            'header' => 'ניסינו ליצור איתך קשר | Broom Service',
+            'content' => 'תודה שפנית אלינו ב-Broom Service. רצינו להודיע לך שניסינו ליצור איתך קשר אך לא הצלחנו להשיגך. אנו כאן וזמינים לעזור לך מיום ראשון עד יום חמישי, בין השעות 8:00 עד 16:00.',
+            'availability' => 'נשמח לדעת מתי יהיה לך נוח שנחזור אליך במהלך שעות הפעילות שלנו.',
+            'contact_details' => 'תוכל ליצור איתנו קשר בטלפון: 03-525-70-60.',
+        ],
+        'inquiry_response' => [
+            'header' => 'בהתייחס לפנייתך | Broom Service',
+            'content' => 'תודה על ההתעניינות שלך ב-Broom Service. עיינו בפנייתך, ולצערנו איננו מספקים שירותים באזור שלך או את השירות הספציפי שאתה מחפש.',
+            'service_areas' => "אזורי השירות שלנו כוללים:\n- תל אביב\n- רמת גן\n- גבעתיים\n- קריית אונו\n- גני תקווה\n- רמת השרון\n- כפר שמריהו\n- רישפון\n- הרצליה\n\nאם הצרכים שלך משתנים או אם אתה ממוקם באזורים אלו, נשמח לעזור לך בעתיד.",
         ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',

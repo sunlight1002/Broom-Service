@@ -59,6 +59,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const ORDER_CREATED_WITH_DISCOUNT = "order_created_with_discount";
     public const LEAD_NEED_HUMAN_REPRESENTATIVE = "lead_need_human_representative";
     public const NO_SLOT_AVAIL_CALLBACK = "no_slot_avail_callback";
+    public const USER_STATUS_CHANGED = "user_status_changed";
     public const UNANSWERED_LEAD = "unanswered-lead-notification";
     public const FOLLOW_UP_PRICE_OFFER = "follow-up-price-offer";
     public const FINAL_FOLLOW_UP_PRICE_OFFER = "final_follow-up-price-offer";
@@ -68,6 +69,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const LEAD_DECLINED_PRICE_OFFER = "lead-declined-price-offer";
     public const CLIENT_IN_FREEZE_STATUS = "client-in-freeze-status";
     public const STATUS_NOT_UPDATED = "status-not-updated";
+    public const INQUIRY_RESPONSE = "inquiry-response";
 
 
 }

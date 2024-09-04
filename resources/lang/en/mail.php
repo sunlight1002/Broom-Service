@@ -323,6 +323,10 @@ return [
         'end_time_nxt_step_email_title' => 'Job time ended',
         'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
     ],
+    'user_status_changed' => [
+        'header' => "*Status Changed | Broom Service*",
+        'content' =>  ":name changed the Status to :status."
+    ],
     'unanswered_lead' => [
         'header' => 'We Tried to Contact You | Broom Service',
         'greeting' => 'Hi, :name,',
@@ -378,7 +382,9 @@ return [
     ],
     'wa-message' => [
         'common' => [
-            'salutation' => "Hi, *:name*"
+            'salutation' => "Hi, *:name*",
+            'closing' => 'We look forward to assisting you.',
+            'signature' => "Best Regards,\nBroom Service 🌹\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il",
         ],
         'client_meeting_reminder' => [
             'header' => "*Meeting reminder*",
@@ -619,6 +625,17 @@ return [
             'header' => 'Status Not Updated - Action Required',
             'content' => 'The status for the lead :client_name has not been updated for over 24 hours.',
             'action_required' => 'Please review the information and update the status as soon as possible. It’s important to track lead progress and ensure each lead is in its correct status.',
+        ],
+        'tried_to_contact_you' => [
+            'header' => 'We Tried to Contact You | Broom Service',
+            'content' => 'Thank you for reaching out to us at Broom Service. We wanted to let you know that we tried to contact you but were unable to reach you. We are here and available to assist you from Sunday to Thursday, between 8:00 AM and 4:00 PM.',
+            'availability' => 'Alternatively, we would be happy to know when it would be convenient for you to have us call you during our business hours.',
+            'contact_details' => 'You can contact us at: 03-525-70-60.',
+        ],
+        'inquiry_response' => [
+            'header' => 'Regarding Your Inquiry | Broom Service',
+            'content' => 'Thank you for your interest in Broom Service. We have reviewed your inquiry, and unfortunately, we do not provide services in your area or offer the specific service you are looking for.',
+            'service_areas' => "Our service areas include:\n- Tel Aviv\n- Ramat Gan\n- Givatayim\n- Kiryat Ono\n- Ganei Tikva\n- Ramat HaSharon\n- Kfar Shmaryahu\n- Rishpon\n- Herzliya\n\nIf your needs change or if you are located within these areas, we would be delighted to assist you in the future.",
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
