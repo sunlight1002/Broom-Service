@@ -312,6 +312,10 @@ return [
         'end_time_nxt_step_email_title' => 'זמן עבודה הסתיים',
         'end_time_nxt_step_email_content' => 'זמן העבודה הופסק על ידך. בדוק את הקישור למטה ולחץ על :l1 אם אתה רוצה להשלים את העבודה שלך אחרת לחץ על :l2 כדי להמשיך את העבודה.',
     ],
+    'user_status_changed' => [
+            'header' => "*שינוי סטטוס | שירות מטאטא*",
+            'content' => ":name שינה את הסטטוס ל-:status."
+    ],
     'wa-message' => [
         'common' => [
             'salutation' => "שלום, *:name*"
