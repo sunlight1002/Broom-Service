@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Enums\LeadStatusEnum;
 use App\Events\NewLeadArrived;
 use Laravel\Passport\HasApiTokens;
+use OwenIt\Auditing\Contracts\Auditable;
 
 class Client extends Authenticatable implements Auditable
 {
