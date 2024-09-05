@@ -597,7 +597,7 @@ return [
             'content' => "Hi Team,\n\n:client_name has accepted the price offer. Please ensure that the contract is signed and all necessary details are confirmed so we can proceed with scheduling the service.\n\nThank you,\nBroom Service",
         ],
         'book_client_after_signed_contract' => [
-            'header' => 'Action Required: Book Client After Signed Contract',
+            'header' => 'Lead Accept the Price Offer',
             'content' => ":client_name has signed the contract. Please proceed to schedule the client's service.\n\nClient Details:\n- Name: :client_name\n- Contact Information: :client_contact_info\n\nPlease ensure the client is booked and the schedule is confirmed as soon as possible.",
         ],
         'lead_declined_contract' => [
