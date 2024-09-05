@@ -25,6 +25,8 @@ export default function MeetingFiles() {
     const [address, setAddress] = useState(null);
     const [toggle, toggleValue] = useToggle(false);
     const meetId = Base64.decode(param.id);
+    console.log(meetId);
+    
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -34,6 +36,8 @@ export default function MeetingFiles() {
         axios
             .post(`/api/client/meeting`, { id: Base64.decode(param.id) })
             .then((res) => {
+                console.log(res);
+                
                 const { schedule } = res.data;
                 setMeeting(schedule);
                 setTeamName(schedule.team?.name);

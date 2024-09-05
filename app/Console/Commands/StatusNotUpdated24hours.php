@@ -2,61 +2,61 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Models\Offer;
 use App\Models\Client;
-use App\Models\LeadStatus;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Mail\Mailable;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Console\Command;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
-class NotifyTeamToUpdateLeadStatus extends Command
+
+class StatusNotUpdated24hours extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update24';
+    protected $signature = 'StatusNotUpdated24';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Send a notification to the team if lead status is still pending after 24 hours';
+    protected $description = 'notify team which status is not updated for over 24 hours';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
     /**
      * Execute the console command.
      *
      * @return int
      */
-
-     public function __construct()
-     {
-         parent::__construct();
-         $this->whapiApiEndpoint = config('services.whapi.url');
-         $this->whapiApiToken = config('services.whapi.token');
-     }
-
     public function handle()
     {
         // Get LeadStatus records where lead_status is 'pending' and were created more than 24 hours ago
-        $leadStatuses = LeadStatus::where('lead_status', 'pending')
+        $offerStatuses = Offer::where('status', 'sent')
             ->where('created_at', '<=', Carbon::now()->subHours(24))
             ->get();
 
-        foreach ($leadStatuses as $leadStatus) {
-            $client = Client::find($leadStatus->client_id);
+        foreach ($offerStatuses as $offerStatus) {
+            $client = Client::find($offerStatus->client_id);
 
             if ($client) {
                 $this->info("Sending notification to team for client: " . $client->firstname);
-                $this->sendNotification($client, $leadStatus);
+                $this->sendNotification($client, $offerStatus);
             } else {
-                $this->info("Client not found for Lead Status ID: {$leadStatus->id}");
+                $this->info("Client not found for Offer Status ID: {$offerStatus->id}");
             }
         }
 
@@ -70,20 +70,20 @@ class NotifyTeamToUpdateLeadStatus extends Command
      * @param  \App\Models\LeadStatus 
      * @return void
      */
-    protected function sendNotification($client, $leadStatus)
+    protected function sendNotification($client, $offerStatus)
     {
          // Trigger WhatsApp Notification Only
          $response = event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
+            "type" => WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED,
             "notificationData" => [
                 'client' => $client->toArray(),
             ]
         ]));
 
         if ($response) {
-            $this->info("Notification sent for Lead Status ID: {$leadStatus->id}");
+            $this->info("Notification sent for Lead Status ID: {$offerStatus->id}");
         } else {
-            $this->error("Failed to send notification for Lead Status ID: {$leadStatus->id}");
+            $this->error("Failed to send notification for Lead Status ID: {$offerStatus->id}");
         }
     }
 }

@@ -622,9 +622,9 @@ export default function ContractHeb() {
                                                                                 "sigCanvas",
                                                                         }}
                                                                         ref={sigRef}
-                                                                        onEnd={
-                                                                            handleSignatureEnd
-                                                                        }
+                                                                        // onEnd={
+                                                                        //     handleSignatureEnd
+                                                                        // }
                                                                     />
                                                                     &nbsp;
                                                                 </td>
@@ -1002,9 +1002,9 @@ export default function ContractHeb() {
                                                                 "sigCanvas",
                                                         }}
                                                         ref={sigRef}
-                                                        onEnd={
-                                                            handleSignatureEnd
-                                                        }
+                                                        // onEnd={
+                                                        //     handleSignatureEnd
+                                                        // }
                                                     />
                                                 </React.Fragment>
                                             ) : (

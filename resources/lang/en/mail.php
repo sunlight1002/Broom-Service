@@ -637,6 +637,28 @@ return [
             'content' => 'Thank you for your interest in Broom Service. We have reviewed your inquiry, and unfortunately, we do not provide services in your area or offer the specific service you are looking for.',
             'service_areas' => "Our service areas include:\n- Tel Aviv\n- Ramat Gan\n- Givatayim\n- Kiryat Ono\n- Ganei Tikva\n- Ramat HaSharon\n- Kfar Shmaryahu\n- Rishpon\n- Herzliya\n\nIf your needs change or if you are located within these areas, we would be delighted to assist you in the future.",
         ],
+        'follow_up_required' => [
+            'header' => 'Follow-Up Required: Pending Lead | Broom Service',
+            'salutation' => 'Hi, Team',
+            'content' => 'This is a reminder that the following lead has remained in the "Pending" status for over 24 hours. Please review the lead\'s details and update the status as needed.' .
+                            "\n\n" .
+                            '*Lead Name:*' .
+                            "\n:lead_name" .
+                            "\n*Contact Info:*" .
+                            "\n:contact_info" .
+                            "\n*Inquiry Date:*" .
+                            "\n:inquiry_date",
+            'common' => [
+                        'closing' => 'Please take action to either contact the lead again, update their status, or follow up as necessary.',
+                        'signature' => "Best Regards,\nBroom Service\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il",
+                    ],
+        ],
+        'file_submission_request' => [
+            'header' => 'File Submission Request for Quote | Broom Service',
+            'content' => 'To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.',
+            'details' => 'Please reply to this email with the requested files at your earliest convenience.',
+            'assistance' => 'If you have any questions or need assistance, feel free to reach out to us.',
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',

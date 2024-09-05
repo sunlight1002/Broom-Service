@@ -70,6 +70,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const CLIENT_IN_FREEZE_STATUS = "client-in-freeze-status";
     public const STATUS_NOT_UPDATED = "status-not-updated";
     public const INQUIRY_RESPONSE = "inquiry-response";
-
+    public const FOLLOW_UP_REQUIRED = "follow-up-required";
+    public const FILE_SUBMISSION_REQUEST = "file-submission-request";
 
 }

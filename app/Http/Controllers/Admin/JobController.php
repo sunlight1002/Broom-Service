@@ -591,6 +591,16 @@ class JobController extends Controller
                 'client' => $client->toArray(),
                 'status' => $newLeadStatus,
             ];
+
+            if($newLeadStatus === 'freeze client'){
+                // Trigger WhatsApp Notification
+                event(new WhatsappNotificationEvent([
+                   "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
+                   "notificationData" => [
+                       'client' => $client->toArray(),
+                   ]
+               ]));
+           }
             
             if ($client->notification_type === "both") {
                 if ($newLeadStatus === 'unanswered') {
@@ -604,7 +614,7 @@ class JobController extends Controller
             
                     // Send Email Notification
                     Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.unanswered_lead.header');
                         $messages->subject($sub);
                     });
@@ -622,7 +632,7 @@ class JobController extends Controller
                     // Send Email Notification
                     Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         // $messages->to($emailData['client']['email']);
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.irrelevant_lead.header');
                         $messages->subject($sub);
                     });
@@ -647,7 +657,7 @@ class JobController extends Controller
                 if ($newLeadStatus === 'unanswered') {
                     // Send Email Notification
                     Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.unanswered_lead.header');
                         $messages->subject($sub);
                     });
@@ -656,7 +666,7 @@ class JobController extends Controller
                     // Send Email Notification
                     Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         // $messages->to($emailData['client']['email']);
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.irrelevant_lead.header');
                         $messages->subject($sub);
                     });
@@ -972,6 +982,16 @@ class JobController extends Controller
                 'client' => $client->toArray(),
                 'status' => $newLeadStatus,
             ];
+
+            if($newLeadStatus === 'freeze client'){
+                // Trigger WhatsApp Notification
+                event(new WhatsappNotificationEvent([
+                   "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
+                   "notificationData" => [
+                       'client' => $client->toArray(),
+                   ]
+               ]));
+           }
             
             if ($client->notification_type === "both") {
                 if ($newLeadStatus === 'unanswered') {
@@ -985,7 +1005,7 @@ class JobController extends Controller
             
                     // Send Email Notification
                     Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.unanswered_lead.header');
                         $messages->subject($sub);
                     });
@@ -1003,7 +1023,7 @@ class JobController extends Controller
                     // Send Email Notification
                     Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         // $messages->to($emailData['client']['email']);
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.irrelevant_lead.header');
                         $messages->subject($sub);
                     });
@@ -1028,7 +1048,7 @@ class JobController extends Controller
                 if ($newLeadStatus === 'unanswered') {
                     // Send Email Notification
                     Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.unanswered_lead.header');
                         $messages->subject($sub);
                     });
@@ -1037,7 +1057,7 @@ class JobController extends Controller
                     // Send Email Notification
                     Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         // $messages->to($emailData['client']['email']);
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.irrelevant_lead.header');
                         $messages->subject($sub);
                     });
@@ -1373,6 +1393,16 @@ class JobController extends Controller
                 'client' => $client->toArray(),
                 'status' => $newLeadStatus,
             ];
+
+            if($newLeadStatus === 'freeze client'){
+                // Trigger WhatsApp Notification
+                event(new WhatsappNotificationEvent([
+                   "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
+                   "notificationData" => [
+                       'client' => $client->toArray(),
+                   ]
+               ]));
+           }
             
             if ($client->notification_type === "both") {
                 if ($newLeadStatus === 'unanswered') {
@@ -1386,7 +1416,7 @@ class JobController extends Controller
             
                     // Send Email Notification
                     Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.unanswered_lead.header');
                         $messages->subject($sub);
                     });
@@ -1404,7 +1434,7 @@ class JobController extends Controller
                     // Send Email Notification
                     Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         // $messages->to($emailData['client']['email']);
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.irrelevant_lead.header');
                         $messages->subject($sub);
                     });
@@ -1429,7 +1459,7 @@ class JobController extends Controller
                 if ($newLeadStatus === 'unanswered') {
                     // Send Email Notification
                     Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.unanswered_lead.header');
                         $messages->subject($sub);
                     });
@@ -1438,7 +1468,7 @@ class JobController extends Controller
                     // Send Email Notification
                     Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         // $messages->to($emailData['client']['email']);
-                        $messages->to('pratik.panchal@spexiontechnologies.com');
+                        $messages->to($emailData['client']['email']);
                         $sub = __('mail.irrelevant_lead.header');
                         $messages->subject($sub);
                     });

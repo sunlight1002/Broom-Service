@@ -624,9 +624,9 @@ export default function ContractEng() {
                                                                                 "sigCanvas",
                                                                         }}
                                                                         ref={sigRef}
-                                                                        onEnd={
-                                                                            handleSignatureEnd
-                                                                        }
+                                                                        // onEnd={
+                                                                        //     handleSignatureEnd
+                                                                        // }
                                                                     />
                                                                     &nbsp;
                                                                 </td>
@@ -1004,9 +1004,9 @@ export default function ContractEng() {
                                                                 "sigCanvas",
                                                         }}
                                                         ref={sigRef}
-                                                        onEnd={
-                                                            handleSignatureEnd
-                                                        }
+                                                        // onEnd={
+                                                        //     handleSignatureEnd
+                                                        // }
                                                     />
                                                 </React.Fragment>
                                             ) : (
