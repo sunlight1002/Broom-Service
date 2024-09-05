@@ -248,29 +248,29 @@ const PropertyAddress = memo(function PropertyAddress({
             setModalStatus(true);
             isAdd.current = false;
             setTimeout(() => {
-                fullAddress.current.value = data.geo_address;
-                addressName.current.value = data.address_name
+                fullAddress.current.value = data?.geo_address;
+                addressName.current.value = data?.address_name
                     ? data.address_name
                     : "";
-                floor.current.value = data.floor;
-                Apt.current.value = data.apt_no;
-                enterance.current.value = data.entrence_code;
-                zip.current.value = data.zipcode;
-                parking.current.value = data.parking;
-                key.current.value = data.key;
-                lobby.current.value = data.lobby;
-                prefer_type.current.value = data.prefer_type
+                floor.current.value = data?.floor;
+                Apt.current.value = data?.apt_no;
+                enterance.current.value = data?.entrence_code;
+                zip.current.value = data?.zipcode;
+                parking.current.value = data?.parking;
+                key.current.value = data?.key;
+                lobby.current.value = data?.lobby;
+                prefer_type.current.value = data?.prefer_type
                     ? data.prefer_type
                     : "default";
-                is_cat_avail.current.checked = data.is_cat_avail ? true : false;
-                is_dog_avail.current.checked = data.is_dog_avail ? true : false;
+                is_cat_avail.current.checked = data?.is_cat_avail ? true : false;
+                is_dog_avail.current.checked = data?.is_dog_avail ? true : false;
                 addressId.current.value =
-                    data.indexId !== undefined ? data.indexId : data.id;
+                    data?.indexId !== undefined ? data?.indexId : data?.id;
                 client_id.current.value = data.client_id ? data.client_id : 0;
-                lat.current.value = data.latitude;
-                long.current.value = data.longitude;
-                setLatitude(Number(data.latitude));
-                setLongitude(Number(data.longitude));
+                lat.current.value = data?.latitude;
+                long.current.value = data?.longitude;
+                setLatitude(Number(data?.latitude));
+                setLongitude(Number(data?.longitude));
                 setAddress(data.geo_address);
                 let wArr = [];
                 if (data.not_allowed_worker_ids) {
@@ -337,9 +337,7 @@ const PropertyAddress = memo(function PropertyAddress({
     useEffect(() => {
         getWorkers();
     }, []);
-
-    // console.log(addresses);
-
+    
     return (
         <div>
             <div className="row align-items-center mt-3 ml-0 mr-0 justify-content-between">
@@ -670,6 +668,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                                     type="checkbox"
                                                     id="isDogAvail"
                                                     name="is_dog_avail"
+
                                                 />
                                                 <span className="checkmark"></span>
 
@@ -813,18 +812,18 @@ const PropertyAddress = memo(function PropertyAddress({
                                                 "admin.leads.AddLead.addAddress.Gender_Prefernce"
                                             )}
                                         </Th>
-                                        <Th>
 
-                                        {t(
-                                                "admin.leads.AddLead.addAddress.Dog"
-                                            )}
-                                        </Th>
                                         <Th>
-
                                         {t(
                                                 "admin.leads.AddLead.addAddress.Cat"
                                             )}
                                         </Th>
+                                        <Th>
+                                        {t(
+                                                "admin.leads.AddLead.addAddress.Dog"
+                                            )}
+                                        </Th>
+                                      
                                         {/* <Th>
 
                                             {t(
@@ -891,16 +890,13 @@ const PropertyAddress = memo(function PropertyAddress({
                                                         {"  "}
                                                         <label
                                                             className="form-check-label custom-checkbox navyblueColor"
-                                                            htmlFor="isCatAvail"
                                                             style={{ fontWeight: "500", fontSize: "14px" }}
                                                         >
                                                             <input
-                                                                // ref={is_dog_avail}
                                                                 className="form-check-input"
                                                                 type="checkbox"
-                                                                id="isCatAvail"
-                                                                name="is_cat_avail"
-                                                                defaultChecked={item.is_cat_avail}
+                                                                defaultChecked={item?.is_cat_avail != 0 ? true: false}
+                                                                disabled={item?.is_cat_avail != 0 ? true: false}
                                                             />
                                                             <span className="checkmark"></span>
                                                         </label>
@@ -910,16 +906,13 @@ const PropertyAddress = memo(function PropertyAddress({
                                                         {" "}
                                                         <label
                                                             className="form-check-label custom-checkbox navyblueColor"
-                                                            htmlFor="isDogAvail"
                                                             style={{ fontWeight: "500", fontSize: "14px" }}
                                                         >
                                                             <input
-                                                                // ref={is_dog_avail}
                                                                 className="form-check-input"
                                                                 type="checkbox"
-                                                                id="isDogAvail"
-                                                                name="is_dog_avail"
-                                                                defaultChecked={item.is_dog_avail}
+                                                                defaultChecked={item?.is_dog_avail != 0 ? true: false}
+                                                                disabled={item?.is_dog_avail != 0 ? true: false}
                                                             />
                                                             <span className="checkmark"></span>
                                                         </label>

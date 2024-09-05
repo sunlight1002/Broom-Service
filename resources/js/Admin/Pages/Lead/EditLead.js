@@ -166,6 +166,9 @@ export default function EditWorker() {
         getLead();
     }, []);
 
+    // console.log(addresses);
+    
+
     return (
         <div id="container">
             <Sidebar />

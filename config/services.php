@@ -58,6 +58,7 @@ return [
         'calendar_id' => env('GOOGLE_CALENDAR_ID'),
         'redirect_uri' => env('GOOGLE_REDIRECT_URI'),
         'map_key' => env('GOOGLE_MAP_KEY'),
+        'translate_key' => env('GOOGLE_TRANSLATE_API_KEY'),
     ],
 
     'facebook' => [

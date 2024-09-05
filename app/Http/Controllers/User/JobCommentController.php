@@ -43,7 +43,7 @@ class JobCommentController extends Controller
     public function __construct()
     {
         $this->translateClient = new TranslateClient([
-            'key' => env('GOOGLE_TRANSLATE_API_KEY'),
+            'key' => config('services.google.translate_key'),
         ]);
     }
 
@@ -69,9 +69,9 @@ class JobCommentController extends Controller
         // Get the target language and comment ID
         $targetLanguage = $request->input('target_language', 'en');
         $commentId = $request->input('comment_id', null);
-    
+   
         // Translate the specific comment if a target language is provided
-        if ($targetLanguage !== 'en' && $commentId) { 
+        if ($targetLanguage !== 'en' && $commentId) {
             foreach ($comments as $comment) {
                 if ($comment->id == $commentId) {
                     $textToTranslate = $comment->comment;
@@ -79,9 +79,12 @@ class JobCommentController extends Controller
                         try {
                             $translation = $this->translateClient->translate($textToTranslate, [
                                 'target' => $targetLanguage,
-                            ]);       
+                            ]);
+
                             $comment->comment = $translation['text'];
+                            $comment->translated_text = $translation['text'];
                         } catch (\Exception $e) {
+                            \Log::error('Translation API Error: ' . $e->getMessage());
                             $comment->translated_text = $textToTranslate; 
                         }
                     }
@@ -93,6 +96,7 @@ class JobCommentController extends Controller
             'comments' => $comments
         ]);
     }
+    
     
     
     

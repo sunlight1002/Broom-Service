@@ -49,6 +49,8 @@ export default function CreateJob() {
             });
         }
     }, [services]);
+    console.log(services, "services");
+    
 
     return (
         <div id="container">

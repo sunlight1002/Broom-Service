@@ -940,7 +940,7 @@ class ClientController extends Controller
 
         $newLeadStatus = $data['status'];
 
-        if ($client->lead_status->lead_status != $newLeadStatus) {
+        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
             $client->lead_status()->updateOrCreate(
                 [],
                 ['lead_status' => $newLeadStatus]
