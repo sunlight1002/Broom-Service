@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import i18next from "i18next";
-    import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -60,7 +60,7 @@ export default function Lead() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    
+
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -79,8 +79,18 @@ export default function Lead() {
                 },
                 order: [[0, "desc"]],
                 columns: [
-                    { title: t("global.date"), data: "created_at" },
-                    { title: t("admin.global.Name"), data: "name" },
+                    {
+                        title: t("global.date"),
+                        data: "created_at",
+                        responsivePriority: 1, // Highest priority to keep this column visible
+                        width: "10%", // Optional: You can specify a fixed width
+                    },
+                    {
+                        title: t("admin.global.Name"),
+                        data: "name",
+                        responsivePriority: 2, // Second priority to keep this column visible
+                        width: "15%", // Optional: You can specify a fixed width
+                    },
                     { title: t("admin.global.Email"), data: "email" },
                     { title: t("admin.global.Phone"), data: "phone" },
                     {
@@ -98,7 +108,7 @@ export default function Lead() {
                         title: t("admin.global.Action"),
                         data: "action",
                         orderable: false,
-                        responsivePriority: 1,
+                        responsivePriority: 3, // Third priority to keep this column visible
                         render: function (data, type, row, meta) {
                             let _html =
                                 `<div class="action-dropdown dropdown">
@@ -364,7 +374,7 @@ export default function Lead() {
                     </div>
                 </div>
                 <div className="card" style={{ boxShadow: "none" }}>
-                    <div className="card-body">
+                    <div className="card-body px-0">
                         <div className="boxPanel">
                             <table
                                 ref={tableRef}

@@ -52,7 +52,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     // Change Password Api
     Route::post('change-password', [DashboardController::class, 'changePassword']);
 
-
+    Route::post('save-card',[ClientEmailController::class,'saveCard'])->name('save-card');
     Route::get('get-card', [ClientCardController::class, 'index']);
     Route::post('cards/initialize-adding', [ClientCardController::class, 'createCardSession']);
     Route::delete('cards/{id}', [ClientCardController::class, 'destroy']);
@@ -80,6 +80,7 @@ Route::post('reject-meeting', [ClientEmailController::class, 'rejectMeeting']);
 Route::post('meeting/{id}/reschedule', [ClientEmailController::class, 'rescheduleMeeting']);
 Route::post('meetings/{id}/slot-save', [ClientEmailController::class, 'saveMeetingSlot']);
 Route::post('get-offer/{id}', [ClientEmailController::class, 'GetOffer']);
+
 Route::post('accept-offer', [ClientEmailController::class, 'AcceptOffer']);
 Route::post('reject-offer', [ClientEmailController::class, 'RejectOffer']);
 Route::post('contracts/{hash}', [ClientEmailController::class, 'contractByHash']);

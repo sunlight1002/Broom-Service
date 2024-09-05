@@ -31,6 +31,7 @@ class NotifyForNewLead implements ShouldQueue
      */
     public function handle(NewLeadArrived $event)
     {
+        // echo("hello");
         Notification::create([
             'user_id' => $event->client->id,
             'user_type' => get_class($event->client),

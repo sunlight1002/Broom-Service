@@ -16,6 +16,7 @@
             margin: 0;
             padding: 0;
         }
+
         .container {
             max-width: 650px;
             margin: 20px auto;
@@ -23,40 +24,48 @@
             border: 1px solid #e6e8eb;
             border-radius: 6px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .header img {
             display: block;
             margin: 0 auto;
             width: 100px;
             height: auto;
         }
+
         .header h1 {
             text-align: center;
             color: #007bff;
             margin: 20px 0;
         }
+
         .content {
             text-align: center;
         }
+
         .content p {
             line-height: 1.5;
             margin: 10px 0;
         }
+
         .footer {
             text-align: center;
             margin-top: 30px;
             border-top: 1px solid #e6e8eb;
             padding-top: 10px;
         }
+
         .footer p {
             margin: 5px 0;
             font-size: 14px;
         }
+
         .footer a {
             color: #007bff;
             text-decoration: none;
         }
+
         .footer a:hover {
             text-decoration: underline;
         }
@@ -66,10 +75,11 @@
 <body>
     <div class="container">
         <div class="header">
-			<img src="{{ asset('../images/sample.png') }}" style="margin: 0 auto;display: block">
+            <img src="{{ asset('../images/sample.png') }}" style="margin: 0 auto;display: block">
 
             <h1>User Data Report</h1>
         </div>
+        <p style="text-align: center;line-height: 30px">{{ __('mail.common.greetings') }}</p>
         <div class="content">
             <p>Please find attached the CSV report of the user data.</p>
             <p>The report includes details about the users, their submission status, and related forms.</p>
