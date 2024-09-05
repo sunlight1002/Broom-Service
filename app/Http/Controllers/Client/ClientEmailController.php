@@ -28,8 +28,6 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use Illuminate\Support\Facades\Mail;
 
 
-
-
 class ClientEmailController extends Controller
 {
   use PriceOffered, ClientCardTrait, ScheduleMeeting;
@@ -86,208 +84,234 @@ class ClientEmailController extends Controller
 
   public function AcceptOffer(Request $request)
   {
-    $offer = Offer::query()
-      ->with('client')
-      ->find($request->id);
-
-    $offer->update([
-      'status' => 'accepted'
-    ]);
-
-    $client = $offer->client;
-    $ofr = $offer->toArray();
-
-    $hash = md5($ofr['client']['email'] . $ofr['id']);
-
-    $contract = Contract::create([
-      'offer_id'   => $offer->id,
-      'client_id'  => $ofr['client']['id'],
-      'unique_hash' => $hash,
-      'status'     => ContractStatusEnum::NOT_SIGNED
-    ]);
-
-    $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
-
-    if ($client->lead_status->lead_status != $newLeadStatus) {
-      $client->lead_status()->updateOrCreate(
-        [],
-        ['lead_status' => $newLeadStatus]
-      );
-
-      event(new ClientLeadStatusChanged($client, $newLeadStatus));
-
-      $emailData = [
-        'client' => $client->toArray(),
-        'status' => $newLeadStatus,
-    ];
-
-    if($newLeadStatus === 'freeze client'){
-      // Trigger WhatsApp Notification
+      $offer = Offer::query()
+          ->with('client')
+          ->find($request->id);
+  
+      $offer->update([
+          'status' => 'accepted'
+      ]);
+  
+      $client = $offer->client;
+      $ofr = $offer->toArray();
+  
+      $hash = md5($ofr['client']['email'] . $ofr['id']);
+  
+      $contract = Contract::create([
+          'offer_id'   => $offer->id,
+          'client_id'  => $ofr['client']['id'],
+          'unique_hash' => $hash,
+          'status'     => ContractStatusEnum::NOT_SIGNED
+      ]);
+  
+      $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
+  
+      if ($client->lead_status->lead_status != $newLeadStatus) {
+          $client->lead_status()->updateOrCreate(
+              [],
+              ['lead_status' => $newLeadStatus]
+          );
+  
+          event(new ClientLeadStatusChanged($client, $newLeadStatus));
+  
+          $emailData = [
+              'client' => $client->toArray(),
+              'status' => $newLeadStatus,
+          ];
+  
+          if($newLeadStatus === 'freeze client'){
+              // Trigger WhatsApp Notification
+              event(new WhatsappNotificationEvent([
+                  "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
+                  "notificationData" => [
+                      'client' => $client->toArray(),
+                  ]
+              ]));
+          }
+          
+          if ($client->notification_type === "both") {
+              if ($newLeadStatus === 'unanswered') {
+  
+                  event(new WhatsappNotificationEvent([
+                      "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
+                      "notificationData" => [
+                          'client' => $client->toArray(),
+                      ]
+                  ]));
+  
+                  Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                      $messages->to($emailData['client']['email']);
+                      $sub = __('mail.unanswered_lead.header');
+                      $messages->subject($sub);
+                  });
+              }
+              
+              if ($newLeadStatus === 'irrelevant') {
+  
+                  event(new WhatsappNotificationEvent([
+                      "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
+                      "notificationData" => [
+                          'client' => $client->toArray(),
+                      ]
+                  ]));
+  
+                  Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                      $messages->to($emailData['client']['email']);
+                      $sub = __('mail.irrelevant_lead.header');
+                      $messages->subject($sub);
+                  });
+              }
+              
+              event(new WhatsappNotificationEvent([
+                  "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                  "notificationData" => [
+                      'client' => $client->toArray(),
+                      'status' => $newLeadStatus,
+                  ]
+              ]));
+  
+              Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+                  $messages->to($emailData['client']['email']);
+                  $sub = __('mail.user_status_changed.header');
+                  $messages->subject($sub);
+              });
+          
+          } elseif ($client->notification_type === "email") {
+              if ($newLeadStatus === 'unanswered') {
+  
+                  Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                      $messages->to($emailData['client']['email']);
+                      $sub = __('mail.unanswered_lead.header');
+                      $messages->subject($sub);
+                  });
+              }
+              if ($newLeadStatus === 'irrelevant') {
+                  Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                      $messages->to($emailData['client']['email']);
+                      $sub = __('mail.irrelevant_lead.header');
+                      $messages->subject($sub);
+                  });
+              }
+  
+              Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+                  $messages->to('pratik.panchal@spexiontechnologies.com');
+                  $sub = __('mail.user_status_changed.header');
+                  $messages->subject($sub);
+              });
+          
+          } else {
+              if ($newLeadStatus === 'unanswered') {
+  
+                  event(new WhatsappNotificationEvent([
+                      "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
+                      "notificationData" => [
+                          'client' => $client->toArray(),
+                      ]
+                  ]));
+              }
+              if ($newLeadStatus === 'irrelevant') {
+                  event(new WhatsappNotificationEvent([
+                      "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
+                      "notificationData" => [
+                          'client' => $client->toArray(),
+                      ]
+                  ]));
+              }
+              event(new WhatsappNotificationEvent([
+                  "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                  "notificationData" => [
+                      'client' => $client->toArray(),
+                      'status' => $newLeadStatus,
+                  ]
+              ]));
+          }
+      }
+  
+      Notification::create([
+          'user_id' => $ofr['client']['id'],
+          'user_type' => Client::class,
+          'type' => NotificationTypeEnum::LEAD_ACCEPTED_PRICE_OFFER,
+          'offer_id' => $offer->id,
+          'status' => 'accepted'
+      ]);
+  
       event(new WhatsappNotificationEvent([
-         "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
-         "notificationData" => [
-             'client' => $client->toArray(),
-         ]
-     ]));
- }
-    
-    if ($client->notification_type === "both") {
-        if ($newLeadStatus === 'unanswered') {
-            // Trigger WhatsApp Notification
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-    
-            // Send Email Notification
-            Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.unanswered_lead.header');
-                $messages->subject($sub);
-            });
-        }
-        
-        if ($newLeadStatus === 'irrelevant') {
-            // Trigger WhatsApp Notification
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-    
-            // Send Email Notification
-            Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                // $messages->to($emailData['client']['email']);
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.irrelevant_lead.header');
-                $messages->subject($sub);
-            });
-        } 
-            // Trigger WhatsApp Notification
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ]
-            ]));
-    
-            // Send Email Notification
-            Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.user_status_changed.header');
-                $messages->subject($sub);
-            });
-        
-    } elseif ($client->notification_type === "email") {
-        if ($newLeadStatus === 'unanswered') {
-            // Send Email Notification
-            Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.unanswered_lead.header');
-                $messages->subject($sub);
-            });
-        }
-        if ($newLeadStatus === 'irrelevant') {
-            // Send Email Notification
-            Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                // $messages->to($emailData['client']['email']);
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.irrelevant_lead.header');
-                $messages->subject($sub);
-            });
-        }
-            // Send Email Notification Only
-            Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.user_status_changed.header');
-                $messages->subject($sub);
-            });
-        
-    } else {
-        if ($newLeadStatus === 'unanswered') {
-            // Trigger WhatsApp Notification Only
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-        }
-        if ($newLeadStatus === 'irrelevant') {
-            // Trigger WhatsApp Notification Only
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-        }
-            // Trigger WhatsApp Notification Only
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ]
-            ]));
-    }
-    }
+          "type" => WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER,
+          "notificationData" => [
+              'client' => $client->toArray(),
+          ]
+      ]));
 
-    Notification::create([
-      'user_id' => $ofr['client']['id'],
-      'user_type' => Client::class,
-      'type' => NotificationTypeEnum::ACCEPT_OFFER,
-      'offer_id' => $offer->id,
-      'status' => 'accepted'
-    ]);
-
-    $ofr['contract_id'] = $hash;
-
-    event(new OfferAccepted($ofr));
-
-    return response()->json([
-      'message' => 'Offer is accepted'
-    ]);
-  }
-
-  public function RejectOffer(Request $request)
-  {
-    $offer = Offer::with('client')->find($request->id);
-    if (!$offer) {
+      // Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+      //     $messages->to($emailData['client']['email']);
+      //     $sub = __('mail.price_offer_reminder.header');
+      //     $messages->subject($sub);
+      // });
+  
+      $ofr['contract_id'] = $hash;
+  
+      event(new OfferAccepted($ofr));
+  
       return response()->json([
-        'message' => 'Offer not found'
-      ], 404);
-    }
-
-    $client = $offer->client;
-    if (!$client) {
-      return response()->json([
-        'message' => 'Client not found'
-      ], 404);
-    }
-
-    $offer->update([
-      'status' => 'declined'
-    ]);
-
-    $offerArr = $offer->toArray();
-
-    Notification::create([
-      'user_id' => $offerArr['client']['id'],
-      'user_type' => get_class($client),
-      'type' => NotificationTypeEnum::REJECT_OFFER,
-      'offer_id' => $offer->id,
-      'status' => 'declined'
-    ]);
-
-    return response()->json([
-      'message' => 'Thanks, your offer has been rejected'
-    ]);
+          'message' => 'Offer is accepted'
+      ]);
   }
+  
+
+    public function RejectOffer(Request $request)
+    {
+        $offer = Offer::with('client')->find($request->id);
+        if (!$offer) {
+            return response()->json([
+                'message' => 'Offer not found'
+            ], 404);
+        }
+
+        $client = $offer->client;
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found'
+            ], 404);
+        }
+
+        $offer->update([
+            'status' => 'declined'
+        ]);
+
+        $offerArr = $offer->toArray();
+
+        Notification::create([
+            'user_id' => $offerArr['client']['id'],
+            'user_type' => get_class($client),
+            'type' => NotificationTypeEnum::LEAD_DECLINED_PRICE_OFFER,
+            'offer_id' => $offer->id,
+            'status' => 'declined'
+        ]);
+
+        // Trigger WhatsApp Notification
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER,
+            "notificationData" => [
+                'client' => $client->toArray(),
+            ]
+        ]));
+
+      //   $emailData = [
+      //     'client' => $client->toArray(),
+      //     'status' => $newLeadStatus,
+      // ];
+
+      //   Mail::send('Mails.LeadDeclinePriceOffer', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+      //     $messages->to($emailData['client']['email']);
+      //     $sub = __('mail.price_offer_decline.header');
+      //     $messages->subject($sub);
+      // });
+
+        return response()->json([
+            'message' => 'Thanks, your offer has been rejected'
+        ]);
+    }
+
 
   public function acceptMeeting(Request $request)
   {
@@ -505,110 +529,163 @@ class ClientEmailController extends Controller
        ]));
    }
       
-      if ($client->notification_type === "both") {
-          if ($newLeadStatus === 'unanswered') {
-              // Trigger WhatsApp Notification
-              event(new WhatsappNotificationEvent([
-                  "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                  "notificationData" => [
-                      'client' => $client->toArray(),
-                  ]
-              ]));
-      
-              // Send Email Notification
-              Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                  $messages->to($emailData['client']['email']);
-                  $sub = __('mail.unanswered_lead.header');
-                  $messages->subject($sub);
-              });
-          }
-          
-          if ($newLeadStatus === 'irrelevant') {
-              // Trigger WhatsApp Notification
-              event(new WhatsappNotificationEvent([
-                  "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                  "notificationData" => [
-                      'client' => $client->toArray(),
-                  ]
-              ]));
-      
-              // Send Email Notification
-              Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                  // $messages->to($emailData['client']['email']);
-                  $messages->to($emailData['client']['email']);
-                  $sub = __('mail.irrelevant_lead.header');
-                  $messages->subject($sub);
-              });
-          } 
-              // Trigger WhatsApp Notification
-              event(new WhatsappNotificationEvent([
-                  "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                  "notificationData" => [
-                      'client' => $client->toArray(),
-                      'status' => $newLeadStatus,
-                  ]
-              ]));
-      
-              // Send Email Notification
-              Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                  $messages->to($emailData['client']['email']);
-                  $sub = __('mail.user_status_changed.header');
-                  $messages->subject($sub);
-              });
-          
-      } elseif ($client->notification_type === "email") {
-          if ($newLeadStatus === 'unanswered') {
-              // Send Email Notification
-              Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                  $messages->to($emailData['client']['email']);
-                  $sub = __('mail.unanswered_lead.header');
-                  $messages->subject($sub);
-              });
-          }
-          if ($newLeadStatus === 'irrelevant') {
-              // Send Email Notification
-              Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                  // $messages->to($emailData['client']['email']);
-                  $messages->to($emailData['client']['email']);
-                  $sub = __('mail.irrelevant_lead.header');
-                  $messages->subject($sub);
-              });
-          }
-              // Send Email Notification Only
-              Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                  $messages->to($emailData['client']['email']);
-                  $sub = __('mail.user_status_changed.header');
-                  $messages->subject($sub);
-              });
-          
-      } else {
-          if ($newLeadStatus === 'unanswered') {
-              // Trigger WhatsApp Notification Only
-              event(new WhatsappNotificationEvent([
-                  "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                  "notificationData" => [
-                      'client' => $client->toArray(),
-                  ]
-              ]));
-          }
-          if ($newLeadStatus === 'irrelevant') {
-              // Trigger WhatsApp Notification Only
-              event(new WhatsappNotificationEvent([
-                  "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                  "notificationData" => [
-                      'client' => $client->toArray(),
-                  ]
-              ]));
-          }
-              // Trigger WhatsApp Notification Only
-              event(new WhatsappNotificationEvent([
-                  "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                  "notificationData" => [
-                      'client' => $client->toArray(),
-                      'status' => $newLeadStatus,
-                  ]
-              ]));
-      }
+   if ($client->notification_type === "both") {
+    if ($newLeadStatus === 'unanswered') {
+
+        Notification::create([
+            'user_id' => $client->id,
+            'user_type' => get_class($client),
+            'type' => NotificationTypeEnum::UNANSWERED_LEAD,
+            'status' => $newLeadStatus
+        ]);
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
+            "notificationData" => [
+                'client' => $client->toArray(),
+            ]
+        ]));
+
+        Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+            $messages->to($emailData['client']['email']);
+            $sub = __('mail.unanswered_lead.header');
+            $messages->subject($sub);
+        });
+    }
+    
+    if ($newLeadStatus === 'irrelevant') {
+
+        Notification::create([
+            'user_id' => $client->id,
+            'user_type' => get_class($client),
+            'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
+            'status' => $newLeadStatus
+        ]);
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
+            "notificationData" => [
+                'client' => $client->toArray(),
+            ]
+        ]));
+
+        Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+            $messages->to($emailData['client']['email']);
+            $sub = __('mail.irrelevant_lead.header');
+            $messages->subject($sub);
+        });
+    }; 
+    
+    Notification::create([
+        'user_id' => $client->id,
+        'user_type' => Client::class,
+        'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+        'status' => $newLeadStatus
+    ]);
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'status' => $newLeadStatus,
+            ]
+        ]));
+
+        Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+            $messages->to($emailData['client']['email']);
+            $sub = __('mail.user_status_changed.header');
+            $messages->subject($sub);
+        });
+    
+} elseif ($client->notification_type === "email") {
+    if ($newLeadStatus === 'unanswered') {
+
+        Notification::create([
+            'user_id' => $client->id,
+            'user_type' => get_class($client),
+            'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
+            'status' => $newLeadStatus
+        ]);
+
+        Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+            $messages->to($emailData['client']['email']);
+            $sub = __('mail.unanswered_lead.header');
+            $messages->subject($sub);
+        });
+    }
+    if ($newLeadStatus === 'irrelevant') {
+        Notification::create([
+            'user_id' => $client->id,
+            'user_type' => get_class($client),
+            'type' => NotificationTypeEnum::INQUIRY_RESPONSE,
+            'status' => $newLeadStatus
+        ]);
+        Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+            $messages->to($emailData['client']['email']);
+            $sub = __('mail.irrelevant_lead.header');
+            $messages->subject($sub);
+        });
+    }
+
+    Notification::create([
+        'user_id' => $client->id,
+        'user_type' => Client::class,
+        'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+        'status' => $newLeadStatus
+    ]);
+        Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+            $messages->to('pratik.panchal@spexiontechnologies.com');
+            $sub = __('mail.user_status_changed.header');
+            $messages->subject($sub);
+        });
+    
+} else {
+    if ($newLeadStatus === 'unanswered') {
+
+        Notification::create([
+            'user_id' => $client->id,
+            'user_type' => get_class($client),
+            'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
+            'status' => $newLeadStatus
+        ]);
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
+            "notificationData" => [
+                'client' => $client->toArray(),
+            ]
+        ]));
+    }
+    if ($newLeadStatus === 'irrelevant') {
+
+        Notification::create([
+            'user_id' => $client->id,
+            'user_type' => get_class($client),
+            'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
+            'status' => $newLeadStatus
+        ]);
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
+            "notificationData" => [
+                'client' => $client->toArray(),
+            ]
+        ]));
+    }
+
+    Notification::create([
+        'user_id' => $client->id,
+        'user_type' => get_class($client),
+        'type' => NotificationTypeEnum::USER_STATUS_CHANGED,  
+        'status' => $newLeadStatus
+    ]);
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'status' => $newLeadStatus,
+            ]
+        ]));
+    }
       }
 
       Notification::create([
@@ -618,6 +695,13 @@ class ClientEmailController extends Controller
         'contract_id' => $contract->id,
         'status' => 'accepted'
       ]);
+
+      event(new WhatsappNotificationEvent([
+        "type" => WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
+        "notificationData" => [
+            'client' => $client->toArray(),
+        ]
+       ]));
 
       $client->makeVisible('passcode');
 
@@ -675,6 +759,13 @@ class ClientEmailController extends Controller
         'contract_id' => $contract->id,
         'status' => 'declined'
       ]);
+
+      event(new WhatsappNotificationEvent([
+        "type" => WhatsappMessageTemplateEnum::LEAD_DECLINED_CONTRACT,
+        "notificationData" => [
+            'client' => $client->toArray(),
+        ]
+       ]));
 
       return response()->json([
         'message' => "Contract has been rejected"
@@ -792,109 +883,162 @@ class ClientEmailController extends Controller
  }
     
     if ($client->notification_type === "both") {
-        if ($newLeadStatus === 'unanswered') {
-            // Trigger WhatsApp Notification
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-    
-            // Send Email Notification
-            Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.unanswered_lead.header');
-                $messages->subject($sub);
-            });
-        }
-        
-        if ($newLeadStatus === 'irrelevant') {
-            // Trigger WhatsApp Notification
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-    
-            // Send Email Notification
-            Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                // $messages->to($emailData['client']['email']);
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.irrelevant_lead.header');
-                $messages->subject($sub);
-            });
-        } 
-            // Trigger WhatsApp Notification
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ]
-            ]));
-    
-            // Send Email Notification
-            Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.user_status_changed.header');
-                $messages->subject($sub);
-            });
-        
+      if ($newLeadStatus === 'unanswered') {
+
+          Notification::create([
+              'user_id' => $client->id,
+              'user_type' => get_class($client),
+              'type' => NotificationTypeEnum::UNANSWERED_LEAD,
+              'status' => $newLeadStatus
+          ]);
+
+          event(new WhatsappNotificationEvent([
+              "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
+              "notificationData" => [
+                  'client' => $client->toArray(),
+              ]
+          ]));
+
+          Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+              $messages->to($emailData['client']['email']);
+              $sub = __('mail.unanswered_lead.header');
+              $messages->subject($sub);
+          });
+      }
+      
+      if ($newLeadStatus === 'irrelevant') {
+
+          Notification::create([
+              'user_id' => $client->id,
+              'user_type' => get_class($client),
+              'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
+              'status' => $newLeadStatus
+          ]);
+
+          event(new WhatsappNotificationEvent([
+              "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
+              "notificationData" => [
+                  'client' => $client->toArray(),
+              ]
+          ]));
+
+          Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+              $messages->to($emailData['client']['email']);
+              $sub = __('mail.irrelevant_lead.header');
+              $messages->subject($sub);
+          });
+      }; 
+      
+      Notification::create([
+          'user_id' => $client->id,
+          'user_type' => Client::class,
+          'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+          'status' => $newLeadStatus
+      ]);
+          event(new WhatsappNotificationEvent([
+              "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+              "notificationData" => [
+                  'client' => $client->toArray(),
+                  'status' => $newLeadStatus,
+              ]
+          ]));
+
+          Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+              $messages->to($emailData['client']['email']);
+              $sub = __('mail.user_status_changed.header');
+              $messages->subject($sub);
+          });
+      
     } elseif ($client->notification_type === "email") {
-        if ($newLeadStatus === 'unanswered') {
-            // Send Email Notification
-            Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.unanswered_lead.header');
-                $messages->subject($sub);
-            });
-        }
-        if ($newLeadStatus === 'irrelevant') {
-            // Send Email Notification
-            Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                // $messages->to($emailData['client']['email']);
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.irrelevant_lead.header');
-                $messages->subject($sub);
-            });
-        }
-            // Send Email Notification Only
-            Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['client']['email']);
-                $sub = __('mail.user_status_changed.header');
-                $messages->subject($sub);
-            });
-        
+      if ($newLeadStatus === 'unanswered') {
+
+          Notification::create([
+              'user_id' => $client->id,
+              'user_type' => get_class($client),
+              'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
+              'status' => $newLeadStatus
+          ]);
+
+          Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+              $messages->to($emailData['client']['email']);
+              $sub = __('mail.unanswered_lead.header');
+              $messages->subject($sub);
+          });
+      }
+      if ($newLeadStatus === 'irrelevant') {
+          Notification::create([
+              'user_id' => $client->id,
+              'user_type' => get_class($client),
+              'type' => NotificationTypeEnum::INQUIRY_RESPONSE,
+              'status' => $newLeadStatus
+          ]);
+          Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+              $messages->to($emailData['client']['email']);
+              $sub = __('mail.irrelevant_lead.header');
+              $messages->subject($sub);
+          });
+      }
+
+      Notification::create([
+          'user_id' => $client->id,
+          'user_type' => Client::class,
+          'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+          'status' => $newLeadStatus
+      ]);
+          Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
+              $messages->to('pratik.panchal@spexiontechnologies.com');
+              $sub = __('mail.user_status_changed.header');
+              $messages->subject($sub);
+          });
+      
     } else {
-        if ($newLeadStatus === 'unanswered') {
-            // Trigger WhatsApp Notification Only
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-        }
-        if ($newLeadStatus === 'irrelevant') {
-            // Trigger WhatsApp Notification Only
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-        }
-            // Trigger WhatsApp Notification Only
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ]
-            ]));
-    }
+      if ($newLeadStatus === 'unanswered') {
+
+          Notification::create([
+              'user_id' => $client->id,
+              'user_type' => get_class($client),
+              'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
+              'status' => $newLeadStatus
+          ]);
+
+          event(new WhatsappNotificationEvent([
+              "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
+              "notificationData" => [
+                  'client' => $client->toArray(),
+              ]
+          ]));
+      }
+      if ($newLeadStatus === 'irrelevant') {
+
+          Notification::create([
+              'user_id' => $client->id,
+              'user_type' => get_class($client),
+              'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
+              'status' => $newLeadStatus
+          ]);
+
+          event(new WhatsappNotificationEvent([
+              "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
+              "notificationData" => [
+                  'client' => $client->toArray(),
+              ]
+          ]));
+      }
+
+      Notification::create([
+          'user_id' => $client->id,
+          'user_type' => get_class($client),
+          'type' => NotificationTypeEnum::USER_STATUS_CHANGED,  
+          'status' => $newLeadStatus
+      ]);
+          event(new WhatsappNotificationEvent([
+              "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+              "notificationData" => [
+                  'client' => $client->toArray(),
+                  'status' => $newLeadStatus,
+              ]
+          ]));
+      }
     }
 
     $schedule->load(['client', 'team', 'propertyAddress']);

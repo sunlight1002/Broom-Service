@@ -144,7 +144,18 @@ class DashboardController extends Controller
               NotificationTypeEnum::RESCHEDULE_MEETING,
               NotificationTypeEnum::FILES,
               NotificationTypeEnum::CLIENT_LEAD_STATUS_CHANGED,
-              NotificationTypeEnum::NEW_LEAD_ARRIVED
+              NotificationTypeEnum::NEW_LEAD_ARRIVED,
+              NotificationTypeEnum::FOLLOW_UP_REQUIRED,
+              NotificationTypeEnum::FOLLOW_UP_PRICE_OFFER,
+              NotificationTypeEnum::FINAL_FOLLOW_UP_PRICE_OFFER,
+              NotificationTypeEnum::LEAD_ACCEPTED_PRICE_OFFER,
+              NotificationTypeEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
+              NotificationTypeEnum::LEAD_DECLINED_PRICE_OFFER,
+              NotificationTypeEnum::FILE_SUBMISSION_REQUEST,
+              NotificationTypeEnum::LEAD_DECLINED_CONTRACT,
+              NotificationTypeEnum::CLIENT_IN_FREEZE_STATUS,
+              NotificationTypeEnum::STATUS_NOT_UPDATED,
+              NotificationTypeEnum::CLIENT_LEAD_STATUS_CHANGED,
             ]);
           })
           ->when($groupType == 'worker-forms', function ($q) {
@@ -425,7 +436,58 @@ class DashboardController extends Controller
           } else if ($notice->type == NotificationTypeEnum::ORDER_CREATED_WITH_DISCOUNT) {
             $noticeAll[$k]->data = "Order (" . $notice->data['order_id'] . ") has been created for <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> with discount.";
+          }else if ($notice->type == NotificationTypeEnum::UNANSWERED_LEAD) {
+            $client = Client::find($notice->user_id);
+        
+            if (isset($client)) {
+                $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                    "</a> has unanswered leads for 24 hours or more than 24 hours.";
+            }
+          }else if ($notice->type == NotificationTypeEnum::FOLLOW_UP_PRICE_OFFER) {
+            $client = Client::find($notice->user_id);
+        
+            if (isset($client)) {
+                $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                    "</a> has a follow-up price offer after 3 days.";
+            }
+          }else if($notice->type == NotificationTypeEnum::FINAL_FOLLOW_UP_PRICE_OFFER) {
+            $client = Client::find($notice->user_id);
+        
+            if (isset($client)) {
+                $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                    "</a> has a final follow-up price offer after 7 days.";
+            }
+          }else if ($notice->type == NotificationTypeEnum::LEAD_ACCEPTED_PRICE_OFFER) {
+            $client = Client::find($notice->user_id);
+        
+            if (isset($client)) {
+                $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                    "</a> has accepted the price offer.";
+            }
+        } else if ($notice->type == NotificationTypeEnum::LEAD_DECLINED_PRICE_OFFER) {
+          $client = Client::find($notice->user_id);
+          
+          if (isset($client)) {
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                  "</a> has rejected the price offer.";
           }
+        }else if ($notice->type == NotificationTypeEnum::LEAD_DECLINED_CONTRACT) {
+          $client = Client::find($notice->user_id);
+      
+          if (isset($client)) {
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                  "</a> has declined the contract.";
+          }
+        }else if ($notice->type == NotificationTypeEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT) {
+          $client = Client::find($notice->user_id);
+      
+          if (isset($client)) {
+              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
+                  "</a> has signed the contract and is ready to be booked.";
+          }
+        }
+    
+      
           
         }
       }
