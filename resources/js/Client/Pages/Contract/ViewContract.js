@@ -4,17 +4,17 @@ import logo from "../../../Assets/image/sample.svg";
 import star from "../../../Assets/image/icons/blue-star.png";
 import SignatureCanvas from "react-signature-canvas";
 import companySign from "../../../Assets/image/company-sign.png";
-import axios from "axios";
-import { useParams } from "react-router-dom";
-import swal from "sweetalert";
-import Moment from "moment";
-import { useTranslation } from "react-i18next";
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 import Swal from "sweetalert2";
-import { Base64 } from "js-base64";
-import { frequencyDescription } from "../../../Utils/job.utils";
+import Moment from 'moment';
+import { useTranslation } from 'react-i18next';
+import { Base64 } from 'js-base64';
 
-export default function ViewContract() {
-    const [offer, setOffer] = useState();
+
+export default function WorkContract() {
+
+    const [offer, setoffer] = useState([]);
     const [contract, setContract] = useState([]);
     const [client, setClient] = useState([]);
     const [services, setServices] = useState([]);
@@ -32,9 +32,17 @@ export default function ViewContract() {
     };
 
     const handleAccept = (e) => {
-        if (!signature) {
-            swal(t("work-contract.pleaseSign"), "", "error");
-            return false;
+
+        if (!cards) {
+            if (!ctype) { swal('Please select card type', '', 'error'); return false; }
+            if (!cname) { swal('Please enter card holder name', '', 'error'); return false; }
+            if (!cvv) { swal('Please select card cvv', '', 'error'); return false; }
+        }else{
+            // console.log(cards.card_type, "fef");
+            
+            setCtype(cards.card_type?cards.card_type:null)
+            setCname(cards.card_holder_name?cards.card_holder_name:null)
+            setCnumber(cards.card_number?cards.card_number:null)
         }
 
         const data = {
@@ -53,6 +61,7 @@ export default function ViewContract() {
                 setTimeout(() => {
                     window.location.reload(true);
                 }, 1000);
+                
             })
             .catch((e) => {
                 Swal.fire({
@@ -72,13 +81,27 @@ export default function ViewContract() {
     };
 
     const getOffer = () => {
-        axios.post(`/api/client/contracts/${param.hash}`).then((res) => {
-            setOffer(res.data.offer);
-            setClient(res.data.offer.client);
-            setServices(JSON.parse(res.data.offer.services));
-            setClientCard(res.data.card);
-        });
-    };
+        axios
+            .post(`/api/client/contracts/${param.hash}`)
+            .then((res) => {
+                console.log(res,"card");
+                setCards(res.data.cards[0])
+                setoffer(res.data.offer);
+                setClient(res.data.offer?.client);
+                setServices(JSON.parse(res.data.offer?.services))
+                if (res.data.cards[0]?.card_type) {
+                    setCtype(res.data.cards[0].card_type)
+                }
+                if (res.data.cards[0]?.card_number) {
+                    setCnumber(res.data.cards[0].card_number)
+                }
+                if (res.data.cards[0]?.card_holder_name) {
+                    setCname(res.data.cards[0].card_holder_name)
+                }
+
+            })
+    }
+    
 
     const getContract = () => {
         axios
@@ -267,184 +290,140 @@ export default function ViewContract() {
                                 <p>{t("work-contract.intro_txt_4")}</p>
                             </div>
                         </div>
-                        <h6 className="text-center text-underline">
-                            {t("work-contract.service_subtitle")}
-                        </h6>
-                        <div className="service-table table-responsive">
-                            <table className="table table-bordered">
+                        <h6 className='text-center text-underline'>{t('work-contract.service_subtitle')}</h6>
+                        <div className='service-table table-responsive'>
+                            <table className='table table-bordered'>
                                 <tbody>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.the_service_txt")}
-                                        </td>
-                                        <td>
-                                            {services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {s.service != "10"
-                                                            ? s.name
-                                                            : s.other_title}
-                                                    </p>
-                                                );
-                                            })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.location_txt")}
-                                        </td>
-                                        <td>
-                                            {services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {s.address
-                                                            ? s.address
-                                                                  .address_name
-                                                                ? s.address
-                                                                      .address_name
-                                                                : ""
-                                                            : ""}
-                                                    </p>
-                                                );
-                                            })}
-                                            <br />{" "}
-                                            <span
-                                                style={{ fontWeight: "600" }}
-                                                className="d-block mt-2"
-                                            >
-                                                {t(
-                                                    "work-contract.other_address_txt"
-                                                )}
-                                            </span>{" "}
-                                            <br />
-                                            {contract &&
-                                            contract.additional_address !=
-                                                null ? (
-                                                <input
-                                                    type="text"
-                                                    value={
-                                                        contract.additional_address
-                                                    }
-                                                    readOnly
-                                                    className="form-control"
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.the_service_txt')}</td>
+                                    <td>
+                                        {services && services.map((s, i) => {
+
+                                            return <p key={i}>{((s.service != '10') ? s.name : s.other_title)}</p>
+                                        })}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.location_txt')}</td>
+                                    <td>
+                                        {/* {offer && offer.client && ((ofr, i) => {
+                                            let address = (ofr.client.geo_address) ? (ofr.client.geo_address) + ", " : '';
+                                            return address;
+                                        })} */}
+
+                                        <br /> <span style={{ fontWeight: "600" }} className='d-block mt-2'>{t('work-contract.other_address_txt')}</span> <br />
+                                        {contract && contract.additional_address != null ?
+                                            <input type='text' value={contract.additional_address} readOnly className='form-control' />
+                                            :
+                                            <input type='text' name="additional_address" onChange={(e) => setAaddress(e.target.value)} placeholder={t('work-contract.placeholder_address')} className='form-control' />
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.service_delivery_txt')}</td>
+                                    <td>{t('work-contract.as_agreed_txt')} </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.frequency_txt')}</td>
+                                    <td>
+
+                                        {services && services.map((s, i) => {
+                                            return (
+                                                <p key={i}> {s.freq_name}</p>
+                                            )
+                                        })}
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.consideration_txt')}</td>
+                                    <td>
+                                        {services && services.map((s, i) => {
+
+                                            return <p key={i}>{s.totalamount + t('work-contract.ils') + " + " + t('work-contract.vat') + " " + t('work-contract.for') + " " + ((s.service != '10') ? s.name : s.other_title) + ", " + s.freq_name}</p>
+                                        })}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    {/* <td style={{width: "60%"}}>{t('work-contract.payment_method')}</td> */}
+                                    <td colSpan="2">{t('work-contract.payment_method')}</td>
+                                    {/* <td>&nbsp;</td> */}
+                                </tr>
+                                <tr>
+                                    <td colSpan="2">{t('work-contract.hereby_permit_txt')}</td>
+                                    {/* <td>&nbsp;</td> */}
+                                </tr>
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.card_type')}</td>
+                                    <td>
+                                        {cards && cards?.card_type != (null || undefined) ?
+                                            <input type="text" value={cards.card_type} className="form-control" readOnly />
+                                            :
+                                            <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
+                                                <option>Please Select</option>
+                                                <option value='Visa'>Visa</option>
+                                                <option value='Master Card'>Master Card</option>
+                                                <option value='American Express'>American Express</option>
+                                            </select>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.card_name')}</td>
+                                    <td>
+                                        {contract && cards?.card_holder_name != (null || undefined) ?
+                                            <input type="text" value={cards.card_holder_name?cards.card_holder_name:null} className="form-control" readOnly />
+                                            :
+                                            <input type='text' name="name_on_card" onChange={(e) => setCname(e.target.value)} className='form-control' placeholder={t('work-contract.card_name')} />
+                                        }
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style={{ width: "60%" }}>Card Number</td>
+                                    <td>
+                                        {contract && cards?.card_number != (null || undefined) ?
+                                            <input type="text" value={cards.card_number} className="form-control" readOnly />
+                                            :
+                                            <input type='text' name="card_number" onChange={(e) => setCnumber(e.target.value)} className='form-control' placeholder={`enter card number`} />
+                                        }
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</td>
+                                    <td>
+                                        {contract && cards?.cvv != (null || undefined) ?
+                                            <input type="text" value={cards.cvv} className="form-control" readOnly />
+                                            :
+                                            <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
+                                        }
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.signature')}</td>
+                                    <td>
+                                        {contract && contract?.form_data?.card_signature != (null || undefined) ?
+                                            <img src={contract?.form_data?.card_signature} />
+                                            :
+                                            <>
+                                                <SignatureCanvas
+                                                    penColor="black"
+                                                    canvasProps={{ className: 'sigCanvas', width: 300, height: 115 }}
+                                                    ref={sigRef2}
+                                                    onEnd={handleSignatureEnd2}
                                                 />
-                                            ) : (
-                                                <input
-                                                    type="text"
-                                                    name="additional_address"
-                                                    onChange={(e) =>
-                                                        setAaddress(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    placeholder={t(
-                                                        "work-contract.placeholder_address"
-                                                    )}
-                                                    className="form-control"
-                                                />
-                                            )}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t(
-                                                "work-contract.service_delivery_txt"
-                                            )}
-                                        </td>
-                                        <td>
-                                            {t("work-contract.as_agreed_txt")}{" "}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t("work-contract.frequency_txt")}
-                                        </td>
-                                        <td>
-                                            {services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {" "}
-                                                        {s.freq_name};{" "}
-                                                        {/* {frequencyDescription(
-                                                            s
-                                                        )} */}
-                                                    </p>
-                                                );
-                                            })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t(
-                                                "work-contract.consideration_txt"
-                                            )}
-                                        </td>
-                                        <td>
-                                            {services.map((s, i) => {
-                                                return (
-                                                    <p key={i}>
-                                                        {s.totalamount +
-                                                            " " +
-                                                            t(
-                                                                "work-contract.ils"
-                                                            ) +
-                                                            " + " +
-                                                            t(
-                                                                "work-contract.vat"
-                                                            ) +
-                                                            " " +
-                                                            t(
-                                                                "work-contract.for"
-                                                            ) +
-                                                            " " +
-                                                            (s.service != "10"
-                                                                ? s.name
-                                                                : s.other_title) +
-                                                            ", " +
-                                                            s.freq_name}
-                                                    </p>
-                                                );
-                                            })}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        {/* <td style={{width: "60%"}}>{t('work-contract.payment_method')}</td> */}
-                                        <td colSpan="2">
-                                            {t("work-contract.payment_method")}
-                                        </td>
-                                        {/* <td>&nbsp;</td> */}
-                                    </tr>
-                                    {clientCard && (
-                                        <tr>
-                                            <td style={{ width: "60%" }}>
-                                                {t("credit-card.added-card")}
-                                            </td>
-                                            <td>
-                                                **** **** ****{" "}
-                                                {clientCard.card_number} -{" "}
-                                                {clientCard.valid} (
-                                                {clientCard.card_type})
-                                            </td>
-                                        </tr>
-                                    )}
-                                    <tr>
-                                        <td colSpan="2">
-                                            {t(
-                                                "work-contract.hereby_permit_txt"
-                                            )}
-                                        </td>
-                                        {/* <td>&nbsp;</td> */}
-                                    </tr>
-                                    <tr>
-                                        <td style={{ width: "60%" }}>
-                                            {t(
-                                                "work-contract.miscellaneous_txt"
-                                            )}
-                                        </td>
-                                        <td>
-                                            {t("work-contract.employees_txt")}
-                                        </td>
-                                    </tr>
+                                                <button className='btn btn-warning' onClick={clearSignature2}>{t('work-contract.btn_warning_txt')}</button>
+                                            </>
+                                        }
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ width: "60%" }}>{t('work-contract.miscellaneous_txt')}</td>
+                                    <td>{t('work-contract.employees_txt')}</td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
