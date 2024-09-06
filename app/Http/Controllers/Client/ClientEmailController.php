@@ -161,6 +161,13 @@ class ClientEmailController extends Controller
                       $messages->subject($sub);
                   });
               }
+
+              Notification::create([
+                'user_id' => $client->id,
+                'user_type' => Client::class,
+                'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+                'status' => $newLeadStatus
+            ]);
               
               event(new WhatsappNotificationEvent([
                   "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
@@ -192,6 +199,13 @@ class ClientEmailController extends Controller
                       $messages->subject($sub);
                   });
               }
+
+              Notification::create([
+                'user_id' => $client->id,
+                'user_type' => Client::class,
+                'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+                'status' => $newLeadStatus
+            ]);
   
               Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
                   $messages->to('pratik.panchal@spexiontechnologies.com');
@@ -217,6 +231,13 @@ class ClientEmailController extends Controller
                       ]
                   ]));
               }
+
+              Notification::create([
+                'user_id' => $client->id,
+                'user_type' => Client::class,
+                'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+                'status' => $newLeadStatus
+            ]);
               event(new WhatsappNotificationEvent([
                   "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                   "notificationData" => [
@@ -532,13 +553,6 @@ class ClientEmailController extends Controller
    if ($client->notification_type === "both") {
     if ($newLeadStatus === 'unanswered') {
 
-        Notification::create([
-            'user_id' => $client->id,
-            'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::UNANSWERED_LEAD,
-            'status' => $newLeadStatus
-        ]);
-
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
             "notificationData" => [
@@ -554,14 +568,6 @@ class ClientEmailController extends Controller
     }
     
     if ($newLeadStatus === 'irrelevant') {
-
-        Notification::create([
-            'user_id' => $client->id,
-            'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
-            'status' => $newLeadStatus
-        ]);
-
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
             "notificationData" => [
@@ -575,13 +581,14 @@ class ClientEmailController extends Controller
             $messages->subject($sub);
         });
     }; 
-    
+
     Notification::create([
-        'user_id' => $client->id,
-        'user_type' => Client::class,
-        'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-        'status' => $newLeadStatus
-    ]);
+      'user_id' => $client->id,
+      'user_type' => Client::class,
+      'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+      'status' => $newLeadStatus
+  ]);
+
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
             "notificationData" => [
@@ -599,13 +606,6 @@ class ClientEmailController extends Controller
 } elseif ($client->notification_type === "email") {
     if ($newLeadStatus === 'unanswered') {
 
-        Notification::create([
-            'user_id' => $client->id,
-            'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
-            'status' => $newLeadStatus
-        ]);
-
         Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
             $messages->to($emailData['client']['email']);
             $sub = __('mail.unanswered_lead.header');
@@ -613,12 +613,7 @@ class ClientEmailController extends Controller
         });
     }
     if ($newLeadStatus === 'irrelevant') {
-        Notification::create([
-            'user_id' => $client->id,
-            'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::INQUIRY_RESPONSE,
-            'status' => $newLeadStatus
-        ]);
+
         Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
             $messages->to($emailData['client']['email']);
             $sub = __('mail.irrelevant_lead.header');
@@ -627,11 +622,12 @@ class ClientEmailController extends Controller
     }
 
     Notification::create([
-        'user_id' => $client->id,
-        'user_type' => Client::class,
-        'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-        'status' => $newLeadStatus
-    ]);
+      'user_id' => $client->id,
+      'user_type' => Client::class,
+      'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+      'status' => $newLeadStatus
+  ]);
+
         Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
             $messages->to('pratik.panchal@spexiontechnologies.com');
             $sub = __('mail.user_status_changed.header');
@@ -640,13 +636,6 @@ class ClientEmailController extends Controller
     
 } else {
     if ($newLeadStatus === 'unanswered') {
-
-        Notification::create([
-            'user_id' => $client->id,
-            'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
-            'status' => $newLeadStatus
-        ]);
 
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
@@ -657,13 +646,6 @@ class ClientEmailController extends Controller
     }
     if ($newLeadStatus === 'irrelevant') {
 
-        Notification::create([
-            'user_id' => $client->id,
-            'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
-            'status' => $newLeadStatus
-        ]);
-
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
             "notificationData" => [
@@ -673,11 +655,12 @@ class ClientEmailController extends Controller
     }
 
     Notification::create([
-        'user_id' => $client->id,
-        'user_type' => get_class($client),
-        'type' => NotificationTypeEnum::USER_STATUS_CHANGED,  
-        'status' => $newLeadStatus
-    ]);
+      'user_id' => $client->id,
+      'user_type' => Client::class,
+      'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+      'status' => $newLeadStatus
+  ]);
+
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
             "notificationData" => [
@@ -687,14 +670,6 @@ class ClientEmailController extends Controller
         ]));
     }
       }
-
-      Notification::create([
-        'user_id' => $contract->client_id,
-        'user_type' => get_class($client),
-        'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
-        'contract_id' => $contract->id,
-        'status' => 'accepted'
-      ]);
 
       event(new WhatsappNotificationEvent([
         "type" => WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
@@ -885,12 +860,6 @@ class ClientEmailController extends Controller
     if ($client->notification_type === "both") {
       if ($newLeadStatus === 'unanswered') {
 
-          Notification::create([
-              'user_id' => $client->id,
-              'user_type' => get_class($client),
-              'type' => NotificationTypeEnum::UNANSWERED_LEAD,
-              'status' => $newLeadStatus
-          ]);
 
           event(new WhatsappNotificationEvent([
               "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
@@ -908,13 +877,6 @@ class ClientEmailController extends Controller
       
       if ($newLeadStatus === 'irrelevant') {
 
-          Notification::create([
-              'user_id' => $client->id,
-              'user_type' => get_class($client),
-              'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
-              'status' => $newLeadStatus
-          ]);
-
           event(new WhatsappNotificationEvent([
               "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
               "notificationData" => [
@@ -928,13 +890,14 @@ class ClientEmailController extends Controller
               $messages->subject($sub);
           });
       }; 
-      
+
       Notification::create([
-          'user_id' => $client->id,
-          'user_type' => Client::class,
-          'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-          'status' => $newLeadStatus
-      ]);
+        'user_id' => $client->id,
+        'user_type' => Client::class,
+        'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+        'status' => $newLeadStatus
+    ]);
+      
           event(new WhatsappNotificationEvent([
               "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
               "notificationData" => [
@@ -952,13 +915,6 @@ class ClientEmailController extends Controller
     } elseif ($client->notification_type === "email") {
       if ($newLeadStatus === 'unanswered') {
 
-          Notification::create([
-              'user_id' => $client->id,
-              'user_type' => get_class($client),
-              'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
-              'status' => $newLeadStatus
-          ]);
-
           Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
               $messages->to($emailData['client']['email']);
               $sub = __('mail.unanswered_lead.header');
@@ -966,12 +922,7 @@ class ClientEmailController extends Controller
           });
       }
       if ($newLeadStatus === 'irrelevant') {
-          Notification::create([
-              'user_id' => $client->id,
-              'user_type' => get_class($client),
-              'type' => NotificationTypeEnum::INQUIRY_RESPONSE,
-              'status' => $newLeadStatus
-          ]);
+
           Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
               $messages->to($emailData['client']['email']);
               $sub = __('mail.irrelevant_lead.header');
@@ -980,11 +931,12 @@ class ClientEmailController extends Controller
       }
 
       Notification::create([
-          'user_id' => $client->id,
-          'user_type' => Client::class,
-          'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-          'status' => $newLeadStatus
-      ]);
+        'user_id' => $client->id,
+        'user_type' => Client::class,
+        'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+        'status' => $newLeadStatus
+    ]);
+
           Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
               $messages->to('pratik.panchal@spexiontechnologies.com');
               $sub = __('mail.user_status_changed.header');
@@ -993,14 +945,6 @@ class ClientEmailController extends Controller
       
     } else {
       if ($newLeadStatus === 'unanswered') {
-
-          Notification::create([
-              'user_id' => $client->id,
-              'user_type' => get_class($client),
-              'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
-              'status' => $newLeadStatus
-          ]);
-
           event(new WhatsappNotificationEvent([
               "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
               "notificationData" => [
@@ -1009,13 +953,6 @@ class ClientEmailController extends Controller
           ]));
       }
       if ($newLeadStatus === 'irrelevant') {
-
-          Notification::create([
-              'user_id' => $client->id,
-              'user_type' => get_class($client),
-              'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
-              'status' => $newLeadStatus
-          ]);
 
           event(new WhatsappNotificationEvent([
               "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
@@ -1026,11 +963,12 @@ class ClientEmailController extends Controller
       }
 
       Notification::create([
-          'user_id' => $client->id,
-          'user_type' => get_class($client),
-          'type' => NotificationTypeEnum::USER_STATUS_CHANGED,  
-          'status' => $newLeadStatus
-      ]);
+        'user_id' => $client->id,
+        'user_type' => Client::class,
+        'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+        'status' => $newLeadStatus
+    ]);
+
           event(new WhatsappNotificationEvent([
               "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
               "notificationData" => [

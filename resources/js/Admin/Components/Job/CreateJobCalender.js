@@ -60,17 +60,20 @@ export default function CreateJobCalender({
     }, []);
 
     const handleServices = (index) => {
-        setSelectedServiceIndex(index);  // Store the selected index
+        setSelectedServiceIndex(index); 
     
-        const _service = services[index];  // Get the service using the index
-        setSelectedService(_service);  // Set the selected service
+        const _service = services[index]; 
+        setSelectedService(_service); 
     
-        if (!_service) return;
-    
+        if (!_service) return;    
+        
         const hours = [];
-        if (_service?.cycle) {
-            for (let i = 0; i < parseInt(_service?.cycle); i++) {
+        if (_service?.workers && _service?.workers.length > 0) {        
+            const iterations = parseInt(_service?.cycle) > 0 ? parseInt(_service?.cycle) : 1;
+            for (let i = 0; i < iterations; i++) {
                 _service?.workers?.forEach((worker) => {
+                    console.log("Worker:", worker); 
+        
                     hours.push({
                         jobHours: worker?.jobHours,
                         slots: null,
