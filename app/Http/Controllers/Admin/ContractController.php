@@ -103,7 +103,7 @@ class ContractController extends Controller
     public function show($id)
     {
         $contract = Contract::query()
-            ->with(['offer', 'client', 'job.propertyAddress'])
+            ->with(['offer', 'client.property_addresses', 'job.propertyAddress'])
             ->find($id);
 
         $contract['offer']['services'] = $this->formatServices($contract['offer']);
@@ -136,10 +136,22 @@ class ContractController extends Controller
             ->with(['client', 'offer', 'card'])
             ->find($id);
 
-        $contract['offer']['services'] = $this->formatServices($contract['offer']);
-
+        if ($contract && $contract->offer) {
+            // Convert offer to array
+            $offerArray = $contract->offer->toArray();
+    
+            // Format services
+            $formattedServices = $this->formatServices($offerArray);
+    
+            // Include formatted services in response without modifying the original model
+            $contractData = $contract->toArray();
+            $contractData['offer']['services'] = $formattedServices;
+        } else {
+            $contractData = $contract ? $contract->toArray() : [];
+        }
+        
         return response()->json([
-            'contract' => $contract,
+            'contract' => $contractData,
         ]);
     }
 
@@ -168,7 +180,7 @@ class ContractController extends Controller
 
         $newLeadStatus = LeadStatusEnum::FREEZE_CLIENT;
 
-        if ($client->lead_status->lead_status != $newLeadStatus) {
+        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
             $client->lead_status()->updateOrCreate(
                 [],
                 ['lead_status' => $newLeadStatus]

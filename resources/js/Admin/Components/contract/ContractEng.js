@@ -548,32 +548,32 @@ export default function ContractEng() {
                                             <>
                                                 {contract.status ==
                                                     "not-signed" && (
-                                                    <React.Fragment>
-                                                        <tr>
-                                                            <td>
-                                                                Signature on the
-                                                                Card
-                                                            </td>
-                                                            <td>
-                                                                {" "}
-                                                                <SignatureCanvas
-                                                                    penColor="black"
-                                                                    canvasProps={{
-                                                                        width: 250,
-                                                                        height: 100,
-                                                                        className:
-                                                                            "sigCanvas",
-                                                                    }}
-                                                                    ref={sigRef}
-                                                                    onEnd={
-                                                                        handleSignatureEnd
-                                                                    }
-                                                                />
-                                                                &nbsp;
-                                                            </td>
-                                                        </tr>
-                                                    </React.Fragment>
-                                                )}
+                                                        <React.Fragment>
+                                                            <tr>
+                                                                <td>
+                                                                    Signature on the
+                                                                    Card
+                                                                </td>
+                                                                <td>
+                                                                    {" "}
+                                                                    <SignatureCanvas
+                                                                        penColor="black"
+                                                                        canvasProps={{
+                                                                            width: 250,
+                                                                            height: 100,
+                                                                            className:
+                                                                                "sigCanvas",
+                                                                        }}
+                                                                        ref={sigRef}
+                                                                        // onEnd={
+                                                                        //     handleSignatureEnd
+                                                                        // }
+                                                                    />
+                                                                    &nbsp;
+                                                                </td>
+                                                            </tr>
+                                                        </React.Fragment>
+                                                    )}
                                             </>
                                         )}
 
@@ -945,9 +945,9 @@ export default function ContractEng() {
                                                                 "sigCanvas",
                                                         }}
                                                         ref={sigRef}
-                                                        onEnd={
-                                                            handleSignatureEnd
-                                                        }
+                                                        // onEnd={
+                                                        //     handleSignatureEnd
+                                                        // }
                                                     />
                                                 </React.Fragment>
                                             ) : (

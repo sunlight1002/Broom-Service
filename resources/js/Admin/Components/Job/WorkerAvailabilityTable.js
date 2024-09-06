@@ -14,6 +14,8 @@ export default function WorkerAvailabilityTable({
     searchKeyword = "",
     isClient = false,
 }) {
+    // console.log(week,"week");
+    
     // const [workers, setWorkers] = useState(AllWorkers);
     const [sortOrder, setSortOrder] = useState("asc");
     const { t } = useTranslation();
@@ -226,7 +228,10 @@ export default function WorkerAvailabilityTable({
                                                                                     ? "slot-disabled"
                                                                                     : ""
                                                                             }`}
-                                                                            onClick={() => {
+                                                                            onClick={(e) => {
+                                                                                console.log(e.target);
+                                                                                // console.log(sh);
+                                                                                
                                                                                 if (
                                                                                     !shift?.isBooked &&
                                                                                     (!shift?.isFreezed ||

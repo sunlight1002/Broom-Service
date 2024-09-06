@@ -8,12 +8,18 @@ trait PriceOffered
 {
     private function formatServices($offer, $returnJson = true)
     {
-        $services = json_decode($offer['services'], true);
+        $services = isset($offer['services']) ? json_decode($offer['services'], true) : [];
 
         if (isset($services)) {
             foreach ($services as $key => $service) {
-                if (!empty($service['address'])) {
-                    $services[$key]['address'] = ClientPropertyAddress::find($service['address'])->toArray();
+               if (!empty($service['address'])) {
+                    $address = ClientPropertyAddress::find($service['address']);
+                    if ($address) {
+                        $services[$key]['address'] = $address->toArray();
+                    } else {
+                        // Handle the case where the address is not found
+                        $services[$key]['address'] = null; // or you can set a default value
+                    }
                 }
             }
         }

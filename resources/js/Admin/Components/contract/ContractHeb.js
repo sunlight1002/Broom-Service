@@ -566,12 +566,10 @@ export default function ContractHeb() {
                                                                             className:
                                                                                 "sigCanvas",
                                                                         }}
-                                                                        ref={
-                                                                            sigRef
-                                                                        }
-                                                                        onEnd={
-                                                                            handleSignatureEnd
-                                                                        }
+                                                                        ref={sigRef}
+                                                                        // onEnd={
+                                                                        //     handleSignatureEnd
+                                                                        // }
                                                                     />
                                                                     &nbsp;
                                                                 </td>

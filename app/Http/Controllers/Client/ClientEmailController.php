@@ -506,7 +506,7 @@ class ClientEmailController extends Controller
 
       $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
 
-      if ($client->lead_status->lead_status != $newLeadStatus) {
+      if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
         $client->lead_status()->updateOrCreate(
           [],
           ['lead_status' => $newLeadStatus]
@@ -859,7 +859,7 @@ class ClientEmailController extends Controller
 
     $newLeadStatus = LeadStatusEnum::POTENTIAL;
 
-    if ($client->lead_status->lead_status != $newLeadStatus) {
+    if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
       $client->lead_status()->updateOrCreate(
         [],
         ['lead_status' => $newLeadStatus]
