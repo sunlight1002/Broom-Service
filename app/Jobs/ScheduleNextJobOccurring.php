@@ -283,14 +283,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 if ($client->notification_type === "both") {
                     if ($newLeadStatus === 'unanswered') {
 
-                        Notification::create([
-                            'user_id' => $job->client->id,
-                            'user_type' => get_class($job->client),
-                            'type' => NotificationTypeEnum::UNANSWERED_LEAD,
-                            'job_id' => $job->id,
-                            'status' => $newLeadStatus
-                        ]);
-
                         // Trigger WhatsApp Notification
                         event(new WhatsappNotificationEvent([
                             "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
@@ -309,14 +301,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                     
                     if ($newLeadStatus === 'irrelevant') {
 
-                        Notification::create([
-                            'user_id' => $job->client->id,
-                            'user_type' => get_class($job->client),
-                            'type' => NotificationTypeEnum::INQUIRY_RESPONSE,  // Ensure that NotificationTypeEnum has this status
-                            'job_id' => $job->id,
-                            'status' => $newLeadStatus
-                        ]);
-
                         // Trigger WhatsApp Notification
                         event(new WhatsappNotificationEvent([
                             "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
@@ -333,14 +317,14 @@ class ScheduleNextJobOccurring implements ShouldQueue
                             $messages->subject($sub);
                         });
                     } 
-                    
+
                     Notification::create([
-                        'user_id' => $job->client->id,
-                        'user_type' => get_class($job->client),
-                        'type' => NotificationTypeEnum::USER_STATUS_CHANGED,  // Ensure that NotificationTypeEnum has this status
-                        'job_id' => $job->id,
+                        'user_id' => $client->id,
+                        'user_type' => Client::class,
+                        'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
                         'status' => $newLeadStatus
                     ]);
+                    
                         // Trigger WhatsApp Notification
                         event(new WhatsappNotificationEvent([
                             "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
@@ -360,14 +344,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 } elseif ($client->notification_type === "email") {
                     if ($newLeadStatus === 'unanswered') {
 
-                        Notification::create([
-                            'user_id' => $job->client->id,
-                            'user_type' => get_class($job->client),
-                            'type' => NotificationTypeEnum::UNANSWERED_LEAD,  // Ensure that NotificationTypeEnum has this status
-                            'job_id' => $job->id,
-                            'status' => $newLeadStatus
-                        ]);
-
                         // Send Email Notification
                         Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                             $messages->to($emailData['client']['email']);
@@ -376,13 +352,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                         });
                     }
                     if ($newLeadStatus === 'irrelevant') {
-                        Notification::create([
-                            'user_id' => $job->client->id,
-                            'user_type' => get_class($job->client),
-                            'type' => NotificationTypeEnum::INQUIRY_RESPONSE,  // Ensure that NotificationTypeEnum has this status
-                            'job_id' => $job->id,
-                            'status' => $newLeadStatus
-                        ]);
                         // Send Email Notification
                         Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                             // $messages->to($emailData['client']['email']);
@@ -391,6 +360,14 @@ class ScheduleNextJobOccurring implements ShouldQueue
                             $messages->subject($sub);
                         });
                     }
+
+                    Notification::create([
+                        'user_id' => $client->id,
+                        'user_type' => Client::class,
+                        'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
+                        'status' => $newLeadStatus
+                    ]);
+                    
                         // Send Email Notification Only
                         Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
                             $messages->to($emailData['client']['email']);
@@ -401,14 +378,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                 } else {
                     if ($newLeadStatus === 'unanswered') {
 
-                        Notification::create([
-                            'user_id' => $job->client->id,
-                            'user_type' => get_class($job->client),
-                            'type' => NotificationTypeEnum::UNANSWERED_LEAD,  // Ensure that NotificationTypeEnum has this status
-                            'job_id' => $job->id,
-                            'status' => $newLeadStatus
-                        ]);
-
                         // Trigger WhatsApp Notification Only
                         event(new WhatsappNotificationEvent([
                             "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
@@ -418,14 +387,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                         ]));
                     }
                     if ($newLeadStatus === 'irrelevant') {
-
-                        Notification::create([
-                            'user_id' => $job->client->id,
-                            'user_type' => get_class($job->client),
-                            'type' => NotificationTypeEnum::INQUIRY_RESPONSE,  // Ensure that NotificationTypeEnum has this status
-                            'job_id' => $job->id,
-                            'status' => $newLeadStatus
-                        ]);
 
                         // Trigger WhatsApp Notification Only
                         event(new WhatsappNotificationEvent([
