@@ -81,14 +81,12 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
 
     public function map($row): array
     {
-         // Check if the 'Doctor Report' exists, otherwise leave it blank
-    $doctorReportUrl = !empty($row['Doctor Report']) ? url(Storage::url($row['Doctor Report'])) : ' ';
-
-    // Ensure the URL is completely blank if no report is present
-    if (empty($row['Doctor Report'])) {
-        $doctorReportUrl = ' '; // Set the field to a completely blank string
-    }
-
+        if (Storage::disk('public')->exists($row['Doctor Report'])) {
+            $doctorReportUrl = url(Storage::url($row['Doctor Report']));
+        } else {
+            $doctorReportUrl = '';
+        }
+        
         $mappedRow = [
               $row['Number'],
               $row['Passport Id'],
@@ -116,7 +114,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
               $row['Insurance'],
               $row['loan'],
               $row['Net Payment'],
-              $doctorReportUrl
+              $doctorReportUrl,
         ];
 
             return $mappedRow;
