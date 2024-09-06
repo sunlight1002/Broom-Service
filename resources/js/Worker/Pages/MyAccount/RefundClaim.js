@@ -14,7 +14,7 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/WorkerSidebar";
 import { leadStatusColor } from "../../../Utils/client.utils";
 
-export default function ManageSickLeaves() {
+export default function ManageRefundClaim() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const tableRef = useRef(null);
@@ -34,7 +34,7 @@ export default function ManageSickLeaves() {
                 serverSide: true,
                 autoWidth: false, // Prevent automatic column width adjustments
                 ajax: {
-                    url: "/api/sick-leaves",
+                    url: "/api/refund-claims",
                     type: "GET",
                     headers: headers,
                     data: function (d) {
@@ -58,12 +58,15 @@ export default function ManageSickLeaves() {
                     },
     
                     {
-                        title: t("global.startDate"),
-                        data: "start_date",
+                        title: "Date",
+                        data: "date",
                     },
                     {
-                        title: t("worker.endDate"),
-                        data: "end_date",
+                        title: "Amount",
+                        data: "amount",
+                        render: function (data) {
+                            return formatCurrency(data);
+                        },
                     },
                     {
                         title: t("worker.status"),
@@ -74,9 +77,10 @@ export default function ManageSickLeaves() {
                             ${data}
                         </p>`;
                         },
+                       
                     },
                     {
-                        title: "Reason for Reject",
+                        title: "Reject Reason",
                         data: "rejection_comment",
                        
                     },
@@ -119,7 +123,7 @@ export default function ManageSickLeaves() {
         // Handle Edit Button Click
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const id = $(this).data("id");
-            navigate(`/worker/sick-leaves/${id}/edit`);
+            navigate(`/worker/refund-claim/${id}/edit`);
         });
     
         // Handle Delete Button Click
@@ -149,14 +153,14 @@ export default function ManageSickLeaves() {
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Sick Leave!",
+            confirmButtonText: "Yes, Delete Request!",
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(`/api/sick-leaves/${id}`, { headers })
+                    .delete(`/api/refund-claims/${id}`, { headers })
                     .then((response) => {
                         if (response.status === 204) {
-                            Swal.fire("Deleted!", "Sick Leave has been deleted.", "success");
+                            Swal.fire("Deleted!", "Request has been deleted.", "success");
                             $(tableRef.current).DataTable().draw(); // Refresh the DataTable
                         } else {
                             Swal.fire("Error!", "Something went wrong.", "error");
@@ -176,6 +180,13 @@ export default function ManageSickLeaves() {
         $(tableRef.current).DataTable().order([parseInt(colIdx), "asc"]).draw();
     };
 
+    const formatCurrency = (amount) => {
+        if (amount === null || amount === undefined) {
+            return '-';
+        }
+        return `₪${parseFloat(amount).toFixed(2)}`;
+    };
+    
     return (
         <div id="container">
             <Sidebar />
@@ -183,11 +194,11 @@ export default function ManageSickLeaves() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">{t("worker.sidebar.leaves")}</h1>
+                            <h1 className="page-title">Refund Claim</h1>
                         </div>
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <Link to="/worker/sick-leaves/create" className="btn navyblue no-hover addButton">
+                                <Link to="/worker/refund-claim/create" className="btn navyblue no-hover addButton">
                                     <i className="btn-icon fas fa-plus-circle"></i>
                                     {t("global.addNew")}
                                 </Link>
@@ -195,10 +206,10 @@ export default function ManageSickLeaves() {
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">
                             <select className="form-control" onChange={(e) => sortTable(e.target.value)}>
-                                <option value="">{t("admin.sickLeaves.Options.sortBy")}</option>
-                                <option value="1">{t("admin.sickLeaves.workerName")}</option>
-                                <option value="2">{t("admin.sickLeaves.startDate")}</option>
-                                <option value="3">{t("admin.sickLeaves.endDate")}</option>
+                                <option value="">{t("admin.refundClaim.Options.sortBy")}</option>
+                                <option value="1">{t("admin.refundClaim.workerName")}</option>
+                                <option value="2">{t("admin.refundClaim.startDate")}</option>
+                                <option value="3">{t("admin.refundClaim.endDate")}</option>
                             </select>
                         </div>
                     </div>

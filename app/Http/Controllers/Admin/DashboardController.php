@@ -17,6 +17,7 @@ use App\Models\Notification;
 use App\Models\Admin;
 use App\Models\ManageTime;
 use App\Models\SickLeave;
+use App\Models\RefundClaim;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -204,6 +205,16 @@ class DashboardController extends Controller
               "<a href='/admin/workers-leaves'>" . 
               $sch->user->firstname . " " . $sch->user->lastname . 
               "</a> applied for a leave on " . 
+              Carbon::parse($sch->created_at)->format('d-m-Y');
+            }
+
+          }else if ($notice->type == NotificationTypeEnum::REFUND_CLAIM_REQUEST) {
+            $sch = RefundClaim::with('user')->where('user_id', $notice->user_id)->first();
+            if (isset($sch)) {
+              $noticeAll[$k]->data =  
+              "<a href='/admin/workers-refund'>" . 
+              $sch->user->firstname . " " . $sch->user->lastname . 
+              "</a> request for refund of amount " .$sch->amount . " " ."on" .  "  ". 
               Carbon::parse($sch->created_at)->format('d-m-Y');
             }
 

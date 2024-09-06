@@ -133,6 +133,13 @@ export default function Sidebar() {
                     </NavLink>
                 </li>
                 <li className="list-group-item">
+                    <NavLink to="/admin/workers-refund"
+                        className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-undo-alt font-20"></i>Worker Refund
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
                     <NavLink to="/admin/schedule"
                         className="d-flex align-items-center"
                     >

@@ -1660,7 +1660,7 @@ class WhatsappNotification
                     $receiverNumber = $userData['phone'];
                     App::setLocale('en');
 
-                    $text = __('mail.wa-message.sick-leave.header');
+                    $text = __('mail.sick_leave.header');
 
                     $text .= "\n\n";
 
@@ -1670,19 +1670,49 @@ class WhatsappNotification
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.sick-leave.body',[
+                    $text .= __('mail.sick_leave.subject',[
                         'status' => $leaveData['status'],
                     ]);
 
                     if ($leaveData['status'] !== 'approved' && !is_null($leaveData['rejection_comment'])) {
                         $text .= "\n\n";
-                        $text .= __('mail.wa-message.sick-leave.reason', [
+                        $text .= __('mail.sick_leave.reason', [
                             'reason' => $leaveData['rejection_comment']
                         ]);
                     }
                      
-
-                    break;    
+                    break;   
+                    case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE:
+                        $userData = $eventData['user'];
+                        $claimData = $eventData['refundclaim'];
+                        
+                        $receiverNumber = $userData['phone'];
+                        App::setLocale('en');
+    
+                        $text = __('mail.refund_claim.header');
+    
+                        $text .= "\n\n";
+    
+                        $text .= __('mail.wa-message.common.salutation', [
+                            'name' => $userData['firstname']. ' ' . $userData['lastname']
+                        ]);
+    
+                        $text .= "\n\n";
+    
+                        $text .= __('mail.refund_claim.body',[
+                            'status' => $claimData['status'],
+                        ]);
+    
+                        if ($claimData['status'] !== 'approved' && !is_null($claimData['rejection_comment'])) {
+                            $text .= "\n\n";
+                            $text .= __('mail.refund_claim.reason', [
+                                'reason' => $claimData['rejection_comment']
+                            ]);
+                        }
+                         
+    
+                        break;    
+                 
             }
 
             if ($receiverNumber && $text) {

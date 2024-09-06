@@ -12,7 +12,7 @@ import Sidebar from "../../Layouts/Sidebar";
 import FilterButtons from "../../../Components/common/FilterButton";
 import { leadStatusColor } from "../../../Utils/client.utils";
 
-export default function WorkerLeave() {
+export default function WorkersRefund() {
     const { t } = useTranslation();
     const tableRef = useRef(null);
     const [loading, setLoading] = useState(true);
@@ -22,12 +22,12 @@ export default function WorkerLeave() {
         Accept: "application/json",
         Authorization: `Bearer ${localStorage.getItem("admin-token")}`,
     };
-    const leaveStatuses = [
+    const refundStatuses = [
        "pending",
        "approved",
        "rejected",
     ];
-
+ 
     const initializeDataTable = () => {
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             $(tableRef.current).DataTable({
@@ -36,7 +36,7 @@ export default function WorkerLeave() {
                 autoWidth: false,
                 stateSave: true,
                 ajax: {
-                    url: "/api/admin/sick-leaves/list",
+                    url: "/api/admin/refund-claims/list",
                     type: "GET",
                     headers: headers,
                     data: function (d) {
@@ -59,11 +59,15 @@ export default function WorkerLeave() {
                 order: [[0, "desc"]],
                 columns: [
                     { title: t("worker.workerName"), data: "worker_name" },
-                    { title: t("global.startDate"), data: "start_date" },
-                    { title: t("worker.endDate"), data: "end_date" },
+                    { title: "Date", data: "date" },
+                    { title: "Amount", data: "amount",
+                        render: function (data) {
+                            return formatCurrency(data);
+                        },
+                     },
                     {
-                        title: t("worker.doctorReport"),
-                        data: "doctor_report_path",
+                        title: "Bill",
+                        data: "bill_file",
                         render: function (data) {
                             return data ? `
                                 <a href="${data}" target="_blank" style="margin-right: 15px;"><i class="fas fa-eye" style="font-size: 18px;"></i></a>
@@ -71,17 +75,16 @@ export default function WorkerLeave() {
                             ` : "Not available";
                         }
                     },
-                    { title: "Leave Reason", data: "reason_for_leave" },
+                
                     {
                         title: t("worker.status"),
                         data: "status",
                         render: function (data) {
-                            const style =  leadStatusColor(data);
+                            const style = leadStatusColor(data);
                             return `<p style="background-color: ${style.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                             ${data}
                         </p>`;
                         },
-                        
                     },
                     {
                         title: t("worker.action"),
@@ -152,7 +155,7 @@ export default function WorkerLeave() {
                     rejection_comment: status === 'rejected' ? result.value : null,
                 };
 
-                axios.post(`/api/admin/sick-leaves/${id}/approve`, data, { headers })
+                axios.post(`/api/admin/refund-claims/${id}/approve`, data, { headers })
                     .then((response) => {
                         Swal.fire("Status updated", "", "success");
                         $(tableRef.current).DataTable().draw(); // Refresh DataTable
@@ -165,6 +168,13 @@ export default function WorkerLeave() {
         $(tableRef.current).DataTable().search(e.target.value).draw();
     };
 
+
+    const formatCurrency = (amount) => {
+        if (amount === null || amount === undefined) {
+            return '-';
+        }
+        return `₪${parseFloat(amount).toFixed(2)}`;
+    };
 
     useEffect(() => {
         if (filter == "All") {
@@ -183,7 +193,7 @@ export default function WorkerLeave() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-12">
-                            <h1 className="page-title">Leaves Request</h1>
+                            <h1 className="page-title">Refund Request</h1>
                         </div>
                     </div>
                 </div>
@@ -205,7 +215,7 @@ export default function WorkerLeave() {
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}
                             />
-                            {leaveStatuses.map((status, index) => {
+                            {refundStatuses.map((status, index) => {
                                 return (
                                     <FilterButtons
                                         text={status}

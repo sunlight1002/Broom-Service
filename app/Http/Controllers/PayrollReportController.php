@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\Holiday;
 use App\Models\AdvanceLoan;
 use App\Models\SickLeave;
+use App\Models\RefundClaim;
 use App\Models\AdvanceLoanTransaction;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -127,6 +128,7 @@ class PayrollReportController extends Controller
                         'Holiday Payment at 200%' => ' ',
                         'Recovery Fee' => ' ',
                         'Public Holiday Bonus' => ' ',
+                        'Refund'=> ' ',
                         'Insurance' =>' ',
                         'Sick Leave Payment' =>' ',
                         'Total Payment' => ' ',
@@ -293,7 +295,28 @@ class PayrollReportController extends Controller
                         }
                     }
                 }
-               
+            
+                //refund claims bonus
+                $refundClaims = RefundClaim::where('user_id', $user->id)
+                    ->where('status', 'approved')
+                    ->where(function($query) use ($startDate, $endDate) {
+                        $query->where(function($q) use ($startDate, $endDate) {
+                            $q->whereBetween(DB::raw('DATE(approved_date)'), [$startDate, $endDate]);             
+                        });
+                    })
+                    ->get();
+
+                    $refundClaimAmount = 0;
+                    foreach ($refundClaims as $refundClaim) {
+                        if ($refundClaim->amount) {
+                            // Update paid_status to 'paid'
+                            $refundClaim->update(['paid_status' => 'paid']);
+                            // Add to the total refund claim amount
+                            $refundClaimAmount += $refundClaim->amount;
+                        }
+                    }
+                    
+                          
                
                // Deduction for foreign workers
                 $foreignWorkerDeduction = 0;
@@ -316,7 +339,7 @@ class PayrollReportController extends Controller
                 }
                  
                 $totalPayment = $normalPayment + $bonus125Payment + $bonus150Payment + $holidayPayment175 + $holidayPayment200
-                               + $proratedRecoveryFee +$publicHolidayBonusAmount +$totalDrivingFee + $sickLeavePayment- $foreignWorkerDeduction;
+                               + $proratedRecoveryFee +$publicHolidayBonusAmount +$totalDrivingFee + $sickLeavePayment + $refundClaimAmount- $foreignWorkerDeduction;
 
                 $newPayment = $totalPayment +$foreignWorkerDeduction;
 
@@ -352,6 +375,7 @@ class PayrollReportController extends Controller
                     'Public Holiday Bonus' => round($publicHolidayBonusAmount, 2),
                     'Driving Fees'=> round($totalDrivingFee, 2),
                     'Sick Leave Payment' => round($sickLeavePayment, 2),
+                    'Refund' => round($refundClaimAmount, 2), 
                     'Total Payment' => round($newPayment , 2), 
                     'Insurance' => $foreignWorkerDeduction, 
                     'loan' => round($deduction,2),

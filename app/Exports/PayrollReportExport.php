@@ -67,6 +67,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
             'עמלת הבראה/RECOVERY FEE',
             'בונוס לחגים ציבוריים/HOLIDAY BONUS', 
             'תשלום דמי מחלה/SICK LEAVE PAYMENT',
+            'Refund',
             'סה"כ תשלום/TOTAL PAYMENT',
             'ביטוח/INSURANCE',
             'מפרעה/ ADVANCE',
@@ -80,7 +81,13 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
 
     public function map($row): array
     {
-        $doctorReportUrl = $row['Doctor Report'] ? url(Storage::url($row['Doctor Report'])) : '';
+         // Check if the 'Doctor Report' exists, otherwise leave it blank
+    $doctorReportUrl = !empty($row['Doctor Report']) ? url(Storage::url($row['Doctor Report'])) : ' ';
+
+    // Ensure the URL is completely blank if no report is present
+    if (empty($row['Doctor Report'])) {
+        $doctorReportUrl = ' '; // Set the field to a completely blank string
+    }
 
         $mappedRow = [
               $row['Number'],
@@ -104,6 +111,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
               $row['Recovery Fee'],
               $row['Public Holiday Bonus'],
               $row['Sick Leave Payment'],
+              $row['Refund'],
               $row['Total Payment'],
               $row['Insurance'],
               $row['loan'],
@@ -120,7 +128,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
                 $lastRow = $sheet->getHighestRow();
-                $doctorReportColumn = 'Z'; // Adjust if your Doctor Report column is different
+                $doctorReportColumn = 'AA'; // Adjust if your Doctor Report column is different
 
                 // Apply hyperlinks to the "Doctor Report" column
                 for ($row = 2; $row <= $lastRow; $row++) {
@@ -140,21 +148,21 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
     {
         $sheet->setRightToLeft(true);
         // Apply RTL alignment to all cells
-        $sheet->getStyle('A:Z')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $sheet->getStyle('A:Z')->getAlignment()->setTextRotation(0);
-        $sheet->getStyle('A:Z')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('A:AA')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle('A:AA')->getAlignment()->setTextRotation(0);
+        $sheet->getStyle('A:AA')->getAlignment()->setWrapText(true);
 
         // Apply RTL alignment specifically to headers
-        $sheet->getStyle('A1:Z1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $sheet->getStyle('A1:Z1')->getAlignment()->setTextRotation(0);
-        $sheet->getStyle('A1:Z1')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('A1:AA1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle('A1:AA1')->getAlignment()->setTextRotation(0);
+        $sheet->getStyle('A1:AA1')->getAlignment()->setWrapText(true);
 
       
-        $sheet->getStyle('F1:Z1')->getFill()->setFillType(Fill::FILL_SOLID);
-        $sheet->getStyle('F1:Z1')->getFill()->getStartColor()->setARGB('33D4FF'); // Light grey background
+        $sheet->getStyle('F1:AA1')->getFill()->setFillType(Fill::FILL_SOLID);
+        $sheet->getStyle('F1:AA1')->getFill()->getStartColor()->setARGB('33D4FF'); // Light grey background
 
         // Set font styles for headers
-        $sheet->getStyle('A1:Z1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:AA1')->getFont()->setBold(true);
 
         $borderStyle = [
             'borders' => [
@@ -164,13 +172,13 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
                 ],
             ],
         ];
-        $sheet->getStyle('A1:Z1')->applyFromArray($borderStyle);
+        $sheet->getStyle('A1:AA1')->applyFromArray($borderStyle);
      
         $columnWidths = [
             'A' => 10, 'B' => 15, 'C' => 20, 'D' => 20, 'E' => 10, 'F' => 10, 'G' => 10, 'H' => 10,
             'I' => 10, 'J' => 10, 'K' => 10, 'L' => 10, 'M' => 10, 'N' => 10, 'O' => 10, 'P' => 10,
-            'Q' => 10, 'R' => 10, 'S' => 10, 'T' => 10, 'U' => 10, 'V' => 15, 'W' => 10, 'X' => 10,
-            'Y' => 15, 'Z' => 25
+            'Q' => 10, 'R' => 10, 'S' => 10, 'T' => 10, 'U' => 10, 'V' => 10, 'W' => 15, 'X' => 10,
+            'Y' => 10, 'Z' => 15, 'AA' =>25,
         ];
         foreach ($columnWidths as $column => $width) {
             $sheet->getColumnDimension($column)->setWidth($width);
@@ -185,7 +193,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
     {
         return [
             // Specify column formats if needed
-            'Z' => NumberFormat::FORMAT_TEXT, // Format 'Doctor Report' column as text to display hyperlinks correctly
+            'AA' => NumberFormat::FORMAT_TEXT, // Format 'Doctor Report' column as text to display hyperlinks correctly
         ];
     }
 }

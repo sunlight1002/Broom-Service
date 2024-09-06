@@ -76,6 +76,12 @@ export default function WorkerSidebar() {
                     </NavLink>
                 </li>
                 <li className="list-group-item">
+                    <NavLink to="/worker/refund-claim">
+                        <i className="fa-solid fa-file-contract"></i>
+                        Refund Claim
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
                     <NavLink to="/worker/my-account">
                         <i className="fa-solid fa-user"></i>
                         {t("worker.my_account")}

@@ -680,8 +680,9 @@ return [
             'check_file' => 'Check file',
             'view_client' => 'View Client',
             'view' => 'View'
-        ]
         ],
+       
+    ],
     
     
     'otp' => [
@@ -691,10 +692,19 @@ return [
     ],
 
     'sick_leave' => [
+        'header' => "*Leave Status | Broom Service*",
         'subject' => 'Sick Leave Status',
         'body' => 'Your sick leave request has been :status.',
         'reason'=> 'Reason for reject: :reason.'
     ],
+
+    'refund_claim' => [
+        'header' => "*Refund Claim Status | Broom Service*",
+        'subject' => 'Refund Claim Status',
+        'body' => 'Your Refund request has been :status.',
+        'reason'=> 'Reason for reject: :reason.'
+    ],
+
 
     
 ];

@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\HolidayController;
 use App\Http\Controllers\Admin\AdvanceLoanController;
 use App\Http\Controllers\SickLeaveController;
 use App\Http\Controllers\PayrollReportController;
+use App\Http\Controllers\RefundClaimController;
 
 
 /*
@@ -332,8 +333,12 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('holidays/{id}', [HolidayController::class, 'show']);
 
     //sick-leaves approve
-        Route::get('sick-leaves/list', [SickLeaveController::class, 'allLeaves']);
-        Route::post('sick-leaves/{sick_leave}/approve', [SickLeaveController::class, 'approve']);
+    Route::get('sick-leaves/list', [SickLeaveController::class, 'allLeaves']);
+    Route::post('sick-leaves/{sick_leave}/approve', [SickLeaveController::class, 'approve']);
+
+    //refund-claims approve
+    Route::get('refund-claims/list', [RefundClaimController::class, 'allRequests']);
+    Route::post('refund-claims/{refund_claim}/approve', [RefundClaimController::class, 'approve']);
 
     //advance or loan amount
     Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);

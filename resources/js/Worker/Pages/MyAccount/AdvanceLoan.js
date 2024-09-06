@@ -10,6 +10,8 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import Sidebar from "../../Layouts/WorkerSidebar";
+import { leadStatusColor } from "../../../Utils/client.utils";
+
 
 export default function WorkerAdvance() {
     
@@ -83,8 +85,10 @@ export default function WorkerAdvance() {
                         title: "Status",
                         data: "status",
                         render: function (data) {
-                            const style = getStatusStyle(data);
-                            return `<span style="color: ${style.color}; font-weight: ${style.fontWeight};">${data}</span>`;
+                            const style =  leadStatusColor(data);
+                            return `<p style="background-color: ${style.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            ${data}
+                        </p>`;
                         },
                         orderable: false,
                     },
@@ -112,14 +116,7 @@ export default function WorkerAdvance() {
         };
     }, []);
 
-    const getStatusStyle = (status) => {
-            switch (status) {
-                case 'paid': return { color: 'green', fontWeight: 'bold' };
-                case 'active': return { color: 'orange', fontWeight: 'bold' };
-                case 'pending': return { color: 'red', fontWeight: 'bold' };
-                default: return {};
-            }
-    };
+
     const formatCurrency = (amount) => {
         if (amount === null || amount === undefined) {
             return '-';

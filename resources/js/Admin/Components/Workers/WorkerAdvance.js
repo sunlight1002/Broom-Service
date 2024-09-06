@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAlert } from 'react-alert';
 import Swal from 'sweetalert2';
-import { Modal, Button, Table,Form } from 'react-bootstrap';
+import { Modal, Button, Table, Form } from 'react-bootstrap';
 import { useTranslation } from "react-i18next";
+import { leadStatusColor } from "../../../Utils/client.utils";
 
 export default function WorkerAdvance({ worker }) {
     const [advances, setAdvances] = useState([]);
@@ -27,7 +28,7 @@ export default function WorkerAdvance({ worker }) {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-   
+
 
     const fetchAdvances = async () => {
         try {
@@ -50,27 +51,27 @@ export default function WorkerAdvance({ worker }) {
         let res
         try {
             if (isEditing) {
-               let res = await axios.post(`/api/admin/advance-loans/${currentAdvanceId}`, formData, { headers });
+                let res = await axios.post(`/api/admin/advance-loans/${currentAdvanceId}`, formData, { headers });
             } else {
-               let res = await axios.post('/api/admin/advance-loans', formData, { headers });
+                let res = await axios.post('/api/admin/advance-loans', formData, { headers });
             }
-                alert.success(isEditing ? 'Advance/Loan updated successfully.' : 'Advance/Loan created successfully.');
-                fetchAdvances();
-                setShowModal(false);
-                setIsEditing(false);
-                setFormData({ worker_id: worker.id, type: '', amount: '', monthly_payment: '', loan_start_date: '' });
-            } catch (error) {
-                if (error.response && error.response.data.errors) {
-                    const errors = error.response.data.errors;
-                    Object.keys(errors).forEach((field) => {
-                        alert.error(errors[field][0]); 
-                    },2000);
-                } else {
-                    alert.error("An unexpected error occurred.");
-                }
-                setShowError(true);
-                setTimeout(() => setShowError(false), 5000);
+            alert.success(isEditing ? 'Advance/Loan updated successfully.' : 'Advance/Loan created successfully.');
+            fetchAdvances();
+            setShowModal(false);
+            setIsEditing(false);
+            setFormData({ worker_id: worker.id, type: '', amount: '', monthly_payment: '', loan_start_date: '' });
+        } catch (error) {
+            if (error.response && error.response.data.errors) {
+                const errors = error.response.data.errors;
+                Object.keys(errors).forEach((field) => {
+                    alert.error(errors[field][0]);
+                }, 2000);
+            } else {
+                alert.error("An unexpected error occurred.");
             }
+            setShowError(true);
+            setTimeout(() => setShowError(false), 5000);
+        }
     };
 
     const handleEdit = (advance) => {
@@ -83,7 +84,7 @@ export default function WorkerAdvance({ worker }) {
         });
         setIsEditing(true);
         setCurrentAdvanceId(advance.id);
-        setShowModal(true); 
+        setShowModal(true);
     };
 
     const handleDelete = (id) => {
@@ -132,7 +133,7 @@ export default function WorkerAdvance({ worker }) {
         setShowModal(false);
         setCurrentAdvanceId(null);
     };
-    
+
     const formatCurrency = (amount) => {
         if (amount === null || amount === undefined) {
             return 'N/A';
@@ -141,74 +142,80 @@ export default function WorkerAdvance({ worker }) {
     };
 
     return (
-        
+
         <div>
-        <Button variant="primary" onClick={handleOpenModal}>
-           {t("worker.settings.addAdvance")}
-        </Button>
+            <Button variant="primary" onClick={handleOpenModal}>
+                {t("worker.settings.addAdvance")}
+            </Button>
 
-        <Table striped bordered hover>
-            <thead>
-                <tr>
-                    <th>{t("worker.settings.type")}</th>
-                    <th>Date</th>
-                    <th>Monthly Payment</th>
-                    <th>{t("worker.settings.amount")}</th>
-                    <th>Paid Amount</th>
-                    <th>{t("worker.settings.pendingAmount")}</th>
-                    <th>Status</th>
-                    <th>{t("worker.settings.action")}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {advances.map((advance) => (
-                    <tr key={advance.id}>
-                        <td>{advance.type}</td>
-                        <td>{advance.created_at}</td>
-                        <td>{formatCurrency(advance.monthly_payment)}</td>
-                        <td>{formatCurrency(advance.amount)}</td>
-                        <td>{formatCurrency(advance.total_paid_amount)}</td>
-                        <td>{formatCurrency(advance.latest_pending_amount)}</td>
-                        <td style={{ 
-                            color: 
-                                advance.status === 'paid' ? 'green' : 
-                                advance.status === 'active' ? 'orange' : 
-                                advance.status === 'pending' ? 'red' : 
-                                'black',
-                                fontWeight: 'bold'
-                        }}>
-                            {advance.status}
-                        </td>
-                        <td>
-                        <div className="action-dropdown dropdown">
-                                    <button className="btn btn-default dropdown-toggle" type="button" id={`dropdownMenuButton-${advance.id}`} data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i className="fa fa-ellipsis-vertical"></i>
-                                    </button>
-                                    <div className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${advance.id}`}>
-                                        <button
-                                            type="button"
-                                            className="dropdown-item"
-                                            onClick={() => handleEdit(advance)}
-                                        >
-                                            {t("admin.leads.Edit")}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="dropdown-item"
-                                            onClick={() => handleDelete(advance.id)}
-                                        >
-                                             {t("admin.leads.Delete")}
-                                        </button>
-                                    </div>
-                                </div>
-                            </td>
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>{t("worker.settings.type")}</th>
+                        <th>Date</th>
+                        <th>Monthly Payment</th>
+                        <th>{t("worker.settings.amount")}</th>
+                        <th>Paid Amount</th>
+                        <th>{t("worker.settings.pendingAmount")}</th>
+                        <th>Status</th>
+                        <th>{t("worker.settings.action")}</th>
                     </tr>
-                ))}
-            </tbody>
-        </Table>
+                </thead>
+                <tbody>
+                    {advances.map((advance) => {
+                        const leadColor = leadStatusColor(advance.status);
+                        return (
+                            <tr key={advance.id}>
+                                <td>{advance.type}</td>
+                                <td>{advance.created_at}</td>
+                                <td>{formatCurrency(advance.monthly_payment)}</td>
+                                <td>{formatCurrency(advance.amount)}</td>
+                                <td>{formatCurrency(advance.total_paid_amount)}</td>
+                                <td>{formatCurrency(advance.latest_pending_amount)}</td>
+                                <td>
+                                    <span style={{
+                                        backgroundColor: leadColor.backgroundColor,
+                                        color: 'white',
+                                        padding: '5px 10px',
+                                        borderRadius: '5px',
+                                        width: '100px',
+                                        textAlign: 'center',
+                                        
+                                    }}>
+                                        {advance.status}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div className="action-dropdown dropdown">
+                                        <button className="btn btn-default dropdown-toggle" type="button" id={`dropdownMenuButton-${advance.id}`} data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i className="fa fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <div className="dropdown-menu" aria-labelledby={`dropdownMenuButton-${advance.id}`}>
+                                            <button
+                                                type="button"
+                                                className="dropdown-item"
+                                                onClick={() => handleEdit(advance)}
+                                            >
+                                                {t("admin.leads.Edit")}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="dropdown-item"
+                                                onClick={() => handleDelete(advance.id)}
+                                            >
+                                                {t("admin.leads.Delete")}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        )
+                    })}
+                </tbody>
+            </Table>
 
-         {/* Modal for Add/Edit */}
-         <Modal show={showModal} onHide={handleCloseModal} size="lg" >
+            {/* Modal for Add/Edit */}
+            <Modal show={showModal} onHide={handleCloseModal} size="lg" >
                 <Modal.Header closeButton>
                     <Modal.Title>{isEditing ? t("worker.settings.editAdvance") : t("worker.settings.addAdvance")}</Modal.Title>
                 </Modal.Header>
@@ -224,7 +231,7 @@ export default function WorkerAdvance({ worker }) {
                         </Form.Group>
                         <Form.Group controlId="formAmount" className="mb-3">
                             <Form.Label>{t("worker.settings.amount")}:</Form.Label>
-                            <Form.Control type="number" name="amount" value={formData.amount} onChange={handleInputChange}  />
+                            <Form.Control type="number" name="amount" value={formData.amount} onChange={handleInputChange} />
                         </Form.Group>
                         {formData.type === 'loan' && (
                             <>
@@ -244,6 +251,6 @@ export default function WorkerAdvance({ worker }) {
                     </Form>
                 </Modal.Body>
             </Modal>
-    </div>
+        </div>
     );
 }

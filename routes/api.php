@@ -15,6 +15,7 @@ use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\PayrollReportController;
 use App\Http\Controllers\SickLeaveController;
 use App\Http\Controllers\Admin\AdvanceLoanController;
+use App\Http\Controllers\RefundClaimController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,6 +103,13 @@ Route::get('teams/availability/{id}/date/{date}', [MeetingController::class, 'av
     //sick-leaves
     Route::apiResource('sick-leaves', SickLeaveController::class);
     Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);
+
+    //refund-claim
+    Route::get('/refund-claims', [RefundClaimController::class, 'index']);
+    Route::post('/refund-claims', [RefundClaimController::class, 'store']);
+    Route::get('/refund-claims/{id}', [RefundClaimController::class, 'show']);
+    Route::post('/refund-claims/{id}', [RefundClaimController::class, 'update']);
+    Route::delete('/refund-claims/{id}', [RefundClaimController::class, 'destroy']);
   
 });
 

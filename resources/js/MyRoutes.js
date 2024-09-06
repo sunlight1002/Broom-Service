@@ -41,6 +41,9 @@ import SickLeaves from "./Worker/Pages/MyAccount/SickLeaves";
 import AddLeaves from "./Worker/Pages/MyAccount/AddLeaves";
 import EditLeaves from "./Worker/Pages/MyAccount/EditLeaves";
 import AdvanceLoan from "./Worker/Pages/MyAccount/AdvanceLoan";
+import RefundClaim from "./Worker/Pages/MyAccount/RefundClaim";
+import AddRefund from "./Worker/Pages/MyAccount/AddRefund";
+import EditRefund from "./Worker/Pages/MyAccount/EditRefund";
 
 
 
@@ -150,6 +153,7 @@ import Holidays from "./Admin/Pages/Setting/Holidays";
 import AddHoliday from "./Admin/Pages/Setting/AddHoliday";
 import EditHoliday from "./Admin/Pages/Setting/EditHoliday";
 import WorkersLeave from "./Admin/Pages/Workers/WorkersLeave";
+import WorkersRefund from "./Admin/Pages/Workers/WorkersRefund";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -402,6 +406,21 @@ export default function MyRoutes() {
                                 path="advance-loan"
                                 element={<AdvanceLoan />}
                             />
+                             <Route
+                                exact
+                                path="refund-claim"
+                                element={<RefundClaim />}
+                            />
+                            <Route
+                                exact
+                                path="refund-claim/create"
+                                element={<AddRefund />}
+                            />
+                            <Route
+                                exact
+                                path="refund-claim/:id/edit"
+                                element={<EditRefund />}
+                            />
                         </Route>
                     </Route>
                     {/* Worker Routes End  */}
@@ -578,6 +597,11 @@ export default function MyRoutes() {
                                 exact
                                 path="workers-leaves"
                                 element={<WorkersLeave />}
+                            />
+                             <Route
+                                exact
+                                path="workers-refund"
+                                element={<WorkersRefund />}
                             />
                             <Route
                                 exact
