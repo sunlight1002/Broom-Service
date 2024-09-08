@@ -126,9 +126,17 @@ export default function WorkContract() {
                 setClient(res.data.offer?.client);
                 try {
                     i18next.changeLanguage(res.data.offer?.client?.lng);
+                    if (res.data.offer?.client?.lng === "heb") {
+                        import("../Assets/css/rtl.css");
+                        document.querySelector("html").setAttribute("dir", "rtl");
+                    } else {
+                        document.querySelector("html").removeAttribute("dir");
+                    }
                 } catch (error) {
                     console.log(error);
                 }
+
+
                 setServices(JSON.parse(res.data.offer?.services))
                 setContract(res?.data?.contract)
             })

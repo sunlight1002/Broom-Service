@@ -36,7 +36,7 @@ export default function PriceOffer() {
             setOffer(data);
             setStatus(data.status);
             setClient(data.client);
-            i18next.changeLanguage(clientLng);
+            i18next.changeLanguage(data.client?.lng);
             let _services = JSON.parse(data.services);
 
             setServices(_services);
@@ -176,7 +176,7 @@ export default function PriceOffer() {
         return services.filter((i) => i.type !== "fixed").length > 0;
     }, [services]);
 
-    // console.log(allTemplates);  
+    // console.log(allTemplates);
 
     // const data = [
     //     { col1: t("price_offer.airbnb.services.s2"), col2: t("price_offer.airbnb.size_apt.s2"), col3: t("price_offer.airbnb.price.p1") },
@@ -197,7 +197,7 @@ export default function PriceOffer() {
         <>
             <div className="container parent" style={{ display: "none" }}>
                 <div className="send-offer sendOfferRtl">
-                    <div className="maxWidthControl dashBox mb-4">
+                    <div className="mb-4 maxWidthControl dashBox">
                         <div className="row">
                             <div className="col-sm-6">
                                 <svg
@@ -215,7 +215,7 @@ export default function PriceOffer() {
                             </div>
                             <div className="col-sm-6">
                                 {status == "sent" ? (
-                                    <div className="mt-2 float-right headBtns">
+                                    <div className="float-right mt-2 headBtns">
                                         <button
                                             type="button"
                                             className="btn btn-pink acpt"
@@ -227,7 +227,7 @@ export default function PriceOffer() {
                                         </button>
                                         <button
                                             type="button"
-                                            className="btn btn-danger ml-2 rjct"
+                                            className="ml-2 btn btn-danger rjct"
                                             onClick={(e) =>
                                                 RejectOffer(offer.id)
                                             }
@@ -236,7 +236,7 @@ export default function PriceOffer() {
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="mt-2 float-right headMsg">
+                                    <div className="float-right mt-2 headMsg">
                                         {status == "accepted" ? (
                                             <h4 className="btn btn-success">
                                                 {t("global.accepted")}
@@ -1197,7 +1197,7 @@ export default function PriceOffer() {
                         </div>
                         {status == "sent" && (
                             <>
-                                <div className="text-center mt-3 mb-3">
+                                <div className="mt-3 mb-3 text-center">
                                     <button
                                         type="button"
                                         className="btn btn-pink acpt"
