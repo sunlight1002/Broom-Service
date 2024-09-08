@@ -5,6 +5,7 @@ import star from "../Assets/image/icons/blue-star.png";
 import SignatureCanvas from 'react-signature-canvas'
 import companySign from "../Assets/image/company-sign.png";
 import axios from 'axios';
+import i18next from "i18next";
 import { useParams } from 'react-router-dom';
 import swal from 'sweetalert';
 import Moment from 'moment';
@@ -36,7 +37,7 @@ export default function WorkContract() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("client-token"),
     };
-    
+
 
     const handleAccept = (e) => {
 
@@ -73,7 +74,7 @@ export default function WorkContract() {
         }
 
         console.log(data,"cfd");
-        
+
 
         axios
             .post(`/api/client/accept-contract`, data)
@@ -123,6 +124,11 @@ export default function WorkContract() {
                 }
                 setoffer(res.data.offer);
                 setClient(res.data.offer?.client);
+                try {
+                    i18next.changeLanguage(res.data.offer?.client?.lng);
+                } catch (error) {
+                    console.log(error);
+                }
                 setServices(JSON.parse(res.data.offer?.services))
                 setContract(res?.data?.contract)
             })
@@ -172,16 +178,16 @@ export default function WorkContract() {
 
     useEffect(() => {
         getOffer();
-        
+
         // getContract();
     }, [])
-    
+
     console.log(cards);
     return (
         <div className='container parent' >
             {/* <Sidebar /> */}
             <div className='send-offer client-contract sendOfferRtl'>
-                <div className='maxWidthControl dashBox mb-4'>
+                <div className='mb-4 maxWidthControl dashBox'>
                     <div className='row'>
                         <div className='col-sm-6'>
                             <svg width="190" height="77" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
@@ -192,12 +198,12 @@ export default function WorkContract() {
                             {
 
                                 (status == 'not-signed') ?
-                                    <div className='mt-2 float-right'>
+                                    <div className='float-right mt-2'>
                                         <input className='btn btn-pink' onClick={handleAccept} value={t('work-contract.accept_contract')} />
-                                        <input className='btn btn-danger mt-2' onClick={(e) => RejectContract(e, contract.id)} value={t('work-contract.button_reject')} />
+                                        <input className='mt-2 btn btn-danger' onClick={(e) => RejectContract(e, contract.id)} value={t('work-contract.button_reject')} />
                                     </div>
                                     :
-                                    <div className='mt-2 float-right headMsg'>
+                                    <div className='float-right mt-2 headMsg'>
                                         {
                                             (status == 'un-verified' || status == 'verified') ?
                                                 <h4 className='btn btn-success'>{t('global.accepted')}</h4>
@@ -223,19 +229,19 @@ export default function WorkContract() {
                         {offer && offer.client && (
                             <>
                                 <ul className='list-inline'>
-                                    <li className='list-inline-item ml-2'>{t('work-contract.full_name')} <span>{offer.client.firstname + " " + offer.client.lastname}</span></li>
+                                    <li className='ml-2 list-inline-item'>{t('work-contract.full_name')} <span>{offer.client.firstname + " " + offer.client.lastname}</span></li>
                                     <li className='list-inline-item'>{t('work-contract.city')} <span>{offer.client.city}</span></li>
                                 </ul>
                                 <ul className='list-inline'>
-                                    <li className='list-inline-item ml-2'>{t('work-contract.street_and_number')} <span>{offer.client.geo_address}</span></li>
+                                    <li className='ml-2 list-inline-item'>{t('work-contract.street_and_number')} <span>{offer.client.geo_address}</span></li>
                                     {/* <li className='list-inline-item'>{t('work-contract.floor')} <span>{cl.floor}</span></li>*/}
                                 </ul>
                                 <ul className='list-inline'>
-                                    {/* <li className='list-inline-item ml-2'>{t('work-contract.apt_number')} <span>{cl.apt_no}</span></li>
+                                    {/* <li className='ml-2 list-inline-item'>{t('work-contract.apt_number')} <span>{cl.apt_no}</span></li>
                                     <li className='list-inline-item'>{t('work-contract.enterance_code')} <span>{cl.entrence_code}</span></li>*/}
                                 </ul>
                                 <ul className='list-inline'>
-                                    <li className='list-inline-item ml-2'>{t('work-contract.telephone')} <span>{offer.client.phone}</span></li>
+                                    <li className='ml-2 list-inline-item'>{t('work-contract.telephone')} <span>{offer.client.phone}</span></li>
                                     <li className='list-inline-item'>{t('work-contract.email')} <span>{offer.client.email}</span></li>
                                 </ul>
 
@@ -270,7 +276,7 @@ export default function WorkContract() {
                             </div>
                         </div>
                     </div>
-                    <h2 className='text-center mb-4'>{t('work-contract.parties_hereby_title')}</h2>
+                    <h2 className='mb-4 text-center'>{t('work-contract.parties_hereby_title')}</h2>
                     <div className='shift-30'>
                         <h6>{t('work-contract.intro_subtitle')}</h6>
                         <div className='agg-list'>
@@ -317,7 +323,7 @@ export default function WorkContract() {
                                             return address;
                                         })} */}
 
-                                        <br /> <span style={{ fontWeight: "600" }} className='d-block mt-2'>{t('work-contract.other_address_txt')}</span> <br />
+                                        <br /> <span style={{ fontWeight: "600" }} className='mt-2 d-block'>{t('work-contract.other_address_txt')}</span> <br />
                                         {contract && contract.additional_address != null ?
                                             <input type='text' value={contract.additional_address} readOnly className='form-control' />
                                             :
@@ -543,7 +549,7 @@ export default function WorkContract() {
                                 <p>{t('work-contract.general_txt_3')}</p>
                             </div>
                         </div>
-                        <h6 className='text-center text-underline mt-3 mb-4'>{t('work-contract.signed_title')}</h6>
+                        <h6 className='mt-3 mb-4 text-center text-underline'>{t('work-contract.signed_title')}</h6>
                         <div className='row'>
                             <div className='col-sm-6'>
                                 <h5 className='mt-2 mb-4'>{t('work-contract.the_tenant_subtitle')}</h5>
@@ -573,7 +579,7 @@ export default function WorkContract() {
                             {
 
                                 (status == 'not-signed') ?
-                                    <div className=' col-sm-12 mt-2 float-right'>
+                                    <div className='float-right mt-2 col-sm-12'>
                                         <input className='btn btn-pink' onClick={handleAccept} value={t('work-contract.accept_contract')} />
                                     </div>
                                     : ''
@@ -822,7 +828,7 @@ export default function WorkContract() {
 
 //         <div className='container parent' style={{ display: "none" }}>
 //             <div className='send-offer client-contract sendOfferRtl'>
-//                 <div className='maxWidthControl dashBox mb-4'>
+//                 <div className='mb-4 maxWidthControl dashBox'>
 //                     <div className='row'>
 //                         <div className='col-sm-6'>
 //                             <svg width="190" height="77" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
@@ -833,12 +839,12 @@ export default function WorkContract() {
 //                             {
 
 //                                 (status == 'not-signed') ?
-//                                     <div className='mt-2 float-right'>
+//                                     <div className='float-right mt-2'>
 //                                         <input className='btn btn-pink' onClick={handleAccept} value={t('work-contract.accept_contract')} />
-//                                         <input className='btn btn-danger mt-2' onClick={(e) => RejectContract(e, contract.id)} value={t('work-contract.button_reject')} />
+//                                         <input className='mt-2 btn btn-danger' onClick={(e) => RejectContract(e, contract.id)} value={t('work-contract.button_reject')} />
 //                                     </div>
 //                                     :
-//                                     <div className='mt-2 float-right headMsg'>
+//                                     <div className='float-right mt-2 headMsg'>
 //                                         {
 //                                             (status == 'un-verified' || status == 'verified') ?
 //                                                 <h4 className='btn btn-success'>{t('global.accepted')}</h4>
@@ -864,17 +870,17 @@ export default function WorkContract() {
 //                         {offer && offer.client && (
 //                             <>
 //                                 <ul className='list-inline'>
-//                                     <li className='list-inline-item ml-2'>{t('work-contract.full_name')} <span>{offer.client.firstname + " " + offer.client.lastname}</span></li>
+//                                     <li className='ml-2 list-inline-item'>{t('work-contract.full_name')} <span>{offer.client.firstname + " " + offer.client.lastname}</span></li>
 //                                     <li className='list-inline-item'>{t('work-contract.city')} <span>{offer.client.city}</span></li>
 //                                 </ul>
 //                                 <ul className='list-inline'>
-//                                     <li className='list-inline-item ml-2'>{t('work-contract.street_and_number')} <span>{offer.client.geo_address}</span></li>
+//                                     <li className='ml-2 list-inline-item'>{t('work-contract.street_and_number')} <span>{offer.client.geo_address}</span></li>
 //                                 </ul>
 //                                 <ul className='list-inline'>
 
 //                                 </ul>
 //                                 <ul className='list-inline'>
-//                                     <li className='list-inline-item ml-2'>{t('work-contract.telephone')} <span>{offer.client.phone}</span></li>
+//                                     <li className='ml-2 list-inline-item'>{t('work-contract.telephone')} <span>{offer.client.phone}</span></li>
 //                                     <li className='list-inline-item'>{t('work-contract.email')} <span>{offer.client.email}</span></li>
 //                                 </ul>
 
@@ -910,7 +916,7 @@ export default function WorkContract() {
 //                             </div>
 //                         </div>
 //                     </div>
-//                     <h2 className='text-center mb-4'>{t('work-contract.parties_hereby_title')}</h2>
+//                     <h2 className='mb-4 text-center'>{t('work-contract.parties_hereby_title')}</h2>
 //                     <div className='shift-30'>
 //                         <h6>{t('work-contract.intro_subtitle')}</h6>
 //                         <div className='agg-list'>
@@ -953,7 +959,7 @@ export default function WorkContract() {
 //                                     <td style={{ width: "60%" }}>{t('work-contract.location_txt')}</td>
 //                                     <td>
 
-//                                         <br /> <span style={{ fontWeight: "600" }} className='d-block mt-2'>{t('work-contract.other_address_txt')}</span> <br />
+//                                         <br /> <span style={{ fontWeight: "600" }} className='mt-2 d-block'>{t('work-contract.other_address_txt')}</span> <br />
 //                                         {contract && contract.additional_address != null ?
 //                                             <input type='text' value={contract.additional_address} readOnly className='form-control' />
 //                                             :
@@ -1253,7 +1259,7 @@ export default function WorkContract() {
 //                                 <p>{t('work-contract.general_txt_3')}</p>
 //                             </div>
 //                         </div>
-//                         <h6 className='text-center text-underline mt-3 mb-4'>{t('work-contract.signed_title')}</h6>
+//                         <h6 className='mt-3 mb-4 text-center text-underline'>{t('work-contract.signed_title')}</h6>
 //                         <div className='row'>
 //                             <div className='col-sm-6'>
 //                                 <h5 className='mt-2 mb-4'>{t('work-contract.the_tenant_subtitle')}</h5>
@@ -1283,7 +1289,7 @@ export default function WorkContract() {
 //                             {
 
 //                                 (status == 'not-signed') ?
-//                                     <div className=' col-sm-12 mt-2 float-right'>
+//                                     <div className='float-right mt-2 col-sm-12'>
 //                                         <input className='btn btn-pink' onClick={handleAccept} value={t('work-contract.accept_contract')} />
 //                                     </div>
 //                                     : ''
