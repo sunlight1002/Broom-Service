@@ -551,7 +551,17 @@ class JobController extends Controller
                 $this->copyDefaultCommentsToJob($job);
 
                 $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-           
+                if ($workerIndex == 0) {
+                    $adminEmailData = [
+                        'emailData'   => [
+                            'job'   =>  $job->toArray(),
+                        ],
+                        'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
+                        'emailTitle'  => 'New Job',
+                        'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
+                    ];
+                    event(new JobNotificationToAdmin($adminEmailData));
+                }
                 //send notification to client
                 $jobData = $job->toArray();
                 $clientData = $jobData['client'];
@@ -563,18 +573,7 @@ class JobController extends Controller
                 ];
                 event(new JobNotificationToClient($workerData, $clientData, $jobData, $emailData));
 
-                if ($workerIndex == 0) {
-                    App::setLocale('en');
-                    $adminEmailData = [
-                        'emailData'   => [
-                            'job'   =>  $job->toArray(),
-                        ],
-                        'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
-                        'emailTitle'  => 'New Job',
-                        'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
-                    ];
-                    event(new JobNotificationToAdmin($adminEmailData));
-                }
+                
             }
         }
 
