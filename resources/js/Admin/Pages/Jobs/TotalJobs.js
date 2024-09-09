@@ -143,7 +143,7 @@ export default function TotalJobs() {
 
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef2.current)) {
-                $(tableRef2.current).DataTable().destroy(true);
+                $(tableRef2.current).DataTable().destroy();
             }
         };
     }, [probbtn, tableRef2.current]);

@@ -3341,6 +3341,14 @@ button.time-counter, span.time-counter {
 }
 
 
+.card-body.getjobslist {
+  width: 100%;
+  overflow-x: auto; /* Allows horizontal scrolling if needed */
+}
+
+.table {
+  width: 100% !important; /* Ensure the table takes full width of its container */
+}
 
 
 /*******End*************/
