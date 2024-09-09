@@ -1246,25 +1246,21 @@ class WhatsappNotification
                     break;
 
                 case WhatsappMessageTemplateEnum::USER_STATUS_CHANGED:
-                    // $clientData = $eventData['client'];
+                    $clientData = $eventData['client'];
 
-                    // $receiverNumber = $clientData["phone"];
-                    // if (!$receiverNumber) {
-                    //     return;
-                    // }
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    // Set locale if needed
+                    App::setLocale('en');
 
-                    // // Set locale if needed
-                    // App::setLocale('en');
-
-                    // // Build the WhatsApp message content
-                    // $text = __('mail.wa-message.user_status_changed.header');
-                    // $text .= "\n\n";
-                    // $text .= __('mail.wa-message.common.salutation', ['name' => $clientData['firstname']]);
-                    // $text .= "\n\n";
-                    // $text .= __('mail.wa-message.user_status_changed.content', [
-                    //     'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
-                    //     'status' => $eventData['status']
-                    // ]);
+                    // Build the WhatsApp message content
+                    $text = __('mail.wa-message.user_status_changed.header');
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.common.salutation', ['name' => $clientData['firstname']]);
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.user_status_changed.content', [
+                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'status' => $eventData['status']
+                    ]);
 
                     break;
 
@@ -1273,7 +1269,7 @@ class WhatsappNotification
 
                     // $receiverNumber = config('services.whatsapp_groups.lead_client');
                     $receiverNumber = $clientData["phone"];
-                    App::setLocale('en');
+                    App::setLocale($clientData['lng']);
 
                     $text = __('mail.wa-message.tried_to_contact_you.header');
                     $text .= "\n\n";
@@ -1303,7 +1299,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = $clientData["phone"];
-                    App::setLocale('en');
+                    App::setLocale($clientData['lng']);
 
                     // Build the WhatsApp message content
                     $text = __('mail.wa-message.inquiry_response.header');
@@ -1632,14 +1628,14 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
+                Log::info($text);
+                // $response = Http::withToken($this->whapiApiToken)
+                //     ->post($this->whapiApiEndpoint . 'messages/text', [
+                //         'to' => $receiverNumber,
+                //         'body' => $text
+                //     ]);
 
-                $response = Http::withToken($this->whapiApiToken)
-                    ->post($this->whapiApiEndpoint . 'messages/text', [
-                        'to' => $receiverNumber,
-                        'body' => $text
-                    ]);
-
-                Log::info($response->json());
+                // Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);

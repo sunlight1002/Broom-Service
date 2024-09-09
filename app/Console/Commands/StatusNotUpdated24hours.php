@@ -43,6 +43,7 @@ class StatusNotUpdated24hours extends Command
 
             if ($client) {
                 $createdAt = $offerStatus->created_at;
+                App::setLocale($client->lng);
 
                 // Check if the status is 'sent' for over 7 days
                 if ($createdAt <= Carbon::now()->subDays(7)) {

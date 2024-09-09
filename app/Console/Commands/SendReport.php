@@ -127,7 +127,7 @@ class SendReport extends Command
                 $filePath = Storage::path($this->fileName);
 
                 return $this->view('Mails.report')
-                            ->subject('User Data Report')
+                            ->subject(__('mail.user_data_report.title'))
                             ->attach($filePath, [
                                 'as' => $this->fileName,
                                 'mime' => 'text/csv',
