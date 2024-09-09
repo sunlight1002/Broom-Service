@@ -1628,14 +1628,13 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                Log::info($text);
-                // $response = Http::withToken($this->whapiApiToken)
-                //     ->post($this->whapiApiEndpoint . 'messages/text', [
-                //         'to' => $receiverNumber,
-                //         'body' => $text
-                //     ]);
+                $response = Http::withToken($this->whapiApiToken)
+                    ->post($this->whapiApiEndpoint . 'messages/text', [
+                        'to' => $receiverNumber,
+                        'body' => $text
+                    ]);
 
-                // Log::info($response->json());
+                Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);
