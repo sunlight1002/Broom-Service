@@ -122,9 +122,6 @@ export default function TotalJobs() {
         });
     };
 
-
-
-
     const fetchProblems = () => {
         $.ajax({
             url: '/api/client/jobs/get-problem',
@@ -150,13 +147,11 @@ export default function TotalJobs() {
             }
         };
     }, [probbtn, tableRef2.current]);
-    ;
 
 
 
 
     const initializeDataTable = () => {
-        // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             $(tableRef.current).DataTable({
                 processing: true,
