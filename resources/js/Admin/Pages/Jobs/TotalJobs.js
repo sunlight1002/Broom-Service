@@ -122,6 +122,9 @@ export default function TotalJobs() {
         });
     };
 
+
+
+
     const fetchProblems = () => {
         $.ajax({
             url: '/api/client/jobs/get-problem',
@@ -143,15 +146,17 @@ export default function TotalJobs() {
 
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef2.current)) {
-                $(tableRef2.current).DataTable().destroy();
+                $(tableRef2.current).DataTable().destroy(true);
             }
         };
     }, [probbtn, tableRef2.current]);
+    ;
 
 
 
 
     const initializeDataTable = () => {
+        // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             $(tableRef.current).DataTable({
                 processing: true,
@@ -189,7 +194,7 @@ export default function TotalJobs() {
                         title: t("client.dashboard.client"),
                         data: "client_name",
                         render: function (data, type, row, meta) {
-                            let _html = `<span class="client-name-badge dt-client-badge" style=" color: white; background-color: ${row.client_color ?? "#FFFFFF"
+                            let _html = `<span class="client-name-badge dt-client-badge" style=" color: black; background-color: ${row.client_color ?? "#FFFFFF"
                                 };" data-client-id="${row.client_id}">`;
 
                             _html += `<i class="fa-solid fa-user"></i>`;
@@ -205,7 +210,7 @@ export default function TotalJobs() {
                         title: t("global.service"),
                         data: "service_name",
                         render: function (data, type, row, meta) {
-                            let _html = `<span class="service-name-badge" style="background-color: ${row.service_color ?? "#FFFFFF"
+                            let _html = `<span class="service-name-badge" style=" color: ${row.service_color == "#00FF"? 'white': 'black'}; background-color: ${row.service_color ?? "#FFFFFF"
                                 };">`;
 
                             _html += data;
