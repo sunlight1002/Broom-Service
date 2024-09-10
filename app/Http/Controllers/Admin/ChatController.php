@@ -47,27 +47,32 @@ class ChatController extends Controller
             'clients' => $clients,
         ]);
     }
-
     public function chatsMessages($no)
     {
         $chat = WebhookResponse::where('number', $no)->get();
-
+    
         WebhookResponse::where(['number' => $no, 'read' => 0])->update([
             'read' => 1
         ]);
-
+    
         $lastMsg = WebhookResponse::where('number', $no)->get()->last();
-
-        ($lastMsg && $lastMsg->created_at < Carbon::now()->subHours(24)->toDateTimeString())
-            ?
-            $expired = 1
-            : $expired = 0;
-
+        $expired = ($lastMsg && $lastMsg->created_at < Carbon::now()->subHours(24)) ? 1 : 0;
+    
+        if (strlen($no) > 10) {
+            $client = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->first();
+        } else {
+            $client = Client::where('phone', 'like', '%' . $no . '%')->first();
+        }
+    
+        $clientName = $client ? $client->firstname . " " . $client->lastname : 'Unknown';
+    
         return response()->json([
             'chat' => $chat,
-            'expired' => $expired
+            'expired' => $expired,
+            'clientName' => $clientName,
         ]);
     }
+    
 
     public function chatReply(Request $request)
     {
