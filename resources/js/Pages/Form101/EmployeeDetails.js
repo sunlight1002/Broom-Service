@@ -6,6 +6,7 @@ import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import { useTranslation } from "react-i18next";
 import { countryOption } from "./cityCountry";
 
+
 export default function EmployeeDetails({
     errors,
     values,
@@ -13,8 +14,9 @@ export default function EmployeeDetails({
     handleBlur,
     handleChange,
     setFieldValue,
+    handleFileChange
 }) {
-
+    // console.log(Base64.decode(param.id));
     const [indentityType, setIndentityType] = useState(values.employeecountry);
     useEffect(() => {
         console.log(values.employeecountry);
@@ -59,7 +61,7 @@ export default function EmployeeDetails({
         { label: "Leumit", value: "Leumit" },
     ];
 
-    // console.log(values);
+    // console.log(values.employeepassportCopy);
 
 
     return (
@@ -110,10 +112,10 @@ export default function EmployeeDetails({
                             value="IDNumber"
                             className="mr-2"
                             checked={indentityType === "IDNumber"}
-                            onChange={(e)=>{
+                            onChange={(e) => {
                                 setIndentityType(e.target.value);
                                 handleChange(e);
-                                setFieldValue("employeeIdentityType",e.target.value);
+                                setFieldValue("employeeIdentityType", e.target.value);
                             }}
                         />
                         {t("form101.id_num")}
@@ -125,10 +127,10 @@ export default function EmployeeDetails({
                             value="Passport"
                             className="mr-2"
                             checked={indentityType === "Passport"}
-                            onChange={(e)=>{
+                            onChange={(e) => {
                                 setIndentityType(e.target.value);
                                 handleChange(e);
-                                setFieldValue("employeeIdentityType",e.target.value);
+                                setFieldValue("employeeIdentityType", e.target.value);
 
                             }}
                         />
@@ -147,10 +149,10 @@ export default function EmployeeDetails({
                         name={"employeecountry"}
                         label={t("form101.country_passport")}
                         value={values.employeecountry}
-                        onChange={(e)=>{
-                            setIndentityType(e.target.value === "Israel"? "IDNumber" : "Passport");
+                        onChange={(e) => {
+                            setIndentityType(e.target.value === "Israel" ? "IDNumber" : "Passport");
                             handleChange(e);
-                            setFieldValue("employeeIdentityType",e.target.value === "Israel"? "IDNumber" : "Passport");
+                            setFieldValue("employeeIdentityType", e.target.value === "Israel" ? "IDNumber" : "Passport");
                         }}
                         onBlur={handleBlur}
                         error={
@@ -180,7 +182,7 @@ export default function EmployeeDetails({
                                             : ""
                                     }
                                     required
-                                    // readonly={values.employeePassportNumber === null ? false : true}
+                                // readonly={values.employeePassportNumber === null ? false : true}
                                 />
                             </div>
                             <div className="col-md-4 col-sm-6 col-xs-6">
@@ -193,11 +195,13 @@ export default function EmployeeDetails({
                                     name="employeepassportCopy"
                                     id="employeepassportCopy"
                                     accept="image/*"
-                                    onChange={(e) =>
+                                    onChange={(e) => {
                                         setFieldValue(
                                             "employeepassportCopy",
                                             e.target.files[0]
-                                        )
+                                        );
+                                        handleFileChange(e,"passport");
+                                    }
                                     }
                                     onBlur={handleBlur}
                                 />
@@ -264,11 +268,13 @@ export default function EmployeeDetails({
                                 name="employeeIdCardCopy"
                                 id="employeeIdCardCopy"
                                 accept="image/*"
-                                onChange={(e) =>
+                                onChange={(e) => {
                                     setFieldValue(
                                         "employeeIdCardCopy",
                                         e.target.files[0]
-                                    )
+                                    );
+                                    handleFileChange(e,"id_card");
+                                }
                                 }
                                 onBlur={handleBlur}
                             />

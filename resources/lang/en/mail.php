@@ -134,12 +134,12 @@ return [
         'you_unassigned_from_job' => 'You have been unassigned from a job.'
     ],
     'worker_tomorrow_job' => [
-        'subject' => 'Tomorrow Job | Broom Service',
+        'subject' => "Tomorrow's Job | Broom Service",
         'hi'          => 'Hi',
         'greetings'   => 'Greetings',
         'from'        => 'from',
         'company'     => 'Broom Service',
-        'message' => 'This is to inform you about your tomorrow job.',
+        'message' => "Here are the details for tomorrow's job:",
         'date'        => 'Date',
         'worker'      => 'Worker',
         'client'      => 'Client',
@@ -219,7 +219,7 @@ return [
         ],
         'contract-signed' => [
             'subject' => 'Contract Form Signed | Broom Service',
-            'message' => 'You has completed the signing of the Contract Form. Kindly find the signed document attached in PDF format for your reference.',
+            'message' => 'has completed the signing of the Contract Form. Kindly find the signed document attached in PDF format for your reference.',
         ],
         'insurance-signed' => [
             'subject' => 'Insurance Form Signed | Broom Service',
@@ -300,7 +300,7 @@ return [
         'resume_timer'  => 'Resume timer'
     ],
     'forms' => [
-        'worker_forms' => 'Worker Forms',
+        'worker_forms' => 'Worker Forms | Broom Service',
         'content'   => 'You have successfully registered on our portal. Please sign the below forms to start working on the job.',
         'below_txt' => 'Click the below button to fill forms.',
         'btn_txt'   => 'Check Forms'
@@ -323,10 +323,7 @@ return [
         'end_time_nxt_step_email_title' => 'Job time ended',
         'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
     ],
-    'user_status_changed' => [
-        'header' => "*Status Changed | Broom Service*",
-        'content' =>  ":name changed the Status to :status."
-    ],
+   
     'unanswered_lead' => [
         'header' => 'We Tried to Contact You | Broom Service',
         'greeting' => 'Hi, :name,',
@@ -380,6 +377,12 @@ return [
         'details1' => 'Following our conversation, I am attaching for your review some testimonials from our existinng clients: ',
         'assistance' => 'I am here to help and answer any further questions you may have. I am always at your service.',
     ],
+    'user_data_report' => [
+       'header' => 'User Data Report | Broom Service',
+       'title' => 'User Data Report',
+        'greeting' => 'Hi :name,',
+        'content' => 'Please find attached the CSV report of the user data. The report includes details about the users, their submission status, and related forms',
+    ],
     'wa-message' => [
         'common' => [
             'salutation' => "Hi, *:name*",
@@ -425,7 +428,7 @@ return [
             Date/Time: :date_time\nClient: :client_name\nService: :service_name\nProperty: :address\nStatus: :status",
         ],
         'worker_contract' => [
-            'header' => "*Contract with Broom Service*",
+            'header' => "*Contract Form | Broom Service *",
             'content' => "You have successfully registered on our portal. Please sign the contract form to start working on the job.\nClick the below button to check the contract.",
         ],
         'worker_job_approval' => [
@@ -457,8 +460,8 @@ return [
             'content' => "This is to inform you about your job tomorrow. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nStart Time: :start_time\nStatus: :status",
         ],
         'worker_unassigned_job' => [
-            'header' => "*Job Unassigned with Broom Service*",
-            'content' => "Your job has been canceled. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nStart Time: :start_time",
+            'header' => "*Job Unassigned | Broom Service*",
+            'content' => "You have been unassigned from a job. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nStart Time: :start_time",
         ],
         'client_job_status_notification' => [
             'header' => "*Job Canceled | Broom Service*",
@@ -662,6 +665,10 @@ return [
             'content' => 'To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.',
             'details' => 'Please reply to this email with the requested files at your earliest convenience.',
             'assistance' => 'If you have any questions or need assistance, feel free to reach out to us.',
+        ],
+        'user_status_changed' => [
+            'header' => "*Status Changed | Broom Service*",
+            'content' =>  ":name changed the Status to :status."
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',

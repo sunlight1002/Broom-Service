@@ -585,7 +585,6 @@ class JobController extends Controller
 
                 $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
                 if ($workerIndex == 0) {
-                    App::setLocale('en');
                     $adminEmailData = [
                         'emailData'   => [
                             'job'   =>  $job->toArray(),
@@ -606,6 +605,8 @@ class JobController extends Controller
                     'emailContent'  => __('mail.worker_new_job.new_job_assigned')
                 ];
                 event(new JobNotificationToClient($workerData, $clientData, $jobData, $emailData));
+
+                
             }
         }
 
@@ -666,13 +667,7 @@ class JobController extends Controller
                     $messages->subject($sub);
                 });
             }; 
-            
-            Notification::create([
-                'user_id' => $client->id,
-                'user_type' => Client::class,
-                'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-                'status' => $newLeadStatus
-            ]);
+
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                     "notificationData" => [
@@ -680,12 +675,6 @@ class JobController extends Controller
                         'status' => $newLeadStatus,
                     ]
                 ]));
-      
-                Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.user_status_changed.header');
-                    $messages->subject($sub);
-                });
             
           } elseif ($client->notification_type === "email") {
             if ($newLeadStatus === 'unanswered') {
@@ -705,27 +694,16 @@ class JobController extends Controller
                 });
             }
       
-            Notification::create([
-                'user_id' => $client->id,
-                'user_type' => Client::class,
-                'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-                'status' => $newLeadStatus
-            ]);
-                Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                    $messages->to('pratik.panchal@spexiontechnologies.com');
-                    $sub = __('mail.user_status_changed.header');
-                    $messages->subject($sub);
-                });
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                    'status' => $newLeadStatus,
+                ]
+            ]));
             
           } else {
             if ($newLeadStatus === 'unanswered') {
-
-                // Notification::create([
-                //     'user_id' => $client->id,
-                //     'user_type' => get_class($client),
-                //     'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
-                //     'status' => $newLeadStatus
-                // ]);
       
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
@@ -736,13 +714,6 @@ class JobController extends Controller
             }
             if ($newLeadStatus === 'irrelevant') {
       
-                // Notification::create([
-                //     'user_id' => $client->id,
-                //     'user_type' => get_class($client),
-                //     'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
-                //     'status' => $newLeadStatus
-                // ]);
-      
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
                     "notificationData" => [
@@ -750,13 +721,6 @@ class JobController extends Controller
                     ]
                 ]));
             }
-      
-            Notification::create([
-                'user_id' => $client->id,
-                'user_type' => get_class($client),
-                'type' => NotificationTypeEnum::USER_STATUS_CHANGED,  
-                'status' => $newLeadStatus
-            ]);
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                     "notificationData" => [
@@ -1056,13 +1020,6 @@ class JobController extends Controller
            if ($client->notification_type === "both") {
             if ($newLeadStatus === 'unanswered') {
       
-                // Notification::create([
-                //     'user_id' => $client->id,
-                //     'user_type' => get_class($client),
-                //     'type' => NotificationTypeEnum::UNANSWERED_LEAD,
-                //     'status' => $newLeadStatus
-                // ]);
-      
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
                     "notificationData" => [
@@ -1078,13 +1035,6 @@ class JobController extends Controller
             }
             
             if ($newLeadStatus === 'irrelevant') {
-      
-                // Notification::create([
-                //     'user_id' => $client->id,
-                //     'user_type' => get_class($client),
-                //     'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
-                //     'status' => $newLeadStatus
-                // ]);
       
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
@@ -1100,12 +1050,6 @@ class JobController extends Controller
                 });
             }; 
             
-            Notification::create([
-                'user_id' => $client->id,
-                'user_type' => Client::class,
-                'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-                'status' => $newLeadStatus
-            ]);
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                     "notificationData" => [
@@ -1113,22 +1057,9 @@ class JobController extends Controller
                         'status' => $newLeadStatus,
                     ]
                 ]));
-      
-                Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.user_status_changed.header');
-                    $messages->subject($sub);
-                });
             
           } elseif ($client->notification_type === "email") {
             if ($newLeadStatus === 'unanswered') {
-      
-                // Notification::create([
-                //     'user_id' => $client->id,
-                //     'user_type' => get_class($client),
-                //     'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
-                //     'status' => $newLeadStatus
-                // ]);
       
                 Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                     $messages->to($emailData['client']['email']);
@@ -1137,40 +1068,23 @@ class JobController extends Controller
                 });
             }
             if ($newLeadStatus === 'irrelevant') {
-                // Notification::create([
-                //     'user_id' => $client->id,
-                //     'user_type' => get_class($client),
-                //     'type' => NotificationTypeEnum::INQUIRY_RESPONSE,
-                //     'status' => $newLeadStatus
-                // ]);
+
                 Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                     $messages->to($emailData['client']['email']);
                     $sub = __('mail.irrelevant_lead.header');
                     $messages->subject($sub);
                 });
             }
-      
-            Notification::create([
-                'user_id' => $client->id,
-                'user_type' => Client::class,
-                'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-                'status' => $newLeadStatus
-            ]);
-                Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                    $messages->to('pratik.panchal@spexiontechnologies.com');
-                    $sub = __('mail.user_status_changed.header');
-                    $messages->subject($sub);
-                });
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                    'status' => $newLeadStatus,
+                ]
+            ]));
             
           } else {
             if ($newLeadStatus === 'unanswered') {
-      
-                // Notification::create([
-                //     'user_id' => $client->id,
-                //     'user_type' => get_class($client),
-                //     'type' => NotificationTypeEnum::UNANSWERED_LEAD, 
-                //     'status' => $newLeadStatus
-                // ]);
       
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
@@ -1180,14 +1094,7 @@ class JobController extends Controller
                 ]));
             }
             if ($newLeadStatus === 'irrelevant') {
-      
-                // Notification::create([
-                //     'user_id' => $client->id,
-                //     'user_type' => get_class($client),
-                //     'type' => NotificationTypeEnum::INQUIRY_RESPONSE, 
-                //     'status' => $newLeadStatus
-                // ]);
-      
+
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
                     "notificationData" => [
@@ -1195,13 +1102,6 @@ class JobController extends Controller
                     ]
                 ]));
             }
-      
-            Notification::create([
-                'user_id' => $client->id,
-                'user_type' => get_class($client),
-                'type' => NotificationTypeEnum::USER_STATUS_CHANGED,  
-                'status' => $newLeadStatus
-            ]);
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                     "notificationData" => [
@@ -1550,14 +1450,6 @@ class JobController extends Controller
                 });
             }; 
 
-
-            Notification::create([
-                'user_id' => $client->id,
-                'user_type' => Client::class,
-                'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-                'status' => $newLeadStatus
-            ]);
-            
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                     "notificationData" => [
@@ -1565,12 +1457,6 @@ class JobController extends Controller
                         'status' => $newLeadStatus,
                     ]
                 ]));
-      
-                Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.user_status_changed.header');
-                    $messages->subject($sub);
-                });
             
           } elseif ($client->notification_type === "email") {
             if ($newLeadStatus === 'unanswered') {
@@ -1589,17 +1475,13 @@ class JobController extends Controller
                 });
             }
 
-            Notification::create([
-                'user_id' => $client->id,
-                'user_type' => Client::class,
-                'type' => NotificationTypeEnum::USER_STATUS_CHANGED, 
-                'status' => $newLeadStatus
-            ]);
-                Mail::send('Mails.UserChangedStatus', $emailData, function ($messages) use ($emailData) {
-                    $messages->to('pratik.panchal@spexiontechnologies.com');
-                    $sub = __('mail.user_status_changed.header');
-                    $messages->subject($sub);
-                });
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                    'status' => $newLeadStatus,
+                ]
+            ]));
             
           } else {
             if ($newLeadStatus === 'unanswered') {
@@ -1620,13 +1502,6 @@ class JobController extends Controller
                     ]
                 ]));
             }
-      
-            Notification::create([
-                'user_id' => $client->id,
-                'user_type' => get_class($client),
-                'type' => NotificationTypeEnum::USER_STATUS_CHANGED,  
-                'status' => $newLeadStatus
-            ]);
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                     "notificationData" => [

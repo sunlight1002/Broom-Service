@@ -77,13 +77,12 @@
         <div class="header">
             <img src="{{ asset('../images/sample.png') }}" style="margin: 0 auto;display: block">
 
-            <h1>User Data Report</h1>
+            <h1>{{ __('mail.user_data_report.title') }}</h1>
         </div>
         <p style="text-align: center;line-height: 30px">{{ __('mail.common.greetings') }}</p>
         <div class="content">
-            <p>Please find attached the CSV report of the user data.</p>
-            <p>The report includes details about the users, their submission status, and related forms.</p>
-            <p>If you have any questions or need further assistance, feel free to reach out.</p>
+            <p>{{ __('mail.user_data_report.header') }}</p>
+            <p>{{ __('mail.user_data_report.content') }}</p>
         </div>
         <div class="footer">
             <p>Attached CSV File: {{ $fileName }}</p>

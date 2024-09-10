@@ -2422,7 +2422,7 @@ tbody tr:hover{
   border-radius: 3px;
   display: inline-block;
   padding: 12px;
-  max-width: 40%;
+  min-width: 40%;
   position: relative;
 }
 
@@ -2490,10 +2490,10 @@ tbody tr:hover{
 
 .sidemsg {
 
-  background-color: #f7f8f9;
+  background-color: white;
   display: flex;
   max-height: calc(90vh - 38px);
-  min-height: 480px;
+  min-height: 91vh;
   overflow: auto;
 }
 
@@ -3341,6 +3341,130 @@ button.time-counter, span.time-counter {
 }
 
 
+.card-body.getjobslist {
+  width: 100%;
+  overflow-x: auto; /* Allows horizontal scrolling if needed */
+}
 
+.table {
+  width: 100% !important; /* Ensure the table takes full width of its container */
+}
+.chat-card {
+  display: flex;
+  align-items: flex-start;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  transition: all 0.3s ease;
+}
+
+.chat-card:hover {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.user-icon2 {
+  flex-shrink: 0;
+  margin-right: 15px;
+  border: 1px solid #E9ECF2;
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+}
+
+.user-icon2 img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.chat-details {
+  flex-grow: 1;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.user-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.chat-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.chat-message {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #555;
+}
+
+@media (max-width: 600px) {
+  .chat-card {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+  
+  .chat-header {
+      justify-content: flex-start;
+      flex-direction: column;
+  }
+
+  .chat-date {
+      margin-top: 5px;
+  }
+}
+
+
+/* Hide scrollbar for WebKit browsers */
+#ko::-webkit-scrollbar {
+  width: 10px; /* Width of the scrollbar */
+}
+
+/* Background of the scrollbar */
+#ko::-webkit-scrollbar-track {
+  background: #ffffff;
+  border-radius: 10px; /* Make it rounded */
+  height: 200px;
+
+}
+
+/* The scrollbar handle (thumb) */
+#ko::-webkit-scrollbar-thumb {
+  background: #888; /* Gray thumb */
+  border-radius: 10px; /* Rounded edges */
+  min-height: 50px; /* Sets a minimum height for the thumb */
+}
+
+/* Hover effect for the scrollbar handle */
+#ko::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Darker on hover */
+}
+/* Scrollbar for Firefox */
+/* #ko {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+#ko {
+  -ms-overflow-style: scrollbar;
+} */
+
+.cardList{
+  border-radius: 7px;
+}
+.cardList:hover{
+  background-color: #f1f1f1 !important;
+  cursor: pointer;
+
+}
 
 /*******End*************/

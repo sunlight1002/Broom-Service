@@ -27,73 +27,103 @@ class DocumentController extends Controller
     }
 
     public function save(Request $request)
-    {
-        $data = $request->all();
-        $user = User::find($data['id']);
-        if ($request->file('visa') ||  $request->file('passport')) {
+{
+    $data = $request->all();
+    $user = User::find($data['id']);
+    
+    if ($request->file('visa') || $request->file('passport') || $request->file('id_card')) {
+        
+        // Handle visa file upload
+        if ($request->hasFile('visa')) {
             $visa_file = $request->file('visa');
-            if ($request->hasFile('visa')) {
-                if (!Storage::disk('public')->exists('uploads/documents')) {
-                    Storage::disk('public')->makeDirectory('uploads/documents');
-                }
-                $tmp_file_name = $user->id . "_visa_" . date('s') . "_" . $visa_file->getClientOriginalName();
-                if (Storage::disk('public')->putFileAs("uploads/documents", $visa_file, $tmp_file_name)) {
-                    $user->visa = $tmp_file_name;
-                    $user->save();
-                }
+            
+            if (!Storage::disk('public')->exists('uploads/documents')) {
+                Storage::disk('public')->makeDirectory('uploads/documents');
             }
-            $pasport_file = $request->file('passport');
-            if ($request->hasFile('passport')) {
-                if (!Storage::disk('public')->exists('uploads/documents')) {
-                    Storage::disk('public')->makeDirectory('uploads/documents');
-                }
-                $tmp_file_name = $user->id . "_passport_" . date('s') . "_" . $pasport_file->getClientOriginalName();
-                if (Storage::disk('public')->putFileAs("uploads/documents", $pasport_file, $tmp_file_name)) {
-                    $user->passport = $tmp_file_name;
-                    $user->save();
-                }
+            
+            $tmp_file_name = $user->id . "_visa_" . date('s') . "_" . $visa_file->getClientOriginalName();
+            
+            if (Storage::disk('public')->putFileAs("uploads/documents", $visa_file, $tmp_file_name)) {
+                $user->visa = $tmp_file_name;
+                $user->save();
             }
-        } else {
-            $validator = Validator::make($request->all(), [
-                'id'        => ['required'],
-                'doc_id'    => ['required'],
-                'file'      => ['required'],
-            ], [], [
-                'doc_id'    => 'Document type',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['errors' => $validator->messages()]);
-            }
-
-            $file = $request->file('file');
-            $file_name = '';
-            if ($request->hasFile('file')) {
-                if (!Storage::disk('public')->exists('uploads/documents')) {
-                    Storage::disk('public')->makeDirectory('uploads/documents');
-                }
-                $tmp_file_name = $user->id . "_" . date('s') . "_" . $file->getClientOriginalName();
-                if (Storage::disk('public')->putFileAs("uploads/documents", $file, $tmp_file_name)) {
-                    $file_name = $tmp_file_name;
-                }
-            }
-
-            $docType = DocumentType::find($data['doc_id']);
-
-            $user->documents()->create([
-                'document_type_id' => $data['doc_id'],
-                'name' => $docType->name,
-                'file' => $file_name,
-            ]);
         }
 
-        return response()->json([
-            'message' => 'Document has been created successfully!'
+        // Handle passport file upload with delete check
+        if ($request->hasFile('passport')) {
+            // Delete existing passport file if present
+            if ($user->passport && Storage::disk('public')->exists('uploads/documents/' . $user->passport)) {
+                Storage::disk('public')->delete('uploads/documents/' . $user->passport);
+            }
+
+            $pasport_file = $request->file('passport');
+            $tmp_file_name = $user->id . "_passport_" . date('s') . "_" . $pasport_file->getClientOriginalName();
+            
+            if (Storage::disk('public')->putFileAs("uploads/documents", $pasport_file, $tmp_file_name)) {
+                $user->passport = $tmp_file_name;
+                $user->save();
+            }
+        }
+
+        // Handle ID card file upload with delete check
+        if ($request->hasFile('id_card')) {
+            // Delete existing ID card file if present
+            if ($user->id_card && Storage::disk('public')->exists('uploads/documents/' . $user->id_card)) {
+                Storage::disk('public')->delete('uploads/documents/' . $user->id_card);
+            }
+
+            $id_card = $request->file('id_card');
+            $tmp_file_name = $user->id . "_id_card_" . date('s') . "_" . $id_card->getClientOriginalName();
+            
+            if (Storage::disk('public')->putFileAs("uploads/documents", $id_card, $tmp_file_name)) {
+                $user->id_card = $tmp_file_name;
+                $user->save();
+            }
+        }
+        
+    } else {
+        // Handle other document uploads
+        $validator = Validator::make($request->all(), [
+            'id'        => ['required'],
+            'doc_id'    => ['required'],
+            'file'      => ['required'],
+        ], [], [
+            'doc_id'    => 'Document type',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages()]);
+        }
+
+        $file = $request->file('file');
+        $file_name = '';
+        if ($request->hasFile('file')) {
+            if (!Storage::disk('public')->exists('uploads/documents')) {
+                Storage::disk('public')->makeDirectory('uploads/documents');
+            }
+            $tmp_file_name = $user->id . "_" . date('s') . "_" . $file->getClientOriginalName();
+            if (Storage::disk('public')->putFileAs("uploads/documents", $file, $tmp_file_name)) {
+                $file_name = $tmp_file_name;
+            }
+        }
+
+        $docType = DocumentType::find($data['doc_id']);
+
+        $user->documents()->create([
+            'document_type_id' => $data['doc_id'],
+            'name' => $docType->name,
+            'file' => $file_name,
         ]);
     }
+
+    return response()->json([
+        'message' => 'Document has been created successfully!'
+    ]);
+}
+
     public function remove($id, $user_id)
     {
-        if (in_array($id, ['visa', 'passport'])) {
+        if (in_array($id, ['visa', 'passport', 'id_card'])) {
             $userobj = User::find($user_id);
             if (!empty($userobj)) {
                 if (Storage::drive('public')->exists('uploads/documents/' . $userobj->file)) {

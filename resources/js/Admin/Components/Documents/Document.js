@@ -7,7 +7,7 @@ import DocumentList from "../Documents/DocumentList";
 import DocumentModal from "../Documents/DocumentModal";
 import { useTranslation } from "react-i18next";
 
-export default function Document({ worker ,getWorkerDetails}) {
+export default function Document({ worker, getWorkerDetails }) {
 
     const { t } = useTranslation();
     const [alldocumentTypes, setAllDocumentTypes] = useState([]);
@@ -44,8 +44,8 @@ export default function Document({ worker ,getWorkerDetails}) {
                             "Document has been deleted.",
                             "success"
                         );
-                            getDocuments();
-                            getWorkerDetails()
+                        getDocuments();
+                        getWorkerDetails()
                     });
             }
         });
@@ -55,20 +55,19 @@ export default function Document({ worker ,getWorkerDetails}) {
         axios
             .get(`/api/admin/documents/${parseInt(worker.id)}`, { headers })
             .then((response) => {
-                
                 setDocuments(response.data.documents);
             });
     };
 
     const getDocumentTypes = () => {
-        axios.get(`/api/admin/get-doc-types`, { headers }).then((res) => {            
+        axios.get(`/api/admin/get-doc-types`, { headers }).then((res) => {
             if (res.data && res.data.documentTypes.length > 0) {
                 setAllDocumentTypes(res.data.documentTypes);
             }
         });
     };
 
- 
+
 
     const handleAddDocument = () => {
         if (
@@ -115,6 +114,7 @@ export default function Document({ worker ,getWorkerDetails}) {
         if (e.target.files.length > 0) {
             data.append(`${type}`, e.target.files[0]);
         }
+
         save(data);
     };
 
@@ -125,28 +125,29 @@ export default function Document({ worker ,getWorkerDetails}) {
     const documentTypes = useMemo(() => {
         if (worker.company_type === "my-company") {
             if (worker.country === "Israel") {
-                return alldocumentTypes.filter((i) => i.slug !== "israeli-id");
+                return alldocumentTypes.filter((i) => i.slug !== "israeli-id" && i.slug !== "insurance-form");
             } else {
-                return alldocumentTypes.filter((i) => i.slug === "payslip");
+                return alldocumentTypes.filter((i) => i.slug === "payslip" || i.slug === "insurance-form");
             }
         } else {
             if (worker.country === "Israel") {
                 return alldocumentTypes.filter(
-                    (i) => !["payslip", "israeli-id"].includes(i.slug)
+                    (i) => !["payslip", "israeli-id", "pension-form", "study-form"].includes(i.slug)
                 );
             } else {
+                return alldocumentTypes.filter(
+                    (i) => !["israeli-id", "pension-form", "study-form"].includes(i.slug)
+                );
             }
         }
-
+        
         return alldocumentTypes;
     }, [worker, alldocumentTypes]);
-
+    
     useEffect(() => {
         getDocuments();
         getDocumentTypes();
-    }, [worker]);
-    // console.log(worker);
-    
+    }, [worker]);    
 
     return (
         <div
@@ -165,7 +166,7 @@ export default function Document({ worker ,getWorkerDetails}) {
                                     onClick={() => btnSelect("visaSelect")}
                                     className="btn btn-success m-3"
                                 >
-                                   {t("global.uploadVisa")}
+                                    {t("global.uploadVisa")}
                                 </button>
                                 <input
                                     className="form-control d-none"
@@ -200,6 +201,29 @@ export default function Document({ worker ,getWorkerDetails}) {
                         )}
                     </>
                 )}
+
+                {
+                    worker?.country === "Israel" && (
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => btnSelect("idCardSelect")}
+                                className="btn btn-success m-3"
+                            >
+                                Id card
+                            </button>
+                            <input
+                                className="form-control d-none"
+                                id="idCardSelect"
+                                type="file"
+                                accept="application/pdf"
+                                onChange={(e) =>
+                                    handleFileChange(e, "id_card")
+                                }
+                            ></input>
+                        </>
+                    )
+                }
                 <button
                     type="button"
                     onClick={() => handleAddDocument()}

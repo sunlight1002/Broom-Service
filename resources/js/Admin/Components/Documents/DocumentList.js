@@ -1,5 +1,5 @@
 import Moment from "moment";
-const arr = ["visa", "passport"];
+const arr = ["visa", "passport", "id_card"];
 
 const DocumentList = ({ documents, worker, handleDelete }) => {
     const getExtension = (filename) => {
@@ -43,7 +43,7 @@ const DocumentList = ({ documents, worker, handleDelete }) => {
                                                 textTransform: "capitalize",
                                             }}
                                         >
-                                            {a}
+                                            {a === "id_card"? "id card" : a}
                                         </p>
                                     </div>
                                     <div className="col-sm-4 col-4">

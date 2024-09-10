@@ -54,6 +54,7 @@ class User extends Authenticatable implements Auditable
         'freeze_shift_end_time',
         'visa',
         'passport',
+        'id_card',
         'last_work_date',
         'is_exist',
         'form101',
