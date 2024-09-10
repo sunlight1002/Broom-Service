@@ -51,6 +51,7 @@ class User extends Authenticatable
         'freeze_shift_end_time',
         'visa',
         'passport',
+        'id_card',
         'last_work_date',
         'is_exist',
         'form101',

@@ -49,7 +49,7 @@ const Form101Component = () => {
         if (formSubmitted) {
             const errorFields = Object.keys(errors);
             if (errorFields.length > 0) {
-                const firstErrorField = errorFields[0];                
+                const firstErrorField = errorFields[0];
                 const errorElement = document.getElementById(firstErrorField);
                 if (errorElement) {
                     errorElement.scrollIntoView({ behavior: "smooth" });
@@ -58,6 +58,13 @@ const Form101Component = () => {
             }
         }
         setFormSubmitted(false)
+    };
+
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
 
@@ -1129,6 +1136,7 @@ const Form101Component = () => {
             formData.append("savingType", savingType);
             formData.append("formId", formId);
 
+            
             axios
                 .post(`/api/form101/${id}`, formData, {
                     headers: {
@@ -1240,6 +1248,35 @@ const Form101Component = () => {
                 setFieldValue("employeeSex", gender);
             }
         });
+    };
+
+    // console.log(values.RawFile);
+
+
+    const handleDocSubmit = (data) => {    
+        axios
+            .post(`/api/admin/document/save`, data, { headers })
+            .then((res) => {
+                if (res.data.errors) {
+                    console.log(res.data.errors);
+
+                } else {
+                    console.log(res.data.message);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+
+    const handleFileChange = (e, type) => {
+        const data = new FormData();
+        data.append("id", id);
+        if (e.target.files.length > 0) {
+            data.append(`${type}`, e.target.files[0]);
+        }
+        handleDocSubmit(data);
     };
 
     // const printPdf = (e) => {
@@ -1365,6 +1402,7 @@ const Form101Component = () => {
                                 values={values}
                                 touched={touched}
                                 setFieldValue={setFieldValue}
+                                handleFileChange={handleFileChange}
                             />
                         </div>
                         {/* C */}

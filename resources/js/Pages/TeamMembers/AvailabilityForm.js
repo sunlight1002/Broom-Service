@@ -27,7 +27,7 @@ const AvailabilityForm = () => {
     
     const [customRange, setCustomRange] = useState([]);
     const [loading, setLoading] = useState(false);
-
+    
     const params = useParams();
     const alert = useAlert();
     const flatpickrRef = useRef(null);
@@ -86,7 +86,7 @@ const AvailabilityForm = () => {
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
             if (res.data.data) {
-                let ar = JSON.parse(res.data.data.days);
+                let ar = JSON.parse(res.data.data.days);                
                 setDays(ar);
             }
         });
@@ -177,7 +177,8 @@ const AvailabilityForm = () => {
                     : `/api/admin/my-availability`,
                 { headers }
             )
-            .then((response) => {                
+            .then((response) => {    
+                            
                 if (response.data.data) {
                     setAvailability(response.data.data);
                 }
@@ -198,9 +199,11 @@ const AvailabilityForm = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!Object.values(timeSlots).length) {
-            return false;
-        }
+        
+        // if (!Object.values(timeSlots).length) {            
+        //     console.log(timeSlots);
+        //     return false;
+        // }
         setLoading(true);
 
         axios
