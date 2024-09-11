@@ -129,25 +129,15 @@ export default function Document({ worker, getWorkerDetails }) {
             } else {
                 return alldocumentTypes.filter((i) => i.slug === "payslip" || i.slug === "insurance-form");
             }
-        } else {
-            if (worker.country === "Israel") {
-                return alldocumentTypes.filter(
-                    (i) => !["payslip", "israeli-id", "pension-form", "study-form"].includes(i.slug)
-                );
-            } else {
-                return alldocumentTypes.filter(
-                    (i) => !["israeli-id", "pension-form", "study-form"].includes(i.slug)
-                );
-            }
         }
-        
+
         return alldocumentTypes;
     }, [worker, alldocumentTypes]);
-    
+
     useEffect(() => {
         getDocuments();
         getDocumentTypes();
-    }, [worker]);    
+    }, [worker]);
 
     return (
         <div
@@ -224,13 +214,17 @@ export default function Document({ worker, getWorkerDetails }) {
                         </>
                     )
                 }
-                <button
-                    type="button"
-                    onClick={() => handleAddDocument()}
-                    className="btn btn-success m-3"
-                >
-                    {t("global.addDocument")}
-                </button>
+                {
+                    worker && worker?.company_type !== "manpower" && (
+                        <button
+                            type="button"
+                            onClick={() => handleAddDocument()}
+                            className="btn btn-success m-3"
+                        >
+                            {t("global.addDocument")}
+                        </button>
+                    )
+                }
             </div>
             <DocumentList
                 documents={documents}
