@@ -11,6 +11,8 @@ use App\Enums\NotificationTypeEnum;
 use App\Models\Notification; 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\App;
+
 
 class StatusNotUpdated24hours extends Command
 {
@@ -120,6 +122,7 @@ class StatusNotUpdated24hours extends Command
             'status' => $offerStatus->status,
         ];
 
+        App::setLocale($client['lng']);
         Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $emailData['client']], function ($messages) use ($emailData) {
             $messages->to($emailData['client']['email']);
             $sub = __('mail.price_offer_reminder.header');
@@ -160,6 +163,7 @@ class StatusNotUpdated24hours extends Command
             'status' => $offerStatus->status,
         ];
 
+        App::setLocale($client['lng']);
         Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $emailData['client']], function ($messages) use ($emailData) {
             $messages->to($emailData['client']['email']);
             $sub = __('mail.price_offer_reminder.header');

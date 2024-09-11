@@ -26,6 +26,7 @@ use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\App;
 
 
 class DashboardController extends Controller
@@ -277,11 +278,9 @@ class DashboardController extends Controller
     
         event(new AdminLeadFilesNotificationJob($schedule, $files));
     
-        // Notification based on client notification type
-        $clientNotificationType = $client->notification_type; // Assuming this field exists in the client model
+        $clientNotificationType = $client->notification_type;
     
         if ($clientNotificationType == 'both') {
-            // Send both WhatsApp and email notifications
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
                 "notificationData" => [
@@ -290,12 +289,13 @@ class DashboardController extends Controller
             ]));
     
             $leadArray = $client->toArray();
+            
+            App::setLocale($client['lng']);
             Mail::send('Mails.FileSubmissionRequest', ['client' => $leadArray], function ($message) use ($client) {
-                $message->to($client->email); // Replace with client's email
+                $message->to($client->email); 
                 $message->subject(__('mail.file_submission_request.header'));
             });
         } elseif ($clientNotificationType == 'whatsapp') {
-            // Send only WhatsApp notification
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
                 "notificationData" => [
@@ -303,10 +303,11 @@ class DashboardController extends Controller
                 ]
             ]));
         } elseif ($clientNotificationType == 'email') {
-            // Send only email notification
             $leadArray = $client->toArray();
+
+            App::setLocale($client['lng']);
             Mail::send('Mails.FileSubmissionRequest', ['client' => $leadArray], function ($message) use ($client) {
-                $message->to($client->email); // Replace with client's email
+                $message->to($client->email);
                 $message->subject(__('mail.file_submission_request.header'));
             });
         }

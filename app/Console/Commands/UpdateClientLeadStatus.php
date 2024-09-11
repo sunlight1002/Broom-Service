@@ -14,6 +14,7 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
 use App\Enums\NotificationTypeEnum;
+use Illuminate\Support\Facades\App;
 
 
 
@@ -93,7 +94,9 @@ class UpdateClientLeadStatus extends Command
                             'client' => $client->toArray(),
                         ]
                     ]));
-          
+
+                    App::setLocale($client['lng']);
+
                     Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         $messages->to($emailData['client']['email']);
                         $sub = __('mail.unanswered_lead.header');
@@ -109,7 +112,9 @@ class UpdateClientLeadStatus extends Command
                             'client' => $client->toArray(),
                         ]
                     ]));
-          
+                    
+                    App::setLocale($client['lng']);
+
                     Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         $messages->to($emailData['client']['email']);
                         $sub = __('mail.irrelevant_lead.header');
@@ -127,7 +132,8 @@ class UpdateClientLeadStatus extends Command
                 
               } elseif ($client->notification_type === "email") {
                 if ($newLeadStatus === 'unanswered') {
-          
+                    App::setLocale($client['lng']);
+
                     Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         $messages->to($emailData['client']['email']);
                         $sub = __('mail.unanswered_lead.header');
@@ -135,7 +141,8 @@ class UpdateClientLeadStatus extends Command
                     });
                 }
                 if ($newLeadStatus === 'irrelevant') {
-                    
+                    App::setLocale($client['lng']);
+
                     Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                         $messages->to($emailData['client']['email']);
                         $sub = __('mail.irrelevant_lead.header');
