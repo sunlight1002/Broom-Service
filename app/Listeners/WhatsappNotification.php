@@ -345,7 +345,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_job_approval.header');
 
@@ -374,7 +374,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_not_approved_job.header');
 
@@ -407,7 +407,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_not_left_for_job.header');
 
@@ -440,7 +440,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_not_started_job.header');
 
@@ -471,7 +471,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_not_finished_job_on_time.header');
 
@@ -502,7 +502,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_exceed_job_time.header');
 
@@ -624,7 +624,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_job_opening_notification.header');
 
@@ -651,7 +651,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_job_status_notification.header');
 
@@ -708,7 +708,7 @@ class WhatsappNotification
                     }
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.admin_reschedule_meeting.header');
 
@@ -766,7 +766,7 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES:
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.admin_lead_files.header');
 
@@ -789,7 +789,7 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE:
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.lead_need_human_representative.header');
 
@@ -811,7 +811,7 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK:
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.no_slot_avail_callback.header');
 
@@ -858,7 +858,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.admin_job_status_notification.header');
 
@@ -887,7 +887,7 @@ class WhatsappNotification
                     $workerData = $eventData['worker'];
 
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_changed_availability_affect_job.header');
 
@@ -910,7 +910,7 @@ class WhatsappNotification
                     $workerData = $eventData['worker'];
 
                     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_leaves_job.header');
 
