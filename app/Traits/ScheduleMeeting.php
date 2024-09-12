@@ -46,6 +46,7 @@ trait ScheduleMeeting
             });
 
         } elseif ($notificationType === 'email') {
+            
             Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
                 $messages->to($scheduleArr['client']['email']);
 

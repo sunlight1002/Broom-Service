@@ -290,7 +290,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                                 'client' => $client->toArray(),
                             ]
                         ]));
-                
+                        App::setLocale($client['lng']);
                         // Send Email Notification
                         Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                             $messages->to($emailData['client']['email']);
@@ -308,7 +308,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                                 'client' => $client->toArray(),
                             ]
                         ]));
-                
+                        App::setLocale($client['lng']);
                         // Send Email Notification
                         Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                             // $messages->to($emailData['client']['email']);
@@ -329,7 +329,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                     
                 } elseif ($client->notification_type === "email") {
                     if ($newLeadStatus === 'unanswered') {
-
+                        App::setLocale($client['lng']);
                         // Send Email Notification
                         Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                             $messages->to($emailData['client']['email']);
@@ -338,6 +338,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                         });
                     }
                     if ($newLeadStatus === 'irrelevant') {
+                        App::setLocale($client['lng']);
                         // Send Email Notification
                         Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                             // $messages->to($emailData['client']['email']);

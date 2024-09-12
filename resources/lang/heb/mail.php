@@ -164,10 +164,10 @@ return [
     ],
     'common' => [
         'salutation' => 'שלום, :name',
-        'greetings' => 'ברכות משירות מטאטא',
+        'greetings' => 'זוהי הודעה מברום סרוויס',
         'dont_hesitate_to_get_in_touch' => 'אם יש לך שאלות, או לכל עניין אחר, תוכל לפנות אלינו במס הטלפון המצורף או ע"י השבה למייל זה.',
         'regards' => 'בברכה',
-        'company' => 'צוות הברזל',
+        'company' => 'ברום סרוויס',
         'tel' => 'טלפון',
     ],
     'admin' => [
@@ -677,7 +677,7 @@ return [
             'view_job' => 'הצג עבודה',
             'change_worker' => 'החלף עובד',
             'change_shift' => 'החלף משמרת',
-            'approve' => 'אשר',
+            'approve' => 'לְאַשֵׁר',
             'safety_and_gear' => 'בדוק בטיחות וציוד',
             'check_form' => 'בדוק טפסים',
             'view_worker' => 'הצג עובד',
