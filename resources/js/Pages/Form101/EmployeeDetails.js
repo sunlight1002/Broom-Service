@@ -200,7 +200,7 @@ export default function EmployeeDetails({
                                             "employeepassportCopy",
                                             e.target.files[0]
                                         );
-                                        handleFileChange(e,"passport");
+                                        handleFileChange(e,"passport_card");
                                     }
                                     }
                                     onBlur={handleBlur}

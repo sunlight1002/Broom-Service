@@ -617,7 +617,7 @@ export default function WorkContract() {
                                 <p>3.4. {t("client.contract-form.ca3_4")}</p>
 
                                 <label
-                                    className="form-check-label"
+                                    className="form-check-label mx-2"
                                     style={{ fontWeight: 500 }}
                                 >
                                     <input
@@ -635,7 +635,7 @@ export default function WorkContract() {
                                         }
                                         ref={consentToAdsRef}
                                     />
-                                    3.5.{" "}
+                                    4.{" "}
                                     {t(
                                         "client.contract-form.direct_mail_declaration"
                                     )}
@@ -652,7 +652,7 @@ export default function WorkContract() {
                     </div>
                     <div className="row mt-4">
                         <div className="col-md-12">
-                            <p>4. {t("client.contract-form.ca4")}</p>
+                            <p>5. {t("client.contract-form.ca4")}</p>
                             {offer && <p>{offer.comment}</p>}
                             <p>
                                 {t("client.contract-form.date")}: {signDate}

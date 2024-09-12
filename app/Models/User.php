@@ -55,6 +55,7 @@ class User extends Authenticatable implements Auditable
         'visa',
         'passport',
         'id_card',
+        'passport_card',
         'last_work_date',
         'is_exist',
         'form101',
