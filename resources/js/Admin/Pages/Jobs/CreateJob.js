@@ -33,10 +33,10 @@ export default function CreateJob() {
                 console.log(_services);
                 _services = _services.map((n) => {
                     n["contract_id"] = parseInt(params.id);
-                    setLoading(false);
                     return n;
                 });
                 setServices(_services);
+                setLoading(false);
             });
     };
 
@@ -147,6 +147,7 @@ export default function CreateJob() {
                                                 services={services}
                                                 client={client}
                                                 loading={loading}
+                                                setLoading={loading}
                                                 selectedService={selectedService}
                                                 setSelectedService={setSelectedService}
                                                 setSelectedServiceIndex={setSelectedServiceIndex}
