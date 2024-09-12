@@ -31,7 +31,7 @@ class DocumentController extends Controller
     $data = $request->all();
     $user = User::find($data['id']);
     
-    if ($request->file('visa') || $request->file('passport') || $request->file('id_card')) {
+    if ($request->file('visa') || $request->file('passport_card') || $request->file('id_card')) {
         
         // Handle visa file upload
         if ($request->hasFile('visa')) {
@@ -50,17 +50,17 @@ class DocumentController extends Controller
         }
 
         // Handle passport file upload with delete check
-        if ($request->hasFile('passport')) {
+        if ($request->hasFile('passport_card')) {
             // Delete existing passport file if present
-            if ($user->passport && Storage::disk('public')->exists('uploads/documents/' . $user->passport)) {
-                Storage::disk('public')->delete('uploads/documents/' . $user->passport);
+            if ($user->passport_card && Storage::disk('public')->exists('uploads/documents/' . $user->passport_card)) {
+                Storage::disk('public')->delete('uploads/documents/' . $user->passport_card);
             }
 
-            $pasport_file = $request->file('passport');
+            $pasport_file = $request->file('passport_card');
             $tmp_file_name = $user->id . "_passport_" . date('s') . "_" . $pasport_file->getClientOriginalName();
             
             if (Storage::disk('public')->putFileAs("uploads/documents", $pasport_file, $tmp_file_name)) {
-                $user->passport = $tmp_file_name;
+                $user->passport_card = $tmp_file_name;
                 $user->save();
             }
         }
@@ -123,7 +123,7 @@ class DocumentController extends Controller
 
     public function remove($id, $user_id)
     {
-        if (in_array($id, ['visa', 'passport', 'id_card'])) {
+        if (in_array($id, ['visa', 'passport_card', 'id_card'])) {
             $userobj = User::find($user_id);
             if (!empty($userobj)) {
                 if (Storage::drive('public')->exists('uploads/documents/' . $userobj->file)) {
