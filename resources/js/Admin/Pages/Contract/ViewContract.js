@@ -30,11 +30,11 @@ export default function ViewContract() {
     const { t } = useTranslation();
     const params = useParams();
 
-    // const headers = {
-    //     Accept: "application/json, text/plain, */*",
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ` + localStorage.getItem("admin-token"),
-    // };
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
 
     const getContract = () => {
         axios

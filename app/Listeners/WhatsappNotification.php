@@ -933,12 +933,8 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
                     $cardData = $eventData['card'];
 
-                    $receiverNumber = $clientData["phone"];
-                    if (!$receiverNumber) {
-                        return;
-                    }
-
-                    App::setLocale('en');
+                    $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.client_payment_failed.header');
                     $text .= "\n\n";
@@ -956,7 +952,7 @@ class WhatsappNotification
                     $orderData = $eventData['order'];
 
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.order_cancelled.header');
 
@@ -981,7 +977,7 @@ class WhatsappNotification
                     // $amountData = $eventData['amount'];
 
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.payment_paid.header');
 
@@ -1004,7 +1000,7 @@ class WhatsappNotification
                     $invoiceData = $eventData['invoice'];
 
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.client_invoice_created_and_sent_to_pay.header');
 
@@ -1028,7 +1024,7 @@ class WhatsappNotification
                     $invoiceData = $eventData['invoice'];
 
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.client_invoice_paid_created_receipt.header');
 
@@ -1051,7 +1047,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.order_created_with_extra.header');
 
@@ -1076,7 +1072,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.payment_status');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.order_created_with_discount.header');
 
@@ -1102,7 +1098,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.client_reviewed.header');
 
@@ -1128,7 +1124,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.client_changed_job_schedule.header');
 
@@ -1152,7 +1148,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.client_commented.header');
 
@@ -1176,7 +1172,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.admin_commented.header');
 
@@ -1200,7 +1196,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.reviews_of_clients');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.worker_commented.header');
 
@@ -1223,7 +1219,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.new_lead_arrived.header');
 
@@ -1251,7 +1247,7 @@ class WhatsappNotification
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     // Set locale if needed
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     // Build the WhatsApp message content
                     $text = __('mail.wa-message.user_status_changed.header');
@@ -1323,7 +1319,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     // Build the WhatsApp message content
                     $text = __('mail.wa-message.follow_up_required.header');
@@ -1346,7 +1342,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     // Create the message
                     $text = __('mail.wa-message.follow_up_price_offer.header', [
@@ -1365,7 +1361,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en'); // Adjust the locale if needed
+                    App::setLocale('heb'); // Adjust the locale if needed
 
                     // Create the message
                     $text = __('mail.wa-message.final_follow_up_price_offer.header', [
@@ -1384,7 +1380,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     // Create the message
                     $text = __('mail.wa-message.lead_accepted_price_offer.header', [
@@ -1404,7 +1400,7 @@ class WhatsappNotification
                     // $serviceData = $eventData['service'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     // Create the message
                     $text = __('mail.wa-message.book_client_after_signed_contract.header');
@@ -1428,7 +1424,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en'); // Ensure this matches the locale key used in your translation files
+                    App::setLocale('heb'); // Ensure this matches the locale key used in your translation files
 
                     // Create the message
                     $text = __('mail.wa-message.lead_declined_price_offer.header');
@@ -1466,7 +1462,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en'); // Ensure this matches the locale key used in your translation files
+                    App::setLocale('heb'); // Ensure this matches the locale key used in your translation files
 
                     // Create the message
                     $text = __('mail.wa-message.file_submission_request.header');
@@ -1506,7 +1502,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('he');
+                    App::setLocale('heb');
 
                     // Create the message
                     $text = __('mail.wa-message.lead_declined_contract.header');
@@ -1544,7 +1540,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     // Create the message
                     $text = __('mail.wa-message.client_in_freeze_status.header');
@@ -1579,7 +1575,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     // Create the message
                     $text = __('mail.wa-message.status_not_updated.header');
@@ -1607,7 +1603,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
                     $text = __('mail.wa-message.client_lead_status_changed.header');
 
@@ -1660,7 +1656,7 @@ class WhatsappNotification
                         $claimData = $eventData['refundclaim'];
                         
                         $receiverNumber = $userData['phone'];
-                        App::setLocale('en');
+                        App::setLocale($userData['lng']);
     
                         $text = __('mail.refund_claim.header');
     
