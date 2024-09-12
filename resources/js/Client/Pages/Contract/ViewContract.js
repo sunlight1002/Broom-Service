@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import Moment from 'moment';
 import { useTranslation } from 'react-i18next';
 import { Base64 } from 'js-base64';
+import FullPageLoader from '../../../Components/common/FullPageLoader';
 
 
 export default function WorkContract() {
@@ -655,6 +656,7 @@ export default function WorkContract() {
                     </div>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }
