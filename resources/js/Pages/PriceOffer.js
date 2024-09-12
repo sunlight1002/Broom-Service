@@ -11,6 +11,7 @@ import i18next from "i18next";
 import Swal from "sweetalert2";
 import { Base64 } from "js-base64";
 import { frequencyDescription } from "../Utils/job.utils";
+import FullPageLoader from "../Components/common/FullPageLoader";
 
 export default function PriceOffer() {
     const { t } = useTranslation();
@@ -22,6 +23,7 @@ export default function PriceOffer() {
     const [status, setStatus] = useState("");
     const [subService, setSubService] = useState([])
     const [clientLng, setClientLng] = useState("")
+    const [loading, setLoading] = useState(false)
     const [airbnb, setAirbnb] = useState({
         id: "",
         subServiceId: [],
@@ -94,6 +96,7 @@ export default function PriceOffer() {
 
     const handleOffer = (e, id) => {
         e.preventDefault();
+        setLoading(true)
         let btn = document.querySelectorAll(".acpt");
         btn[0].setAttribute("disabled", true);
         btn[0].value = "Please Wait..";
@@ -101,6 +104,7 @@ export default function PriceOffer() {
         btn[1].value = "Please Wait..";
         axios.post(`/api/client/accept-offer`, { id: id }).then((res) => {
             if (res.data.errors) {
+                setLoading(false);
                 for (let e in res.data.errors) {
                     alert.error(res.data.errors[e]);
                 }
@@ -109,6 +113,7 @@ export default function PriceOffer() {
                 btn[1].removeAttribute("disabled");
                 btn[1].value = "Accept Offer";
             } else {
+                setLoading(false)
                 setStatus("accepted");
                 let msg = t("price_offer.messages.success");
                 swal(msg, "", "success");
@@ -127,10 +132,12 @@ export default function PriceOffer() {
             cancelButtonText: t("price_offer.messages.cancel"),
             confirmButtonText: t("price_offer.messages.yes_reject"),
         }).then((result) => {
+            setLoading(true);
             if (result.isConfirmed) {
                 axios
                     .post(`/api/client/reject-offer`, { id: id })
                     .then((response) => {
+                        setLoading(false)
                         Swal.fire(
                             t("price_offer.messages.reject"),
                             t("price_offer.messages.reject_msg"),
@@ -139,6 +146,7 @@ export default function PriceOffer() {
                         setStatus("declined");
                     })
                     .catch((e) => {
+                        setLoading(false);
                         Swal.fire({
                             title: "Error!",
                             text: e.response.data.message,
@@ -175,23 +183,6 @@ export default function PriceOffer() {
     const showWorkerHours = useMemo(() => {
         return services.filter((i) => i.type !== "fixed").length > 0;
     }, [services]);
-
-    // console.log(allTemplates);
-
-    // const data = [
-    //     { col1: t("price_offer.airbnb.services.s2"), col2: t("price_offer.airbnb.size_apt.s2"), col3: t("price_offer.airbnb.price.p1") },
-    //     { col1: t("price_offer.airbnb.services.s3"), col2: t("price_offer.airbnb.size_apt.s3"), col3: t("price_offer.airbnb.price.p2") },
-    //     { col1: t("price_offer.airbnb.services.s1"), col2: t("price_offer.airbnb.size_apt.s1"), col3: t("price_offer.airbnb.price.p3") },
-    //     { col1: t("price_offer.airbnb.services.s4"), col2: t("price_offer.airbnb.size_apt.s4"), col3: t("price_offer.airbnb.price.p4") },
-    //     { col1: t("price_offer.airbnb.services.s5"), col2: t("price_offer.airbnb.size_apt.s5"), col3: t("price_offer.airbnb.price.p5") },
-    //     { col1: t("price_offer.airbnb.services.s6"), col2: t("price_offer.airbnb.size_apt.s6"), col3: t("price_offer.airbnb.price.p6") },
-    //     { col1: t("price_offer.airbnb.services.s7"), col2: t("price_offer.airbnb.size_apt.s7"), col3: t("price_offer.airbnb.price.p7") },
-    //     { col1: t("price_offer.airbnb.services.s8"), col2: t("price_offer.airbnb.size_apt.s8"), col3: t("price_offer.airbnb.price.p8") },
-    //     { col1: t("price_offer.airbnb.services.s9"), col2: t("price_offer.airbnb.size_apt.s9"), col3: t("price_offer.airbnb.price.p9") },
-    //     { col1: t("price_offer.airbnb.services.s10"), col2: t("price_offer.airbnb.size_apt.s10"), col3: t("price_offer.airbnb.price.p10") },
-    //     { col1: t("price_offer.airbnb.services.s11"), col2: t("price_offer.airbnb.size_apt.s11"), col3: t("price_offer.airbnb.price.p11") },
-    //     { col1: t("price_offer.airbnb.services.s12"), col2: t("price_offer.airbnb.size_apt.s12"), col3: t("price_offer.airbnb.price.p12") },
-    // ];
 
     return (
         <>
@@ -1220,6 +1211,7 @@ export default function PriceOffer() {
                         </footer>
                     </div>
                 </div>
+                {loading && <FullPageLoader visible={loading}/>}
             </div>
         </>
     );

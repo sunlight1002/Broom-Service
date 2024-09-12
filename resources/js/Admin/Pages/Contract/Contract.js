@@ -12,12 +12,14 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/Sidebar";
 import FilterButtons from "../../../Components/common/FilterButton";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Contract() {
     const { t , i18n} = useTranslation();
     const navigate = useNavigate();
     const tableRef = useRef(null);
     const statusRef = useRef(null);
+    const [loading, setLoading] = useState(false)
 
     const [filter, setFilter] = useState("All");
 
@@ -473,10 +475,12 @@ export default function Contract() {
             cancelButtonColor: "#d33",
             confirmButtonText: "Yes, Delete Contract!",
         }).then((result) => {
+            setLoading(true)
             if (result.isConfirmed) {
                 axios
                     .delete(`/api/admin/contract/${id}`, { headers })
                     .then((response) => {
+                        setLoading(false)
                         Swal.fire(
                             "Deleted!",
                             "Contract has been deleted.",
@@ -506,6 +510,7 @@ export default function Contract() {
             cancelButtonText: "Cancel",
             confirmButtonText: stext,
         }).then((result) => {
+            setLoading(false)
             if (result.isConfirmed) {
                 axios
                     .post(
@@ -514,6 +519,7 @@ export default function Contract() {
                         { headers }
                     )
                     .then((response) => {
+                        setLoading(false)
                         Swal.fire(response.data.msg, "", "success");
                         setTimeout(() => {
                             $(tableRef.current).DataTable().draw();
@@ -596,6 +602,7 @@ export default function Contract() {
                     </div>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

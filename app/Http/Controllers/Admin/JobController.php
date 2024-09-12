@@ -1730,9 +1730,9 @@ class JobController extends Controller
             App::setLocale('en');
             $data = array(
                 'by'         => 'admin',
-                'email'      => $admin->email,
-                'admin'      => $admin->toArray(),
-                'job'        => $job->toArray(),
+                'email'      => $admin->email??"",
+                'admin'      => $admin?->toArray()??[],
+                'job'        => $job?->toArray()??[],
             );
 
             if (isset($job->client) && !empty($job->client->phone)) {

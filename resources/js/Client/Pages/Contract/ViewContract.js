@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import Moment from 'moment';
 import { useTranslation } from 'react-i18next';
 import { Base64 } from 'js-base64';
+import FullPageLoader from '../../../Components/common/FullPageLoader';
 
 
 export default function WorkContract() {
@@ -31,6 +32,7 @@ export default function WorkContract() {
     const [cnumber, setCnumber] = useState("");
     const [status, setStatus] = useState("");
     const [cards, setCards] = useState({})
+    const [loading, setLoading] = useState(false);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -55,6 +57,7 @@ export default function WorkContract() {
         if (!signature2) { swal('Please enter signature on the card', '', 'error'); return false; }
         // if (cvv.length < 3) { swal('Invalid cvv', '', 'error'); return false; }
 
+        setLoading(true)
         // console.log(data);
 
 
@@ -78,6 +81,7 @@ export default function WorkContract() {
         axios
             .post(`/api/client/accept-contract`, data)
             .then((res) => {
+                setLoading(false)
                 console.log(res);
 
                 swal(res.data.message, '', 'success')
@@ -568,6 +572,7 @@ export default function WorkContract() {
                     </div>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

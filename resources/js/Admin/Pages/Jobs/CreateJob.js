@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 
 import Sidebar from "../../Layouts/Sidebar";
 import CreateJobCalender from "../../Components/Job/CreateJobCalender";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function CreateJob() {
     const params = useParams();
@@ -157,6 +158,7 @@ export default function CreateJob() {
                     </div>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading}/>}
         </div>
     );
 }

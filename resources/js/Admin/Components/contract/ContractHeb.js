@@ -10,7 +10,6 @@ import Swal from "sweetalert2";
 import swal from "sweetalert";
 import moment from "moment";
 import { useTranslation } from "react-i18next";
-import i18next from "i18next";
 import { frequencyDescription } from "../../../Utils/job.utils";
 
 export default function ContractHeb() {
@@ -62,14 +61,12 @@ export default function ContractHeb() {
                         moment(_contract.signed_at).format("DD/MM/YYYY")
                     );
                 }
-                i18next.changeLanguage(_contract.client.lng);
-
-                if (_contract.client.lng == "heb") {
-                    import("../../../Assets/css/rtl.css");
-                    document.querySelector("html").setAttribute("dir", "rtl");
-                } else {
-                    document.querySelector("html").removeAttribute("dir");
-                }
+                // if (_contract.client.lng == "heb") {
+                //     import("../../../Assets/css/rtl.css");
+                //     document.querySelector("html").setAttribute("dir", "rtl");
+                // } else {
+                //     document.querySelector("html").removeAttribute("dir");
+                // }
             });
     };
 
