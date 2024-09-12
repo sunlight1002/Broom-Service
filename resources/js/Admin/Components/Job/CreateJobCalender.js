@@ -19,7 +19,6 @@ import Loader from "../../../Components/common/Loader";
 export default function CreateJobCalender({
     services: clientServices,
     client,
-    loading,
     setSelectedService,
     setSelectedServiceIndex,
     selectedService
@@ -42,6 +41,9 @@ export default function CreateJobCalender({
     const [services, setServices] = useState(clientServices);
     const [customDateRange, setCustomDateRange] = useState([]);
     const [searchVal, setSearchVal] = useState("");
+    const [loading, setLoading] = useState(false)
+    const [processingAvailability, setProcessingAvailability] = useState(false); // New loading state for availability processing
+
 
     useEffect(() => {
         setServices(clientServices);
@@ -60,6 +62,7 @@ export default function CreateJobCalender({
     }, []);
 
     const handleServices = (index) => {
+        setLoading(true)
         setSelectedServiceIndex(index); 
     
         const _service = services[index]; 
@@ -71,9 +74,7 @@ export default function CreateJobCalender({
         if (_service?.workers && _service?.workers.length > 0) {        
             const iterations = parseInt(_service?.cycle) > 0 ? parseInt(_service?.cycle) : 1;
             for (let i = 0; i < iterations; i++) {
-                _service?.workers?.forEach((worker) => {
-                    console.log("Worker:", worker); 
-        
+                _service?.workers?.forEach((worker) => {        
                     hours.push({
                         jobHours: worker?.jobHours,
                         slots: null,
@@ -86,9 +87,11 @@ export default function CreateJobCalender({
         setSelectedHours(hours);
         getWorkers(_service);
         $("#edit-work-time").modal("hide");
+        setLoading(false)
     };
 
     const getWorkers = (_service) => {
+        setLoading(true)
         axios
             .get(`/api/admin/all-workers`, {
                 headers,
@@ -103,13 +106,20 @@ export default function CreateJobCalender({
             })
             .then((res) => {
                 setAllWorkers(res.data.workers);
-                setWorkerAvailabilities(
-                    getWorkerAvailabilities(res.data.workers)
-                );
+                const workerAvailityData = getWorkerAvailabilities(res?.data?.workers)
+                setWorkerAvailabilities(workerAvailityData);
+                // setWorkerAvailabilities(
+                //     getWorkerAvailabilities(res.data.workers)
+                // );
+                setLoading(false)
+            })
+            .catch((err) => {
+                setLoading(false)
             });
     };
 
     const submitForm = (_data) => {
+        setLoading(true)
         let viewbtn = document.querySelectorAll(".viewBtn");
         let formdata = {
             workers: _data,
@@ -127,12 +137,14 @@ export default function CreateJobCalender({
                 headers,
             })
             .then((res) => {
+                setLoading(false)
                 alert.success(res.data.message);
                 setTimeout(() => {
                     navigate("/admin/jobs");
                 }, 1000);
             })
             .catch((e) => {
+                setLoading(false)
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -362,8 +374,8 @@ export default function CreateJobCalender({
                     </div>
                 </div>
             </div>
-
-            {loading ? <Loader /> : (
+                        
+            {workerAvailabilities.length === 0 ? <Loader /> : (
                 <div className="tab-content" style={{ background: "#fff" }}>
                     <div
                         style={{
@@ -788,6 +800,7 @@ export default function CreateJobCalender({
                     </div>
                 </div>
             </div>
+            {loading && <FullPageLoader visible={loading}/>}
         </>
     );
 }

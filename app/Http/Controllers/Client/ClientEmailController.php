@@ -247,9 +247,9 @@ class ClientEmailController extends Controller
       //     $messages->subject($sub);
       // });
   
-      $ofr['contract_id'] = $hash;
+      // $ofr['contract_id'] = $hash;
   
-      event(new OfferAccepted($ofr));
+      // event(new OfferAccepted($ofr));
   
       return response()->json([
           'message' => 'Offer is accepted'
