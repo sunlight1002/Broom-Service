@@ -52,6 +52,7 @@ class User extends Authenticatable
         'visa',
         'passport',
         'id_card',
+        'passport_card',
         'last_work_date',
         'is_exist',
         'form101',
