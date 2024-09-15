@@ -468,13 +468,19 @@ export default function ViewContract() {
                                     <input
                                         type="checkbox"
                                         className="form-check-input"
+                                        style={{
+                                            position: "unset",
+                                            margin: 0,
+                                            marginLeft: "5px",
+                                            marginRight: "5px",
+                                        }}
                                         checked={consentToAds}
                                         disabled={
                                             contract &&
                                             contract.status != "not-signed"
                                         }
                                     />
-                                    3.5.{" "}
+                                    4.{" "}
                                     {t(
                                         "client.contract-form.direct_mail_declaration"
                                     )}
@@ -491,7 +497,7 @@ export default function ViewContract() {
                     </div>
                     <div className="row mt-4">
                         <div className="col-md-12">
-                            <p>4. {t("client.contract-form.ca4")}</p>
+                            <p>5. {t("client.contract-form.ca4")}</p>
                             {offer && <p>{offer.comment}</p>}
                             <p>
                                 {t("client.contract-form.date")}: {signDate}

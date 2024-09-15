@@ -323,7 +323,7 @@ return [
         'end_time_nxt_step_email_title' => 'Job time ended',
         'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
     ],
-   
+
     'unanswered_lead' => [
         'header' => 'We Tried to Contact You | Broom Service',
         'greeting' => 'Hi, :name,',
@@ -402,9 +402,8 @@ return [
             Click the below button to see the price offer.",
         ],
         'contract' => [
-            'header' => "*Contract*",
-            'content' => "You have successfully registered on our portal. Please sign the contract form to start working on the job.
-            Click the below button to check the contract.",
+            'header' => "*Contract with Broom Service for Offer #:id*",
+            'content' => "A work agreement for digital signature is attached. Please add your credit card details to the secure system. It will be charged 1 ILS, which will be refunded after verification. The details will be stored securely. Then, please sign and accept the contract. If you have any questions, please contact us: 03-525-70-60",
         ],
         'create_job' => [
             'header' => "*New Job Created | Broom Service*",
@@ -688,10 +687,10 @@ return [
             'view_client' => 'View Client',
             'view' => 'View'
         ],
-       
+
     ],
-    
-    
+
+
     'otp' => [
         'subject' => 'Your OTP for Login',
         'body' => 'Your OTP (One-Time Password) for login is: :otp',
@@ -713,5 +712,5 @@ return [
     ],
 
 
-    
+
 ];

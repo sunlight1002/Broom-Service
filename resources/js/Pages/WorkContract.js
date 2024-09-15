@@ -623,6 +623,12 @@ export default function WorkContract() {
                                     <input
                                         type="checkbox"
                                         className="form-check-input"
+                                        style={{
+                                            position: "unset",
+                                            margin: 0,
+                                            marginLeft: "5px",
+                                            marginRight: "5px",
+                                        }}
                                         checked={consentToAds}
                                         onChange={(e) => {
                                             setConsentToAds(

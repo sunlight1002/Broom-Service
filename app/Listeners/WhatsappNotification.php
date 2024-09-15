@@ -159,7 +159,9 @@ class WhatsappNotification
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']);
 
-                    $text = __('mail.wa-message.contract.header');
+                    $text = __('mail.wa-message.contract.header', [
+                        'id' => $eventData['id']
+                    ]);
 
                     $text .= "\n\n";
 
@@ -1621,11 +1623,11 @@ class WhatsappNotification
                     ]);
 
                     break;
-                    
+
                 case WhatsappMessageTemplateEnum::SICK_LEAVE_NOTIFICATION:
                     $userData = $eventData['user'];
                     $leaveData = $eventData['sickleave'];
-                    
+
                     $receiverNumber = $userData['phone'];
                     App::setLocale($userData['phone'] ?? 'en');
 
@@ -1649,39 +1651,39 @@ class WhatsappNotification
                             'reason' => $leaveData['rejection_comment']
                         ]);
                     }
-                     
-                    break;   
+
+                    break;
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE:
                         $userData = $eventData['user'];
                         $claimData = $eventData['refundclaim'];
-                        
+
                         $receiverNumber = $userData['phone'];
                         App::setLocale($userData['lng']);
-    
+
                         $text = __('mail.refund_claim.header');
-    
+
                         $text .= "\n\n";
-    
+
                         $text .= __('mail.wa-message.common.salutation', [
                             'name' => $userData['firstname']. ' ' . $userData['lastname']
                         ]);
-    
+
                         $text .= "\n\n";
-    
+
                         $text .= __('mail.refund_claim.body',[
                             'status' => $claimData['status'],
                         ]);
-    
+
                         if ($claimData['status'] !== 'approved' && !is_null($claimData['rejection_comment'])) {
                             $text .= "\n\n";
                             $text .= __('mail.refund_claim.reason', [
                                 'reason' => $claimData['rejection_comment']
                             ]);
                         }
-                         
-    
-                        break;    
-                 
+
+
+                        break;
+
             }
 
             if ($receiverNumber && $text) {
@@ -1691,7 +1693,7 @@ class WhatsappNotification
                         'to' => $receiverNumber,
                         'body' => $text
                     ]);
-                   
+
                 Log::info($response->json());
             }
         } catch (\Throwable $th) {
