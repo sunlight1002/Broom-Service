@@ -214,8 +214,6 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
                     if(isset($row['offer_id']) && !empty($row['offer_id'])) {
                         $offer = Offer::find($row['offer_id'])->where('status', 'sent')->first();
-                    } else {
-                        $offer = Offer::where('client_id', $client->id)->where('status', 'sent')->first();
                     }
 
                     $existing_services = [];
@@ -224,7 +222,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
                         $message = " שלום {$client->firstname},
 
-                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם. 
+                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם.
                             בקרוב ישלח אליכם הסכם חדש לחתימה דרך המערכת החדשה.
 
                             שימו לב, בהסכם החדש תתבקשו להזין פרטי כרטיס אשראי בצורה מאובטחת, אשר יחוייב אחת לחודש, לאחר קבלת השירות האחרון שלכם מאיתנו באותו חודש.
@@ -236,7 +234,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     } else {
                         $message = " שלום {$client->firstname},
 
-                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם. 
+                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם.
                             בקרוב תישלח אליכם הצעת מחיר חדשה לאישורכם. לאחר אישור ההצעה, ישלח אליכם הסכם לחתימה.
 
                             בהסכם החדש תתבקשו להזין פרטי כרטיס אשראי בצורה מאובטחת, אשר יחוייב אחת לחודש, לאחר קבלת השירות האחרון שלכם מאיתנו באותו חודש.
@@ -353,6 +351,22 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     }
 
                     $offer = Offer::find($row['offer_id'])->first();
+                    if ($offer) {
+
+                        $message = " שלום {$client->firstname},
+
+                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם.
+                            בקרוב ישלח אליכם הסכם חדש לחתימה דרך המערכת החדשה.
+
+                            שימו לב, בהסכם החדש תתבקשו להזין פרטי כרטיס אשראי בצורה מאובטחת, אשר יחוייב אחת לחודש, לאחר קבלת השירות האחרון שלכם מאיתנו באותו חודש.
+
+                            נשמח לעמוד לרשותכם בכל שאלה או בקשה.
+
+                            בברכה,
+                            צוות ברום סרוויס";
+
+                            $this->sendWhatsAppMessage($client->phone, $message);
+                    }
                 }
 
                 if ($row['has_contract'] == "No" && $offer && $offer->status == 'accepted') {
@@ -361,8 +375,6 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     $contract = null;
                     if(isset($row['contract_id']) && !empty($row['contract_id'])) {
                         $contract = Contract::find($row['contract_id']);
-                    } else {
-                        $contract = Contract::where('unique_hash', $hash)->first();
                     }
 
                     if (!$contract) {
