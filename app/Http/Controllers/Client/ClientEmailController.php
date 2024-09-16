@@ -89,38 +89,38 @@ class ClientEmailController extends Controller
       $offer = Offer::query()
           ->with('client')
           ->find($request->id);
-  
+
       $offer->update([
           'status' => 'accepted'
       ]);
-  
+
       $client = $offer->client;
       $ofr = $offer->toArray();
-  
+
       $hash = md5($ofr['client']['email'] . $ofr['id']);
-  
+
       $contract = Contract::create([
           'offer_id'   => $offer->id,
           'client_id'  => $ofr['client']['id'],
           'unique_hash' => $hash,
           'status'     => ContractStatusEnum::NOT_SIGNED
       ]);
-  
+
       $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
-  
+
       if ($client->lead_status->lead_status != $newLeadStatus) {
           $client->lead_status()->updateOrCreate(
               [],
               ['lead_status' => $newLeadStatus]
           );
-  
+
           event(new ClientLeadStatusChanged($client, $newLeadStatus));
-  
+
           $emailData = [
               'client' => $client->toArray(),
               'status' => $newLeadStatus,
           ];
-  
+
           if($newLeadStatus === 'freeze client'){
               // Trigger WhatsApp Notification
               event(new WhatsappNotificationEvent([
@@ -130,10 +130,10 @@ class ClientEmailController extends Controller
                   ]
               ]));
           }
-          
+
           if ($client->notification_type === "both") {
               if ($newLeadStatus === 'unanswered') {
-  
+
                   event(new WhatsappNotificationEvent([
                       "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
                       "notificationData" => [
@@ -147,9 +147,9 @@ class ClientEmailController extends Controller
                       $messages->subject($sub);
                   });
               }
-              
+
               if ($newLeadStatus === 'irrelevant') {
-  
+
                   event(new WhatsappNotificationEvent([
                       "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
                       "notificationData" => [
@@ -163,7 +163,7 @@ class ClientEmailController extends Controller
                       $messages->subject($sub);
                   });
               }
-              
+
               event(new WhatsappNotificationEvent([
                   "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
                   "notificationData" => [
@@ -171,7 +171,7 @@ class ClientEmailController extends Controller
                       'status' => $newLeadStatus,
                   ]
               ]));
-          
+
           } elseif ($client->notification_type === "email") {
               if ($newLeadStatus === 'unanswered') {
                 App::setLocale($client['lng']);
@@ -197,10 +197,10 @@ class ClientEmailController extends Controller
                     'status' => $newLeadStatus,
                 ]
             ]));
-          
+
           } else {
               if ($newLeadStatus === 'unanswered') {
-  
+
                   event(new WhatsappNotificationEvent([
                       "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
                       "notificationData" => [
@@ -225,7 +225,7 @@ class ClientEmailController extends Controller
               ]));
           }
       }
-  
+
       Notification::create([
           'user_id' => $ofr['client']['id'],
           'user_type' => Client::class,
@@ -233,7 +233,7 @@ class ClientEmailController extends Controller
           'offer_id' => $offer->id,
           'status' => 'accepted'
       ]);
-  
+
       event(new WhatsappNotificationEvent([
           "type" => WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER,
           "notificationData" => [
@@ -246,16 +246,16 @@ class ClientEmailController extends Controller
       //     $sub = __('mail.price_offer_reminder.header');
       //     $messages->subject($sub);
       // });
-  
-      // $ofr['contract_id'] = $hash;
-  
-      // event(new OfferAccepted($ofr));
-  
+
+      $ofr['contract_id'] = $hash;
+
+      event(new OfferAccepted($ofr));
+
       return response()->json([
           'message' => 'Offer is accepted'
       ]);
   }
-  
+
 
     public function RejectOffer(Request $request)
     {
@@ -472,11 +472,11 @@ class ClientEmailController extends Controller
         'card_holder_id' => $client->id,
         'card_holder_name' => $request->input('card_holder_name')
       ];
-  
+
       $card = ClientCard::create($args);
-      
+
       $contract->update(['card_id' => $card->id]);
-      
+
       // $card = ClientCard::query()->find($request->id);
 
       // if (!$card) {
@@ -527,7 +527,7 @@ class ClientEmailController extends Controller
            ]
        ]));
    }
-      
+
    if ($client->notification_type === "both") {
     if ($newLeadStatus === 'unanswered') {
 
@@ -544,7 +544,7 @@ class ClientEmailController extends Controller
             $messages->subject($sub);
         });
     }
-    
+
     if ($newLeadStatus === 'irrelevant') {
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
@@ -558,7 +558,7 @@ class ClientEmailController extends Controller
             $sub = __('mail.irrelevant_lead.header');
             $messages->subject($sub);
         });
-    }; 
+    };
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
             "notificationData" => [
@@ -584,7 +584,7 @@ class ClientEmailController extends Controller
             $messages->subject($sub);
         });
     }
-    
+
     event(new WhatsappNotificationEvent([
       "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
       "notificationData" => [
@@ -592,7 +592,7 @@ class ClientEmailController extends Controller
           'status' => $newLeadStatus,
       ]
   ]));
-    
+
 } else {
     if ($newLeadStatus === 'unanswered') {
 
@@ -808,7 +808,7 @@ class ClientEmailController extends Controller
          ]
      ]));
  }
-    
+
     if ($client->notification_type === "both") {
       if ($newLeadStatus === 'unanswered') {
 
@@ -826,7 +826,7 @@ class ClientEmailController extends Controller
               $messages->subject($sub);
           });
       }
-      
+
       if ($newLeadStatus === 'irrelevant') {
 
           event(new WhatsappNotificationEvent([
@@ -841,7 +841,7 @@ class ClientEmailController extends Controller
               $sub = __('mail.irrelevant_lead.header');
               $messages->subject($sub);
           });
-      }; 
+      };
           event(new WhatsappNotificationEvent([
               "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
               "notificationData" => [
@@ -849,7 +849,7 @@ class ClientEmailController extends Controller
                   'status' => $newLeadStatus,
               ]
           ]));
-      
+
     } elseif ($client->notification_type === "email") {
       if ($newLeadStatus === 'unanswered') {
         App::setLocale($client['lng']);
@@ -874,7 +874,7 @@ class ClientEmailController extends Controller
             'status' => $newLeadStatus,
         ]
     ]));
-      
+
     } else {
       if ($newLeadStatus === 'unanswered') {
           event(new WhatsappNotificationEvent([

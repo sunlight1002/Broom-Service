@@ -158,7 +158,9 @@ class WhatsappNotification
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']);
 
-                    $text = __('mail.wa-message.contract.header');
+                    $text = __('mail.wa-message.contract.header', [
+                        'id' => $eventData['id']
+                    ]);
 
                     $text .= "\n\n";
 
@@ -1426,7 +1428,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('heb'); 
+                    App::setLocale('heb');
 
                     // Create the message
                     $text = __('mail.wa-message.lead_declined_price_offer.header');
@@ -1627,7 +1629,7 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                
+
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
