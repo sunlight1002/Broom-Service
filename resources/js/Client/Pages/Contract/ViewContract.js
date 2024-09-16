@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import Moment from 'moment';
 import { useTranslation } from 'react-i18next';
 import { Base64 } from 'js-base64';
+import i18next from "i18next";
 import FullPageLoader from '../../../Components/common/FullPageLoader';
 
 
@@ -48,7 +49,7 @@ export default function WorkContract() {
             if (!cvv) { swal('Please select card cvv', '', 'error'); return false; }
         }else{
             // console.log(cards.card_type, "fef");
-            
+
             setCtype(cards.card_type?cards.card_type:null)
             setCname(cards.card_holder_name?cards.card_holder_name:null)
             setCnumber(cards.card_number?cards.card_number:null)
@@ -76,19 +77,19 @@ export default function WorkContract() {
                 card_signature: signature2
             }
         }
-        
+
 
         axios
             .post(`/api/client/accept-contract`, data)
             .then((res) => {
                 setLoading(false)
-                console.log(res);
-
+                console.log(res.data.contract?.client?.lng);
+                i18next.changeLanguage(res.data.contract?.client?.lng);
                 swal(res.data.message, '', 'success')
                 setTimeout(() => {
                     window.location.reload(true);
                 }, 1000);
-                
+
             })
     }
 
@@ -117,6 +118,8 @@ export default function WorkContract() {
                 setCards(res.data.cards[0])
                 setoffer(res.data.offer);
                 setClient(res.data.offer?.client);
+                console.log(res.data.offer?.client?.lng);
+                i18next.changeLanguage(res.data.offer?.client?.lng);
                 setServices(JSON.parse(res.data.offer?.services))
                 if (res.data.cards[0]?.card_type) {
                     setCtype(res.data.cards[0].card_type)
@@ -130,7 +133,7 @@ export default function WorkContract() {
 
             })
     }
-    
+
 
     const getContract = () => {
         axios
@@ -139,7 +142,7 @@ export default function WorkContract() {
                 {},
                 { headers }
             )
-            .then((res) => {                
+            .then((res) => {
                 setStatus(res.data?.contract?.status)
                 setContract(res.data.contract);
             });

@@ -48,9 +48,9 @@ export default function WorkContract() {
             if (cvv.length < 3) { swal('Invalid cvv', '', 'error'); return false; }
         } else {
 
-            setCtype(cards.card_type)
-            setCname(cards.card_holder_name)
-            setCnumber(cards.card_number)
+            setCtype(cards?.card_type || '')
+            setCname(cards?.card_holder_name || '')
+            setCnumber(cards?.card_number || '')
         }
         if (!signature) { swal('Please sign the contract', '', 'error'); return false; }
         if (!signature2) { swal('Please enter signature on the card', '', 'error'); return false; }
@@ -113,14 +113,14 @@ export default function WorkContract() {
                 // console.log(res.data.cards[0], "card");
                 setStatus(res.data?.contract?.status)
                 setCards(res.data.cards[0])
-                if (res.data.cards[0].card_type) {
+                if (res?.data?.cards[0]?.card_type) {
                     setCtype(res.data.cards[0].card_type)
                 }
-                if (res.data.cards[0].card_number) {
+                if (res?.data?.cards[0]?.card_number) {
                     setCnumber(res.data.cards[0].card_number)
                 }
-                if (res.data.cards[0].card_holder_name) {
-                    setCname(res.data.cards[0].card_holder_name)
+                if (res?.data?.cards[0]?.card_holder_name) {
+                    setCname(res?.data?.cards[0]?.card_holder_name)
                 }
                 setoffer(res.data.offer);
                 setClient(res.data.offer?.client);
@@ -391,7 +391,7 @@ export default function WorkContract() {
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_name')}</td>
                                     <td>
-                                        {contract && cards.card_holder_name != null ?
+                                        {contract && cards?.card_holder_name != null ?
                                             <input type="text" value={cards.card_holder_name} className="form-control" readOnly />
                                             :
                                             <input type='text' name="name_on_card" onChange={(e) => setCname(e.target.value)} className='form-control' placeholder={t('work-contract.card_name')} />
@@ -402,7 +402,7 @@ export default function WorkContract() {
                                 <tr>
                                     <td style={{ width: "60%" }}>Card Number</td>
                                     <td>
-                                        {contract && cards.card_number != null ?
+                                        {contract && cards?.card_number != null ?
                                             <input type="text" value={cards.card_number} className="form-control" readOnly />
                                             :
                                             <input type='text' name="card_number" onChange={(e) => setCnumber(e.target.value)} className='form-control' placeholder={`enter card number`} />
@@ -413,7 +413,7 @@ export default function WorkContract() {
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</td>
                                     <td>
-                                        {contract && cards.cvv != null ?
+                                        {contract && cards?.cvv != null ?
                                             <input type="text" value={cards.cvv} className="form-control" readOnly />
                                             :
                                             <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
