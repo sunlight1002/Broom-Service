@@ -21,6 +21,7 @@ use App\Traits\ScheduleMeeting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Events\OfferAccepted;
+use App\Events\ClientOfferAccepted;
 use App\Events\ReScheduleMeetingJob;
 use App\Events\SendClientLogin;
 use App\Events\WhatsappNotificationEvent;
@@ -225,7 +226,6 @@ class ClientEmailController extends Controller
               ]));
           }
       }
-
       Notification::create([
           'user_id' => $ofr['client']['id'],
           'user_type' => Client::class,

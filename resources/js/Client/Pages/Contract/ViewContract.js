@@ -66,15 +66,15 @@ export default function WorkContract() {
             unique_hash: param.hash,
             offer_id: offer?.id,
             client_id: offer?.client.id,
-            additional_address: Aaddress,
-            card_type: ctype,
-            card_holder_name: cname,
-            // cvv: cvv.substring(0, 3),
-            card_number: cnumber,
             status: 'un-verified',
             signature: signature,
             form_data: {
-                card_signature: signature2
+                card_signature: signature2,
+                additional_address: Aaddress,
+                card_type: ctype,
+                card_holder_name: cname,
+                cvv: cvv.substring(0, 3),
+                card_number: cnumber,
             }
         }
 
@@ -114,7 +114,6 @@ export default function WorkContract() {
         axios
             .post(`/api/client/contracts/${param.hash}`)
             .then((res) => {
-                console.log(res,"card");
                 setCards(res.data.cards[0])
                 setoffer(res.data.offer);
                 setClient(res.data.offer?.client);
@@ -307,8 +306,8 @@ export default function WorkContract() {
                                         })} */}
 
                                         <br /> <span style={{ fontWeight: "600" }} className='d-block mt-2'>{t('work-contract.other_address_txt')}</span> <br />
-                                        {contract && contract.additional_address != null ?
-                                            <input type='text' value={contract.additional_address} readOnly className='form-control' />
+                                        {contract && contract?.form_data?.additional_address != null ?
+                                            <input type='text' value={contract?.form_data?.additional_address} readOnly className='form-control' />
                                             :
                                             <input type='text' name="additional_address" onChange={(e) => setAaddress(e.target.value)} placeholder={t('work-contract.placeholder_address')} className='form-control' />
                                         }
@@ -351,8 +350,8 @@ export default function WorkContract() {
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_type')}</td>
                                     <td>
-                                        {cards && cards?.card_type != (null || undefined) ?
-                                            <input type="text" value={cards.card_type} className="form-control" readOnly />
+                                        {contract && contract?.form_data?.card_type != (null || undefined) ?
+                                            <input type="text" value={contract?.form_data?.card_type} className="form-control" readOnly />
                                             :
                                             <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
                                                 <option>Please Select</option>
@@ -366,8 +365,8 @@ export default function WorkContract() {
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_name')}</td>
                                     <td>
-                                        {contract && cards?.card_holder_name != (null || undefined) ?
-                                            <input type="text" value={cards.card_holder_name?cards.card_holder_name:null} className="form-control" readOnly />
+                                        {contract && contract?.form_data?.card_holder_name != (null || undefined) ?
+                                            <input type="text" value={contract?.form_data?.card_holder_name} className="form-control" readOnly />
                                             :
                                             <input type='text' name="name_on_card" onChange={(e) => setCname(e.target.value)} className='form-control' placeholder={t('work-contract.card_name')} />
                                         }
@@ -377,8 +376,8 @@ export default function WorkContract() {
                                 <tr>
                                     <td style={{ width: "60%" }}>Card Number</td>
                                     <td>
-                                        {contract && cards?.card_number != (null || undefined) ?
-                                            <input type="text" value={cards.card_number} className="form-control" readOnly />
+                                        {contract && contract?.form_data?.card_number != (null || undefined) ?
+                                            <input type="text" value={contract?.form_data?.card_number} className="form-control" readOnly />
                                             :
                                             <input type='text' name="card_number" onChange={(e) => setCnumber(e.target.value)} className='form-control' placeholder={`enter card number`} />
                                         }
@@ -388,8 +387,8 @@ export default function WorkContract() {
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</td>
                                     <td>
-                                        {contract && cards?.cvv != (null || undefined) ?
-                                            <input type="text" value={cards.cvv} className="form-control" readOnly />
+                                        {contract && contract?.form_data?.cvv != (null || undefined) ?
+                                            <input type="text" value={contract?.form_data?.cvv} className="form-control" readOnly />
                                             :
                                             <input type='text' name="cvv" onChange={(e) => setCvv(e.target.value)} onKeyUp={(e) => { if (e.target.value.length >= 3) e.target.value = e.target.value.slice(0, 3); }} className='form-control' placeholder={t('work-contract.card_cvv')} />
                                         }

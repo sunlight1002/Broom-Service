@@ -1382,7 +1382,6 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER:
                     $clientData = $eventData['client'];
-
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('heb');
 
