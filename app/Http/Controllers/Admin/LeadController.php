@@ -20,6 +20,10 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\Notification;
+use App\Enums\NotificationTypeEnum;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WhatsappNotificationEvent;
 
 class LeadController extends Controller
 {
@@ -86,64 +90,85 @@ class LeadController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $data = $request->data;
+{
+    $data = $request->data;
 
-        $validator = Validator::make($data, [
-            'firstname' => ['required', 'string', 'max:255'],
-            'vat_number' => ['nullable', 'string', 'max:50'],
-            'email'     => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
-            'phone'     => ['nullable', 'unique:clients'],
-                        
-        ]);
+    $validator = Validator::make($data, [
+        'firstname' => ['required', 'string', 'max:255'],
+        'vat_number' => ['nullable', 'string', 'max:50'],
+        'email'     => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
+        'phone'     => ['nullable', 'unique:clients'],
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->messages()]);
-        }
-
-        $input = $data;
-        $password =  isset($input['phone']) && !empty($input['phone'])
-            ? $input['phone']
-            : 'password';
-        $input['password'] = Hash::make($password);
-        $input['passcode'] = $password;
-
-        $client = Client::create($input);
-
-        // Create user in iCount
-        $iCountResponse = $this->createOrUpdateUser($request);
-    
-        // Handle iCount response
-        if ($iCountResponse->status() != 200) {
-            return response()->json(['error' => 'Failed to create user in iCount'], 500);
-        }
-    
-        $iCountData = $iCountResponse->json();
-        
-        // Extract Client_id from iCount response and update the Client model
-        if (isset($iCountData['client_id'])) {
-            $client->update(['icount_client_id' => $iCountData['client_id']]);
-        }
-    
-
-        $property_address_data = $request->propertyAddress;
-        if (count($property_address_data) > 0) {
-            foreach ($property_address_data as $key => $address) {
-                $address['client_id'] = $client->id;
-                ClientPropertyAddress::create($address);
-            }
-        }
-
-        $client->lead_status()->updateOrCreate(
-            [],
-            ['lead_status' => LeadStatusEnum::PENDING]
-        );
-
-        return response()->json([
-            'message' => 'Lead created successfully',
-            'data' => $client,
-        ]);
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->messages()]);
     }
+
+    $input = $data;
+    $password = isset($input['phone']) && !empty($input['phone'])
+        ? $input['phone']
+        : 'password';
+    $input['password'] = Hash::make($password);
+    $input['passcode'] = $password;
+
+    // Create the client
+    $client = Client::create($input);
+
+    // Create user in iCount
+    $iCountResponse = $this->createOrUpdateUser($request);
+
+    // Handle iCount response
+    if ($iCountResponse->status() != 200) {
+        return response()->json(['error' => 'Failed to create user in iCount'], 500);
+    }
+
+    $iCountData = $iCountResponse->json();
+    
+    // Update client with iCount client_id
+    if (isset($iCountData['client_id'])) {
+        $client->update(['icount_client_id' => $iCountData['client_id']]);
+    }
+
+    // Process property addresses
+    $property_address_data = $request->propertyAddress;
+    if (count($property_address_data) > 0) {
+        foreach ($property_address_data as $key => $address) {
+            $address['client_id'] = $client->id;
+            ClientPropertyAddress::create($address);
+        }
+    }
+
+    // Update or create lead status
+    $client->lead_status()->updateOrCreate(
+        [],
+        ['lead_status' => LeadStatusEnum::PENDING]
+    );
+
+    // Create a notification
+    Notification::create([
+        'user_id' => $client->id,
+        'user_type' => get_class($client),
+        'type' => NotificationTypeEnum::NEW_LEAD_ARRIVED,
+        'status' => 'created'
+    ]);
+
+    $client->load('property_addresses');
+    // Trigger WhatsApp notification
+    event(new WhatsappNotificationEvent([
+        "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+        "notificationData" => [
+            'client' => $client->toArray()
+        ]
+    ]));
+
+    // Load property addresses and include them in the response
+
+    return response()->json([
+        'message' => 'Lead created successfully',
+        'data' => $client,
+    ]);
+}
+
 
     /**
      * Show the form for editing the specified resource.

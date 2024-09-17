@@ -1240,11 +1240,10 @@ class WhatsappNotification
                         'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
                         'contact' => $clientData['phone'],
                         'email' => $clientData['email'],
-                        'address' => $clientData['geo_address'],
+                        'address' => $clientData['geo_address']??$clientData['property_addresses'][0]['geo_address'],
                     ]);
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.view') . ": " . url("admin/leads/view/" . $clientData['id']);
-
                     break;
 
                 case WhatsappMessageTemplateEnum::USER_STATUS_CHANGED:
@@ -1628,7 +1627,6 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
