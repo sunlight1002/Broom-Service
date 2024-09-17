@@ -23,12 +23,12 @@ class FixContractsSeeder extends Seeder
             if ($contract) {
                 // Update the form_data column in JSON format
                 $contract->update([
-                    'form_data' => json_encode([
+                    'form_data' => [
                         'card_type' => $oldContract->card_type,
                         'card_holder_name' => $oldContract->name_on_card, // Mapping name_on_card to card_holder_name
                         'cvv' => $oldContract->cvv,
                         'card_signature' => $oldContract->card_sign, // Mapping card_sign to card_signature
-                    ])
+                    ]
                 ]);
             }
         }
