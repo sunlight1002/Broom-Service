@@ -520,16 +520,16 @@ export default function ContractHeb() {
                                                 <>
                                                     {/* Uncommented out part for selecting card type if needed */}
                                                     {/*<Tr>
-                <Td style={{ width: "60%" }}>{t('work-contract.card_type')}</Td>
-                <Td>
-                    <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
-                        <option>Please Select</option>
-                        <option value='Visa'>Visa</option>
-                        <option value='Master Card'>Master Card</option>
-                        <option value='American Express'>American Express</option>
-                    </select>
-                </Td>
-            </Tr>*/}
+                                                        <Td style={{ width: "60%" }}>{t('work-contract.card_type')}</Td>
+                                                        <Td>
+                                                            <select className='form-control' onChange={(e) => setCtype(e.target.value)}>
+                                                                <option>Please Select</option>
+                                                                <option value='Visa'>Visa</option>
+                                                                <option value='Master Card'>Master Card</option>
+                                                                <option value='American Express'>American Express</option>
+                                                            </select>
+                                                        </Td>
+                                                    </Tr>*/}
                                                     <Tr>
                                                         <Td
                                                             style={{

@@ -30,7 +30,6 @@ export default function WorkContract() {
     const [ctype, setCtype] = useState("");
     const [cname, setCname] = useState("");
     const [cvv, setCvv] = useState("");
-    const [cnumber, setCnumber] = useState("");
     const [status, setStatus] = useState("");
     const [cards, setCards] = useState({})
     const [loading, setLoading] = useState(false);
@@ -52,7 +51,6 @@ export default function WorkContract() {
 
             setCtype(cards.card_type?cards.card_type:null)
             setCname(cards.card_holder_name?cards.card_holder_name:null)
-            setCnumber(cards.card_number?cards.card_number:null)
         }
         if (!signature) { swal('Please sign the contract', '', 'error'); return false; }
         if (!signature2) { swal('Please enter signature on the card', '', 'error'); return false; }
@@ -74,7 +72,6 @@ export default function WorkContract() {
                 card_type: ctype,
                 card_holder_name: cname,
                 cvv: cvv.substring(0, 3),
-                card_number: cnumber,
             }
         }
 
@@ -373,7 +370,7 @@ export default function WorkContract() {
                                     </td>
                                 </tr>
 
-                                <tr>
+                                {/* <tr>
                                     <td style={{ width: "60%" }}>Card Number</td>
                                     <td>
                                         {contract && contract?.form_data?.card_number != (null || undefined) ?
@@ -382,7 +379,7 @@ export default function WorkContract() {
                                             <input type='text' name="card_number" onChange={(e) => setCnumber(e.target.value)} className='form-control' placeholder={`enter card number`} />
                                         }
                                     </td>
-                                </tr>
+                                </tr> */}
 
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</td>
