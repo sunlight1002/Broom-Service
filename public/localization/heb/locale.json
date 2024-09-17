@@ -192,7 +192,7 @@
         "btn": "קביעת פגישה",
         "accept": "לְקַבֵּל",
         "reject": "לִדחוֹת",
-        "reschedule": "תזמון מחדש",
+        "reschedule": "מועד אחר",
         "upload_job_description": "העלה תמונות וסרטונים",
         "choose_slot": "בחר משבצת"
     },
@@ -578,7 +578,7 @@
         "scheduled": "מתוזמנת",
         "completed": "הושלם",
         "unscheduled": "לא מתוזמן",
-        "re-scheduled": "תזמון מחדש",
+        "re-scheduled": "מועד אחר",
         "cancel": "ביטל"
     },
     "client": {

@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>We Tried to Contact You | Broom Service</title>
 </head>
-<body style="font-family: 'Open Sans', sans-serif; color: #212529; background: #fcfcfc;">
-    <div style="max-width: 650px; margin: 0 auto; margin-top: 30px; margin-bottom: 20px; background: #fff; border: 1px solid #e6e8eb; border-radius: 6px; padding: 20px;">
+<body style="font-family: {{ $client['lng'] === 'heb' ? '\'Noto Sans Hebrew\', sans-serif' : '\'Open Sans\', sans-serif' }}; color: #212529; background: #fcfcfc;">
+    <div style="max-width: 650px; margin: 0 auto; margin-top: 30px; margin-bottom: 20px; background: #fff; border: 1px solid #e6e8eb; border-radius: 6px; padding: 20px; text-align: {{ $client['lng'] === 'heb' ? 'right' : 'left' }};">
         <table cellpadding="0" cellspacing="0" width="100%">
             <tr>
                 <td width="100%">
@@ -27,13 +27,22 @@
         <p style="text-align: center;">
             {{ __('mail.unanswered_lead.alternative') }}
         </p>
-        <p style="margin-top: 20px;">{{ __('mail.common.dont_hesitate_to_get_in_touch') }}</p>
-        <p style="font-weight: 700; margin-bottom: 0;">{{ __('mail.common.regards') }}</p>
-        <p style="margin-top: 3px; font-size: 14px; margin-bottom: 3px;">{{ __('mail.common.company') }}</p>
-        <p style="margin-top: 3px; font-size: 14px; margin-bottom: 3px;">{{ __('mail.common.tel') }}: 03-525-70-60</p>
-        <p style="margin-top: 3px; font-size: 14px; margin-bottom: 3px;">
-            <a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a>
-        </p>
+
+        @if($client['lng'] === 'heb')
+            <p style="font-weight: 700; margin-bottom: 0;">{{ __('mail.common.regards') }}</p>
+            <p style="margin-top: 3px; font-size: 14px; margin-bottom: 3px;">{{ __('mail.common.company') }}</p>
+            <p style="margin-top: 3px; font-size: 14px; margin-bottom: 3px;">{{ __('mail.common.tel') }}: 03-525-70-60</p>
+            <p style="margin-top: 3px; font-size: 14px; margin-bottom: 3px;">
+                <a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a>
+            </p>
+        @else
+            <p style="font-weight: 700; margin-bottom: 0;">{{ __('mail.common.regards') }}</p>
+            <p style="margin-top: 3px; font-size: 14px; margin-bottom: 3px;">{{ __('mail.common.company') }}</p>
+            <p style="margin-top: 3px; font-size: 14px; margin-bottom: 3px;">{{ __('mail.common.tel') }}: 03-525-70-60</p>
+            <p style="margin-top: 3px; font-size: 14px; margin-bottom: 3px;">
+                <a href="mailto:office@broomservice.co.il">office@broomservice.co.il</a>
+            </p>
+        @endif
     </div>
-</body>
+    </body>
 </html>
