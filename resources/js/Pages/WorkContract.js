@@ -399,16 +399,6 @@ export default function WorkContract() {
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style={{ width: "60%" }}>Card Number</td>
-                                    <td>
-                                        {contract && cards?.card_number != null ?
-                                            <input type="text" value={cards.card_number} className="form-control" readOnly />
-                                            :
-                                            <input type='text' name="card_number" onChange={(e) => setCnumber(e.target.value)} className='form-control' placeholder={`enter card number`} />
-                                        }
-                                    </td>
-                                </tr>
 
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.card_cvv')}</td>
