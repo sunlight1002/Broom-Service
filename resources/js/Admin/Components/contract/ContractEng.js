@@ -575,7 +575,7 @@ export default function ContractEng() {
                                                 </>
                                             ) : (
                                                 <>
-                                                    {contract.card && (
+                                                    {contract?.form_data && (
                                                         <Tr>
                                                             <Td
                                                                 style={{
@@ -589,7 +589,7 @@ export default function ContractEng() {
                                                             <Td>
                                                                 <span className="form-control">
                                                                     {
-                                                                        contract?.card?.card_type
+                                                                        contract?.form_data?.card_type
                                                                     }
                                                                 </span>
                                                             </Td>
@@ -608,12 +608,12 @@ export default function ContractEng() {
                                                         <Td>
                                                             <span className="form-control">
                                                                 {
-                                                                    contract?.card?.card_holder_name
+                                                                    contract?.form_data?.card_holder_name
                                                                 }
                                                             </span>
                                                         </Td>
                                                     </Tr>
-                                                    {contract?.card && (
+                                                    {contract?.form_data && (
                                                         <Tr>
                                                             <Td
                                                                 style={{
@@ -627,7 +627,7 @@ export default function ContractEng() {
                                                             <Td>
                                                                 <span className="form-control">
                                                                     {
-                                                                        contract?.card?.cvv
+                                                                        contract?.form_data?.cvv
                                                                     }
                                                                 </span>
                                                             </Td>
