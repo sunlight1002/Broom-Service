@@ -63,24 +63,12 @@ export default function WorkerSidebar() {
                         {t("worker.sidebar.schedule")}
                     </NavLink>
                 </li>
-                <li className="list-group-item">
-                    <NavLink to="/worker/leaves">
+                {/* <li className="list-group-item">
+                    <NavLink to="/worker/not-available">
                         <i className="fa-solid fa-calendar-xmark"></i>
-                        {t("worker.sidebar.leaves")}
+                        {t("worker.sidebar.not_available")}
                     </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/worker/advance-loan">
-                        <i className="fa-solid fa-hand-holding-usd"></i>
-                        Advance/Loan
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/worker/refund-claim">
-                        <i className="fa-solid fa-file-contract"></i>
-                        Refund Claim
-                    </NavLink>
-                </li>
+                </li> */}
                 <li className="list-group-item">
                     <NavLink to="/worker/my-account">
                         <i className="fa-solid fa-user"></i>

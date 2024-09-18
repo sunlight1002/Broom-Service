@@ -27,12 +27,6 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\Admin\LeadChartsController;
-use App\Http\Controllers\Admin\HolidayController;
-use App\Http\Controllers\Admin\AdvanceLoanController;
-use App\Http\Controllers\SickLeaveController;
-use App\Http\Controllers\PayrollReportController;
-use App\Http\Controllers\RefundClaimController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -304,7 +298,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // settings
     Route::get('settings', [SettingController::class, 'allSettings']);
     Route::post('settings', [SettingController::class, 'updateSettings']);
-    Route::post('settings/payment', [SettingController::class, 'updatePaymentRate']);
 
     //documents
     Route::get('documents/{id}', [DocumentController::class, 'documents']);
@@ -325,39 +318,16 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::put('/tasks/{taskId}/comments/{commentId}', [TaskController::class, 'updateComment']);
     Route::get('/tasks/list', [TaskController::class, 'tasksByPhase']);
 
-    //holidays add or update
-    Route::get('holidays', [HolidayController::class, 'index']);
-    Route::post('holidays', [HolidayController::class, 'store']);
-    Route::post('holidays/{id}', [HolidayController::class, 'update']);
-    Route::delete('holidays/{id}', [HolidayController::class, 'destroy']);
-    Route::get('holidays/{id}', [HolidayController::class, 'show']);
-
-    //sick-leaves approve
-    Route::get('sick-leaves/list', [SickLeaveController::class, 'allLeaves']);
-    Route::post('sick-leaves/{sick_leave}/approve', [SickLeaveController::class, 'approve']);
-
-    //refund-claims approve
-    Route::get('refund-claims/list', [RefundClaimController::class, 'allRequests']);
-    Route::post('refund-claims/{refund_claim}/approve', [RefundClaimController::class, 'approve']);
-
-    //advance or loan amount
-    Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);
-    Route::post('/advance-loans', [AdvanceLoanController::class, 'store']);
-    Route::get('/advance-loans/{worker_id}', [AdvanceLoanController::class, 'show']);
-    Route::post('/advance-loans/{id}', [AdvanceLoanController::class, 'update']);
-    Route::delete('/advance-loans/{id}', [AdvanceLoanController::class, 'destroy']);
-    Route::post('/advance-loans/{id}/confirm', [AdvanceLoanController::class, 'confirmUpdate']);
-
-
-    Route::get('/generate-monthly-report', [PayrollReportController::class, 'generateMonthlyReport']);
+    
 
 });
+Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
 
+ Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);
+ Route::get('/facebook/campaigns/{id}/cost', [LeadChartsController::class, 'cost']);
+// Route::get('/facebook/campaign-cost', [LeadChartsController::class, 'getCampaignCost'])->name('facebook.api.campaign.cost');
 
-    Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
-    Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);
-    Route::get('/facebook/campaigns/{id}/cost', [LeadChartsController::class, 'cost']);
-
+// Route::post('/campaigns/create', [LeadChartsController::class, 'createCampaign']);
 
 
 

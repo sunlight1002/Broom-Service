@@ -37,15 +37,6 @@ import WorkerTotalJobs from "./Worker/Pages/Job/WorkerTotalJobs";
 import WorkerViewJob from "./Worker/Pages/Job/WorkerViewJob";
 import Availability from "./Worker/Pages/Availability/Availability";
 import NotAvailability from "./Worker/Pages/Availability/NotAvailability";
-import SickLeaves from "./Worker/Pages/MyAccount/SickLeaves";
-import AddLeaves from "./Worker/Pages/MyAccount/AddLeaves";
-import EditLeaves from "./Worker/Pages/MyAccount/EditLeaves";
-import AdvanceLoan from "./Worker/Pages/MyAccount/AdvanceLoan";
-import RefundClaim from "./Worker/Pages/MyAccount/RefundClaim";
-import AddRefund from "./Worker/Pages/MyAccount/AddRefund";
-import EditRefund from "./Worker/Pages/MyAccount/EditRefund";
-
-
 
 // Admin Routes
 import Admin from "./Admin/Admin";
@@ -149,11 +140,6 @@ import WorkerInvitationForm from "./Pages/WorkerInvitationForm";
 import AdminLoginOtp from "./Admin/Pages/Auth/AdminLoginOtp";
 import WorkerLoginOtp from "./Worker/Auth/WorkerLoginOtp";
 import ClientLoginOtp from "./Client/Auth/ClientLoginOtp";
-import Holidays from "./Admin/Pages/Setting/Holidays";
-import AddHoliday from "./Admin/Pages/Setting/AddHoliday";
-import EditHoliday from "./Admin/Pages/Setting/EditHoliday";
-import WorkersLeave from "./Admin/Pages/Workers/WorkersLeave";
-import WorkersRefund from "./Admin/Pages/Workers/WorkersRefund";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -217,6 +203,11 @@ export default function MyRoutes() {
                     <Route
                         exact
                         path="work-contract/:id"
+                        element={<WorkContract />}
+                    />
+                      <Route
+                        exact
+                        path="work-contract/:id/:hash"
                         element={<WorkContract />}
                     />
                     <Route exact path="form101/:id" element={<Form101 />} />
@@ -386,41 +377,6 @@ export default function MyRoutes() {
                                 path="not-available"
                                 element={<NotAvailability />}
                             />
-                             <Route
-                                exact
-                                path="leaves"
-                                element={<SickLeaves />}
-                            />
-                            <Route
-                                exact
-                                path="sick-leaves/create"
-                                element={<AddLeaves />}
-                            />
-                              <Route
-                                exact
-                                path="sick-leaves/:id/edit"
-                                element={<EditLeaves />}
-                            />
-                            <Route
-                                exact
-                                path="advance-loan"
-                                element={<AdvanceLoan />}
-                            />
-                             <Route
-                                exact
-                                path="refund-claim"
-                                element={<RefundClaim />}
-                            />
-                            <Route
-                                exact
-                                path="refund-claim/create"
-                                element={<AddRefund />}
-                            />
-                            <Route
-                                exact
-                                path="refund-claim/:id/edit"
-                                element={<EditRefund />}
-                            />
                         </Route>
                     </Route>
                     {/* Worker Routes End  */}
@@ -577,31 +533,6 @@ export default function MyRoutes() {
                                 exact
                                 path="manpower-companies"
                                 element={<ManpowerCompanies />}
-                            />
-                             <Route
-                                exact
-                                path="holidays"
-                                element={<Holidays />}
-                            />
-                             <Route
-                                exact
-                                path="holidays/create"
-                                element={<AddHoliday />}
-                            />
-                             <Route
-                                exact
-                                path="holidays/:id/edit"
-                                element={<EditHoliday />}
-                            />
-                              <Route
-                                exact
-                                path="workers-leaves"
-                                element={<WorkersLeave />}
-                            />
-                             <Route
-                                exact
-                                path="workers-refund"
-                                element={<WorkersRefund />}
                             />
                             <Route
                                 exact

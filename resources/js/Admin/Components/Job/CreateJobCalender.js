@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
-import moment from "moment-timezone";
-import { useNavigate, useParams } from "react-router-dom";
-import { useAlert } from "react-alert";
-import WorkerAvailabilityTable from "./WorkerAvailabilityTable";
-import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import moment from "moment-timezone";
+import React, { useEffect, useRef, useState } from "react";
+import { useAlert } from "react-alert";
+import Flatpickr from "react-flatpickr";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import WorkerAvailabilityTable from "./WorkerAvailabilityTable";
 
+import FullPageLoader from "../../../Components/common/FullPageLoader";
+import Loader from "../../../Components/common/Loader";
 import {
     convertShiftsFormat,
     getAvailableSlots,
     getWorkerAvailabilities,
     getWorkersData,
 } from "../../../Utils/job.utils";
-import FullPageLoader from "../../../Components/common/FullPageLoader";
-import Loader from "../../../Components/common/Loader";
 
 export default function CreateJobCalender({
     services: clientServices,
@@ -23,11 +23,11 @@ export default function CreateJobCalender({
     setSelectedServiceIndex,
     selectedService
 }) {
-    const params = useParams();
     const navigate = useNavigate();
     const alert = useAlert();
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
     const [selectedHours, setSelectedHours] = useState([]);
+    const [setselectedSlots, setSetselectedSlots] = useState([])
     const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [days, setDays] = useState([]);
@@ -41,9 +41,7 @@ export default function CreateJobCalender({
     const [services, setServices] = useState(clientServices);
     const [customDateRange, setCustomDateRange] = useState([]);
     const [searchVal, setSearchVal] = useState("");
-    const [loading, setLoading] = useState(false)
-    const [processingAvailability, setProcessingAvailability] = useState(false); // New loading state for availability processing
-
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setServices(clientServices);
@@ -63,18 +61,18 @@ export default function CreateJobCalender({
 
     const handleServices = (index) => {
         setLoading(true)
-        setSelectedServiceIndex(index); 
-    
-        const _service = services[index]; 
-        setSelectedService(_service); 
-    
-        if (!_service) return;    
-        
+        setSelectedServiceIndex(index);
+
+        const _service = services[index];
+        setSelectedService(_service);
+
+        if (!_service) return;
+
         const hours = [];
-        if (_service?.workers && _service?.workers.length > 0) {        
+        if (_service?.workers && _service?.workers.length > 0) {
             const iterations = parseInt(_service?.cycle) > 0 ? parseInt(_service?.cycle) : 1;
             for (let i = 0; i < iterations; i++) {
-                _service?.workers?.forEach((worker) => {        
+                _service?.workers?.forEach((worker) => {
                     hours.push({
                         jobHours: worker?.jobHours,
                         slots: null,
@@ -83,7 +81,7 @@ export default function CreateJobCalender({
                 });
             }
         }
-    
+
         setSelectedHours(hours);
         getWorkers(_service);
         $("#edit-work-time").modal("hide");
@@ -91,7 +89,7 @@ export default function CreateJobCalender({
     };
 
     const getWorkers = (_service) => {
-        setLoading(true)
+        setLoading(true);
         axios
             .get(`/api/admin/all-workers`, {
                 headers,
@@ -106,15 +104,15 @@ export default function CreateJobCalender({
             })
             .then((res) => {
                 setAllWorkers(res.data.workers);
-                const workerAvailityData = getWorkerAvailabilities(res?.data?.workers)
+
+                const workerAvailityData = getWorkerAvailabilities(res?.data?.workers);
+
                 setWorkerAvailabilities(workerAvailityData);
-                // setWorkerAvailabilities(
-                //     getWorkerAvailabilities(res.data.workers)
-                // );
-                setLoading(false)
+
+                setLoading(false);
             })
             .catch((err) => {
-                setLoading(false)
+                setLoading(false);
             });
     };
 
@@ -218,12 +216,10 @@ export default function CreateJobCalender({
     let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const changeShift = (w_id, date, e) => {
-        let isSlotChecked = false; // Initialize a flag variable
+        const selectedSlotTimes = new Set(); // Track already selected slot times
 
         const promises = selectedHours.map(async (worker, index) => {
-            if (!isSlotChecked && worker.slots == null) {
-                isSlotChecked = true; // Set the flag to true after the first call
-
+            if (worker.slots == null) {
                 const slots = await getAvailableSlots(
                     workerAvailabilities,
                     w_id,
@@ -236,11 +232,17 @@ export default function CreateJobCalender({
                     setUpdatedJobs
                 );
 
+                // Filter out slots that have already been selected
+                const filteredSlots = slots.filter(slot => !selectedSlotTimes.has(slot.time.time));
+
+                // Add current slot times to the set
+                filteredSlots.forEach(slot => selectedSlotTimes.add(slot.time.time));
+
                 return {
                     jobHours: worker.jobHours,
-                    slots: slots.length > 0 ? slots : null,
+                    slots: filteredSlots.length > 0 ? filteredSlots : null,
                     formattedSlots:
-                        slots.length > 0 ? convertShiftsFormat(slots) : null,
+                        filteredSlots.length > 0 ? convertShiftsFormat(filteredSlots) : null,
                 };
             }
             return worker;
@@ -248,7 +250,6 @@ export default function CreateJobCalender({
 
         // Wait for all promises to resolve
         Promise.all(promises).then((updatedData) => {
-            // Update the state with the resolved values
             var isExist = selectedHours.filter((w) => w.slots == null);
             if (!isExist.length) {
                 alert.error(
@@ -374,7 +375,7 @@ export default function CreateJobCalender({
                     </div>
                 </div>
             </div>
-                        
+
             {workerAvailabilities.length === 0 ? <Loader /> : (
                 <div className="tab-content" style={{ background: "#fff" }}>
                     <div

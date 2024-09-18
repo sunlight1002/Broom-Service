@@ -9,13 +9,10 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use OwenIt\Auditing\Contracts\Auditable;
 
-class User extends Authenticatable implements Auditable
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-    use \OwenIt\Auditing\Auditable;
-
 
     /**
      * The attributes that are mass assignable.
@@ -73,8 +70,7 @@ class User extends Authenticatable implements Auditable
         'bank_name',
         'bank_number',
         'branch_number',
-        'account_number',
-        'driving_fees'
+        'account_number'
     ];
 
     /**
@@ -120,11 +116,6 @@ class User extends Authenticatable implements Auditable
                 $document->delete();
             }
         });
-    }
-
-    public function leadStatuses()
-    {
-        return $this->hasMany(LeadStatus::class, 'client_id');
     }
 
     public function setSkillAttribute($value)

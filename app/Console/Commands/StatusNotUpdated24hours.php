@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
 
+
 class StatusNotUpdated24hours extends Command
 {
     /**

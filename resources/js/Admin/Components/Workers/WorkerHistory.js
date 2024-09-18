@@ -5,7 +5,6 @@ import WorkerAvailabilty from "./WorkerAvailabilty";
 import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import Document from "../Documents/Document";
 import WorkerForms from "./WorkerForms";
-import WorkerAdvance from "./WorkerAdvance";
 import { useTranslation } from "react-i18next";
 
 export default function WorkerHistory({ worker, getWorkerDetails }) {
@@ -107,18 +106,6 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         {t("worker.settings.manage_form")}
                     </a>
                 </li>
-                <li className="nav-item" role="presentation">
-                    <a
-                        id="worker-loans"
-                        className="nav-link"
-                        data-toggle="tab"
-                        href="#tab-worker-loans"
-                        aria-selected="false"
-                        role="tab"
-                    >
-                        {t("worker.settings.advance")}
-                    </a>
-                </li>
             </ul>
             <div className="tab-content" style={{ background: "#fff" }}>
                 <div
@@ -171,14 +158,6 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                     aria-labelledby="forms"
                 >
                     <Document worker={worker}  getWorkerDetails={getWorkerDetails}/>
-                </div>
-                <div
-                    id="tab-worker-loans"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="worker-loans"
-                >
-                    <WorkerAdvance worker={worker} />
                 </div>
             </div>
         </div>

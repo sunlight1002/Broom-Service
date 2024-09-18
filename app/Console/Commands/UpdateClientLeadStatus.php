@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
 use App\Enums\NotificationTypeEnum;
 use Illuminate\Support\Facades\App;
-
+use App\Jobs\SendUninterestedClientEmail;
+use Illuminate\Mail\Mailable;
 
 
 class UpdateClientLeadStatus extends Command
@@ -86,6 +87,20 @@ class UpdateClientLeadStatus extends Command
                }
                 
                if ($client->notification_type === "both") {
+
+                if ($newLeadStatus === 'uninterested') {
+
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                        "notificationData" => [
+                            'client' => $client->toArray(),
+                        ]
+                    ]));
+    
+                    SendUninterestedClientEmail::dispatch($client, $emailData);
+                }
+    
+
                 if ($newLeadStatus === 'unanswered') {
           
                     event(new WhatsappNotificationEvent([
@@ -131,6 +146,11 @@ class UpdateClientLeadStatus extends Command
                     ]));
                 
               } elseif ($client->notification_type === "email") {
+
+                if ($newLeadStatus === 'uninterested') {
+                    SendUninterestedClientEmail::dispatch($client, $emailData);
+                }
+
                 if ($newLeadStatus === 'unanswered') {
                     App::setLocale($client['lng']);
 
@@ -151,6 +171,17 @@ class UpdateClientLeadStatus extends Command
                 }
                 
               } else {
+
+                if ($newLeadStatus === 'uninterested') {
+
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                        "notificationData" => [
+                            'client' => $client->toArray(),
+                        ]
+                    ]));
+                }
+    
                 if ($newLeadStatus === 'unanswered') {
           
                     event(new WhatsappNotificationEvent([

@@ -372,14 +372,14 @@ return [
         'header' => 'Follow-up on Our Conversation',
         'greeting' => 'Dear :name,',
         'content' => 'First of all, thank you for reaching out to us. It was a pleasure to meet and talk with you.',
-        'details' => 'Following our conversation, I am attaching for your review some testimonials from our existing clients: [testimonials_link] and our Service Brochure: [brochure_link].',
+        'details' => 'Following our conversation, I am attaching for your review some testimonials from our existing clients: [testimonials_link] and our Service Brochure.',
         'brochure' => 'Additionally, I am attaching our Service Brochure for you to review the services we offer.',
         'details1' => 'Following our conversation, I am attaching for your review some testimonials from our existinng clients: ',
         'assistance' => 'I am here to help and answer any further questions you may have. I am always at your service.',
     ],
     'user_data_report' => [
-       'header' => 'User Data Report | Broom Service',
-       'title' => 'User Data Report',
+        'header' => 'User Data Report | Broom Service',
+        'title' => 'User Data Report',
         'greeting' => 'Hi :name,',
         'content' => 'Please find attached the CSV report of the user data. The report includes details about the users, their submission status, and related forms',
     ],
@@ -403,7 +403,7 @@ return [
         ],
         'contract' => [
             'header' => "*Contract with Broom Service for Offer #:id*",
-            'content' => "A work agreement for digital signature is attached. Please add your credit card details to the secure system. It will be charged 1 ILS, which will be refunded after verification. The details will be stored securely. Then, please sign and accept the contract. If you have any questions, please contact us: 03-525-70-60",
+            'content' => "A work agreement for digital signature is attached. Please add your credit card details to the secure system. It will be charged 1 ILS, which will be refunded after verification. The details will be stored securely. Then, please sign and accept the contract. If you have any questions, please contact us: 03-525-70-60.",
         ],
         'create_job' => [
             'header' => "*New Job Created | Broom Service*",
@@ -540,7 +540,9 @@ return [
         ],
         'new_lead_arrived' => [
             'header' => "*New Lead Received | Broom Service*",
-            'content' => "A new lead (:client_name) has arrived with the following details:\nContact: :contact\nEmail: :email\nAddress: :address"
+            'content' => "A new lead has arrived with the following details:\nName: :client_name\nContact: :contact\nService Requested: :Service_Requested\nEmail: :email\nAddress: :address",
+            'follow_up' => "Please follow up as soon as possible."
+
         ],
         'client_lead_status_changed' => [
             'header' => "*Lead Status Changed | Broom Service*",
@@ -585,10 +587,6 @@ return [
         'no_slot_avail_callback' => [
             'header' => "*No Available Meeting Slot | Broom Service*",
             'content' =>  "There are no available meeting slots. Please arrange a callback for :client_name."
-        ],
-        'user_status_changed' => [
-            'header' => "*Status Changed | Broom Service*",
-            'content' =>  ":name changed the Status to :status."
         ],
         'follow_up_price_offer' => [
             'header' => 'Reminder: Follow-up on Price Offer for :client_name',
@@ -647,17 +645,17 @@ return [
             'header' => 'Follow-Up Required: Pending Lead | Broom Service',
             'salutation' => 'Hi, Team',
             'content' => 'This is a reminder that the following lead has remained in the "Pending" status for over 24 hours. Please review the lead\'s details and update the status as needed.' .
-                            "\n\n" .
-                            '*Lead Name:*' .
-                            "\n:lead_name" .
-                            "\n*Contact Info:*" .
-                            "\n:contact_info" .
-                            "\n*Inquiry Date:*" .
-                            "\n:inquiry_date",
+                "\n\n" .
+                '*Lead Name:*' .
+                "\n:lead_name" .
+                "\n*Contact Info:*" .
+                "\n:contact_info" .
+                "\n*Inquiry Date:*" .
+                "\n:inquiry_date",
             'common' => [
-                        'closing' => 'Please take action to either contact the lead again, update their status, or follow up as necessary.',
-                        'signature' => "Best Regards,\nBroom Service\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il",
-                    ],
+                'closing' => 'Please take action to either contact the lead again, update their status, or follow up as necessary.',
+                'signature' => "Best Regards,\nBroom Service\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il",
+            ],
         ],
         'file_submission_request' => [
             'header' => 'File Submission Request for Quote | Broom Service',
@@ -668,6 +666,20 @@ return [
         'user_status_changed' => [
             'header' => "*Status Changed | Broom Service*",
             'content' =>  ":name changed the Status to :status."
+        ],
+        'follow_up' => [
+            'subject' => 'Follow-up on Our Conversation',
+            'salutation' => 'Dear :client_name,',
+            'introduction' => 'First of all, thank you for reaching out to us. It was a pleasure to meet and talk with you.',
+            'testimonials' => 'Following our conversation, I am attaching for your review some testimonials from our existing clients, so you can get an idea of the excellent service we provide:
+            [Client Testimonials](:testimonials_link)',
+            'brochure' => 'Additionally, I am attaching our Service Brochure for you to review the services we offer.',
+            'commitment' => 'At Broom Service, we are committed to quality, professionalism, and personalized service.',
+            'help' => 'I am here to help and answer any further questions you may have, I am always at your service.',
+            'best_regards' => 'Best regards',
+            'service_name' => 'Broom Service',
+            'contact' => `📞 03-525-70-60`,
+            'service_website' => '🌐 :[www.broomservice.co.il](http://www.broomservice.co.il)',
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
@@ -685,11 +697,11 @@ return [
             'view_worker' => 'View worker',
             'check_file' => 'Check file',
             'view_client' => 'View Client',
-            'view' => 'View'
-        ],
-
+            'view' => 'View',
+            'view_lead' => 'View Lead Details',
+            'call_lead' => 'Call Lead Now'
+        ]
     ],
-
 
     'otp' => [
         'subject' => 'Your OTP for Login',
@@ -697,20 +709,12 @@ return [
         'expiration' => 'Please use this OTP to proceed with your login. OTP will expire in 10 minutes.',
     ],
 
-    'sick_leave' => [
-        'header' => "*Leave Status | Broom Service*",
-        'subject' => 'Sick Leave Status',
-        'body' => 'Your sick leave request has been :status.',
-        'reason'=> 'Reason for reject: :reason.'
-    ],
 
     'refund_claim' => [
         'header' => "*Refund Claim Status | Broom Service*",
         'subject' => 'Refund Claim Status',
         'body' => 'Your Refund request has been :status.',
-        'reason'=> 'Reason for reject: :reason.'
+        'reason' => 'Reason for reject: :reason.'
     ],
-
-
 
 ];

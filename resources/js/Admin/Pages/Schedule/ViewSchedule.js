@@ -677,11 +677,11 @@ export default function ViewSchedule() {
 
                                 <div className="mx-auto mt-5 custom-calendar">
                                     <div className="border">
-                                        <h5 className="mt-3">
+                                        <h5 className="mt-3 ml-3">
                                             {t("global.selectDateAndTimeRange")}
                                         </h5>
                                         <div
-                                            className="d-flex gap-3 p-3"
+                                            className="d-flex gap-3 p-3 flex-wrap justify-content-center"
                                             style={{ overflowX: "auto" }}
                                         >
                                             <div>

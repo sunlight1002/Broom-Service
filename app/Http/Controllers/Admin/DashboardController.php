@@ -16,8 +16,6 @@ use App\Models\Contract;
 use App\Models\Notification;
 use App\Models\Admin;
 use App\Models\ManageTime;
-use App\Models\SickLeave;
-use App\Models\RefundClaim;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -118,7 +116,6 @@ class DashboardController extends Controller
               NotificationTypeEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT,
               NotificationTypeEnum::ORDER_CREATED_WITH_EXTRA,
               NotificationTypeEnum::ORDER_CREATED_WITH_DISCOUNT,
-              NotificationTypeEnum::SICK_LEAVE_CREATED,
             ]);
           })
           ->when($groupType == 'changes-and-cancellation', function ($q) {
@@ -197,27 +194,6 @@ class DashboardController extends Controller
               $noticeAll[$k]->data = "<a href='/admin/schedule/view/" . $sch->client->id . "?sid=" . $sch->id . "'> Meeting </a> scheduled with <a href='/admin/clients/view/" . $sch->client->id . "'>" . $sch->client->firstname . " " . $sch->client->lastname .
                 "</a> on " . Carbon::parse($sch->start_date)->format('d-m-Y') . " at " . ($sch->start_time);
             }
-            
-          }else if ($notice->type == NotificationTypeEnum::SICK_LEAVE_CREATED) {
-            $sch = SickLeave::with('user')->where('worker_id', $notice->user_id)->first();
-            if (isset($sch)) {
-              $noticeAll[$k]->data =  
-              "<a href='/admin/workers-leaves'>" . 
-              $sch->user->firstname . " " . $sch->user->lastname . 
-              "</a> applied for a leave on " . 
-              Carbon::parse($sch->created_at)->format('d-m-Y');
-            }
-
-          }else if ($notice->type == NotificationTypeEnum::REFUND_CLAIM_REQUEST) {
-            $sch = RefundClaim::with('user')->where('user_id', $notice->user_id)->first();
-            if (isset($sch)) {
-              $noticeAll[$k]->data =  
-              "<a href='/admin/workers-refund'>" . 
-              $sch->user->firstname . " " . $sch->user->lastname . 
-              "</a> request for refund of amount " .$sch->amount . " " ."on" .  "  ". 
-              Carbon::parse($sch->created_at)->format('d-m-Y');
-            }
-
           } else if ($notice->type == NotificationTypeEnum::RESCHEDULE_MEETING) {
             $sch = Schedule::with('client')->where('id', $notice->meet_id)->first();
 

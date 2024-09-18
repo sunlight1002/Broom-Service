@@ -132,7 +132,6 @@ export default function Lead() {
                 createdRow: function (row, data, dataIndex) {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);
-;
                 },
                 columnDefs: [
                     {

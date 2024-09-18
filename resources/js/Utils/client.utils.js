@@ -2,7 +2,7 @@ export const leadStatusColor = (_status) => {
     let _color = "";
     switch (_status) {
         case "pending":
-            _color = "#ffa500c9";
+            _color = "#ffa500";
             break;
 
         case "potential":
@@ -41,22 +41,6 @@ export const leadStatusColor = (_status) => {
             _color = "black";
             break;
 
-        case "approved":
-            _color = "green";
-            break;
-
-        case "rejected":
-            _color = "#ff0000b0";
-            break;    
-
-        case "active":
-            _color = "#1675e0";
-            break; 
-
-        case "paid":
-            _color = "green";
-            break;    
-                
         default:
             break;
     }

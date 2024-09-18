@@ -169,7 +169,7 @@ export default function Document({ worker, getWorkerDetails }) {
                                 ></input>
                             </>
                         )}
-                        {worker.passport_card === null && (
+                        {worker.passport === null && (
                             <>
                                 <button
                                     type="button"
@@ -184,7 +184,7 @@ export default function Document({ worker, getWorkerDetails }) {
                                     type="file"
                                     accept="application/pdf"
                                     onChange={(e) =>
-                                        handleFileChange(e, "passport_card")
+                                        handleFileChange(e, "passport")
                                     }
                                 ></input>
                             </>
@@ -193,7 +193,7 @@ export default function Document({ worker, getWorkerDetails }) {
                 )}
 
                 {
-                    worker?.country === "Israel" && worker.id_card === null && (
+                    worker?.country === "Israel" && (
                         <>
                             <button
                                 type="button"

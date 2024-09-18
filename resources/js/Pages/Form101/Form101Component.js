@@ -60,8 +60,6 @@ const Form101Component = () => {
         setFormSubmitted(false)
     };
 
-    console.log(values);
-
 
     const headers = {
         Accept: "application/json, text/plain, */*",

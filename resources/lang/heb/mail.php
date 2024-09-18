@@ -15,8 +15,8 @@ return [
         'for'         => 'לצורך',
         'service'     => 'הצעת מחיר',
         'accept'      => 'אשר',
-        'reject'      => 'דחה',
-        'reschedule'  => 'קבע מחדש',
+        'reject'      => 'בטל',
+        'reschedule'  => 'מועד אחר',
         'price_offer' => 'הצעת מחיר',
         'quality_check' => 'בקרת איכות',
         'upload_job_description' => 'העלה תיאור עבודה',
@@ -307,28 +307,28 @@ return [
         'btn_txt' => 'בדוק טפסים'
     ],
     'job_nxt_step' => [
-        'approved_nxt_step_email_subject' => 'עבודה אושרה | השלב הבא | שירות מטאטא',
+        'approved_nxt_step_email_subject' => 'עבודה אושרה | השלב הבא | שירות ברום',
         'approved_nxt_step_email_title' => 'עבודה אושרה',
         'approved_nxt_step_email_content' => 'אישרת את העבודה. בדוק את הקישור למטה ולחץ על :label כאשר תתחיל את עבודתך.',
         'leaving_for_work_link' => 'אני יוצא לעבודה עכשיו',
-        'opened_nxt_step_email_subject' => 'עבודה נפתחה | השלב הבא | שירות מטאטא',
+        'opened_nxt_step_email_subject' => 'עבודה נפתחה | השלב הבא | שירות ברום',
         'opened_nxt_step_email_title' => 'עבודה נפתחה',
         'opened_nxt_step_email_content' => 'אתה עומד להתחיל את עבודתך. בדוק את הקישור למטה ולחץ על :l1 כאשר תתחיל את זמן העבודה שלך או אם אתה רוצה להשלים את העבודה לחץ על :l2.',
-        'completed_nxt_step_email_subject' => 'עבודה הושלמה | השלב הבא | שירות מטאטא',
+        'completed_nxt_step_email_subject' => 'עבודה הושלמה | השלב הבא | שירות ברום',
         'completed_nxt_step_email_title' => 'עבודה הושלמה',
         'completed_nxt_step_email_content' => 'השלמת את העבודה # :jobId .תקבל את המשוב ברגע שהעבודה תיבדק על ידי הלקוח.',
-        'start_time_nxt_step_email_subject' => 'זמן עבודה התחיל | השלב הבא | שירות מטאטא',
+        'start_time_nxt_step_email_subject' => 'זמן עבודה התחיל | השלב הבא | שירות ברום',
         'start_time_nxt_step_email_title' => 'זמן עבודה התחיל',
         'start_time_nxt_step_email_content' => 'זמן העבודה התחיל על ידך. בדוק את הקישור למטה ולחץ על :label כאשר תרצה להפסיק את זמן עבודתך.',
-        'end_time_nxt_step_email_subject' => 'זמן עבודה הסתיים | השלב הבא | שירות מטאטא',
+        'end_time_nxt_step_email_subject' => 'זמן עבודה הסתיים | השלב הבא | שירות ברום',
         'end_time_nxt_step_email_title' => 'זמן עבודה הסתיים',
         'end_time_nxt_step_email_content' => 'זמן העבודה הופסק על ידך. בדוק את הקישור למטה ולחץ על :l1 אם אתה רוצה להשלים את העבודה שלך אחרת לחץ על :l2 כדי להמשיך את העבודה.',
     ],
     'unanswered_lead' => [
         'header' => 'ניסינו ליצור קשר | שירות בְּרוֹם',
         'greeting' => 'שלום, :name,',
-        'content' => 'תודה שפניתם אלינו בשירות בְּרוֹם. רצינו ליידע אתכם שניסינו ליצור קשר אך לא הצלחנו להשיג אתכם. אנחנו כאן וזמינים לעזור לכם מראשון עד חמישי, בין השעות 08:00 ל-16:00.',
-        'assistance' => 'ניתן ליצור קשר עם:',
+        'content' => 'בהמשך לפנייתך אלינו בברום סרוויס, רצינו ליידע אותך שניסינו ליצור איתך קשר ולא הצלחנו להשיג אותך. אנו כאן וזמינים לעמוד לשירותך בימים א׳-ה׳ בין השעות 8:00 ל-16:00.',
+        'assistance' => 'נשמח לעמוד לשירותך:',
         'alternative' => 'בנוסף, נשמח לדעת מתי יהיה נוח לכם שנחזור אליכם במהלך שעות העבודה שלנו.',
     ],
     'irrelevant_lead' => [
@@ -368,7 +368,6 @@ return [
         'no_reason_provided' => 'לא נמסרה סיבה.',
         'assistance' => 'אנא עיינו בפרטים ועדכנו את המצב בהתאם.'
     ],
-
     'follow_up_conversation' => [
             'header' => 'מעקב אחרי השיחה שלנו',
             'greeting' => 'שלום :name,',
@@ -403,11 +402,11 @@ return [
             'content' => "אנא בדוק את הצעת המחיר מצ\"ב הצעת מחיר עבור *:service_names*. לאחר אישורכם, יישלח אליכם הסכם התקשרות אותו תצטרכו למלא ולחתום למטה ואז נהיה מוכנים להתחיל בעבודה.\n\nלחץ על הכפתור למטה כדי לראות את הצעת המחיר.",
         ],
         'contract' => [
-            'header' => 'הסכם התקשרות הצעת מחיר #:id | ברום סרוויס',
+            'header' => '*הסכם התקשרות הצעת מחיר #:id | ברום סרוויס*',
             'content' => "מצורף בזאת הסכם התקשרות לחתימה דיגיטלית. יש להוסיף את כרטיס האשראי לתשלום, בצירוף חתימת בעל הכרטיס המאשר לחייבו במועד החיוב. הכרטיס יחויב בסכום של 1 ש\"ח ולאחר מכן יזוכה, זאת כדי לוודא את תקינותו. הפרטים יישמרו במערכת מאובטחת. בנוסף, יש לחתום בעמוד האחרון ולאשר את ההסכם.",
         ],
         'create_job' => [
-            'header' => "*עבודה חדשה נוצרה | שירות מטאטא*",
+            'header' => "*עבודה חדשה נוצרה | שירות ברום*",
             'content' => "נקבעה עבודה חדשה.\n\nתאריך: :date\nשירות: :service_name\n\nאנחנו מצפים לשרת אותך.",
         ],
 
@@ -441,19 +440,19 @@ return [
             'content' => "העובד עדיין לא אישר את הכתובת למחר.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_not_left_for_job' => [
-            'header' => "*עובד לא יוצא לעבודה | שירות מטאטא*",
+            'header' => "*עובד לא יוצא לעבודה | שירות ברום*",
             'content' => "העובד עדיין לא יצא לעבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_not_started_job' => [
-            'header' => "*עובד לא התחיל עבודה | שירות מטאטא*",
+            'header' => "*עובד לא התחיל עבודה | שירות ברום*",
             'content' => "העובד עדיין לא התחיל את העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_not_finished_job_on_time' => [
-            'header' => "*העובד לא סיים את העבודה בזמן | שירות מטאטא*",
+            'header' => "*העובד לא סיים את העבודה בזמן | שירות ברום*",
             'content' => "העובד לא סיים את העבודה בזמן.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_exceed_job_time' => [
-            'header' => "*עובד מעבר לזמן עבודה | שירות מטאטא*",
+            'header' => "*עובד מעבר לזמן עבודה | שירות ברום*",
             'content' => "העובד חרג מזמן העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_remind_job' => [
@@ -477,7 +476,7 @@ return [
             'content' => "תזכורת שיש לך פגישה קרובה עם :team_name. אנא בדוק את הפרטים.\n\nתאריך/שעה: :date\nנכס: :address\nמטרה: :purpose\nקישור לפגישה: :meet_link",
         ],
         'worker_forms' => [
-            'header' => "*טפסי עבודה | שירות מטאטאים*",
+            'header' => "*טפסי עבודה | שירות ברוםים*",
             'content' => "נרשמת בהצלחה לפורטל שלנו. אנא חתום על הטפסים למטה כדי להתחיל לעבוד בעבודה.\nלחץ על הכפתור למטה כדי למלא את הטפסים.",
         ],
         'worker_job_opening_notification' => [
@@ -505,19 +504,19 @@ return [
             'content' => ":name שינה זמינות שמשפיעה על עבודה ב-:date.",
         ],
         'worker_form101_signed' => [
-            'header' => "*טופס 101 חתום | שירות מטאטאים*",
+            'header' => "*טופס 101 חתום | שירות ברוםים*",
             'content' => ":name חתם על טופס 101.",
         ],
         'worker_contract_signed' => [
-            'header' => "*חוזה חתום | שירות מטאטאים*",
+            'header' => "*חוזה חתום | שירות ברוםים*",
             'content' => ":name חתם על טופס החוזה.",
         ],
         'worker_insurance_signed' => [
-            'header' => "*ביטוח חתום | שירות מטאטאים*",
+            'header' => "*ביטוח חתום | שירות ברוםים*",
             'content' => ":name חתם על טופס הביטוח.",
         ],
         'worker_safety_gear_signed' => [
-            'header' => "*טופס בטיחות וציוד חתום | שירות מטאטאים*",
+            'header' => "*טופס בטיחות וציוד חתום | שירות ברוםים*",
             'content' => ":name חתם על טופס בטיחות והציוד.",
         ],
         'client_payment_failed' => [
@@ -525,7 +524,7 @@ return [
             'content' => "התשלום של :name עם הכרטיס [**** **** **** :card_number] נכשל.",
         ],
         'client_reviewed' => [
-            'header' => "*לקוח נבדק | שירות מטאטאים*",
+            'header' => "*לקוח נבדק | שירות ברוםים*",
             'content' => ":client_name נתן דירוג של :rating עבור עבודה בתאריך :date_time.\n\n-: :review",
         ],
         'client_commented' => [
@@ -537,15 +536,16 @@ return [
             'content' => ":admin_name השאיר תגובה עבור עבודה בתאריך :date_time.",
         ],
         'worker_commented' => [
-            'header' => "*העובד הגיב | שירות מטאטאים*",
+            'header' => "*העובד הגיב | שירות ברוםים*",
             'content' => "העובד :worker_name השאיר תגובה עבור עבודה בתאריך :date_time.",
         ],
         'new_lead_arrived' => [
-            'header' => "*הובלה חדשה הגיעה | שירות מטאטאים*",
-            'content' => "לקוח חדש (:client_name) הגיע עם הפרטים הבאים:\nאיש קשר: :contact\nאימייל: :email\nכתובת: :address"
+            'header' => "*הובלה חדשה הגיעה | שירות ברוםים*",
+            'content' => "לקוח חדש הגיע עם הפרטים הבאים:\nשֵׁם: :client_name\nאיש קשר: :contact\nשירות מבוקש: :Service_Requested\nאימייל: :email\nכתובת: :address",
+            'follow_up' => 'אנא בצעו מעקב בהקדם האפשרי.'
         ],
         'client_lead_status_changed' => [
-            'header' => "*סטטוס ההובלה השתנה | שירות מטאטאים*",
+            'header' => "*סטטוס ההובלה השתנה | שירות ברוםים*",
             'content' => "הסטטוס של :client_name שונה ל-:new_status.",
         ],
         'worker_leaves_job' => [
@@ -557,7 +557,7 @@ return [
             'content' => "הלקוח :client_name שינה את לוח הזמנים לעבודה בתאריך :date_time.",
         ],
         'order_cancelled' => [
-            'header' => "*ההזמנה בוטלה | שירות מטאטאים*",
+            'header' => "*ההזמנה בוטלה | שירות ברוםים*",
             'content' => "ההזמנה של הלקוח :client_name (:order_id) בוטלה.",
         ],
         'payment_paid' => [
@@ -577,15 +577,15 @@ return [
             'content' => "הזמנה (:order_id) נוצרה עבור :client_name בתוספת תשלום של ₪:extra ובסך הכל ₪:total.",
         ],
         'order_created_with_discount' => [
-            'header' => "*הזמנה נוצרה עם הנחה | שירות מטאטא*",
+            'header' => "*הזמנה נוצרה עם הנחה | שירות ברום*",
             'content' => "הזמנה (:order_id) נוצרה עבור :client_name עם הנחה של ₪:discount ובסך הכל ₪:total לאחר ההנחה.",
         ],
         'lead_need_human_representative' => [
-            'header' => "*צריך נציג אנושי | שירות מטאטא*",
+            'header' => "*צריך נציג אנושי | שירות ברום*",
             'content' => ":client_name רוצה לדבר עם נציג אנושי.",
         ],
         'no_slot_avail_callback' => [
-            'header' => "*אין זמינות לפגישה | שירות מטאטא*",
+            'header' => "*אין זמינות לפגישה | שירות ברום*",
             'content' => "אין פגישות זמינות. אנא תאם שיחה חוזרת עבור :client_name."
         ],
         'follow_up_price_offer' => [
@@ -664,7 +664,7 @@ return [
             'assistance' => 'אם יש לך שאלות או זקוק לעזרה, אל תהסס לפנות אלינו.',
         ],
         'user_status_changed' => [
-            'header' => "*שינוי סטטוס | שירות מטאטא*",
+            'header' => "*שינוי סטטוס | שירות ברום*",
             'content' => ":name שינה את הסטטוס ל-:status."
         ],
         'button-label' => [
@@ -683,7 +683,9 @@ return [
             'view_worker' => 'הצג עובד',
             'check_file' => 'בדוק קובץ',
             'view_client' => 'צפה בלקוח',
-            'view' => 'צפה'
+            'view' => 'צפה',
+            'view_lead' => 'צפה בפרטי הליד',
+            'call_lead' => 'התקשר לליד כעת'
         ]
 
 
@@ -692,11 +694,5 @@ return [
         'subject' => 'הרשאת הגישה שלך לכניסה',
         'body' => 'ה-OTP (סיסמה חד פעמית) שלך לכניסה היא: :otp',
         'expiration' => 'אנא השתמש ב-OTP זה כדי להמשיך בהתחברות שלך. ה-OTP יפוג בעוד 10 דקות.',
-    ],
-
-    'sick_leave' => [
-        'subject' => 'מצב חופשת מחלה',
-        'body' => 'בקשת חופשת המחלה שלך הייתה :status.',
-        'reason'=> 'סיבה לדחייה: :reason.'
     ],
 ];

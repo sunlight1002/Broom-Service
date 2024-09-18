@@ -42,7 +42,8 @@ use App\Events\JobNotificationToClient;
 use App\Events\JobNotificationToWorker;
 use App\Models\Notification;
 use Yajra\DataTables\Facades\DataTables;
-
+use App\Jobs\SendUninterestedClientEmail;
+use Illuminate\Mail\Mailable;
 
 class JobController extends Controller
 {
@@ -165,8 +166,6 @@ class JobController extends Controller
             ->rawColumns(['action'])
             ->toJson();
     }
-    
-    
 
     public function shiftChangeWorker($sid, $date)
     {
@@ -637,6 +636,19 @@ class JobController extends Controller
            }
             
            if ($client->notification_type === "both") {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
             if ($newLeadStatus === 'unanswered') {
       
                 event(new WhatsappNotificationEvent([
@@ -678,6 +690,12 @@ class JobController extends Controller
                 ]));
             
           } elseif ($client->notification_type === "email") {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
             if ($newLeadStatus === 'unanswered') {
                 App::setLocale($client['lng']);
                 Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
@@ -704,6 +722,18 @@ class JobController extends Controller
             ]));
             
           } else {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+            }
+
             if ($newLeadStatus === 'unanswered') {
       
                 event(new WhatsappNotificationEvent([
@@ -734,7 +764,6 @@ class JobController extends Controller
 
         return response()->json([
             'message' => 'Job has been created successfully'
-
         ]);
     }
 
@@ -1019,6 +1048,19 @@ class JobController extends Controller
            }
             
            if ($client->notification_type === "both") {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
             if ($newLeadStatus === 'unanswered') {
       
                 event(new WhatsappNotificationEvent([
@@ -1060,6 +1102,12 @@ class JobController extends Controller
                 ]));
             
           } elseif ($client->notification_type === "email") {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
             if ($newLeadStatus === 'unanswered') {
                 App::setLocale($client['lng']);
                 Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
@@ -1085,6 +1133,18 @@ class JobController extends Controller
             ]));
             
           } else {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+            }
+
             if ($newLeadStatus === 'unanswered') {
       
                 event(new WhatsappNotificationEvent([
@@ -1419,6 +1479,19 @@ class JobController extends Controller
            }
             
            if ($client->notification_type === "both") {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
             if ($newLeadStatus === 'unanswered') {
       
                 event(new WhatsappNotificationEvent([
@@ -1460,6 +1533,11 @@ class JobController extends Controller
                 ]));
             
           } elseif ($client->notification_type === "email") {
+
+            if ($newLeadStatus === 'uninterested') {
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
             if ($newLeadStatus === 'unanswered') {
                 App::setLocale($client['lng']);
                 Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
@@ -1486,6 +1564,18 @@ class JobController extends Controller
             ]));
             
           } else {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+            }
+
             if ($newLeadStatus === 'unanswered') {
       
                 event(new WhatsappNotificationEvent([
@@ -1733,9 +1823,9 @@ class JobController extends Controller
             App::setLocale('en');
             $data = array(
                 'by'         => 'admin',
-                'email'      => $admin->email ?? "",  
-                'admin'      => $admin?->toArray() ?? [] ,
-                'job'        => $job->toArray(),
+                'email'      => $admin->email??"",
+                'admin'      => $admin?->toArray()??[],
+                'job'        => $job?->toArray()??[],
             );
 
             if (isset($job->client) && !empty($job->client->phone)) {
@@ -2111,8 +2201,8 @@ class JobController extends Controller
 
         if ($job->is_job_done) {
             $this->updateJobAmount($job->id);
+
             CreateJobOrder::dispatch($job->id);
-            ScheduleNextJobOccurring::dispatch($job->id);
         } else {
             if ($job->is_order_generated) {
                 $order = $job->order;

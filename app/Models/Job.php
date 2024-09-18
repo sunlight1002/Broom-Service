@@ -6,14 +6,9 @@ use App\Enums\JobStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Events\JobNotificationToWorker;
-use OwenIt\Auditing\Contracts\Auditable;
 
-
-class Job extends Model implements Auditable
+class Job extends Model
 {
-    use \OwenIt\Auditing\Auditable;
-
-    
     use HasFactory;
 
     protected $fillable = [

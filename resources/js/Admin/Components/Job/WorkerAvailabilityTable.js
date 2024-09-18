@@ -3,6 +3,12 @@ import moment from "moment-timezone";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
 import { useTranslation } from "react-i18next";
+import { MdArrowBackIosNew } from "react-icons/md";
+import { MdArrowForwardIos } from "react-icons/md";
+import { Modal, Button, Carousel } from 'react-bootstrap';
+import { getWorkersData, parseTimeSlots } from "../../../Utils/job.utils";
+import useWindowWidth from "../../../Hooks/useWindowWidth";
+import WorkerAvailabilityTableMobile from "./WorkerAvailabilityTableMobile";
 
 export default function WorkerAvailabilityTable({
     workerAvailabilities,
@@ -13,12 +19,32 @@ export default function WorkerAvailabilityTable({
     removeShift,
     searchKeyword = "",
     isClient = false,
+    selectedHours
 }) {
-    // console.log(week,"week");
-    
-    // const [workers, setWorkers] = useState(AllWorkers);
+    let hasStartActive;
+
+    const [filterSlots, setFilterSlots] = useState([])
+    const [selectedWorker, setSelectedWorker] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(week[0]);
+    // const [hasStartActive, setHasStartActive] = useState(false)
+    const [currentDateIndex, setCurrentDateIndex] = useState(0);  // Track date index for pagination
+
+    const [show, setShow] = useState(false);
+    const [mobileView, setMobileView] = useState(false);
+
+    const windowWidth = useWindowWidth();
+
+    useEffect(() => {
+        if (windowWidth < 767) {
+            setMobileView(true)
+        } else {
+            setMobileView(false)
+        }
+    }, [windowWidth])
+
     const [sortOrder, setSortOrder] = useState("asc");
     const { t } = useTranslation();
+    const [bookedSlots, setBookedSlots] = useState([])
 
     const handleSorting = () => {
         if (sortOrder == "asc") {
@@ -30,6 +56,28 @@ export default function WorkerAvailabilityTable({
 
     const workers = useMemo(() => {
         let modifiedWorkers = AllWorkers;
+
+        const today = moment().startOf('day');
+        let futureBookedSlots = [];
+
+        modifiedWorkers.forEach((worker) => {
+            if (worker.booked_slots) {
+                Object.keys(worker.booked_slots).forEach((date) => {
+                    const slotDate = moment(date, "YYYY-MM-DD");
+
+                    // Check if the slot date is today or in the future
+                    if (slotDate.isSameOrAfter(today)) {
+                        futureBookedSlots.push({
+                            worker_id: worker.id, // Include worker ID
+                            date: date,           // Include the date
+                            slots: worker.booked_slots[date], // Include the booked slots
+                        });
+                    }
+                });
+            }
+        });
+
+        setBookedSlots(futureBookedSlots);
 
         if (searchKeyword) {
             const _searchKeyword = searchKeyword.toLocaleLowerCase();
@@ -59,238 +107,293 @@ export default function WorkerAvailabilityTable({
         return _workers;
     }, [AllWorkers, sortOrder, searchKeyword]);
 
+    const getBookedSlotsForWorkerAndDate = (workerId, date) => {
+        const bookedSlot = bookedSlots.find(slot => slot.worker_id === workerId && slot.date === date);
+        return bookedSlot ? bookedSlot.slots : [];
+    };
+
+
+    const handleSlotFilter = (worker, date, index) => {
+        const workerSlots = workerAvailabilities?.find((wa) => wa.workerId === worker.id) ?? {};
+        const slots = workerSlots?.slots?.find((slot) => slot.date === date) ?? {};
+
+        const filtered = isClient ? slots?.slots : slots?.allSlots;
+
+        setFilterSlots(filtered);
+        setSelectedDate(date);
+        setCurrentDateIndex(index);  // Set the current date index for pagination
+        setSelectedWorker(worker);
+        setShow(true);;
+    };
+
+    const handleNext = () => {
+        if (currentDateIndex < week.length - 1) {
+            const nextIndex = currentDateIndex + 1;
+            const nextDate = week[nextIndex];
+
+            setCurrentDateIndex(nextIndex);
+            handleSlotFilter(selectedWorker, nextDate, nextIndex);
+        }
+    };
+
+    const handlePrev = () => {
+        if (currentDateIndex > 0) {
+            const prevIndex = currentDateIndex - 1;
+            const prevDate = week[prevIndex];
+
+            setCurrentDateIndex(prevIndex);
+            handleSlotFilter(selectedWorker, prevDate, prevIndex);
+        }
+    };
+
     return (
         <>
-            <div className="table-container">
-                <table className="table table-bordered crt-jb-wrap worker-availability-table">
-                    <thead>
-                        <tr>
-                            <th
-                                className="text-center worker-name"
-                                onClick={handleSorting}
-                            >
-                                {t("client.jobs.change.Worker")}
-                                <i
-                                    className={
-                                        `ml-2 fa ` +
-                                        (sortOrder == "asc"
-                                            ? "fa-sort-up"
-                                            : "fa-sort-down")
-                                    }
-                                ></i>
-                            </th>
-                            {week?.map((element, index) => (
-                                <th className="text-center" key={index}>
-                                    {moment(element)
-                                        .format("MMM DD")
-                                        .toString()}{" "}
-                                    <span className="day-text">
-                                        {moment(element)
-                                            .format("ddd")
-                                            .toString()}
-                                    </span>
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {workers?.map((w, index) => {
-                            return (
-                                <tr key={index}>
-                                    <td className="worker-name">
-                                        <span
-                                            id={`worker-${w.id}`}
-                                            className="align-items-center justify-content-center"
-                                        >
-                                            {isClient ? (
-                                                <>
-                                                    {w.firstname}
-
-                                                    {w.gender == "male" && (
-                                                        <i className="fa fa-person text-primary ml-2"></i>
+            {
+                mobileView ? (
+                    <WorkerAvailabilityTableMobile
+                    workerAvailabilities={workerAvailabilities}
+                    week={week}
+                    AllWorkers={AllWorkers}
+                    hasActive={hasActive}
+                    changeShift={changeShift}
+                    removeShift={removeShift}
+                    searchKeyword={searchKeyword}
+                    isClient={isClient}
+                    selectedHours={selectedHours}
+                    />
+                ) : (
+                    <>
+                        <div className="table-container">
+                            <table className="table table-bordered crt-jb-wrap worker-availability-table">
+                                <thead>
+                                    <tr>
+                                        <th className="text-center worker-name" onClick={handleSorting} style={{ border: "1px solid #dee2e6" }}>
+                                            {t("client.jobs.change.Worker")}
+                                            <i
+                                                className={
+                                                    `ml-2 fa ` +
+                                                    (sortOrder === "asc"
+                                                        ? "fa-sort-up"
+                                                        : "fa-sort-down")
+                                                }
+                                            ></i>
+                                        </th>
+                                        {week?.map((element, index) => (
+                                            <th className="text-center" key={index} style={{ border: "1px solid #dee2e6" }}>
+                                                {moment(element).format("MMM DD")}{" "}
+                                                <span className="day-text">
+                                                    {moment(element).format("ddd")}
+                                                </span>
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {workers?.map((w, index) => (
+                                        <tr key={index} >
+                                            <td className="worker-name" style={{ border: "1px solid #dee2e6" }}>
+                                                <span
+                                                    id={`worker-${w.id}`}
+                                                    className="align-items-center justify-content-center"
+                                                >
+                                                    {isClient ? (
+                                                        <>
+                                                            {w.firstname}
+                                                            {w.gender === "male" && (
+                                                                <i className="fa fa-person text-primary ml-2"></i>
+                                                            )}
+                                                            {w.gender === "female" && (
+                                                                <i
+                                                                    className="fa fa-person-dress ml-2"
+                                                                    style={{ color: "pink" }}
+                                                                ></i>
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            {w.firstname} {w.lastname}
+                                                        </>
                                                     )}
+                                                </span>
+                                            </td>
+                                            {week?.map((element, index) => {
+                                                const alreadyBooked = getBookedSlotsForWorkerAndDate(w.id, element);
 
-                                                    {w.gender == "female" && (
-                                                        <i
-                                                            className="fa fa-person-dress ml-2"
-                                                            style={{
-                                                                color: "pink",
-                                                            }}
-                                                        ></i>
-                                                    )}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {w.firstname} {w.lastname}
-                                                </>
-                                            )}
-                                        </span>
-                                    </td>
-                                    {week?.map((element, index) => {
-                                        let workerSlots =
-                                            workerAvailabilities?.find((_w) => {
-                                                return _w.workerId == w.id;
-                                            }) ?? [];
-                                        let slots =
-                                            workerSlots?.slots?.find((_s) => {
-                                                return _s.date == element;
-                                            }) ?? [];
-                                        let hasStartActive = false;
+                                                let workerSlots =
+                                                    workerAvailabilities?.find((_w) => _w.workerId === w.id) ?? [];
+                                                let slots =
+                                                    workerSlots?.slots?.find((_s) => _s.date === element) ?? [];
 
-                                        const filteredSlots = isClient
-                                            ? slots?.slots
-                                            : slots?.allSlots;
-                                        return (
-                                            <td key={index}>
-                                                <div className="d-flex">
-                                                    <div className="d-flex slots">
-                                                        {filteredSlots?.length >
-                                                        0 ? (
-                                                            filteredSlots.map(
-                                                                (
-                                                                    shift,
-                                                                    _sIdx
-                                                                ) => {
-                                                                    let isActive =
-                                                                        hasActive(
-                                                                            w.id,
-                                                                            element,
-                                                                            shift
-                                                                        );
+                                                hasStartActive = false;
 
-                                                                    if (
-                                                                        !hasStartActive
-                                                                    ) {
-                                                                        hasStartActive =
-                                                                            isActive;
-                                                                    } else if (
-                                                                        isClient
-                                                                    ) {
-                                                                        isActive = false;
-                                                                    }
-                                                                    let tooltip =
-                                                                        "";
-                                                                    if (
-                                                                        !isClient
-                                                                    ) {
-                                                                        if (
-                                                                            shift?.isBooked
-                                                                        ) {
-                                                                            tooltip =
-                                                                                shift?.clientName +
-                                                                                shift?.jobId;
-                                                                        } else if (
-                                                                            shift?.isFreezed &&
-                                                                            isClient
-                                                                        ) {
-                                                                            tooltip =
-                                                                                t(
-                                                                                    "client.jobs.change.shiftFreezedByAdmin"
-                                                                                );
-                                                                        } else if (
-                                                                            shift?.isFreezed &&
-                                                                            !isClient
-                                                                        ) {
-                                                                            tooltip =
-                                                                                t(
-                                                                                    "client.jobs.change.shiftFreezed"
-                                                                                );
-                                                                        } else if (
-                                                                            shift?.notAvailable
-                                                                        ) {
-                                                                            tooltip =
-                                                                                t(
-                                                                                    "client.jobs.change.workNotAvail"
-                                                                                );
-                                                                        }
-                                                                    }
-                                                                    return (
-                                                                        <div
-                                                                            data-tooltip-hidden={
-                                                                                shift?.isBooked ||
-                                                                                (shift?.isFreezed &&
-                                                                                    !isClient) ||
-                                                                                shift?.notAvailable
-                                                                            }
-                                                                            data-tooltip-id="slot-tooltip"
-                                                                            data-tooltip-content={
-                                                                                tooltip
-                                                                            }
-                                                                            className={`d-flex slot justify-content-between ${
-                                                                                isActive
-                                                                                    ? "bg-primary-selected"
-                                                                                    : ""
-                                                                            } ${
-                                                                                shift?.isBooked ||
-                                                                                (shift?.isFreezed &&
-                                                                                    isClient) ||
-                                                                                shift?.notAvailable
-                                                                                    ? "slot-disabled"
-                                                                                    : ""
-                                                                            }`}
-                                                                            onClick={(e) => {
-                                                                                console.log(e.target);
-                                                                                // console.log(sh);
-                                                                                
-                                                                                if (
-                                                                                    !shift?.isBooked &&
-                                                                                    (!shift?.isFreezed ||
-                                                                                        !isClient) &&
-                                                                                    !shift?.notAvailable
-                                                                                ) {
-                                                                                    isActive
-                                                                                        ? removeShift(
-                                                                                              w.id,
-                                                                                              element,
-                                                                                              shift
-                                                                                          )
-                                                                                        : changeShift(
-                                                                                              w.id,
-                                                                                              element,
-                                                                                              shift
-                                                                                          );
-                                                                                }
-                                                                            }}
-                                                                            key={
-                                                                                _sIdx
-                                                                            }
-                                                                        >
-                                                                            <>
-                                                                                {shift.time
-                                                                                    ? moment(
-                                                                                          shift.time,
-                                                                                          "HH:mm"
-                                                                                      ).format(
-                                                                                          "hh A"
-                                                                                      )
-                                                                                    : "-"}
-                                                                            </>
+                                                const filteredSlots = isClient
+                                                    ? slots?.slots
+                                                    : slots?.allSlots;
+
+                                                return (
+                                                    <td key={index} style={{ border: "1px solid #dee2e6" }}>
+                                                        {
+                                                            filteredSlots?.length > 0 ? (
+                                                                <div className="d-flex flex-column my-1">
+                                                                    <div className="d-flex justify-content-between mb-1">
+                                                                        {bookedSlots && <div className="busy-time-text mb-1">Busy Time</div>}
+                                                                        <div className="ml-2 d-flex justify-content-end">
+                                                                            <button type="button" onClick={() => handleSlotFilter(w, element, index)}>
+                                                                                <i className="fa-solid fa-calendar-days"></i>
+                                                                            </button>
                                                                         </div>
-                                                                    );
-                                                                }
-                                                            )
-                                                        ) : (
-                                                            <div
-                                                                className={`text-danger text-right pr-5 pr-md-0 text-md-center`}
-                                                            >
-                                                                {t(
-                                                                    "client.jobs.change.notAvail"
-                                                                )}
-                                                            </div>
-                                                        )}
+                                                                    </div>
+                                                                    <div className="d-flex">
+                                                                        {alreadyBooked.map((slot, idx) => (
+                                                                            <div key={idx} className="slot-info mr-1">
+                                                                                {parseTimeSlots(slot.slot).map((time, timeIdx) => (
+                                                                                    <span key={timeIdx} className="badge badge-primary">
+                                                                                        {time}
+                                                                                    </span>
+                                                                                ))}
+                                                                            </div>
+                                                                        ))}
+                                                                        {
+                                                                            selectedHours?.map((slot, idx) => {
+                                                                                const filteredSlots = slot?.slots?.filter(s => s.date === element && s.workerId === w.id);
+                                                                                if (filteredSlots?.length > 0) {
+                                                                                    return (
+                                                                                        <div key={idx} className="slot-info ml-1">
+                                                                                            {getWorkersData(selectedHours).map((d, idx) => (
+                                                                                                <span key={idx} className="badge badge-info text-white">
+                                                                                                    {d.shifts}
+                                                                                                </span>
+                                                                                            ))}
+                                                                                        </div>
+                                                                                    );
+                                                                                }
+                                                                                return null;
+                                                                            })
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <div className={`navyblueColor text-right pr-5 pr-md-0 text-md-center`}>
+                                                                    {t("client.jobs.change.notAvail")}
+                                                                </div>
+                                                            )}
+
+                                                    </td>
+                                                );
+
+                                            })}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <Modal className="slotModal" show={show} onHide={() => setShow(false)} centered>
+                            <Modal.Header className="slotsModal" style={{ border: "0" }}>
+                                <Modal.Title>{selectedWorker && selectedWorker.firstname + " " + selectedWorker.lastname}</Modal.Title>
+                                <div style={{ marginLeft: 'auto' }}>
+                                    <button
+                                        className="px-3 py-2"
+                                        variant="outline-primary"
+                                        style={{ marginRight: '10px', paddingTop: "7px", borderRadius: "5px" }}
+                                        onClick={handlePrev}
+                                    >
+                                        <MdArrowBackIosNew className="d-flex" />
+                                    </button>
+                                    <span className="mr-2"><b>{moment(selectedDate).format("MMM DD")}</b> {moment(selectedDate).format("ddd")}</span>
+                                    <button
+                                        className="px-3 py-2"
+                                        variant="outline-primary" onClick={handleNext}
+                                        style={{ paddingTop: "7px", borderRadius: "5px" }}
+                                    >
+                                        <MdArrowForwardIos className="d-flex" />
+                                    </button>
+                                </div>
+                            </Modal.Header>
+                            <Modal.Body >
+                                <div className="d-flex slots justify-content-center flex-wrap">
+                                    {filterSlots?.length > 0 ? (
+                                        filterSlots.map((shift, _sIdx) => {
+                                            let isActive = hasActive(selectedWorker.id, selectedDate, shift);
+
+                                            if (!hasStartActive) {
+                                                hasStartActive = isActive;
+                                            } else if (isClient) {
+                                                isActive = false;
+                                            }
+
+                                            let tooltip = "";
+                                            if (!isClient) {
+                                                if (shift?.isBooked) {
+                                                    tooltip = shift?.clientName + shift?.jobId;
+                                                } else if (shift?.isFreezed && isClient) {
+                                                    tooltip = t("client.jobs.change.shiftFreezedByAdmin");
+                                                } else if (shift?.isFreezed && !isClient) {
+                                                    tooltip = t("client.jobs.change.shiftFreezed");
+                                                } else if (shift?.notAvailable) {
+                                                    tooltip = t("client.jobs.change.workNotAvail");
+                                                }
+                                            }
+                                            return (
+                                                <div key={_sIdx} className="mb-2">
+                                                    <div
+                                                        data-tooltip-hidden={
+                                                            shift?.isBooked ||
+                                                            (shift?.isFreezed && !isClient) ||
+                                                            shift?.notAvailable
+                                                        }
+                                                        data-tooltip-id="slot-tooltip"
+                                                        data-tooltip-content={tooltip}
+                                                        className={`d-flex slot justify-content-between ${isActive ? "bg-primary-selected" : ""} ${shift?.isBooked || (shift?.isFreezed && isClient) || shift?.notAvailable ? "slot-disabled" : ""}`}
+                                                        onClick={() => {
+                                                            if (
+                                                                !shift?.isBooked &&
+                                                                (!shift?.isFreezed || !isClient) &&
+                                                                !shift?.notAvailable
+                                                            ) {
+                                                                isActive
+                                                                    ? removeShift(selectedWorker.id, selectedDate, shift)
+                                                                    : changeShift(selectedWorker.id, selectedDate, shift);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <span className="" style={{ marginLeft: "4px", marginTop: "2px" }}>
+                                                            {shift.time ? (
+                                                                <>
+                                                                    <div style={{ fontSize: "14px" }}>
+                                                                        {moment(shift.time, "HH:mm").format("HH")}
+                                                                    </div>
+                                                                    <div>
+                                                                        {moment(shift.time, "HH:mm").format("mm")}
+                                                                    </div>
+                                                                </>
+                                                            ) : "-"}
+                                                        </span>
                                                     </div>
                                                 </div>
-                                            </td>
-                                        );
-                                    })}
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            </div>
-
-            <Tooltip id="slot-tooltip" />
+                                            );
+                                        })
+                                    ) : (
+                                        <div className={`navyblueColor text-right pr-5 pr-md-0 text-md-center`}>
+                                            {t("client.jobs.change.notAvail")}
+                                        </div>
+                                    )}
+                                </div>
+                            </Modal.Body>
+                            <Modal.Footer style={{ border: "0" }}>
+                                <button variant="secondary" className="navyblue px-4 py-2" style={{ borderRadius: "7px" }} onClick={() => setShow(false)}>
+                                    Close
+                                </button>
+                                <button variant="secondary" className="navyblue px-4 py-2" style={{ borderRadius: "7px" }} onClick={() => setShow(false)}>
+                                    Save
+                                </button>
+                            </Modal.Footer>
+                        </Modal>
+                        <Tooltip id="slot-tooltip" style={{ zIndex: "99999" }} />
+                    </>
+                )
+            }
         </>
     );
 }
+

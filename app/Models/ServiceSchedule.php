@@ -3,12 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
 
-class ServiceSchedule extends Model implements Auditable
+class ServiceSchedule extends Model
 {
-    use \OwenIt\Auditing\Auditable;
-
     protected $table = 'service_schedules';
 
     protected $fillable = [

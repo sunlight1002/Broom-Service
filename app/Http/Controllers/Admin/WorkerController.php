@@ -343,7 +343,6 @@ class WorkerController extends Controller
             'manpower_company_id'       => $request->company_type == "manpower"
                 ? $request->manpower_company_id
                 : NULL,
-            'driving_fees' =>$request->driving_fees,
         ]);
 
         $i = 1;
@@ -447,8 +446,7 @@ class WorkerController extends Controller
                 'required',
                 Rule::in(['my-company', 'manpower']),
             ],
-            'manpower_company_id' => ['required_if:company_type,manpower'],
-           
+            'manpower_company_id' => ['required_if:company_type,manpower']
         ], [
             'payment_type.required' => 'The payment type is required.',
             'full_name.required_if' => 'The full name is required.',
@@ -501,7 +499,6 @@ class WorkerController extends Controller
             'is_afraid_by_cat'          => $request->is_afraid_by_cat,
             'is_afraid_by_dog'          => $request->is_afraid_by_dog,
             'manpower_company_id'       => $request->company_type == "manpower" ? $request->manpower_company_id : NULL,
-            'driving_fees' =>$request->driving_fees,
         ]);
 
         return response()->json([

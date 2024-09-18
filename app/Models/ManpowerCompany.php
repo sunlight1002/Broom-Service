@@ -4,13 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use OwenIt\Auditing\Contracts\Auditable;
 
-
-class ManpowerCompany extends Model implements Auditable
+class ManpowerCompany extends Model
 {
-    use \OwenIt\Auditing\Auditable;
-
     protected $table = 'manpower_companies';
 
     protected $fillable = [

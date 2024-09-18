@@ -180,8 +180,6 @@ export default function AddOffer() {
                         alert.error(response.data.errors[e]);
                     }
                 } else {
-                    console.log(response);
-                    
                     setLoading(false);
                     alert.success(response.data.message);
                     setTimeout(() => {

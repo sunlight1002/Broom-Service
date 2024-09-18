@@ -83,9 +83,9 @@ use App\Listeners\SendWorkerForm101Notification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 use App\Events\WhatsappNotificationEvent;
 use App\Listeners\WhatsappNotification;
+use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -173,6 +173,12 @@ class EventServiceProvider extends ServiceProvider
         OfferAccepted::class => [
             NotifyForContract::class
         ],
+        UnintrestedUser::class => [
+            NotifyUnintrestedUser::class
+        ],
+        ClientOfferAccepted::class => [
+            ClientNotifyForContract::class
+        ],
         SendClientLogin::class => [
             SendClientCredentials::class
         ],
@@ -217,8 +223,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         ClientOrderWithDiscount::class => [
             NotifyForClientOrderWithDiscount::class
-        ],
-       
+        ]
     ];
 
     /**

@@ -10,10 +10,10 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class WhatsappNotification
 {
-    use InteractsWithQueue;
     protected $whapiApiEndpoint, $whapiApiToken;
 
     /**
@@ -39,7 +39,7 @@ class WhatsappNotification
             $eventData = $event;
             $eventType = $eventData->type;
             $eventData = $eventData->notificationData;
-            //Log::info('Handling WhatsappNotificationEvent', ['type' => $type, 'data' => $eventData]);
+
             $headers = array();
             $url = "https://graph.facebook.com/v18.0/" . config('services.whatsapp_api.from_id') . "/messages";
             $headers[] = 'Authorization: Bearer ' . config('services.whatsapp_api.auth_token');
@@ -1236,11 +1236,17 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.new_lead_arrived.content', [
                         'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
                         'contact' => $clientData['phone'],
+                        'Service_Requested' => "",
                         'email' => $clientData['email'],
-                        'address' => $clientData['geo_address'],
+                        'address' => $clientData['geo_address'] ?? $clientData['property_addresses'][0]['geo_address'],
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view') . ": " . url("admin/leads/view/" . $clientData['id']);
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.new_lead_arrived.follow_up');
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.call_lead') . ": " . "03 525 70 60";
 
                     break;
 
@@ -1266,9 +1272,9 @@ class WhatsappNotification
                 case WhatsappMessageTemplateEnum::UNANSWERED_LEAD:
                     $clientData = $eventData['client'];
 
-                    // $receiverNumber = config('services.whatsapp_groups.lead_client');
                     $receiverNumber = $clientData["phone"];
-                    App::setLocale($clientData['lng']??"en");
+
+                    App::setLocale($clientData['lng']);
 
                     $text = __('mail.wa-message.tried_to_contact_you.header');
                     $text .= "\n\n";
@@ -1298,9 +1304,8 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
 
                     $receiverNumber = $clientData["phone"];
-                    App::setLocale($clientData['lng']??"en");
+                    App::setLocale($clientData['lng']);
 
-                    // Build the WhatsApp message content
                     $text = __('mail.wa-message.inquiry_response.header');
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.common.salutation', ['name' => $clientData['firstname']]);
@@ -1329,7 +1334,7 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.follow_up_required.salutation');
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.follow_up_required.content', [
-                        'lead_name' => $clientData['firstname']. " " .$clientData['lastname'],
+                        'lead_name' => $clientData['firstname'] . " " . $clientData['lastname'],
                         'contact_info' => $clientData['phone'],
                         'inquiry_date' => Carbon::now()->format('M d Y'),
                     ]);
@@ -1380,7 +1385,6 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER:
                     $clientData = $eventData['client'];
-
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('heb');
 
@@ -1417,7 +1421,7 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.book_client_after_signed_contract.content', [
                         'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
-                        'client_contact_info' =>$clientData['email'],
+                        'client_contact_info' => $clientData['email'],
                     ]);
 
                     break;
@@ -1630,64 +1634,114 @@ class WhatsappNotification
 
                     $receiverNumber = $userData['phone'];
                     App::setLocale($userData['phone'] ?? 'en');
+                    // Message Content
+                    $text = __('mail.wa-message.follow_up.subject');
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.follow_up.salutation', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                    ]);
 
-                    $text = __('mail.sick_leave.header');
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
+                    $clientData = $eventData['client'];
+                    \Log::info("here");
+
+                    $whapiApiEndpoint = config('services.whapi.url');
+                    $whapiApiToken = config('services.whapi.token');
+
+                    App::setLocale($clientData['lng'] ?? 'en');
+                    $receiverNumber = $clientData['phone'];
+                    $number = $clientData['phone'] . "@s.whatsapp.net";
+                    \Log::info($number);
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.follow_up.introduction');
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.follow_up.testimonials', [
+                        'testimonials_link' => url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl')
+                    ]);
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.follow_up.brochure');
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.follow_up.commitment');
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.follow_up.help');
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.follow_up.best_regards');
+                    $text .= "\n";
+                    $text .= __('mail.wa-message.follow_up.service_name');
+                    $text .= "\n";
+                    $text .= '📞 03-525-70-60';
+                    $text .= "\n";
+                    $text .= __('mail.wa-message.follow_up.service_website');
+
+                    $fileName = $clientData['lng'] === 'heb' ? 'BroomServiceHebrew.pdf' : 'BroomServiceEnglish.pdf';
+
+                    // Retrieve the file from storage
+                    $pdfPath = Storage::path($fileName);
+
+                    // Prepare the file for attachment
+                    $file = fopen($pdfPath, 'r'); // Open the file in read mode
+
+                    // Send message and PDF
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $whapiApiToken,
+                    ])->attach(
+                        'media',
+                        $file,
+                        $fileName // Use 'media' for the attachment field
+                    )->post($whapiApiEndpoint . 'messages/document', [
+                        'to' => $number,
+                        'mime_type' => 'application/pdf',
+                    ]);
+
+                    fclose($file);
+
+                    if ($response->successful()) {
+                        \Log::info('PDF sent successfully');
+                    } else {
+                        \Log::error('Failed to send PDF: ' . $response->body());
+                    }
+                    break;
+
+
+
+                case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE:
+                    $userData = $eventData['user'];
+                    $claimData = $eventData['refundclaim'];
+
+                    $receiverNumber = $userData['phone'];
+                    App::setLocale($userData['lng']);
+
+                    $text = __('mail.refund_claim.header');
 
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => $userData['firstname']. ' ' . $userData['lastname']
+                        'name' => $userData['firstname'] . ' ' . $userData['lastname']
                     ]);
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.sick_leave.subject',[
-                        'status' => $leaveData['status'],
+                    $text .= __('mail.refund_claim.body', [
+                        'status' => $claimData['status'],
                     ]);
 
-                    if ($leaveData['status'] !== 'approved' && !is_null($leaveData['rejection_comment'])) {
+                    if ($claimData['status'] !== 'approved' && !is_null($claimData['rejection_comment'])) {
                         $text .= "\n\n";
-                        $text .= __('mail.sick_leave.reason', [
-                            'reason' => $leaveData['rejection_comment']
+                        $text .= __('mail.refund_claim.reason', [
+                            'reason' => $claimData['rejection_comment']
                         ]);
                     }
 
+
                     break;
-                    case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE:
-                        $userData = $eventData['user'];
-                        $claimData = $eventData['refundclaim'];
-
-                        $receiverNumber = $userData['phone'];
-                        App::setLocale($userData['lng']);
-
-                        $text = __('mail.refund_claim.header');
-
-                        $text .= "\n\n";
-
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => $userData['firstname']. ' ' . $userData['lastname']
-                        ]);
-
-                        $text .= "\n\n";
-
-                        $text .= __('mail.refund_claim.body',[
-                            'status' => $claimData['status'],
-                        ]);
-
-                        if ($claimData['status'] !== 'approved' && !is_null($claimData['rejection_comment'])) {
-                            $text .= "\n\n";
-                            $text .= __('mail.refund_claim.reason', [
-                                'reason' => $claimData['rejection_comment']
-                            ]);
-                        }
-
-
-                        break;
-
             }
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
+                Log::info($text);
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,

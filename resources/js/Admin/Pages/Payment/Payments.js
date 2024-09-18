@@ -67,11 +67,11 @@ export default function Payments() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: t("global.date"),
+                    title: "Date",
                     data: "last_activity_date",
                 },
                 {
-                    title: t("worker.dashboard.client"),
+                    title: "Client",
                     data: "client_name",
                     responsivePriority: 0,
                     render: function (data, type, row, meta) {
@@ -87,7 +87,7 @@ export default function Payments() {
                     },
                 },
                 {
-                    title:t("admin.global.Status"),
+                    title: "Status",
                     data: "priority_paid_status",
                     render: function (data, type, row, meta) {
                         if (data) {
@@ -100,15 +100,15 @@ export default function Payments() {
                     },
                 },
                 {
-                    title:  t("admin.global.done"),
+                    title: "Done",
                     data: "completed_jobs",
                 },
                 {
-                    title: t("admin.global.visits"),
+                    title: "Visits",
                     data: "visits",
                 },
                 {
-                    title: t("admin.global.Action"),
+                    title: "Action",
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,

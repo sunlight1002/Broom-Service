@@ -9,14 +9,6 @@ use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
 use App\Http\Controllers\User\DocumentController;
 use App\Http\Controllers\TwimlController;
-use App\Http\Controllers\Api\LeadTwilioController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\PhaseController;
-use App\Http\Controllers\PayrollReportController;
-use App\Http\Controllers\SickLeaveController;
-use App\Http\Controllers\Admin\AdvanceLoanController;
-use App\Http\Controllers\RefundClaimController;
-
 /*
 |--------------------------------------------------------------------------
 | Employee API Routes
@@ -58,9 +50,8 @@ Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
 Route::post('guest/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
 Route::get('teams/availability/{id}/date/{date}', [MeetingController::class, 'availabilityByDate']);
 
-
 // Authenticated Routes
-    Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
+Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard']);
     Route::get('get-time', [DashboardController::class, 'getTime']);
     // not Available date
@@ -70,15 +61,12 @@ Route::get('teams/availability/{id}/date/{date}', [MeetingController::class, 'av
 
     Route::get('jobs/today', [JobController::class, 'todayJobs']);
     Route::resource('jobs', JobController::class)->only(['index', 'show']);
-   
+    Route::get('jobs/{id}/comments', [JobCommentController::class, 'index']);
     Route::post('jobs/{id}/start-time', [JobController::class, 'JobStartTime']);
     Route::post('jobs/{id}/end-time', [JobController::class, 'JobEndTime']);
     Route::post('get-job-time', [JobController::class, 'getJobTime']);
     Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
     Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
-    Route::get('jobs/{id}/comments', [JobCommentController::class, 'index']);
-
-
 
     Route::resource('job-comments', JobCommentController::class)->only(['store', 'destroy']);
     Route::get('availabilities', [JobController::class, 'getAvailability']);
@@ -92,34 +80,4 @@ Route::get('teams/availability/{id}/date/{date}', [MeetingController::class, 'av
 
     Route::get('documents', [DocumentController::class, 'documents']);
     Route::get('forms', [DocumentController::class, 'forms']);
-
-    //task and comment
-    Route::apiResource('/phase', PhaseController::class)->only(['index', 'show']);
-    Route::post('/tasks/{taskId}/comments', [TaskController::class, 'addComment']);
-    Route::delete('/comments/{commentId}', [TaskController::class, 'deleteComment']);
-    Route::put('/tasks/{taskId}/comments/{commentId}', [TaskController::class, 'updateComment']);
-    Route::get('/tasks/list', [TaskController::class, 'tasksByPhase']);
-
-    //sick-leaves
-    Route::apiResource('sick-leaves', SickLeaveController::class);
-    Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);
-
-    //refund-claim
-    Route::get('/refund-claims', [RefundClaimController::class, 'index']);
-    Route::post('/refund-claims', [RefundClaimController::class, 'store']);
-    Route::get('/refund-claims/{id}', [RefundClaimController::class, 'show']);
-    Route::post('/refund-claims/{id}', [RefundClaimController::class, 'update']);
-    Route::delete('/refund-claims/{id}', [RefundClaimController::class, 'destroy']);
-  
 });
-
-    Route::post('/twilio/initiate-call', [LeadTwilioController::class, 'initiateCall']);
-    Route::post('/twilio/handle-call', [LeadTwilioController::class, 'handleCall'])->name('twilio.handleCall');
-    Route::post('/twilio/handle-language', [LeadTwilioController::class, 'handleLanguage'])->name('twilio.handleLanguage');
-    Route::post('/twilio/handle-call-flow', [LeadTwilioController::class, 'handleCallFlow'])->name('twilio.handleCallFlow');
-    Route::post('/twilio/handle-response', [LeadTwilioController::class, 'handleResponse'])->name('twilio.handleResponse');
-    Route::post('/twilio/main-menu', [LeadTwilioControllerr::class, 'handleResponse'])->name('twilio.mainMenu');
-   
-    
- 
- 

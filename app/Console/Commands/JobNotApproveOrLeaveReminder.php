@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\JobNotificationToWorker;
 use App\Events\WhatsappNotificationEvent;
+use App\Events\JobNotificationToWorker;
 use App\Models\Job;
 use App\Models\Notification;
 use Carbon\Carbon;

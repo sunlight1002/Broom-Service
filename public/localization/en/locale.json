@@ -146,8 +146,7 @@
         "repeatancy": "Repeatancy",
         "problem": "Problem",
         "noProblem": "No Problem",
-        "noOfProblem": "No. of Problems",
-         "Submit": "Submit"
+        "noOfProblem": "No. of Problems"
     },
     "modal": {
         "title": "Modal",
@@ -950,9 +949,7 @@
             "Export": "Export to CSV",
             "Import": "Import",
             "All": "All",
-            "Date":"Date",
             "done": "Done",
-            "visits":"Visits",
             "cancel": "Cancel",
             "undone": "Undone",
             "AddNew": "Add New",
@@ -1519,14 +1516,6 @@
                 }
             }
         },
-        "holidays":{
-            "addNewHoliday":"Add New Holiday",
-            "holidayName":"Holiday Name",
-            "startDate":"Start Date",
-            "endDate" : "End Date",
-            "editHoliday":"Edit Holiday",
-            "update":"Update"
-        },
         "sidebar": {
             "dashboard": "Dashboard",
             "leads": "Leads",
@@ -1541,7 +1530,6 @@
             "payments": "Payments",
             "earnings": "Earnings",
             "notification": "Notitfications",
-            "workerLeave":"Workers Leave",
             "settings": {
                 "title": "Settings",
                 "manage_team": "Manage team",
@@ -1567,19 +1555,9 @@
                 "selectLang":"--- Select language ---",
                 "selectCurrency":"--- Select currency ---",
                 "uploadProfile": "Upload profile image",
-                "verification": "Two step Verification",
-                "holidays":"Holidays"
+                "verification": "Two step Verification"
             },
             "logout": "Logout"
-        },
-
-        "leaves":{
-            "confirmation": "Reason for rejected",
-            "confirmationText": "comment for reject",
-            "rejectionReason" : "reason for reject",
-            "confirm" : "Confirm",
-            "cancel" :"Cancel",
-            "approveConfirm":"Are you sure to approve?"
         }
     },
     "worker": {
@@ -1590,21 +1568,12 @@
         "search": "search",
         "next": "Next",
         "previous": "Previous",
-        "workerName":"Worker Name",
-        "endDate":"End Date",
-        "doctorReport":"Doctor Report",
-        "reason":"Reason",
-        "status":"Status",
-        "action":"Action",
-        "approve":"Approve",
-        "reject":"Reject",
         "sidebar": {
             "dashboard": "Dashboard",
             "jobs": "Jobs",
             "schedule": "Schedule",
             "not_available": "Not Available Dates",
-            "workingHours": "Hours",
-            "leaves":"Leaves"
+            "workingHours": "Hours"
         },
         "dashboard": {
             "past_jobs": "Past Jobs",
@@ -1766,21 +1735,7 @@
             "enterBankname":"Enter Bank name",
             "enterBanknumber":"Enter Bank Number",
             "enterBranchnumber":"Enter Branch Number",
-            "enterAccountnumber":"Enter Account Number",
-            "advance":"Advance/Loan",
-            "type":"Type",
-            "amount":"Amount",
-            "pendingAmount":"Pending Amount",
-            "action":"Action",
-            "addAdvance":"Add Advance/Loan",
-            "editAdvance":"Edit Advance/Loan",
-            "selectType":"Select Type",
-            "Advance":"Advance",
-            "loan":"Loan",
-            "monthlyPayment":"Monthly Payment",
-            "loanStart":"Loan Start Date",
-            "submit":"Submit"
-           
+            "enterAccountnumber":"Enter Account Number"
 
         }
     },

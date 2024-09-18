@@ -66,7 +66,7 @@ export default function Contract() {
                     orderable: false,
                     responsivePriority: 1,
                     render: function (data, type, row, meta) {
-                        let _html = `<a href="/work-contract/${row.unique_hash}" class="ml-auto ml-md-2 mt-4 mt-md-0 btn dt-view-button" data-unique-hash="${row.unique_hash}"
+                        let _html = `<a href="/client/view-contract/${row.id}/${row.unique_hash}" class="ml-auto ml-md-2 mt-4 mt-md-0 btn dt-view-button" data-client-id="${row.id}" data-unique-hash="${row.unique_hash}"
                         style="font-size: 15px; color: #2F4054; padding: 5px 8px; background: #E5EBF1; border-radius: 5px;"
                         >`;
 
@@ -99,15 +99,17 @@ export default function Contract() {
 
         $(tableRef.current).on("click", ".dt-view-button", function (e) {
             e.preventDefault();
+            const _client_id = $(this).data("client-id").toString();
             const _uniqueHash = $(this).data("unique-hash").toString();
+            const encodedClientId = Base64.encode(_client_id);
 
-            navigate(`/work-contract/${_uniqueHash}`);
+            navigate(`/client/view-contract/${encodedClientId}/${_uniqueHash}`);
         });
 
         return function cleanup() {
             $(tableRef.current).DataTable().destroy(true);
         };
-    }, []);
+    }, []);    
 
     return (
         <div id="container">

@@ -3,13 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
 
-
-class Offer extends Model implements Auditable
+class Offer extends Model
 {
-    use \OwenIt\Auditing\Auditable;
-
     protected $fillable = [
         'client_id',
         'services',
