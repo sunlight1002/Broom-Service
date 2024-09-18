@@ -171,6 +171,7 @@ export const getAvailableSlots = async (
     const chosenDateMoment = moment(date, "YYYY-MM-DD");
     const chosenStartTimeMoment = moment(shift.time, "HH:mm:ss");
     let workerName = "";
+
     // Find the worker's slots for the chosen start date
     const workerSlots = workerAvailabilities.find((worker) => {
         return (
@@ -186,10 +187,12 @@ export const getAvailableSlots = async (
         return [];
     }
     workerName = workerSlots.workerName;
+
     // Find the slots for the chosen start time
     const chosenDateSlots = workerSlots.slots.find((slot) =>
         moment(slot.date, "YYYY-MM-DD").isSame(chosenDateMoment, "day")
     );
+
     const startIndex = chosenDateSlots.allSlots.findIndex((slot) =>
         moment(slot.time, "HH:mm:ss").isSame(chosenStartTimeMoment, "minute")
     );
@@ -202,45 +205,44 @@ export const getAvailableSlots = async (
     // Get the available slots based on work hours
     let availableSlots = [];
     let status = null;
-    let remainingHours = parseInt(workHours);
-    for (
-        let i = startIndex;
-        i < chosenDateSlots.allSlots.length && remainingHours > 0;
-        i++
-    ) {
-        if (chosenDateSlots.allSlots[i].isBooked) {
+    let requiredSlots = parseInt(workHours) * 4; // Calculate required slots
+    
+    for (let i = startIndex; i < chosenDateSlots.allSlots.length && requiredSlots > 0; i++) {
+        const currentSlot = chosenDateSlots.allSlots[i];
+
+        if (currentSlot.isBooked) {
             status = "booked";
             break;
-        } else if (chosenDateSlots.allSlots[i].isFreezed) {
+        } else if (currentSlot.isFreezed) {
             status = "freezed";
             break;
-        } else if (chosenDateSlots.allSlots[i].notAvailable) {
+        } else if (currentSlot.notAvailable) {
             status = "unavailable";
             break;
         }
+
         if (
-            !chosenDateSlots.allSlots[i].isBooked &&
-            (((!chosenDateSlots.allSlots[i].isFreezed ||
-                chosenDateSlots.allSlots[i].isFreezed) &&
-                !isClient) ||
-                (!chosenDateSlots.allSlots[i].isFreezed && isClient)) &&
-            !chosenDateSlots.allSlots[i].notAvailable
+            !currentSlot.isBooked &&
+            (((!currentSlot.isFreezed || currentSlot.isFreezed) && !isClient) ||
+                (!currentSlot.isFreezed && isClient)) &&
+            !currentSlot.notAvailable
         ) {
             availableSlots.push({
                 workerName: workerName,
                 workerId: w_id,
                 date: chosenDateSlots.date,
-                time: chosenDateSlots.allSlots[i],
+                time: currentSlot,
             });
-            remainingHours--;
+            requiredSlots--;
         }
     }
-    if (isClient && remainingHours > 0) {
+
+    if (isClient && requiredSlots > 0) {
         alert.error("Not enough available slots for the chosen work hours");
         return [];
     }
 
-    if (remainingHours > 0) {
+    if (requiredSlots > 0) {
         if (status != null) {
             let message = "";
             switch (status) {
@@ -272,28 +274,23 @@ export const getAvailableSlots = async (
             if (alert.isConfirmed) {
                 try {
                     availableSlots = [];
-                    remainingHours = parseInt(workHours);
+                    requiredSlots = parseInt(workHours) * 2;
                     let overlapSlots = [];
-                    for (
-                        let i = startIndex;
-                        i < chosenDateSlots.allSlots.length &&
-                        remainingHours > 0;
-                        i++
-                    ) {
+                    for (let i = startIndex; i < chosenDateSlots.allSlots.length && requiredSlots > 0; i++) {
+                        const currentSlot = chosenDateSlots.allSlots[i];
+
                         availableSlots.push({
                             workerName: workerName,
                             workerId: w_id,
                             date: chosenDateSlots.date,
-                            time: chosenDateSlots.allSlots[i],
+                            time: currentSlot,
                         });
-                        if (
-                            chosenDateSlots.allSlots[i].isBooked ||
-                            chosenDateSlots.allSlots[i].isFreezed ||
-                            chosenDateSlots.allSlots[i].notAvailable
-                        ) {
-                            overlapSlots.push(chosenDateSlots.allSlots[i]);
+
+                        if (currentSlot.isBooked || currentSlot.isFreezed || currentSlot.notAvailable) {
+                            overlapSlots.push(currentSlot);
                         }
-                        remainingHours--;
+
+                        requiredSlots--;
                     }
 
                     if (overlapSlots.length > 0) {
@@ -311,8 +308,7 @@ export const getAvailableSlots = async (
                                                 if (slot.jobId != null) {
                                                     shifts.push({
                                                         workerId: w_id,
-                                                        workerName:
-                                                            worker.workerName,
+                                                        workerName: worker.workerName,
                                                         date: date,
                                                         jobId: slot.jobId,
                                                         time: {
@@ -323,17 +319,12 @@ export const getAvailableSlots = async (
                                             });
                                             setUpdatedJobs(
                                                 shifts.length > 0
-                                                    ? convertShiftsFormat(
-                                                          shifts
-                                                      )
+                                                    ? convertShiftsFormat(shifts)
                                                     : null
                                             );
                                             return {
                                                 ...s,
-                                                slots: adjustSchedule(
-                                                    overlapSlots,
-                                                    s.slots
-                                                ),
+                                                slots: adjustSchedule(overlapSlots, s.slots),
                                                 allSlots: _allSlots,
                                             };
                                         }
@@ -365,30 +356,27 @@ export const getAvailableSlots = async (
         });
         if (alert.isConfirmed) {
             try {
-                const lastSlot =
-                    chosenDateSlots.allSlots[
-                        chosenDateSlots.allSlots.length - 1
-                    ];
+                const lastSlot = chosenDateSlots.allSlots[chosenDateSlots.allSlots.length - 1];
                 if (lastSlot) {
                     const startTimeMoment = moment(lastSlot.time, "HH:mm:ss");
 
-                    for (let i = 0; i < remainingHours; i++) {
-                        const slotTime = startTimeMoment.add(1, "hours");
+                    for (let i = 0; i < requiredSlots; i++) {
+                        const slotTime = startTimeMoment.add(30, "minutes");
+
                         availableSlots.push({
                             workerName: workerName,
                             workerId: w_id,
                             date: chosenDateSlots.date,
                             time: { time: slotTime.format("HH:mm:ss") },
                         });
+
                         setWorkerAvailabilities(
                             workerAvailabilities.map((worker) => {
                                 if (worker.workerId == w_id) {
                                     let slots = worker.slots.map((s) => {
                                         if (s.date == chosenDateSlots.date) {
                                             s.slots.push({
-                                                time: slotTime.format(
-                                                    "HH:mm:ss"
-                                                ),
+                                                time: slotTime.format("HH:mm:ss"),
                                                 clientName: null,
                                                 isBooked: false,
                                                 isFreezed: false,
@@ -396,9 +384,7 @@ export const getAvailableSlots = async (
                                                 notAvailable: false,
                                             });
                                             s.allSlots.push({
-                                                time: slotTime.format(
-                                                    "HH:mm:ss"
-                                                ),
+                                                time: slotTime.format("HH:mm:ss"),
                                                 clientName: null,
                                                 isBooked: false,
                                                 isFreezed: false,
@@ -431,6 +417,8 @@ export const getAvailableSlots = async (
 
     return availableSlots;
 };
+
+
 
 // Function to convert time string to minutes
 export const timeToMinutes = (time) => {
@@ -477,6 +465,29 @@ export const getWorkerAvailabilities = (
     const _today = moment().format("YYYY-MM-DD");
     const _currentTime = moment().format("HH:mm:ss");
 
+    // Helper function to generate 15-minute slots within a given time range
+    const splitInto15MinuteSlots = (slot) => {
+        const slotStart = moment(slot.time, "HH:mm:ss");
+        const slotEnd = moment(slot.time, "HH:mm:ss").add(1, "hour"); // Assuming original slot is 1 hour
+    
+        let slots = [];
+        while (slotStart.isBefore(slotEnd)) {
+            const endSlot = moment(slotStart).add(15, "minutes"); // Create 15-minute intervals
+            slots.push({
+                time: slotStart.format("HH:mm:ss"), // Starting time of the 15-min slot
+                endTime: endSlot.format("HH:mm:ss"), // Ending time of the 15-min slot
+                isBooked: slot.isBooked,
+                isFreezed: slot.isFreezed,
+                notAvailable: slot.notAvailable,
+                clientName: slot.clientName, // Include clientName from the original slot
+                jobId: slot.jobId, // Also include jobId if necessary
+            });
+            slotStart.add(15, "minutes"); // Move to the next 15-minute interval
+        }
+        return slots;
+    };
+    
+
     return workers?.map((worker) => {
         let freeze_dates = worker.freeze_dates ?? [];
         const booked_slots = worker.booked_slots ?? [];
@@ -484,6 +495,7 @@ export const getWorkerAvailabilities = (
         const notAvailableDates = worker.not_available_on;
         const availabilityArray = Object.entries(worker?.availabilities);
         let slots = availabilityArray?.map(([key, value]) => {
+            // Apply the filterShiftOptions function
             let slots = filterShiftOptions(
                 value ?? [],
                 booked_slots[key] ?? [],
@@ -493,15 +505,21 @@ export const getWorkerAvailabilities = (
                 notAvailableDates?.find((n) => n.date == key)
             );
 
+            // For today's slots, filter out past time slots
             if (key === _today) {
                 slots = slots.filter((i) => i.time > _currentTime);
-            }
+            }            
+
+            // Split each slot into 15-minute intervals
+            slots = slots.flatMap(splitInto15MinuteSlots);
 
             let filteredSlots = [];
 
             if (isClient) {
+                // Find continuous time slots that match the job hours (for client)
                 filteredSlots = findContinuousTimeSlots(slots, jobHours);
             } else {
+                // Filter the slots for non-client (admin view or similar)
                 filteredSlots = slots
                     .filter(
                         (slot) =>
@@ -516,35 +534,47 @@ export const getWorkerAvailabilities = (
 
             return {
                 date: key,
-                allSlots: slots,
-                slots: filteredSlots,
+                allSlots: slots, // All 15-minute slots (before filtering)
+                slots: filteredSlots, // Filtered 15-minute slots
             };
         });
+
         return {
             workerId: worker.id,
             workerName: worker.firstname + " " + worker.lastname,
-            slots: slots,
+            slots: slots, // Keep same structure as old code
         };
     });
 };
 
-const parseTimeSlots = (slots) => {
-    // Split the string into pairs
+
+
+export const parseTimeSlots = (slots) => {
+    
     const pairs = slots.split(",").map((slot) => slot.split("-"));
-
-    // This will store the final groups of time slots
     let groupedSlots = [];
-    let currentGroup = [pairs[0][0]]; // Initialize with the start of the first slot
+    let currentGroup = [pairs[0][0]];
 
-    // Iterate over the pairs to group them
+    // Helper function to convert time "HH:MM" to total minutes
+    const timeToMinutes = (time) => {
+        const [hours, minutes] = time.split(":").map(Number);
+        return hours * 60 + minutes;
+    };
+
+    // Iterate over pairs and group them based on the time difference
     pairs.forEach((pair, index) => {
         if (index > 0) {
-            // Check if the current pair's start time is the same as the last pair's end time
-            if (pair[0] === pairs[index - 1][1]) {
+            const previousEndTime = pairs[index - 1][1];
+            const currentStartTime = pair[0];
+
+            // Check if the break is 15 minutes or more
+            const timeDifference = timeToMinutes(currentStartTime) - timeToMinutes(previousEndTime);
+
+            if (timeDifference <= 15) {
                 // Continue the current group
                 currentGroup[1] = pair[1];
             } else {
-                // Finish the current group and start a new one
+                // Break found, finish the current group and start a new one
                 groupedSlots.push(currentGroup.join(" - "));
                 currentGroup = [pair[0], pair[1]];
             }
@@ -552,10 +582,10 @@ const parseTimeSlots = (slots) => {
     });
 
     // Add the last group
-    groupedSlots.push(currentGroup.join(" - "));
-
+    groupedSlots.push(currentGroup.join(" - "));    
     return groupedSlots;
 };
+
 
 export const getWorkersData = (workers) => {
     const data = [];
@@ -569,7 +599,8 @@ export const getWorkersData = (workers) => {
                 shifts: shifts.join(", ") ?? "",
             });
         });
-    });
+    });    
+    
     return data;
 };
 

@@ -368,7 +368,6 @@ return [
         'no_reason_provided' => 'לא נמסרה סיבה.',
         'assistance' => 'אנא עיינו בפרטים ועדכנו את המצב בהתאם.'
     ],
-
     'follow_up_conversation' => [
             'header' => 'מעקב אחרי השיחה שלנו',
             'greeting' => 'שלום :name,',
@@ -542,7 +541,8 @@ return [
         ],
         'new_lead_arrived' => [
             'header' => "*הובלה חדשה הגיעה | שירות ברוםים*",
-            'content' => "לקוח חדש (:client_name) הגיע עם הפרטים הבאים:\nאיש קשר: :contact\nאימייל: :email\nכתובת: :address"
+            'content' => "לקוח חדש הגיע עם הפרטים הבאים:\nשֵׁם: :client_name\nאיש קשר: :contact\nשירות מבוקש: :Service_Requested\nאימייל: :email\nכתובת: :address",
+            'follow_up' => 'אנא בצעו מעקב בהקדם האפשרי.'
         ],
         'client_lead_status_changed' => [
             'header' => "*סטטוס ההובלה השתנה | שירות ברוםים*",
@@ -683,7 +683,9 @@ return [
             'view_worker' => 'הצג עובד',
             'check_file' => 'בדוק קובץ',
             'view_client' => 'צפה בלקוח',
-            'view' => 'צפה'
+            'view' => 'צפה',
+            'view_lead' => 'צפה בפרטי הליד',
+            'call_lead' => 'התקשר לליד כעת'
         ]
 
 

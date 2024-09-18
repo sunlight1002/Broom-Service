@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class WhatsappNotification
 {
@@ -1239,11 +1240,18 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.new_lead_arrived.content', [
                         'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
                         'contact' => $clientData['phone'],
+                        'Service_Requested' => "",
                         'email' => $clientData['email'],
                         'address' => $clientData['geo_address']??$clientData['property_addresses'][0]['geo_address'],
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view') . ": " . url("admin/leads/view/" . $clientData['id']);
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.new_lead_arrived.follow_up');
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.call_lead') . ": " . "03 525 70 60";
+
                     break;
 
                 case WhatsappMessageTemplateEnum::USER_STATUS_CHANGED:
@@ -1623,17 +1631,84 @@ class WhatsappNotification
                     ]);
 
                     break;
+                
+                    case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
+                        $clientData = $eventData['client'];
+                        \Log::info("here");
+                    
+                        $whapiApiEndpoint = config('services.whapi.url');
+                        $whapiApiToken = config('services.whapi.token');
+                    
+                        App::setLocale($clientData['lng'] ?? 'en');
+                        $receiverNumber = $clientData['phone'];
+                        $number = $clientData['phone'] ."@s.whatsapp.net"; 
+                        \Log::info($number);
+
+                        // Message Content
+                        $text = __('mail.wa-message.follow_up.subject');
+                        $text .= "\n\n";
+                        $text .= __('mail.wa-message.follow_up.salutation', [
+                            'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                        ]);
+                        $text .= "\n\n";
+                        $text .= __('mail.wa-message.follow_up.introduction');
+                        $text .= "\n\n";
+                        $text .= __('mail.wa-message.follow_up.testimonials', [
+                            'testimonials_link' => url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl')
+                        ]);
+                        $text .= "\n\n";
+                        $text .= __('mail.wa-message.follow_up.brochure');
+                        $text .= "\n\n";
+                        $text .= __('mail.wa-message.follow_up.commitment');
+                        $text .= "\n\n";
+                        $text .= __('mail.wa-message.follow_up.help');
+                        $text .= "\n\n";
+                        $text .= __('mail.wa-message.follow_up.best_regards');
+                        $text .= "\n";
+                        $text .= __('mail.wa-message.follow_up.service_name');
+                        $text .= "\n";
+                        $text .= '📞 03-525-70-60';
+                        $text .= "\n";
+                        $text .= __('mail.wa-message.follow_up.service_website');
+                    
+                        $fileName = $clientData['lng'] === 'heb' ? 'BroomServiceHebrew.pdf' : 'BroomServiceEnglish.pdf';
+                    
+                        // Retrieve the file from storage
+                        $pdfPath = Storage::path($fileName);
+                    
+                        // Prepare the file for attachment
+                        $file = fopen($pdfPath, 'r'); // Open the file in read mode
+                    
+                        // Send message and PDF
+                        $response = Http::withHeaders([
+                            'Authorization' => 'Bearer ' . $whapiApiToken,
+                        ])->attach(
+                            'media', $file, $fileName // Use 'media' for the attachment field
+                            )->post($whapiApiEndpoint . 'messages/document', [
+                            'to' => $number,
+                            'mime_type' => 'application/pdf',
+                        ]);
+                    
+                        fclose($file);
+                    
+                        if ($response->successful()) {
+                            \Log::info('PDF sent successfully');
+                        } else {
+                            \Log::error('Failed to send PDF: ' . $response->body());
+                        }
+                    break;
             }
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
+                Log::info($text);
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
                         'body' => $text
                     ]);
 
-                Log::info($response->json());
+                // Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);

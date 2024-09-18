@@ -24,7 +24,8 @@ use App\Events\JobNotificationToAdmin;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Enums\NotificationTypeEnum;
-
+use App\Jobs\SendUninterestedClientEmail;
+use Illuminate\Mail\Mailable;
 
 
 class ScheduleNextJobOccurring implements ShouldQueue
@@ -281,6 +282,19 @@ class ScheduleNextJobOccurring implements ShouldQueue
                }
                 
                 if ($client->notification_type === "both") {
+
+                    if ($newLeadStatus === 'uninterested') {
+
+                        event(new WhatsappNotificationEvent([
+                            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                            "notificationData" => [
+                                'client' => $client->toArray(),
+                            ]
+                        ]));
+                
+                        SendUninterestedClientEmail::dispatch($client, $emailData);
+                    }
+
                     if ($newLeadStatus === 'unanswered') {
 
                         // Trigger WhatsApp Notification
@@ -328,6 +342,12 @@ class ScheduleNextJobOccurring implements ShouldQueue
                         ]));
                     
                 } elseif ($client->notification_type === "email") {
+
+                    if ($newLeadStatus === 'uninterested') {
+
+                        SendUninterestedClientEmail::dispatch($client, $emailData);
+                    }
+
                     if ($newLeadStatus === 'unanswered') {
                         App::setLocale($client['lng']);
                         // Send Email Notification
@@ -356,6 +376,17 @@ class ScheduleNextJobOccurring implements ShouldQueue
                     ]));
                     
                 } else {
+
+                    if ($newLeadStatus === 'uninterested') {
+
+                        event(new WhatsappNotificationEvent([
+                            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                            "notificationData" => [
+                                'client' => $client->toArray(),
+                            ]
+                        ]));
+                    }
+
                     if ($newLeadStatus === 'unanswered') {
 
                         // Trigger WhatsApp Notification Only

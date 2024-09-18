@@ -20,7 +20,8 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
 use App\Enums\NotificationTypeEnum;
-
+use App\Jobs\SendUninterestedClientEmail;
+use Illuminate\Mail\Mailable;
 
 
 class OfferController extends Controller
@@ -158,6 +159,19 @@ class OfferController extends Controller
            }
             
            if ($client->notification_type === "both") {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
             if ($newLeadStatus === 'unanswered') {
       
                 event(new WhatsappNotificationEvent([
@@ -199,6 +213,12 @@ class OfferController extends Controller
                 ]));
             
           } elseif ($client->notification_type === "email") {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
             if ($newLeadStatus === 'unanswered') {
                 App::setLocale($client['lng']);
                 Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
@@ -225,6 +245,17 @@ class OfferController extends Controller
             ]));
             
           } else {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            }
+
             if ($newLeadStatus === 'unanswered') {
       
                 event(new WhatsappNotificationEvent([
