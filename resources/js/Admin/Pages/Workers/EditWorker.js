@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef, createRef } from "react";
 import { useAlert } from "react-alert";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
 import {
     GoogleMap,
     LoadScript,
@@ -82,6 +85,12 @@ export default function EditWorker() {
         lng: longitude,
     };
 
+    const handleFormValuesChange = (name, value) => {
+        setFormValues(prev => ({
+            ...prev,
+            [name]: value,
+        }));
+    };    
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -346,27 +355,24 @@ export default function EditWorker() {
                                 </div>
                                 <div className="col-sm-6">
                                     <div className="form-group">
-                                        <label className="control-label">
-                                            {t("worker.settings.phone")}
-                                        </label>
-                                        <input
-                                            type="tel"
+                                        <label className="control-label">{t("worker.settings.phone")}</label>
+                                        <PhoneInput
+                                            country={'il'}
                                             value={formValues.phone}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    phone: e.target.value,
-                                                });
+                                            onChange={(phone) => handleFormValuesChange('phone', phone)}
+                                            inputClass="form-control"
+                                            inputProps={{
+                                                name: 'phone',
+                                                required: true,
+                                                placeholder: t("worker.settings.phone"),
                                             }}
-                                            className="form-control"
-                                            placeholder={t("worker.settings.phone")}
                                         />
                                         {errors.phone ? (
                                             <small className="text-danger mb-1">
                                                 {errors.phone}
                                             </small>
                                         ) : (
-                                            ""
+                                             ""
                                         )}
                                     </div>
                                 </div>

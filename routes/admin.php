@@ -27,6 +27,13 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\Admin\LeadChartsController;
+use App\Http\Controllers\Admin\HolidayController;
+use App\Http\Controllers\Admin\AdvanceLoanController;
+use App\Http\Controllers\SickLeaveController;
+use App\Http\Controllers\PayrollReportController;
+use App\Http\Controllers\RefundClaimController;
+use App\Http\Controllers\LeadActivityController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +101,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('leads/save-property-address', [LeadController::class, 'savePropertyAddress']);
     Route::delete('leads/remove-property-address/{id}', [LeadController::class, 'removePropertyAddress']);
 
+    //  Routes for Lead Activity
+    Route::get('/lead-activities/{id}', [LeadActivityController::class, 'getLeadActivities']);
+    
     // Client Property Address Comments
     Route::get('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'getComments']);
     Route::post('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'saveComment']);
@@ -323,13 +333,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 });
 Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
 
- Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);
- Route::get('/facebook/campaigns/{id}/cost', [LeadChartsController::class, 'cost']);
+Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);
+Route::get('/facebook/campaigns/{id}/cost', [LeadChartsController::class, 'cost']);
 // Route::get('/facebook/campaign-cost', [LeadChartsController::class, 'getCampaignCost'])->name('facebook.api.campaign.cost');
 
-// Route::post('/campaigns/create', [LeadChartsController::class, 'createCampaign']);
-
-
-
-
-
+Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
+Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);
+Route::get('/facebook/campaigns/{id}/cost', [LeadChartsController::class, 'cost']);

@@ -191,4 +191,11 @@ class Client extends Authenticatable
     {
         return $this->morphMany(DeviceToken::class, 'tokenable');
     }
+
+    public function leadActivities()
+    {
+        return $this->hasMany(LeadActivity::class);
+    }
+
 }
+

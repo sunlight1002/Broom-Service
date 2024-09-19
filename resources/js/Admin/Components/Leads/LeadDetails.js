@@ -6,8 +6,10 @@ import Notes from "./Notes";
 import Files from "../Clients/Files";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
+import LeadActivityList from "../../Pages/LeadActivity/ViewLeadActivity";
 
 export default function LeadDetails({ lead }) {
+    
     const { t } = useTranslation();
     const generatedOn = useMemo(() => {
         return (
@@ -17,7 +19,7 @@ export default function LeadDetails({ lead }) {
         );
     }, [lead.created_at]);
 
-    const param = useParams();
+    const param = useParams();    
 
     return (
         <>
@@ -111,6 +113,20 @@ export default function LeadDetails({ lead }) {
                                     >
                                         {t(
                                             "admin.leads.leadDetails.IntrestedIn"
+                                        )}
+                                    </a>
+                                </li>
+                                <li className="nav-item" role="presentation">
+                                    <a
+                                        id="activities-details"
+                                        className="nav-link navyblueColor"
+                                        data-toggle="tab"
+                                        href="#tab-activities"
+                                        aria-selected="false"
+                                        role="tab"
+                                    >
+                                        {t(
+                                            "admin.leads.leadDetails.Activities"
                                         )}
                                     </a>
                                 </li>
@@ -254,6 +270,7 @@ export default function LeadDetails({ lead }) {
                                     role="tab-panel"
                                     aria-labelledby="card-details"
                                 >
+
                                     {lead.reply ? (
                                         <div className="form-group">
                                             <div className="col-sm-6">
@@ -295,6 +312,17 @@ export default function LeadDetails({ lead }) {
                                             )}
                                         </p>
                                     )}
+                                </div>
+
+                                <div
+                                    id="tab-activities"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="card-details"
+                                >
+                                    <div className="form-group">
+                                        <LeadActivityList />
+                                    </div>
                                 </div>
 
                                 {/* <div id="tab-contact" className="tab-pane" role="tab-panel" aria-labelledby="card-details">

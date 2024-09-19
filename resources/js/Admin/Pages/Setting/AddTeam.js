@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 export default function AddTeam() {
 
@@ -149,14 +151,27 @@ export default function AddTeam() {
                                     <label className="control-label">
                                         {t("admin.global.Phone")}
                                     </label>
-                                    <input
+                                    <PhoneInput
+                                                    country={'il'}
+                                                    value={phone}
+                                                    onChange={(phone) => {
+                                                        setPhone(phone);
+                                                    }}
+                                                    inputClass="form-control"
+                                                    inputProps={{
+                                                        name: 'phone',
+                                                        required: true,
+                                                        placeholder: "Enter phone",
+                                                    }}
+                                                />
+                                    {/* <input
                                         type="tel"
                                         className="form-control"
                                         onChange={(e) =>
                                             setPhone(e.target.value)
                                         }
                                         placeholder="Enter phone"
-                                    />
+                                    /> */}
                                     {errors?.phone ? (
                                         <small className="text-danger mb-1">
                                             {errors?.phone}

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
+use App\Rules\ValidPhoneNumber;
 
 class TeamMemberController extends Controller
 {
@@ -60,7 +61,7 @@ class TeamMemberController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:admins'],
-            'phone' => ['required'],
+            'phone'     => ['required', 'string', 'max:20', new ValidPhoneNumber()],
             'password' => ['required', 'min:6', 'required_with:confirmation', 'same:confirmation'],
             'status' => ['required'],
             'payment_type' => ['required', 'string'],

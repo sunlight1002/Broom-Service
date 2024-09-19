@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
+use App\Rules\ValidPhoneNumber;
 use PDF;
 class WorkerController extends Controller
 {
@@ -280,7 +281,7 @@ class WorkerController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
-            'phone'     => ['required', 'unique:users'],
+            'phone'     => ['required', 'string', 'max:20', new ValidPhoneNumber(), 'unique:users'],
             'worker_id' => ['required'],
             'status'    => ['required'],
             'password'  => ['required'],
@@ -431,7 +432,7 @@ class WorkerController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => ['required', 'string', 'max:255'],
             'address'   => ['required', 'string'],
-            'phone'     => ['required', 'unique:users,phone,' . $id],
+            'phone'     => ['required', new ValidPhoneNumber(), 'unique:users,phone,' . $id],
             //'worker_id' => ['required','unique:users,worker_id,'.$id],
             'status'    => ['required'],
             'email'     => ['nullable',  'unique:users,email,' . $id],

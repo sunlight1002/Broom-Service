@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\LeadActivity;
 
 class ScheduleController extends Controller
 {
@@ -127,6 +128,14 @@ class ScheduleController extends Controller
         );
 
         event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
+
+        LeadActivity::create([
+            'client_id' => $client->id,
+            'created_date' => " ",
+            'status_changed_date' => Carbon::now(),
+            'changes_status' => LeadStatusEnum::POTENTIAL,
+            'reason' => 'New schedule created', 
+        ]);
 
         if (!$schedule->start_date) {
             $schedule->load(['client', 'team', 'propertyAddress']);

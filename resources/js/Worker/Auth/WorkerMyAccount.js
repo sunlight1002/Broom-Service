@@ -1,8 +1,17 @@
 import React, { createRef, useEffect, useRef, useState } from "react";
 import { useAlert } from "react-alert";
-import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import FullPageLoader from "../../Components/common/FullPageLoader";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import styled from 'styled-components';
+
+const StyledPhoneInput = styled(PhoneInput)`
+.form-control {
+    width: 100%;
+    max-width: 100%;
+}
+`;
 
 const animalArray = [
     {
@@ -229,14 +238,18 @@ export default function WorkerMyAccount() {
                                     <label className="control-label">
                                         {t("worker.settings.phone")}
                                     </label>
-                                    <input
-                                        type="tel"
+                                    <StyledPhoneInput
+                                        country={'il'}
                                         value={phone}
-                                        onChange={(e) =>
-                                            setPhone(e.target.value)
-                                        }
-                                        className="form-control"
-                                        placeholder={t("worker.settings.phone")}
+                                        onChange={(phone) => {
+                                        setPhone(phone);
+                                        }}
+                                        inputClass="form-control"
+                                        inputProps={{
+                                            name: 'phone',
+                                            required: true,
+                                            placeholder: t("worker.settings.phone"),
+                                        }}
                                     />
                                     {errors.phone ? (
                                         <small className="text-danger mb-1">

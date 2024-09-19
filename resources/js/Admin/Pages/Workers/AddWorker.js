@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef, createRef } from "react";
 import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
 import {
     GoogleMap,
     LoadScript,
@@ -83,6 +86,13 @@ export default function AddWorker() {
         lat: latitude,
         lng: longitude,
     };
+
+    const handleFormValuesChange = (name, value) => {
+        setFormValues(prev => ({
+            ...prev,
+            [name]: value,
+        }));
+    };    
 
     const handleBankDetails = (e) => {
         const { name, value } = e.target;
@@ -293,20 +303,17 @@ export default function AddWorker() {
                                     </div>
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label className="control-label">
-                                                {t("worker.settings.phone")}
-                                            </label>
-                                            <input
-                                                type="tel"
+                                            <label className="control-label">{t("worker.settings.phone")}</label>
+                                            <PhoneInput
+                                                country={'il'}
                                                 value={formValues.phone}
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        phone: e.target.value,
-                                                    });
+                                                onChange={(phone) => handleFormValuesChange('phone', phone)}
+                                                inputClass="form-control"
+                                                inputProps={{
+                                                    name: 'phone',
+                                                    required: true,
+                                                    placeholder: t("worker.settings.phone"),
                                                 }}
-                                                className="form-control"
-                                                placeholder={t("worker.settings.phone")}
                                             />
                                             {errors.phone ? (
                                                 <small className="text-danger mb-1">

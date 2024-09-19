@@ -6,6 +6,8 @@ import { MultiSelect } from "react-multi-select-component";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import { create } from "lodash";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 import Sidebar from "../../Layouts/Sidebar";
 import PropertyAddress from "../../Components/Leads/PropertyAddress";
@@ -72,12 +74,12 @@ export default function AddLeadClient() {
             services: JSON.stringify(formValues),
         };
 
-        var phoneClc = "";
-        var phones = document.querySelectorAll(".pphone");
-        phones.forEach((p, i) => {
-            phoneClc += p.value + ",";
-        });
-        phoneClc = phoneClc.replace(/,\s*$/, "");
+        // var phoneClc = "";
+        // var phones = document.querySelectorAll(".pphone");
+        // phones.forEach((p, i) => {
+        //     phoneClc += p.value + ",";
+        // });
+        // phoneClc = phoneClc.replace(/,\s*$/, "");
         const data = {
             firstname: firstname,
             lastname: lastname == null ? "" : lastname,
@@ -87,7 +89,7 @@ export default function AddLeadClient() {
             lng: lng ? lng : "heb",
             color: !color ? "#fff" : color,
             email: email,
-            phone: phoneClc,
+            phone: phone,
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
@@ -215,6 +217,12 @@ export default function AddLeadClient() {
     const handleAlternate = (i, e) => {
         let extraValues = [...extra];
         extraValues[i][e.target.name] = e.target.value;
+        setExtra(extraValues);
+    };
+
+    const handleAlternatePhone = (i, value) => {
+        let extraValues = [...extra];
+        extraValues[i].phone = value;
         setExtra(extraValues);
     };
 
@@ -394,18 +402,19 @@ export default function AddLeadClient() {
                                                 )}{" "}
                                                 *
                                             </label>
-                                            <input
-                                                type="tel"
-                                                value={phone}
-                                                name={"phone"}
-                                                onChange={(e) =>
-                                                    setPhone(e.target.value)
-                                                }
-                                                className="form-control pphone"
-                                                placeholder={t(
-                                                    "admin.leads.AddLead.placeHolder.PrimaryPhone"
-                                                )}
-                                            />
+                                            <PhoneInput
+                                                    country={'il'}
+                                                    value={phone}
+                                                    onChange={(phone) => {
+                                                        setPhone(phone);
+                                                    }}
+                                                    inputClass="form-control"
+                                                    inputProps={{
+                                                        name: 'phone',
+                                                        required: true,
+                                                        placeholder: t("admin.leads.AddLead.placeHolder.PrimaryPhone"),
+                                                    }}
+                                                />
                                             {errors.phone ? (
                                                 <small className="text-danger mb-1">
                                                     {errors.phone}
@@ -483,24 +492,17 @@ export default function AddLeadClient() {
                                                                     "admin.leads.AddLead.AlternatePhone"
                                                                 )}
                                                             </label>
-                                                            <input
-                                                                type="tel"
-                                                                value={
-                                                                    ex.phone ||
-                                                                    ""
-                                                                }
-                                                                name="phone"
-                                                                onChange={(e) =>
-                                                                    handleAlternate(
-                                                                        i,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                className="form-control"
-                                                                placeholder={t(
-                                                                    "admin.leads.AddLead.placeHolder.AlternatePhone"
-                                                                )}
-                                                            />
+                                                            <PhoneInput
+                                                                    country={'il'}
+                                                                    value={ex.phone || ""}
+                                                                    onChange={(value) => handleAlternatePhone(i, value)}
+                                                                    inputClass="form-control"
+                                                                    inputProps={{
+                                                                        name: 'phone',
+                                                                        required: true,
+                                                                        placeholder: t("admin.leads.AddLead.placeHolder.AlternatePhone"),
+                                                                    }}
+                                                                />
                                                         </div>
                                                     </div>
                                                     <div className="col-sm-1">

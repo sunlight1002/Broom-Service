@@ -22,7 +22,7 @@ use App\Models\Notification;
 use App\Enums\NotificationTypeEnum;
 use App\Jobs\SendUninterestedClientEmail;
 use Illuminate\Mail\Mailable;
-
+use App\Models\LeadActivity;
 
 class OfferController extends Controller
 {
@@ -140,6 +140,14 @@ class OfferController extends Controller
                 [],
                 ['lead_status' => $newLeadStatus]
             );
+
+            LeadActivity::create([
+                'client_id' => $client->id,
+                'created_date' => " ",
+                'status_changed_date' => now(),
+                'changes_status' => $newLeadStatus,
+                'reason' => "New price offered",
+            ]);
 
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
 

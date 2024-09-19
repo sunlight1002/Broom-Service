@@ -44,6 +44,10 @@ use App\Models\Notification;
 use App\Enums\NotificationTypeEnum;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailable;
+use App\Rules\ValidPhoneNumber;
+use App\Models\LeadActivity;
+
+
 
 class ClientController extends Controller
 {
@@ -157,7 +161,7 @@ class ClientController extends Controller
             'firstname' => ['required', 'string', 'max:255'],
             'invoicename' => ['required', 'string', 'max:255'],
             'vat_number' => ['nullable', 'string', 'max:50'],
-            'phone' => ['required', 'unique:clients'],
+            'phone'     => ['required', 'string', 'max:20', new ValidPhoneNumber(),'unique:clients'],
             'status' => ['required'],
             'passcode' => ['required', 'string', 'min:6'],
             'email' => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
@@ -170,7 +174,7 @@ class ClientController extends Controller
         $input = $request->data;
         $input['password'] = Hash::make($input['passcode']);
         $client = Client::create($input);
-    
+
         // Create user in iCount
         $iCountResponse = $this->createOrUpdateUser($request);
     
@@ -418,7 +422,7 @@ class ClientController extends Controller
             'firstname' => ['required', 'string', 'max:255'],
             'vat_number' => ['nullable', 'string', 'max:50'],
             // 'passcode'  => ['required', 'string', 'min:6'],
-            'phone'     => ['required', 'unique:clients,phone,' . $id],
+            'phone'     => ['required', 'string', new ValidPhoneNumber(), 'unique:clients,phone,' . $id],
             'status'    => ['required'],
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
         ]);
@@ -1093,8 +1097,19 @@ class ClientController extends Controller
             'status' =>  $statusArr[$data['status']],
             'reason' =>  $data['reason']
         ]);
+
+        // Log the status change
+        LeadActivity::create([
+            'client_id' => $data['id'],
+            'created_date' =>" ",
+            'status_changed_date' => now(),
+            'changes_status' => $newLeadStatus,
+            'reason' => $data['reason'],
+        ]);
+
         return response()->json([
-            'message' => 'Status has been changes successfully!'
+            'message' => 'Status has been changed successfully!',
         ]);
     }
+
 }
