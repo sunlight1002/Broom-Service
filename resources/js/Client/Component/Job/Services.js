@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import { getShiftsDetails } from "../../../Utils/common.utils";
 import { Link } from "react-router-dom";
 export default function Services({ job }) {
     const { t, i18n } = useTranslation();
@@ -31,6 +31,8 @@ export default function Services({ job }) {
 
     const service = job.jobservice;
 
+    const { durationInHours, startTime, endTime } = getShiftsDetails(job);    
+
     return (
         <>
             <h2 className="text-custom">{t("worker.jobs.view.s_details")}</h2>
@@ -57,9 +59,7 @@ export default function Services({ job }) {
                                     </label>
                                     <p>
                                         {service.duration_minutes
-                                            ? convertMinsToDecimalHrs(
-                                                  service.duration_minutes
-                                              )
+                                            ? durationInHours
                                             : "NA"}{" "}
                                         {t("client.jobs.view.hour_s")}
                                     </p>
@@ -70,7 +70,7 @@ export default function Services({ job }) {
                                     <label className="control-label">
                                         {t("client.jobs.view.shift")}
                                     </label>
-                                    <p>{job.shifts}</p>
+                                    <p>{startTime}</p>
                                 </div>
                             </div>
                             <div className="col-sm-3">

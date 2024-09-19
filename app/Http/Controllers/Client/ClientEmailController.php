@@ -179,13 +179,13 @@ class ClientEmailController extends Controller
                   });
               }
 
-              event(new WhatsappNotificationEvent([
-                  "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                  "notificationData" => [
-                      'client' => $client->toArray(),
-                      'status' => $newLeadStatus,
-                  ]
-              ]));
+              // event(new WhatsappNotificationEvent([
+              //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+              //     "notificationData" => [
+              //         'client' => $client->toArray(),
+              //         'status' => $newLeadStatus,
+              //     ]
+              // ]));
 
           } elseif ($client->notification_type === "email") {
 
@@ -210,13 +210,13 @@ class ClientEmailController extends Controller
                   });
               }
 
-              event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ]
-            ]));
+            //   event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            //     "notificationData" => [
+            //         'client' => $client->toArray(),
+            //         'status' => $newLeadStatus,
+            //     ]
+            // ]));
 
           } else {
 
@@ -247,13 +247,13 @@ class ClientEmailController extends Controller
                       ]
                   ]));
               }
-              event(new WhatsappNotificationEvent([
-                  "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                  "notificationData" => [
-                      'client' => $client->toArray(),
-                      'status' => $newLeadStatus,
-                  ]
-              ]));
+              // event(new WhatsappNotificationEvent([
+              //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+              //     "notificationData" => [
+              //         'client' => $client->toArray(),
+              //         'status' => $newLeadStatus,
+              //     ]
+              // ]));
           }
       }
       Notification::create([
@@ -602,13 +602,13 @@ class ClientEmailController extends Controller
             $messages->subject($sub);
         });
     };
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-            "notificationData" => [
-                'client' => $client->toArray(),
-                'status' => $newLeadStatus,
-            ]
-        ]));
+        // event(new WhatsappNotificationEvent([
+        //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+        //     "notificationData" => [
+        //         'client' => $client->toArray(),
+        //         'status' => $newLeadStatus,
+        //     ]
+        // ]));
 
     } elseif ($client->notification_type === "email") {
 
@@ -633,13 +633,13 @@ class ClientEmailController extends Controller
         });
     }
 
-    event(new WhatsappNotificationEvent([
-      "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-      "notificationData" => [
-          'client' => $client->toArray(),
-          'status' => $newLeadStatus,
-      ]
-  ]));
+  //   event(new WhatsappNotificationEvent([
+  //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+  //     "notificationData" => [
+  //         'client' => $client->toArray(),
+  //         'status' => $newLeadStatus,
+  //     ]
+  // ]));
 
 } else {
 
@@ -672,13 +672,13 @@ class ClientEmailController extends Controller
         ]));
     }
 
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-            "notificationData" => [
-                'client' => $client->toArray(),
-                'status' => $newLeadStatus,
-            ]
-        ]));
+        // event(new WhatsappNotificationEvent([
+        //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+        //     "notificationData" => [
+        //         'client' => $client->toArray(),
+        //         'status' => $newLeadStatus,
+        //     ]
+        // ]));
     }
       }
 
@@ -914,13 +914,13 @@ class ClientEmailController extends Controller
               $messages->subject($sub);
           });
       };
-          event(new WhatsappNotificationEvent([
-              "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-              "notificationData" => [
-                  'client' => $client->toArray(),
-                  'status' => $newLeadStatus,
-              ]
-          ]));
+          // event(new WhatsappNotificationEvent([
+          //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+          //     "notificationData" => [
+          //         'client' => $client->toArray(),
+          //         'status' => $newLeadStatus,
+          //     ]
+          // ]));
 
     } elseif ($client->notification_type === "email") {
 
@@ -945,13 +945,13 @@ class ClientEmailController extends Controller
               $messages->subject($sub);
           });
       }
-      event(new WhatsappNotificationEvent([
-        "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-        "notificationData" => [
-            'client' => $client->toArray(),
-            'status' => $newLeadStatus,
-        ]
-    ]));
+    //   event(new WhatsappNotificationEvent([
+    //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+    //     "notificationData" => [
+    //         'client' => $client->toArray(),
+    //         'status' => $newLeadStatus,
+    //     ]
+    // ]));
 
     } else {
 
@@ -983,13 +983,13 @@ class ClientEmailController extends Controller
               ]
           ]));
       }
-          event(new WhatsappNotificationEvent([
-              "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-              "notificationData" => [
-                  'client' => $client->toArray(),
-                  'status' => $newLeadStatus,
-              ]
-          ]));
+          // event(new WhatsappNotificationEvent([
+          //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+          //     "notificationData" => [
+          //         'client' => $client->toArray(),
+          //         'status' => $newLeadStatus,
+          //     ]
+          // ]));
       }
     }
 
