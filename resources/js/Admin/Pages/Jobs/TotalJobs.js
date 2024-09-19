@@ -22,6 +22,7 @@ import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
 import CancelJobModal from "../../Components/Modals/CancelJobModal";
 import FilterButtons from "../../../Components/common/FilterButton";
 import { Card, ListGroup } from "react-bootstrap";
+import { getShiftsDetails } from "../../../Utils/common.utils";
 
 export default function TotalJobs() {
     const { t, i18n } = useTranslation();
@@ -78,7 +79,7 @@ export default function TotalJobs() {
                 { title: 'Client Address', data: 'client.address' },
                 {
                     title: 'Worker Name',
-                    data: 'worker', 
+                    data: 'worker',
                     render: function (data, type, row) {
                         if (data && data.firstname && data.lastname) {
                             return `${data.firstname} ${data.lastname}`;
@@ -183,6 +184,15 @@ export default function TotalJobs() {
                         d.start_date = startDateRef.current.value;
                         d.end_date = endDateRef.current.value;
                     },
+                    dataSrc: function (json) {                        
+                        json.data.forEach((job) => {
+                            const { durationInHours, startTime, endTime } = getShiftsDetails(job);
+                            job.durationInHours = durationInHours;
+                            job.startTime = startTime;
+                            job.endTime = endTime;
+                        });
+                        return json.data;
+                    },
                 },
                 order: [[0, "desc"]],
                 columns: [
@@ -210,7 +220,7 @@ export default function TotalJobs() {
                         title: t("global.service"),
                         data: "service_name",
                         render: function (data, type, row, meta) {
-                            let _html = `<span class="service-name-badge" style=" color: ${row.service_color == "#00FF"? 'white': 'black'}; background-color: ${row.service_color ?? "#FFFFFF"
+                            let _html = `<span class="service-name-badge" style=" color: ${row.service_color == "#00FF" ? 'white' : 'black'}; background-color: ${row.service_color ?? "#FFFFFF"
                                 };">`;
 
                             _html += data;
@@ -237,15 +247,11 @@ export default function TotalJobs() {
                     },
                     {
                         title: t("client.jobs.shift"),
-                        data: "shifts",
+                        data: null,
                         render: function (data, type, row, meta) {
-                            const _slots = data.split(",");
+                            const { startTime, endTime } = row;
+                            return `<div class="rounded mb-1 shifts-badge"> ${startTime + "-" + endTime} </div>`;
 
-                            return _slots
-                                .map((_slot, index) => {
-                                    return `<div class="rounded mb-1 shifts-badge"> ${_slot} </div>`;
-                                })
-                                .join(" ");
                         },
                     },
                     {
@@ -263,12 +269,12 @@ export default function TotalJobs() {
                     },
                     {
                         title: t("admin.global.time_for_job"),
-                        data: "duration_minutes",
+                        data: null,
                         orderable: false,
                         render: function (data, type, row, meta) {
-                            return `<span class="text-nowrap"> ${minutesToHours(
-                                data
-                            )} </span>`;
+                            const { durationInHours } = row;
+
+                            return `<span class="text-nowrap"> ${durationInHours +" "+ "Hours"} </span>`;
                         },
                     },
                     {

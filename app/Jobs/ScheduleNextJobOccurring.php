@@ -333,13 +333,13 @@ class ScheduleNextJobOccurring implements ShouldQueue
                     } 
 
                         // Trigger WhatsApp Notification
-                        event(new WhatsappNotificationEvent([
-                            "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                            "notificationData" => [
-                                'client' => $client->toArray(),
-                                'status' => $newLeadStatus,
-                            ]
-                        ]));
+                        // event(new WhatsappNotificationEvent([
+                        //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                        //     "notificationData" => [
+                        //         'client' => $client->toArray(),
+                        //         'status' => $newLeadStatus,
+                        //     ]
+                        // ]));
                     
                 } elseif ($client->notification_type === "email") {
 
@@ -367,13 +367,13 @@ class ScheduleNextJobOccurring implements ShouldQueue
                             $messages->subject($sub);
                         });
                     }
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                        "notificationData" => [
-                            'client' => $client->toArray(),
-                            'status' => $newLeadStatus,
-                        ]
-                    ]));
+                    // event(new WhatsappNotificationEvent([
+                    //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                    //     "notificationData" => [
+                    //         'client' => $client->toArray(),
+                    //         'status' => $newLeadStatus,
+                    //     ]
+                    // ]));
                     
                 } else {
 
@@ -408,13 +408,13 @@ class ScheduleNextJobOccurring implements ShouldQueue
                         ]));
                     }
                         // Trigger WhatsApp Notification Only
-                        event(new WhatsappNotificationEvent([
-                            "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                            "notificationData" => [
-                                'client' => $client->toArray(),
-                                'status' => $newLeadStatus,
-                            ]
-                        ]));
+                        // event(new WhatsappNotificationEvent([
+                        //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                        //     "notificationData" => [
+                        //         'client' => $client->toArray(),
+                        //         'status' => $newLeadStatus,
+                        //     ]
+                        // ]));
                 }
             }
         }

@@ -40,7 +40,7 @@ export default function WorkerDetails({ worker }) {
                                     {" "}
                                     {t("admin.schedule.jobs.Email")}
                                 </label>
-                                <p>{worker ? worker.email : "NA"}</p>
+                                <p className="word-break">{worker ? worker.email : "NA"}</p>
                             </div>
                         </div>
                         <div className="col-sm-6">
