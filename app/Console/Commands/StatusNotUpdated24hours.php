@@ -4,40 +4,24 @@ namespace App\Console\Commands;
 
 use App\Models\Offer;
 use App\Models\Client;
+use App\Models\ClientMetas;
 use Illuminate\Console\Command;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Enums\NotificationTypeEnum;
-use App\Models\Notification; 
+use App\Enums\ClientMetaEnum;
+use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
 
-
 class StatusNotUpdated24hours extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'StatusNotUpdated24';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Notify the team if status is not updated for over 24 hours, 3 days, or 7 days';
 
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
     public function handle()
     {
-        // Get Offer records where status is 'sent'
         $offerStatuses = Offer::where('status', 'sent')->get();
 
         foreach ($offerStatuses as $offerStatus) {
@@ -47,20 +31,29 @@ class StatusNotUpdated24hours extends Command
                 $createdAt = $offerStatus->created_at;
                 App::setLocale($client->lng);
 
-                // Check if the status is 'sent' for over 7 days
+                // Check if status is 'sent' for over 7 days
                 if ($createdAt <= Carbon::now()->subDays(7)) {
-                    $this->info("Sending final follow-up to team for client: " . $client->firstname);
-                    $this->sendFinalFollowUp($client, $offerStatus);
+                    if (!$this->isNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_7_DAY)) {
+                        $this->info("Sending final follow-up to team for client: " . $client->firstname);
+                        $this->sendFinalFollowUp($client, $offerStatus);
+                        $this->storeNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_7_DAY);
+                    }
                 }
-                // Check if the status is 'sent' for over 3 days (72 hours)
+                // Check if status is 'sent' for over 3 days
                 elseif ($createdAt <= Carbon::now()->subDays(3)) {
-                    $this->info("Sending 3-day follow-up to team for client: " . $client->firstname);
-                    $this->sendFollowUp($client, $offerStatus);
+                    if (!$this->isNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_3_DAY)) {
+                        $this->info("Sending 3-day follow-up to team for client: " . $client->firstname);
+                        $this->sendFollowUp($client, $offerStatus);
+                        $this->storeNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_3_DAY);
+                    }
                 }
-                // Check if the status is 'sent' for over 24 hours
+                // Check if status is 'sent' for over 24 hours
                 elseif ($createdAt <= Carbon::now()->subHours(24)) {
-                    $this->info("Sending 24-hour notification to team for client: " . $client->firstname);
-                    $this->sendNotification($client, $offerStatus);
+                    if (!$this->isNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_24_HOURS)) {
+                        $this->info("Sending 24-hour notification to team for client: " . $client->firstname);
+                        $this->sendNotification($client, $offerStatus);
+                        $this->storeNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_24_HOURS);
+                    }
                 }
             } else {
                 $this->info("Client not found for Offer Status ID: {$offerStatus->id}");
@@ -70,9 +63,25 @@ class StatusNotUpdated24hours extends Command
         return 0;
     }
 
-    /**
-     * Send the 24-hour notification to the team
-     */
+    // Check if the notification for the given key was already sent
+    protected function isNotificationSent($clientId, $key)
+    {
+        return ClientMetas::where('client_id', $clientId)
+            ->where('key', $key)
+            ->exists();
+    }
+
+    // Store that the notification for the given key was sent
+    protected function storeNotificationSent($clientId, $key)
+    {
+        ClientMetas::create([
+            'client_id' => $clientId,
+            'key' => $key,
+            'value' => Carbon::now()->toDateTimeString(),
+        ]);
+    }
+
+    // Send the 24-hour notification to the team
     protected function sendNotification($client, $offerStatus)
     {
         $response = event(new WhatsappNotificationEvent([
@@ -82,11 +91,10 @@ class StatusNotUpdated24hours extends Command
             ]
         ]));
 
-        // Create Notification entry for 24-hour update
         Notification::create([
             'user_id' => $client->id,
             'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::STATUS_NOT_UPDATED, // Assuming this enum exists
+            'type' => NotificationTypeEnum::STATUS_NOT_UPDATED,
             'status' => $offerStatus->status,
         ]);
 
@@ -97,9 +105,7 @@ class StatusNotUpdated24hours extends Command
         }
     }
 
-    /**
-     * Send the follow-up after 3 days
-     */
+    // Send the follow-up after 3 days
     protected function sendFollowUp($client, $offerStatus)
     {
         $response = event(new WhatsappNotificationEvent([
@@ -109,24 +115,17 @@ class StatusNotUpdated24hours extends Command
             ]
         ]));
 
-        // Create Notification entry for 3-day follow-up
         Notification::create([
             'user_id' => $client->id,
             'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::FOLLOW_UP_PRICE_OFFER, // Assuming this enum exists
+            'type' => NotificationTypeEnum::FOLLOW_UP_PRICE_OFFER,
             'status' => $offerStatus->status,
         ]);
 
-        $emailData = [
-            'client' => $client->toArray(),
-            'status' => $offerStatus->status,
-        ];
-
-        App::setLocale($client['lng']);
-        Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-            $messages->to($emailData['client']['email']);
-            $sub = __('mail.price_offer_reminder.header');
-            $messages->subject($sub);
+        App::setLocale($client->lng);
+        Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $client->toArray()], function ($messages) use ($client) {
+            $messages->to($client->email);
+            $messages->subject(__('mail.price_offer_reminder.header'));
         });
 
         if ($response) {
@@ -136,12 +135,9 @@ class StatusNotUpdated24hours extends Command
         }
     }
 
-    /**
-     * Send the final follow-up after 7 days
-     */
+    // Send the final follow-up after 7 days
     protected function sendFinalFollowUp($client, $offerStatus)
     {
-        // Trigger WhatsApp Notification
         $response = event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::FINAL_FOLLOW_UP_PRICE_OFFER,
             "notificationData" => [
@@ -149,33 +145,23 @@ class StatusNotUpdated24hours extends Command
             ]
         ]));
 
-        // Create Notification entry for final follow-up
         Notification::create([
             'user_id' => $client->id,
             'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::FINAL_FOLLOW_UP_PRICE_OFFER, // Assuming this enum exists
+            'type' => NotificationTypeEnum::FINAL_FOLLOW_UP_PRICE_OFFER,
             'status' => $offerStatus->status,
         ]);
 
-        // Send the email
-        $emailData = [
-            'client' => $client->toArray(),
-            'status' => $offerStatus->status,
-        ];
-
-        App::setLocale($client['lng']);
-        Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-            $messages->to($emailData['client']['email']);
-            $sub = __('mail.price_offer_reminder.header');
-            $messages->subject($sub);
+        App::setLocale($client->lng);
+        Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $client->toArray()], function ($messages) use ($client) {
+            $messages->to($client->email);
+            $messages->subject(__('mail.price_offer_reminder.header'));
         });
 
-        // Check if the WhatsApp notification was sent
         if ($response) {
             $this->info("Final follow-up sent for Offer ID: {$offerStatus->id}");
         } else {
-            $this->error("Failed to send final follow-up for Offer ID: {$offerStatus->id}");
+            $this->error("Failed to send after 7 days final follow-up for Offer ID: {$offerStatus->id}");
         }
     }
-
 }
