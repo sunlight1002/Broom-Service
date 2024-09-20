@@ -662,12 +662,12 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             
             if ($newLeadStatus === 'irrelevant') {
@@ -678,12 +678,12 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }; 
 
                 // event(new WhatsappNotificationEvent([
@@ -702,20 +702,20 @@ class JobController extends Controller
             }
 
             if ($newLeadStatus === 'unanswered') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             if ($newLeadStatus === 'irrelevant') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
       
             // event(new WhatsappNotificationEvent([
@@ -1075,12 +1075,12 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             
             if ($newLeadStatus === 'irrelevant') {
@@ -1091,12 +1091,12 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }; 
             
                 // event(new WhatsappNotificationEvent([
@@ -1115,20 +1115,20 @@ class JobController extends Controller
             }
 
             if ($newLeadStatus === 'unanswered') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             if ($newLeadStatus === 'irrelevant') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             // event(new WhatsappNotificationEvent([
             //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
@@ -1506,12 +1506,12 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             
             if ($newLeadStatus === 'irrelevant') {
@@ -1522,12 +1522,12 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }; 
 
                 // event(new WhatsappNotificationEvent([
@@ -1545,20 +1545,20 @@ class JobController extends Controller
             }
 
             if ($newLeadStatus === 'unanswered') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             if ($newLeadStatus === 'irrelevant') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
 
             // event(new WhatsappNotificationEvent([
@@ -2120,12 +2120,12 @@ class JobController extends Controller
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
                 'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
-            sendJobWANotification($emailData);
-            Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                $messages->subject($sub);
-            });
+            // sendJobWANotification($emailData);
+            // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+            //     $messages->subject($sub);
+            // });
         }
 
         $otherWorkerJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
@@ -2143,12 +2143,12 @@ class JobController extends Controller
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
                 'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
-            sendJobWANotification($emailData);
-            Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                $messages->subject($sub);
-            });
+            // sendJobWANotification($emailData);
+            // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+            //     $messages->subject($sub);
+            // });
         }
 
         //send notification to admin

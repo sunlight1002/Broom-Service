@@ -48,14 +48,14 @@ class SendUninterestedClientEmail implements ShouldQueue
     
             App::setLocale($this->client['lng']);
     
-            Mail::send('Mails.FollowUpOurConversation', ['client' => $this->emailData['client']], function ($message) use ($pdfPath, $fileName) {
-                $message->to($this->client['email'])
-                        ->subject(__('mail.follow_up_conversation.header'))
-                        ->attach($pdfPath, [
-                            'as' => $fileName,
-                            'mime' => 'application/pdf',
-                        ]);
-            });
+            // Mail::send('Mails.FollowUpOurConversation', ['client' => $this->emailData['client']], function ($message) use ($pdfPath, $fileName) {
+            //     $message->to($this->client['email'])
+            //             ->subject(__('mail.follow_up_conversation.header'))
+            //             ->attach($pdfPath, [
+            //                 'as' => $fileName,
+            //                 'mime' => 'application/pdf',
+            //             ]);
+            // });
     
             \Log::info('Email sent to client: ' . $this->client['email']);
     

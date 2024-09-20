@@ -50,11 +50,11 @@ class SendWorkerChangedNotification implements ShouldQueue
                 'content_data' => __('mail.worker_new_job.new_job_assigned'),
             );
             sendJobWANotification($emailData);
-            Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                $messages->subject($sub);
-            });
+            // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+            //     $messages->subject($sub);
+            // });
         }
 
         App::setLocale('en');
@@ -106,11 +106,11 @@ class SendWorkerChangedNotification implements ShouldQueue
                             "notificationData" => $emailData
                         ]));
                     }
-                    Mail::send('/Mails/WorkerUnassignedMail', $emailData, function ($messages) use ($emailData) {
-                        $messages->to($emailData['email']);
-                        $sub = __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company');
-                        $messages->subject($sub);
-                    });
+                    // Mail::send('/Mails/WorkerUnassignedMail', $emailData, function ($messages) use ($emailData) {
+                    //     $messages->to($emailData['email']);
+                    //     $sub = __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company');
+                    //     $messages->subject($sub);
+                    // });
                 }
 
                 App::setLocale('en');

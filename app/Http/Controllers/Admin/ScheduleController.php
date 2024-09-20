@@ -404,12 +404,12 @@ class ScheduleController extends Controller
                 "notificationData" => $scheduleArr
             ]));
         }
-        Mail::send('/Mails/DeleteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
-            $messages->to($scheduleArr['client']['email']);
-            $messages->subject(__('mail.cancel_meeting.subject', [
-                'id' => $scheduleArr['id']
-            ]));
-        });
+        // Mail::send('/Mails/DeleteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+        //     $messages->to($scheduleArr['client']['email']);
+        //     $messages->subject(__('mail.cancel_meeting.subject', [
+        //         'id' => $scheduleArr['id']
+        //     ]));
+        // });
 
         $schedule->delete();
 

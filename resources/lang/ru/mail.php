@@ -373,7 +373,8 @@ return [
         ],
         'worker_job_approval' => [
             'header' => "*Работа утверждена | Broom Service*",
-            'content' => "Пожалуйста, проверьте детали.\n\nДата/Время: :date_time\nКлиент: :client_name\nРаботник: :worker_name\nУслуга: :service_name\nСобственность: :address",
+            'content' => "Пожалуйста, проверьте детали.\n\nДата/Время: :date_time\nКлиент: :client_name\nРаботник: :worker_name\nУслуга: :service_name\nВремя начала: :start_time\nСобственность: :address",
+            'start_info' => "Привет от Broom Service. Вы одобрили вакансию. Проверьте ссылку ниже и нажмите *Я сейчас ухожу на работу*, когда вы собираетесь приступить к работе."
         ],
         'worker_not_approved_job' => [
             'header' => "*Работа не утверждена | Broom Service*",

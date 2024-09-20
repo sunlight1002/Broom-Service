@@ -172,6 +172,8 @@ class JobCommentController extends Controller
                         'emailSubject'  => __('mail.job_nxt_step.completed_nxt_step_email_subject'),
                         'emailTitle'  => __('mail.job_nxt_step.completed_nxt_step_email_title'),
                         'emailContent'  => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " <b>" . $jobArray['id'] . "</b>"]),
+                        'emailContentWa'  => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " *" . $jobArray['id'] . "*"]),
+
                     ];
 
                     event(new JobNotificationToWorker($worker, $jobArray, $emailData));

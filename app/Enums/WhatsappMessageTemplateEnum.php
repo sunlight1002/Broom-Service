@@ -73,5 +73,6 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const FOLLOW_UP_REQUIRED = "follow-up-required";
     public const FILE_SUBMISSION_REQUEST = "file-submission-request";
     public const FOLLOW_UP_ON_OUR_CONVERSATION = "follow-up-on-our-conversation";
+    public const JOB_APPROVED_NOTIFICATION_TO_WORKER = "job-approved-notification-to-worker";
 
 }

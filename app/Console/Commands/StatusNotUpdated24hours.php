@@ -22,33 +22,45 @@ class StatusNotUpdated24hours extends Command
 
     public function handle()
     {
-        $offerStatuses = Offer::where('status', 'sent')->get();
-
+        $offerStatuses = Offer::with('client')
+            ->where('status', 'sent')
+            ->whereHas('client', function ($q) {
+                $q->whereDate('created_at', '>=', '2024-09-20'); 
+            })
+            ->whereDate('created_at', '<=', Carbon::now()->subDays(1)) // Fetch records older than 1 day
+            ->get();
+    
+        $todayDateTime = Carbon::now()->format('Y-m-d H:i:s');
+    
+        // Loop through each offer to check how many days it has been in 'sent' status
         foreach ($offerStatuses as $offerStatus) {
-            $client = Client::find($offerStatus->client_id);
-
+            // dd($offerStatus);
+            $client = $offerStatus->client;
+    
             if ($client) {
                 $createdAt = $offerStatus->created_at;
                 App::setLocale($client->lng);
-
-                // Check if status is 'sent' for over 7 days
-                if ($createdAt <= Carbon::now()->subDays(7)) {
+    
+                $daysSinceCreation = Carbon::now()->diffInDays($createdAt);
+    
+                // Check if the status has been 'sent' for over 7 days
+                if ($daysSinceCreation >= 7) {
                     if (!$this->isNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_7_DAY)) {
                         $this->info("Sending final follow-up to team for client: " . $client->firstname);
                         $this->sendFinalFollowUp($client, $offerStatus);
                         $this->storeNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_7_DAY);
                     }
                 }
-                // Check if status is 'sent' for over 3 days
-                elseif ($createdAt <= Carbon::now()->subDays(3)) {
+                // Check if the status has been 'sent' for over 3 days
+                elseif ($daysSinceCreation >= 3) {
                     if (!$this->isNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_3_DAY)) {
                         $this->info("Sending 3-day follow-up to team for client: " . $client->firstname);
                         $this->sendFollowUp($client, $offerStatus);
                         $this->storeNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_3_DAY);
                     }
                 }
-                // Check if status is 'sent' for over 24 hours
-                elseif ($createdAt <= Carbon::now()->subHours(24)) {
+                // Check if the status has been 'sent' for over 24 hours
+                elseif ($daysSinceCreation >= 1) {
                     if (!$this->isNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_24_HOURS)) {
                         $this->info("Sending 24-hour notification to team for client: " . $client->firstname);
                         $this->sendNotification($client, $offerStatus);
@@ -59,9 +71,10 @@ class StatusNotUpdated24hours extends Command
                 $this->info("Client not found for Offer Status ID: {$offerStatus->id}");
             }
         }
-
+    
         return 0;
     }
+    
 
     // Check if the notification for the given key was already sent
     protected function isNotificationSent($clientId, $key)
@@ -122,11 +135,11 @@ class StatusNotUpdated24hours extends Command
             'status' => $offerStatus->status,
         ]);
 
-        App::setLocale($client->lng);
-        Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $client->toArray()], function ($messages) use ($client) {
-            $messages->to($client->email);
-            $messages->subject(__('mail.price_offer_reminder.header'));
-        });
+        // App::setLocale($client->lng);
+        // Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $client->toArray()], function ($messages) use ($client) {
+        //     $messages->to($client->email);
+        //     $messages->subject(__('mail.price_offer_reminder.header'));
+        // });
 
         if ($response) {
             $this->info("3-day follow-up sent for Offer ID: {$offerStatus->id}");
@@ -152,11 +165,11 @@ class StatusNotUpdated24hours extends Command
             'status' => $offerStatus->status,
         ]);
 
-        App::setLocale($client->lng);
-        Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $client->toArray()], function ($messages) use ($client) {
-            $messages->to($client->email);
-            $messages->subject(__('mail.price_offer_reminder.header'));
-        });
+        // App::setLocale($client->lng);
+        // Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $client->toArray()], function ($messages) use ($client) {
+        //     $messages->to($client->email);
+        //     $messages->subject(__('mail.price_offer_reminder.header'));
+        // });
 
         if ($response) {
             $this->info("Final follow-up sent for Offer ID: {$offerStatus->id}");

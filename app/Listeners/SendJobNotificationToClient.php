@@ -51,25 +51,25 @@ class SendJobNotificationToClient implements ShouldQueue
                 ]));
             };
 
-            Mail::send('/Mails/client/JobNotification', [
-                'job' => $job,
-                'worker' => $worker,
-                'emailData' => $emailData,
-                'client' => $client,
-            ], function ($messages) use ($client, $emailData) {
-                $messages->to($client['email']);
-                $messages->subject($emailData['emailSubject']);
-            });
+            // Mail::send('/Mails/client/JobNotification', [
+            //     'job' => $job,
+            //     'worker' => $worker,
+            //     'emailData' => $emailData,
+            //     'client' => $client,
+            // ], function ($messages) use ($client, $emailData) {
+            //     $messages->to($client['email']);
+            //     $messages->subject($emailData['emailSubject']);
+            // });
         } elseif ($notificationType === 'email') {
-            Mail::send('/Mails/client/JobNotification', [
-                'job' => $job,
-                'worker' => $worker,
-                'emailData' => $emailData,
-                'client' => $client,
-            ], function ($messages) use ($client, $emailData) {
-                $messages->to($client['email']);
-                $messages->subject($emailData['emailSubject']);
-            });
+            // Mail::send('/Mails/client/JobNotification', [
+            //     'job' => $job,
+            //     'worker' => $worker,
+            //     'emailData' => $emailData,
+            //     'client' => $client,
+            // ], function ($messages) use ($client, $emailData) {
+            //     $messages->to($client['email']);
+            //     $messages->subject($emailData['emailSubject']);
+            // });
         } else {
             if (isset($client["phone"]) && !empty($client["phone"])) {
                 event(new WhatsappNotificationEvent([

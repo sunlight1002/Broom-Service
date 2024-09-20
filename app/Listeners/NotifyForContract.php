@@ -43,21 +43,21 @@ class NotifyForContract implements ShouldQueue
                 ]));
             }
     
-            Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
-                $messages->to($ofr['client']['email']);
+            // Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
+            //     $messages->to($ofr['client']['email']);
     
-                $messages->subject(__('mail.contract.subject', [
-                    'id' => $ofr['id']
-                ]));
-            });
+            //     $messages->subject(__('mail.contract.subject', [
+            //         'id' => $ofr['id']
+            //     ]));
+            // });
         }elseif ($notificationType === 'email') {
-            Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
-                $messages->to($ofr['client']['email']);
+            // Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
+            //     $messages->to($ofr['client']['email']);
     
-                $messages->subject(__('mail.contract.subject', [
-                    'id' => $ofr['id']
-                ]));
-            });
+            //     $messages->subject(__('mail.contract.subject', [
+            //         'id' => $ofr['id']
+            //     ]));
+            // });
         }else{
             if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
                 event(new WhatsappNotificationEvent([

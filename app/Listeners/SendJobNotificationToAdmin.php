@@ -44,14 +44,14 @@ class SendJobNotificationToAdmin implements ShouldQueue
             //         "notificationData" => [$emailData, $admin->toArray()]
             //     ]));
             // }
-            Mail::send('/Mails/admin/JobNotification', [
-                'data' => $adminEmailData,
-                'job' => $adminEmailData['emailData']['job'],
-                'admin' => $admin->toArray()
-            ], function ($messages) use ($admin, $adminEmailData) {
-                $messages->to($admin['email']);
-                $messages->subject($adminEmailData['emailSubject']);
-            });
+            // Mail::send('/Mails/admin/JobNotification', [
+            //     'data' => $adminEmailData,
+            //     'job' => $adminEmailData['emailData']['job'],
+            //     'admin' => $admin->toArray()
+            // ], function ($messages) use ($admin, $adminEmailData) {
+            //     $messages->to($admin['email']);
+            //     $messages->subject($adminEmailData['emailSubject']);
+            // });
         }
     }
 }

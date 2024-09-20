@@ -71,11 +71,11 @@ class WorkerNotifyNextDayJob extends Command
                 ]));
             }
 
-            Mail::send('/Mails/WorkerRemindJobMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_tomorrow_job.subject');
-                $messages->subject($sub);
-            });
+            // Mail::send('/Mails/WorkerRemindJobMail', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $sub = __('mail.worker_tomorrow_job.subject');
+            //     $messages->subject($sub);
+            // });
 
             $job->update([
                 'is_worker_reminded' => true

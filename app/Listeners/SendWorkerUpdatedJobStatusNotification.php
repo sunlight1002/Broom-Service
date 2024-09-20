@@ -95,18 +95,20 @@ class SendWorkerUpdatedJobStatusNotification implements ShouldQueue
                 ]));
             }
 
-            Mail::send('/Mails/ClientJobUpdated', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.client_job_status.job_completed_subject');
-                $messages->subject($sub);
-            });
+            // Mail::send('/Mails/ClientJobUpdated', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $sub = __('mail.client_job_status.job_completed_subject');
+            //     $messages->subject($sub);
+            // });
 
             App::setLocale($event->job->worker->lng);
             //send notification to worker
             $emailData = [
                 'emailSubject'  => __('mail.client_job_status.job_completed_subject'),
                 'emailTitle'  => __('mail.client_job_status.job_details'),
-                'emailContent'  => __('mail.job_common.worker_job_complete_content', ['name' => $event->job->worker->firstname . '  ' . $event->job->worker->lastname])
+                'emailContent'  => __('mail.job_common.worker_job_complete_content', ['name' => $event->job->worker->firstname . '  ' . $event->job->worker->lastname]),
+                'emailContentWa'  => __('mail.job_common.worker_job_complete_content', ['name' => $event->job->worker->firstname . '  ' . $event->job->worker->lastname])
+
             ];
             event(new JobNotificationToWorker($event->job->worker->toArray(), $event->job->toArray(), $emailData));
 
