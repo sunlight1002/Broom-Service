@@ -370,7 +370,44 @@ class WhatsappNotification
                     ]);
 
                     break;
+                
+                case WhatsappMessageTemplateEnum::JOB_APPROVED_NOTIFICATION_TO_WORKER:
+                    // Extract job data
+                    $jobData = $eventData['job'];
+                    $emailData = $eventData['emailData'] ?? null;  // Check if emailData is present
+                    $worker = $eventData['worker'] ?? null;  // Check if emailData is present
 
+                    App::setLocale($worker['lng']);
+                
+                    $receiverNumber = $jobData['client']['phone']; 
+
+                    \Log::info("hekloo");
+                
+                    // Build the message
+                    $text =  $emailData['emailSubject'] . "\n\n";
+                
+                    $text .= __('mail.wa-message.common.salutation', ['name' => $jobData['worker']['firstname']]) . "\n\n";
+
+                    $text .= $emailData['emailContentWa'] . "\n\n";
+                
+                    $text .= __('mail.wa-message.worker_job_approval.content', [
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
+                        'client_name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname'],
+                        'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
+                        'service_name' => $jobData['worker']['lng'] == 'heb' ? $jobData['jobservice']['heb_name'] : $jobData['jobservice']['name'],
+                        'start_time' => Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
+                        'address' => $jobData['property_address']['address_name'] ?? 'NA',
+                    ]);         
+                
+                    $text .= "\n\n" . __('mail.job_common.check_job_details') . ": " . url("worker/jobs/view/" . $jobData['id']) . "\n\n";
+                    $text .= __('mail.job_common.reply_txt') . "\n\n";
+                    $text .= __('mail.job_common.regards') . "\n";
+                    $text .= __('mail.job_common.company') . "\n";
+                    $text .= __('mail.job_common.tel') . ": 03-525-70-60\n";
+                    $text .= url("office@broomservice.co.il");
+                
+                    break;
+        
                 case WhatsappMessageTemplateEnum::WORKER_NOT_APPROVED_JOB:
                     // $adminData = $eventData['admin'];
                     $jobData = $eventData['job'];
@@ -1242,7 +1279,7 @@ class WhatsappNotification
                         'contact' => $clientData['phone'],
                         'Service_Requested' => "",
                         'email' => $clientData['email'],
-                        'address' => $clientData['geo_address']??$clientData['property_addresses'][0]['geo_address'],
+                        'address' => $clientData['geo_address']??$clientData['property_addresses'][0]['geo_address']??"",
                     ]);
 
                     $text .= "\n\n";
@@ -1701,14 +1738,13 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                Log::info($text);
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
                         'body' => $text
                     ]);
 
-                // Log::info($response->json());
+                Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);

@@ -50,13 +50,13 @@ class ReScheduleMeetingNotification implements ShouldQueue
 
             $emailDataWithAdditional = array_merge($admin->toArray(), $scheduleArr);
 
-            Mail::send('/Mails/AdminReScheduleMeetingMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail) {
-                $messages->to($adminEmail);
+            // Mail::send('/Mails/AdminReScheduleMeetingMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail) {
+            //     $messages->to($adminEmail);
 
-                $messages->subject(__('mail.meeting.resubject', [
-                    'id' => $scheduleArr['id']
-                ]));
-            });
+            //     $messages->subject(__('mail.meeting.resubject', [
+            //         'id' => $scheduleArr['id']
+            //     ]));
+            // });
         }
 
         event(new WhatsappNotificationEvent([
@@ -64,13 +64,13 @@ class ReScheduleMeetingNotification implements ShouldQueue
             "notificationData" => $scheduleArr
         ]));
 
-        Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
-            $messages->to($teamEmail);
+        // Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
+        //     $messages->to($teamEmail);
 
-            $messages->subject(__('mail.meeting.resubject', [
-                'id' => $scheduleArr['id']
-            ]));
-        });
+        //     $messages->subject(__('mail.meeting.resubject', [
+        //         'id' => $scheduleArr['id']
+        //     ]));
+        // });
 
         if (!empty($schedules->start_time) && !empty($schedules->end_time)) {
             Notification::create([

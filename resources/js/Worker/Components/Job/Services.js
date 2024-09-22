@@ -1,13 +1,15 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import { getShiftsDetails } from "../../../Utils/common.utils";
 
 export default function Service({ job }) {
     const { t, i18n } = useTranslation();
     const w_lng = i18n.language;
 
     const service = job.jobservice;
+
+    const { durationInHours, startTime, endTime } = getShiftsDetails(job);
+
 
     return (
         <>
@@ -22,7 +24,7 @@ export default function Service({ job }) {
                                         {t("worker.jobs.view.services")}
                                     </label>
                                     <p>
-                                        {w_lng == "en"
+                                        {w_lng === "en"
                                             ? service.name
                                             : service.heb_name}
                                     </p>
@@ -33,7 +35,6 @@ export default function Service({ job }) {
                                     <label className="control-label">
                                         {t("worker.jobs.view.job_date")}
                                     </label>
-
                                     <p>{job.start_date}</p>
                                 </div>
                             </div>
@@ -43,10 +44,7 @@ export default function Service({ job }) {
                                         {t("worker.jobs.view.c_time")}
                                     </label>
                                     <p>
-                                        {convertMinsToDecimalHrs(
-                                            service.duration_minutes
-                                        )}{" "}
-                                        hours
+                                        {durationInHours} hours
                                     </p>
                                 </div>
                             </div>
@@ -55,7 +53,9 @@ export default function Service({ job }) {
                                     <label className="control-label">
                                         {t("worker.jobs.view.shift")}
                                     </label>
-                                    <p>{job.shifts}</p>
+                                    <p>
+                                        {startTime} - {endTime}
+                                    </p>
                                 </div>
                             </div>
                         </div>

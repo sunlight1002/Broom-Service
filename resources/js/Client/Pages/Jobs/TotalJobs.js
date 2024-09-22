@@ -60,7 +60,8 @@ export default function TotalJobs() {
                     title: "Arrival Time",
                     data: "start_time",
                     render: function (data, type, row, meta) {
-                        return `<div class="rounded mb-1 " style="text-decoration: underline;"> <a>${data}</a> </div>`;
+                        const startTime = data.split(' - ')[0];
+                        return `<div class="rounded mb-1" style="text-decoration: underline;"> <a>${startTime}</a> </div>`;
                     },
                 },
                 {
@@ -171,7 +172,7 @@ export default function TotalJobs() {
         return function cleanup() {
             $(tableRef.current).DataTable().destroy(true);
         };
-    }, []);
+    }, []);    
 
     return (
         <div id="container">

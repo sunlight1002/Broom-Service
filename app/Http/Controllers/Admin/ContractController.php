@@ -226,12 +226,12 @@ class ContractController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             
             if ($newLeadStatus === 'irrelevant') {
@@ -242,20 +242,20 @@ class ContractController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }; 
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                        'status' => $newLeadStatus,
-                    ]
-                ]));
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
             
           } elseif ($client->notification_type === "email") {
 
@@ -265,29 +265,29 @@ class ContractController extends Controller
             }
 
             if ($newLeadStatus === 'unanswered') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             if ($newLeadStatus === 'irrelevant') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
 
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ]
-            ]));
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            //     "notificationData" => [
+            //         'client' => $client->toArray(),
+            //         'status' => $newLeadStatus,
+            //     ]
+            // ]));
             
           } else {
 
@@ -319,13 +319,13 @@ class ContractController extends Controller
                     ]
                 ]));
             }
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                        'status' => $newLeadStatus,
-                    ]
-                ]));
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
             }
         }
 

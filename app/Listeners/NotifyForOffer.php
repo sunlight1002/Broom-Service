@@ -66,21 +66,21 @@ class NotifyForOffer implements ShouldQueue
                 ]));
             }
     
-            Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
-                $messages->to($offer['client']['email']);
+            // Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
+            //     $messages->to($offer['client']['email']);
     
-                $messages->subject(__('mail.offer.subject', [
-                    'id' => $offer['id']
-                ]));
-            });
+            //     $messages->subject(__('mail.offer.subject', [
+            //         'id' => $offer['id']
+            //     ]));
+            // });
         }elseif ($notificationType === 'email') {
-            Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
-                $messages->to($offer['client']['email']);
+            // Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
+            //     $messages->to($offer['client']['email']);
     
-                $messages->subject(__('mail.offer.subject', [
-                    'id' => $offer['id']
-                ]));
-            });
+            //     $messages->subject(__('mail.offer.subject', [
+            //         'id' => $offer['id']
+            //     ]));
+            // });
         }else{
             if (isset($offer['client']) && !empty($offer['client']['phone'])) {
                 event(new WhatsappNotificationEvent([

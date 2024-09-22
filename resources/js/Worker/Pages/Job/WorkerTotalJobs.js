@@ -8,7 +8,7 @@ import Moment from "moment";
 import { useTranslation } from "react-i18next";
 
 import WorkerSidebar from "../../Layouts/WorkerSidebar";
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import { convertMinsToDecimalHrs, getShiftsDetails } from "../../../Utils/common.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function WorkerTotalJobs() {
@@ -87,7 +87,7 @@ export default function WorkerTotalJobs() {
 
     useEffect(() => {
         getJobs();
-    }, [currentPage, dateRange]);
+    }, [currentPage, dateRange]);    
 
     useEffect(() => {
         if (urlParamF == "past") {
@@ -280,6 +280,8 @@ export default function WorkerTotalJobs() {
                                         <Tbody>
                                             {totalJobs.map((item, index) => {
                                                 //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
+                                                const { durationInHours, startTime, endTime } = getShiftsDetails(item);
+
                                                 let address =
                                                     item.property_address;
 
@@ -316,7 +318,7 @@ export default function WorkerTotalJobs() {
                                                                           .jobservice
                                                                           .heb_name)}
                                                         </Td>
-                                                        <Td>{item.shifts}</Td>
+                                                        <Td>{startTime + "-" + endTime}</Td>
                                                         <Td>
                                                             {item.property_address ? (
                                                                 <Link
@@ -337,11 +339,7 @@ export default function WorkerTotalJobs() {
                                                         </Td>
                                                         <Td>
                                                             {item.jobservice
-                                                                ? convertMinsToDecimalHrs(
-                                                                      item
-                                                                          .jobservice
-                                                                          .duration_minutes
-                                                                  ) + " Hours"
+                                                                ? durationInHours + " Hours"
                                                                 : "NA"}
                                                         </Td>
                                                         <Td

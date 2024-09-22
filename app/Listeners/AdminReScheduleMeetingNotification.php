@@ -51,13 +51,13 @@ class AdminReScheduleMeetingNotification implements ShouldQueue
 
             $emailDataWithAdditional = array_merge($admin->toArray(), $scheduleArr);
 
-            Mail::send('/Mails/AdminReScheduleMeetingMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail) {
-                $messages->to($adminEmail);
+            // Mail::send('/Mails/AdminReScheduleMeetingMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail) {
+            //     $messages->to($adminEmail);
 
-                $messages->subject(__('mail.meeting.resubject', [
-                    'id' => $scheduleArr['id']
-                ]));
-            });
+            //     $messages->subject(__('mail.meeting.resubject', [
+            //         'id' => $scheduleArr['id']
+            //     ]));
+            // });
         }
 
         event(new WhatsappNotificationEvent([
@@ -77,25 +77,25 @@ class AdminReScheduleMeetingNotification implements ShouldQueue
         }
 
         //team mail
-        Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
-            $messages->to($teamEmail);
+        // Mail::send('/Mails/TeamReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
+        //     $messages->to($teamEmail);
 
-            $messages->subject(__('mail.meeting.resubject', [
-                'id' => $scheduleArr['id']
-            ]));
-        });
+        //     $messages->subject(__('mail.meeting.resubject', [
+        //         'id' => $scheduleArr['id']
+        //     ]));
+        // });
 
         //customer mail
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING,
             "notificationData" => $scheduleArr
         ]));
-        Mail::send('/Mails/ClientReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
-            $messages->to($teamEmail);
+        // Mail::send('/Mails/ClientReScheduleMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail) {
+        //     $messages->to($teamEmail);
 
-            $messages->subject(__('mail.meeting.resubject', [
-                'id' => $scheduleArr['id']
-            ]));
-        });
+        //     $messages->subject(__('mail.meeting.resubject', [
+        //         'id' => $scheduleArr['id']
+        //     ]));
+        // });
     }
 }

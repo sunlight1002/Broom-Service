@@ -476,62 +476,68 @@ class JobController extends Controller
             $workerDates = Arr::where($data['workers'], function ($value) use ($workerID) {
                 return $value['worker_id'] == $workerID;
             });
-
+    
             $workerDates = array_values($workerDates);
             foreach ($workerDates as $workerIndex => $workerDate) {
                 $job_date = Carbon::parse($workerDate['date']);
                 $preferredWeekDay = strtolower($job_date->format('l'));
                 $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
-
+    
                 $job_date = $job_date->toDateString();
-
+    
                 $slots = explode(',', $workerDate['shifts']);
-                // sort slots in ascending order of time before merging for continuous time
                 sort($slots);
-
+    
                 $shiftFormattedArr = [];
                 foreach ($slots as $key => $shift) {
                     $timing = explode('-', $shift);
-
+    
                     $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
                     $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
-
+    
                     $shiftFormattedArr[$key] = [
                         'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
                         'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
                     ];
                 }
-
+    
                 $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
-
+    
                 $minutes = 0;
                 $slotsInString = '';
                 foreach ($mergedContinuousTime as $key => $slot) {
                     if (!empty($slotsInString)) {
                         $slotsInString .= ',';
                     }
-
+    
                     $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
-
-                    $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
+    
+                    // Calculate duration in 15-minute slots
+                    $start = Carbon::parse($slot['starting_at']);
+                    $end = Carbon::parse($slot['ending_at']);
+                    $interval = 15; // in minutes
+                    while ($start < $end) {
+                        $start->addMinutes($interval);
+                        $minutes += $interval;
+                    }
                 }
-
+    
                 if ($selectedService['type'] == 'hourly') {
                     $hours = ($minutes / 60);
                     $total_amount = ($selectedService['rateperhour'] * $hours);
                 } else {
                     $total_amount = ($selectedService['fixed_price']);
                 }
-
+    
                 $status = JobStatusEnum::SCHEDULED;
-
+    
                 if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerDate['worker_id'])) {
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
-
+    
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
                 $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
-
+    
                 $job = Job::create([
                     'worker_id'     => $workerDate['worker_id'],
                     'client_id'     => $contract->client_id,
@@ -552,8 +558,8 @@ class JobController extends Controller
                     'original_worker_id'     => $workerDate['worker_id'],
                     'original_shifts'        => $slotsInString,
                 ]);
-
-                JobService::create([
+    
+                $jobser = JobService::create([
                     'job_id'            => $job->id,
                     'service_id'        => $s_id,
                     'name'              => $s_name,
@@ -569,20 +575,20 @@ class JobController extends Controller
                         'preferred_weekday' => $preferredWeekDay
                     ]
                 ]);
-
+    
                 $jobGroupID = $jobGroupID ? $jobGroupID : $job->id;
-
+    
                 $job->update([
                     'origin_job_id' => $job->id,
                     'job_group_id' => $jobGroupID
                 ]);
-
+    
                 foreach ($mergedContinuousTime as $key => $shift) {
                     $job->workerShifts()->create($shift);
                 }
-
+    
                 $this->copyDefaultCommentsToJob($job);
-
+    
                 $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
                 if ($workerIndex == 0) {
                     $adminEmailData = [
@@ -595,7 +601,8 @@ class JobController extends Controller
                     ];
                     event(new JobNotificationToAdmin($adminEmailData));
                 }
-                //send notification to client
+    
+                // Send notification to client
                 $jobData = $job->toArray();
                 $clientData = $jobData['client'];
                 $workerData = $jobData['worker'];
@@ -605,8 +612,6 @@ class JobController extends Controller
                     'emailContent'  => __('mail.worker_new_job.new_job_assigned')
                 ];
                 event(new JobNotificationToClient($workerData, $clientData, $jobData, $emailData));
-
-                
             }
         }
 
@@ -657,12 +662,12 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             
             if ($newLeadStatus === 'irrelevant') {
@@ -673,21 +678,21 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }; 
 
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                        'status' => $newLeadStatus,
-                    ]
-                ]));
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
             
           } elseif ($client->notification_type === "email") {
 
@@ -697,29 +702,29 @@ class JobController extends Controller
             }
 
             if ($newLeadStatus === 'unanswered') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             if ($newLeadStatus === 'irrelevant') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
       
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ]
-            ]));
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            //     "notificationData" => [
+            //         'client' => $client->toArray(),
+            //         'status' => $newLeadStatus,
+            //     ]
+            // ]));
             
           } else {
 
@@ -752,18 +757,19 @@ class JobController extends Controller
                     ]
                 ]));
             }
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                        'status' => $newLeadStatus,
-                    ]
-                ]));
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
             }
         }
 
         return response()->json([
-            'message' => 'Job has been created successfully'
+            'message' => 'Job has been created successfully',
+            'data' => $data,
         ]);
     }
 
@@ -1069,12 +1075,12 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             
             if ($newLeadStatus === 'irrelevant') {
@@ -1085,21 +1091,21 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }; 
             
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                        'status' => $newLeadStatus,
-                    ]
-                ]));
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
             
           } elseif ($client->notification_type === "email") {
 
@@ -1109,28 +1115,28 @@ class JobController extends Controller
             }
 
             if ($newLeadStatus === 'unanswered') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             if ($newLeadStatus === 'irrelevant') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ]
-            ]));
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            //     "notificationData" => [
+            //         'client' => $client->toArray(),
+            //         'status' => $newLeadStatus,
+            //     ]
+            // ]));
             
           } else {
 
@@ -1163,13 +1169,13 @@ class JobController extends Controller
                     ]
                 ]));
             }
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                        'status' => $newLeadStatus,
-                    ]
-                ]));
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
             }
         }
 
@@ -1500,12 +1506,12 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             
             if ($newLeadStatus === 'irrelevant') {
@@ -1516,21 +1522,21 @@ class JobController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }; 
 
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                        'status' => $newLeadStatus,
-                    ]
-                ]));
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
             
           } elseif ($client->notification_type === "email") {
 
@@ -1539,29 +1545,29 @@ class JobController extends Controller
             }
 
             if ($newLeadStatus === 'unanswered') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.unanswered_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.unanswered_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
             if ($newLeadStatus === 'irrelevant') {
-                App::setLocale($client['lng']);
-                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                    $messages->to($emailData['client']['email']);
-                    $sub = __('mail.irrelevant_lead.header');
-                    $messages->subject($sub);
-                });
+                // App::setLocale($client['lng']);
+                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                //     $messages->to($emailData['client']['email']);
+                //     $sub = __('mail.irrelevant_lead.header');
+                //     $messages->subject($sub);
+                // });
             }
 
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ]
-            ]));
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            //     "notificationData" => [
+            //         'client' => $client->toArray(),
+            //         'status' => $newLeadStatus,
+            //     ]
+            // ]));
             
           } else {
 
@@ -1594,13 +1600,13 @@ class JobController extends Controller
                     ]
                 ]));
             }
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                        'status' => $newLeadStatus,
-                    ]
-                ]));
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
             }
         }
 
@@ -2114,12 +2120,12 @@ class JobController extends Controller
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
                 'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
-            sendJobWANotification($emailData);
-            Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                $messages->subject($sub);
-            });
+            // sendJobWANotification($emailData);
+            // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+            //     $messages->subject($sub);
+            // });
         }
 
         $otherWorkerJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
@@ -2137,12 +2143,12 @@ class JobController extends Controller
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
                 'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
-            sendJobWANotification($emailData);
-            Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-                $messages->subject($sub);
-            });
+            // sendJobWANotification($emailData);
+            // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
+            //     $messages->subject($sub);
+            // });
         }
 
         //send notification to admin

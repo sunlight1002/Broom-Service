@@ -65,10 +65,10 @@ class WorkerYearlyInsuranceForm extends Command
                 // ]));
             }
 
-            Mail::send('Mails.worker.insurance-form', $workerArr, function ($messages) use ($workerArr) {
-                $messages->to($workerArr['email']);
-                $messages->subject(__('mail.worker.insurance-form.subject'));
-            });
+            // Mail::send('Mails.worker.insurance-form', $workerArr, function ($messages) use ($workerArr) {
+            //     $messages->to($workerArr['email']);
+            //     $messages->subject(__('mail.worker.insurance-form.subject'));
+            // });
         }
 
         return 0;

@@ -53,9 +53,7 @@ export default function WorkerViewJob() {
         axios
             .get(`/api/jobs/${params.id}`, { headers })
             .then((res) => {
-                const r = res.data.job;
-                console.log(r);
-                
+                const r = res.data.job;                
                 setJob(r);
                 setJobStatus(r.status);
                 setClient(r.client);

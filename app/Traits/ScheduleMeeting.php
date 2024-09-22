@@ -40,23 +40,23 @@ trait ScheduleMeeting
                 ]));
             }
 
-            Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
-                $messages->to($scheduleArr['client']['email']);
+            // Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+            //     $messages->to($scheduleArr['client']['email']);
 
-                $messages->subject(__('mail.meeting.subject', [
-                    'id' => $scheduleArr['id']
-                ]));
-            });
+            //     $messages->subject(__('mail.meeting.subject', [
+            //         'id' => $scheduleArr['id']
+            //     ]));
+            // });
 
         } elseif ($notificationType === 'email') {
             
-            Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
-                $messages->to($scheduleArr['client']['email']);
+            // Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+            //     $messages->to($scheduleArr['client']['email']);
 
-                $messages->subject(__('mail.meeting.subject', [
-                    'id' => $scheduleArr['id']
-                ]));
-            });
+            //     $messages->subject(__('mail.meeting.subject', [
+            //         'id' => $scheduleArr['id']
+            //     ]));
+            // });
 
         } elseif ($notificationType === 'whatsapp') {
             if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
