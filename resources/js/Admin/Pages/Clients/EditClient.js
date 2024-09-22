@@ -278,7 +278,7 @@ export default function EditClient() {
                                 </div>
                                 <div className="card-body d-flex">
                                     <div className="col">
-                                        <div className="form-group d-flex w-100">
+                                        <div className="form-group d-flex align-items-center w-100">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.Notification_Type")}
                                             </label>
@@ -299,7 +299,7 @@ export default function EditClient() {
                                                 </option>
                                             </select>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "14.4rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.FirstName"
@@ -328,7 +328,7 @@ export default function EditClient() {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.LastName"
@@ -347,7 +347,7 @@ export default function EditClient() {
                                                 )}
                                             />
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.DOB")}
                                             </label>
@@ -365,7 +365,7 @@ export default function EditClient() {
                                                 ""
                                             )}
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.Language")}
                                             </label>
@@ -383,7 +383,7 @@ export default function EditClient() {
                                         </div>
                                     </div>
                                     <div className="col">
-                                    <div className="form-group d-flex">
+                                    <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.PrimaryPhone")} *
                                             </label>
@@ -408,7 +408,7 @@ export default function EditClient() {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.PrimaryEmail"
@@ -438,7 +438,7 @@ export default function EditClient() {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.InvoiceName"
@@ -459,7 +459,7 @@ export default function EditClient() {
                                                 )}
                                             />
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.PaymentMethod")}
                                             </label>
@@ -493,7 +493,7 @@ export default function EditClient() {
                                                 </option>
                                             </select>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.Password"
@@ -667,9 +667,9 @@ export default function EditClient() {
                                     )}
                                 </div>
                             </div>
-                            <div className="card-item" style={{ background: "#FAFBFC" }}>
+                            <div className="card-item additional_contract_box" style={{ background: "#FAFBFC" }}>
                                 <div className="card-heading">
-                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.Additional_Contacts")}</p>
+                                    <p style={{ margin: "20px 20px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.Additional_Contacts")}</p>
                                 </div>
                                 <div className="card-body d-flex flex-column">
                                     {extra &&

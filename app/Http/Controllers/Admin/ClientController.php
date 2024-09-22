@@ -46,12 +46,20 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailable;
 use App\Rules\ValidPhoneNumber;
 use App\Models\LeadActivity;
+use App\Models\WebhookResponse;
+use App\Models\WhatsAppBotClientState;
 
 
 
 class ClientController extends Controller
 {
     use JobSchedule, PaymentAPI, ICountDocument;
+
+    protected $botMessages = [
+        'main-menu' => [
+            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu'
+        ]
+    ];
 
     /**
      * Display a listing of the resource.
@@ -166,35 +174,35 @@ class ClientController extends Controller
             'passcode' => ['required', 'string', 'min:6'],
             'email' => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-    
+
         $input = $request->data;
         $input['password'] = Hash::make($input['passcode']);
         $client = Client::create($input);
 
         // Create user in iCount
         $iCountResponse = $this->createOrUpdateUser($request);
-    
+
         // Handle iCount response
         if ($iCountResponse->status() != 200) {
             return response()->json(['error' => 'Failed to create user in iCount'], 500);
         }
-    
+
         $iCountData = $iCountResponse->json();
-        
+
         // Extract Client_id from iCount response and update the Client model
         if (isset($iCountData['client_id'])) {
             $client->update(['icount_client_id' => $iCountData['client_id']]);
         }
-    
+
         $client->lead_status()->updateOrCreate(
             [],
             ['lead_status' => LeadStatusEnum::PENDING]
         );
-    
+
         $addressIds = [];
         $property_address_data = $request->propertyAddress;
         if (count($property_address_data) > 0) {
@@ -204,13 +212,39 @@ class ClientController extends Controller
                 $addressIds[$key] = $createdClient->id;
             }
         }
-    
+
+        if($request->send_bot_message) {
+            try {
+                $m = $this->botMessages['main-menu']['heb'];
+
+                $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
+
+                WhatsAppBotClientState::updateOrCreate([
+                    'client_id' => $client->id,
+                ], [
+                    'menu_option' => 'main_menu',
+                    'language' => 'he',
+                ]);
+
+                $response = WebhookResponse::create([
+                    'status'        => 1,
+                    'name'          => 'whatsapp',
+                    'message'       => $m,
+                    'number'        => $client->phone,
+                    'read'          => 1,
+                    'flex'          => 'A',
+                ]);
+            } catch (\Throwable $th) {
+                logger($th);
+            }
+        }
+
         if (!empty($request->jobdata)) {
             $allServices = json_decode($request->jobdata['services'], true);
             for ($i = 0; $i < count($allServices); $i++) {
                 $allServices[$i]['address'] = $addressIds[$allServices[$i]['address']];
             }
-    
+
             $offer = Offer::create([
                 'client_id' => $client->id,
                 'services' => json_encode($allServices, JSON_UNESCAPED_UNICODE),
@@ -218,21 +252,21 @@ class ClientController extends Controller
                 'total' => $request->jobdata['total'],
                 'status' => 'accepted'
             ]);
-    
+
             $contract = Contract::create([
                 'offer_id' => $offer->id,
                 'client_id' => $client->id,
                 'unique_hash' => md5($client->email . $offer->id),
                 'status' => 'verified',
             ]);
-    
+
             /* Create job */
-    
+
             $jds = [];
             foreach ($allServices as $service) {
                 $service_schedules = ServiceSchedule::find($service['frequency']);
                 $ser = Services::find($service['service']);
-    
+
                 $repeat_value = $service_schedules->period;
                 if ($service['service'] == 10) {
                     $s_name = $service['other_title'];
@@ -248,10 +282,10 @@ class ClientController extends Controller
                 $s_total = $service['totalamount'];
                 $s_id = $service['service'];
                 $address_id = $service['address'];
-    
+
                 $worker = $service['worker'];
                 $shift = $service['shift'];
-    
+
                 $jobsArr = $this->scheduleJob(Arr::only($service, [
                     'period',
                     'cycle',
@@ -263,13 +297,13 @@ class ClientController extends Controller
                     'monthday_selection_type',
                     'month_date',
                 ]));
-    
+
                 foreach ($jobsArr as $key => $job) {
                     $status = 'scheduled';
                     if (Job::where('start_date', $job['job_date'])->where('worker_id', $worker)->exists()) {
                         $status = 'unscheduled';
                     }
-    
+
                     $jds[] = [
                         'job' => [
                             'worker' => $worker,
@@ -284,7 +318,7 @@ class ClientController extends Controller
                             'status' => $status,
                             'address_id' => $address_id,
                         ],
-    
+
                         'service' => [
                             'service_id' => $s_id,
                             'name' => $s_name,
@@ -299,11 +333,11 @@ class ClientController extends Controller
                     ];
                 }
             }
-    
+
             foreach ($jds as $jd) {
                 $jdata = $jd['job'];
                 $sdata = $jd['service'];
-    
+
                 $job = Job::create([
                     'worker_id' => $jdata['worker'],
                     'address_id' => $jdata['address_id'],
@@ -317,7 +351,7 @@ class ClientController extends Controller
                     'schedule' => $jdata['schedule'],
                     'status' => $jdata['status'],
                 ]);
-    
+
                 JobService::create([
                     'job_id' => $job->id,
                     'service_id' => $sdata['service_id'],
@@ -331,19 +365,19 @@ class ClientController extends Controller
                     'config' => $sdata['config'],
                 ]);
             }
-    
+
             $client->lead_status()->updateOrCreate(
                 [],
                 ['lead_status' => LeadStatusEnum::ACTIVE_CLIENT]
             );
         }
         /*End create job */
-    
+
         return response()->json([
             'message' => 'Client created successfully',
         ]);
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -401,7 +435,7 @@ class ClientController extends Controller
                 ]
             ], 404);
         }
-    
+
         $client->makeVisible('passcode');
 
         return response()->json([
@@ -445,13 +479,13 @@ class ClientController extends Controller
         }
 
         $input = $request->data;
-        
+
          // Create user in iCount
          $iCountResponse = $this->createOrUpdateUser($request);
 
          // Handle iCount response
          $iCountData = $iCountResponse->json();
-     
+
         // Handle iCount response
         if ($iCountResponse->status() != 200) {
             return response()->json(['error' => 'Failed to create user in iCount'], 500);
@@ -616,12 +650,12 @@ class ClientController extends Controller
     {
         Client::find($id)->delete();
 
-       
+
         $iCountResponse =  $this->deleteUser($id);
 
         // Handle iCount response
         $iCountData = $iCountResponse->json();
-    
+
        // Handle iCount response
        if ($iCountResponse->status() != 200) {
            return response()->json(['error' => 'Failed to delete user in iCount'], 500);
@@ -956,7 +990,7 @@ class ClientController extends Controller
                 'client' => $client->toArray(),
                 'status' => $newLeadStatus,
             ];
-            
+
             if($newLeadStatus === 'freeze client'){
                 event(new WhatsappNotificationEvent([
                    "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
@@ -988,7 +1022,7 @@ class ClientController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-        
+
                 // App::setLocale($client['lng']);
                 // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                 //     $messages->to($emailData['client']['email']);
@@ -996,7 +1030,7 @@ class ClientController extends Controller
                 //     $messages->subject($sub);
                 // });
             }
-            
+
             if ($newLeadStatus === 'irrelevant') {
 
                 event(new WhatsappNotificationEvent([
@@ -1011,7 +1045,7 @@ class ClientController extends Controller
                 //     $sub = __('mail.irrelevant_lead.header');
                 //     $messages->subject($sub);
                 // });
-            }; 
+            };
 
                 // event(new WhatsappNotificationEvent([
                 //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
@@ -1020,7 +1054,7 @@ class ClientController extends Controller
                 //         'status' => $newLeadStatus,
                 //     ]
                 // ]));
-            
+
         } elseif ($client->notification_type === "email") {
 
             if ($newLeadStatus === 'uninterested') {
@@ -1051,7 +1085,7 @@ class ClientController extends Controller
             //         'status' => $newLeadStatus,
             //     ]
             // ]));
-            
+
         } else {
 
             if ($newLeadStatus === 'uninterested') {
@@ -1061,7 +1095,7 @@ class ClientController extends Controller
                     "notificationData" => [
                         'client' => $client->toArray(),
                     ]
-                ]));  
+                ]));
 
             }
             if ($newLeadStatus === 'unanswered') {
@@ -1090,7 +1124,7 @@ class ClientController extends Controller
                 //         'status' => $newLeadStatus,
                 //     ]
                 // ]));
-            }  
+            }
         }
 
         $client->logs()->create([

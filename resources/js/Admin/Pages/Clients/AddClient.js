@@ -235,7 +235,7 @@ export default function AddClient() {
                                 </div>
                                 <div className="card-body d-flex">
                                     <div className="col">
-                                        <div className="form-group d-flex w-100">
+                                        <div className="form-group d-flex align-items-center w-100">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                             {t("admin.leads.AddLead.Notification_Type")}
                                             </label>
@@ -259,7 +259,7 @@ export default function AddClient() {
                                                 </option>
                                             </select>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "14.4rem" }}>
                                             {t("admin.leads.AddLead.FirstName")}{" "}
                                                 *
@@ -284,7 +284,7 @@ export default function AddClient() {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                             {t("admin.leads.AddLead.LastName")}
                                             </label>
@@ -299,7 +299,7 @@ export default function AddClient() {
                                                 placeholder="Enter Last Name"
                                             />
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.DOB")}
                                             </label>
@@ -318,7 +318,7 @@ export default function AddClient() {
                                                 ""
                                             )}
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.Language")}
                                             </label>
@@ -337,9 +337,27 @@ export default function AddClient() {
                                                 <option value="en">{t("admin.leads.AddLead.english")}</option>
                                             </select>
                                         </div>
+                                        <div className="form-group d-flex align-items-center">
+                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                                {t(
+                                                    "admin.leads.AddLead.SendWPBotMessage"
+                                                )}
+                                            </label>
+                                            <input
+                                                type="checkbox"
+                                                value={formValues.send_bot_message}
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        send_bot_message:
+                                                            e.target.checked,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
                                     </div>
                                     <div className="col">
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.PrimaryPhone")} *
                                             </label>
@@ -364,7 +382,7 @@ export default function AddClient() {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                             {t("admin.leads.AddLead.PrimaryEmail")}{" "}
                                                 *
@@ -390,7 +408,7 @@ export default function AddClient() {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                             {t("admin.leads.AddLead.InvoiceName")} *
                                             </label>
@@ -414,7 +432,7 @@ export default function AddClient() {
                                                 ""
                                             )}
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                             {t("admin.leads.AddLead.PaymentMethod")}
                                             </label>
@@ -436,7 +454,7 @@ export default function AddClient() {
                                                 <option value="cash">{t("admin.leads.AddLead.Options.PaymentMethod.ByCash")}</option>
                                             </select>
                                         </div>
-                                        <div className="form-group d-flex">
+                                        <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                             {t("admin.leads.AddLead.Password")} *
                                             </label>
@@ -593,9 +611,9 @@ export default function AddClient() {
                                     )}
                                 </div>
                             </div>
-                            <div className="card-item" style={{ background: "#FAFBFC" }}>
+                            <div className="card-item additional_contract_box" style={{ background: "#FAFBFC" }}>
                                 <div className="card-heading">
-                                    <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.Additional_Contacts")}</p>
+                                    <p style={{ margin: "20px 20px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.Additional_Contacts")}</p>
                                 </div>
                                 <div className="card-body d-flex flex-column">
                                     {extra &&

@@ -1092,6 +1092,7 @@
                 "InvoiceName": "Invoice name",
                 "PrimaryEmail": "Primary email",
                 "Password": "Password",
+                "SendWPBotMessage": "Send WP bot message",
                 "PrimaryPhone": "Primary phone",
                 "AlternateEmail": "Alternate email",
                 "PersonName": "Person name",
