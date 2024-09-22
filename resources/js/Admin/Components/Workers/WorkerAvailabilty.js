@@ -29,7 +29,7 @@ export default function WorkerAvailabilty({ days }) {
             label: t("global.next")+t("global.to")+ t("global.nextweek"),
         },
     ];
-    
+
     const [notAvailableDates, setNotAvailableDates] = useState([]);
     const [timeSlots, setTimeSlots] = useState([]);
     const [activeTab, setActiveTab] = useState("current-week");
@@ -192,9 +192,9 @@ export default function WorkerAvailabilty({ days }) {
 
     let handleSubmit = (e) => {
         e.preventDefault();
-        if (!Object.values(timeSlots).length) {
-            return false;
-        }
+        // if (!Object.values(timeSlots).length) {
+        //     return false;
+        // }
 
         if (
             formValues.default_repeatancy == "until_date" &&

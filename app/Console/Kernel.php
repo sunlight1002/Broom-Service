@@ -30,6 +30,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('client:update-lead-status')->hourly();
         $schedule->command('worker:send_invitation')->dailyAt('09:00');
         $schedule->command('report')->twiceDailyAt(8, 18);
+        $schedule->command('telescope:prune --hours=336')->daily();
+
+        // Backup schedule
+        $schedule->command('backup:clean')->daily()->at('01:00');
+        $schedule->command('backup:run')->daily()->at('01:30');
+
+
         // $schedule->command('update24')->daily();
         // $schedule->command('StatusNotUpdated24')->daily();
         // $schedule->command('updateteam24')->daily();

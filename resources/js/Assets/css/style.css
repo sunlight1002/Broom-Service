@@ -982,3 +982,6 @@ body{
 }
 .ofrTitle{ background: #70809014!important;}
 
+body .react-tel-input .form-control {
+    width: auto;
+}
