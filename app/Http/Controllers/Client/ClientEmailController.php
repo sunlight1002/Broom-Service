@@ -271,11 +271,11 @@ class ClientEmailController extends Controller
           ]
       ]));
 
-      // Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-      //     $messages->to($emailData['client']['email']);
-      //     $sub = __('mail.price_offer_reminder.header');
-      //     $messages->subject($sub);
-      // });
+      Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+          $messages->to($emailData['client']['email']);
+          $sub = __('mail.price_offer_reminder.header');
+          $messages->subject($sub);
+      });
 
       $ofr['contract_id'] = $hash;
 

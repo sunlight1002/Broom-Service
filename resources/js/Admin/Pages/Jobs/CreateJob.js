@@ -33,7 +33,7 @@ export default function CreateJob() {
         axios
             .get(`/api/admin/contract/${params.id}`, { headers })
             .then((res) => {
-                // console.log(res);
+                console.log(res);
                 
                 const r = res.data.contract;
                 setClient(r.client);

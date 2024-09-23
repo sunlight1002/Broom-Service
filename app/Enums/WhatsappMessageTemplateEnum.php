@@ -74,5 +74,9 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const FILE_SUBMISSION_REQUEST = "file-submission-request";
     public const FOLLOW_UP_ON_OUR_CONVERSATION = "follow-up-on-our-conversation";
     public const JOB_APPROVED_NOTIFICATION_TO_WORKER = "job-approved-notification-to-worker";
+    public const NOTIFY_CONTRACT_VERIFY_TO_CLIENT = "notify-contract-verify-to-client";
+    public const NOTIFY_CONTRACT_VERIFY_TO_TEAM = "notify-contract-verify-to-team";
+    public const CONTRACT_REMINDER_TO_CLIENT_AFTER_3DAY = "contract-reminder-to-client-after-3day";
+    public const CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR = "contract-reminder-to-client-after-24hour";
 
 }
