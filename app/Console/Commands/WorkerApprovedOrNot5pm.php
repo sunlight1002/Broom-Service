@@ -9,6 +9,7 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use App\Enums\WorkerMetaEnum;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
+use App\Events\JobNotificationToWorker; // Adjust as necessary
 
 class WorkerApprovedOrNot5pm extends Command
 {
