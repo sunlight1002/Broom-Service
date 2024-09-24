@@ -696,7 +696,20 @@ return [
             'content' => 'This is a friendly reminder regarding the contract we sent you on :contract_sent_date. If you have any questions or concerns, we’d be happy to assist you. We’re looking forward to working together!',
             'content2' => 'We wanted to follow up with you to ensure that you received the contract we sent on :contract_sent_date.. Please review it, and feel free to reach out if you have any questions. We’re here to assist you.'
         ],
-        
+        'contract_reminder_team' => [
+            'subject' => 'Follow-Up on Sent Contract | Broom Service',
+            'body_intro' => 'Hi Team,',
+            'body_instruction' => 'The contract was sent to :client_name 12 hours ago. Please follow up to confirm that the client has received and reviewed the contract. It’s important to keep the process moving smoothly.',
+            'client_contact' => 'You can contact the client at: :client_phone',
+            'client_link' => 'Client details are available here: :client_link',
+        ],
+        'price_offer_reminder12' => [
+            'subject' => 'Price Offer Reminder | Broom Service',
+            'body_intro' => 'Hi Team',
+            'body_instruction' => '12 hours have passed since the meeting with :client_name, and no price offer has been sent. Please send the offer as soon as possible or update the meeting status.',
+            'client_contact' => 'You can contact the client at: :client_phone',
+            'client_link' => 'Client details are available here: :client_link',
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',
