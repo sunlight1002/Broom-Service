@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
 use App\Jobs\SendUninterestedClientEmail;
 use Illuminate\Mail\Mailable;
-
+use App\Jobs\SendMeetingMailJob;
 
 class ClientEmailController extends Controller
 {
@@ -1077,7 +1077,8 @@ class ClientEmailController extends Controller
     $googleClient = $this->getClient();
 
     $this->saveGoogleCalendarEvent($schedule);
-    $this->sendMeetingMail($schedule);
+    // $this->sendMeetingMail($schedule);
+    SendMeetingMailJob::dispatch($schedule);
 
     return response()->json([
       'message' => 'Meeting is confirmed successfully'

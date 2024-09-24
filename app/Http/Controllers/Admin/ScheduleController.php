@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\LeadActivity;
+use App\Jobs\SendMeetingMailJob;
+use App\Jobs\SendMeetingNotificationJob;
 
 class ScheduleController extends Controller
 {
@@ -140,7 +142,8 @@ class ScheduleController extends Controller
         if (!$schedule->start_date) {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
-            $this->sendMeetingMail($schedule);
+            // $this->sendMeetingMail($schedule);
+            SendMeetingMailJob::dispatch($schedule);
 
             return response()->json([
                 'data' => $schedule,
@@ -152,24 +155,12 @@ class ScheduleController extends Controller
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
             ->value('value');
 
-        // Initializes Google Client object
-        // $googleClient = $this->getClient();
-        // if (!$googleAccessToken) {
-        //     /**
-        //      * Generate the url at google we redirect to
-        //      */
-        //     $authUrl = $googleClient->createAuthUrl(null, ['state' => 'SCH-' . $schedule->id]);
-
-        //     return response()->json([
-        //         'action' => 'redirect',
-        //         'url' => $authUrl,
-        //     ]);
-        // } else {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
             $this->saveGoogleCalendarEvent($schedule);
 
-            $this->sendMeetingMail($schedule);
+            // $this->sendMeetingMail($schedule);
+            SendMeetingMailJob::dispatch($schedule);
 
             if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
                 Notification::create([
@@ -404,21 +395,8 @@ class ScheduleController extends Controller
 
             $this->deleteGoogleCalendarEvent($schedule);
         }
-        $scheduleArr = $schedule->toArray();
-
-        App::setLocale($scheduleArr['client']['lng']);
-        if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::DELETE_MEETING,
-                "notificationData" => $scheduleArr
-            ]));
-        }
-        // Mail::send('/Mails/DeleteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
-        //     $messages->to($scheduleArr['client']['email']);
-        //     $messages->subject(__('mail.cancel_meeting.subject', [
-        //         'id' => $scheduleArr['id']
-        //     ]));
-        // });
+        
+        SendMeetingNotificationJob::dispatch($schedule);
 
         $schedule->delete();
 

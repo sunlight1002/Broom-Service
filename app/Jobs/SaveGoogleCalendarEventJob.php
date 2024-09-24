@@ -60,10 +60,44 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
         }
 
         $googleAccessToken = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
-            ->value('value');
+        ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
+        ->value('value');
 
         $userTimezone = $this->userCalendarTimezone($googleAccessToken);
+
+        if (!$userTimezone) {
+            $refreshToken = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)
+                ->value('value');
+
+            if (!$refreshToken) {
+                throw new Exception('Error: Refresh token not found.');
+            }
+
+            $googleClient = $this->getClient();
+            $googleClient->refreshToken($refreshToken);
+            $newAccessToken = $googleClient->getAccessToken();
+            $newRefreshToken = $googleClient->getRefreshToken();
+
+            if (!$newAccessToken) {
+                throw new Exception('Error: Failed to refresh access token.');
+            }
+
+            Setting::updateOrCreate(
+                ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                ['value' => $newAccessToken['access_token']]
+            );
+
+            if ($newRefreshToken) {
+                Setting::updateOrCreate(
+                    ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
+                    ['value' => $newRefreshToken]
+                );
+            }
+
+            $googleAccessToken = $newAccessToken['access_token'];
+            $userTimezone = $this->userCalendarTimezone($googleAccessToken);
+        }
 
         $eventTitle = "Meeting with " . $schedule->client->firstname . " " . $schedule->client->lastname;
         $clientPhone = (!empty($schedule->client->phone)) ? $schedule->client->phone : 'phone N/A';
@@ -116,26 +150,6 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
             $postData['start']['dateTime'] = $eventTime['event_start_at'];
             $postData['end']['dateTime'] = $eventTime['event_end_at'];
         }
-
-        // $googleCalendarID = config('services.google.calendar_id');
-
-        // if ($schedule->is_calendar_event_created) {
-        //     Log::info("hello");
-        //     $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events/' . $schedule->google_calendar_event_id;
-        //     $response = Http::withHeaders([
-        //         'Authorization' => 'Bearer ' . $googleAccessToken,
-        //         'Content-Type' => 'application/json',
-        //     ])->put($url, $postData);
-        // } else {
-        //     Log::info("hello");
-
-        //     $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events';
-
-        //     $response = Http::withHeaders([
-        //         'Authorization' => 'Bearer ' . $googleAccessToken,
-        //         'Content-Type' => 'application/json',
-        //     ])->post($url, $postData);
-        // }
 
         $googleCalendarController = new GoogleCalendarController();
         $calendarList = $googleCalendarController->getGoogleCalendarList();
@@ -193,7 +207,7 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
 
         if ($http_code != 200) {
             Log::error('Failed to get timezone', ['http_code' => $http_code, 'response' => $data]);
-            throw new Exception('Error: Failed to get timezone');
+            return;
         }
 
         return $data['value'];

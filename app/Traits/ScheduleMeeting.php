@@ -20,55 +20,56 @@ use App\Models\TeamMemberDefaultAvailability;
 use App\Jobs\SaveGoogleCalendarEventJob;
 use App\Jobs\GetUserCalendarTimezoneJob;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\GoogleCalendarController;
 
 trait ScheduleMeeting
 {
     use GoogleAPI;
 
-    private function sendMeetingMail($schedule)
-    {
-        $scheduleArr = $schedule->toArray();
-        App::setLocale($scheduleArr['client']['lng']);
+    // private function sendMeetingMail($schedule)
+    // {
+    //     $scheduleArr = $schedule->toArray();
+    //     App::setLocale($scheduleArr['client']['lng']);
 
-        $notificationType = $schedule->client->notification_type;
+    //     $notificationType = $schedule->client->notification_type;
 
-        if ($notificationType === 'both') {
-            if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
-                    "notificationData" => $scheduleArr
-                ]));
-            }
+    //     if ($notificationType === 'both') {
+    //         if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
+    //             event(new WhatsappNotificationEvent([
+    //                 "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
+    //                 "notificationData" => $scheduleArr
+    //             ]));
+    //         }
 
-            // Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
-            //     $messages->to($scheduleArr['client']['email']);
+    //         // Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+    //         //     $messages->to($scheduleArr['client']['email']);
 
-            //     $messages->subject(__('mail.meeting.subject', [
-            //         'id' => $scheduleArr['id']
-            //     ]));
-            // });
+    //         //     $messages->subject(__('mail.meeting.subject', [
+    //         //         'id' => $scheduleArr['id']
+    //         //     ]));
+    //         // });
 
-        } elseif ($notificationType === 'email') {
+    //     } elseif ($notificationType === 'email') {
             
-            // Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
-            //     $messages->to($scheduleArr['client']['email']);
+    //         // Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+    //         //     $messages->to($scheduleArr['client']['email']);
 
-            //     $messages->subject(__('mail.meeting.subject', [
-            //         'id' => $scheduleArr['id']
-            //     ]));
-            // });
+    //         //     $messages->subject(__('mail.meeting.subject', [
+    //         //         'id' => $scheduleArr['id']
+    //         //     ]));
+    //         // });
 
-        } elseif ($notificationType === 'whatsapp') {
-            if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
-                    "notificationData" => $scheduleArr
-                ]));
-            }
-        }
+    //     } elseif ($notificationType === 'whatsapp') {
+    //         if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
+    //             event(new WhatsappNotificationEvent([
+    //                 "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
+    //                 "notificationData" => $scheduleArr
+    //             ]));
+    //         }
+    //     }
 
-        $schedule->update(['meeting_mail_sent_at' => now()]);
-    }
+    //     $schedule->update(['meeting_mail_sent_at' => now()]);
+    // }
 
     private function saveGoogleCalendarEvent($schedule)
     {
@@ -96,8 +97,15 @@ trait ScheduleMeeting
 
     private function deleteGoogleCalendarEvent($schedule)
     {
-        $googleCalendarID = config('services.google.calendar_id');
+        $googleCalendarController = new GoogleCalendarController();
+        $calendarList = $googleCalendarController->getGoogleCalendarList();
+        $googleCalendarID = $calendarList[0]['id'] ?? null;
 
+        if (!$googleCalendarID) {
+            Log::error('No Google Calendar ID found.');
+            throw new Exception('No Google Calendar ID found.');
+        }
+    
         $googleAccessToken = Setting::query()
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
             ->value('value');

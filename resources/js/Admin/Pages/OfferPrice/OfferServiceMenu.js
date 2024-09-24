@@ -27,6 +27,15 @@ const initialValue = {
     monthday_selection_type: "weekday",
     workers: [{ jobHours: "" }],
 };
+
+const workerJobHours = (_service) => {
+    if (_service.workers) {
+        return _service.workers.map((w) => w.jobHours).join(", ");
+    }
+
+    return "-";
+};
+
 const OfferServiceMenu = memo(function OfferServiceMenu({
     addresses,
     services,
@@ -38,6 +47,8 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
 
     const { t } = useTranslation();
 
+
+   
     const jobActions = [
         {
             key: "edit",
@@ -62,14 +73,6 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
         setTmpFormValues(initialValue);
         isAdd.current = true;
         setIsOpen(true);
-    };
-
-    const workerJobHours = (_service) => {
-        if (_service.workers) {
-            return _service.workers.map((w) => w.jobHours).join(", ");
-        }
-
-        return "-";
     };
 
     const calcPrice = (_service) => {
@@ -217,4 +220,6 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
         </div>
     );
 });
+
+export { workerJobHours };
 export default OfferServiceMenu;
