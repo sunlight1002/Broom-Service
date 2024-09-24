@@ -7,6 +7,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import { Link, useParams } from "react-router-dom";
 import Moment from "moment";
 import { workerHours } from "../../../Utils/common.utils";
+import { workerJobHours } from "./OfferServiceMenu";
 import { useTranslation } from "react-i18next";
 
 export default function ViewOffer({ showModal, handleClose, offerId }) {
@@ -176,7 +177,7 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                                         <td>{s.service === 10 ? s.other_title : s.name}</td>
                                                                         <td>{s.type}</td>
                                                                         <td className="text-right">{s.freq_name}</td>
-                                                                        <td className="text-right">{workerHours(s, "hour(s)")}</td>
+                                                                        <td className="text-right">{workerJobHours(s)}</td>
                                                                         {s.type !== "fixed" || perhour === 1 ? (
                                                                             <>
                                                                                 <td className="text-right">

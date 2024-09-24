@@ -14,6 +14,7 @@ use App\Models\Fblead;
 use App\Models\Client;
 use App\Models\Contract;
 use App\Models\Job;
+use App\Jobs\SendMeetingMailJob;
 use App\Models\Offer;
 use App\Models\WebhookResponse;
 use App\Models\WhatsAppBotClientState;
@@ -980,7 +981,8 @@ If you would like to speak to a human representative, please send a message with
 
                                         $this->saveGoogleCalendarEvent($schedule);
 
-                                        $this->sendMeetingMail($schedule);
+                                        // $this->sendMeetingMail($schedule);
+                                        SendMeetingMailJob::dispatch($schedule);
                                     } catch (\Throwable $th) {
                                         //throw $th;
                                     }
