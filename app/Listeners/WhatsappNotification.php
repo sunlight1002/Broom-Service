@@ -1779,12 +1779,12 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_3DAY:
                     $clientData = $eventData['client'];
-                    $contractSentDate = $eventData['contract_sent_date']; // Assuming this data is passed in the event
                     $clientData1 = $eventData['contract'];
+                    $timestamp = $clientData1['created_at'];
 
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng'] ?? 'en');
-                
+                    \Log::info("helo");
                     // Set the subject
                     $text = __('mail.wa-message.contract_reminder.subject');
                 
@@ -1798,7 +1798,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_reminder.content', [
-                        'contract_sent_date' => $clientData1['created_at']
+                        'contract_sent_date' => Carbon::parse($timestamp)->format('Y-m-d')
                     ]);
                 
                     $text .= "\n\n";
@@ -1816,8 +1816,8 @@ class WhatsappNotification
                 
                 case WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR:
                     $clientData = $eventData['client'];
-                    $contractSentDate = $eventData['contract_sent_date']; // Assuming this data is passed in the event
                     $clientData1 = $eventData['contract'];
+                    $timestamp = $clientData1['created_at'];
 
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng'] ?? 'en');
@@ -1835,7 +1835,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_reminder.content2', [
-                        'contract_sent_date' => $clientData1['created_at']
+                        'contract_sent_date' => Carbon::parse($timestamp)->format('Y-m-d')
                     ]);
                 
                     $text .= "\n\n";
@@ -1850,13 +1850,87 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.follow_up.service_website');
                 
                     break;
+
+                case WhatsappMessageTemplateEnum::CONTRACT_NOT_SIGNED_12_HOURS:
+                    $clientData = $eventData['client'];
+                    $clientData1 = $eventData['contract'];
+                    
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale('heb');
+                    
+                    // Set the subject
+                    $text = __('mail.wa-message.contract_reminder_team.subject');
+                    
+                    $text .= "\n\n";
+                    
+                    // Add the body content with dynamic client name
+                    $text .= __('mail.wa-message.contract_reminder_team.body_intro');
+                
+                    $text .= "\n\n";
+                
+                    // Adding follow-up instruction
+                    $text .= __('mail.wa-message.contract_reminder_team.body_instruction', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+                
+                    $text .= "\n\n";
+                
+                    // Client contact details
+                    $text .= __('mail.wa-message.contract_reminder_team.client_contact', [
+                        'client_phone' => $clientData['phone']
+                    ]);
+                    
+                    $text .= "\n";
+                
+                    // Add client details link
+                    $text .= __('mail.wa-message.contract_reminder_team.client_link',[
+                        'client_link' => url("admin/clients/view/" . $eventData['client']['id'])
+                    ]);
+                    
+                    break;
+
+                case WhatsappMessageTemplateEnum::PRICE_OFFER_REMINDER_12_HOURS:
+                    $clientData = $eventData['client'];
+                    $clientData1 = $eventData['contract'];
+                    
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale('heb');
+                    
+                    // Set the subject
+                    $text = __('mail.wa-message.price_offer_reminder12.subject');
+                    
+                    $text .= "\n\n";
+                    
+                    // Add the body content with dynamic client name
+                    $text .= __('mail.wa-message.price_offer_reminder12.body_intro');
+                
+                    $text .= "\n\n";
+                
+                    // Adding follow-up instruction
+                    $text .= __('mail.wa-message.price_offer_reminder12.body_instruction', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+                
+                    $text .= "\n\n";
+                
+                    // Client contact details
+                    $text .= __('mail.wa-message.price_offer_reminder12.client_contact', [
+                        'client_phone' => $clientData['phone']
+                    ]);
+                    
+                    $text .= "\n";
+                
+                    // Add client details link
+                    $text .= __('mail.wa-message.price_offer_reminder12.client_link',). ": " . url("admin/clients/view/" . $eventData['client']['id']);
+                    
+                    break;
+                    
                 
             }
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                \Log::info($text);
-                $receiverNumber = '918000318833'. '@s.whatsapp.net';
+                
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,

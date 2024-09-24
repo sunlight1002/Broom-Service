@@ -95,7 +95,7 @@ class NotifyTeamPriceOffer12 extends Command
                 App::setLocale($client->lng);
 
                 event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::NOTIFICATION_SENT_PRICE_OFFER_PENDING,
+                    "type" => WhatsappMessageTemplateEnum::PRICE_OFFER_REMINDER_12_HOURS,
                     "notificationData" => [
                         'client' => $client->toArray(),
                     ]

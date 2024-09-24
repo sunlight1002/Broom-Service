@@ -36,12 +36,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('backup:clean')->daily()->at('01:00');
         $schedule->command('backup:run')->daily()->at('01:30');
 
-
-        // $schedule->command('update24')->daily();
-        // $schedule->command('StatusNotUpdated24')->daily();
-        // $schedule->command('updateteam24')->daily();
-        // $schedule->command('leadupdate24team')->daily();
-        // $schedule->command('notifyoffsite24')->daily();
+        $schedule->command('update24')->daily();
+        $schedule->command('StatusNotUpdated24')->daily();
+        $schedule->command('updateteam24')->daily();
+        $schedule->command('leadupdate24team')->daily();
+        $schedule->command('notifyoffsite24')->daily();
 
 
     }
