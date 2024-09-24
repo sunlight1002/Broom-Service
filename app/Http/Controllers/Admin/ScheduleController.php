@@ -153,18 +153,18 @@ class ScheduleController extends Controller
             ->value('value');
 
         // Initializes Google Client object
-        $googleClient = $this->getClient();
-        if (!$googleAccessToken) {
-            /**
-             * Generate the url at google we redirect to
-             */
-            $authUrl = $googleClient->createAuthUrl(null, ['state' => 'SCH-' . $schedule->id]);
+        // $googleClient = $this->getClient();
+        // if (!$googleAccessToken) {
+        //     /**
+        //      * Generate the url at google we redirect to
+        //      */
+        //     $authUrl = $googleClient->createAuthUrl(null, ['state' => 'SCH-' . $schedule->id]);
 
-            return response()->json([
-                'action' => 'redirect',
-                'url' => $authUrl,
-            ]);
-        } else {
+        //     return response()->json([
+        //         'action' => 'redirect',
+        //         'url' => $authUrl,
+        //     ]);
+        // } else {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
             $this->saveGoogleCalendarEvent($schedule);
@@ -185,7 +185,7 @@ class ScheduleController extends Controller
                 'data' => $schedule,
                 'message' => 'Meeting scheduled successfully',
             ]);
-        }
+        // }
     }
 
     public function createScheduleCalendarEvent($scheduleID)

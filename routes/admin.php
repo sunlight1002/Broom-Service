@@ -33,6 +33,8 @@ use App\Http\Controllers\SickLeaveController;
 use App\Http\Controllers\PayrollReportController;
 use App\Http\Controllers\RefundClaimController;
 use App\Http\Controllers\LeadActivityController;
+use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\GoogleCalendarController;
 
 
 /*
@@ -71,6 +73,15 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('pending-data/{for}', [DashboardController::class, 'pendingData']);
     Route::get('latest-clients', [ClientController::class, 'latestClients']);
 
+    //Authentication Api
+    Route::get('/google/auth', [GoogleController::class, 'auth']);
+    Route::delete('/google/disconnect', [GoogleController::class, 'disconnect']);
+
+    //Calendar Api
+    Route::get('/calendar-list', [GoogleCalendarController::class, 'getGoogleCalendarList']);
+    Route::post('/calendar/save', [GoogleCalendarController::class, 'saveCalendar']);
+
+
     // Jobs Api
     Route::resource('jobs', JobController::class)->only(['index', 'show']);
     Route::get('get-all-jobs', [JobController::class, 'getAllJob']);
@@ -103,7 +114,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     //  Routes for Lead Activity
     Route::get('/lead-activities/{id}', [LeadActivityController::class, 'getLeadActivities']);
-    
+
     // Client Property Address Comments
     Route::get('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'getComments']);
     Route::post('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'saveComment']);

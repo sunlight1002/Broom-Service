@@ -17,15 +17,15 @@ class GoogleController extends Controller
     public function callback(Request $request)
     {
         $code = $request->get('code');
-        $state = $request->get('state');
+        // $state = $request->get('state');
 
-        if (Str::startsWith($state, 'SCH-')) {
-            $scheduleID = Str::replace('SCH-', '', $state);
+        // if (Str::startsWith($state, 'SCH-')) {
+        //     $scheduleID = Str::replace('SCH-', '', $state);
 
-            $schedule = Schedule::find($scheduleID);
-            if (!$schedule) {
-                return abort(404);
-            }
+        //     $schedule = Schedule::find($scheduleID);
+        //     if (!$schedule) {
+        //         return abort(404);
+        //     }
 
             // Initializes Google Client object
             $googleClient = $this->getClient();
@@ -55,9 +55,51 @@ class GoogleController extends Controller
                 );
             }
 
-            return redirect('admin/schedule/view/' . $schedule->client_id . '?sid=' . $schedule->id . '&action=create-calendar-event');
-        } else {
-            return abort(404);
+            return redirect('admin/settings/');
+        // } else {
+        //     return abort(404);
+        // }
+    }
+
+    public function auth(Request $request)
+    {
+        $googleAccessToken = Setting::query()
+            ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
+            ->value('value');
+
+        $googleClient = $this->getClient();
+
+        $scheduleId = $request->get('schedule_id'); 
+        $schedule = Schedule::find($scheduleId);
+
+        if (!$googleAccessToken) {
+            // Pass 'state' with schedule ID if it exists
+            $authUrl = $googleClient->createAuthUrl(null, [
+                'state' => $schedule ? 'SCH-' . $schedule->id : null
+            ]);
+
+            return response()->json([
+                'action' => 'redirect',
+                'url' => $authUrl,
+            ]);
         }
+
+        return response()->json([
+            'action' => 'connected',
+            'message' => 'Google Calendar is already connected.'
+        ]);
+    }
+
+
+    public function disconnect()
+    {
+        Setting::where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)->delete();
+
+        Setting::where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Google Calendar has been disconnected and tokens have been removed.'
+        ]);
     }
 }

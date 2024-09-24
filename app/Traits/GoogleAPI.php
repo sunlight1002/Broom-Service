@@ -18,77 +18,156 @@ trait GoogleAPI
     private function getClient(): \Google_Client
     {
         $settings = Setting::query()
-            ->whereIn('key', [
-                SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
-                SettingKeyEnum::GOOGLE_REFRESH_TOKEN
-            ])
-            ->get()
-            ->pluck('value', 'key')
-            ->toArray();
+    ->whereIn('key', [
+        SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
+        SettingKeyEnum::GOOGLE_REFRESH_TOKEN
+    ])
+    ->get()
+    ->pluck('value', 'key')
+    ->toArray();
 
-        $accessToken = NULL;
-        $refreshToken = NULL;
-        if (isset($settings[SettingKeyEnum::GOOGLE_ACCESS_TOKEN])) {
-            $accessToken = $settings[SettingKeyEnum::GOOGLE_ACCESS_TOKEN];
-            $refreshToken = $settings[SettingKeyEnum::GOOGLE_REFRESH_TOKEN];
-        }
+$accessToken = null;
+$refreshToken = null;
 
-        // define an application name
-        $applicationName = config('app.name');
+// Check if access token exists in settings
+if (isset($settings[SettingKeyEnum::GOOGLE_ACCESS_TOKEN])) {
+    $accessToken = $settings[SettingKeyEnum::GOOGLE_ACCESS_TOKEN];
+}
 
-        // create the client
-        $client = new \Google_Client([
-            'client_id' => config('services.google.client_id'),
-            'client_secret' => config('services.google.client_secret'),
-            'redirect_uri' => config('services.google.redirect_uri'), // Replace with your redirect URI
-        ]);
-        $client->setApplicationName($applicationName);
+// Check if refresh token exists in settings
+if (isset($settings[SettingKeyEnum::GOOGLE_REFRESH_TOKEN])) {
+    $refreshToken = $settings[SettingKeyEnum::GOOGLE_REFRESH_TOKEN];
+}
 
-        if ($accessToken) {
-            $client->setAccessToken($accessToken);
+$client = new \Google_Client([
+    'client_id' => config('services.google.client_id'),
+    'client_secret' => config('services.google.client_secret'),
+    'redirect_uri' => config('services.google.redirect_uri'),
+]);
 
-            try {
-                // If the access token is expired, it will automatically refresh using the refresh token
-                if ($client->isAccessTokenExpired()) {
-                    $response = $client->fetchAccessTokenWithRefreshToken($refreshToken);
+$applicationName = config('app.name');
+$client->setApplicationName($applicationName);
 
-                    if (isset($response['error'])) {
-                        // Remove google token from DB, to re-initiate.
-                        Setting::query()->whereIn('key', [
-                                SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
-                                SettingKeyEnum::GOOGLE_REFRESH_TOKEN
-                            ])->delete();
+if ($accessToken) {
+    $client->setAccessToken($accessToken);
 
-                        Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error (" . $response['error'] . ") with description - '" . $response['error_description'] . "'", function ($message) {
-                            $message->to(config('services.app.notify_failed_process_to'))
-                                ->subject(config('app.name') . ' : Google API Error (Access Token)');
-                        });
+    try {
+        if ($client->isAccessTokenExpired() && $refreshToken) {
+            // Fetch a new access token using the refresh token
+            $response = $client->fetchAccessTokenWithRefreshToken($refreshToken);
 
-                        throw new Exception('Error : Failed to fetch google access token');
-                    }
+            if (isset($response['error'])) {
+                // Delete the tokens from the DB if refresh token fails
+                Setting::query()->whereIn('key', [
+                    SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
+                    SettingKeyEnum::GOOGLE_REFRESH_TOKEN
+                ])->delete();
 
-                    $accessToken = $response['access_token'];
-                    Setting::updateOrCreate(
-                        ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
-                        ['value' => $accessToken]
-                    );
-
-                    $refreshToken = $response['refresh_token'];
-                    if ($refreshToken) {
-                        Setting::updateOrCreate(
-                            ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
-                            ['value' => $refreshToken]
-                        );
-                    }
-                }
-            } catch (\Throwable $th) {
-                Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error code - " . $th->getCode() . ".", function ($message) use ($th) {
+                // Notify the user about the error
+                Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error (" . $response['error'] . ") with description - '" . $response['error_description'] . "'", function ($message) {
                     $message->to(config('services.app.notify_failed_process_to'))
-                        ->subject(config('app.name') . ' : Google API Error (' . $th->getCode() . ')');
+                        ->subject(config('app.name') . ' : Google API Error (Access Token)');
                 });
-                // throw $th;
+
+                throw new Exception('Error: Failed to fetch google access token');
+            }
+
+            // Update access token and refresh token in the settings table
+            $accessToken = $response['access_token'];
+            Setting::updateOrCreate(
+                ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                ['value' => $accessToken]
+            );
+
+            if (isset($response['refresh_token'])) {
+                $refreshToken = $response['refresh_token'];
+                Setting::updateOrCreate(
+                    ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
+                    ['value' => $refreshToken]
+                );
             }
         }
+    } catch (\Throwable $th) {
+        Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error code - " . $th->getCode() . ".", function ($message) use ($th) {
+            $message->to(config('services.app.notify_failed_process_to'))
+                ->subject(config('app.name') . ' : Google API Error (' . $th->getCode() . ')');
+        });
+        // Handle the error (optional: rethrow or log)
+    }
+}
+
+        // $settings = Setting::query()
+        //     ->whereIn('key', [
+        //         SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
+        //         SettingKeyEnum::GOOGLE_REFRESH_TOKEN
+        //     ])
+        //     ->get()
+        //     ->pluck('value', 'key')
+        //     ->toArray();
+
+        // $accessToken = NULL;
+        // $refreshToken = NULL;
+        // if (isset($settings[SettingKeyEnum::GOOGLE_ACCESS_TOKEN])) {
+        //     $accessToken = $settings[SettingKeyEnum::GOOGLE_ACCESS_TOKEN];
+        //     $refreshToken = $settings[SettingKeyEnum::GOOGLE_REFRESH_TOKEN];
+        // }
+
+        // // define an application name
+        // $applicationName = config('app.name');
+
+        // // create the client
+        // $client = new \Google_Client([
+        //     'client_id' => config('services.google.client_id'),
+        //     'client_secret' => config('services.google.client_secret'),
+        //     'redirect_uri' => config('services.google.redirect_uri'), // Replace with your redirect URI
+        // ]);
+        // $client->setApplicationName($applicationName);
+
+        // if ($accessToken) {
+        //     $client->setAccessToken($accessToken);
+
+        //     try {
+        //         // If the access token is expired, it will automatically refresh using the refresh token
+        //         if ($client->isAccessTokenExpired()) {
+        //             $response = $client->fetchAccessTokenWithRefreshToken($refreshToken);
+
+        //             if (isset($response['error'])) {
+        //                 // Remove google token from DB, to re-initiate.
+        //                 Setting::query()->whereIn('key', [
+        //                         SettingKeyEnum::GOOGLE_ACCESS_TOKEN,
+        //                         SettingKeyEnum::GOOGLE_REFRESH_TOKEN
+        //                     ])->delete();
+
+        //                 Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error (" . $response['error'] . ") with description - '" . $response['error_description'] . "'", function ($message) {
+        //                     $message->to(config('services.app.notify_failed_process_to'))
+        //                         ->subject(config('app.name') . ' : Google API Error (Access Token)');
+        //                 });
+
+        //                 throw new Exception('Error : Failed to fetch google access token');
+        //             }
+
+        //             $accessToken = $response['access_token'];
+        //             Setting::updateOrCreate(
+        //                 ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+        //                 ['value' => $accessToken]
+        //             );
+
+        //             $refreshToken = $response['refresh_token'];
+        //             if ($refreshToken) {
+        //                 Setting::updateOrCreate(
+        //                     ['key' => SettingKeyEnum::GOOGLE_REFRESH_TOKEN],
+        //                     ['value' => $refreshToken]
+        //                 );
+        //             }
+        //         }
+        //     } catch (\Throwable $th) {
+        //         Mail::raw("Dear user,\n\rThis email is to inform you about a issue with your website's integration with a Google API. Our systems have detected an error code - " . $th->getCode() . ".", function ($message) use ($th) {
+        //             $message->to(config('services.app.notify_failed_process_to'))
+        //                 ->subject(config('app.name') . ' : Google API Error (' . $th->getCode() . ')');
+        //         });
+        //         // throw $th;
+        //     }
+        // }
 
         $client->setAccessType('offline'); // necessary for getting the refresh token
         $client->setApprovalPrompt('force'); // necessary for getting the refresh token

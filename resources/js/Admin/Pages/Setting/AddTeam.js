@@ -151,27 +151,19 @@ export default function AddTeam() {
                                     <label className="control-label">
                                         {t("admin.global.Phone")}
                                     </label>
-                                    <PhoneInput
-                                                    country={'il'}
-                                                    value={phone}
-                                                    onChange={(phone) => {
-                                                        setPhone(phone);
-                                                    }}
-                                                    inputClass="form-control"
-                                                    inputProps={{
-                                                        name: 'phone',
-                                                        required: true,
-                                                        placeholder: "Enter phone",
-                                                    }}
-                                                />
-                                    {/* <input
-                                        type="tel"
-                                        className="form-control"
-                                        onChange={(e) =>
-                                            setPhone(e.target.value)
-                                        }
-                                        placeholder="Enter phone"
-                                    /> */}
+                                        <PhoneInput
+                                            country={'il'}
+                                            value={phone}
+                                            onChange={(phone) => {
+                                                 setPhone(phone);
+                                            }}
+                                            inputClass="form-control"
+                                            inputProps={{
+                                                name: 'phone',
+                                                required: true,
+                                                placeholder: "Enter phone",
+                                            }}
+                                        />
                                     {errors?.phone ? (
                                         <small className="text-danger mb-1">
                                             {errors?.phone}
