@@ -11,6 +11,7 @@ use App\Enums\SettingKeyEnum;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Http\Controllers\GoogleCalendarController;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -116,26 +117,55 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
             $postData['end']['dateTime'] = $eventTime['event_end_at'];
         }
 
-        $googleCalendarID = config('services.google.calendar_id');
+        // $googleCalendarID = config('services.google.calendar_id');
 
+        // if ($schedule->is_calendar_event_created) {
+        //     Log::info("hello");
+        //     $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events/' . $schedule->google_calendar_event_id;
+        //     $response = Http::withHeaders([
+        //         'Authorization' => 'Bearer ' . $googleAccessToken,
+        //         'Content-Type' => 'application/json',
+        //     ])->put($url, $postData);
+        // } else {
+        //     Log::info("hello");
+
+        //     $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events';
+
+        //     $response = Http::withHeaders([
+        //         'Authorization' => 'Bearer ' . $googleAccessToken,
+        //         'Content-Type' => 'application/json',
+        //     ])->post($url, $postData);
+        // }
+
+        $googleCalendarController = new GoogleCalendarController();
+        $calendarList = $googleCalendarController->getGoogleCalendarList();
+        $googleCalendarID = $calendarList[0]['id'] ?? null;
+    
+        if (!$googleCalendarID) {
+            Log::error('No Google Calendar ID found.');
+            throw new Exception('No Google Calendar ID found.');
+        }
+    
         if ($schedule->is_calendar_event_created) {
-            Log::info("hello");
+            
+            Log::info("Updating event in Google Calendar");
+
             $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events/' . $schedule->google_calendar_event_id;
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $googleAccessToken,
                 'Content-Type' => 'application/json',
             ])->put($url, $postData);
         } else {
-            Log::info("hello");
+
+            Log::info("Creating new event in Google Calendar");
 
             $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events';
-
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $googleAccessToken,
                 'Content-Type' => 'application/json',
             ])->post($url, $postData);
         }
-
+        
         $data = $response->json();
         $http_code = $response->status();
 

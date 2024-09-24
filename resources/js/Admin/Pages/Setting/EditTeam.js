@@ -4,6 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAlert } from "react-alert";
 import axios from "axios";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 export default function EditTeam() {
     const [name, setName] = useState(null);
@@ -186,15 +188,19 @@ export default function EditTeam() {
                                     <label className="control-label">
                                         Phone
                                     </label>
-                                    <input
-                                        type="tel"
-                                        className="form-control"
-                                        onChange={(e) =>
-                                            setPhone(e.target.value)
-                                        }
-                                        value={phone}
-                                        placeholder="Enter phone"
-                                    />
+                                        <PhoneInput
+                                            country={'il'}
+                                            value={phone}
+                                            onChange={(phone) => {
+                                                 setPhone(phone);
+                                            }}
+                                            inputClass="form-control"
+                                            inputProps={{
+                                                name: 'phone',
+                                                required: true,
+                                                placeholder: "Enter phone",
+                                            }}
+                                        />
                                     {errors?.phone ? (
                                         <small className="text-danger mb-1">
                                             {errors?.phone}

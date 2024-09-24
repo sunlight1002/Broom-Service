@@ -101,7 +101,7 @@ export default function Acc() {
     };
 
     return (
-        <div className="card" style={{boxShadow: "none"}}> 
+        <div className="card" style={{boxShadow: "none"}}>
             <div className="card-body">
                 <form>
                     <div className="form-group">

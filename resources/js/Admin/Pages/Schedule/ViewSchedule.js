@@ -169,7 +169,6 @@ export default function ViewSchedule() {
                         alert.error(res.data.errors[e]);
                     }
                 } else {
-                    alert.success(res.data.message);
                     setTimeout(() => {
                         navigate("/admin/schedule");
                     }, 1000);

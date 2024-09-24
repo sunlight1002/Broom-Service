@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Acc from "../../Components/Settings/Acc";
 import ChangePass from "../../Components/Settings/ChangePass";
+import Integration from "../../Components/Settings/Integration";
 import Sidebar from "../../Layouts/Sidebar";
 import { useTranslation } from "react-i18next";
 import BankDetails from "../../Components/Settings/BankDetails";
@@ -61,6 +62,18 @@ export default function Setting() {
                                 {t("client.settings.change_pass")}
                             </a>
                         </li>
+                        <li className="nav-item" role="presentation">
+                            <a
+                                id="integration-tab"
+                                className="nav-link"
+                                data-toggle="tab"
+                                href="#tab-integration"
+                                aria-selected="false"
+                                role="tab"
+                            >
+                                {t("client.settings.integration")}
+                            </a>
+                        </li>
                       {
                         role !== "superadmin" && (
                             <li className="nav-item" role="presentation">
@@ -94,6 +107,14 @@ export default function Setting() {
                             aria-labelledby="password-tab"
                         >
                             <ChangePass />
+                        </div>
+                        <div
+                            id="tab-integration"
+                            className="tab-pane"
+                            role="tab-panel"
+                            aria-labelledby="integration-tab"
+                        >
+                            <Integration />
                         </div>
                         {
                             role !== "superadmin" && (
