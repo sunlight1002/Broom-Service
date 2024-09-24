@@ -118,8 +118,8 @@ export default function WorkerAvailabilityTable({
         const slots = workerSlots?.slots?.find((slot) => slot.date === date) ?? {};
 
         const filtered = isClient ? slots?.slots : slots?.allSlots;
-        console.log(filtered,"filterer");
-        
+        console.log(filtered, "filterer");
+
 
         setFilterSlots(filtered);
         setSelectedDate(date);
@@ -246,15 +246,17 @@ export default function WorkerAvailabilityTable({
                                                                         </div>
                                                                     </div>
                                                                     <div className="d-flex flex-wrap">
-                                                                        {alreadyBooked.map((slot, idx) => (
-                                                                            <div key={idx} className="slot-info mr-1">
-                                                                                {parseTimeSlots(slot.slot).map((time, timeIdx) => (
-                                                                                    <span key={timeIdx} className="badge badge-primary">
-                                                                                        {time}
-                                                                                    </span>
-                                                                                ))}
-                                                                            </div>
-                                                                        ))}
+                                                                        {alreadyBooked.map((slot, idx) => {
+                                                                            return (
+                                                                                <div key={idx} className="slot-info mr-1">
+                                                                                    {parseTimeSlots(slot.slot).map((time, timeIdx) => (
+                                                                                        <span key={timeIdx} className="badge badge-primary">
+                                                                                            {time}
+                                                                                        </span>
+                                                                                    ))}
+                                                                                </div>
+                                                                            )
+                                                                        })}
                                                                         {selectedHours
                                                                             ?.filter((slot) => slot?.slots?.some((s) => s.workerId === w.id)) // Ensure we only map the selected slots for the current worker
                                                                             ?.map((slot, idx) => {
@@ -300,9 +302,6 @@ export default function WorkerAvailabilityTable({
 
                                                                                     // Add the last group
                                                                                     groupedSlots.push(`${currentGroup[0]?.slice(0, 5)} - ${currentGroup[1]?.slice(0, 5)}`);
-
-                                                                                    console.log(groupedSlots); // You should see grouped time slots like ["08:00 - 09:45"]
-
                                                                                     return (
                                                                                         <div key={idx} className="slot-info ml-1">
                                                                                             {groupedSlots.map((timeRange, slotIdx) => (
@@ -366,7 +365,7 @@ export default function WorkerAvailabilityTable({
                                         filterSlots.map((shift, _sIdx) => {
                                             let isActive = hasActive(selectedWorker.id, selectedDate, shift);
                                             // console.log(shift);
-                                            
+
                                             if (!hasStartActive) {
                                                 hasStartActive = isActive;
                                             } else if (isClient) {

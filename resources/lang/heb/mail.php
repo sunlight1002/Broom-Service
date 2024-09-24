@@ -720,6 +720,16 @@ return [
             'client_contact' => 'ניתן ליצור קשר עם הלקוח בטלפון: :client_phone',
             'client_link' => 'פרטי הלקוח זמינים כאן: :client_link',
         ],
+        'worker_not_approved_job_team' => [
+            'header' => "*תזכורת: עבודה לא אושרה | שירות ברום*",
+            'content' => "צוות תשומת לב!\n\nהעבודה הבאה עדיין לא אושרה על ידי העובד:\n\n" .
+                            "**תאריך/שעה:** :תאריך_שעה\n" .
+                            "**Client:** :client_name\n" .
+                            "**עובד:** :שם_עובד\n" .
+                            "**Service:** :service_name\n" .
+                            "**נכס:** :כתובת\n\n" .
+                            "נא לנקוט בפעולה כדי להבטיח שעבודה זו תאושר.",
+        ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',
             'upload_file' => 'העלה קובץ',

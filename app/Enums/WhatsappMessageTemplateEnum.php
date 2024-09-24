@@ -80,5 +80,6 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR = "contract-reminder-to-client-after-24hour";
     public const PRICE_OFFER_REMINDER_12_HOURS = "price-offer-reminder-12-hours";
     public const CONTRACT_NOT_SIGNED_12_HOURS = "contract-not-signed-12-hours";
+    public const JOB_APPROVED_NOTIFICATION_TO_TEAM = "job-approved-notification-to-team";
 
 }

@@ -407,6 +407,44 @@ class WhatsappNotification
                     $text .= url("office@broomservice.co.il");
                 
                     break;
+
+                case WhatsappMessageTemplateEnum::JOB_APPROVED_NOTIFICATION_TO_TEAM:
+                    // $adminData = $eventData['admin'];
+                    $jobData = $eventData['job'];
+                    $clientData = $eventData['client'];
+                    $workerData = $eventData['worker'];
+                    \Log::info($jobData);
+
+                    $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+                    App::setLocale('heb');
+
+                    $text = __('mail.wa-message.worker_not_approved_job_team.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => 'everyone'
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_not_approved_job_team.content', [
+                        'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
+                        'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
+                        'worker_name' => $workerData['firstname'] . " " . $workerData['lastname'],
+                        'service_name' => ($jobData['name'] . ', '),
+                        'address' => $jobData['property_address']
+                            ? $jobData['property_address']['address_name']
+                            : 'NA',
+                    ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.change_worker') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.change_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-shift");
+
+                    $text .= "\n\n" . "Worker view" . ": " . url("admin/jobs/view" . $jobData['id']);
+
+                    break;
         
                 case WhatsappMessageTemplateEnum::WORKER_NOT_APPROVED_JOB:
                     // $adminData = $eventData['admin'];
@@ -1930,7 +1968,6 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
@@ -1943,7 +1980,7 @@ class WhatsappNotification
             // dd($th);
             // throw $th;
             Log::alert('WA NOTIFICATION ERROR');
-            Log::alert($th->getMessage());
+            Log::alert($th);
         }
     }
 }
