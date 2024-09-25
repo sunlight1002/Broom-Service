@@ -27,6 +27,7 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
+use App\Jobs\ProcessFileAndNotify;
 
 
 class DashboardController extends Controller
@@ -230,22 +231,22 @@ class DashboardController extends Controller
     //     ]);
     // }
 
-
     public function addfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'role'   => 'required',
             'user_id' => 'required'
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
-    
+
         $schedule = Schedule::find($request->meeting);
         $schedule->load(['client', 'team', 'propertyAddress']);
         $client = $schedule->client;
-    
+
+        // Process the file synchronously before dispatching the job
         $file_nm = '';
         if ($request->type == 'video') {
             $video = $request->file('file');
@@ -260,60 +261,17 @@ class DashboardController extends Controller
                 $img = Image::make($image)->resize(350, 227);
                 $destinationPath = storage_path() . '/app/public/uploads/ClientFiles/';
                 $fname = 'file_' . $request->user_id . '_' . date('s') . '_' . $name;
-                $path = storage_path() . '/app/public/uploads/ClientFiles/' . $fname;
+                $path = $destinationPath . $fname;
                 File::exists($destinationPath) or File::makeDirectory($destinationPath, 0777, true, true);
                 $img->save($path, 90);
                 $file_nm  = $fname;
             }
         }
-    
-        $files = Files::create([
-            'user_id'   => $request->user_id,
-            'meeting'   => $request->meeting,
-            'note'      => $request->note,
-            'role'      => 'client',
-            'type'      => $request->type,
-            'file'      => $file_nm
-        ]);
-    
-        event(new AdminLeadFilesNotificationJob($schedule, $files));
-    
-        $clientNotificationType = $client->notification_type;
-    
-        if ($clientNotificationType == 'both') {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-    
-            $leadArray = $client->toArray();
-            
-            // App::setLocale($client['lng']);
-            // Mail::send('Mails.FileSubmissionRequest', ['client' => $leadArray], function ($message) use ($client) {
-            //     $message->to($client->email); 
-            //     $message->subject(__('mail.file_submission_request.header'));
-            // });
-        } elseif ($clientNotificationType == 'whatsapp') {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-        } elseif ($clientNotificationType == 'email') {
-            $leadArray = $client->toArray();
 
-            // App::setLocale($client['lng']);
-            // Mail::send('Mails.FileSubmissionRequest', ['client' => $leadArray], function ($message) use ($client) {
-            //     $message->to($client->email);
-            //     $message->subject(__('mail.file_submission_request.header'));
-            // });
-        }
-    
+        ProcessFileAndNotify::dispatch($request->user_id, $client, $schedule, $request->type, $file_nm, $request->note);
+
         return response()->json([
-            'message' => 'File uploaded',
+            'message' => 'File is being uploaded and processed',
         ]);
     }
 
