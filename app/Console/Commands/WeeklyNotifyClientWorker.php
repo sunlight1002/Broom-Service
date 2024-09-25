@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Job;
+use App\Models\Holiday;
 use App\Models\WhatsappTemplate;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
@@ -22,7 +24,7 @@ class WeeklyNotifyClientWorker extends Command
      *
      * @var string
      */
-    protected $description = 'Every Monday, send a notification to all clients and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule.';
+    protected $description = 'Every Monday, send a notification to all clients and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule. Also, notify them if there is any holiday during that week.';
 
     /**
      * Create a new command instance.
@@ -44,14 +46,28 @@ class WeeklyNotifyClientWorker extends Command
         // Get the start and end dates for the following week
         $startOfNextWeek = Carbon::now()->addWeek()->startOfWeek();
         $endOfNextWeek = Carbon::now()->addWeek()->endOfWeek();
-        \Log::info($startOfNextWeek." start");
-        \Log::info($endOfNextWeek." end");
+        
+        // \Log::info($startOfNextWeek." start");
+        // \Log::info($endOfNextWeek." end");
 
-
+        // Fetch scheduled jobs for the next week
         $scheduledJobs = Job::whereBetween('start_date', [$startOfNextWeek, $endOfNextWeek])
             ->with(['client', 'worker']) 
             ->get();
-            \Log::info($scheduledJobs."scheduled");
+
+        // Fetch holidays for the next week
+        $holidays = Holiday::whereBetween('start_date', [$startOfNextWeek, $endOfNextWeek])
+            ->orWhereBetween('end_date', [$startOfNextWeek, $endOfNextWeek])
+            ->get();
+        
+        // Build holiday message
+        $holidayMessage = '';
+        if ($holidays->count() > 0) {
+            $holidayMessage = "";
+            foreach ($holidays as $holiday) {
+                $holidayMessage .= "- {$holiday->holiday_name} from {$holiday->start_date} to {$holiday->end_date}\n";
+            }
+        }
 
         // Get the WhatsApp template
         $template = WhatsappTemplate::where('key','NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE')->first();
@@ -64,6 +80,7 @@ class WeeklyNotifyClientWorker extends Command
                         'template' => $template,
                         'job' => $job, 
                         'recipientType' => 'client',
+                        'holidayMessage' => $holidayMessage,
                     ],
                 ];
                 event(new WhatsappNotificationEvent($clientData));
@@ -76,12 +93,12 @@ class WeeklyNotifyClientWorker extends Command
                         'template' => $template,
                         'job' => $job, 
                         'recipientType' => 'worker',
+                        'holidayMessage' => $holidayMessage,
                     ],
                 ];
                 event(new WhatsappNotificationEvent($workerData));
             }
         }
-        
 
         return 0;
     }

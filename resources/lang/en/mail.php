@@ -733,6 +733,18 @@ return [
             'content' => 'Just a friendly reminder that your scheduled service with Broom Service will take place next week. If you need to make any changes or cancellations, please do so by Wednesday. After Wednesday, any cancellation may incur fees according to our policy.',
             'action_btn' => '*Action Buttons:*'
         ],
+        'worker_on_my_way' => [
+            'content' => "Please remember to click 'Start Job' when you arrive at the client's location today. If you have any issues, contact your manager immediately."
+        ],
+        'team_worker_on_my_way' => [
+            'content' => "Reminder: :worker_name hasn’t clicked 'Start Job' yet for today’s scheduled service at :client_name's location. Please follow up as needed."
+        ],
+        'remind_to_worker' => [
+            'content' => "Please don't forget to confirm the address for tomorrow's job by 6 PM today. If you have any issues or need help, please contact your manager.",
+        ],
+        'not_confirm_job' => [
+            'content' => "Reminder: :worker_name hasn’t confirmed the address for tomorrow’s job yet. Please take action if no confirmation is received by 6 PM.",
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',
@@ -757,6 +769,7 @@ return [
             'contact_manager' => 'Contact Manager',
             'change_service_date' => 'Change Service Date',
             'cancel_service' => 'Cancel service',
+            'start_job' => 'Start job'
         ]
         ],
 
