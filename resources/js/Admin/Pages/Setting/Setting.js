@@ -62,6 +62,7 @@ export default function Setting() {
                                 {t("client.settings.change_pass")}
                             </a>
                         </li>
+                        {role && role === "superadmin" && (
                         <li className="nav-item" role="presentation">
                             <a
                                 id="integration-tab"
@@ -74,6 +75,7 @@ export default function Setting() {
                                 {t("client.settings.integration")}
                             </a>
                         </li>
+                        )}
                       {
                         role !== "superadmin" && (
                             <li className="nav-item" role="presentation">
