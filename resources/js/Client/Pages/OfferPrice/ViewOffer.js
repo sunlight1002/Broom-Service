@@ -82,7 +82,7 @@ export default function ClientViewOffer() {
                                                             "client.offer.view.phone"
                                                         )}
                                                         :{" "}
-                                                        <span>0872992300</span>
+                                                        <span>+0872992300</span>
                                                     </p>
                                                     <p>
                                                         {t(
@@ -116,7 +116,7 @@ export default function ClientViewOffer() {
                                                             "client.offer.view.phone"
                                                         )}
                                                         :{" "}
-                                                        <span>{cl.phone}</span>
+                                                        <span>+{cl.phone}</span>
                                                     </p>
                                                     <p>
                                                         {t(

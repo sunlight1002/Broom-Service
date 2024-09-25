@@ -56,8 +56,8 @@ export default function WorkerProfile({ worker }) {
                                         {t("admin.leads.viewLead.Phone")}
                                     </label>
                                     <p>
-                                        <a href={`tel:${worker.phone}`}>
-                                            {worker.phone}
+                                        <a href={`tel:+${worker.phone}`}>
+                                            +{worker.phone}
                                         </a>
                                     </p>
                                 </div>

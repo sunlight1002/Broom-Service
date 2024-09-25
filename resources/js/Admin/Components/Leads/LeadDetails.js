@@ -158,9 +158,9 @@ export default function LeadDetails({ lead }) {
                                                 </label>
                                                 <p>
                                                     <a
-                                                        href={`tel:${lead.phone}`}
+                                                        href={`tel:+${lead.phone}`}
                                                     >
-                                                        {lead.phone}
+                                                        +{lead.phone}
                                                     </a>
                                                 </p>
                                             </div>

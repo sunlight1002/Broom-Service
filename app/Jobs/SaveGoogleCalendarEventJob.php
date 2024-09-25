@@ -178,7 +178,7 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
                 'Authorization' => 'Bearer ' . $googleAccessToken,
                 'Content-Type' => 'application/json',
             ])->post($url, $postData);
-        }
+        }       
         
         $data = $response->json();
         $http_code = $response->status();

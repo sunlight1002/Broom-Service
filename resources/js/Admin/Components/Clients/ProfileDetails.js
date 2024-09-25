@@ -272,8 +272,8 @@ export default function ProfileDetails({
                                             <div className="form-group navyblueColor">
                                                 <label>{t("admin.client.Options.Phone")}</label>
                                                 <p>
-                                                    <a href={`tel:${phone}`}>
-                                                        {phone}
+                                                    <a href={`tel:+${phone}`}>
+                                                        +{phone}
                                                     </a>
                                                 </p>
                                             </div>

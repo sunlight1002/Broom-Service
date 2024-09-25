@@ -92,7 +92,13 @@ export default function Lead() {
                         width: "15%", // Optional: You can specify a fixed width
                     },
                     { title: t("admin.global.Email"), data: "email" },
-                    { title: t("admin.global.Phone"), data: "phone" },
+                    { 
+                        title: t("admin.global.Phone"), 
+                        data: "phone",
+                        render: function(data) {
+                            return `+${data}`;
+                        }
+                    },                    
                     {
                         title: t("admin.global.Status"),
                         data: "lead_status",

@@ -70,6 +70,9 @@ export default function OfferPrice() {
                     {
                         title: t("admin.global.Phone"),
                         data: "phone",
+                        render: function(data) {
+                            return `+${data}`;
+                        }
                     },
                     {
                         title: t("admin.global.Status"),

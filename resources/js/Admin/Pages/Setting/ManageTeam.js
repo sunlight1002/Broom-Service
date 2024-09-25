@@ -55,6 +55,9 @@ export default function ManageTeam() {
                 {
                     title: "Phone",
                     data: "phone",
+                    render: function(data) {
+                        return `+${data}`;
+                    }
                 },
                 {
                     title: "Status",

@@ -106,7 +106,7 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                     </p> */}
                                                     <p>
                                                     {t("client.offer.view.phone")}:{" "}
-                                                        <span>{cl.phone}</span>
+                                                        <span>+{cl.phone}</span>
                                                     </p>
                                                     <p>
                                                     {t("client.offer.view.email")}:{" "}

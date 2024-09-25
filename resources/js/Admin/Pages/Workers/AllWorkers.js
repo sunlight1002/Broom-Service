@@ -80,10 +80,13 @@ export default function AllWorkers() {
                         title: t("admin.global.Email"),
                         data: "email",
                     },
-                    {
-                        title: t("admin.global.Phone"),
+                    { 
+                        title: t("admin.global.Phone"), 
                         data: "phone",
-                    },
+                        render: function(data) {
+                            return `+${data}`;
+                        }
+                    },     
                     {
                         title: t("admin.global.Address"),
                         data: "address",
