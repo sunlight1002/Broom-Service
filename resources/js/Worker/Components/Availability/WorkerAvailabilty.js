@@ -199,9 +199,9 @@ export default function WorkerAvailabilty() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!Object.values(timeSlots).length) {
-            return false;
-        }
+        // if (!Object.values(timeSlots).length) {
+        //     return false;
+        // }
 
         if (
             formValues.default_repeatancy == "until_date" &&

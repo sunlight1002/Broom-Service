@@ -45,7 +45,6 @@ class NotifyTeamToUpdateLeadStatus extends Command
     public function handle()
     {
         $todayDate = Carbon::now()->format('Y-m-d');
-
         // Get LeadStatus records where lead_status is 'pending' and were created more than 24 hours ago
         $leadStatuses = LeadStatus::with('client')
         ->where('lead_status', 'pending')

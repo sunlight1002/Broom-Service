@@ -391,6 +391,10 @@ trait PaymentAPI
             "email_to" => $client->email,
         ];
 
+        if($client->icount_client_id) {
+            $postData['client_id'] = $client->icount_client_id;
+        }
+
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
         ])->post(

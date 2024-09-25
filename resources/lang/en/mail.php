@@ -440,6 +440,17 @@ return [
             'header' => "*Job Not Approved | Broom Service*",
             'content' => "The worker has not approved the address yet.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
+        'worker_not_approved_job_team' => [
+            'header' => "*Reminder: Job Not Approved | Broom Service*",
+            'content' => "Attention Team!\n\nThe following job has not been approved by the worker yet:\n\n" .
+                            "**Date/Time:** :date_time\n" .
+                            "**Client:** :client_name\n" .
+                            "**Worker:** :worker_name\n" .
+                            "**Service:** :service_name\n" .
+                            "**Property:** :address\n\n" .
+                            "Please take action to ensure this job is confirmed.",
+        ],
+
         'worker_not_left_for_job' => [
             'header' => "*Worker Not Out for Work | Broom Service*",
             'content' => "The worker has not yet left for the job.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
@@ -682,6 +693,33 @@ return [
             'service_name' => 'Broom Service', 
             'contact' => `📞 03-525-70-60`,   
             'service_website' => '🌐 :[www.broomservice.co.il](http://www.broomservice.co.il)',
+        ],
+        'contract_verify' => [
+            'header' => 'Contract Verification | Broom Service',
+            'subject' => 'Your agreement has been confirmed',
+            'info' => 'Hello *:name*',
+            'content' => 'Your agreement has been successfully confirmed. We will contact you soon to schedule your service.'
+        ],
+        'contract_reminder' => [
+            'subject' => 'Contract Reminder | Broom Service',
+            'subject2' => 'Contract Follow-Up | Broom Service',
+            'body' => 'Hi :client_name',
+            'content' => 'This is a friendly reminder regarding the contract we sent you on :contract_sent_date. If you have any questions or concerns, we’d be happy to assist you. We’re looking forward to working together!',
+            'content2' => 'We wanted to follow up with you to ensure that you received the contract we sent on :contract_sent_date.. Please review it, and feel free to reach out if you have any questions. We’re here to assist you.'
+        ],
+        'contract_reminder_team' => [
+            'subject' => 'Follow-Up on Sent Contract | Broom Service',
+            'body_intro' => 'Hi Team,',
+            'body_instruction' => 'The contract was sent to :client_name 12 hours ago. Please follow up to confirm that the client has received and reviewed the contract. It’s important to keep the process moving smoothly.',
+            'client_contact' => 'You can contact the client at: :client_phone',
+            'client_link' => 'Client details are available here: :client_link',
+        ],
+        'price_offer_reminder12' => [
+            'subject' => 'Price Offer Reminder | Broom Service',
+            'body_intro' => 'Hi Team',
+            'body_instruction' => '12 hours have passed since the meeting with :client_name, and no price offer has been sent. Please send the offer as soon as possible or update the meeting status.',
+            'client_contact' => 'You can contact the client at: :client_phone',
+            'client_link' => 'Client details are available here: :client_link',
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',

@@ -355,7 +355,7 @@ return [
         'instructions' => 'אנא השב למייל זה עם הקבצים המבוקשים בהקדם.',
     ],
     'price_offer_reminder' => [
-        'header' => 'תזכורת: ההצעת מחיר שלך מבית Broom Service',
+        'header' => 'תזכורת: ההצעת מחיר שלך מבית  שירות ברום',
         'greeting' => 'שלום, :name,',
         'content' => 'רצינו להזכיר לך ששלחנו לך לאחרונה הצעת מחיר עבור השירותים שביקשת. אם את/ה עדיין מעוניין/ת, נשמח להמשיך ולספק לך את השירות המקצועי והאיכותי שלנו.',
         'assistance' => 'לשאלות או בקשות נוספות, אנחנו כאן לעזרתך.',
@@ -542,7 +542,7 @@ return [
         ],
         'new_lead_arrived' => [
             'header' => "*הובלה חדשה הגיעה | שירות ברוםים*",
-            'content' => "לקוח חדש הגיע עם הפרטים הבאים:\nשֵׁם: :client_name\nאיש קשר: :contact\nשירות מבוקש: :Service_Requested\nאימייל: :email\nכתובת: :address",
+            'content' => "ליד חדש התקבל עם הפרטים הבאים:\nשֵׁם: :client_name\nאיש קשר: :contact\nשירות מבוקש: :Service_Requested\nאימייל: :email\nכתובת: :address",
             'follow_up' => 'אנא בצעו מעקב בהקדם האפשרי.'
         ],
         'client_lead_status_changed' => [
@@ -599,7 +599,7 @@ return [
         ],
         'lead_accepted_price_offer' => [
             'header' => 'דרוש פעולה: חתימת חוזה עבור :client_name',
-            'content' => "שלום צוות,\n\n:client_name קיבל את ההצעת מחיר. אנא ודאו שהחוזה נחתם וכל הפרטים הנדרשים מאושרים כדי שנוכל להתקדם בתכנון השירות.\n\nתודה,\nBroom Service",
+            'content' => "שלום צוות,\n\n:client_name קיבל את ההצעת מחיר. אנא ודאו שהחוזה נחתם וכל הפרטים הנדרשים מאושרים כדי שנוכל להתקדם בתכנון השירות.\n\nתודה,\nשירות ברום",
         ],
         'book_client_after_signed_contract' => [
             'header' => 'דרושה פעולה: יש לקבוע מועד שירות ללקוח לאחר חתימת חוזה',
@@ -632,18 +632,18 @@ return [
             'action_required' => 'אנא עיין במידע ועדכן את הסטטוס בהקדם האפשרי. חשוב לעקוב אחרי התקדמות הלידים ולוודא שכל ליד נמצא בסטטוס הנכון.',
         ],
         'tried_to_contact_you' => [
-            'header' => 'ניסינו ליצור איתך קשר | Broom Service',
-            'content' => 'תודה שפנית אלינו ב-Broom Service. רצינו להודיע לך שניסינו ליצור איתך קשר אך לא הצלחנו להשיגך. אנו כאן וזמינים לעזור לך מיום ראשון עד יום חמישי, בין השעות 8:00 עד 16:00.',
+            'header' => 'ניסינו ליצור איתך קשר | שירות ברום',
+            'content' => 'תודה שפנית אלינו ב-שירות ברום. רצינו להודיע לך שניסינו ליצור איתך קשר אך לא הצלחנו להשיגך. אנו כאן וזמינים לעזור לך מיום ראשון עד יום חמישי, בין השעות 8:00 עד 16:00.',
             'availability' => 'נשמח לדעת מתי יהיה לך נוח שנחזור אליך במהלך שעות הפעילות שלנו.',
             'contact_details' => 'תוכל ליצור איתנו קשר בטלפון: 03-525-70-60.',
         ],
         'inquiry_response' => [
-            'header' => 'בהתייחס לפנייתך | Broom Service',
-            'content' => 'תודה על ההתעניינות שלך ב-Broom Service. עיינו בפנייתך, ולצערנו איננו מספקים שירותים באזור שלך או את השירות הספציפי שאתה מחפש.',
+            'header' => 'בהתייחס לפנייתך | שירות ברום',
+            'content' => 'תודה על ההתעניינות שלך ב-שירות ברום. עיינו בפנייתך, ולצערנו איננו מספקים שירותים באזור שלך או את השירות הספציפי שאתה מחפש.',
             'service_areas' => "אזורי השירות שלנו כוללים:\n- תל אביב\n- רמת גן\n- גבעתיים\n- קריית אונו\n- גני תקווה\n- רמת השרון\n- כפר שמריהו\n- רישפון\n- הרצליה\n\nאם הצרכים שלך משתנים או אם אתה ממוקם באזורים אלו, נשמח לעזור לך בעתיד.",
         ],
         'follow_up_required' => [
-            'header' => 'מעקב נדרש: לידים ממתינים | שירות בראום',
+            'header' => 'מעקב נדרש: לידים ממתינים | שירות ברום',
             'salutation' => 'שלום, צוות',
             'content' => 'תזכורת זו מציינת שהליד הבא נמצא במצב "ממתין" במשך למעלה מ-24 שעות. אנא עיינו בפרטי הליד ועדכנו את המצב לפי הצורך.' .
                          "\n\n" .
@@ -655,7 +655,7 @@ return [
                          "\n:inquiry_date",
             'common' => [
                             'closing' => 'אנא קחו פעולה על מנת ליצור קשר עם הליד שוב, לעדכן את המצב או לעקוב לפי הצורך.',
-                            'signature' => "בברכה,\nשירות בראום\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il",
+                            'signature' => "בברכה,\nשירות ברום\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il",
                         ],
         ],
         'file_submission_request' => [
@@ -667,6 +667,68 @@ return [
         'user_status_changed' => [
             'header' => "*שינוי סטטוס | שירות ברום*",
             'content' => ":name שינה את הסטטוס ל-:status."
+        ],
+        'follow_up' => [
+            'subject' => 'מעקב אחר השיחה שלנו',
+            'salutation' => 'שלום :client_name,',
+            'introduction' => 'ראשית, תודה שפנית אלינו. שמחתי מאוד להכיר ולשוחח איתך.',
+            'testimonials' => 'בהמשך לשיחתנו, מצרפת לעיונך המלצות מלקוחות קיימים שלנו, למען התרשמותך מהשירות המעולה שלנו: [Client Testimonials](:testimonials_link)',
+            'brochure' => 'כמו כן, מצורף לעיונך ספרון השירותים שלנו כדי להתרשם מהשירותים שאנו מציעים.',
+            'commitment' => 'בברום סרוויס, אנו מתחייבים לאיכות, מקצועיות ושירות אישי.',
+            'help' => 'אני כאן כדי לעזור ולענות על כל שאלה נוספת,אשמח לעמוד לשירותך תמיד בכל עת.',
+            'best_regards' => 'בברכה',  
+            'service_name' => 'ברום סרוויס', 
+            'contact' => `📞 03-525-70-60`,   
+            'service_website' => '🌐 :[www.broomservice.co.il](http://www.broomservice.co.il)',
+        ],
+        'contract_verify' => [
+            'header' => 'אימות חוזה | שירות ברום',
+            'subject' => 'אישור ההסכם שלך',
+            'info' => "שלום, *:name*",
+            'content' => 'ההסכם שלך אומת בהצלחה. ניצור איתך קשר בקרוב לתיאום השירות.'
+        ],
+        'contract_verify_team' => [
+            'header' => 'אימות חוזה | שירות ברום',
+            'subject' => 'אימות הסכם ללקוח',
+            'info' => 'היי *:name*',
+            'content' => 'הלקוח :name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.'
+        ],
+        // 'contract_verify' => [
+        //     'header' => 'אימות חוזה | שירות ברום',
+        //     'subject' => 'אישור ההסכם שלך',
+        //     'info' => 'היי *:name*',
+        //     'content' => 'ההסכם שלך אומת בהצלחה. ניצור איתך קשר בקרוב לתיאום השירות.'
+        // ],
+        'contract_reminder' => [
+            'subject' => 'תזכורת חוזה | שירות ברום',
+            'subject2' => 'מעקב חוזים | שירות ברום',
+            'body' => 'היי :client_name',
+            'content' => 'זוהי תזכורת ידידותית לגבי החוזה ששלחנו לך ב- :contract_sent_date. אם יש לך שאלות או חששות, נשמח לעמוד לשירותך. אנו מצפים לעבוד יחד!',
+            'content2' => 'רצינו לבצע מעקב ולוודא שקיבלת את החוזה ששלחנו לך ב-  :contract_sent_date. נשמח אם תוכל לעיין בו ולהודיע לנו אם יש לך שאלות. אנחנו כאן כדי לעזור.'
+        ],
+        'contract_reminder_team' => [
+            'subject' => 'מעקב על חוזה שנשלח | שירות ברום',
+            'body_intro' => 'היי צוות',
+            'body_instruction' => 'החוזה נשלח ל- :client_name לפני 12 שעות אנא בצעו מעקב כדי לוודא שהלקוח קיבל ועיין בחוזה. חשוב לשמור על התקדמות התהליך בצורה חלקה.',
+            'client_contact' => 'ניתן ליצור קשר עם הלקוח בטלפון: :client_phone',
+            'client_link' => 'פרטי הלקוח זמינים כאן:  :client_link',
+        ],
+        'price_offer_reminder12' => [
+            'subject' => 'תזכורת להצעת מחיר | שירות ברום',
+            'body_intro' => 'היי צוות',
+            'body_instruction' => 'חלפו 12 שעות מאז הפגישה עם  :client_name, ועדיין לא נשלחה הצעת מחיר. אנא שלחו את ההצעה בהקדם האפשרי או עדכנו את סטטוס הפגישה.',
+            'client_contact' => 'ניתן ליצור קשר עם הלקוח בטלפון: :client_phone',
+            'client_link' => 'פרטי הלקוח זמינים כאן: :client_link',
+        ],
+        'worker_not_approved_job_team' => [
+            'header' => "*תזכורת: עבודה לא אושרה | שירות ברום*",
+            'content' => "צוות תשומת לב!\n\nהעבודה הבאה עדיין לא אושרה על ידי העובד:\n\n" .
+                            "**תאריך/שעה:** :תאריך_שעה\n" .
+                            "**Client:** :client_name\n" .
+                            "**עובד:** :שם_עובד\n" .
+                            "**Service:** :service_name\n" .
+                            "**נכס:** :כתובת\n\n" .
+                            "נא לנקוט בפעולה כדי להבטיח שעבודה זו תאושר.",
         ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',

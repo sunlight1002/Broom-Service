@@ -1,0 +1,7 @@
+body .react-tel-input .form-control {
+    width: 100%;
+}
+
+.additional_contract_box {
+    flex-basis: 28%;
+}

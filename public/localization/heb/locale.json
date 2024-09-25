@@ -1127,6 +1127,7 @@
                 "InvoiceName": "שם חשבונית",
                 "PrimaryEmail": "אימייל ראשי",
                 "Password": "סיסמה",
+                "SendWPBotMessage": "שלח הודעה לבוט של WP",
                 "PrimaryPhone": "טלפון ראשי",
                 "AlternateEmail": "אימייל חלופי",
                 "PersonName": "שם האדם",

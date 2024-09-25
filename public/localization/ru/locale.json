@@ -1009,6 +1009,7 @@
                 "InvoiceName": "Имя для счета",
                 "PrimaryEmail": "Основная электронная почта",
                 "Password": "Пароль",
+                "SendWPBotMessage": "Отправить сообщение боту WP",
                 "PrimaryPhone": "Основной телефон",
                 "AlternateEmail": "Дополнительная электронная почта",
                 "PersonName": "Имя лица",
