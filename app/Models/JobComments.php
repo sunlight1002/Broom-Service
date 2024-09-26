@@ -9,7 +9,7 @@ class JobComments extends Model
 {
     protected $table = 'job_comments';
 
-    protected $fillable = ['job_id', 'comment', 'name', 'comment_for', 'commenter_type', 'commenter_id'];
+    protected $fillable = ['job_id', 'comment', 'name', 'comment_for', 'commenter_type', 'commenter_id', 'done'];
 
     protected static function boot()
     {
@@ -26,6 +26,11 @@ class JobComments extends Model
     {
         return $this->morphMany(Attachment::class, 'attachable');
     }
+
+    public function job()
+    {
+        return $this->belongsTo(Job::class, 'job_id');
+    }    
 
     public function commenter()
     {

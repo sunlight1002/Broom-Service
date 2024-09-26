@@ -33,7 +33,6 @@ class SendJobNotificationToWorker implements ShouldQueue
         $worker = $event->worker;
         $job = $event->job;
         $emailData = $event->emailData;
-        \Log::info($job);
 
         App::setLocale($worker['lng']);
 

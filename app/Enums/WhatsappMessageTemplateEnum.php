@@ -81,5 +81,12 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const PRICE_OFFER_REMINDER_12_HOURS = "price-offer-reminder-12-hours";
     public const CONTRACT_NOT_SIGNED_12_HOURS = "contract-not-signed-12-hours";
     public const JOB_APPROVED_NOTIFICATION_TO_TEAM = "job-approved-notification-to-team";
+    public const WORKER_AFTER_APPROVE_JOB = "worker-after-approve-job";
+    public const WORKER_NOTIFY_BEFORE_ON_MY_WAY = "worker-notify-before-on-my-way";
+    public const TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY = "team_notify-worker-before-on-my-way";
+    public const TEAM_NOTIFY_CONTACT_MANAGER = "team-notify-contact-manager";
+    public const WORKER_ON_MY_WAY_NOTIFY = "worker-on-my-way-notify";
+    public const WORKER_ARRIVE_NOTIFY = "worker-arrive-notify";
+    public const NOTIFY_TEAM_FOR_SKIPPED_COMMENTS = "notify-team-for-skipped-comments";
 
 }

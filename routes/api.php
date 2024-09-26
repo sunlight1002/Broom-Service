@@ -8,6 +8,7 @@ use App\Http\Controllers\User\JobController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
 use App\Http\Controllers\User\DocumentController;
+use App\Http\Controllers\User\SkippedCommentController;
 use App\Http\Controllers\TwimlController;
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +59,7 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('not-available-dates', [DashboardController::class, 'notAvailableDates']);
     Route::post('not-available-date', [DashboardController::class, 'addNotAvailableDates']);
     Route::post('delete-not-available-date', [DashboardController::class, 'deleteNotAvailableDates']);
+    Route::post('worker/contact-manager/{id}', [JobController::class, 'ContactManager']);
 
     Route::get('jobs/today', [JobController::class, 'todayJobs']);
     Route::resource('jobs', JobController::class)->only(['index', 'show']);
@@ -68,7 +70,15 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
     Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
 
+
     Route::resource('job-comments', JobCommentController::class)->only(['store', 'destroy']);
+    Route::post('job-comments/mark-complete', [JobCommentController::class, 'markComplete']);
+
+    Route::post('job-comments/skip-comment', [SkippedCommentController::class, 'store']);
+    Route::get('job-comments/skipped-comments', [SkippedCommentController::class, 'index']);
+    Route::post('job-comments/update-status', [SkippedCommentController::class, 'updateStatus']);
+
+
     Route::get('availabilities', [JobController::class, 'getAvailability']);
     Route::post('availabilities', [JobController::class, 'updateAvailability']);
 

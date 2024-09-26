@@ -50,6 +50,15 @@ class SendJobApprovedNotification implements ShouldQueue
         $worker = $job['worker'];
         App::setLocale($worker['lng']);
 
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_ON_MY_WAY_NOTIFY,
+            "notificationData" => array(
+                // 'admin' => $admin->toArray(),
+                // 'email' => $admin->email,
+                'job' => $event->job->toArray(),
+            )
+        ]));
+
         $emailData = [
             'emailSubject'  => __('mail.job_common.approve_subject'),
             'emailTitle'  => __('mail.job_common.approve_title'),

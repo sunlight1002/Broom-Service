@@ -9,6 +9,7 @@ use App\Events\WorkerCommented;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Models\Job;
 use App\Models\Admin;
+use App\Models\SkippedComment;
 use App\Models\JobComments;
 use App\Models\Notification;
 use App\Http\Controllers\Controller;
@@ -127,6 +128,18 @@ class JobCommentController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
+
+        $commentIds = $request->input('comment_ids', []);
+
+        // Ensure it is an array even if a single ID is passed
+        if (!is_array($commentIds)) {
+            $commentIds = [$commentIds];
+        }
+    
+        // Update the "done" column for each of the checked comments
+        JobComments::whereIn('id', $commentIds)->update(['status' => 'complete']);
+    
+
         $comment = '';
         $filesArr = $request->file('files');
         $isFiles = ($request->hasFile('files') && count($filesArr) > 0);
@@ -240,4 +253,44 @@ class JobCommentController extends Controller
             'message' => 'Comment has been deleted successfully'
         ]);
     }
+    public function markComplete(Request $request)
+    {
+        // Ensure you're receiving the JSON data properly
+        $commentId = $request->input('comment_id');
+    
+        // Check if the comment ID is received properly
+        if (!$commentId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comment ID is required',
+            ], 400);
+        }
+    
+        // Find the comment by ID
+        $comment = JobComments::find($commentId);
+    
+        if (!$comment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comment not found',
+            ], 404);
+        }
+    
+        // Toggle the comment status
+        if ($comment->status === 'complete') {
+            $comment->status = null;  // Set to null if it was complete
+        } else {
+            $comment->status = 'complete';  // Set to complete if it was null
+        }
+    
+        $comment->save();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment status toggled successfully!',
+            'new_status' => $comment->status, // Return the new status for feedback
+        ]);
+    }
+    
+    
 }

@@ -47,7 +47,7 @@ export default function ChangeWorkerCalender({ job }) {
     };
 
     const getTime = () => {
-        axios.get(`/api/admin/get-time`, { headers }).then((res) => {
+        axios.get(`/api/admin/get-time`, { headers }).then((res) => {            
             if (res.data.data) {
                 let ar = JSON.parse(res.data.data.days);
                 setDays(ar);
@@ -75,6 +75,8 @@ export default function ChangeWorkerCalender({ job }) {
                 },
             })
             .then((res) => {
+                console.log(res.data);
+                
                 setAllWorkers(res.data.workers);
                 setWorkerAvailabilities(
                     getWorkerAvailabilities(res.data.workers)
