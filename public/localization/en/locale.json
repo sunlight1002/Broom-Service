@@ -1125,7 +1125,8 @@
                     "Type": {
                         "title": "Type",
                         "Fixed": "Fixed",
-                        "Hourly": "Hourly"
+                        "Hourly": "Hourly",
+                        "Squaremeter":"Squaremeter"
                     },
                     "addPayment": "Add Payment",
                     "addInvoice": "Add Invoice",
@@ -1248,6 +1249,7 @@
                         "Type": "Type",
                         "Job Hours": "Job Hours",
                         "Price": "Price",
+                        "Totalsquaremeter": "Totalsquaremeter",
                         "Frequency": "Frequency",
                         "Actions": "Actions",
                         "jonNotFound": "Jobs not found!"
@@ -1275,7 +1277,8 @@
                             "serviceTiitle": "Service Title",
                             "JobHours": "Enter job Hrs",
                             "Price": "Enter job price",
-                            "rateperhour": "Enter rate P/Hr"
+                            "rateperhour": "Enter rate P/Hr",
+                            "ratepersquaremeter": "Enter rate P/Square meter"
                         }
                     }
                 }

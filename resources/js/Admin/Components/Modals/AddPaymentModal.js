@@ -208,7 +208,7 @@ export default function AddPaymentModal({
                         <div className="form-group">
                             <label className="control-label">
                             {t("admin.leads.AddLead.Options.tandb")}
-                                <small> ({t("admin.leads.AddLead.Options.optionalCCMode")})</small>
+                                <small> ({t("admin.leads.AddLead.Options.optionalCCmode")})</small>
                             </label>
                             <input
                                 type="text"

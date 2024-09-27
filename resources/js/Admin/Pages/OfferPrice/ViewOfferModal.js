@@ -143,7 +143,7 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                 </div>
                                                 <div className="card-body">
                                                     <div className="table-responsive">
-                                                        <table className="table table-md navyblueColor">
+                                                    <table className="table table-md navyblueColor">
                                                             <thead>
                                                                 <tr>
                                                                     <th style={{ width: "30%" }}>{t("client.offer.view.address")}</th>
@@ -154,7 +154,7 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                                     {ofr.type === "fixed" && (
                                                                         <th className="text-right">{t("admin.leads.AddLead.AddLeadClient.jobMenu.Price")}</th>
                                                                     )}
-                                                                    {perhour !== 0 && (
+                                                                    {perhour !== 0 && ofr.type !== "squaremeter" && (
                                                                         <th className="text-right">{t("client.offer.view.rate_ph")}</th>
                                                                     )}
                                                                     {ofr.type !== "fixed" && (
@@ -163,33 +163,40 @@ export default function ViewOffer({ showModal, handleClose, offerId }) {
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                {services && services.map((s, i) => (
-                                                                    <tr key={i}>
-                                                                        <td>
-                                                                            {s.address ? (
-                                                                                <a href={`https://maps.google.com?q=${s.address.geo_address}`} target="_blank" rel="noopener noreferrer">
-                                                                                    {s.address.address_name}
-                                                                                </a>
-                                                                            ) : (
-                                                                                "NA"
-                                                                            )}
-                                                                        </td>
-                                                                        <td>{s.service === 10 ? s.other_title : s.name}</td>
-                                                                        <td>{s.type}</td>
-                                                                        <td className="text-right">{s.freq_name}</td>
-                                                                        <td className="text-right">{workerJobHours(s)}</td>
-                                                                        {s.type !== "fixed" || perhour === 1 ? (
-                                                                            <>
+                                                                {services &&
+                                                                    services.map((s, i) => (
+                                                                        <tr key={i}>
+                                                                            <td>
+                                                                                {s.address ? (
+                                                                                    <a
+                                                                                        href={`https://maps.google.com?q=${s.address.geo_address}`}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                    >
+                                                                                        {s.address.address_name}
+                                                                                    </a>
+                                                                                ) : (
+                                                                                    "NA"
+                                                                                )}
+                                                                            </td>
+                                                                            <td>{s.service === 10 ? s.other_title : s.name}</td>
+                                                                            <td>{s.type}</td>
+                                                                            <td className="text-right">{s.freq_name}</td>
+                                                                            <td className="text-right">{workerJobHours(s)}</td>
+
+                                                                            {s.type !== "fixed" && s.type !== "squaremeter" && perhour === 1 && (
                                                                                 <td className="text-right">
                                                                                     {s.rateperhour ? `${s.rateperhour} ILS` : "--"}
                                                                                 </td>
+                                                                            )}
+
+                                                                            {s.type === "fixed" ? (
+                                                                                <td className="text-right">{`${s.fixed_price} ILS`}</td>
+                                                                            ) : (
                                                                                 <td className="text-right">{`${s.totalamount} ILS`}</td>
-                                                                            </>
-                                                                        ) : (
-                                                                            <td className="text-right">{`${s.fixed_price} ILS`}</td>
-                                                                        )}
-                                                                    </tr>
-                                                                ))}
+                                                                            )}
+                                                                        </tr>
+                                                                    ))}
                                                             </tbody>
                                                         </table>
                                                     </div>

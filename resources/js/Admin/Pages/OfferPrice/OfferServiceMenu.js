@@ -13,6 +13,8 @@ const initialValue = {
     frequency: "",
     fixed_price: "",
     rateperhour: "",
+    ratepersquaremeter: "",
+    totalsquaremeter: "",
     other_title: "",
     template: "",
     cycle: "",
@@ -82,6 +84,14 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                     .map((w) => parseInt(w.jobHours))
                     .reduce((a, b) => a + b, 0);
                 return _service.rateperhour * _totalHours;
+    
+            } else if (_service.type === "squaremeter") {
+                if (_service.ratepersquaremeter && _service.totalsquaremeter) {
+                    return _service.ratepersquaremeter * _service.totalsquaremeter;
+                } else {
+                    return "-";
+                }
+    
             } else {
                 return _service.fixed_price * _service.workers.length;
             }
@@ -89,6 +99,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
             return "-";
         }
     };
+    
 
     return (
         <div>

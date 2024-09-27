@@ -24,6 +24,8 @@ export default function EditOffer() {
             frequency: "",
             fixed_price: "",
             rateperhour: "",
+            ratepersquaremeter: "",
+            totalsquaremeter: "",
             other_title: "",
             template: "",
             cycle: "",
@@ -126,6 +128,11 @@ export default function EditOffer() {
             if (formValues[t].type == "hourly") {
                 if (formValues[t].service == "") {
                     alert.error("One of the rate per hour value is missing");
+                    return false;
+                }
+            } else if (formValues[t].type === "squaremeter") {
+                if (formValues[t].ratepersquaremeter === "" || formValues[t].totalsquaremeter === "") {
+                    alert.error("Rate per square meter or total square meter is missing");
                     return false;
                 }
             } else {

@@ -525,6 +525,8 @@ class JobController extends Controller
                 if ($selectedService['type'] == 'hourly') {
                     $hours = ($minutes / 60);
                     $total_amount = ($selectedService['rateperhour'] * $hours);
+                } else if($selectedService['type'] == 'squaremeter') {
+                    $total_amount = ($selectedService['ratepersquaremeter'] * $selectedService['totalsquaremeter']);
                 } else {
                     $total_amount = ($selectedService['fixed_price']);
                 }

@@ -164,7 +164,13 @@ const JobModal = memo(function JobModal({
                 alert.error("The rate per hour value is missing");
                 return false;
             }
-        } else {
+        }  else if (tmpFormValues.type === "squaremeter") {
+            if (tmpFormValues.ratepersquaremeter === ""  && tmpFormValues.totalsquaremeter === "") {
+                alert.error("The rate per square meter is missing and total square meter is missing");
+                return false;
+            }
+        }
+        else {
             if (tmpFormValues.fixed_price == "") {
                 alert.error("The job price is missing");
                 return false;
@@ -551,6 +557,11 @@ const JobModal = memo(function JobModal({
                                         "admin.leads.AddLead.Options.Type.Hourly"
                                     )}
                                 </option>
+                                <option value="squaremeter">
+                                    {t(
+                                        "admin.leads.AddLead.Options.Type.Squaremeter"
+                                    )}
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -578,12 +589,12 @@ const JobModal = memo(function JobModal({
                             <label className="control-label">
                                 {t("admin.leads.AddLead.JobModal.Price")}
                             </label>
-                            {tmpFormValues.type !== "hourly" && (
+                            {tmpFormValues.type === "fixed" && (
                                 <input
                                     type="number"
                                     name="fixed_price"
                                     value={tmpFormValues.fixed_price || ""}
-                                    onChange={(e) => handleInputChange(e)}
+                                    onChange={handleInputChange}
                                     className="form-control jobprice"
                                     required
                                     placeholder={t(
@@ -591,12 +602,13 @@ const JobModal = memo(function JobModal({
                                     )}
                                 />
                             )}
+
                             {tmpFormValues.type === "hourly" && (
                                 <input
-                                    type="text"
+                                    type="number"
                                     name="rateperhour"
                                     value={tmpFormValues.rateperhour || ""}
-                                    onChange={(e) => handleInputChange(e)}
+                                    onChange={handleInputChange}
                                     className="form-control jobrate"
                                     required
                                     placeholder={t(
@@ -604,9 +616,43 @@ const JobModal = memo(function JobModal({
                                     )}
                                 />
                             )}
+                            {tmpFormValues.type === "squaremeter" && (
+                                <input
+                                    type="number"
+                                    name="ratepersquaremeter"
+                                    value={tmpFormValues.ratepersquaremeter || ""}
+                                    onChange={handleInputChange}
+                                    className="form-control jobprice"
+                                    required
+                                    placeholder={t(
+                                        "admin.leads.AddLead.JobModal.placeHolder.ratepersquaremeter"
+                                    )}
+                                />
+                            )}
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <div className="col-sm-4">
+                        <div className="form-group">
+                            {tmpFormValues.type === "squaremeter" && (
+                                <div className="flex-1">
+                                    <label className="control-label">Total Square Meter</label>
+                                    <input
+                                        type="number"
+                                        name="total"
+                                        value={tmpFormValues.totalsquaremeter || ""}
+                                        onChange={handleInputChange}
+                                        className="form-control p-2"
+                                        required
+                                        placeholder={t(
+                                            "admin.leads.AddLead.JobModal.placeHolder.totalsquaremeter"
+                                        )}
+                                    />
+                                </div>
+                            )}
+                        </div>  
+                    </div>
+                    
                 <div className="row">
                     <div className="col-sm-12">
                         <div className="form-group">
