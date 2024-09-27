@@ -93,7 +93,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                 }
     
             } else {
-                return _service.fixed_price * _service.workers.length;
+                return _service.fixed_price;
             }
         } else {
             return "-";

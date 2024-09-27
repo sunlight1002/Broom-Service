@@ -69,12 +69,14 @@ class FixOldOffersSeeder extends Seeder
                         $serviceTotal += $newServices[$skey]['rateperhour'] * $worker['jobHours'];
                     }
                     $subtotal += $serviceTotal;
+                } else if($newServices[$skey]['type'] == 'squaremeter') {
+                    $serviceTotal += $newServices[$skey]['ratepersquaremeter'] * $newServices[$skey]['totalsquaremeter'];
                 } else {
                     if ($newServices[$skey]['fixed_price'] == '') {
                         $newServices[$skey]['fixed_price'] = 0;
                     }
 
-                    $serviceTotal += $newServices[$skey]['fixed_price'] * count($newServices[$skey]['workers']);
+                    $serviceTotal += $newServices[$skey]['fixed_price'];
                     $subtotal += $serviceTotal;
                 }
                 $newServices[$skey]['totalamount'] = $serviceTotal;

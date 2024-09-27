@@ -148,7 +148,7 @@ class OfferController extends Controller
                 }
                 $subtotal += $serviceTotal;
             } else {
-                $serviceTotal += $service['fixed_price'] * count($service['workers']);
+                $serviceTotal += $service['fixed_price'];
                 $subtotal += $serviceTotal;
             } 
         
@@ -318,7 +318,7 @@ class OfferController extends Controller
             }
             else
             {
-                $serviceTotal += $service['fixed_price'] * count($service['workers']);
+                $serviceTotal += $service['fixed_price'];
                 $subtotal += $serviceTotal;
 
             } 

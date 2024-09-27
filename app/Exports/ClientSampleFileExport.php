@@ -50,7 +50,7 @@ class ClientSampleFileExport implements FromCollection, WithHeadings, WithEvents
                 $statusOptions = ['Lead', 'Potential Customer', 'Customer'];
                 $yesNoOptions = ['Yes', 'No'];
                 $preferTypeOptions = ['Female', 'Male', 'Both'];
-                $rateTypeOptions = ['fixed', 'hourly'];
+                $rateTypeOptions = ['fixed', 'hourly', 'squaremeter'];
                 $notificationTypes = ['both', 'email', 'whatsapp'];
 
                 // set dropdown list for first data row
