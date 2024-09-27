@@ -129,7 +129,6 @@ class OfferController extends Controller
         // $input['subtotal'] = $subtotal;
         // $input['total'] = $subtotal + $tax_amount;
 
-
         $tax_percentage = config('services.app.tax_percentage');
         $subtotal = 0;
 
@@ -151,7 +150,6 @@ class OfferController extends Controller
                 $serviceTotal += $service['fixed_price'];
                 $subtotal += $serviceTotal;
             }
-
             $services[$skey]['totalamount'] = $serviceTotal;
         }
 
