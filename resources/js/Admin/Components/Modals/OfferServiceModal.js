@@ -14,6 +14,8 @@ const initialValues = {
     frequency: "",
     fixed_price: "",
     rateperhour: "",
+    ratepersquaremeter: "",
+    totalsquaremeter: "",
     other_title: "",
     template: "",
     cycle: "",
@@ -136,7 +138,13 @@ export default function OfferServiceModal({
                 alert.error("The rate per hour value is missing");
                 return false;
             }
-        } else {
+        }  else if (_formValues.type === "squaremeter") {
+            if (_formValues.ratepersquaremeter === ""  && _formValues.totalsquaremeter === "") {
+                alert.error("The rate per square meter is missing and total square meter is missing");
+                return false;
+            }
+        }
+        else {
             if (_formValues.fixed_price == "") {
                 alert.error("The job price is missing");
                 return false;
@@ -786,35 +794,66 @@ export default function OfferServiceModal({
                             >
                                 <option value="fixed">{t("admin.leads.AddLead.Options.Type.Fixed")}</option>
                                 <option value="hourly">{t("admin.leads.AddLead.Options.Type.Hourly")}</option>
+                                <option value="squaremeter">{t("admin.leads.AddLead.Options.Type.Squaremeter")}</option>
                             </select>
                         </div>
                     </div>
                     <div className="col-sm-4">
                         <div className="form-group">
                             <label className="control-label">{t("admin.leads.AddLead.AddLeadClient.jobMenu.Price")}</label>
-                            {offerServiceTmp.type !== "hourly" && (
+                            {offerServiceTmp.type === "fixed" && (
                                 <input
                                     type="number"
                                     name="fixed_price"
                                     value={offerServiceTmp.fixed_price || ""}
-                                    onChange={(e) => handleInputChange(e)}
+                                    onChange={handleInputChange}
                                     className="form-control jobprice"
                                     required
                                     placeholder="Enter job price"
                                 />
                             )}
+
                             {offerServiceTmp.type === "hourly" && (
                                 <input
-                                    type="text"
+                                    type="number"
                                     name="rateperhour"
                                     value={offerServiceTmp.rateperhour || ""}
-                                    onChange={(e) => handleInputChange(e)}
-                                    className="form-control jobrate"
+                                    onChange={handleInputChange}
+                                    className="form-control jobprice"
                                     required
-                                    placeholder="Enter rate P/Hr"
+                                    placeholder="Enter rate P/Hour"
+                                />
+                            )}
+                            {offerServiceTmp.type === "squaremeter" && (
+                                <input
+                                    type="number"
+                                    name="ratepersquaremeter"
+                                    value={offerServiceTmp.ratepersquaremeter || ""}
+                                    onChange={handleInputChange}
+                                    className="form-control p-2"
+                                    required
+                                    placeholder="Enter rate P/Square meter"
                                 />
                             )}
                         </div>
+                    </div>
+                    <div className="col-sm-4">
+                        <div className="form-group">
+                            {offerServiceTmp.type === "squaremeter" && (
+                                <div className="flex-1">
+                                    <label className="control-label">Total Square Meter</label>
+                                    <input
+                                        type="number"
+                                        name="totalsquaremeter"
+                                        value={offerServiceTmp.totalsquaremeter || ""}
+                                        onChange={handleInputChange}
+                                        className="form-control p-2"
+                                        required
+                                        placeholder="Total Square meter"
+                                    />
+                                </div>
+                            )}
+                        </div>  
                     </div>
                 </div>
 

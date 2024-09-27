@@ -107,19 +107,51 @@ class OfferController extends Controller
 
         $services = json_decode($request->get('services'), true);
 
+        // $tax_percentage = config('services.app.tax_percentage');
+        // $subtotal = 0;
+        // foreach ($services as $skey => $service) {
+        //     $serviceTotal = 0;
+        //     if ($service['type'] == 'hourly') {
+        //         foreach ($service['workers'] as $wkey => $worker) {
+        //             $serviceTotal += $service['rateperhour'] * $worker['jobHours'];
+        //         }
+        //         $subtotal += $serviceTotal;
+        //     } else {
+        //         $serviceTotal += $service['fixed_price'] * count($service['workers']);
+        //         $subtotal += $serviceTotal;
+        //     }
+        //     $services[$skey]['totalamount'] = $serviceTotal;
+        // }
+
+        // $tax_amount = ($tax_percentage / 100) * $subtotal;
+
+        // $input = $request->except(['action']);
+        // $input['subtotal'] = $subtotal;
+        // $input['total'] = $subtotal + $tax_amount;
+        
+
         $tax_percentage = config('services.app.tax_percentage');
         $subtotal = 0;
+
         foreach ($services as $skey => $service) {
             $serviceTotal = 0;
+
             if ($service['type'] == 'hourly') {
                 foreach ($service['workers'] as $wkey => $worker) {
                     $serviceTotal += $service['rateperhour'] * $worker['jobHours'];
                 }
                 $subtotal += $serviceTotal;
+
+            } elseif ($service['type'] == 'squaremeter') {
+                if (isset($service['ratepersquaremeter']) && isset($service['totalsquaremeter'])) {
+                    $serviceTotal += $service['ratepersquaremeter'] * $service['totalsquaremeter'];
+                }
+                $subtotal += $serviceTotal;
             } else {
                 $serviceTotal += $service['fixed_price'] * count($service['workers']);
                 $subtotal += $serviceTotal;
-            }
+            } 
+        
             $services[$skey]['totalamount'] = $serviceTotal;
         }
 
@@ -128,6 +160,8 @@ class OfferController extends Controller
         $input = $request->except(['action']);
         $input['subtotal'] = $subtotal;
         $input['total'] = $subtotal + $tax_amount;
+
+
         $input['services'] = json_encode($services, JSON_UNESCAPED_UNICODE);
 
         $offer = Offer::create($input);
@@ -242,23 +276,58 @@ class OfferController extends Controller
 
         $services = json_decode($request->get('services'), true);
 
+        // $tax_percentage = config('services.app.tax_percentage');
+        // $subtotal = 0;
+        // foreach ($services as $skey => $service) {
+        //     $serviceTotal = 0;
+        //     if ($service['type'] == 'hourly') {
+        //         foreach ($service['workers'] as $wkey => $worker) {
+        //             $serviceTotal += $service['rateperhour'] * $worker['jobHours'];
+        //         }
+        //         $subtotal += $serviceTotal;
+        //     } else {
+        //         $serviceTotal += $service['fixed_price'] * count($service['workers']);
+        //         $subtotal += $serviceTotal;
+        //     }
+        //     $services[$skey]['totalamount'] = $serviceTotal;
+        // }
+
+        // $tax_amount = ($tax_percentage / 100) * $subtotal;
+
+
+
+        ////New code
         $tax_percentage = config('services.app.tax_percentage');
         $subtotal = 0;
+
         foreach ($services as $skey => $service) {
             $serviceTotal = 0;
+
             if ($service['type'] == 'hourly') {
                 foreach ($service['workers'] as $wkey => $worker) {
                     $serviceTotal += $service['rateperhour'] * $worker['jobHours'];
                 }
                 $subtotal += $serviceTotal;
-            } else {
-                $serviceTotal += $service['fixed_price'] * count($service['workers']);
+
+            } 
+            elseif ($service['type'] == 'squaremeter') {
+                if (isset($service['ratepersquaremeter']) && isset($service['totalsquaremeter'])) {
+                    $serviceTotal += $service['ratepersquaremeter'] * $service['totalsquaremeter'];
+                }
                 $subtotal += $serviceTotal;
             }
+            else
+            {
+                $serviceTotal += $service['fixed_price'] * count($service['workers']);
+                $subtotal += $serviceTotal;
+
+            } 
+        
             $services[$skey]['totalamount'] = $serviceTotal;
         }
 
         $tax_amount = ($tax_percentage / 100) * $subtotal;
+        //////
 
         $offer = Offer::find($id);
         $input = $request->except(['action']);
