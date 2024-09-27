@@ -311,7 +311,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             }
                         } else {
                             if (isset($existing_service['fixed_price']) && is_numeric($existing_service['fixed_price'])) {
-                                $subtotal += ($existing_service['fixed_price'] * count($workerJobHours));
+                                $subtotal += ($existing_service['fixed_price']);
                             }
                         }
                     }
