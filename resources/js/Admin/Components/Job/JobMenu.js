@@ -107,10 +107,17 @@ const JobMenu = memo(function JobMenu({
                                             <Td>{item.type}</Td>
                                             <Td>{item.jobHours}</Td>
                                             <Td>
-                                                {item.type === "hourly"
+                                                {/* {item.type === "hourly"
                                                     ? item.jobHours *
                                                       item.rateperhour
-                                                    : item.fixed_price}
+                                                    : item.fixed_price} */}
+                                                    {
+                                                    item.type === "hourly"
+                                                        ? item.jobHours * item.rateperhour
+                                                        : item.type === "squaremeter"
+                                                        ? item.ratepersquaremeter * item.totalsquaremeter
+                                                        : item.fixed_price
+                                                    }
                                             </Td>
                                             <Td>{item.freq_name}</Td>
                                             <Td>

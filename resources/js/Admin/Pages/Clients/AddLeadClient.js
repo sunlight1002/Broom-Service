@@ -57,6 +57,11 @@ export default function AddLeadClient() {
                         formValues[t].jobHours * formValues[t].rateperhour
                     );
                     to += parseInt(formValues[t].totalamount);
+                } else if (formValues[t].type == "squaremeter") {
+                    formValues[t].totalamount = parseInt(
+                        formValues[t].ratepersquaremeter * formValues[t].totalsquaremeter
+                    );
+                    to += parseInt(formValues[t].totalamount);
                 } else {
                     formValues[t].totalamount = parseInt(
                         formValues[t].fixed_price

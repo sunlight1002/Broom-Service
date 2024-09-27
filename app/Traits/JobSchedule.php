@@ -479,6 +479,8 @@ trait JobSchedule
 
                 $hours = ($minutes / 60);
                 $subtotal_amount = $selectedService['rateperhour'] * $hours;
+            } else if ($selectedService['type'] == 'squaremeter') {
+                $subtotal_amount = $selectedService['ratepersquaremeter'] * $selectedService['totalsquaremeter'];
             } else {
                 $subtotal_amount = $selectedService['fixed_price'];
             }
