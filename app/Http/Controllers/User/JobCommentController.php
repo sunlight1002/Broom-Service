@@ -4,11 +4,14 @@ namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
 use App\Events\JobNotificationToWorker;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobReviewRequest;
 use App\Events\WorkerCommented;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Models\Job;
 use App\Models\Admin;
+use App\Models\SkippedComment;
 use App\Models\JobComments;
 use App\Models\Notification;
 use App\Http\Controllers\Controller;
@@ -127,6 +130,18 @@ class JobCommentController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
+
+        $commentIds = $request->input('comment_ids', []);
+
+        // Ensure it is an array even if a single ID is passed
+        if (!is_array($commentIds)) {
+            $commentIds = [$commentIds];
+        }
+    
+        // Update the "done" column for each of the checked comments
+        JobComments::whereIn('id', $commentIds)->update(['status' => 'complete']);
+    
+
         $comment = '';
         $filesArr = $request->file('files');
         $isFiles = ($request->hasFile('files') && count($filesArr) > 0);
@@ -162,7 +177,19 @@ class JobCommentController extends Controller
             ];
 
             if ($request->status == JobStatusEnum::COMPLETED) {
-                $jobData['completed_at'] = now()->toDateTimeString();
+                $end_time = $job->start_date."".$job->end_time;
+                if ($end_time > now()->toDateTimeString()) {
+                    $jobData['completed_at'] = $end_time;
+                }else{
+                    // $jobData['completed_at'] = now()->toDateTimeString();
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::TEAM_ADJUST_WORKER_JOB_COMPLETED_TIME,
+                        "notificationData" => [
+                            'job' => $job->toArray(),
+                            'complete_time' => now()->toDateTimeString(),
+                        ]
+                    ]));
+                }
 
                 if ($request->status == JobStatusEnum::COMPLETED) {
                     $jobArray = $job->load(['propertyAddress'])->toArray();
@@ -240,4 +267,71 @@ class JobCommentController extends Controller
             'message' => 'Comment has been deleted successfully'
         ]);
     }
+    public function markComplete(Request $request)
+    {
+        // Ensure you're receiving the JSON data properly
+        $commentId = $request->input('comment_id');
+    
+        // Check if the comment ID is received properly
+        if (!$commentId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comment ID is required',
+            ], 400);
+        }
+    
+        // Find the comment by ID
+        $comment = JobComments::find($commentId);
+    
+        if (!$comment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comment not found',
+            ], 404);
+        }
+    
+        // Toggle the comment status
+        if ($comment->status === 'complete') {
+            $comment->status = null;  // Set to null if it was complete
+        } else {
+            $comment->status = 'complete';  // Set to complete if it was null
+        }
+    
+        $comment->save();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment status toggled successfully!',
+            'new_status' => $comment->status, // Return the new status for feedback
+        ]);
+    }
+    
+    public function adjustJobCompleteTime(Request $request, $id)
+    {
+        // Validate the input
+        $request->validate([
+            'action' => 'required|string|in:keep,adjust',
+        ]);
+
+        // Fetch the job by ID
+        $job = Job::find($id);
+        if (!$job) {
+            return response()->json(['message' => 'Job not found.'], 404);
+        }
+
+        // Check the action and update the completed_at field accordingly
+        if ($request->action === 'adjust') {
+            // Adjust to the scheduled time
+            $job->completed_at = $job->start_date . ' ' . $job->end_time;
+        } else if ($request->action === 'keep') {
+            // Keep the actual time (set to current time)
+            $job->completed_at = Carbon::now()->toDateTimeString();
+        }
+
+        // Save the job with the updated time
+        $job->save();
+
+        return response()->json(['message' => 'Job time adjusted successfully.'], 200);
+    }
+    
 }

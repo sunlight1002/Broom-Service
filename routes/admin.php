@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\ManpowerCompaniesController;
 use App\Http\Controllers\Admin\WorkerAffectedAvailabilitiesController;
+use App\Http\Controllers\Admin\WhatsappTemplateController;
 use App\Http\Controllers\Api\LeadWebhookController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\TaskController;
@@ -339,7 +340,12 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::put('/tasks/{taskId}/comments/{commentId}', [TaskController::class, 'updateComment']);
     Route::get('/tasks/list', [TaskController::class, 'tasksByPhase']);
 
-    
+    //whatsapp templates routes
+    Route::get('/whatsapp-templates', [WhatsappTemplateController::class, 'index']);
+    Route::get('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'show']);
+    Route::post('/whatsapp-templates', [WhatsappTemplateController::class, 'store']);
+    Route::put('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'update']);
+    Route::delete('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'destroy']);
 
 });
 Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);

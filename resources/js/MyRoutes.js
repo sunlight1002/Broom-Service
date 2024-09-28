@@ -140,6 +140,12 @@ import WorkerInvitationForm from "./Pages/WorkerInvitationForm";
 import AdminLoginOtp from "./Admin/Pages/Auth/AdminLoginOtp";
 import WorkerLoginOtp from "./Worker/Auth/WorkerLoginOtp";
 import ClientLoginOtp from "./Client/Auth/ClientLoginOtp";
+import TeamButtons from "./Pages/TeamButtons";
+import { ContactManager } from "./Pages/ContactManager";
+import TeamSkippedComments from "./Pages/TeamSkippedComments";
+import { TimeManage } from "./Pages/TimeManage";
+import Templates from "./Admin/Pages/Setting/Templates";
+import AllTemplatesList from "./Admin/Pages/Setting/AllTemplatesList";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -179,6 +185,26 @@ export default function MyRoutes() {
                         exact
                         path="meeting-files/:id"
                         element={<MeetingFiles />}
+                    />
+                     <Route
+                        exact
+                        path="team-btn/:id"
+                        element={<TeamButtons/>}
+                    />
+                      <Route
+                        exact
+                        path="time-manage/:id"
+                        element={<TimeManage/>}
+                    />
+                     <Route
+                        exact
+                        path="action-comment/:id"
+                        element={<TeamSkippedComments/>}
+                    />
+                     <Route
+                        exact
+                        path="contact-manager/:id"
+                        element={<ContactManager/>}
                     />
                     <Route
                         exact
@@ -503,6 +529,16 @@ export default function MyRoutes() {
                                 exact
                                 path="manage-team"
                                 element={<ManageTeam />}
+                            />
+                              <Route
+                                exact
+                                path="templates"
+                                element={<AllTemplatesList/>}
+                            />
+                            <Route
+                                exact
+                                path="templates/edit/template/:id"
+                                element={<Templates />}
                             />
                             <Route
                                 exact

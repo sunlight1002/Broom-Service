@@ -111,14 +111,14 @@ export const generateUnique15MinShifts = (shiftsArray, maxDurationInHours) => {
 };
 
 export function getShiftsDetails(job) {
-    const durationInMinutes = job?.jobservice?.duration_minutes ? job?.jobservice?.duration_minutes / 4 : job.duration_minutes / 4;
+    const durationInMinutes = job?.jobservice?.duration_minutes ? job?.jobservice?.duration_minutes / 4 : job?.duration_minutes / 4;
     const durationInHours = durationInMinutes / 60;
 
-    const shiftsArray = job.shifts ? job.shifts.split(",") : [];
+    const shiftsArray = job?.shifts ? job?.shifts?.split(",") : [];
     const allShifts = generateUnique15MinShifts(shiftsArray, durationInHours);
 
-    const startTime = allShifts.length > 0 ? allShifts[0].split("-")[0] : "";
-    const endTime = allShifts.length > 0 ? allShifts[allShifts.length - 1].split("-")[1] : "";
+    const startTime = allShifts?.length > 0 ? allShifts[0]?.split("-")[0] : "";
+    const endTime = allShifts?.length > 0 ? allShifts[allShifts.length - 1].split("-")[1] : "";
 
     return {
         durationInHours,

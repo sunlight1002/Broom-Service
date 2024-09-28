@@ -9,21 +9,20 @@ export default function ChangeJobStatusModal({
     setIsOpen,
     isOpen,
     jobId,
-    allComment =[],
+    allComment = [],
     jobStatus,
     onSuccess,
-    handleGetComments, 
-    setTargetLanguage, 
-    setJobId, 
-    setCommentId 
+    handleGetComments,
+    setTargetLanguage,
+    setJobId,
+    setCommentId,
+    skippedComments
 }) {
     const alert = useAlert();
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState("");
-    const [allCommentsChecked, setAllCommentsChecked] = useState(false);
+    const [allCommentsChecked, setAllCommentsChecked] = useState([]);
     const [comment, setComment] = useState("");
-
-   
 
     let cmtFileRef = useRef(null);
 
@@ -37,38 +36,30 @@ export default function ChangeJobStatusModal({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (allComment.length > 0 && !allCommentsChecked) {
-            window.alert(t("worker.jobs.view.selectAllComment"));
-            return;
-        }
         setIsLoading(true);
+    
         const data = new FormData();
         data.append("job_id", jobId);
         data.append("comment", comment);
         data.append("status", "completed");
         data.append("name", localStorage.getItem("worker-name"));
+    
         if (cmtFileRef.current && cmtFileRef.current.files.length > 0) {
-            for (
-                let index = 0;
-                index < cmtFileRef.current.files.length;
-                index++
-            ) {
+            for (let index = 0; index < cmtFileRef.current.files.length; index++) {
                 const element = cmtFileRef.current.files[index];
                 data.append("files[]", element);
             }
         }
+    
         axios
             .post(`/api/job-comments`, data, { headers })
             .then((res) => {
                 if (res.data.error) {
-                    for (let e in res.data.error) {
-                        window.alert(res.data.error[e]);
-                    }
+                    res.data.error.forEach((err) => window.alert(err));
                 } else {
                     alert.success(t("worker.jobs.view.jobMarkCompleted"));
                     onSuccess();
                     setComment("");
-                    // setStatus("");
                 }
                 setIsLoading(false);
             })
@@ -76,8 +67,8 @@ export default function ChangeJobStatusModal({
                 setIsLoading(false);
             });
     };
+    
 
-   
 
     return (
         <Modal
@@ -101,9 +92,9 @@ export default function ChangeJobStatusModal({
                                 <AllCommentsWithCheckBox
                                     allComment={allComment}
                                     setAllCommentChecked={setAllCommentsChecked}
-                                    handleGetComments={handleGetComments} 
-                                    setTargetLanguage={setTargetLanguage} 
-                                    setJobId={setJobId} 
+                                    handleGetComments={handleGetComments}
+                                    setTargetLanguage={setTargetLanguage}
+                                    setJobId={setJobId}
                                     setCommentId={setCommentId}
                                 />
                             )}
@@ -178,10 +169,12 @@ export default function ChangeJobStatusModal({
     );
 }
 
-const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked , setJobId, handleGetComments, setCommentId, setTargetLanguage}) => {
+const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked, setJobId, handleGetComments, setCommentId, setTargetLanguage }) => {
     const [modifiedComments, setModifiedComments] = useState([]);
-
-    const [dropdownOpen, setDropdownOpen] = useState(Array(allComment && allComment?.length).fill(false));
+    
+    const [checkedCommentIds, setCheckedCommentIds] = useState([]); // Track the checked comment IDs
+    const [dropdownOpen, setDropdownOpen] = useState(Array(allComment?.length).fill(false));
+    
     const languageOptions = [
         { value: 'he', label: 'עִברִית' },
         { value: 'ru', label: 'Русский' },
@@ -200,13 +193,11 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked , setJo
             });
 
             await handleGetComments();
-    
+
         } catch (error) {
             console.error("Error updating language:", error);
-
         }
     };
-    
 
     const toggleDropdown = (index) => {
         setDropdownOpen((prev) => {
@@ -216,7 +207,6 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked , setJo
         });
     };
 
-
     useEffect(() => {
         const addCheckProperty = allComment.map((c) => ({
             ...c,
@@ -225,9 +215,26 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked , setJo
         setModifiedComments(addCheckProperty);
     }, [allComment]);
 
+    // Update the checked state of all comments when modifiedComments change
     useEffect(() => {
-        setAllCommentChecked(modifiedComments.every((c) => c.checked));
-    }, [modifiedComments, setAllCommentChecked]);
+        setAllCommentChecked(checkedCommentIds);
+    }, [checkedCommentIds, setAllCommentChecked]);
+
+    const handleCheckboxChange = (checked, comment, index) => {
+        // Update the modified comments
+        setModifiedComments((prev) => {
+            const updatedComments = [...prev];
+            updatedComments[index].checked = checked;
+            return updatedComments;
+        });
+
+        // Update the checkedCommentIds array
+        if (checked) {
+            setCheckedCommentIds((prev) => [...prev, comment.id]);
+        } else {
+            setCheckedCommentIds((prev) => prev.filter(id => id !== comment.id));
+        }
+    };
 
     return modifiedComments.map((c, i) => {
         return (
@@ -249,14 +256,9 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked , setJo
                             <input
                                 type="checkbox"
                                 name="cb"
-                                checked={c.checked}
+                                checked={c.status === "complete" ? true : false}
                                 onChange={(e) =>
-                                    setModifiedComments((prev) => {
-                                        const updatedComments = [...prev];
-                                        updatedComments[i].checked =
-                                            e.currentTarget.checked;
-                                        return updatedComments;
-                                    })
+                                    handleCheckboxChange(e.currentTarget.checked, c, i)
                                 }
                                 style={{ width: "15px", height: "15px" }}
                                 className="form-control cb mr-2"
@@ -281,31 +283,30 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked , setJo
                             </p>
                         </div>
                         <div className="dropdown">
-                                                <button
-                                                    className="btn btn-default dropdown-toggle droptoggle"
-                                                    type="button"
-                                                    onClick={() => toggleDropdown(i)}
-                                                    aria-haspopup="true"
-                                                    aria-expanded={dropdownOpen[i]}
-                                                    style={{backgroundColor: "#f7f3f3"}}
-                                                >
-                                                    {/* <i className="fa fa-ellipsis-vertical"></i> */}
-                                                    <i className="fa-solid fa-language"></i>
-                                                </button>
-                                                    <div className="dropdown-menu"
-                                                    style={dropdownOpen[i] ? { display: "block" , left: "-100px"} : { display: "none" }}
-                                                    >
-                                                        {languageOptions.map(option => (
-                                                            <button
-                                                                key={option.value}
-                                                                className="dropdown-item"
-                                                                onClick={() => handleLanguageChange(option.value, i, c)}
-                                                            >
-                                                                {option.label}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                            </div>
+                            <button
+                                className="btn btn-default dropdown-toggle droptoggle"
+                                type="button"
+                                onClick={() => toggleDropdown(i)}
+                                aria-haspopup="true"
+                                aria-expanded={dropdownOpen[i]}
+                                style={{ backgroundColor: "#f7f3f3" }}
+                            >
+                                <i className="fa-solid fa-language"></i>
+                            </button>
+                            <div className="dropdown-menu"
+                                style={dropdownOpen[i] ? { display: "block", left: "-100px" } : { display: "none" }}
+                            >
+                                {languageOptions.map(option => (
+                                    <button
+                                        key={option.value}
+                                        className="dropdown-item"
+                                        onClick={() => handleLanguageChange(option.value, i, c)}
+                                    >
+                                        {option.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                         <div className="col-sm-12">
                             <p>{c.comment}</p>
                             {c.attachments &&
@@ -348,3 +349,5 @@ const AllCommentsWithCheckBox = memo(({ allComment, setAllCommentChecked , setJo
         );
     });
 });
+
+

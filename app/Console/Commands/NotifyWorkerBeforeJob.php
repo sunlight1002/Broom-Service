@@ -1,0 +1,122 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
+use App\Models\Job;
+use Carbon\Carbon;
+
+class NotifyWorkerBeforeJob extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'notifyBeforeJob';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Notify worker 1 hour and 30 minutes before job starts on the same day.';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
+    public function handle()
+    {
+        // Get the current date and time
+        $currentTime = Carbon::now();
+        \Log::info($currentTime);
+        
+        // Fetch jobs where worker has approved and notifications need to be sent
+        $jobsToNotify = Job::with(['client', 'worker'])
+                    ->whereNotNull('worker_approved_at') // Only jobs where the worker has approved
+                    ->whereDate('start_date', $currentTime->toDateString()) // Only jobs for today
+                    ->get();
+
+        foreach ($jobsToNotify as $job) {
+            // Get the start_time of the job
+            $jobStartTime = Carbon::parse($job->start_time);
+            \Log::info($jobStartTime);
+
+            // Calculate the difference in minutes between now and the job's start time
+            $minutesDifference = $currentTime->diffInMinutes($jobStartTime, false);
+            \Log::info($minutesDifference."ferfrr");
+
+            // Check if it's 1 hour before start_time
+            if ($minutesDifference === 60) {
+                \Log::info("Sending 1-hour notification to worker for Job ID: " . $job->id);
+                $this->sendNotification($job, '1-hour');
+            }
+            // Check if it's 30 minutes before start_time
+            elseif ($minutesDifference === 30) {
+                \Log::info("Sending 30-minute notification to worker for Job ID: " . $job->id);
+                $this->sendNotification($job, '30-min');
+            }
+        }
+        
+        return 0;
+    }
+
+    /**
+     * Send notification to the worker.
+     *
+     * @param Job $job
+     * @param string $notificationType
+     * @return void
+     */
+    protected function sendNotification($job, $notificationType)
+    {
+        $teamMessage = '';
+        // Customize the message based on the notification type
+        if ($notificationType === '1-hour') {
+            $message = "Reminder: Hello {$job->worker->firstname}, your job (ID: {$job->id}) will start in 1 hour. Please confirm your preparation.";
+        } elseif ($notificationType === '30-min') {
+            $message = "Reminder: Hello {$job->worker->firstname}, your job (ID: {$job->id}) will start in 30 minutes. Click here when you are on your way to the client.";
+            $teamMessage = "שימו לב! , העובד {$job->worker->firstname} {$job->worker->lastname} מתוכנן להתחיל בעבודה מזהה: {$job->id} בעוד 30 דקות. מעקב אחר העובד סטטוס ולהבטיח שהעבודה תתחיל בזמן.";        }
+
+        // Log the message for testing purposes (you can replace this with actual notification logic)
+        \Log::info("Sending message: {$message} to worker: " . $job->worker->firstname);
+
+        $emailData = [
+            // 'emailSubject' => 'Final Reminder: Confirm your job now!',
+            // 'emailTitle' => '6 PM Job Confirmation Reminder',
+            'WhaContent' => $message,
+        ];
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_ON_MY_WAY,
+            "notificationData" => [
+                'job' => $job,
+                'emailData' => $emailData
+            ]
+        ]));
+
+        if($teamMessage){
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY,
+                "notificationData" => [
+                    'job' => $job,
+                    'emailData' => $teamMessage
+                ]
+            ]));
+        }
+    }
+}

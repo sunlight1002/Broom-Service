@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeWorkerCalender from "../../Components/Job/ChangeWorkerCalender";
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import { convertMinsToDecimalHrs, getShiftsDetails } from "../../../Utils/common.utils";
 
 export default function ChangeWorker() {
     const { t } = useTranslation();
@@ -41,6 +41,8 @@ export default function ChangeWorker() {
     useEffect(() => {
         getJob();
     }, []);
+
+    const {durationInHours, startTime, endTime} = getShiftsDetails(job);
 
     return (
         <div id="container">
@@ -82,10 +84,7 @@ export default function ChangeWorker() {
                                             <div className="form-group">
                                                 <label>{t("client.jobs.change.time_to_complete")}</label>
                                                 <p>
-                                                    {convertMinsToDecimalHrs(
-                                                        job.jobservice
-                                                            .duration_minutes
-                                                    )}{" "}
+                                                    {durationInHours}{" "}
                                                     {t("client.jobs.review.hours")}
                                                 </p>
                                             </div>
@@ -165,7 +164,7 @@ export default function ChangeWorker() {
                                         <div className="col-sm-4 col-12 col-lg-2">
                                             <div className="form-group">
                                                 <label>{t("client.jobs.change.shift")}</label>
-                                                <p>{job.shifts}</p>
+                                                <p>{startTime+"-"+endTime}</p>
                                             </div>
                                         </div>
                                     </div>
