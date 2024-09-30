@@ -7,6 +7,8 @@ import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import { useTranslation } from "react-i18next";
 import { IoSaveOutline } from "react-icons/io5";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 // import i18next from "i18next";
 
 
@@ -46,12 +48,12 @@ export default function AddLead() {
     const handleFormSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-        var phoneClc = "";
-        var phones = document.querySelectorAll(".pphone");
-        phones.forEach((p, i) => {
-            phoneClc += p.value + ",";
-        });
-        phoneClc = phoneClc.replace(/,\s*$/, "");
+        // var phoneClc = "";
+        // var phones = document.querySelectorAll(".pphone");
+        // phones.forEach((p, i) => {
+        //     phoneClc += p.value + ",";
+        // });
+        // phoneClc = phoneClc.replace(/,\s*$/, "");
         axios
             .post(
                 `/api/admin/leads`,
@@ -70,7 +72,7 @@ export default function AddLead() {
                         lng: formValues.lng ? formValues.lng : "heb",
                         color: !formValues.color ? "#fff" : formValues.color,
                         email: formValues.email,
-                        phone: phoneClc,
+                        phone: formValues.phone,
                         password: formValues.passcode,
                         payment_method: formValues.payment_method,
                         notification_type: formValues.notification_type,
@@ -101,6 +103,12 @@ export default function AddLead() {
     const handleAlternate = (i, e) => {
         let extraValues = [...extra];
         extraValues[i][e.target.name] = e.target.value;
+        setExtra(extraValues);
+    };
+
+    const handleAlternatePhone = (i, value) => {
+        let extraValues = [...extra];
+        extraValues[i].phone = value;
         setExtra(extraValues);
     };
 
@@ -282,33 +290,35 @@ export default function AddLead() {
                                     </div>
                                     <div className="col">
                                         <div className="form-group d-flex">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
-                                                {t(
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
+                                            {t(
                                                     "admin.leads.AddLead.PrimaryPhone"
-                                                )}
+                                            )}{" "}
+                                            *
                                             </label>
-                                            <input
-                                                type="tel"
-                                                value={formValues.phone}
-                                                name={"phone"}
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        phone: e.target.value,
-                                                    });
-                                                }}
-                                                className="form-control pphone"
-                                                placeholder={t(
-                                                    "admin.leads.AddLead.placeHolder.PrimaryPhone"
+                                            <div className="d-flex flex-column w-100">
+                                                <PhoneInput
+                                                    country={'il'}
+                                                    value={formValues.phone}
+                                                    onChange={(phone) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            phone: phone,
+                                                        });
+                                                    }}
+                                                    inputClass="form-control"
+                                                    inputProps={{
+                                                        name: 'phone',
+                                                        required: true,
+                                                        placeholder: t("admin.leads.AddLead.placeHolder.PrimaryPhone"),
+                                                    }}
+                                                />
+                                                {errors.phone && (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.phone}
+                                                    </small>
                                                 )}
-                                            />
-                                            {errors.phone ? (
-                                                <small className="text-danger mb-1">
-                                                    {errors.phone}
-                                                </small>
-                                            ) : (
-                                                ""
-                                            )}
+                                            </div>
                                         </div>
                                         <div className="form-group d-flex">
                                             <label className="control-label navyblueColor" style={{width: "15rem"}}>
@@ -678,23 +688,16 @@ export default function AddLead() {
                                                                     "admin.leads.AddLead.AlternatePhone"
                                                                 )}
                                                             </label>
-                                                            <input
-                                                                type="tel"
-                                                                value={
-                                                                    ex.phone ||
-                                                                    ""
-                                                                }
-                                                                name="phone"
-                                                                onChange={(e) =>
-                                                                    handleAlternate(
-                                                                        i,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                className="form-control"
-                                                                placeholder={t(
-                                                                    "admin.leads.AddLead.placeHolder.AlternatePhone"
-                                                                )}
+                                                            <PhoneInput
+                                                                country={'il'}
+                                                                value={ex.phone || ""}
+                                                                onChange={(value) => handleAlternatePhone(i, value)}
+                                                                inputClass="form-control"
+                                                                inputProps={{
+                                                                    name: 'phone',
+                                                                    required: true,
+                                                                    placeholder: t("admin.leads.AddLead.placeHolder.AlternatePhone"),
+                                                                }}
                                                             />
                                                         </div>
                                                     </div>

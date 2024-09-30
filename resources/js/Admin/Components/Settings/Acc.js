@@ -4,6 +4,16 @@ import { useAlert } from "react-alert";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import styled from 'styled-components';
+
+const StyledPhoneInput = styled(PhoneInput)`
+.form-control {
+    width: 100%;
+    max-width: 100%;
+}
+`;
 
 export default function Acc() {
     const { t } = useTranslation();
@@ -145,12 +155,18 @@ export default function Acc() {
                     </div>
                     <div className="form-group">
                         <label className="control-label">{t("admin.sidebar.settings.myPhone")}</label>
-                        <input
-                            type="text"
-                            className="form-control"
+                        <StyledPhoneInput
+                            country={'il'}
                             value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder={t("admin.sidebar.settings.myPhone")}
+                            onChange={(phone) => {
+                                setPhone(phone);
+                            }}
+                            inputClass="form-control"
+                            inputProps={{
+                                name: 'phone',
+                                required: true,
+                                placeholder: t("admin.sidebar.settings.myPhone"),
+                            }}
                         />
                     </div>
                     <div className="form-group">

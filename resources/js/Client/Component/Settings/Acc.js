@@ -4,7 +4,16 @@ import Moment from "moment";
 import { useTranslation } from "react-i18next";
 import { FaPlusCircle } from "react-icons/fa";
 import { LuSave } from "react-icons/lu";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import styled from 'styled-components';
 
+const StyledPhoneInput = styled(PhoneInput)`
+.form-control {
+    width: 100%;
+    max-width: 100%;
+}
+`;
 
 export default function Acc() {
     const [firstname, setFirstName] = useState("");
@@ -355,12 +364,18 @@ export default function Acc() {
                         <label className="control-label" style={{ width: "50%" }}>
                             {t("client.settings.phone")}
                         </label>
-                        <input
-                            type="text"
-                            className="form-control"
+                        <StyledPhoneInput
+                            country={'il'}
                             value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder={t("client.settings.phone")}
+                            onChange={(phone) => {
+                                setPhone(phone);
+                            }}
+                            inputClass="form-control"
+                            inputProps={{
+                                name: 'phone',
+                                required: true,
+                                placeholder: t("client.settings.phone"),
+                            }}
                         />
                         {errors.phone && (
                             <small className="text-danger mb-1">

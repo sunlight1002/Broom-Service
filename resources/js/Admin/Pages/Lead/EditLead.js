@@ -6,7 +6,8 @@ import PropertyAddress from "../../Components/Leads/PropertyAddress";
 import { useTranslation } from "react-i18next";
 import { IoSaveOutline } from "react-icons/io5";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
-
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 export default function EditWorker() {
     const [firstname, setFirstName] = useState("");
@@ -44,6 +45,12 @@ export default function EditWorker() {
         setExtra(extraValues);
     };
 
+    const handleAlternatePhone = (i, value) => {
+        let extraValues = [...extra];
+        extraValues[i].phone = value;
+        setExtra(extraValues);
+    };
+
     let addExtras = (e) => {
         e.preventDefault();
         setExtra([
@@ -67,12 +74,12 @@ export default function EditWorker() {
         e.preventDefault();
         setLoading(true);
 
-        var phoneClc = "";
-        var phones = document.querySelectorAll(".pphone");
-        phones.forEach((p, i) => {
-            phoneClc += p.value + ",";
-        });
-        phoneClc = phoneClc.replace(/,\s*$/, "");
+        // var phoneClc = "";
+        // var phones = document.querySelectorAll(".pphone");
+        // phones.forEach((p, i) => {
+        //     phoneClc += p.value + ",";
+        // });
+        // phoneClc = phoneClc.replace(/,\s*$/, "");
         const data = {
             firstname: firstname,
             lastname: lastname,
@@ -82,7 +89,7 @@ export default function EditWorker() {
             passcode: passcode,
             color: !color ? "#fff" : color,
             email: email,
-            phone: phoneClc,
+            phone: phone,
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
@@ -311,29 +318,28 @@ export default function EditWorker() {
                                             <div className="col">
                                                 <div className="form-group d-flex">
                                                     <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                                        {t(
-                                                            "admin.leads.AddLead.PrimaryPhone"
-                                                        )}
+                                                        {t("admin.leads.AddLead.PrimaryPhone")} *
                                                     </label>
-                                                    <input
-                                                        type="tel"
-                                                        value={phone}
-                                                        name="phone"
-                                                        onChange={(e) =>
-                                                            setPhone(e.target.value)
-                                                        }
-                                                        className="form-control pphone"
-                                                        placeholder={t(
-                                                            "admin.leads.AddLead.placeHolder.PrimaryPhone"
+                                                    <div className="d-flex flex-column w-100">
+                                                        <PhoneInput
+                                                            country={'il'}
+                                                            value={phone}
+                                                            onChange={(phone) => {
+                                                                setPhone(phone);
+                                                            }}
+                                                            inputClass="form-control"
+                                                            inputProps={{
+                                                                name: 'phone',
+                                                                required: true,
+                                                                placeholder: t("admin.leads.AddLead.placeHolder.PrimaryPhone"),
+                                                            }}
+                                                        />
+                                                        {errors.phone && (
+                                                            <small className="text-danger mb-1">
+                                                                {errors.phone[0]}
+                                                            </small>
                                                         )}
-                                                    />
-                                                    {errors.phone ? (
-                                                        <small className="text-danger mb-1">
-                                                            {errors.phone}
-                                                        </small>
-                                                    ) : (
-                                                        ""
-                                                    )}
+                                                    </div>
                                                 </div>
                                                 <div className="form-group d-flex">
                                                     <label className="control-label navyblueColor" style={{ width: "15rem" }}>
@@ -667,7 +673,18 @@ export default function EditWorker() {
                                                                                 "admin.leads.AddLead.AlternatePhone"
                                                                             )}
                                                                         </label>
-                                                                        <input
+                                                                        <PhoneInput
+                                                                            country={'il'}
+                                                                            value={ex.phone || ""}
+                                                                            onChange={(value) => handleAlternatePhone(i, value)}
+                                                                            inputClass="form-control"
+                                                                            inputProps={{
+                                                                                name: 'phone',
+                                                                                required: true,
+                                                                                placeholder: t("admin.leads.AddLead.placeHolder.AlternatePhone"),
+                                                                            }}
+                                                                        />
+                                                                        {/* <input
                                                                             type="tel"
                                                                             value={
                                                                                 ex.phone ||
@@ -684,7 +701,7 @@ export default function EditWorker() {
                                                                             placeholder={t(
                                                                                 "admin.leads.AddLead.placeHolder.AlternatePhone"
                                                                             )}
-                                                                        />
+                                                                        /> */}
                                                                     </div>
                                                                 </div>
                                                                 <div className="">

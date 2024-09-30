@@ -81,3 +81,12 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('documents', [DocumentController::class, 'documents']);
     Route::get('forms', [DocumentController::class, 'forms']);
 });
+
+Route::post('/twilio/initiate-call', [LeadTwilioController::class, 'initiateCall']);
+Route::post('/twilio/handle-call', [LeadTwilioController::class, 'handleCall'])->name('twilio.handleCall');
+Route::post('/twilio/handle-language', [LeadTwilioController::class, 'handleLanguage'])->name('twilio.handleLanguage');
+Route::post('/twilio/handle-call-flow', [LeadTwilioController::class, 'handleCallFlow'])->name('twilio.handleCallFlow');
+Route::post('/twilio/handle-response', [LeadTwilioController::class, 'handleResponse'])->name('twilio.handleResponse');
+Route::post('/twilio/main-menu', [LeadTwilioControllerr::class, 'handleResponse'])->name('twilio.mainMenu');
+   
+    
