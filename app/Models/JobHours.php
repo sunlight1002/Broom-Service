@@ -29,13 +29,18 @@ class JobHours extends Model
                         'emailSubject'  => __('mail.job_nxt_step.start_time_nxt_step_email_subject'),
                         'emailTitle'  => __('mail.job_nxt_step.start_time_nxt_step_email_title'),
                         'emailContent'  => __('mail.job_nxt_step.start_time_nxt_step_email_content', ['label' => " <b>".__('mail.job_common.end_time')."</b>"]),
+                        'emailContentWa'  => __('mail.job_nxt_step.start_time_nxt_step_email_content', ['label' => " *".__('mail.job_common.end_time')."*"]),
+
                     ];
+                    
                 } elseif ($model->isDirty('end_time')) {
                     $isSend = true;
                     $emailData = [
                         'emailSubject'  => __('mail.job_nxt_step.end_time_nxt_step_email_subject'),
                         'emailTitle'  => __('mail.job_nxt_step.end_time_nxt_step_email_title'),
                         'emailContent'  => __('mail.job_nxt_step.end_time_nxt_step_email_content', ['l1' => " <b>".__('mail.job_common.mark_as_complete')."</b>", 'l2' => " <b>".__('mail.job_common.resume_timer')."</b>"]),
+                        'emailContentWa'  => __('mail.job_nxt_step.end_time_nxt_step_email_content', ['l1' => " *".__('mail.job_common.mark_as_complete')."*", 'l2' => " *".__('mail.job_common.resume_timer')."*"]),
+
                     ];
                 }
 

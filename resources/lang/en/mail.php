@@ -433,7 +433,14 @@ return [
         'worker_job_approval' => [
             'header' => "*Job Approved | Broom Service*",
             'content' => "Please check the details.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nStart time: :start_time\nProperty: :address",
-            'start_info' => "Greetings from Broom Service. You have approved the job. Check the below link and click *I'm leaving for work now* when you will going to start your work."
+            'start_info' => "Greetings from Broom Service. You have approved the job. Check the below link and click *I'm leaving for work now* when you will going to start your work.",
+            'select_option' => 'Click and Select option'
+        ],
+        'contact_manager' => [
+            'header' => "*Job Approved | Broom Service*",
+            'content' => "Please check the details.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nStart time: :start_time\nProperty: :address",
+            'start_info' => "Greetings from Broom Service. You have approved the job. Check the below link and click *I'm leaving for work now* when you will going to start your work.",
+            'select_option' => 'Click and Select option'
         ],
 
         'worker_not_approved_job' => [
@@ -739,7 +746,10 @@ return [
             'view_client' => 'View Client',
             'view' => 'View',
             'view_lead' => 'View Lead Details',
-            'call_lead' => 'Call Lead Now'
+            'call_lead' => 'Call Lead Now',
+            'view_job' => 'View Job',
+            'on_my_way' => "I’m on my way",
+            'contact_manager' => 'Contact Manager'
         ]
     ],
 

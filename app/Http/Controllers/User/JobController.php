@@ -401,6 +401,15 @@ class JobController extends Controller
             ];
             event(new JobNotificationToWorker($worker, $job, $emailData));
 
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::WORKER_ARRIVE_NOTIFY,
+            //     "notificationData" => [
+            //         'job' => $job,
+            //         // 'client' => $client,
+            //         // 'worker' => $worker,
+            //     ]
+            // ]));
+
             //old
             // App::setLocale('en');
             // $admin = Admin::where('role', 'admin')->first();
@@ -536,4 +545,31 @@ class JobController extends Controller
             'today_jobs' => $today_jobs
         ]);
     }
+
+    public function ContactManager($id)
+    {
+        \Log::info("dfefe");  // Log something for debugging purposes
+    
+        // Fetch the job with its related worker and client data using the $id parameter
+        $job = Job::with(['client', 'worker'])->findOrFail($id);
+    
+        // Prepare necessary notification data
+        $client = $job->client;
+        $worker = $job->worker;
+    
+        // Fire the WhatsappNotificationEvent with the needed data
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::TEAM_NOTIFY_CONTACT_MANAGER,
+            "notificationData" => [
+                'job' => $job,
+                'client' => $client,
+                'worker' => $worker,
+            ]
+        ]));
+    
+        // Return a response back to the frontend
+        return response()->json(['message' => 'Notification sent successfully to Manger.'], 200);
+    }
+    
+
 }

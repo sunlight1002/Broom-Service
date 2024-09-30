@@ -39,6 +39,8 @@ export default function WorkerViewJob() {
     const [problem, setProblem] = useState("")
     const [clientID, setClientID] = useState(null)
     const [workerID, setWorkerID] = useState(null)
+    const [skippedComments, setSkippedComments] = useState([])
+
 
     const alert = useAlert();
     const { t } = useTranslation();
@@ -297,6 +299,20 @@ export default function WorkerViewJob() {
             }
         }
     };
+
+    const handleGetSkippedComments = async () => {
+        try {
+            const response = await axios.get(`/api/job-comments/skipped-comments`, { headers });
+            setSkippedComments(response?.data)
+
+        } catch (error) {
+            console.log(error);
+
+        }
+    }
+    useEffect(() => {
+        handleGetSkippedComments()
+    }, [])
     
 
     useEffect(() => {
@@ -551,10 +567,14 @@ export default function WorkerViewJob() {
                                     <div className="">
                                         <Comment
                                             allComment={allComment}
+                                            setAllComment={setAllComment}
                                             handleGetComments={getComments}
                                             setTargetLanguage={setTargetLanguage}
                                             setJobId={setJobId}
                                             setCommentId={setCommentId}
+                                            handleGetSkippedComments={handleGetSkippedComments}
+                                            setSkippedComments={setSkippedComments}
+                                            skippedComments={skippedComments}
                                         />
                                     </div>
                                 </div>
@@ -619,6 +639,7 @@ export default function WorkerViewJob() {
             {isOpenChangeJobStatus && (
                 <ChangeJobStatusModal
                     allComment={allComment}
+                    skippedComments={skippedComments}
                     jobId={params.id}
                     jobStatus={job_status}
                     setIsOpen={setIsOpenChangeJobStatus}
