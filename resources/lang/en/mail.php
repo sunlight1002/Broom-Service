@@ -440,6 +440,17 @@ return [
             'header' => "*Job Not Approved | Broom Service*",
             'content' => "The worker has not approved the address yet.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
+        'worker_not_approved_job_team' => [
+            'header' => "*Reminder: Job Not Approved | Broom Service*",
+            'content' => "Attention Team!\n\nThe following job has not been approved by the worker yet:\n\n" .
+                            "**Date/Time:** :date_time\n" .
+                            "**Client:** :client_name\n" .
+                            "**Worker:** :worker_name\n" .
+                            "**Service:** :service_name\n" .
+                            "**Property:** :address\n\n" .
+                            "Please take action to ensure this job is confirmed.",
+        ],
+
         'worker_not_left_for_job' => [
             'header' => "*Worker Not Out for Work | Broom Service*",
             'content' => "The worker has not yet left for the job.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",

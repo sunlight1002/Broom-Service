@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use App\Models\Job;  // Using JobService model instead of Offer
+use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
+
+class ReminderNextWeekServices extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'remind:next-week-services';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Every Wednesday, send a notification to all clients informing them of the service they will receive the following week.';
+
+    protected $whapiApiEndpoint;
+    protected $whapiApiToken;
+
+    public function __construct()
+    {
+        // Initialize the parent constructor
+        parent::__construct();
+
+        // Set the WHAPI configuration values
+        $this->whapiApiEndpoint = config('services.whapi.url');
+        $this->whapiApiToken = config('services.whapi.token');
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
+    public function handle()
+    {
+        // Get the start and end dates for the following week
+        $startOfNextWeek = Carbon::now()->startOfWeek()->addWeek()->format('Y-m-d');
+        $endOfNextWeek = Carbon::now()->endOfWeek()->addWeek()->format('Y-m-d');
+        
+        \Log::info("Next week's dates: {$startOfNextWeek} to {$endOfNextWeek}");
+
+        // Fetch all Jobs with their related JobService for services happening next week
+        $jobs = Job::with('jobservice')
+            ->whereHas('jobservice', function($query) use ($startOfNextWeek, $endOfNextWeek) {
+                $query->whereBetween('created_at', [$startOfNextWeek, $endOfNextWeek]);
+            })
+            ->get();
+
+        foreach ($jobs as $job) {
+            $jobService = $job->jobservice; // Get the related JobService
+            $time = Carbon::parse($jobService->created_at)->format('Y-m-d');
+
+            if ($jobService && $job->client) {
+                $client = $job->client;
+                // Prepare the notification message with the client's name
+                $message = "Hello {$client->firstname} {$client->lastname}, we are reminding you that you have the following service(s) scheduled on {$time}: {$jobService->name}."; 
+                \Log::info($message);
+            }
+        }
+
+        return 0;
+    }
+}

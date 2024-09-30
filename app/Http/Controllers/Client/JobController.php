@@ -165,6 +165,7 @@ class JobController extends Controller
             ], 403);
         }
 
+        $currentDay = now()->format('l'); // e.g., "Monday"
         $repeatancy = $request->get('repeatancy');
         $until_date = $request->get('until_date');
 
@@ -186,8 +187,16 @@ class JobController extends Controller
         $admin = Admin::where('role', 'admin')->first();
 
         foreach ($jobs as $key => $job) {
-            $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
-            $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+            // Check if the job can be cancelled without a fee
+            $feePercentage = 0;
+            if ($currentDay === 'Wednesday') {
+                $feePercentage = 0;
+            } else{
+                $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
+            }
+                  
+             $feeAmount = ($feePercentage / 100) * $job->total_amount;
 
             \Log::info("JobCancellationFee Save for Job : ". $job->id);
 
@@ -234,9 +243,9 @@ class JobController extends Controller
             App::setLocale('en');
             $data = array(
                 'by'         => 'client',
-                'email'      => $admin->email,
-                'admin'      => $admin->toArray(),
-                'job'        => $job->toArray(),
+                'email'      => $admin->email??"",
+                'admin'      => $admin?->toArray()??[],
+                'job'        => $job?->toArray()??[],
             );
 
             event(new WhatsappNotificationEvent([
