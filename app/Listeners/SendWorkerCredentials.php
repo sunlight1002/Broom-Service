@@ -37,13 +37,13 @@ class SendWorkerCredentials implements ShouldQueue
             'passcode' => $event->worker['passcode'],
         );
 
-        App::setLocale($workerData['lng']);
-        Mail::send('/Mails/WorkerLoginCredentialsMail', $workerData, function ($messages) use ($workerData) {
-            $messages->to($workerData['email']);
+        // App::setLocale($workerData['lng']);
+        // Mail::send('/Mails/WorkerLoginCredentialsMail', $workerData, function ($messages) use ($workerData) {
+        //     $messages->to($workerData['email']);
 
-            $messages->subject(__('mail.worker_credentials.subject', [
-                'worker_name' => $workerData['firstname'] . " " . $workerData['lastname']
-            ]));
-        });
+        //     $messages->subject(__('mail.worker_credentials.subject', [
+        //         'worker_name' => $workerData['firstname'] . " " . $workerData['lastname']
+        //     ]));
+        // });
     }
 }

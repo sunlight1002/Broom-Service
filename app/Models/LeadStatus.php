@@ -12,4 +12,10 @@ class LeadStatus extends Model
         'client_id',
         'lead_status'
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
+    }
+
 }

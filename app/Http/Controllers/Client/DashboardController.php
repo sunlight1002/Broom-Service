@@ -290,11 +290,11 @@ class DashboardController extends Controller
     
             $leadArray = $client->toArray();
             
-            App::setLocale($client['lng']);
-            Mail::send('Mails.FileSubmissionRequest', ['client' => $leadArray], function ($message) use ($client) {
-                $message->to($client->email); 
-                $message->subject(__('mail.file_submission_request.header'));
-            });
+            // App::setLocale($client['lng']);
+            // Mail::send('Mails.FileSubmissionRequest', ['client' => $leadArray], function ($message) use ($client) {
+            //     $message->to($client->email); 
+            //     $message->subject(__('mail.file_submission_request.header'));
+            // });
         } elseif ($clientNotificationType == 'whatsapp') {
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
@@ -305,11 +305,11 @@ class DashboardController extends Controller
         } elseif ($clientNotificationType == 'email') {
             $leadArray = $client->toArray();
 
-            App::setLocale($client['lng']);
-            Mail::send('Mails.FileSubmissionRequest', ['client' => $leadArray], function ($message) use ($client) {
-                $message->to($client->email);
-                $message->subject(__('mail.file_submission_request.header'));
-            });
+            // App::setLocale($client['lng']);
+            // Mail::send('Mails.FileSubmissionRequest', ['client' => $leadArray], function ($message) use ($client) {
+            //     $message->to($client->email);
+            //     $message->subject(__('mail.file_submission_request.header'));
+            // });
         }
     
         return response()->json([

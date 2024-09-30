@@ -67,10 +67,10 @@ class SendWorkerChangedAffectedAvailability implements ShouldQueue
                 'affectedAvailability' => $event->affectedAvailability,
             );
 
-            Mail::send('Mails.admin.worker-availability-changed', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['email']);
-                $messages->subject(__('mail.worker_re_scheduled.header'));
-            });
+            // Mail::send('Mails.admin.worker-availability-changed', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['email']);
+            //     $messages->subject(__('mail.worker_re_scheduled.header'));
+            // });
         }
     }
 }

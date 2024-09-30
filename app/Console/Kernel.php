@@ -31,7 +31,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('worker:send_invitation')->dailyAt('09:00');
         $schedule->command('report')->twiceDailyAt(8, 18);
         // $schedule->command('update24')->daily();
-        $schedule->command('StatusNotUpdated24')->daily();
+        // $schedule->command('StatusNotUpdated24')->daily();
+        // $schedule->command('updateteam24')->daily();
+
 
     }
 

@@ -56,15 +56,15 @@ class AdminLeadFilesNotification implements ShouldQueue
             $emailDataWithAdditional = array_merge($admin->toArray(), $scheduleArr);
             $emailDataWithAdditional['file_name'] = $fileName;
 
-            Mail::send('/Mails/AdminLeadFilesMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail, $filePath) {
-                $messages->to($adminEmail);
+            // Mail::send('/Mails/AdminLeadFilesMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail, $filePath) {
+            //     $messages->to($adminEmail);
 
-                $messages->attach($filePath);
+            //     $messages->attach($filePath);
 
-                $messages->subject(__('mail.meeting.file_subject', [
-                    'id' => $scheduleArr['id']
-                ]));
-            });
+            //     $messages->subject(__('mail.meeting.file_subject', [
+            //         'id' => $scheduleArr['id']
+            //     ]));
+            // });
         }
 
         $scheduleArr['file_name'] = $fileName;
@@ -83,13 +83,13 @@ class AdminLeadFilesNotification implements ShouldQueue
         ]);
 
         //team mail
-        Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail, $filePath) {
-            $messages->to($teamEmail);
+        // Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail, $filePath) {
+        //     $messages->to($teamEmail);
 
-            $messages->attach($filePath);
-            $messages->subject(__('mail.meeting.file_subject', [
-                'id' => $scheduleArr['id']
-            ]));
-        });
+        //     $messages->attach($filePath);
+        //     $messages->subject(__('mail.meeting.file_subject', [
+        //         'id' => $scheduleArr['id']
+        //     ]));
+        // });
     }
 }

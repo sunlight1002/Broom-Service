@@ -432,8 +432,10 @@ return [
         ],
         'worker_job_approval' => [
             'header' => "*Job Approved | Broom Service*",
-            'content' => "Please check the details.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
+            'content' => "Please check the details.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nStart time: :start_time\nProperty: :address",
+            'start_info' => "Greetings from Broom Service. You have approved the job. Check the below link and click *I'm leaving for work now* when you will going to start your work."
         ],
+
         'worker_not_approved_job' => [
             'header' => "*Job Not Approved | Broom Service*",
             'content' => "The worker has not approved the address yet.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",

@@ -243,7 +243,7 @@ export default function WorkerAvailabilityTable({
                                                                             </button>
                                                                         </div>
                                                                     </div>
-                                                                    <div className="d-flex">
+                                                                    <div className="d-flex flex-wrap">
                                                                         {alreadyBooked.map((slot, idx) => (
                                                                             <div key={idx} className="slot-info mr-1">
                                                                                 {parseTimeSlots(slot.slot).map((time, timeIdx) => (

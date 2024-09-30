@@ -44,13 +44,20 @@ class NotifyTeamToUpdateLeadStatus extends Command
 
     public function handle()
     {
+        $todayDate = Carbon::now()->format('Y-m-d');
+
         // Get LeadStatus records where lead_status is 'pending' and were created more than 24 hours ago
-        $leadStatuses = LeadStatus::where('lead_status', 'pending')
-            ->where('created_at', '<=', Carbon::now()->subHours(24))
-            ->get();
+        $leadStatuses = LeadStatus::with('client')
+        ->where('lead_status', 'pending')
+        ->whereHas('client', function ($q) use ($todayDate) {
+            $q->whereDate('created_at', '>=', "2024-09-20"); // Limit to leads created on or after 2024-09-19
+        })
+        ->where('created_at', '<=', Carbon::now()->subHours(24))  // Created more than 24 hours ago
+        ->get();
+    
 
         foreach ($leadStatuses as $leadStatus) {
-            $client = Client::find($leadStatus->client_id);
+            $client = $leadStatus->client;
 
             if ($client) {
                 $this->info("Sending notification to team for client: " . $client->firstname);

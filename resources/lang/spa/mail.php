@@ -368,7 +368,8 @@ return [
         ],
         'worker_job_approval' => [
             'header' => "*Trabajo Aprobado | Broom Service*",
-            'content' => "Por favor, revisa los detalles.\n\nFecha/Hora: :date_time\nCliente: :client_name\nTrabajador: :worker_name\nServicio: :service_name\nPropiedad: :address",
+            'content' => "Por favor, revisa los detalles.\n\nFecha/Hora: :date_time\nCliente: :client_name\nTrabajador: :worker_name\nServicio: :service_name\nHora de inicio: :start_time\nPropiedad: :address",
+            'start_info' => "Saludos desde Broom Service. Ha aprobado el trabajo. Consulte el enlace a continuación y haga clic en *Me voy a trabajar ahora* cuando comenzará a trabajar",
         ],
         'worker_not_approved_job' => [
             'header' => "*Trabajo No Aprobado | Broom Service*",
