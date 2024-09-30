@@ -79,29 +79,10 @@ export default function Templates() {
     };
 
     const suggestions = [
-        "{firstname} {lastname} :use this for client name",
-        "{Change_Service_Date}",
-        "{Cancel_Service}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-        "Hello, {client_name}",
-
+        "{firstname} :use this for client/worker first name" ,
+         "{lastname} :use this for client/worker last name",
+        "{Change_Service_Date} :use this for change service date link",
+        "{Cancel_Service} :use this for cancel service link",
     ];
 
     return (
