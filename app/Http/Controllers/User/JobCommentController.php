@@ -4,6 +4,8 @@ namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
 use App\Events\JobNotificationToWorker;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobReviewRequest;
 use App\Events\WorkerCommented;
 use App\Events\WorkerUpdatedJobStatus;
@@ -175,7 +177,19 @@ class JobCommentController extends Controller
             ];
 
             if ($request->status == JobStatusEnum::COMPLETED) {
-                $jobData['completed_at'] = now()->toDateTimeString();
+                $end_time = $job->start_date."".$job->end_time;
+                if ($end_time > now()->toDateTimeString()) {
+                    $jobData['completed_at'] = $end_time;
+                }else{
+                    // $jobData['completed_at'] = now()->toDateTimeString();
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::TEAM_ADJUST_WORKER_JOB_COMPLETED_TIME,
+                        "notificationData" => [
+                            'job' => $job->toArray(),
+                            'complete_time' => now()->toDateTimeString(),
+                        ]
+                    ]));
+                }
 
                 if ($request->status == JobStatusEnum::COMPLETED) {
                     $jobArray = $job->load(['propertyAddress'])->toArray();
@@ -292,5 +306,32 @@ class JobCommentController extends Controller
         ]);
     }
     
+    public function adjustJobCompleteTime(Request $request, $id)
+    {
+        // Validate the input
+        $request->validate([
+            'action' => 'required|string|in:keep,adjust',
+        ]);
+
+        // Fetch the job by ID
+        $job = Job::find($id);
+        if (!$job) {
+            return response()->json(['message' => 'Job not found.'], 404);
+        }
+
+        // Check the action and update the completed_at field accordingly
+        if ($request->action === 'adjust') {
+            // Adjust to the scheduled time
+            $job->completed_at = $job->start_date . ' ' . $job->end_time;
+        } else if ($request->action === 'keep') {
+            // Keep the actual time (set to current time)
+            $job->completed_at = Carbon::now()->toDateTimeString();
+        }
+
+        // Save the job with the updated time
+        $job->save();
+
+        return response()->json(['message' => 'Job time adjusted successfully.'], 200);
+    }
     
 }

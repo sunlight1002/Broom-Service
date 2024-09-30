@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import SkipCommentModal from "./SkipCommentModal";
 import { useAlert } from "react-alert";
 
-export default function Comment({ allComment = [],skippedComments, setSkippedComments, handleGetSkippedComments, setAllComment, handleGetComments, setTargetLanguage, setJobId, setCommentId }) {
+export default function Comment({ allComment = [], skippedComments, setSkippedComments, handleGetSkippedComments, setAllComment, handleGetComments, setTargetLanguage, setJobId, setCommentId }) {
     const [commentLanguageMap, setCommentLanguageMap] = useState({});
     const [isOpen, setIsOpen] = useState(false)
     const [comment, setComment] = useState([])
@@ -144,7 +144,7 @@ export default function Comment({ allComment = [],skippedComments, setSkippedCom
             aria-labelledby="customer-notes-tab"
         >
             {allComment.map((c, i) => {
-                const skippedComment = skippedComments.find(sc => sc.comment_id === c.id);                
+                const skippedComment = skippedComments.find(sc => sc.comment_id === c.id);
                 return (
                     <div
                         className="card card-widget widget-user-2"
@@ -170,25 +170,35 @@ export default function Comment({ allComment = [],skippedComments, setSkippedCom
                                 </div>
 
                                 <div className="col-sm-4 col-3 d-flex align-items-center justify-content-end">
-                                    {/* Mark Complete Button */}
-                                    {c.status !== 'complete' ? (
-                                        <button type="button" className="btn btn-primary ml-1" onClick={() => handleMarkComplete(c)}>
-                                            Mark as complete
-                                        </button>
-                                    ) : (
-                                        <button type="button" className="btn btn-success ml-1" onClick={() => handleMarkComplete(c)}>
-                                            Completed
-                                        </button>
-                                    )}
-                                    {/* Skip Comment Button */}
-                                    <button
-                                        type="button"
-                                        className="btn btn-danger ml-1"
-                                        onClick={() => handleSkipComment(c)}
-                                        disabled={skippedComment ? true : false}  // Disable if the comment is skipped
-                                    >
-                                        {skippedComment ? skippedComment.status : "Request To Manager"}
-                                    </button>
+                                    {
+                                        c?.commenter_type === "App\\Models\\Admin" && (
+                                            <>
+                                                {c.status !== "approved" && (
+                                                    c.status !== 'complete' ? (
+                                                        <button type="button" className="btn btn-primary ml-1" onClick={() => handleMarkComplete(c)}>
+                                                            Mark as complete
+                                                        </button>
+                                                    ) : (
+                                                        <button type="button" className="btn btn-success ml-1" onClick={() => handleMarkComplete(c)}>
+                                                            Completed
+                                                        </button>
+                                                    )
+                                                )}
+
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-danger ml-1"
+                                                    onClick={() => handleSkipComment(c)}
+                                                    disabled={skippedComment ? true : false}
+                                                >
+                                                    {skippedComment ? skippedComment.status : "Request To Manager"}
+                                                </button>
+                                            </>
+                                        )
+                                    }
+
+
+
                                     <div className="float-right noteUser ml-2">
                                         {/* Delete Button */}
                                         {c.name === localStorage.getItem("worker-name") ? (
@@ -229,7 +239,7 @@ export default function Comment({ allComment = [],skippedComments, setSkippedCom
                                 <div className="col-sm-12">
                                     <p>{c.comment}</p>
                                     {/* Display Response Text */}
-                                    {skippedComment &&  skippedComment.response_text && (
+                                    {skippedComment && skippedComment.response_text && (
                                         <p className="response-text" style={{ color: 'green' }}>
                                             Team Response: {skippedComment.response_text}
                                         </p>
