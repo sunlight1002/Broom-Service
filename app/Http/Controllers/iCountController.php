@@ -41,14 +41,12 @@ class iCountController extends Controller
                         $client = Client::where('icount_client_id', $data['client_id'])->first();
 
                         if (!$client) {
-                            $client = Client::query()
-                                ->where('email', $data['client']['email'])
+                            $client = Client::where('email', $data['client']['email'])
                                 ->first();
                         }
 
                         if (!$client && isset($data['client']['phone'])) {
-                            $client = Client::query()
-                                ->where('phone', $data['client']['phone'])
+                            $client = Client::where('phone', $data['client']['phone'])
                                 ->first();
                         }
 

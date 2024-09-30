@@ -133,8 +133,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'payment_method'     => $paymentMethodOptions[$row['payment_method']],
                 ];
 
-                $client = Client::where('phone', $clientData['phone'] ?? '')
-                    ->orWhere('email', $clientData['email'] ?? '')
+                $client = Client::where('email', $clientData['email'] ?? '')
                     ->first();
 
                 if (empty($client)) {
@@ -213,7 +212,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         ->first();
 
                     if(isset($row['offer_id']) && !empty($row['offer_id'])) {
-                        $offer = Offer::find($row['offer_id'])->where('status', 'sent')->first();
+                        $offer = Offer::with('client')->where('id', $row['offer_id'])->where('status', 'sent')->first();
                     }
 
                     $existing_services = [];
@@ -312,7 +311,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             }
                         } else {
                             if (isset($existing_service['fixed_price']) && is_numeric($existing_service['fixed_price'])) {
-                                $subtotal += ($existing_service['fixed_price']);
+                                $subtotal += ($existing_service['fixed_price'] * count($workerJobHours));
                             }
                         }
                     }
@@ -349,8 +348,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     if (empty($row['offer_id'])) {
                         throw new Exception('Offer ID required.');
                     }
-
-                    $offer = Offer::find($row['offer_id'])->first();
+                    $offer = Offer::with('client')->where('id', $row['offer_id'])->first();
                     if ($offer) {
 
                         $message = " שלום {$client->firstname},
@@ -368,7 +366,6 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             $this->sendWhatsAppMessage($client->phone, $message);
                     }
                 }
-
                 if ($row['has_contract'] == "No" && $offer && $offer->status == 'accepted') {
                     $hash = md5($client->email . $offer->id);
 
@@ -381,20 +378,13 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         $contract = Contract::create([
                             'offer_id' => $offer->id,
                             'client_id' => $client->id,
-                            'status' => ContractStatusEnum::VERIFIED,
+                            'status' => ContractStatusEnum::NOT_SIGNED,
                             'unique_hash' => $hash
                         ]);
                         $ofr = $offer->toArray();
                         $ofr['contract_id'] = $hash;
-
+                        logger($ofr);
                         event(new OfferAccepted($ofr));
-                    } else {
-                        $contract->update([
-                            'offer_id' => $offer->id,
-                            'client_id' => $client->id,
-                            'status' => ContractStatusEnum::VERIFIED,
-                            'unique_hash' => $hash
-                        ]);
                     }
 
                     $client->lead_status()->updateOrCreate(

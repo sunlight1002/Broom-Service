@@ -31,7 +31,7 @@ class NotifyForContract implements ShouldQueue
     public function handle(OfferAccepted $event)
     {
         $ofr = $event->offer;
-
+        logger($ofr);
         $notificationType = $ofr['client']['notification_type'];
 
         App::setLocale($ofr['client']['lng']);
@@ -42,10 +42,10 @@ class NotifyForContract implements ShouldQueue
                     "notificationData" => $ofr
                 ]));
             }
-    
+
             Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
                 $messages->to($ofr['client']['email']);
-    
+
                 $messages->subject(__('mail.contract.subject', [
                     'id' => $ofr['id']
                 ]));
@@ -54,7 +54,7 @@ class NotifyForContract implements ShouldQueue
             \Log::info("accepted");
             Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
                 $messages->to($ofr['client']['email']);
-    
+
                 $messages->subject(__('mail.contract.subject', [
                     'id' => $ofr['id']
                 ]));
@@ -67,6 +67,6 @@ class NotifyForContract implements ShouldQueue
                 ]));
             }
         }
-       
+
     }
 }

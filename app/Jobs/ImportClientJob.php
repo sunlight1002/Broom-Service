@@ -17,6 +17,7 @@ class ImportClientJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $filePath = null;
+    public $timeout = 300;
 
     /**
      * Create a new job instance.
