@@ -4,13 +4,15 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import { Base64 } from "js-base64";
-
 import Sidebar from "../../Layouts/Sidebar";
+import useWindowWidth from "../../../Hooks/useWindowWidth";
 
 export default function Templates() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const params = useParams();
+    const windowWidth = useWindowWidth();
+    const [show, setShow] = useState(false)
     
     const [templates, setTemplates] = useState({
         key:"",
@@ -19,6 +21,14 @@ export default function Templates() {
         message_spa: "",
         message_rus: "",
     });
+
+    useEffect(() => {
+        if (windowWidth < 768) {
+            setShow(true)
+        } else {
+            setShow(false)
+        }
+    }, [windowWidth])    
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -58,7 +68,6 @@ export default function Templates() {
         event.preventDefault();
         try {
             const response = await axios.put(`/api/admin/whatsapp-templates/${Base64.decode(params.id)}`, templates, { headers });
-            console.log(response);
             handleGetTemplates()
          
             if (response.status === 200) {
@@ -83,6 +92,7 @@ export default function Templates() {
          "{lastname} :use this for client/worker last name",
         "{Change_Service_Date} :use this for change service date link",
         "{Cancel_Service} :use this for cancel service link",
+        "{holidays} :use this for holiday date",
     ];
 
     return (
@@ -97,15 +107,15 @@ export default function Templates() {
                     </div>
                 </div>
                 <div className="dashBox" style={{ backgroundColor: "inherit", border: "none" }}>
-                    <form onSubmit={handleSubmit} className="d-flex">
-                        <div className="flex-grow-1 me-4  w-100 mr-3">
+                    <form onSubmit={handleSubmit} className={`d-flex ${show?'flex-wrap-reverse':'nowrap'}`}>
+                        <div className="flex-grow-1 me-4  w-100 mr-3 mt-3">
                             <div className="form-group">
                                 <label htmlFor="hebrew">Hebrew</label>
                                 <textarea
                                     id="message_heb"
                                     className="form-control"
                                     maxLength={1000}
-                                    // rows="4"
+                                    rows="5"
                                     value={templates.message_heb}
                                     onChange={handleChange('message_heb')}
                                 />
@@ -116,7 +126,7 @@ export default function Templates() {
                                     id="message_en"
                                     className="form-control"
                                     maxLength={1000}
-                                    // rows="4"
+                                    rows="5"
                                     value={templates.message_en}
                                     onChange={handleChange('message_en')}
                                 />
@@ -127,7 +137,7 @@ export default function Templates() {
                                     id="message_spa"
                                     className="form-control"
                                     maxLength={1000}
-                                    // rows="4"
+                                    rows="5"
                                     value={templates.message_spa}
                                     onChange={handleChange('message_spa')}
                                 />
@@ -138,7 +148,7 @@ export default function Templates() {
                                     id="message_rus"
                                     className="form-control"
                                     maxLength={1000}
-                                    // rows="4"
+                                    rows="5"
                                     value={templates.message_rus}
                                     onChange={handleChange('message_rus')}
                                 />

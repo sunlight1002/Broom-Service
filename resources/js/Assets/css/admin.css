@@ -68,6 +68,9 @@ a:hover {
   border: none;
   border-radius: 0;
 }
+#column-left .list-group-item a:hover {
+ color: #ffffff !important;
+}
 
 /* #column-left .list-group-item.active a {
   background: #f1f0ff;
