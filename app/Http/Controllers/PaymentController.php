@@ -60,7 +60,7 @@ class PaymentController extends Controller
                             'client_address' => $address ? $address->geo_address : '',
                             'client_email' => $client->email,
                             'client_phone' => $client->phone,
-                            'J' => $data['J'],
+                            'J' => 0,
                             'obeligo_action' => 2,
                             'original_zcredit_reference_number' => $ZCreditTrx['ReferenceNumber'],
                             'items' => [
