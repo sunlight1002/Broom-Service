@@ -133,7 +133,10 @@ trait PaymentAPI
             'TransactionUniqueIdForQuery' => "",
             'TransactionUniqueID' => "",
             'UseAdvancedDuplicatesCheck' => "",
-            'ZCreditInvoiceReceipt' => [
+        ];
+
+        if(!isset($chargeData['obeligo_action']) || $chargeData['obeligo_action'] == 2) {
+            $postData['ZCreditInvoiceReceipt'] = [
                 'Type' => "0",
                 'TaxRate' => config('services.app.tax_percentage'),
                 'RecepientName' => "",
@@ -148,8 +151,8 @@ trait PaymentAPI
                 'EmailDocumentToReceipient' => "",
                 'ReturnDocumentInResponse' => "",
                 'Items' => $chargeData['items'],
-            ],
-        ];
+            ];
+        }
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
