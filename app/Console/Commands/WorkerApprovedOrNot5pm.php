@@ -54,27 +54,26 @@ class WorkerApprovedOrNot5pm extends Command
         if ($currentTime->isBetween($currentTime->copy()->setTime(17, 0), $currentTime->copy()->setTime(17, 1))) {
             // 5:00 PM notification
             foreach ($unconfirmedJobs as $job) {
-                $emailData = [
-                    'emailSubject' => 'Reminder: Confirm your job by 5 PM!',
-                    'emailTitle' => '5 PM Job Confirmation Reminder',
-                    'emailContentWa' => 'This is your friendly reminder to confirm your job before 5 PM.',
-                ];
 
-                // Send notification
-                event(new JobNotificationToWorker($job->worker, $job, $emailData));
-                \Log::info("sending");
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::REMIND_WORKER_TO_JOB_CONFIRM,
+                    "notificationData" => [
+                        'job' => $job,
+                        'worker' => $job->worker
+                    ]
+                ]));
             }
         } elseif ($currentTime->isBetween($currentTime->copy()->setTime(17, 30), $currentTime->copy()->setTime(17, 31))) {
             // 5:30 PM notification
             foreach ($unconfirmedJobs as $job) {
-                $emailData = [
-                    'emailSubject' => 'Last Call: Confirm your job by 6 PM!',
-                    'emailTitle' => '5:30 PM Job Confirmation Reminder',
-                    'emailContentWa' => 'You have 30 minutes left to confirm your job! Please confirm before 6 PM.',
-                ];
 
-                // Send notification
-                event(new JobNotificationToWorker($job->worker, $job, $emailData));
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::REMIND_WORKER_TO_JOB_CONFIRM,
+                    "notificationData" => [
+                        'job' => $job,
+                        'worker' => $job->worker
+                    ]
+                ]));
             }
         } elseif ($currentTime->isBetween($currentTime->copy()->setTime(18, 0), $currentTime->copy()->setTime(18, 1))) {
             // 6:00 PM notification
@@ -82,17 +81,8 @@ class WorkerApprovedOrNot5pm extends Command
                 $client = $job->client;
                 $worker = $job->worker;
 
-                $emailData = [
-                    'emailSubject' => 'Final Reminder: Confirm your job now!',
-                    'emailTitle' => '6 PM Job Confirmation Reminder',
-                    'emailContentWa' => 'This is your final reminder to confirm your job. Please confirm immediately.',
-                ];
-
-                // Send notification
-                // event(new JobNotificationToWorker($job->worker, $job, $emailData));
-
                 event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::JOB_APPROVED_NOTIFICATION_TO_TEAM,
+                    "type" => WhatsappMessageTemplateEnum::TO_TEAM_WORKER_NOT_CONFIRM_JOB,
                     "notificationData" => [
                         'job' => $job,
                         'client' => $client,

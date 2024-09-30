@@ -1522,6 +1522,14 @@
                 }
             }
         },
+        "holidays":{
+            "addNewHoliday":"Add New Holiday",
+            "holidayName":"Holiday Name",
+            "startDate":"Start Date",
+            "endDate" : "End Date",
+            "editHoliday":"Edit Holiday",
+            "update":"Update"
+        },
         "sidebar": {
             "dashboard": "Dashboard",
             "leads": "Leads",

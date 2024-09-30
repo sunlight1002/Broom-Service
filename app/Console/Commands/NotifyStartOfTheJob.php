@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Events\JobNotificationToWorker;
 use App\Events\AdminNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WhatsappNotificationEvent;
 use App\Models\Job;
 use Carbon\Carbon;
 
@@ -33,6 +34,7 @@ class NotifyStartOfTheJob extends Command
     public function handle()
     {
         $currentTime = Carbon::now();
+        $admin_notified = false;
         \Log::info($currentTime);
 
         // Get jobs that were scheduled for today and not completed or started
@@ -48,13 +50,15 @@ class NotifyStartOfTheJob extends Command
             \Log::info($startTime."start");
 
             // If 30 minutes have passed since the scheduled start time and job hasn't been marked as started
-            if ($currentTime->diffInMinutes($startTime) >= 30 && !$job->is_job_done) {
+            if ($currentTime->diffInMinutes($startTime) >= 30 && !$job->is_job_done && !$job->worker_notified) {
                 $this->notifyWorkerToStart($job);
+                $job->worker_notified = true;
+                $job->save();
             }
-
             // If 1 hour has passed since the scheduled start time and job hasn't been marked as started
-            if ($currentTime->diffInMinutes($startTime) >= 60 && !$job->is_job_done) {
+            if ($currentTime->diffInMinutes($startTime) >= 60 && !$job->is_job_done && !$admin_notified) {
                 $this->notifyAdmin($job);
+                $admin_notified = true;
             }
         }
 
@@ -70,7 +74,13 @@ class NotifyStartOfTheJob extends Command
     {
         $worker = $job->worker;
 
-        $this->info("Notification sent to worker: {$worker->name} for job: {$job->id}");
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_ON_MY_WAY,
+            "notificationData" => [
+                'job' => $job,
+                'worker' => $worker,
+            ]
+        ]));
     }
 
     /**
@@ -80,6 +90,11 @@ class NotifyStartOfTheJob extends Command
      */
     protected function notifyAdmin($job)
     {
-        $this->info("Admin notified for job: {$job->id}");
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::TEAM_NOTIFY_WORKER_AFTER_ON_MY_WAY,
+            "notificationData" => [
+                'job' => $job,
+            ]
+        ]));
     }
 }

@@ -1555,6 +1555,14 @@
                 }
             }
         },
+        "holidays":{
+            "addNewHoliday":"הוסף חג חדש",
+            "holidayName":"שם החג",
+            "startDate":"תאריך התחלה",
+            "endDate" : "תאריך סיום",
+            "editHoliday":"עדכון לחג",
+            "update":"לְעַדְכֵּן"  
+        },
         "sidebar": {
             "dashboard": "לוח מחוונים",
             "leads": "לידים",
