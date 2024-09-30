@@ -133,8 +133,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'payment_method'     => $paymentMethodOptions[$row['payment_method']],
                 ];
 
-                $client = Client::where('phone', $clientData['phone'] ?? '')
-                    ->orWhere('email', $clientData['email'] ?? '')
+                $client = Client::where('email', $clientData['email'] ?? '')
                     ->first();
 
                 if (empty($client)) {
@@ -213,9 +212,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         ->first();
 
                     if(isset($row['offer_id']) && !empty($row['offer_id'])) {
-                        $offer = Offer::find($row['offer_id'])->where('status', 'sent')->first();
-                    } else {
-                        $offer = Offer::where('client_id', $client->id)->where('status', 'sent')->first();
+                        $offer = Offer::with('client')->where('id', $row['offer_id'])->where('status', 'sent')->first();
                     }
 
                     $existing_services = [];
@@ -224,7 +221,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
                         $message = " שלום {$client->firstname},
 
-                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם. 
+                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם.
                             בקרוב ישלח אליכם הסכם חדש לחתימה דרך המערכת החדשה.
 
                             שימו לב, בהסכם החדש תתבקשו להזין פרטי כרטיס אשראי בצורה מאובטחת, אשר יחוייב אחת לחודש, לאחר קבלת השירות האחרון שלכם מאיתנו באותו חודש.
@@ -236,7 +233,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     } else {
                         $message = " שלום {$client->firstname},
 
-                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם. 
+                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם.
                             בקרוב תישלח אליכם הצעת מחיר חדשה לאישורכם. לאחר אישור ההצעה, ישלח אליכם הסכם לחתימה.
 
                             בהסכם החדש תתבקשו להזין פרטי כרטיס אשראי בצורה מאובטחת, אשר יחוייב אחת לחודש, לאחר קבלת השירות האחרון שלכם מאיתנו באותו חודש.
@@ -314,7 +311,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             }
                         } else {
                             if (isset($existing_service['fixed_price']) && is_numeric($existing_service['fixed_price'])) {
-                                $subtotal += ($existing_service['fixed_price']);
+                                $subtotal += ($existing_service['fixed_price'] * count($workerJobHours));
                             }
                         }
                     }
@@ -351,38 +348,43 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     if (empty($row['offer_id'])) {
                         throw new Exception('Offer ID required.');
                     }
+                    $offer = Offer::with('client')->where('id', $row['offer_id'])->first();
+                    if ($offer) {
 
-                    $offer = Offer::find($row['offer_id'])->first();
+                        $message = " שלום {$client->firstname},
+
+                            אנו שמחים להודיע על המעבר למערכת חדשה ויעילה שתשפר את תהליך העבודה שלנו מולכם.
+                            בקרוב ישלח אליכם הסכם חדש לחתימה דרך המערכת החדשה.
+
+                            שימו לב, בהסכם החדש תתבקשו להזין פרטי כרטיס אשראי בצורה מאובטחת, אשר יחוייב אחת לחודש, לאחר קבלת השירות האחרון שלכם מאיתנו באותו חודש.
+
+                            נשמח לעמוד לרשותכם בכל שאלה או בקשה.
+
+                            בברכה,
+                            צוות ברום סרוויס";
+
+                            $this->sendWhatsAppMessage($client->phone, $message);
+                    }
                 }
-
                 if ($row['has_contract'] == "No" && $offer && $offer->status == 'accepted') {
                     $hash = md5($client->email . $offer->id);
 
                     $contract = null;
                     if(isset($row['contract_id']) && !empty($row['contract_id'])) {
                         $contract = Contract::find($row['contract_id']);
-                    } else {
-                        $contract = Contract::where('unique_hash', $hash)->first();
                     }
 
                     if (!$contract) {
                         $contract = Contract::create([
                             'offer_id' => $offer->id,
                             'client_id' => $client->id,
-                            'status' => ContractStatusEnum::VERIFIED,
+                            'status' => ContractStatusEnum::NOT_SIGNED,
                             'unique_hash' => $hash
                         ]);
                         $ofr = $offer->toArray();
                         $ofr['contract_id'] = $hash;
-
+                        logger($ofr);
                         event(new OfferAccepted($ofr));
-                    } else {
-                        $contract->update([
-                            'offer_id' => $offer->id,
-                            'client_id' => $client->id,
-                            'status' => ContractStatusEnum::VERIFIED,
-                            'unique_hash' => $hash
-                        ]);
                     }
 
                     $client->lead_status()->updateOrCreate(
