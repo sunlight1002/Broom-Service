@@ -35,7 +35,7 @@ export default function ContractEng() {
                 setServices(JSON.parse(_contract.offer.services));
                 setClient(_contract.client);
                 setContract(_contract);
-                console.log(_contract.offer);
+                // console.log(_contract.offer);
                 // setStatus(_contract.status);
                 // setConsentToAds(_contract.consent_to_ads ? true : false);
 
@@ -49,7 +49,7 @@ export default function ContractEng() {
                 //         moment(_contract.signed_at).format("DD/MM/YYYY")
                 //     );
                 // }
-                console.log(_contract.client.lng);
+                // console.log(_contract.client.lng);
                 i18next.changeLanguage(_contract.client.lng);
                 if (_contract.client.lng == "heb") {
                     import("../../../Assets/css/rtl.css");
@@ -208,7 +208,7 @@ export default function ContractEng() {
                                     <li className="list-inline-item ml-2">
                                         {t("work-contract.telephone")}{" "}
                                         <span>
-                                            {client.phone ? client.phone : "NA"}
+                                            {`+${client.phone ? client.phone : "NA"}`}
                                         </span>
                                     </li>
                                     <li className="list-inline-item">

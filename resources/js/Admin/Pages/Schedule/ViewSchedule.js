@@ -440,7 +440,7 @@ export default function ViewSchedule() {
                             <ul className="list-unstyled">
                                 <li>
                                     <i className="fas fa-mobile"></i>{" "}
-                                    {client.phone}
+                                    +{client.phone}
                                 </li>
                                 <li>
                                     <i className="fas fa-envelope"></i>{" "}

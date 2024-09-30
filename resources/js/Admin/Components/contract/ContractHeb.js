@@ -209,7 +209,7 @@ export default function ContractHeb() {
                                     <li className="list-inline-item ml-2">
                                         {t("work-contract.telephone")}{" "}
                                         <span>
-                                            {client.phone ? client.phone : "NA"}
+                                            {`+${client.phone ? client.phone : "NA"}`}
                                         </span>
                                     </li>
                                     <li className="list-inline-item">

@@ -76,6 +76,9 @@ export default function Contract() {
                     {
                         title: t("admin.global.Phone"),
                         data: "phone",
+                        render: function(data) {
+                            return `+${data}`;
+                        }
                     },
                     {
                         title: t("global.service"),

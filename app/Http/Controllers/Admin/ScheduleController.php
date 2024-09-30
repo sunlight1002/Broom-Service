@@ -396,8 +396,10 @@ class ScheduleController extends Controller
 
             $this->deleteGoogleCalendarEvent($schedule);
         }
+
+        $scheduleArr = $schedule->toArray();
         
-        SendMeetingNotificationJob::dispatch($schedule);
+        SendMeetingNotificationJob::dispatch($scheduleArr);
 
         $schedule->delete();
 

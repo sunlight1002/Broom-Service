@@ -89,6 +89,9 @@ export default function Schedule() {
                     {
                         title: t("admin.dashboard.pending.contact"),
                         data: "phone",
+                        render: function(data) {
+                            return `+${data}`;
+                        }
                     },
                     {
                         title: t("admin.global.Address"),

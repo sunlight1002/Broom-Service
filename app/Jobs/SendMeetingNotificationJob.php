@@ -12,21 +12,22 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendMeetingNotificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $schedule;
+    protected $scheduleArr;
 
     /**
      * Create a new job instance.
      *
-     * @param \App\Models\Schedule $schedule
+     * @param array $scheduleArr
      */
-    public function __construct(Schedule $schedule)
+    public function __construct(array $scheduleArr)
     {
-        $this->schedule = $schedule;
+        $this->scheduleArr = $scheduleArr;
     }
 
     /**
@@ -36,7 +37,8 @@ class SendMeetingNotificationJob implements ShouldQueue
      */
     public function handle()
     {
-        $scheduleArr = $this->schedule->toArray();
+        $scheduleArr = $this->scheduleArr;
+                   
         App::setLocale($scheduleArr['client']['lng']);
 
         // Send WhatsApp Notification
@@ -54,5 +56,14 @@ class SendMeetingNotificationJob implements ShouldQueue
                 'id' => $scheduleArr['id']
             ]));
         });
+    }
+
+    /**
+     * @param \Exception $exception
+     * @return void
+     */
+    public function failed(\Exception $exception)
+    {
+        Log::error('Error sending meeting notification for schedule ID ' . $this->schedule->id . ': ' . $exception->getMessage());
     }
 }

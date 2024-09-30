@@ -76,10 +76,13 @@ export default function Clients() {
                         title: t("admin.global.Email"),
                         data: "email",
                     },
-                    {
-                        title: t("admin.global.Phone"),
+                    { 
+                        title: t("admin.global.Phone"), 
                         data: "phone",
-                    },
+                        render: function(data) {
+                            return `+${data}`;
+                        }
+                    },     
                     {
                         title: t("admin.global.Status"),
                         data: "lead_status",
