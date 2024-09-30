@@ -32,7 +32,7 @@ export default function Sidebar() {
     const [isDropdownOpen, setDropdownOpen] = useState(false); // Manage dropdown open state
 
     // Check if the current path matches any of the routes in the dropdown
-    const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time", "/admin/settings"].includes(location.pathname);
+    const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time", "/admin/settings","/admin/holidays","/admin/templates"].includes(location.pathname);
 
     const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
@@ -213,44 +213,44 @@ export default function Sidebar() {
                                 <ul className="list-group">
                                     {role !== "member" && (
                                         <li className={`list-group-item ${isActive(routes.manageTeam) ? "active" : ""}`}>
-                                            <Link to={routes.manageTeam}>
+                                            <Link to={routes.manageTeam} style={isActive(routes.manageTeam)?{color: "white"}:{color: "#757589"}}>
                                                 <i className="fa fa-angle-right"></i>{" "}
                                                 {t("admin.sidebar.settings.manage_team")}
                                             </Link>
                                         </li>
                                     )}
                                     <li className={`list-group-item ${isActive(routes.services) ? "active" : ""}`}>
-                                        <Link to={routes.services}>
+                                        <Link to={routes.services} style={isActive(routes.services)?{color: "white"}:{color: "#757589"}}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.services")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.manpowerCompanies) ? "active" : ""}`}>
-                                        <Link to={routes.manpowerCompanies}>
+                                        <Link to={routes.manpowerCompanies} style={isActive(routes.manpowerCompanies)?{color: "white"}:{color: "#757589"}}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.manpower")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.manageTime) ? "active" : ""}`}>
-                                        <Link to={routes.manageTime}>
+                                        <Link to={routes.manageTime} style={isActive(routes.manageTime)?{color: "white"}:{color: "#757589"}}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.manageTime")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.accountSettings) ? "active" : ""}`}>
-                                        <Link to={routes.accountSettings}>
+                                        <Link to={routes.accountSettings} style={isActive(routes.accountSettings)?{color: "white"}:{color: "#757589"}}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.account")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.holidays) ? "active" : ""}`}>
-                                        <Link to={routes.holidays}>
+                                        <Link to={routes.holidays} style={isActive(routes.holidays)?{color: "white"}:{color: "#757589"}}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.holidays")}
                                         </Link>
                                     </li>
-                                    <li className={`list-group-item ${isActive(routes.waTemplates) ? "active" : ""}`}>
-                                        <Link to={routes.waTemplates}>
+                                    <li className={`list-group-item ${isActive(routes.waTemplates) ? "active text-white" : ""}`}>
+                                        <Link to={routes.waTemplates} style={isActive(routes.waTemplates)?{color: "white"}:{color: "#757589"}}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             Templates
                                         </Link>
