@@ -36,13 +36,13 @@ class SendWorkerFormsNotification implements ShouldQueue
             App::setLocale($event->worker->lng);
             $workerArr = $event->worker->toArray();
 
-            // Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr) {
-            //     $messages->to($workerArr['email']);
-            //     ($workerArr['lng'] == 'heb') ?
-            //         $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
-            //         $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];
-            //     $messages->subject($sub);
-            // });
+            Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr) {
+                $messages->to($workerArr['email']);
+                ($workerArr['lng'] == 'heb') ?
+                    $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
+                    $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];
+                $messages->subject($sub);
+            });
             if (!empty($workerArr['phone'])) {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::WORKER_FORMS,

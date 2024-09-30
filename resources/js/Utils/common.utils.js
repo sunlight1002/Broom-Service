@@ -40,6 +40,44 @@ export const convertMinsToDecimalHrs = (minutes) => {
     return parseFloat(minutes / 60).toFixed(2);
 };
 
+export const convertTimeSlotsToRange = (slots) => {
+    const pairs = slots?.split(",").map((slot) => slot?.split("-"));
+    let groupedSlots = [];
+    let currentGroup = [pairs[0][0], pairs[0][1]];
+
+    // Helper function to convert time "HH:MM" to total minutes
+    const timeToMinutes = (time) => {
+        const [hours, minutes] = time.split(":").map(Number);
+        return hours * 60 + minutes;
+    };
+
+    // Iterate over pairs and group them based on the time difference
+    pairs.forEach((pair, index) => {
+        if (index > 0) {
+            const previousEndTime = currentGroup[1]; // Previous group end time
+            const currentStartTime = pair[0]; // Current start time
+
+            // Check if the break is 15 minutes or less (consecutive slots)
+            const timeDifference = timeToMinutes(currentStartTime) - timeToMinutes(previousEndTime);
+
+            if (timeDifference <= 15) {
+                // Extend the current group if slots are consecutive
+                currentGroup[1] = pair[1];
+            } else {
+                // If not consecutive, push the current group and start a new one
+                groupedSlots.push(currentGroup.join(" - "));
+                currentGroup = [pair[0], pair[1]];
+            }
+        }
+    });
+
+    // Add the last group
+    groupedSlots.push(currentGroup.join(" - "));
+    
+    return groupedSlots;
+};
+
+
 export const generateUnique15MinShifts = (shiftsArray, maxDurationInHours) => {
     const uniqueShifts = new Set(); // To avoid duplicate shifts
     let totalShiftDuration = 0; // Track total duration in hours

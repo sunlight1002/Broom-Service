@@ -59,6 +59,9 @@ export default function CreateJobCalender({
         getTime();
     }, []);
 
+    console.log(selectedHours);
+    
+
     const handleServices = (index) => {
         setLoading(true)
         setSelectedServiceIndex(index);
@@ -145,7 +148,7 @@ export default function CreateJobCalender({
                 setLoading(false)
                 Swal.fire({
                     title: "Error!",
-                    text: e.response.data.message,
+                    text: e.response?.data?.message,
                     icon: "error",
                 });
             });

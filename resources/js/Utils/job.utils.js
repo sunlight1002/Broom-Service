@@ -171,7 +171,6 @@ export const getAvailableSlots = async (
     const chosenDateMoment = moment(date, "YYYY-MM-DD");
     const chosenStartTimeMoment = moment(shift.time, "HH:mm:ss");
     let workerName = "";
-
     // Find the worker's slots for the chosen start date
     const workerSlots = workerAvailabilities.find((worker) => {
         return (
@@ -187,12 +186,10 @@ export const getAvailableSlots = async (
         return [];
     }
     workerName = workerSlots.workerName;
-
     // Find the slots for the chosen start time
     const chosenDateSlots = workerSlots.slots.find((slot) =>
         moment(slot.date, "YYYY-MM-DD").isSame(chosenDateMoment, "day")
     );
-
     const startIndex = chosenDateSlots.allSlots.findIndex((slot) =>
         moment(slot.time, "HH:mm:ss").isSame(chosenStartTimeMoment, "minute")
     );
@@ -202,12 +199,16 @@ export const getAvailableSlots = async (
         return [];
     }
 
-    // Get the available slots based on work hours
+    // Get the available slots based on 15-minute intervals
     let availableSlots = [];
     let status = null;
-    let requiredSlots = parseInt(workHours) * 4; // Calculate required slots
+    let remainingSlots = parseInt(workHours) * 4; // Convert work hours to 15-minute slots (4 slots per hour)
     
-    for (let i = startIndex; i < chosenDateSlots.allSlots.length && requiredSlots > 0; i++) {
+    for (
+        let i = startIndex;
+        i < chosenDateSlots.allSlots.length && remainingSlots > 0;
+        i++
+    ) {
         const currentSlot = chosenDateSlots.allSlots[i];
 
         if (currentSlot.isBooked) {
@@ -220,10 +221,11 @@ export const getAvailableSlots = async (
             status = "unavailable";
             break;
         }
-
         if (
             !currentSlot.isBooked &&
-            (((!currentSlot.isFreezed || currentSlot.isFreezed) && !isClient) ||
+            (((!currentSlot.isFreezed ||
+                currentSlot.isFreezed) &&
+                !isClient) ||
                 (!currentSlot.isFreezed && isClient)) &&
             !currentSlot.notAvailable
         ) {
@@ -233,16 +235,16 @@ export const getAvailableSlots = async (
                 date: chosenDateSlots.date,
                 time: currentSlot,
             });
-            requiredSlots--;
+            remainingSlots--;
         }
     }
 
-    if (isClient && requiredSlots > 0) {
+    if (isClient && remainingSlots > 0) {
         alert.error("Not enough available slots for the chosen work hours");
         return [];
     }
 
-    if (requiredSlots > 0) {
+    if (remainingSlots > 0) {
         if (status != null) {
             let message = "";
             switch (status) {
@@ -274,23 +276,28 @@ export const getAvailableSlots = async (
             if (alert.isConfirmed) {
                 try {
                     availableSlots = [];
-                    requiredSlots = parseInt(workHours) * 2;
+                    remainingSlots = parseInt(workHours) * 4;
                     let overlapSlots = [];
-                    for (let i = startIndex; i < chosenDateSlots.allSlots.length && requiredSlots > 0; i++) {
-                        const currentSlot = chosenDateSlots.allSlots[i];
-
+                    for (
+                        let i = startIndex;
+                        i < chosenDateSlots.allSlots.length &&
+                        remainingSlots > 0;
+                        i++
+                    ) {
                         availableSlots.push({
                             workerName: workerName,
                             workerId: w_id,
                             date: chosenDateSlots.date,
-                            time: currentSlot,
+                            time: chosenDateSlots.allSlots[i],
                         });
-
-                        if (currentSlot.isBooked || currentSlot.isFreezed || currentSlot.notAvailable) {
-                            overlapSlots.push(currentSlot);
+                        if (
+                            chosenDateSlots.allSlots[i].isBooked ||
+                            chosenDateSlots.allSlots[i].isFreezed ||
+                            chosenDateSlots.allSlots[i].notAvailable
+                        ) {
+                            overlapSlots.push(chosenDateSlots.allSlots[i]);
                         }
-
-                        requiredSlots--;
+                        remainingSlots--;
                     }
 
                     if (overlapSlots.length > 0) {
@@ -308,7 +315,8 @@ export const getAvailableSlots = async (
                                                 if (slot.jobId != null) {
                                                     shifts.push({
                                                         workerId: w_id,
-                                                        workerName: worker.workerName,
+                                                        workerName:
+                                                            worker.workerName,
                                                         date: date,
                                                         jobId: slot.jobId,
                                                         time: {
@@ -319,12 +327,17 @@ export const getAvailableSlots = async (
                                             });
                                             setUpdatedJobs(
                                                 shifts.length > 0
-                                                    ? convertShiftsFormat(shifts)
+                                                    ? convertShiftsFormat(
+                                                          shifts
+                                                      )
                                                     : null
                                             );
                                             return {
                                                 ...s,
-                                                slots: adjustSchedule(overlapSlots, s.slots),
+                                                slots: adjustSchedule(
+                                                    overlapSlots,
+                                                    s.slots
+                                                ),
                                                 allSlots: _allSlots,
                                             };
                                         }
@@ -356,27 +369,30 @@ export const getAvailableSlots = async (
         });
         if (alert.isConfirmed) {
             try {
-                const lastSlot = chosenDateSlots.allSlots[chosenDateSlots.allSlots.length - 1];
+                const lastSlot =
+                    chosenDateSlots.allSlots[
+                        chosenDateSlots.allSlots.length - 1
+                    ];
                 if (lastSlot) {
                     const startTimeMoment = moment(lastSlot.time, "HH:mm:ss");
 
-                    for (let i = 0; i < requiredSlots; i++) {
-                        const slotTime = startTimeMoment.add(30, "minutes");
-
+                    for (let i = 0; i < remainingSlots; i++) {
+                        const slotTime = startTimeMoment.add(15, "minutes"); // Add 15 minutes per slot
                         availableSlots.push({
                             workerName: workerName,
                             workerId: w_id,
                             date: chosenDateSlots.date,
                             time: { time: slotTime.format("HH:mm:ss") },
                         });
-
                         setWorkerAvailabilities(
                             workerAvailabilities.map((worker) => {
                                 if (worker.workerId == w_id) {
                                     let slots = worker.slots.map((s) => {
                                         if (s.date == chosenDateSlots.date) {
                                             s.slots.push({
-                                                time: slotTime.format("HH:mm:ss"),
+                                                time: slotTime.format(
+                                                    "HH:mm:ss"
+                                                ),
                                                 clientName: null,
                                                 isBooked: false,
                                                 isFreezed: false,
@@ -384,7 +400,9 @@ export const getAvailableSlots = async (
                                                 notAvailable: false,
                                             });
                                             s.allSlots.push({
-                                                time: slotTime.format("HH:mm:ss"),
+                                                time: slotTime.format(
+                                                    "HH:mm:ss"
+                                                ),
                                                 clientName: null,
                                                 isBooked: false,
                                                 isFreezed: false,
@@ -417,6 +435,7 @@ export const getAvailableSlots = async (
 
     return availableSlots;
 };
+
 
 
 

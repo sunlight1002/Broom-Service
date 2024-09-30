@@ -683,6 +683,20 @@ return [
             'contact' => `📞 03-525-70-60`,
             'service_website' => '🌐 :[www.broomservice.co.il](http://www.broomservice.co.il)',
         ],
+        'contract_verify' => [
+            'header' => 'Contract Verification | Broom Service',
+            'subject' => 'Your agreement has been confirmed',
+            'info' => 'Hello *:name*',
+            'content' => 'Your agreement has been successfully confirmed. We will contact you soon to schedule your service.'
+        ],
+        'contract_reminder' => [
+            'subject' => 'Contract Reminder | Broom Service',
+            'subject2' => 'Contract Follow-Up | Broom Service',
+            'body' => 'Hi :client_name',
+            'content' => 'This is a friendly reminder regarding the contract we sent you on :contract_sent_date. If you have any questions or concerns, we’d be happy to assist you. We’re looking forward to working together!',
+            'content2' => 'We wanted to follow up with you to ensure that you received the contract we sent on :contract_sent_date.. Please review it, and feel free to reach out if you have any questions. We’re here to assist you.'
+        ],
+        
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',

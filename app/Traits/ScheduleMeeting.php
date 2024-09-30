@@ -50,7 +50,7 @@ trait ScheduleMeeting
     //         // });
 
     //     } elseif ($notificationType === 'email') {
-            
+
     //         // Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
     //         //     $messages->to($scheduleArr['client']['email']);
 
@@ -74,7 +74,6 @@ trait ScheduleMeeting
     private function saveGoogleCalendarEvent($schedule)
     {
         SaveGoogleCalendarEventJob::dispatch($schedule);
-
     }
 
     // private function userCalendarTimezone($access_token)
@@ -105,7 +104,7 @@ trait ScheduleMeeting
             Log::error('No Google Calendar ID found.');
             throw new Exception('No Google Calendar ID found.');
         }
-    
+
         $googleAccessToken = Setting::query()
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
             ->value('value');

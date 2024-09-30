@@ -542,7 +542,7 @@ return [
         ],
         'new_lead_arrived' => [
             'header' => "*הובלה חדשה הגיעה | שירות ברוםים*",
-            'content' => "לקוח חדש הגיע עם הפרטים הבאים:\nשֵׁם: :client_name\nאיש קשר: :contact\nשירות מבוקש: :Service_Requested\nאימייל: :email\nכתובת: :address",
+            'content' => "ליד חדש התקבל עם הפרטים הבאים:\nשֵׁם: :client_name\nאיש קשר: :contact\nשירות מבוקש: :Service_Requested\nאימייל: :email\nכתובת: :address",
             'follow_up' => 'אנא בצעו מעקב בהקדם האפשרי.'
         ],
         'client_lead_status_changed' => [
@@ -643,7 +643,7 @@ return [
             'service_areas' => "אזורי השירות שלנו כוללים:\n- תל אביב\n- רמת גן\n- גבעתיים\n- קריית אונו\n- גני תקווה\n- רמת השרון\n- כפר שמריהו\n- רישפון\n- הרצליה\n\nאם הצרכים שלך משתנים או אם אתה ממוקם באזורים אלו, נשמח לעזור לך בעתיד.",
         ],
         'follow_up_required' => [
-            'header' => 'מעקב נדרש: לידים ממתינים | שירות בראום',
+            'header' => 'מעקב נדרש: לידים ממתינים | שירות ברום',
             'salutation' => 'שלום, צוות',
             'content' => 'תזכורת זו מציינת שהליד הבא נמצא במצב "ממתין" במשך למעלה מ-24 שעות. אנא עיינו בפרטי הליד ועדכנו את המצב לפי הצורך.' .
                          "\n\n" .
@@ -655,7 +655,7 @@ return [
                          "\n:inquiry_date",
             'common' => [
                             'closing' => 'אנא קחו פעולה על מנת ליצור קשר עם הליד שוב, לעדכן את המצב או לעקוב לפי הצורך.',
-                            'signature' => "בברכה,\nשירות בראום\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il",
+                            'signature' => "בברכה,\nשירות ברום\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il",
                         ],
         ],
         'file_submission_request' => [
@@ -667,6 +667,44 @@ return [
         'user_status_changed' => [
             'header' => "*שינוי סטטוס | שירות ברום*",
             'content' => ":name שינה את הסטטוס ל-:status."
+        ],
+        'follow_up' => [
+            'subject' => 'מעקב אחר השיחה שלנו',
+            'salutation' => 'שלום :client_name,',
+            'introduction' => 'ראשית, תודה שפנית אלינו. שמחתי מאוד להכיר ולשוחח איתך.',
+            'testimonials' => 'בהמשך לשיחתנו, מצרפת לעיונך המלצות מלקוחות קיימים שלנו, למען התרשמותך מהשירות המעולה שלנו: [Client Testimonials](:testimonials_link)',
+            'brochure' => 'כמו כן, מצורף לעיונך ספרון השירותים שלנו כדי להתרשם מהשירותים שאנו מציעים.',
+            'commitment' => 'בברום סרוויס, אנו מתחייבים לאיכות, מקצועיות ושירות אישי.',
+            'help' => 'אני כאן כדי לעזור ולענות על כל שאלה נוספת,אשמח לעמוד לשירותך תמיד בכל עת.',
+            'best_regards' => 'בברכה',  
+            'service_name' => 'ברום סרוויס', 
+            'contact' => `📞 03-525-70-60`,   
+            'service_website' => '🌐 :[www.broomservice.co.il](http://www.broomservice.co.il)',
+        ],
+        'contract_verify' => [
+            'header' => 'אימות חוזה | שירות ברום',
+            'subject' => 'אישור ההסכם שלך',
+            'info' => "שלום, *:name*",
+            'content' => 'ההסכם שלך אומת בהצלחה. ניצור איתך קשר בקרוב לתיאום השירות.'
+        ],
+        'contract_verify_team' => [
+            'header' => 'Contract Verification | Broom Service',
+            'subject' => 'אימות הסכם ללקוח',
+            'info' => 'Hello *:name*',
+            'content' => 'הלקוח :name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.'
+        ],
+        'contract_verify' => [
+            'header' => 'Contract Verification | Broom Service',
+            'subject' => 'Your agreement has been confirmed',
+            'info' => 'Hello *:name*',
+            'content' => 'Your agreement has been successfully confirmed. We will contact you soon to schedule your service.'
+        ],
+        'contract_reminder' => [
+            'subject' => 'Contract Reminder | Broom Service',
+            'subject2' => 'Contract Follow-Up | Broom Service',
+            'body' => 'היי :client_name',
+            'content' => 'זוהי תזכורת ידידותית לגבי החוזה ששלחנו לך ב- :contract_sent_date. אם יש לך שאלות או חששות, נשמח לעמוד לשירותך. אנו מצפים לעבוד יחד!',
+            'content2' => 'רצינו לבצע מעקב ולוודא שקיבלת את החוזה ששלחנו לך ב-  :contract_sent_date. נשמח אם תוכל לעיין בו ולהודיע לנו אם יש לך שאלות. אנחנו כאן כדי לעזור.'
         ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',

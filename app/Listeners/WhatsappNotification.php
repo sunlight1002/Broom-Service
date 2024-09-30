@@ -1504,8 +1504,8 @@ class WhatsappNotification
                 case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST:
                     $clientData = $eventData['client'];
 
-                    $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('heb'); // Ensure this matches the locale key used in your translation files
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale($clientData['lng']??'en'); // Ensure this matches the locale key used in your translation files
 
                     // Create the message
                     $text = __('mail.wa-message.file_submission_request.header');
@@ -1774,10 +1774,129 @@ class WhatsappNotification
 
 
                     break;
+
+                case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale($clientData['lng']??'en');
+
+                    $text = __('mail.wa-message.contract_verify.subject');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.contract_verify.info',[
+                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.contract_verify.content');
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb');
+
+                    $text = __('mail.wa-message.contract_verify_team.subject');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.contract_verify_team.info',[
+                        'name' => "Team",
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.contract_verify_team.content',[
+                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_3DAY:
+                    $clientData = $eventData['client'];
+                    $contractSentDate = $eventData['contract_sent_date']; // Assuming this data is passed in the event
+                    $clientData1 = $eventData['contract'];
+
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale($clientData['lng'] ?? 'en');
+                
+                    // Set the subject
+                    $text = __('mail.wa-message.contract_reminder.subject');
+                
+                    $text .= "\n\n";
+                
+                    // Add the body content with dynamic client name and contract date
+                    $text .= __('mail.wa-message.contract_reminder.body', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.contract_reminder.content', [
+                        'contract_sent_date' => $clientData1['created_at']
+                    ]);
+                
+                    $text .= "\n\n";
+                
+                    // Add the footer with contact details
+                    $text .= __('mail.wa-message.follow_up.best_regards');
+                    $text .= "\n";
+                    $text .= __('mail.wa-message.follow_up.service_name');
+                    $text .= "\n";
+                    $text .= '📞 03-525-70-60';
+                    $text .= "\n";
+                    $text .= __('mail.wa-message.follow_up.service_website');
+                
+                    break;
+                
+                case WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR:
+                    $clientData = $eventData['client'];
+                    $contractSentDate = $eventData['contract_sent_date']; // Assuming this data is passed in the event
+                    $clientData1 = $eventData['contract'];
+
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale($clientData['lng'] ?? 'en');
+                
+                    // Set the subject
+                    $text = __('mail.wa-message.contract_reminder.subject2');
+                
+                    $text .= "\n\n";
+                
+                    // Add the body content with dynamic client name and contract date
+                    $text .= __('mail.wa-message.contract_reminder.body', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.contract_reminder.content2', [
+                        'contract_sent_date' => $clientData1['created_at']
+                    ]);
+                
+                    $text .= "\n\n";
+                
+                    // Add the footer with contact details
+                    $text .= __('mail.wa-message.follow_up.best_regards');
+                    $text .= "\n";
+                    $text .= __('mail.wa-message.follow_up.service_name');
+                    $text .= "\n";
+                    $text .= '📞 03-525-70-60';
+                    $text .= "\n";
+                    $text .= __('mail.wa-message.follow_up.service_website');
+                
+                    break;
+                
             }
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
+                \Log::info($text);
+                $receiverNumber = '918000318833'. '@s.whatsapp.net';
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,

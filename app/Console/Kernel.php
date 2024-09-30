@@ -40,6 +40,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('update24')->daily();
         // $schedule->command('StatusNotUpdated24')->daily();
         // $schedule->command('updateteam24')->daily();
+        // $schedule->command('leadupdate24team')->daily();
+        // $schedule->command('notifyoffsite24')->daily();
 
 
     }

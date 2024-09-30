@@ -35,12 +35,12 @@ class SendWorkerForm101Notification implements ShouldQueue
             $workerArr = $event->worker->toArray();
             $workerArr['formId'] = $event->formID;
 
-            // Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
-            //     $messages->to($workerArr['email']);
-            //     $messages->subject(__('mail.form_101.subject', [
-            //         'id' => $workerArr['id']
-            //     ]));
-            // });
+            Mail::send('/Mails/Form101Mail', $workerArr, function ($messages) use ($workerArr) {
+                $messages->to($workerArr['email']);
+                $messages->subject(__('mail.form_101.subject', [
+                    'id' => $workerArr['id']
+                ]));
+            });
 
             if (!empty($workerArr['phone'])) {
                 event(new WhatsappNotificationEvent([

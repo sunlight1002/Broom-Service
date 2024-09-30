@@ -60,11 +60,11 @@ class NotifyForClientPaymentFailed implements ShouldQueue
                 'admin' => $admin
             ];
 
-            // Mail::send('Mails.admin.client-payment-failed', $emailData, function ($messages) use ($emailData) {
-            //     $messages->to($emailData['admin']['email']);
-            //     $sub = __('mail.admin.client-payment-failed.subject');
-            //     $messages->subject($sub);
-            // });
+            Mail::send('Mails.admin.client-payment-failed', $emailData, function ($messages) use ($emailData) {
+                $messages->to($emailData['admin']['email']);
+                $sub = __('mail.admin.client-payment-failed.subject');
+                $messages->subject($sub);
+            });
         }
 
         $emailData = [
@@ -85,18 +85,18 @@ class NotifyForClientPaymentFailed implements ShouldQueue
                 ]
             ]));
 
-            // Mail::send('Mails.client.payment-failed', $emailData, function ($messages) use ($emailData) {
-            //     $messages->to($emailData['client']['email']);
-            //     $sub = __('mail.client.payment-failed.subject');
-            //     $messages->subject($sub);
-            // });
+            Mail::send('Mails.client.payment-failed', $emailData, function ($messages) use ($emailData) {
+                $messages->to($emailData['client']['email']);
+                $sub = __('mail.client.payment-failed.subject');
+                $messages->subject($sub);
+            });
         }elseif($notification_type === "email"){
 
-            // Mail::send('Mails.client.payment-failed', $emailData, function ($messages) use ($emailData) {
-            //     $messages->to($emailData['client']['email']);
-            //     $sub = __('mail.client.payment-failed.subject');
-            //     $messages->subject($sub);
-            // });
+            Mail::send('Mails.client.payment-failed', $emailData, function ($messages) use ($emailData) {
+                $messages->to($emailData['client']['email']);
+                $sub = __('mail.client.payment-failed.subject');
+                $messages->subject($sub);
+            });
         }else{
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED,
