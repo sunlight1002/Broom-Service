@@ -211,7 +211,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     $clientpropertyaddress = ClientPropertyAddress::where('client_id', $client->id)->where('address_name', $row['property_name'])
                         ->first();
 
-                    if(isset($row['offer_id']) && !empty($row['offer_id'])) {
+                    if (isset($row['offer_id']) && !empty($row['offer_id'])) {
                         $offer = Offer::with('client')->where('id', $row['offer_id'])->where('status', 'sent')->first();
                     }
 
@@ -363,14 +363,14 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             בברכה,
                             צוות ברום סרוויס";
 
-                            $this->sendWhatsAppMessage($client->phone, $message);
+                        $this->sendWhatsAppMessage($client->phone, $message);
                     }
                 }
                 if ($row['has_contract'] == "No" && $offer && $offer->status == 'accepted') {
                     $hash = md5($client->email . $offer->id);
 
                     $contract = null;
-                    if(isset($row['contract_id']) && !empty($row['contract_id'])) {
+                    if (isset($row['contract_id']) && !empty($row['contract_id'])) {
                         $contract = Contract::find($row['contract_id']);
                     }
 
@@ -463,10 +463,10 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             $whapiApiToken = config('services.whapi.token');
 
             $response = Http::withToken($whapiApiToken)
-                            ->post($whapiApiEndpoint . 'messages/text', [
-                                'to' => $phoneNumber . '@s.whatsapp.net',
-                                'body' => $message
-                            ]);
+                ->post($whapiApiEndpoint . 'messages/text', [
+                    'to' => $phoneNumber . '@s.whatsapp.net',
+                    'body' => $message
+                ]);
             Log::info($response->json());
         } catch (\Throwable $th) {
             Log::alert('WA NOTIFICATION ERROR');

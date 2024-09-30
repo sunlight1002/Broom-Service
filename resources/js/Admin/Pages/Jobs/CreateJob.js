@@ -33,7 +33,7 @@ export default function CreateJob() {
         axios
             .get(`/api/admin/contract/${params.id}`, { headers })
             .then((res) => {
-                // console.log(res);
+                console.log(res);
 
                 const r = res.data.contract;
                 setClient(r.client);
@@ -71,249 +71,94 @@ export default function CreateJob() {
                         {client && (
                             <>
                                 <div className="d-flex flex-wrap justify-content-between">
-                                    <div
-                                        className="dashBox d-flex mr-2 mt-2 h-100 jobcard"
-                                        style={{ width: "207px" }}
-                                    >
+                                    <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
                                         <div className="dashIcon d-flex align-items-center">
-                                            <i className="">
-                                                <FaPeopleGroup
-                                                    className="font-30"
-                                                    style={{ color: "#1F78BD" }}
-                                                />
-                                            </i>
+                                            <i className=""><FaPeopleGroup className="font-30" style={{ color: "#1F78BD" }} /></i>
                                         </div>
                                         <div className="dashText ml-2">
-                                            <p
-                                                className="font-15 navyblueColor"
-                                                style={{ fontWeight: "500" }}
-                                            >
-                                                {client.firstname +
-                                                    " " +
-                                                    client.lastname}
-                                            </p>
+                                            <p className="font-15 navyblueColor" style={{ fontWeight: "500" }}>{client.firstname + " " + client.lastname}</p>
                                             <label>Client</label>
                                         </div>
                                     </div>
-                                    {services.length > 0 &&
-                                        selectedServiceIndex !== null && (
-                                            <>
-                                                <div
-                                                    className="dashBox d-flex mr-2 mt-2 h-100 jobcard"
-                                                    style={{ width: "207px" }}
-                                                >
-                                                    <div className="dashIcon d-flex align-items-center">
-                                                        <i className="">
-                                                            <BsBuildings
-                                                                className="font-30"
-                                                                style={{
-                                                                    color: "#1F78BD",
-                                                                }}
-                                                            />
-                                                        </i>
-                                                    </div>
-                                                    <div className="dashText ml-2">
-                                                        <p
-                                                            className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`}
-                                                            style={{
-                                                                fontWeight:
-                                                                    "500",
-                                                            }}
-                                                        >
-                                                            {
-                                                                services[
-                                                                    selectedServiceIndex
-                                                                ]?.address
-                                                                    ?.address_name
-                                                            }
+                                    {services.length > 0 && selectedServiceIndex !== null && (
+                                        <>
+                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                                <div className="dashIcon d-flex align-items-center">
+                                                    <i className=""><BsBuildings className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                </div>
+                                                <div className="dashText ml-2">
+                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                        {services[selectedServiceIndex]?.address?.address_name}
+                                                    </p>
+                                                    <label>Property</label>
+                                                </div>
+                                            </div>
+                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                                <div className="dashIcon d-flex align-items-center">
+                                                    <i className=""><PiSuitcaseBold className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                </div>
+                                                <div className="dashText ml-2">
+                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                        {services[selectedServiceIndex].service === "10"
+                                                            ? services[selectedServiceIndex].other_title
+                                                            : services[selectedServiceIndex].name}
+                                                    </p>
+                                                    <label>Services</label>
+                                                </div>
+                                            </div>
+                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                                <div className="dashIcon d-flex align-items-center">
+                                                    <i className=""><RiTimerFlashLine className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                </div>
+                                                <div className="dashText ml-2">
+                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                        {services[selectedServiceIndex].freq_name}
+                                                    </p>
+                                                    <label>Frequency</label>
+                                                </div>
+                                            </div>
+                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                                <div className="dashIcon d-flex align-items-center">
+                                                    <i className=""><GiSandsOfTime className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                </div>
+                                                <div className="dashText ml-2">
+                                                    {services[selectedServiceIndex]?.workers?.map((worker, i) => (
+                                                        <p key={i} className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                            {worker.jobHours} hours (Worker {i + 1})
                                                         </p>
-                                                        <label>Property</label>
-                                                    </div>
+                                                    ))}
+                                                    <label>Time to Complete</label>
                                                 </div>
-                                                <div
-                                                    className="dashBox d-flex mr-2 mt-2 h-100 jobcard"
-                                                    style={{ width: "207px" }}
-                                                >
-                                                    <div className="dashIcon d-flex align-items-center">
-                                                        <i className="">
-                                                            <PiSuitcaseBold
-                                                                className="font-30"
-                                                                style={{
-                                                                    color: "#1F78BD",
-                                                                }}
-                                                            />
-                                                        </i>
-                                                    </div>
-                                                    <div className="dashText ml-2">
-                                                        <p
-                                                            className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`}
-                                                            style={{
-                                                                fontWeight:
-                                                                    "500",
-                                                            }}
-                                                        >
-                                                            {services[
-                                                                selectedServiceIndex
-                                                            ].service === "10"
-                                                                ? services[
-                                                                      selectedServiceIndex
-                                                                  ].other_title
-                                                                : services[
-                                                                      selectedServiceIndex
-                                                                  ].name}
-                                                        </p>
-                                                        <label>Services</label>
-                                                    </div>
+                                            </div>
+                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                                <div className="dashIcon d-flex align-items-center">
+                                                    <i className=""><LiaPawSolid className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                 </div>
-                                                <div
-                                                    className="dashBox d-flex mr-2 mt-2 h-100 jobcard"
-                                                    style={{ width: "207px" }}
-                                                >
-                                                    <div className="dashIcon d-flex align-items-center">
-                                                        <i className="">
-                                                            <RiTimerFlashLine
-                                                                className="font-30"
-                                                                style={{
-                                                                    color: "#1F78BD",
-                                                                }}
-                                                            />
-                                                        </i>
-                                                    </div>
-                                                    <div className="dashText ml-2">
-                                                        <p
-                                                            className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`}
-                                                            style={{
-                                                                fontWeight:
-                                                                    "500",
-                                                            }}
-                                                        >
-                                                            {
-                                                                services[
-                                                                    selectedServiceIndex
-                                                                ].freq_name
-                                                            }
-                                                        </p>
-                                                        <label>Frequency</label>
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    className="dashBox d-flex mr-2 mt-2 h-100 jobcard"
-                                                    style={{ width: "207px" }}
-                                                >
-                                                    <div className="dashIcon d-flex align-items-center">
-                                                        <i className="">
-                                                            <GiSandsOfTime
-                                                                className="font-30"
-                                                                style={{
-                                                                    color: "#1F78BD",
-                                                                }}
-                                                            />
-                                                        </i>
-                                                    </div>
-                                                    <div className="dashText ml-2">
-                                                        {services[
-                                                            selectedServiceIndex
-                                                        ]?.workers?.map(
-                                                            (worker, i) => (
-                                                                <p
-                                                                    key={i}
-                                                                    className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`}
-                                                                    style={{
-                                                                        fontWeight:
-                                                                            "500",
-                                                                    }}
-                                                                >
-                                                                    {
-                                                                        worker.jobHours
-                                                                    }{" "}
-                                                                    hours
-                                                                    (Worker{" "}
-                                                                    {i + 1})
-                                                                </p>
-                                                            )
-                                                        )}
-                                                        <label>
-                                                            Time to Complete
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    className="dashBox d-flex mr-2 mt-2 h-100 jobcard"
-                                                    style={{ width: "207px" }}
-                                                >
-                                                    <div className="dashIcon d-flex align-items-center">
-                                                        <i className="">
-                                                            <LiaPawSolid
-                                                                className="font-30"
-                                                                style={{
-                                                                    color: "#1F78BD",
-                                                                }}
-                                                            />
-                                                        </i>
-                                                    </div>
-                                                    <div className="dashText ml-2">
-                                                        <p
-                                                            className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`}
-                                                            style={{
-                                                                fontWeight:
-                                                                    "500",
-                                                            }}
-                                                        >
-                                                            {services[
-                                                                selectedServiceIndex
-                                                            ]?.address
-                                                                ?.is_cat_avail
-                                                                ? "Cat"
-                                                                : services[
-                                                                      selectedServiceIndex
-                                                                  ]?.address
-                                                                      ?.is_dog_avail
+                                                <div className="dashText ml-2">
+                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                        {services[selectedServiceIndex]?.address?.is_cat_avail
+                                                            ? "Cat"
+                                                            : services[selectedServiceIndex]?.address?.is_dog_avail
                                                                 ? "Dog"
                                                                 : "NA"}
-                                                        </p>
-                                                        <label>
-                                                            Pet animals
-                                                        </label>
-                                                    </div>
+                                                    </p>
+                                                    <label>Pet animals</label>
                                                 </div>
-                                                <div
-                                                    className="dashBox d-flex mr-2 mt-2 h-100 jobcard"
-                                                    style={{ width: "207px" }}
-                                                >
-                                                    <div className="dashIcon d-flex align-items-center">
-                                                        <i className="">
-                                                            <FaPeopleArrows
-                                                                className="font-30"
-                                                                style={{
-                                                                    color: "#1F78BD",
-                                                                }}
-                                                            />
-                                                        </i>
-                                                    </div>
-                                                    <div className="dashText ml-2">
-                                                        <p
-                                                            className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`}
-                                                            style={{
-                                                                textTransform:
-                                                                    "capitalize",
-                                                                fontWeight:
-                                                                    "500",
-                                                            }}
-                                                        >
-                                                            {
-                                                                services[
-                                                                    selectedServiceIndex
-                                                                ]?.address
-                                                                    ?.prefer_type
-                                                            }
-                                                        </p>
-                                                        <label>
-                                                            Gender preference
-                                                        </label>
-                                                    </div>
+                                            </div>
+                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                                <div className="dashIcon d-flex align-items-center">
+                                                    <i className=""><FaPeopleArrows className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                 </div>
-                                            </>
-                                        )}
+                                                <div className="dashText ml-2">
+                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ textTransform: "capitalize", fontWeight: "500" }}>
+                                                        {services[selectedServiceIndex]?.address?.prefer_type}
+                                                    </p>
+                                                    <label>Gender preference</label>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
                                 </div>
                                 <div className="card-body">
                                     <form>
@@ -324,19 +169,11 @@ export default function CreateJob() {
                                                     client={client}
                                                     loading={loading}
                                                     setLoading={loading}
-                                                    selectedService={
-                                                        selectedService
-                                                    }
-                                                    setSelectedService={
-                                                        setSelectedService
-                                                    }
-                                                    setSelectedServiceIndex={
-                                                        setSelectedServiceIndex
-                                                    }
+                                                    selectedService={selectedService}
+                                                    setSelectedService={setSelectedService}
+                                                    setSelectedServiceIndex={setSelectedServiceIndex}
                                                 />
-                                                <div className="mb-3">
-                                                    &nbsp;
-                                                </div>
+                                                <div className="mb-3">&nbsp;</div>
                                             </div>
                                         </div>
                                     </form>

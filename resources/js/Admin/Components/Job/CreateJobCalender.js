@@ -60,7 +60,7 @@ export default function CreateJobCalender({
     }, []);
 
     console.log(selectedHours);
-    
+
 
     const handleServices = (index) => {
         setLoading(true)

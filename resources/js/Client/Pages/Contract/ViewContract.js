@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import Moment from 'moment';
 import { useTranslation } from 'react-i18next';
 import { Base64 } from 'js-base64';
+import i18next from "i18next";
 import FullPageLoader from '../../../Components/common/FullPageLoader';
 
 

@@ -450,12 +450,12 @@ return [
         'worker_not_approved_job_team' => [
             'header' => "*Reminder: Job Not Approved | Broom Service*",
             'content' => "Attention Team!\n\nThe following job has not been approved by the worker yet:\n\n" .
-                            "**Date/Time:** :date_time\n" .
-                            "**Client:** :client_name\n" .
-                            "**Worker:** :worker_name\n" .
-                            "**Service:** :service_name\n" .
-                            "**Property:** :address\n\n" .
-                            "Please take action to ensure this job is confirmed.",
+                "**Date/Time:** :date_time\n" .
+                "**Client:** :client_name\n" .
+                "**Worker:** :worker_name\n" .
+                "**Service:** :service_name\n" .
+                "**Property:** :address\n\n" .
+                "Please take action to ensure this job is confirmed.",
         ],
 
         'worker_not_left_for_job' => [
@@ -772,19 +772,15 @@ return [
             'start_job' => 'Start job'
         ]
     ],
-
     'otp' => [
         'subject' => 'Your OTP for Login',
         'body' => 'Your OTP (One-Time Password) for login is: :otp',
         'expiration' => 'Please use this OTP to proceed with your login. OTP will expire in 10 minutes.',
     ],
-
-
     'refund_claim' => [
         'header' => "*Refund Claim Status | Broom Service*",
         'subject' => 'Refund Claim Status',
         'body' => 'Your Refund request has been :status.',
         'reason' => 'Reason for reject: :reason.'
     ],
-
 ];

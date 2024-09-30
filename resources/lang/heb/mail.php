@@ -677,9 +677,9 @@ return [
             'brochure' => 'כמו כן, מצורף לעיונך ספרון השירותים שלנו כדי להתרשם מהשירותים שאנו מציעים.',
             'commitment' => 'בברום סרוויס, אנו מתחייבים לאיכות, מקצועיות ושירות אישי.',
             'help' => 'אני כאן כדי לעזור ולענות על כל שאלה נוספת,אשמח לעמוד לשירותך תמיד בכל עת.',
-            'best_regards' => 'בברכה',  
-            'service_name' => 'ברום סרוויס', 
-            'contact' => `📞 03-525-70-60`,   
+            'best_regards' => 'בברכה',
+            'service_name' => 'ברום סרוויס',
+            'contact' => `📞 03-525-70-60`,
             'service_website' => '🌐 :[www.broomservice.co.il](http://www.broomservice.co.il)',
         ],
         'contract_verify' => [
