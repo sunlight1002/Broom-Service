@@ -36,62 +36,36 @@ export default function ChangeJobStatusModal({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // setIsLoading(true);
+        setIsLoading(true);
     
-        // // Check for rejected comments in skippedComments
-        // const rejectedComments = skippedComments.filter(comment => comment.status === 'rejected');
-        // console.log(rejectedComments);
-        // console.log(allCommentsChecked,"d");
-        
-        
-        // // Check if any selected comment is rejected
-        // const hasRejectedComment = allCommentsChecked.some(commentId => 
-        //     rejectedComments.some(rejected => rejected.id === commentId)
-        // );
-        
-        // console.log(hasRejectedComment);
-        // if (hasRejectedComment) {
-        //     alert.error(t("worker.comments.rejectedCommentsError")); // Show an alert for rejected comments
-        //     // setIsLoading(false);
-        //     return; // Prevent submission if there are rejected comments
-        // }
+        const data = new FormData();
+        data.append("job_id", jobId);
+        data.append("comment", comment);
+        data.append("status", "completed");
+        data.append("name", localStorage.getItem("worker-name"));
     
-        // const data = new FormData();
-        // data.append("job_id", jobId);
-        // data.append("comment", comment);
-        // data.append("status", "completed");
+        if (cmtFileRef.current && cmtFileRef.current.files.length > 0) {
+            for (let index = 0; index < cmtFileRef.current.files.length; index++) {
+                const element = cmtFileRef.current.files[index];
+                data.append("files[]", element);
+            }
+        }
     
-        // // Check if there are checked comments, and send them as an array
-        // if (allCommentsChecked.length > 0) {
-        //     allCommentsChecked.forEach((commentId) => {
-        //         data.append(`comment_ids[]`, commentId);  // Always send as an array
-        //     });
-        // }
-    
-        // data.append("name", localStorage.getItem("worker-name"));
-    
-        // if (cmtFileRef.current && cmtFileRef.current.files.length > 0) {
-        //     for (let index = 0; index < cmtFileRef.current.files.length; index++) {
-        //         const element = cmtFileRef.current.files[index];
-        //         data.append("files[]", element);
-        //     }
-        // }
-    
-        // axios
-        //     .post(`/api/job-comments`, data, { headers })
-        //     .then((res) => {
-        //         if (res.data.error) {
-        //             res.data.error.forEach((err) => window.alert(err));
-        //         } else {
-        //             alert.success(t("worker.jobs.view.jobMarkCompleted"));
-        //             onSuccess();
-        //             setComment("");
-        //         }
-        //         setIsLoading(false);
-        //     })
-        //     .catch((e) => {
-        //         setIsLoading(false);
-        //     });
+        axios
+            .post(`/api/job-comments`, data, { headers })
+            .then((res) => {
+                if (res.data.error) {
+                    res.data.error.forEach((err) => window.alert(err));
+                } else {
+                    alert.success(t("worker.jobs.view.jobMarkCompleted"));
+                    onSuccess();
+                    setComment("");
+                }
+                setIsLoading(false);
+            })
+            .catch((e) => {
+                setIsLoading(false);
+            });
     };
     
 

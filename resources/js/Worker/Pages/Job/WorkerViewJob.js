@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
 import { Button, Modal } from "react-bootstrap";
@@ -29,7 +29,7 @@ export default function WorkerViewJob() {
     const [allComment, setAllComment] = useState([]);
     const [isOpenChangeJobStatus, setIsOpenChangeJobStatus] = useState(false);
     const [isApproving, setIsApproving] = useState(false);
-    const [isCompleteBtnDisable, setIsCompleteBtnDisable] = useState(false);
+    // const [isCompleteBtnDisable, setIsCompleteBtnDisable] = useState(false);
     const [isButtonEnabled, setIsButtonEnabled] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [targetLanguage, setTargetLanguage] = useState('en');
@@ -78,9 +78,19 @@ export default function WorkerViewJob() {
     }, []);
 
     const handleMarkComplete = () => {
-        isRunning ? stopTimer() : "";
-        setIsCompleteBtnDisable(true);
-        setIsOpenChangeJobStatus(true);
+        console.log(isCompleteBtnDisable);
+        
+        if (isCompleteBtnDisable !== false) {
+            Swal.fire({
+                title: "Error!",
+                text:  "You can't mark a job as complete if it's not finished.",
+                icon: "error",
+            });
+        }else{
+            isRunning ? stopTimer() : "";
+            // setIsCompleteBtnDisable(true);
+            setIsOpenChangeJobStatus(true);
+        }
     };
 
     const handleApproveJob = (e) => {
@@ -321,6 +331,30 @@ export default function WorkerViewJob() {
         getComments();
     }, [targetLanguage]);
 
+    const isCompleteBtnDisable = useMemo(() => {
+        if (allComment.length === 3) {
+            // Filter out comments with status "approved"
+            const relevantComments = allComment.filter(c => c.status !== "approved");
+            console.log(relevantComments,"approved");
+            
+    
+            // If any of the relevant comments have a null status, disable the button
+            const hasNullStatus = relevantComments.some(c => c.status === null);
+            console.log(hasNullStatus,"null");
+
+            // If all the relevant comments have "completed" status, enable the button
+            const allCompleted = relevantComments.every(c => c.status === "complete");
+            console.log(allCompleted,"comple");
+
+            // Disable the button if any status is null or if not all are completed
+            return hasNullStatus || !allCompleted;
+        }
+    
+        // If the condition for 3 comments isn't met, keep it disabled
+        return true;
+    }, [allComment]);    
+    
+
     return (
         <div id="container">
             <WorkerSidebar />
@@ -389,9 +423,9 @@ export default function WorkerViewJob() {
                                                                 onClick={
                                                                     handleMarkComplete
                                                                 }
-                                                                disabled={
-                                                                    isCompleteBtnDisable
-                                                                }
+                                                                // disabled={
+                                                                //     isCompleteBtnDisable
+                                                                // }
                                                                 className="btn btn-success"
                                                             >
                                                                 {t(

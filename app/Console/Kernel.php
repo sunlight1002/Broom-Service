@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('worker:default-availability')->weekly();
         $schedule->command('worker:notify-next-day-job')->dailyAt('17:00');
-        $schedule->command('client:review-job-request')->dailyAt('17:00');
+        $schedule->command('client:review-job-request')->dailyAt('08:00');
         $schedule->command('worker:failed-to-approve-job')->dailyAt('18:00');
         $schedule->command('reminder:job-not-approve-or-leave')->hourlyAt(45);
         $schedule->command('reminder:job-not-started')->hourlyAt(1);

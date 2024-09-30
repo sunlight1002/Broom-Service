@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Events\JobReviewRequest;
 use App\Mail\Client\JobReviewRequestMail;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class SendJobReviewRequestNotification implements ShouldQueue
 {
@@ -32,7 +34,13 @@ class SendJobReviewRequestNotification implements ShouldQueue
         if (!empty($event->job->client->email)) {
             App::setLocale($event->job->client->lng);
 
-            Mail::to($event->job->client->email)->send(new JobReviewRequestMail($event->job));
+            // Mail::to($event->job->client->email)->send(new JobReviewRequestMail($event->job));
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::NOTIFY_CLIENT_FOR_REVIEWED,
+                "notificationData" => [
+                    'job' => $event->job->toArray(),
+                ]
+            ]));
         }
 
         $event->job->update([

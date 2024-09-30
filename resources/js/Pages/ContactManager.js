@@ -5,30 +5,27 @@ import logo from "../Assets/image/sample.svg";
 import { Base64 } from "js-base64";
 
 export const ContactManager = () => {
-    const { id } = useParams();  // Get 'id' from the route parameters
+    const { id } = useParams();  
     const [res, setRes] = useState('');
 
-    // Setting up headers for the request
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };    
 
-    // Function to handle the API call
     const handleContactManager = () => {
         axios
-            .post(`/api/worker/contact-manager/${Base64.decode(id)}`, null, { headers })  // Post request with headers
+            .post(`/api/worker/contact-manager/${Base64.decode(id)}`, null, { headers })  
             .then((res) => {
-                console.log(res);  // Log the response for debugging
-                setRes(res?.data?.message);  // Set the message from response in state
+                console.log(res); 
+                setRes(res?.data?.message);  
             })
             .catch((err) => {
-                console.log(err);  // Log errors for debugging
+                console.log(err); 
             });
     };
     
-    // Trigger the API call when the component mounts or the 'id' changes
     useEffect(() => {
         handleContactManager();
     }, [id]);
@@ -44,7 +41,7 @@ export const ContactManager = () => {
                 >
                     <image xlinkHref={logo} width="190" height="77"></image>
                 </svg>
-                <p className="text-center">{res || "Wait..."}</p>  {/* Display the API response message */}
+                <p className="text-center">{res || "Wait..."}</p> 
             </div>
         </div>
     );

@@ -133,10 +133,10 @@ a:hover {
 .list-group-item .active {
   text-decoration: none;
   color: #ffffff !important;
-  border-top-left-radius: 6px;
-  border-bottom-left-radius: 6px;
+  border-top-left-radius: 6px !important;
+  border-bottom-left-radius: 6px !important;
   font-weight: 600;
-  background: #2F4054;
+  background: #2F4054 !important;
 }
 
 .list-group-item #fencehead2 a .active {
@@ -148,9 +148,9 @@ a:hover {
   background: #2F4054;
 }
 
-.list-group-item .active i {
+/* .list-group-item .active i {
   color: #ffffff !important;
-}
+} */
 
 .image-uploader {
   position: relative;
@@ -173,6 +173,8 @@ a:hover {
   position: relative;
   z-index: 1;
 }
+
+
 
 .image-preview .avatar {
   width: 100%;

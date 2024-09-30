@@ -78,36 +78,48 @@ class SkippedCommentController extends Controller
         // Validate the incoming request
         $validatedData = $request->validate([
             'comment_id' => 'required|exists:skipped_comments,comment_id',
-            'status' => 'required|in:Approved,Rejected', // Validate that status is either 'Approve' or 'Reject'
+            'status' => 'required|in:Approved,Rejected', // Validate that status is either 'Approved' or 'Rejected'
             'response_text' => 'nullable|string|max:255', // Add validation for the response text
         ]);
-
+    
         // Find the skipped comment by its comment_id
         $skippedComment = SkippedComment::where('comment_id', $validatedData['comment_id'])->first();
-
+    
         if (!$skippedComment) {
             return response()->json([
                 'success' => false,
                 'message' => 'Skipped comment not found.',
             ], 404);
         }
-
-        // Update the status based on the provided input
-        $skippedComment->status = strtolower($validatedData['status']); // Store as lowercase 'approve' or 'reject'
-
-        // If status is rejected, store the rejection text
+    
+        // Update the skipped comment's status to lowercase ('approved' or 'rejected')
+        $skippedComment->status = strtolower($validatedData['status']); // 'approved' or 'rejected'
+    
+        // If status is 'rejected', store the rejection text
         if ($skippedComment->status === 'rejected' && !empty($validatedData['response_text'])) {
             $skippedComment->response_text = $validatedData['response_text'];
         } else {
-            // Clear the response_text if status is not rejected
+            // Clear the response_text if the status is not rejected
             $skippedComment->response_text = null;
         }
-
+    
         $skippedComment->save();
-
-        // Optionally, fire an event if any notification is needed
+    
+        // Update the corresponding JobComments status if skipped comment is 'approved'
+        if ($skippedComment->status === 'approved') {
+            // Find the JobComment by the same comment_id
+            $jobComment = JobComments::where('id', $skippedComment->comment_id)->first();
+    
+            if ($jobComment) {
+                // Update the JobComment status to 'approved'
+                $jobComment->status = 'approved';
+                $jobComment->save();
+            }
+        }
+    
+        // Optionally, fire an event if a notification is needed
         // event(new SkippedCommentStatusUpdated($skippedComment)); // Example event
-        
+    
         return response()->json([
             'success' => true,
             'message' => 'Skipped comment status updated successfully.',
