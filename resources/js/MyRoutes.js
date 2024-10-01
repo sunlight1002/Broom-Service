@@ -32,6 +32,14 @@ import ClientSetting from "./Client/Pages/Settings/Setting";
 
 import Worker from "./Worker/Worker";
 import WorkerMyAccount from "./Worker/Pages/MyAccount/MyAccount";
+import AddLeaves from "./Worker/Pages/MyAccount/AddLeaves";
+import AddRefund from "./Worker/Pages/MyAccount/AddRefund";
+import AdvanceLoan from "./Worker/Pages/MyAccount/AdvanceLoan";
+import EditLeaves from "./Worker/Pages/MyAccount/EditLeaves";
+import EditRefund from "./Worker/Pages/MyAccount/EditRefund";
+import RefundClaim from "./Worker/Pages/MyAccount/RefundClaim";
+import SickLeaves from "./Worker/Pages/MyAccount/SickLeaves";
+
 import WorkerDashboard from "./Worker/WorkerDashboard";
 import WorkerTotalJobs from "./Worker/Pages/Job/WorkerTotalJobs";
 import WorkerViewJob from "./Worker/Pages/Job/WorkerViewJob";
@@ -59,6 +67,8 @@ import AllWorkers from "./Admin/Pages/Workers/AllWorkers";
 import FreezeShiftWorkers from "./Admin/Pages/Workers/FreezeShiftWorkers";
 import AddWorker from "./Admin/Pages/Workers/AddWorker";
 import EditWorker from "./Admin/Pages/Workers/EditWorker";
+import WorkersLeave from "./Admin/Pages/Workers/WorkersLeave";
+import WorkersRefund from "./Admin/Pages/Workers/WorkersRefund";
 import ViewWorker from "./Admin/Pages/Workers/ViewWorker";
 import ViewWorkerContract from "./Admin/Pages/Workers/WorkerContract";
 import AdminLogin from "./Admin/Pages/Auth/AdminLogin";
@@ -391,6 +401,41 @@ export default function MyRoutes() {
                                 path="jobs"
                                 element={<WorkerTotalJobs />}
                             />
+                              <Route
+                                exact
+                                path="leaves"
+                                element={<SickLeaves />}
+                            />
+                            <Route
+                                exact
+                                path="sick-leaves/create"
+                                element={<AddLeaves />}
+                            />
+                              {/* <Route
+                                exact
+                                path="sick-leaves/:id/edit"
+                                element={<EditLeaves />}
+                            /> */}
+                            <Route
+                                exact
+                                path="advance-loan"
+                                element={<AdvanceLoan />}
+                            />
+                             <Route
+                                exact
+                                path="refund-claim"
+                                element={<RefundClaim />}
+                            />
+                            <Route
+                                exact
+                                path="refund-claim/create"
+                                element={<AddRefund />}
+                            />
+                            <Route
+                                exact
+                                path="refund-claim/:id/edit"
+                                element={<EditRefund />}
+                            />
                             <Route
                                 exact
                                 path="jobs/view/:id"
@@ -587,6 +632,16 @@ export default function MyRoutes() {
                                 exact
                                 path="holidays/:id/edit"
                                 element={<EditHoliday />}
+                            />
+                            <Route
+                                exact
+                                path="workers-leaves"
+                                element={<WorkersLeave />}
+                            />
+                             <Route
+                                exact
+                                path="workers-refund"
+                                element={<WorkersRefund />}
                             />
                             <Route
                                 exact
