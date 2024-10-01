@@ -1101,11 +1101,7 @@ class WhatsappNotification
                             $messageLng // Use the correct language-specific message template
                         );
 
-<<<<<<< HEAD
                         \Log::info("Client message: " . $message); // Log the message for debugging
-=======
-                        Log::info("Client message: " . $message); // Log the message for debugging
->>>>>>> 1ae8b1aa (Fixed issue)
                     }
 
                     $text .= $message;
