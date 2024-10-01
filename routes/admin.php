@@ -348,6 +348,22 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::put('/tasks/{taskId}/comments/{commentId}', [TaskController::class, 'updateComment']);
     Route::get('/tasks/list', [TaskController::class, 'tasksByPhase']);
 
+    //sick-leaves approve
+    Route::get('sick-leaves/list', [SickLeaveController::class, 'allLeaves']);
+    Route::post('sick-leaves/{sick_leave}/approve', [SickLeaveController::class, 'approve']);
+
+    //refund-claims approve
+    Route::get('refund-claims/list', [RefundClaimController::class, 'allRequests']);
+    Route::post('refund-claims/{refund_claim}/approve', [RefundClaimController::class, 'approve']);
+
+    //advance or loan amount
+    Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);
+    Route::post('/advance-loans', [AdvanceLoanController::class, 'store']);
+    Route::get('/advance-loans/{worker_id}', [AdvanceLoanController::class, 'show']);
+    Route::post('/advance-loans/{id}', [AdvanceLoanController::class, 'update']);
+    Route::delete('/advance-loans/{id}', [AdvanceLoanController::class, 'destroy']);
+    Route::post('/advance-loans/{id}/confirm', [AdvanceLoanController::class, 'confirmUpdate']);
+
     //whatsapp templates routes
     Route::get('/whatsapp-templates', [WhatsappTemplateController::class, 'index']);
     Route::get('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'show']);

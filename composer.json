@@ -26,6 +26,7 @@
         "league/flysystem-aws-s3-v3": "^1.0",
         "maatwebsite/excel": "^3.1",
         "mpdf/mpdf": "^8.2",
+        "owen-it/laravel-auditing": "^13.6",
         "spatie/laravel-backup": "^7.8",
         "tecnickcom/tcpdf": "^6.5",
         "twilio/sdk": "^8.2",
