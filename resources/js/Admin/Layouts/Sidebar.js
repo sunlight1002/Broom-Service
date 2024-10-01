@@ -130,14 +130,14 @@ export default function Sidebar() {
                     <NavLink to="/admin/workers-leaves"
                         className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-calendar-minus font-20"></i>Worker Leave
+                        <i className="fa-solid fa-calendar-minus font-20"></i>{t("worker.worker_leave")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/workers-refund"
                         className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-undo-alt font-20"></i>Worker Refund
+                        <i className="fa-solid fa-undo-alt font-20"></i>{t("worker.worker_refund")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">

@@ -71,7 +71,7 @@ export default function WorkerLeave() {
                             ` : "Not available";
                         }
                     },
-                    { title: "Leave Reason", data: "reason_for_leave" },
+                    { title: t("worker.leaveReason"), data: "reason_for_leave" },
                     {
                         title: t("worker.status"),
                         data: "status",
@@ -183,7 +183,7 @@ export default function WorkerLeave() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-12">
-                            <h1 className="page-title">Leaves Request</h1>
+                            <h1 className="page-title">{t("worker.leaveRequest")}</h1>
                         </div>
                     </div>
                 </div>

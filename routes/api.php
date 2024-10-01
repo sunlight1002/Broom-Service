@@ -9,7 +9,9 @@ use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
 use App\Http\Controllers\User\DocumentController;
 use App\Http\Controllers\User\SkippedCommentController;
-use App\Http\Controllers\TwimlController;
+use App\Http\Controllers\SickLeaveController;
+use App\Http\Controllers\RefundClaimController;
+use App\Http\Controllers\Admin\AdvanceLoanController;
 /*
 |--------------------------------------------------------------------------
 | Employee API Routes
@@ -91,6 +93,17 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
 
     Route::get('documents', [DocumentController::class, 'documents']);
     Route::get('forms', [DocumentController::class, 'forms']);
+
+    //sick-leaves
+    Route::apiResource('sick-leaves', SickLeaveController::class);
+    Route::get('/advance-loans', [AdvanceLoanController::class, 'index']);
+
+    //refund-claim
+    Route::get('/refund-claims', [RefundClaimController::class, 'index']);
+    Route::post('/refund-claims', [RefundClaimController::class, 'store']);
+    Route::get('/refund-claims/{id}', [RefundClaimController::class, 'show']);
+    Route::post('/refund-claims/{id}', [RefundClaimController::class, 'update']);
+    Route::delete('/refund-claims/{id}', [RefundClaimController::class, 'destroy']);
 });
 
 Route::post('/twilio/initiate-call', [LeadTwilioController::class, 'initiateCall']);

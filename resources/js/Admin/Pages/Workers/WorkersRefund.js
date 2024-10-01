@@ -185,7 +185,6 @@ export default function WorkersRefund() {
     }, [filter]);
    
     
-   console.log(filter);
     return (
         <div id="container">
             <Sidebar />
@@ -193,7 +192,7 @@ export default function WorkersRefund() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-12">
-                            <h1 className="page-title">Refund Request</h1>
+                            <h1 className="page-title">{t("worker.refund_request")}</h1>
                         </div>
                     </div>
                 </div>
