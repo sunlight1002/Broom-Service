@@ -2076,6 +2076,54 @@ class WhatsappNotification
                     ]);
 
                     break;
+
+                case WhatsappMessageTemplateEnum::SICK_LEAVE_NOTIFICATION:
+                    $userData = $eventData['user'];
+                    $clientData = $eventData['client'];
+                    $leaveData = $eventData['sickleave'];
+
+                    $receiverNumber = $userData['phone'];
+                    App::setLocale($userData['phone'] ?? 'en');
+
+                    // Message Content
+                    $text = __('mail.wa-message.follow_up.subject');
+                    $text .= "\n\n";
+                    $text .= __('mail.wa-message.follow_up.salutation', [
+                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                    ]);
+
+
+                    break;
+                case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE:
+                    $userData = $eventData['user'];
+                    $claimData = $eventData['refundclaim'];
+
+                    $receiverNumber = $userData['phone'];
+                    App::setLocale($userData['lng']);
+
+                    $text = __('mail.refund_claim.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => $userData['firstname'] . ' ' . $userData['lastname']
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.refund_claim.body', [
+                        'status' => $claimData['status'],
+                    ]);
+
+                    if ($claimData['status'] !== 'approved' && !is_null($claimData['rejection_comment'])) {
+                        $text .= "\n\n";
+                        $text .= __('mail.refund_claim.reason', [
+                            'reason' => $claimData['rejection_comment']
+                        ]);
+                    }
+
+
+                    break;
                 
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
                         $clientData = $eventData['client'];
@@ -2365,7 +2413,6 @@ class WhatsappNotification
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 // \Log::info($text);
-                $receiverNumber = '918000318833'. '@s.whatsapp.net';
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
