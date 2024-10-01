@@ -734,10 +734,12 @@ return [
             'action_btn' => '*Action Buttons:*'
         ],
         'worker_on_my_way' => [
-            'content' => "Please remember to click 'Start Job' when you arrive at the client's location today. If you have any issues, contact your manager immediately."
+            'content' => "Please remember to click 'Start Job' when you arrive at the client's location today. If you have any issues, contact your manager immediately.",
+            'beforeContent' => "you have not yet confirmed that you are on your way for the job starting at :job_time with client :client_name. Please confirm your status or contact the manager if assistance is needed."
         ],
         'team_worker_on_my_way' => [
-            'content' => "Reminder: :worker_name hasn’t clicked 'Start Job' yet for today’s scheduled service at :client_name's location. Please follow up as needed."
+            'content' => "Reminder: :worker_name hasn’t clicked 'Start Job' yet for today’s scheduled service at :client_name's location. Please follow up as needed.",
+            'beforeContent' => ":worker_name has not confirmed they are on their way for the job starting in :job_time with client :client_name. Please review and take action if necessary."
         ],
         'remind_to_worker' => [
             'content' => "Please don't forget to confirm the address for tomorrow's job by 6 PM today. If you have any issues or need help, please contact your manager.",
@@ -769,7 +771,8 @@ return [
             'contact_manager' => 'Contact Manager',
             'change_service_date' => 'Change Service Date',
             'cancel_service' => 'Cancel service',
-            'start_job' => 'Start job'
+            'start_job' => 'Start job',
+            'actions' => 'Actions'
         ]
     ],
     'otp' => [

@@ -84,6 +84,8 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_AFTER_APPROVE_JOB = "worker-after-approve-job";
     public const WORKER_NOTIFY_AFTER_ON_MY_WAY = "worker-notify-after-on-my-way";
     public const TEAM_NOTIFY_WORKER_AFTER_ON_MY_WAY = "team_notify-worker-before-on-my-way";
+    public const WORKER_NOTIFY_BEFORE_ON_MY_WAY = "worker-notify-before-on-my-way";
+    public const TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY = "team-notify-worker-before-on-my-way";
     public const TEAM_NOTIFY_CONTACT_MANAGER = "team-notify-contact-manager";
     public const WORKER_ON_MY_WAY_NOTIFY = "worker-on-my-way-notify";
     public const WORKER_ARRIVE_NOTIFY = "worker-arrive-notify";

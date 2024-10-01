@@ -43,37 +43,42 @@ class NotifyWorkerBeforeJob extends Command
     {
         // Get the current date and time
         $currentTime = Carbon::now();
+
         \Log::info($currentTime);
-        
-        // Fetch jobs where worker has approved and dont tap i am leaving btn, notifications need to be sent
+
+        // Calculate time 1 hour and 30 minutes from now
+        $oneHourLater = $currentTime->copy()->addHour();
+        $thirtyMinutesLater = $currentTime->copy()->addMinutes(30);
+
+        // Fetch jobs where worker has approved and hasn't tapped the "I am leaving" button,
+        // and the job start time is exactly 1 hour or 30 minutes from now.
         $jobsToNotify = Job::with(['client', 'worker'])
-                    ->whereNotNull('worker_approved_at') // Only jobs where the worker has approved
-                    ->whereDate('start_date', $currentTime->toDateString()) // Only jobs for today
-                    ->get();
+            ->whereNotNull('worker_approved_at') // Only jobs where the worker has approved
+            ->whereDate('start_date', $currentTime->toDateString()) // Only jobs for today
+            ->whereTime('start_time', '=', $oneHourLater->toTimeString()) // Jobs starting in exactly 1 hour
+            ->orWhereTime('start_time', '=', $thirtyMinutesLater->toTimeString()) // Jobs starting in 30 minutes
+            ->get();
+
         \Log::info($jobsToNotify);
 
         foreach ($jobsToNotify as $job) {
-            // Get the start_time of the job
-            $jobStartTime = Carbon::parse($job->start_time);
-            \Log::info($jobStartTime);
-
             // Calculate the difference in minutes between now and the job's start time
+            $jobStartTime = Carbon::parse($job->start_time);
             $minutesDifference = $currentTime->diffInMinutes($jobStartTime, false);
 
-            // Check if it's 1 hour before start_time
+            // Check if it's 1 hour or 30 minutes before start_time
             if ($minutesDifference === 60) {
                 \Log::info("Sending 1-hour notification to worker for Job ID: " . $job->id);
                 $this->sendNotification($job, '1-hour');
-            }
-            // Check if it's 30 minutes before start_time
-            elseif ($minutesDifference === 30) {
+            } elseif ($minutesDifference === 30) {
                 \Log::info("Sending 30-minute notification to worker for Job ID: " . $job->id);
                 $this->sendNotification($job, '30-min');
             }
         }
-        
+
         return 0;
     }
+
 
     /**
      * Send notification to the worker.
@@ -86,20 +91,28 @@ class NotifyWorkerBeforeJob extends Command
     {
         // Customize the message based on the notification type
         if ($notificationType === '1-hour') {
-            // event(new WhatsappNotificationEvent([
-            //     "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_ON_MY_WAY,
-            //     "notificationData" => [
-            //         'job' => $job,
-            //     ]
-            // ]));
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_ON_MY_WAY,
+                "notificationData" => [
+                    'job' => $job,
+                ]
+            ]));
         
         } elseif ($notificationType === '30-min') {
-            // event(new WhatsappNotificationEvent([
-            //     "type" => WhatsappMessageTemplateEnum::TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY,
-            //     "notificationData" => [
-            //         'job' => $job,
-            //     ]
-            // ]));
+            
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_ON_MY_WAY,
+                "notificationData" => [
+                    'job' => $job,
+                ]
+            ]));
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY,
+                "notificationData" => [
+                    'job' => $job,
+                ]
+            ]));
         }
 
     }

@@ -129,7 +129,7 @@ class WhatsappNotification
                     break;
 
                 case WhatsappMessageTemplateEnum::OFFER_PRICE:
-                    $clientData = $eventData['offer'];
+                    $clientData = $eventData['client'];
                     Log::info($clientData);
 
                     $receiverNumber = $clientData['phone'];
@@ -440,6 +440,57 @@ class WhatsappNotification
 
                     break;
 
+
+                case WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_ON_MY_WAY:
+                     // $adminData = $eventData['admin'];
+                     $jobData = $eventData['job'];
+
+                     $receiverNumber = $jobData['worker']['phone'];
+                     App::setLocale($jobData['worker']['lng']);
+ 
+                     $text .= __('mail.wa-message.common.salutation', [
+                         'name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']
+                     ]);
+ 
+                     $text .= "\n\n";
+ 
+                     $text .= __('mail.wa-message.worker_on_my_way.beforeContent',[
+                        'job_time' => $jobData['start_time'],
+                        'client_name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname'],
+                     ]);
+ 
+                     $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/jobs/view/" . $jobData['id']);
+                     $text .= "\n" . __('mail.wa-message.button-label.contact_manager') . ": " . url("contact-manager/" . base64_encode($jobData['id']));
+ 
+                     break;
+
+                case WhatsappMessageTemplateEnum::TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY:
+                      // $adminData = $eventData['admin'];
+                      $jobData = $eventData['job'];
+                      $content = $eventData['emailData'];
+  
+                      $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+                      App::setLocale('heb');
+  
+  
+                      $text .= __('mail.wa-message.common.salutation', [
+                          'name' => 'קְבוּצָה'
+                      ]);
+  
+                      $text .= "\n\n";
+  
+                      $text .= __('mail.wa-message.team_worker_on_my_way.beforeContent', [
+                          'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
+                          'job_time' => $jobData['start_time'],
+                          'client_name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname']
+                      ]);
+  
+                    //   $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("admin/jobs/view/" . $jobData['id']);
+                      $text .= "\n\n" . __('mail.wa-message.button-label.actions') . ": " . url("team-btn/" . base64_encode($jobData['id']));
+
+  
+                      break;
+
                 case WhatsappMessageTemplateEnum::TEAM_NOTIFY_CONTACT_MANAGER:
                     $jobData = $eventData['job'];
                     \Log::info($jobData);
@@ -462,7 +513,7 @@ class WhatsappNotification
                     ]);
 
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("team-btn/" . base64_encode($jobData['id']));
+                    $text .= "\n\n" . __('mail.wa-message.button-label.actions') . ": " . url("team-btn/" . base64_encode($jobData['id']));
 
 
 
@@ -2420,6 +2471,7 @@ class WhatsappNotification
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 // \Log::info($text);
+                $receiverNumber = '918000318833'. '@s.whatsapp.net';
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,

@@ -34,7 +34,6 @@ class NotifyStartOfTheJob extends Command
     public function handle()
     {
         $currentTime = Carbon::now();
-        $admin_notified = false;
         \Log::info($currentTime);
 
         // Get jobs that were scheduled for today and not completed or started
@@ -56,9 +55,10 @@ class NotifyStartOfTheJob extends Command
                 $job->save();
             }
             // If 1 hour has passed since the scheduled start time and job hasn't been marked as started
-            if ($currentTime->diffInMinutes($startTime) >= 60 && !$job->is_job_done && !$admin_notified) {
+            if ($currentTime->diffInMinutes($startTime) >= 60 && !$job->is_job_done && !$job->admin_notified) {
                 $this->notifyAdmin($job);
-                $admin_notified = true;
+                !$job->admin_notified = true;
+                $job->save();
             }
         }
 
