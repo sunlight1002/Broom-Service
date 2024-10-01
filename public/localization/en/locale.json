@@ -146,7 +146,8 @@
         "repeatancy": "Repeatancy",
         "problem": "Problem",
         "noProblem": "No Problem",
-        "noOfProblem": "No. of Problems"
+        "noOfProblem": "No. of Problems",
+        "Submit":"Submit"
     },
     "modal": {
         "title": "Modal",
@@ -1573,6 +1574,13 @@
                 "holidays": "Holidays"
             },
             "logout": "Logout"
+        },
+        "leaves":{
+            "confirm": "Confirm",
+            "cancel":"Cancel",
+            "confirmation": "Confirmation",
+            "approveConfirm": "Approved leave",
+            "rejectionReason": "Leave rejected reason"
         }
     },
     "worker": {
@@ -1595,12 +1603,16 @@
         "doctorReport": "Doctor Report",
         "leaveReason": "Leave Reason",
         "leaveRequest": "Leaves Request",
+        "approve": "Approve",
+        "reject": "reject",
+        "reason": "Reason",
         "sidebar": {
             "dashboard": "Dashboard",
             "jobs": "Jobs",
             "schedule": "Schedule",
             "not_available": "Not Available Dates",
-            "workingHours": "Hours"
+            "workingHours": "Hours",
+            "leaves": "Leaves"
         },
         "dashboard": {
             "past_jobs": "Past Jobs",

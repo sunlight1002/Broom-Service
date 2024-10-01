@@ -78,6 +78,9 @@ export default function ManageSickLeaves() {
                     {
                         title: "Reason for Reject",
                         data: "rejection_comment",
+                        render: function (data, type, row, meta) {
+                            return `${data??"NA"}`;
+                        },
                        
                     },
                     {

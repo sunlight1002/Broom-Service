@@ -61,5 +61,5 @@ final class NotificationTypeEnum extends AbstractEnum
     public const FOLLOW_UP_REQUIRED = "follow-up-required";
     public const FILE_SUBMISSION_REQUEST = "file-submission-request";
     public const SICK_LEAVE_CREATED = "sick-leave-created";
-
+    public const REFUND_CLAIM_REQUEST = "refund-claim-request";
 }

@@ -41,6 +41,14 @@ export const leadStatusColor = (_status) => {
             _color = "black";
             break;
 
+        case "approved":
+            _color = "green";
+            break;
+
+        case "rejected":
+            _color = "#d51212";
+            break;
+
         default:
             break;
     }

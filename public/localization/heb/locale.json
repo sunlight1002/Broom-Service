@@ -146,7 +146,8 @@
         "repeatancy": "חזרתיות",
         "problem": "בעיה",
         "noProblem": "אין בעיה",
-        "noOfProblem": "מספר בעיות"
+        "noOfProblem": "מספר בעיות",
+        "Submit":"שלח"
     },
     "modal": {
         "title": "מודל",
@@ -1606,6 +1607,13 @@
                 "holidays": "חגים"
             },
             "logout": "התנתק"
+        },
+        "leaves":{
+            "confirm": "אשר",
+            "cancel": "ביטול",
+            "confirmation": "אישור",
+            "approveConfirm": "חופשה מאושרת",
+            "rejectionReason": "עזוב סיבה שנדחתה"
         }
     },
     "worker": {
@@ -1627,12 +1635,16 @@
         "doctorReport": "דוח רופא",
         "leaveReason": "עזוב סיבה",
         "leaveRequest": "משאיר בקשה",
+        "approve":"לְאַשֵׁר",
+        "reject":"דחה",
+        "reason": "סיבה",
         "sidebar": {
             "dashboard": "לוּחַ מַחווָנִים",
             "jobs": "מקומות תעסוקה",
             "schedule": "לוח זמנים",
             "not_available": "תאריכים לא זמינים",
-            "workingHours": "שעה (ות"
+            "workingHours": "שעה (ות",
+            "leaves": "עלים"
         },
         "dashboard": {
             "past_jobs": "משרות קודמות",
