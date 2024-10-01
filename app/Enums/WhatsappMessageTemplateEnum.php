@@ -94,4 +94,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WEEKLY_CLIENT_SCHEDULED_NOTIFICATION = "weekly-client-scheduled-notification";
     public const TO_TEAM_WORKER_NOT_CONFIRM_JOB = "to-team-worker-not-confirm-job";
     public const REMIND_WORKER_TO_JOB_CONFIRM = "remind-worker-to-job-confirm";
+    public const REFUND_CLAIM_MESSAGE = "refund-claim-message";
 }

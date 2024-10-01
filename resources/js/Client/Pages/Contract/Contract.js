@@ -103,7 +103,8 @@ export default function Contract() {
             const _uniqueHash = $(this).data("unique-hash").toString();
             const encodedClientId = Base64.encode(_client_id);
 
-            navigate(`/client/view-contract/${encodedClientId}/${_uniqueHash}`);
+            navigate(`/work-contract/${_uniqueHash}`);
+
         });
 
         return function cleanup() {
