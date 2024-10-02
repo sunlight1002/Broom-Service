@@ -146,6 +146,9 @@ import TeamSkippedComments from "./Pages/TeamSkippedComments";
 import { TimeManage } from "./Pages/TimeManage";
 import Templates from "./Admin/Pages/Setting/Templates";
 import AllTemplatesList from "./Admin/Pages/Setting/AllTemplatesList";
+import Holiday from "./Admin/Pages/Setting/Holiday";
+import AddHoliday from "./Admin/Pages/Setting/AddHoliday";
+import EditHoliday from "./Admin/Pages/Setting/EditHoliday";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -569,6 +572,21 @@ export default function MyRoutes() {
                                 exact
                                 path="manpower-companies"
                                 element={<ManpowerCompanies />}
+                            />
+                            <Route
+                                exact
+                                path="holidays"
+                                element={<Holiday />}
+                            />
+                             <Route
+                                exact
+                                path="holidays/create"
+                                element={<AddHoliday />}
+                            />
+                             <Route
+                                exact
+                                path="holidays/:id/edit"
+                                element={<EditHoliday />}
                             />
                             <Route
                                 exact
