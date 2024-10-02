@@ -173,12 +173,6 @@ class EventServiceProvider extends ServiceProvider
         OfferAccepted::class => [
             NotifyForContract::class
         ],
-        // UnintrestedUser::class => [
-        //     NotifyUnintrestedUser::class
-        // ],
-        // ClientOfferAccepted::class => [
-        //     ClientNotifyForContract::class
-        // ],
         SendClientLogin::class => [
             SendClientCredentials::class
         ],
