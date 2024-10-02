@@ -1561,7 +1561,8 @@
                 "selectLang":"--- Select language ---",
                 "selectCurrency":"--- Select currency ---",
                 "uploadProfile": "Upload profile image",
-                "verification": "Two step Verification"
+                "verification": "Two step Verification",
+                "holidays": "Holidays"
             },
             "logout": "Logout"
         }

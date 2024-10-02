@@ -1594,7 +1594,8 @@
                 "selectLang": "--- בחר שפה ---",
                 "selectCurrency": "--- בחר מטבע ---",
                 "uploadProfile": "העלאת תמונת פרופיל",
-                "verification": "אימות דו-שלבי"
+                "verification": "אימות דו-שלבי",
+                "holidays": "חגים"
             },
             "logout": "התנתק"
         }
