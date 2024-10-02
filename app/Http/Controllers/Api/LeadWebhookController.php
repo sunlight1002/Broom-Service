@@ -133,7 +133,6 @@ class LeadWebhookController extends Controller
     {
         $get_data = $request->getContent();
 
-        Log::info($get_data);
         $data_returned = json_decode($get_data, true);
 
         if (
@@ -143,6 +142,7 @@ class LeadWebhookController extends Controller
         ) {
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
+            Log::info($from);
 
             $response = WebhookResponse::create([
                 'status'        => 1,
@@ -204,7 +204,7 @@ class LeadWebhookController extends Controller
 
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
                 $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : $message_data[0]['button']['text'];
-
+                \Log::info($message);
                 $result = WhatsappLastReply::where('phone', $from)
                     ->where('updated_at', '>=', Carbon::now()->subMinutes(15))
                     ->first();
@@ -241,6 +241,9 @@ class LeadWebhookController extends Controller
 
                 $menu_option = explode('->', $client_menus->menu_option);
                 $last_menu = end($menu_option);
+                \Log::info($last_menu);
+                \Log::info("lastmeny");
+
                 $prev_step = null;
                 if (count($menu_option) >= 2) {
                     $prev_step = $menu_option[count($menu_option) - 2];
@@ -426,22 +429,22 @@ class LeadWebhookController extends Controller
                             'title' => "Schedule an appointment for a quote",
                             'content' => [
                                 'en' => 'Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.
-You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
-Enter your phone number or email address with which you registered for the service 📝',
-                                'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
-תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
-הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
-                            ]
-                        ],
-                        '5' => [
-                            'title' => "Switch to a Human Representative - During Business Hours",
-                            'content' => [
-                                'en' => 'Dear customers, office hours are Monday-Thursday from 8:00 to 14:00.
-If you contact us outside of business hours, a representative from our team will get back to you as soon as possible on the next business day, during business hours.
-If you would like to speak to a human representative, please send a message with the word "Human Representative". 🙋🏻',
-                                'he' => 'לקוחות יקרים, שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00.
-במידה ופניתם מעבר לשעות הפעילות נציג מטעמנו יחזור אליכם בהקדם ביום העסקים הבא, בשעות הפעילות.
-אם אתם מעוניינים לדבר עם נציג אנושי, אנא שלחו הודעה עם המילה "נציג אנושי". 🙋🏻',
+                                        You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
+                                        Enter your phone number or email address with which you registered for the service 📝',
+                                                                        'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
+                                        תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
+                                        הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
+                                                                    ]
+                                                                ],
+                                                                '5' => [
+                                                                    'title' => "Switch to a Human Representative - During Business Hours",
+                                                                    'content' => [
+                                                                        'en' => 'Dear customers, office hours are Monday-Thursday from 8:00 to 14:00.
+                                        If you contact us outside of business hours, a representative from our team will get back to you as soon as possible on the next business day, during business hours.
+                                        If you would like to speak to a human representative, please send a message with the word "Human Representative". 🙋🏻',
+                                                                        'he' => 'לקוחות יקרים, שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00.
+                                        במידה ופניתם מעבר לשעות הפעילות נציג מטעמנו יחזור אליכם בהקדם ביום העסקים הבא, בשעות הפעילות.
+                                        אם אתם מעוניינים לדבר עם נציג אנושי, אנא שלחו הודעה עם המילה "נציג אנושי". 🙋🏻',
                             ]
                         ]
                     ]
@@ -486,7 +489,7 @@ If you would like to speak to a human representative, please send a message with
 
                         if ($client->lng == 'heb') {
                             $msg = 'נציג מטעמנו יצור קשר בהקדם.
-    האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
+                        האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
                         } else {
                             $msg = 'A representative from our team will contact you shortly. Is there anything else I can help you with today? (Yes or No) 👋';
                         }
