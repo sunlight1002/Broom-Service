@@ -91,5 +91,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const TEAM_ADJUST_WORKER_JOB_COMPLETED_TIME = "team-adjust-worker-job-completed-time";
     public const NOTIFY_CLIENT_FOR_REVIEWED = "notify-client-for-reviewed";
     public const NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE = "notify-monday-client-and-worker-for-schedule";
-
+    public const WEEKLY_CLIENT_SCHEDULED_NOTIFICATION = "weekly-client-scheduled-notification";
 }
