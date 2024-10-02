@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\OfferController;
 use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\ContractController;
+use App\Http\Controllers\Admin\ContractCommentController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\ManpowerCompaniesController;
@@ -330,6 +331,13 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('worker-affected-availability/{id}', [WorkerAffectedAvailabilitiesController::class, 'show']);
     Route::post('worker-affected-availability/{id}/approve', [WorkerAffectedAvailabilitiesController::class, 'approve']);
     Route::post('worker-affected-availability/{id}/reject', [WorkerAffectedAvailabilitiesController::class, 'reject']);
+
+    //holidays add or update
+    Route::get('holidays', [HolidayController::class, 'index']);
+    Route::post('holidays', [HolidayController::class, 'store']);
+    Route::post('holidays/{id}', [HolidayController::class, 'update']);
+    Route::delete('holidays/{id}', [HolidayController::class, 'destroy']);
+    Route::get('holidays/{id}', [HolidayController::class, 'show']);
 
     //phase and task management
     Route::apiResource('/tasks', TaskController::class);
