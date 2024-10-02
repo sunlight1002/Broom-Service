@@ -95,13 +95,14 @@ export default function Integration() {
 
   const fetchGoogleCalendarList = async () => {
     if (!isGoogleConnected) return;
-    
+
     setIsLoading(true);
 
     try {
       const response = await axios.get('/api/admin/calendar-list', { headers });
       if (response.status === 200) {
-        setCalendars(response.data);
+        setCalendars(response.data.items || []);
+        setSelectedCalendar(response.data.selectedCalendarId || null)
       } else {
         alert.error('Failed to retrieve calendar list.');
       }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\ClientOfferAccepted;
+use App\Models\Notification;
 use App\Events\WhatsappNotificationEvent;
 
 class ClientNotifyForContract implements ShouldQueue
@@ -43,14 +44,14 @@ class ClientNotifyForContract implements ShouldQueue
             'offer_id' => $offer->id,
             'status' => 'accepted'
         ]);
-    
+
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER,
             "notificationData" => [
                 'client' => $ofr->toArray(),
             ]
         ]));
-        
-       
+
+
     }
 }

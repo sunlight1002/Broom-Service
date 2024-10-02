@@ -134,7 +134,9 @@ export default function ViewSchedule() {
                             window.location = res.data.url;
                         } else {
                             alert.success(res.data.message);
-                            createAndSendMeeting(res.data.data.id);
+                            setTimeout(() => {
+                                navigate("/admin/schedule");
+                            }, 1000);
                         }
                     }
                 })

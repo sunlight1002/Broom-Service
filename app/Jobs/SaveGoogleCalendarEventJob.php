@@ -23,7 +23,6 @@ use App\Models\Admin;
 use App\Models\ManageTime;
 use App\Models\TeamMemberAvailability;
 use App\Models\TeamMemberDefaultAvailability;
-use App\Jobs\SaveGoogleCalendarEventJob;
 use App\Jobs\GetUserCalendarTimezoneJob;
 use Carbon\Carbon;
 
@@ -151,17 +150,17 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
             $postData['end']['dateTime'] = $eventTime['event_end_at'];
         }
 
-        $googleCalendarController = new GoogleCalendarController();
-        $calendarList = $googleCalendarController->getGoogleCalendarList();
-        $googleCalendarID = $calendarList[0]['id'] ?? null;
-    
+        $googleCalendarID = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_CALENDAR_ID)
+                ->value('value');
+
         if (!$googleCalendarID) {
             Log::error('No Google Calendar ID found.');
             throw new Exception('No Google Calendar ID found.');
         }
-    
+
         if ($schedule->is_calendar_event_created) {
-            
+
             Log::info("Updating event in Google Calendar");
 
             $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events/' . $schedule->google_calendar_event_id;
@@ -178,8 +177,8 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
                 'Authorization' => 'Bearer ' . $googleAccessToken,
                 'Content-Type' => 'application/json',
             ])->post($url, $postData);
-        }       
-        
+        }
+
         $data = $response->json();
         $http_code = $response->status();
 
