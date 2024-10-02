@@ -728,6 +728,11 @@ return [
             'client_contact' => 'You can contact the client at: :client_phone',
             'client_link' => 'Client details are available here: :client_link',
         ],
+        'weekly_notification' => [
+            'body_intro' => 'Hi Team',
+            'content' => 'Just a friendly reminder that your scheduled service with Broom Service will take place next week. If you need to make any changes or cancellations, please do so by Wednesday. After Wednesday, any cancellation may incur fees according to our policy.',
+            'action_btn' => '*Action Buttons:*'
+        ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',
@@ -749,7 +754,9 @@ return [
             'call_lead' => 'Call Lead Now',
             'view_job' => 'View Job',
             'on_my_way' => "I’m on my way",
-            'contact_manager' => 'Contact Manager'
+            'contact_manager' => 'Contact Manager',
+            'change_service_date' => 'Change Service Date',
+            'cancel_service' => 'Cancel service',
         ]
         ],
 

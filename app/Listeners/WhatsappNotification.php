@@ -2184,6 +2184,35 @@ class WhatsappNotification
                 
                     break;
 
+                case WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale($clientData['lng'] ?? 'en');
+                
+                    // Add the body content with dynamic client name and contract date
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.weekly_notification.content');
+                
+                    $text .= "\n\n";
+                    // $text .= __('mail.wa-message.weekly_notification.action_btn') . "\n";
+
+                    $text .= __('mail.wa-message.button-label.change_service_date') . ": " . url("client/jobs");
+                    // $text .= __('mail.wa-message.button-label.change_service_date') . ": " . url("client/jobs/view/" . base64_encode($jobData->id));
+                    // $text .= "\n" . __('mail.wa-message.button-label.cancel_service') . ": " . url("client/jobs/view/" . base64_encode($jobData->id)) . "/cancel-service";
+                    $text .= "\n\n";
+
+                    // Add the footer with contact details
+                    $text .= __('mail.wa-message.common.signature');
+                
+                    break;
+    
+
                 case WhatsappMessageTemplateEnum::CONTRACT_NOT_SIGNED_12_HOURS:
                     $clientData = $eventData['client'];
                     $clientData1 = $eventData['contract'];
