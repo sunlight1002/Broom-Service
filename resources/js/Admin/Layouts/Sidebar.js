@@ -63,6 +63,7 @@ export default function Sidebar() {
         manpowerCompanies: "/admin/manpower-companies",
         manageTime: "/admin/manage-time",
         accountSettings: "/admin/settings",
+        holidays:"/admin/holidays",
         waTemplates: "/admin/templates",
     };
 
@@ -240,6 +241,12 @@ export default function Sidebar() {
                                         <Link to={routes.accountSettings}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.account")}
+                                        </Link>
+                                    </li>
+                                    <li className={`list-group-item ${isActive(routes.holidays) ? "active" : ""}`}>
+                                        <Link to={routes.holidays}>
+                                            <i className="fa fa-angle-right"></i>{" "}
+                                            {t("admin.sidebar.settings.holidays")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.waTemplates) ? "active" : ""}`}>
