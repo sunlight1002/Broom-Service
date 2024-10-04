@@ -27,7 +27,7 @@ export default function CreateJobCalender({
     const alert = useAlert();
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
     const [selectedHours, setSelectedHours] = useState([]);
-    const [setselectedSlots, setSetselectedSlots] = useState([])
+    const [distance, setDistance] = useState('default')
     const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [days, setDays] = useState([]);
@@ -42,6 +42,7 @@ export default function CreateJobCalender({
     const [customDateRange, setCustomDateRange] = useState([]);
     const [searchVal, setSearchVal] = useState("");
     const [loading, setLoading] = useState(false);
+    const [serviceIndex, setServiceIndex] = useState(null)
 
     useEffect(() => {
         setServices(clientServices);
@@ -59,10 +60,9 @@ export default function CreateJobCalender({
         getTime();
     }, []);
 
-    console.log(selectedHours);
-
 
     const handleServices = (index) => {
+        setServiceIndex(index)
         setLoading(true)
         setSelectedServiceIndex(index);
 
@@ -91,22 +91,28 @@ export default function CreateJobCalender({
         setLoading(false)
     };
 
+    
+
     const getWorkers = (_service) => {
         setLoading(true);
+
         axios
             .get(`/api/admin/all-workers`, {
                 headers,
                 params: {
                     filter: true,
+                    distance: distance,
                     service_id: _service.service,
                     has_cat: _service.address.is_cat_avail,
                     has_dog: _service.address.is_dog_avail,
                     prefer_type: _service.address.prefer_type,
                     ignore_worker_ids: _service.address.not_allowed_worker_ids,
+                    client_property_id: _service.address.id 
                 },
             })
             .then((res) => {
                 setAllWorkers(res.data.workers);
+                
 
                 const workerAvailityData = getWorkerAvailabilities(res?.data?.workers);
 
@@ -118,6 +124,13 @@ export default function CreateJobCalender({
                 setLoading(false);
             });
     };
+
+    useEffect(() => {
+        handleServices(serviceIndex);
+    }, [serviceIndex, distance])
+
+    // console.log(AllWorkers,"wo");
+    
 
     const submitForm = (_data) => {
         setLoading(true)
@@ -320,49 +333,61 @@ export default function CreateJobCalender({
         <>
             <div className="row mb-3">
                 <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
-                    <div className="d-flex align-items-center flex-wrap float-left">
-                        <div className="mr-3" style={{ fontWeight: "bold" }}>
-                            Worker Availability
+                    <div className="d-flex align-items-center flex-wrap justify-content-between">
+                        <div className="d-flex align-items-center flex-wrap ">
+                            <div className="mr-3" style={{ fontWeight: "bold" }}>
+                                Worker Availability
+                            </div>
+                            <FilterButtons
+                                text="Current Week"
+                                className="px-3 mr-2 mb-2"
+                                selectedFilter={currentFilter}
+                                setselectedFilter={setcurrentFilter}
+                            />
+
+                            <FilterButtons
+                                text="Next Week"
+                                className="px-3 mr-2 mb-2"
+                                selectedFilter={currentFilter}
+                                setselectedFilter={setcurrentFilter}
+                            />
+
+                            <FilterButtons
+                                text="Next Next Week"
+                                className="px-3 mr-2 mb-2"
+                                selectedFilter={currentFilter}
+                                setselectedFilter={setcurrentFilter}
+                            />
+
+                            <FilterButtons
+                                text="Custom"
+                                className="px-3 mr-2 mb-2"
+                                selectedFilter={currentFilter}
+                                setselectedFilter={setcurrentFilter}
+                            />
                         </div>
-                        <FilterButtons
-                            text="Current Week"
-                            className="px-3 mr-2 mb-2"
-                            selectedFilter={currentFilter}
-                            setselectedFilter={setcurrentFilter}
-                        />
 
-                        <FilterButtons
-                            text="Next Week"
-                            className="px-3 mr-2 mb-2"
-                            selectedFilter={currentFilter}
-                            setselectedFilter={setcurrentFilter}
-                        />
-
-                        <FilterButtons
-                            text="Next Next Week"
-                            className="px-3 mr-2 mb-2"
-                            selectedFilter={currentFilter}
-                            setselectedFilter={setcurrentFilter}
-                        />
-
-                        <FilterButtons
-                            text="Custom"
-                            className="px-3 mr-2 mb-2"
-                            selectedFilter={currentFilter}
-                            setselectedFilter={setcurrentFilter}
-                        />
+                        <div className="d-flex" style={{gap: "10px"}}>
+                            <select
+                                className="form-control"
+                                value={distance}
+                                onChange={(e) => setDistance(e.target.value)}
+                            >
+                                <option value="">---select distance---</option>
+                                <option value="nearest">Nearest</option>
+                                <option value="farthest">farthest</option>
+                            </select>
+                            <input
+                                type="text"
+                                className="form-control form-control-sm"
+                                placeholder="Search"
+                                onChange={(e) => {
+                                    setSearchVal(e.target.value);
+                                }}
+                            />
+                        </div>
                     </div>
 
-                    <div className="float-right" style={{ width: "150px" }}>
-                        <input
-                            type="text"
-                            className="form-control form-control-sm"
-                            placeholder="Search"
-                            onChange={(e) => {
-                                setSearchVal(e.target.value);
-                            }}
-                        />
-                    </div>
                 </div>
                 <div className="col-sm-12 mt-2">
                     <div className="form-check">
@@ -401,6 +426,7 @@ export default function CreateJobCalender({
                                 removeShift={removeShift}
                                 selectedHours={selectedHours}
                                 searchKeyword={searchVal}
+                                distance={distance}
                             />
                         </div>
                     </div>
@@ -425,6 +451,7 @@ export default function CreateJobCalender({
                                 removeShift={removeShift}
                                 selectedHours={selectedHours}
                                 searchKeyword={searchVal}
+                                distance={distance}
                             />
                         </div>
                     </div>
@@ -450,6 +477,7 @@ export default function CreateJobCalender({
                                 removeShift={removeShift}
                                 selectedHours={selectedHours}
                                 searchKeyword={searchVal}
+                                distance={distance}
                             />
                         </div>
                     </div>
@@ -505,6 +533,7 @@ export default function CreateJobCalender({
                                     removeShift={removeShift}
                                     selectedHours={selectedHours}
                                     searchKeyword={searchVal}
+                                    distance={distance}
                                 />
                             </div>
                         )}
@@ -804,7 +833,6 @@ export default function CreateJobCalender({
                     </div>
                 </div>
             </div>
-            {loading && <FullPageLoader visible={loading}/>}
         </>
     );
 }

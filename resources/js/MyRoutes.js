@@ -159,6 +159,8 @@ import AllTemplatesList from "./Admin/Pages/Setting/AllTemplatesList";
 import Holiday from "./Admin/Pages/Setting/Holiday";
 import AddHoliday from "./Admin/Pages/Setting/AddHoliday";
 import EditHoliday from "./Admin/Pages/Setting/EditHoliday";
+import WorkerLead from "./Admin/Pages/Workers/WorkerLead";
+import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -179,7 +181,7 @@ export default function MyRoutes() {
                         path="client/login"
                         element={<ClientLogin />}
                     />
-                       <Route
+                    <Route
                         exact
                         path="client/login-otp"
                         element={<ClientLoginOtp />}
@@ -199,25 +201,25 @@ export default function MyRoutes() {
                         path="meeting-files/:id"
                         element={<MeetingFiles />}
                     />
-                     <Route
+                    <Route
                         exact
                         path="team-btn/:id"
-                        element={<TeamButtons/>}
+                        element={<TeamButtons />}
                     />
-                      <Route
+                    <Route
                         exact
                         path="time-manage/:id"
-                        element={<TimeManage/>}
+                        element={<TimeManage />}
                     />
-                     <Route
+                    <Route
                         exact
                         path="action-comment/:id"
-                        element={<TeamSkippedComments/>}
+                        element={<TeamSkippedComments />}
                     />
-                     <Route
+                    <Route
                         exact
                         path="contact-manager/:id"
-                        element={<ContactManager/>}
+                        element={<ContactManager />}
                     />
                     <Route
                         exact
@@ -244,7 +246,7 @@ export default function MyRoutes() {
                         path="work-contract/:id"
                         element={<WorkContract />}
                     />
-                      <Route
+                    <Route
                         exact
                         path="work-contract/:id/:hash"
                         element={<WorkContract />}
@@ -377,7 +379,7 @@ export default function MyRoutes() {
                         path="worker/login"
                         element={<WorkerLogin />}
                     />
-                      <Route
+                    <Route
                         exact
                         path="worker/login-otp"
                         element={<WorkerLoginOtp />}
@@ -401,7 +403,7 @@ export default function MyRoutes() {
                                 path="jobs"
                                 element={<WorkerTotalJobs />}
                             />
-                              <Route
+                            <Route
                                 exact
                                 path="leaves"
                                 element={<SickLeaves />}
@@ -411,7 +413,7 @@ export default function MyRoutes() {
                                 path="sick-leaves/create"
                                 element={<AddLeaves />}
                             />
-                              {/* <Route
+                            {/* <Route
                                 exact
                                 path="sick-leaves/:id/edit"
                                 element={<EditLeaves />}
@@ -421,7 +423,7 @@ export default function MyRoutes() {
                                 path="advance-loan"
                                 element={<AdvanceLoan />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="refund-claim"
                                 element={<RefundClaim />}
@@ -535,6 +537,27 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
+                                path="worker-leads"
+                                element={<WorkerLead />}
+                            />
+                            <Route
+                                exact
+                                path="worker-leads/add"
+                                element={<WorkerLeadView mode="add" />}
+                            />
+                            <Route
+                                exact
+                                path="worker-leads/view/:id"
+                                element={<WorkerLeadView mode="view" />}
+                            />
+                            <Route
+                                exact
+                                path="worker-leads/edit/:id"
+                                element={<WorkerLeadView mode="edit" />}
+                            />
+
+                            <Route
+                                exact
                                 path="workers/working-hours"
                                 element={<WorkerHours />}
                             />
@@ -578,10 +601,10 @@ export default function MyRoutes() {
                                 path="manage-team"
                                 element={<ManageTeam />}
                             />
-                              <Route
+                            <Route
                                 exact
                                 path="templates"
-                                element={<AllTemplatesList/>}
+                                element={<AllTemplatesList />}
                             />
                             <Route
                                 exact
@@ -623,12 +646,12 @@ export default function MyRoutes() {
                                 path="holidays"
                                 element={<Holiday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/create"
                                 element={<AddHoliday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/:id/edit"
                                 element={<EditHoliday />}
@@ -638,7 +661,7 @@ export default function MyRoutes() {
                                 path="workers-leaves"
                                 element={<WorkersLeave />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="workers-refund"
                                 element={<WorkersRefund />}
@@ -675,7 +698,7 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
-                                path="templates"
+                                path="service-templates"
                                 element={<ServiceTemplate />}
                             />
                             <Route
@@ -703,7 +726,7 @@ export default function MyRoutes() {
                                 path="template/window-cleaning"
                                 element={<TemplateWindowCleaning />}
                             />
-                                 <Route
+                            <Route
                                 exact
                                 path="template/airbnb-servce"
                                 element={<TemplateAirbnbCleaning />}

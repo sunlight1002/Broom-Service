@@ -70,8 +70,8 @@ export default function CreateJob() {
                     <div className="card" style={{ boxShadow: "none" }}>
                         {client && (
                             <>
-                                <div className="d-flex flex-wrap justify-content-between">
-                                    <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                <div className="row d-flex flex-wrap">
+                                    <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
                                         <div className="dashIcon d-flex align-items-center">
                                             <i className=""><FaPeopleGroup className="font-30" style={{ color: "#1F78BD" }} /></i>
                                         </div>
@@ -82,7 +82,7 @@ export default function CreateJob() {
                                     </div>
                                     {services.length > 0 && selectedServiceIndex !== null && (
                                         <>
-                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
                                                 <div className="dashIcon d-flex align-items-center">
                                                     <i className=""><BsBuildings className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                 </div>
@@ -93,7 +93,7 @@ export default function CreateJob() {
                                                     <label>Property</label>
                                                 </div>
                                             </div>
-                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
                                                 <div className="dashIcon d-flex align-items-center">
                                                     <i className=""><PiSuitcaseBold className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                 </div>
@@ -106,7 +106,7 @@ export default function CreateJob() {
                                                     <label>Services</label>
                                                 </div>
                                             </div>
-                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
                                                 <div className="dashIcon d-flex align-items-center">
                                                     <i className=""><RiTimerFlashLine className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                 </div>
@@ -117,7 +117,7 @@ export default function CreateJob() {
                                                     <label>Frequency</label>
                                                 </div>
                                             </div>
-                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
                                                 <div className="dashIcon d-flex align-items-center">
                                                     <i className=""><GiSandsOfTime className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                 </div>
@@ -130,7 +130,7 @@ export default function CreateJob() {
                                                     <label>Time to Complete</label>
                                                 </div>
                                             </div>
-                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
                                                 <div className="dashIcon d-flex align-items-center">
                                                     <i className=""><LiaPawSolid className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                 </div>
@@ -145,7 +145,7 @@ export default function CreateJob() {
                                                     <label>Pet animals</label>
                                                 </div>
                                             </div>
-                                            <div className="dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ width: "207px" }}>
+                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
                                                 <div className="dashIcon d-flex align-items-center">
                                                     <i className=""><FaPeopleArrows className="font-30" style={{ color: "#1F78BD" }} /></i>
                                                 </div>

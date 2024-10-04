@@ -1049,298 +1049,298 @@ class LeadWebhookController extends Controller
                     die("Store email");
                 }
 
-                // Send quotes link
-                //                 if ($last_menu == 'customer_menu' && $message == '1') {
-                //                     if (isset($client_menus->auth_id)) {
-                //                         $auth = Client::find($client_menus->auth_id);
-                //                         $msg = null;
-                //                         $link_data = [];
-                //                         $offers = Offer::where('client_id', $auth->id)->get();
-                //                         if (count($offers) > 0) {
-                //                             foreach ($offers as $offer) {
-                //                                 $link_data[] = base64_encode($offer->id);
-                //                             }
-                //                         }
+                                //   Send quotes link
+                                // if ($last_menu == 'customer_menu' && $message == '1') {
+                                //     if (isset($client_menus->auth_id)) {
+                                //         $auth = Client::find($client_menus->auth_id);
+                                //         $msg = null;
+                                //         $link_data = [];
+                                //         $offers = Offer::where('client_id', $auth->id)->get();
+                                //         if (count($offers) > 0) {
+                                //             foreach ($offers as $offer) {
+                                //                 $link_data[] = base64_encode($offer->id);
+                                //             }
+                                //         }
 
-                //                         if (count($link_data) > 0) {
-                //                             $message = '';
-                //                             $prefix = url('/') . '/price-offer/';
-                //                             foreach ($link_data as $ld) {
-                //                                 $msg .= $prefix . $ld . "\n";
-                //                             }
-                //                         }
-                //                         $msg .= ($auth->lng == 'en' ? 'Is there anything else I can help you with today? 👋' : 'האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋');
-                //                         WebhookResponse::create([
-                //                             'status'        => 1,
-                //                             'name'          => 'whatsapp',
-                //                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //                             'message'       => $msg,
-                //                             'number'        => $from,
-                //                             'flex'          => 'A',
-                //                             'read'          => 1,
-                //                             'data'          => json_encode($get_data)
-                //                         ]);
-                //                         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //                         WhatsAppBotClientState::updateOrCreate([
-                //                             'client_id' => $client->id,
-                //                         ], [
-                //                             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                //                             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                //                             'auth_id' => $auth->id,
-                //                         ]);
-                //                     }
-                //                     die("Send quotes link");
-                //                 }
+                                //         if (count($link_data) > 0) {
+                                //             $message = '';
+                                //             $prefix = url('/') . '/price-offer/';
+                                //             foreach ($link_data as $ld) {
+                                //                 $msg .= $prefix . $ld . "\n";
+                                //             }
+                                //         }
+                                //         $msg .= ($auth->lng == 'en' ? 'Is there anything else I can help you with today? 👋' : 'האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋');
+                                //         WebhookResponse::create([
+                                //             'status'        => 1,
+                                //             'name'          => 'whatsapp',
+                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                //             'message'       => $msg,
+                                //             'number'        => $from,
+                                //             'flex'          => 'A',
+                                //             'read'          => 1,
+                                //             'data'          => json_encode($get_data)
+                                //         ]);
+                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
+                                //         WhatsAppBotClientState::updateOrCreate([
+                                //             'client_id' => $client->id,
+                                //         ], [
+                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
+                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
+                                //             'auth_id' => $auth->id,
+                                //         ]);
+                                //     }
+                                //     die("Send quotes link");
+                                // }
 
-                //                 // Send contracts link
-                //                 if ($last_menu == 'customer_menu' && $message == '2') {
-                //                     if (isset($client_menus->auth_id)) {
-                //                         $auth = Client::find($client_menus->auth_id);
-                //                         $msg = null;
-                //                         $link_data = [];
+                                // // Send contracts link
+                                // if ($last_menu == 'customer_menu' && $message == '2') {
+                                //     if (isset($client_menus->auth_id)) {
+                                //         $auth = Client::find($client_menus->auth_id);
+                                //         $msg = null;
+                                //         $link_data = [];
 
-                //                         $contracts = Contract::where('client_id', $client->id)->get();
-                //                         if (count($contracts) > 0) {
-                //                             foreach ($contracts as $contract) {
-                //                                 $link_data[] = ($contract->unique_hash);
-                //                             }
-                //                         }
+                                //         $contracts = Contract::where('client_id', $client->id)->get();
+                                //         if (count($contracts) > 0) {
+                                //             foreach ($contracts as $contract) {
+                                //                 $link_data[] = ($contract->unique_hash);
+                                //             }
+                                //         }
 
-                //                         if (count($link_data) > 0) {
-                //                             $message = '';
-                //                             $prefix = url('/') . '/work-contract/';
-                //                             foreach ($link_data as $ld) {
-                //                                 $msg .= $prefix . $ld . "\n";
-                //                             }
-                //                         }
-                //                         $msg .= ($auth->lng == 'en' ? 'Is there anything else I can help you with today? 👋' : 'האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋');
-                //                         WebhookResponse::create([
-                //                             'status'        => 1,
-                //                             'name'          => 'whatsapp',
-                //                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //                             'message'       => $msg,
-                //                             'number'        => $from,
-                //                             'flex'          => 'A',
-                //                             'read'          => 1,
-                //                             'data'          => json_encode($get_data)
-                //                         ]);
-                //                         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //                         WhatsAppBotClientState::updateOrCreate([
-                //                             'client_id' => $client->id,
-                //                         ], [
-                //                             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                //                             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                //                             'auth_id' => $auth->id,
-                //                         ]);
-                //                     }
-                //                     die("Send contracts link");
-                //                 }
+                                //         if (count($link_data) > 0) {
+                                //             $message = '';
+                                //             $prefix = url('/') . '/work-contract/';
+                                //             foreach ($link_data as $ld) {
+                                //                 $msg .= $prefix . $ld . "\n";
+                                //             }
+                                //         }
+                                //         $msg .= ($auth->lng == 'en' ? 'Is there anything else I can help you with today? 👋' : 'האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋');
+                                //         WebhookResponse::create([
+                                //             'status'        => 1,
+                                //             'name'          => 'whatsapp',
+                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                //             'message'       => $msg,
+                                //             'number'        => $from,
+                                //             'flex'          => 'A',
+                                //             'read'          => 1,
+                                //             'data'          => json_encode($get_data)
+                                //         ]);
+                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
+                                //         WhatsAppBotClientState::updateOrCreate([
+                                //             'client_id' => $client->id,
+                                //         ], [
+                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
+                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
+                                //             'auth_id' => $auth->id,
+                                //         ]);
+                                //     }
+                                //     die("Send contracts link");
+                                // }
 
-                //                 // Send next job detail
-                //                 if ($last_menu == 'customer_menu' && $message == '3') {
-                //                     if (isset($client_menus->auth_id)) {
-                //                         $auth = Client::find($client_menus->auth_id);
-                //                         $msg = null;
-                //                         $job = Job::where('client_id', $client->id)->orderBy('start_date')->first();
-                //                         if ($job) {
-                //                             $msg .= "Your next job details is below: \n\n";
-                //                             $msg .= "Date: " . ($job->next_start_date->format('Y-m-d') ?? '') . "\n";
-                //                             $msg .= "Address: " . ($job->propertyAddress->address_name ?? '') . "\n";
-                //                             $msg .= "Service: " . ($job->service->name ?? '') . "\n";
-                //                             $msg .= "Worker: " . ($job->worker->firstname ?? '') . ' ' . ($job->worker->lastname ?? '')  . "\n";
+                                // // Send next job detail
+                                // if ($last_menu == 'customer_menu' && $message == '3') {
+                                //     if (isset($client_menus->auth_id)) {
+                                //         $auth = Client::find($client_menus->auth_id);
+                                //         $msg = null;
+                                //         $job = Job::where('client_id', $client->id)->orderBy('start_date')->first();
+                                //         if ($job) {
+                                //             $msg .= "Your next job details is below: \n\n";
+                                //             $msg .= "Date: " . ($job->next_start_date->format('Y-m-d') ?? '') . "\n";
+                                //             $msg .= "Address: " . ($job->propertyAddress->address_name ?? '') . "\n";
+                                //             $msg .= "Service: " . ($job->service->name ?? '') . "\n";
+                                //             $msg .= "Worker: " . ($job->worker->firstname ?? '') . ' ' . ($job->worker->lastname ?? '')  . "\n";
 
-                //                             if ($auth->lan == 'heb') {
-                //                                 $msg .= "פרטי העבודה הבאה שלך מופיעים למטה: \n\n";
-                //                                 $msg .= "תאריך: " . ($job->next_start_date->format('Y-m-d') ?? '') . "\n";
-                //                                 $msg .= "כתובת: " . ($job->propertyAddress->address_name ?? '') . "\n";
-                //                                 $msg .= "שירות: " . ($job->service->name ?? '') . "\n";
-                //                                 $msg .= "עובד: " . ($job->worker->firstname ?? '') . ' ' . ($job->worker->lastname ?? '') . "\n";
-                //                             }
-                //                         }
-                //                         $msg .= ($auth->lng == 'en' ? 'Is there anything else I can help you with today? 👋' : 'האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋');
+                                //             if ($auth->lan == 'heb') {
+                                //                 $msg .= "פרטי העבודה הבאה שלך מופיעים למטה: \n\n";
+                                //                 $msg .= "תאריך: " . ($job->next_start_date->format('Y-m-d') ?? '') . "\n";
+                                //                 $msg .= "כתובת: " . ($job->propertyAddress->address_name ?? '') . "\n";
+                                //                 $msg .= "שירות: " . ($job->service->name ?? '') . "\n";
+                                //                 $msg .= "עובד: " . ($job->worker->firstname ?? '') . ' ' . ($job->worker->lastname ?? '') . "\n";
+                                //             }
+                                //         }
+                                //         $msg .= ($auth->lng == 'en' ? 'Is there anything else I can help you with today? 👋' : 'האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋');
 
-                //                         WebhookResponse::create([
-                //                             'status'        => 1,
-                //                             'name'          => 'whatsapp',
-                //                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //                             'message'       => $msg,
-                //                             'number'        => $from,
-                //                             'flex'          => 'A',
-                //                             'read'          => 1,
-                //                             'data'          => json_encode($get_data)
-                //                         ]);
-                //                         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //                         WhatsAppBotClientState::updateOrCreate([
-                //                             'client_id' => $client->id,
-                //                         ], [
-                //                             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                //                             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                //                             'auth_id' => $auth->id,
-                //                         ]);
-                //                     }
-                //                     die("Send next job detail");
-                //                 }
+                                //         WebhookResponse::create([
+                                //             'status'        => 1,
+                                //             'name'          => 'whatsapp',
+                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                //             'message'       => $msg,
+                                //             'number'        => $from,
+                                //             'flex'          => 'A',
+                                //             'read'          => 1,
+                                //             'data'          => json_encode($get_data)
+                                //         ]);
+                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
+                                //         WhatsAppBotClientState::updateOrCreate([
+                                //             'client_id' => $client->id,
+                                //         ], [
+                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
+                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
+                                //             'auth_id' => $auth->id,
+                                //         ]);
+                                //     }
+                                //     die("Send next job detail");
+                                // }
 
-                //                 // Cancel one time job
-                //                 if ($last_menu == 'customer_menu' && $message == '4') {
-                //                     if (isset($client_menus->auth_id)) {
-                //                         $auth = Client::find($client_menus->auth_id);
-                //                         $msg = 'Dear customer, according to the terms of service, cancellation of the service may be subject to cancellation fees. Are you sure you want to cancel the service?';
+                                // // Cancel one time job
+                                // if ($last_menu == 'customer_menu' && $message == '4') {
+                                //     if (isset($client_menus->auth_id)) {
+                                //         $auth = Client::find($client_menus->auth_id);
+                                //         $msg = 'Dear customer, according to the terms of service, cancellation of the service may be subject to cancellation fees. Are you sure you want to cancel the service?';
 
-                //                         if ($auth->lng == 'heb') {
-                //                             $msg = 'לקוח יקר, בהתאם לתנאי השירות, על ביטול השירות עלולים לחול דמי ביטול. האם אתה בטוח שברצונך לבטל את השירות?';
-                //                         }
+                                //         if ($auth->lng == 'heb') {
+                                //             $msg = 'לקוח יקר, בהתאם לתנאי השירות, על ביטול השירות עלולים לחול דמי ביטול. האם אתה בטוח שברצונך לבטל את השירות?';
+                                //         }
 
-                //                         WebhookResponse::create([
-                //                             'status'        => 1,
-                //                             'name'          => 'whatsapp',
-                //                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //                             'message'       => $msg,
-                //                             'number'        => $from,
-                //                             'flex'          => 'A',
-                //                             'read'          => 1,
-                //                             'data'          => json_encode($get_data)
-                //                         ]);
-                //                         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //                         WhatsAppBotClientState::updateOrCreate([
-                //                             'client_id' => $client->id,
-                //                         ], [
-                //                             'menu_option' => 'main_menu->customer_service->customer_menu->cancel_one_time',
-                //                             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                //                             'auth_id' => $auth->id,
-                //                         ]);
-                //                     }
-                //                     die("Cancel one time job");
-                //                 }
+                                //         WebhookResponse::create([
+                                //             'status'        => 1,
+                                //             'name'          => 'whatsapp',
+                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                //             'message'       => $msg,
+                                //             'number'        => $from,
+                                //             'flex'          => 'A',
+                                //             'read'          => 1,
+                                //             'data'          => json_encode($get_data)
+                                //         ]);
+                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
+                                //         WhatsAppBotClientState::updateOrCreate([
+                                //             'client_id' => $client->id,
+                                //         ], [
+                                //             'menu_option' => 'main_menu->customer_service->customer_menu->cancel_one_time',
+                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
+                                //             'auth_id' => $auth->id,
+                                //         ]);
+                                //     }
+                                //     die("Cancel one time job");
+                                // }
 
-                //                 // Terminate the agreement
-                //                 if ($last_menu == 'customer_menu' && $message == '5') {
-                //                     if (isset($client_menus->auth_id)) {
-                //                         $auth = Client::find($client_menus->auth_id);
-                //                         $msg = "A representative from our team will contact you shortly. \nIs there anything else I can help you with today? 👋";
+                                // // Terminate the agreement
+                                // if ($last_menu == 'customer_menu' && $message == '5') {
+                                //     if (isset($client_menus->auth_id)) {
+                                //         $auth = Client::find($client_menus->auth_id);
+                                //         $msg = "A representative from our team will contact you shortly. \nIs there anything else I can help you with today? 👋";
 
-                //                         if ($auth->lng == 'heb') {
-                //                             $msg = "נציג מהצוות שלנו ייצור איתך קשר בהקדם. \n האם יש משהו נוסף שאני יכול לעזור לך בו היום? 👋";
-                //                         }
+                                //         if ($auth->lng == 'heb') {
+                                //             $msg = "נציג מהצוות שלנו ייצור איתך קשר בהקדם. \n האם יש משהו נוסף שאני יכול לעזור לך בו היום? 👋";
+                                //         }
 
-                //                         WebhookResponse::create([
-                //                             'status'        => 1,
-                //                             'name'          => 'whatsapp',
-                //                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //                             'message'       => $msg,
-                //                             'number'        => $from,
-                //                             'flex'          => 'A',
-                //                             'read'          => 1,
-                //                             'data'          => json_encode($get_data)
-                //                         ]);
-                //                         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //                         WhatsAppBotClientState::updateOrCreate([
-                //                             'client_id' => $client->id,
-                //                         ], [
-                //                             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                //                             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                //                             'auth_id' => $auth->id,
-                //                         ]);
-                //                     }
-                //                     die("Terminate the agreement");
-                //                 }
+                                //         WebhookResponse::create([
+                                //             'status'        => 1,
+                                //             'name'          => 'whatsapp',
+                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                //             'message'       => $msg,
+                                //             'number'        => $from,
+                                //             'flex'          => 'A',
+                                //             'read'          => 1,
+                                //             'data'          => json_encode($get_data)
+                                //         ]);
+                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
+                                //         WhatsAppBotClientState::updateOrCreate([
+                                //             'client_id' => $client->id,
+                                //         ], [
+                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
+                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
+                                //             'auth_id' => $auth->id,
+                                //         ]);
+                                //     }
+                                //     die("Terminate the agreement");
+                                // }
 
-                //                 // Contact a representative
-                //                 if ($last_menu == 'customer_menu' && $message == '6') {
-                //                     if (isset($client_menus->auth_id)) {
-                //                         $auth = Client::find($client_menus->auth_id);
-                //                         $msg = "Who would you like to speak to? \n 1. Office manager and scheduling \n 2. Customer service \n 3. Accounting and billing";
+                                // // Contact a representative
+                                // if ($last_menu == 'customer_menu' && $message == '6') {
+                                //     if (isset($client_menus->auth_id)) {
+                                //         $auth = Client::find($client_menus->auth_id);
+                                //         $msg = "Who would you like to speak to? \n 1. Office manager and scheduling \n 2. Customer service \n 3. Accounting and billing";
 
-                //                         if ($auth->lng == 'heb') {
-                //                             $msg = "עם מי תרצה לדבר? \n 1. מנהל משרד ותזמון \n 2. שירות לקוחות \n 3. הנהלת חשבונות וחיוב";
-                //                         }
+                                //         if ($auth->lng == 'heb') {
+                                //             $msg = "עם מי תרצה לדבר? \n 1. מנהל משרד ותזמון \n 2. שירות לקוחות \n 3. הנהלת חשבונות וחיוב";
+                                //         }
 
-                //                         WebhookResponse::create([
-                //                             'status'        => 1,
-                //                             'name'          => 'whatsapp',
-                //                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //                             'message'       => $msg,
-                //                             'number'        => $from,
-                //                             'flex'          => 'A',
-                //                             'read'          => 1,
-                //                             'data'          => json_encode($get_data)
-                //                         ]);
-                //                         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //                         WhatsAppBotClientState::updateOrCreate([
-                //                             'client_id' => $client->id,
-                //                         ], [
-                //                             'menu_option' => 'main_menu->customer_service->customer_menu->contact_a_representative',
-                //                             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                //                             'auth_id' => $auth->id,
-                //                         ]);
-                //                     }
-                //                     die("Contact a representative");
-                //                 }
+                                //         WebhookResponse::create([
+                                //             'status'        => 1,
+                                //             'name'          => 'whatsapp',
+                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                //             'message'       => $msg,
+                                //             'number'        => $from,
+                                //             'flex'          => 'A',
+                                //             'read'          => 1,
+                                //             'data'          => json_encode($get_data)
+                                //         ]);
+                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
+                                //         WhatsAppBotClientState::updateOrCreate([
+                                //             'client_id' => $client->id,
+                                //         ], [
+                                //             'menu_option' => 'main_menu->customer_service->customer_menu->contact_a_representative',
+                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
+                                //             'auth_id' => $auth->id,
+                                //         ]);
+                                //     }
+                                //     die("Contact a representative");
+                                // }
 
-                //                 // Contact a representative menu
-                //                 if ($last_menu == 'contact_a_representative' && in_array($message, ['1', '2', '3'])) {
-                //                     if (isset($client_menus->auth_id)) {
-                //                         $auth = Client::find($client_menus->auth_id);
-                //                         $msg = null;
-                //                         if ($client->lng == 'heb') {
-                //                             $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם פגישה.
-                // האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋';
-                //                         } else {
-                //                             $msg = 'A representative from our team will contact you shortly to schedule an appointment. Is there anything else I can help you with today? 👋';
-                //                         }
+                                // // Contact a representative menu
+                                // if ($last_menu == 'contact_a_representative' && in_array($message, ['1', '2', '3'])) {
+                                //     if (isset($client_menus->auth_id)) {
+                                //         $auth = Client::find($client_menus->auth_id);
+                                //         $msg = null;
+                                //         if ($client->lng == 'heb') {
+                                //             $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם פגישה.
+                                //         האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋';
+                                //         } else {
+                                //             $msg = 'A representative from our team will contact you shortly to schedule an appointment. Is there anything else I can help you with today? 👋';
+                                //         }
 
-                //                         WebhookResponse::create([
-                //                             'status'        => 1,
-                //                             'name'          => 'whatsapp',
-                //                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //                             'message'       => $msg,
-                //                             'number'        => $from,
-                //                             'flex'          => 'A',
-                //                             'read'          => 1,
-                //                             'data'          => json_encode($get_data)
-                //                         ]);
-                //                         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //                         WhatsAppBotClientState::updateOrCreate([
-                //                             'client_id' => $client->id,
-                //                         ], [
-                //                             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                //                             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                //                             'auth_id' => $auth->id,
-                //                         ]);
-                //                     }
-                //                     die("Contact a representative menu");
-                //                 }
+                                //         WebhookResponse::create([
+                                //             'status'        => 1,
+                                //             'name'          => 'whatsapp',
+                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                //             'message'       => $msg,
+                                //             'number'        => $from,
+                                //             'flex'          => 'A',
+                                //             'read'          => 1,
+                                //             'data'          => json_encode($get_data)
+                                //         ]);
+                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
+                                //         WhatsAppBotClientState::updateOrCreate([
+                                //             'client_id' => $client->id,
+                                //         ], [
+                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
+                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
+                                //             'auth_id' => $auth->id,
+                                //         ]);
+                                //     }
+                                //     die("Contact a representative menu");
+                                // }
 
-                //                 // Send customer service menu
-                //                 if (($message == 0 && ($prev_step == 'customer_service' || $prev_step == 'customer_menu'))) {
-                //                     if (isset($client_menus->auth_id)) {
-                //                         $auth = Client::find($client_menus->auth_id);
-                //                         $msg = "1. View your quotes \n2. View your contracts \n3. When is my next service? \n4. Cancel a one-time service \n5. Terminate the agreement \n6. Contact a representative";
-                //                         if ($auth->lng == 'heb') {
-                //                             $msg = "1. הצג את הציטוטים שלך \n2. הצג את החוזים שלך \n3. מתי השירות הבא שלי? \n4. בטל שירות חד פעמי \n5. סיים את ההסכם \n6. פנה לנציג";
-                //                         }
+                                // // Send customer service menu
+                                // if (($message == 0 && ($prev_step == 'customer_service' || $prev_step == 'customer_menu'))) {
+                                //     if (isset($client_menus->auth_id)) {
+                                //         $auth = Client::find($client_menus->auth_id);
+                                //         $msg = "1. View your quotes \n2. View your contracts \n3. When is my next service? \n4. Cancel a one-time service \n5. Terminate the agreement \n6. Contact a representative";
+                                //         if ($auth->lng == 'heb') {
+                                //             $msg = "1. הצג את הציטוטים שלך \n2. הצג את החוזים שלך \n3. מתי השירות הבא שלי? \n4. בטל שירות חד פעמי \n5. סיים את ההסכם \n6. פנה לנציג";
+                                //         }
 
-                //                         WhatsAppBotClientState::updateOrCreate([
-                //                             'client_id' => $client->id,
-                //                         ], [
-                //                             'menu_option' => 'main_menu->customer_service->customer_menu',
-                //                             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                //                             'auth_id' => $auth->id,
-                //                         ]);
-                //                         WebhookResponse::create([
-                //                             'status'        => 1,
-                //                             'name'          => 'whatsapp',
-                //                             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //                             'message'       => $msg,
-                //                             'number'        => $from,
-                //                             'flex'          => 'A',
-                //                             'read'          => 1,
-                //                             'data'          => json_encode($get_data)
-                //                         ]);
-                //                         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //                     }
-                //                     die("Send customer service menu");
-                //                 }
+                                //         WhatsAppBotClientState::updateOrCreate([
+                                //             'client_id' => $client->id,
+                                //         ], [
+                                //             'menu_option' => 'main_menu->customer_service->customer_menu',
+                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
+                                //             'auth_id' => $auth->id,
+                                //         ]);
+                                //         WebhookResponse::create([
+                                //             'status'        => 1,
+                                //             'name'          => 'whatsapp',
+                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                //             'message'       => $msg,
+                                //             'number'        => $from,
+                                //             'flex'          => 'A',
+                                //             'read'          => 1,
+                                //             'data'          => json_encode($get_data)
+                                //         ]);
+                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
+                                //     }
+                                //     die("Send customer service menu");
+                                // }
 
                 // Send customer service menu
                 if ($last_menu == 'customer_service') {

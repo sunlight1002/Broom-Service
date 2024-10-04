@@ -127,6 +127,13 @@ export default function Sidebar() {
                     </NavLink>
                 </li>
                 <li className="list-group-item">
+                    <NavLink to="/admin/worker-leads"
+                        className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-users font-20"></i>Worker Lead
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
                     <NavLink to="/admin/workers-leaves"
                         className="d-flex align-items-center"
                     >

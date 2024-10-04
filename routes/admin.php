@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ClientCardController;
 use App\Http\Controllers\Admin\ClientPropertyAddressController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\WorkerController;
+use App\Http\Controllers\Admin\WorkerLeadsController;
 use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\Admin\JobCommentController;
 use App\Http\Controllers\Admin\LanguageController;
@@ -137,8 +138,15 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('workers/working-hours/export', [WorkerController::class, 'exportWorkingHoursReport']);
     Route::post('workers/working-hours/pdf', [WorkerController::class, 'generateWorkerHoursPDF']);
     Route::post('form/send', [WorkerController::class, 'formSend']);
-
     Route::post('workers/import', [WorkerController::class, 'import']);
+
+    //worker-leads api
+    Route::get('worker-leads', [WorkerLeadsController::class, 'index'])->name('worker-leads.index');
+    Route::post('worker-leads/add', [WorkerLeadsController::class, 'store'])->name('worker-leads.store');
+    Route::get('worker-leads/{id}/edit', [WorkerLeadsController::class, 'edit'])->name('worker-leads.edit');
+    Route::put('worker-leads/{id}', [WorkerLeadsController::class, 'update'])->name('worker-leads.update');
+    Route::delete('worker-leads/{id}', [WorkerLeadsController::class, 'destroy'])->name('worker-leads.destroy');
+    Route::post('worker-leads/{id}/status', [WorkerLeadsController::class, 'changeStatus'])->name('worker-leads.changeStatus');
 
     // not Available date
     Route::post('get-not-available-dates', [WorkerController::class, 'getNotAvailableDates']);

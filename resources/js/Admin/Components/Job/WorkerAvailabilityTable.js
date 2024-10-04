@@ -19,7 +19,8 @@ export default function WorkerAvailabilityTable({
     removeShift,
     searchKeyword = "",
     isClient = false,
-    selectedHours
+    selectedHours,
+    distance
 }) {
     let hasStartActive;
 
@@ -28,6 +29,8 @@ export default function WorkerAvailabilityTable({
     const [selectedDate, setSelectedDate] = useState(week[0]);
     // const [hasStartActive, setHasStartActive] = useState(false)
     const [currentDateIndex, setCurrentDateIndex] = useState(0);  // Track date index for pagination
+    const [modifiedWorkers, setModifiedWorkers] = useState([])
+    const [lastData, setLastData] = useState([])
 
     const [show, setShow] = useState(false);
     const [mobileView, setMobileView] = useState(false);
@@ -54,8 +57,8 @@ export default function WorkerAvailabilityTable({
         }
     };
 
-    const workers = useMemo(() => {
-        let modifiedWorkers = AllWorkers;
+    const workers = () => {
+        setModifiedWorkers(AllWorkers);
 
         const today = moment().startOf('day');
         let futureBookedSlots = [];
@@ -82,7 +85,7 @@ export default function WorkerAvailabilityTable({
         if (searchKeyword) {
             const _searchKeyword = searchKeyword.toLocaleLowerCase();
 
-            modifiedWorkers = modifiedWorkers.filter((i) => {
+            const data = modifiedWorkers.filter((i) => {
                 const name = (
                     i.firstname +
                     " " +
@@ -91,6 +94,7 @@ export default function WorkerAvailabilityTable({
 
                 return name.includes(_searchKeyword);
             });
+            setModifiedWorkers(data)
         }
 
         const _workers = [...modifiedWorkers].sort((a, b) => {
@@ -104,8 +108,17 @@ export default function WorkerAvailabilityTable({
             }
         });
 
-        return _workers;
-    }, [AllWorkers, sortOrder, searchKeyword]);
+        setLastData(_workers)
+    }
+
+    useEffect(() => {
+     workers()
+    }, [AllWorkers, sortOrder, searchKeyword, distance]);
+    
+    // console.log(modifiedWorkers);
+    
+    
+    
 
     const getBookedSlotsForWorkerAndDate = (workerId, date) => {
         const bookedSlot = bookedSlots.find(slot => slot.worker_id === workerId && slot.date === date);
@@ -147,6 +160,7 @@ export default function WorkerAvailabilityTable({
             handleSlotFilter(selectedWorker, prevDate, prevIndex);
         }
     };
+    
 
     return (
         <>
@@ -191,7 +205,7 @@ export default function WorkerAvailabilityTable({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {workers?.map((w, index) => (
+                                    {modifiedWorkers?.map((w, index) => (
                                         <tr key={index} >
                                             <td className="worker-name" style={{ border: "1px solid #dee2e6" }}>
                                                 <span

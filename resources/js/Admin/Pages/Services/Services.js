@@ -198,7 +198,7 @@ export default function Services() {
                                 {t("global.schedule")}
                             </Link>
                             <Link
-                                to="/admin/templates"
+                                to="/admin/service-templates"
                                 className="btn btn-pink addButton"
                             >
                                 {t("admin.global.template")}

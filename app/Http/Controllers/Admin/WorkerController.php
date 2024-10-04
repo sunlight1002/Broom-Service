@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\ManpowerCompany;
 use App\Models\Job;
 use App\Models\WorkerAvailability;
+use App\Models\ClientPropertyAddress;
 use App\Models\WorkerFreezeDate;
 use App\Models\WorkerNotAvailableDate;
 use App\Http\Controllers\Controller;
@@ -122,7 +123,17 @@ class WorkerController extends Controller
         $has_cat = $request->get('has_cat');
         $has_dog = $request->get('has_dog');
         $prefer_type = $request->get('prefer_type');
-
+    
+        $client_latitude = null;
+        $client_longitude = null;
+        if ($request->client_property_id) {
+            $client_property = ClientPropertyAddress::find($request->client_property_id);
+            if ($client_property) {
+                $client_latitude = $client_property->latitude;
+                $client_longitude = $client_property->longitude;
+            }
+        }
+    
         $workers = User::query()
             ->with([
                 'availabilities:user_id,day,date,start_time,end_time',
@@ -154,10 +165,7 @@ class WorkerController extends Controller
                                 ->orWhereNull('until_date');
                         });
                     })
-                    // ->whereRelation('jobs', function ($query) {
-                    //     $query->where('start_date', '>=', Carbon::now()->toDateString());
-                    // })
-                    ->where('skill',  'like', '%' . $service . '%');
+                    ->where('skill', 'like', '%' . $service . '%');
             })
             ->when($has_dog == '1', function ($q) {
                 return $q->where('is_afraid_by_dog', false);
@@ -170,6 +178,16 @@ class WorkerController extends Controller
             })
             ->whereDoesntHave('notAvailableDates', function ($q) use ($available_date) {
                 $q->where('date', $available_date);
+            })
+            ->when($request->distance === 'nearest' && $client_latitude && $client_longitude, function ($q) use ($client_latitude, $client_longitude) {
+                $haversine = "(6371 * acos(cos(radians($client_latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians($client_longitude)) + sin(radians($client_latitude)) * sin(radians(latitude))))";
+                return $q->selectRaw("* , {$haversine} AS distance")
+                    ->orderBy('distance');
+            })
+            ->when($request->distance === 'farthest' && $client_latitude && $client_longitude, function ($q) use ($client_latitude, $client_longitude) {
+                $haversine = "(6371 * acos(cos(radians($client_latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians($client_longitude)) + sin(radians($client_latitude)) * sin(radians(latitude))))";
+                return $q->selectRaw("* , {$haversine} AS distance")
+                    ->orderBy('distance', 'desc'); 
             })
             ->where('status', 1)
             ->get();
@@ -269,8 +287,7 @@ class WorkerController extends Controller
             'workers' => $workers,
         ]);
     }
-
-    /**
+        /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

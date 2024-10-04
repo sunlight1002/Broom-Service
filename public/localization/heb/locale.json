@@ -1116,6 +1116,13 @@
             "Delete": "מחק",
             "save": "שמור",
             "change_status": "שנה סטטוס",
+            "ready_to_get_best_job": "מוכן לקבל את העבודה הטובה ביותר",
+            "ready_to_work_in_house_cleaning": "מוכן לעבוד בניקיון הבית",
+            "areas": "אזורי אביב הרצליה, רמת גן, קרית אונו טוב",
+            "none_id_visa": "וויזה ללא תעודת זהות",
+            "you_have_valid_work_visa": "יש לך ויזת עבודה תקפה?",
+            "work_sunday_to_thursday_fit_schedule_8_10am_12_2pm": "עבודה בימים ראשון עד חמישי בלוח זמנים בכושר 8-10:00 או 12-14:00",
+            "full_or_part_time": "משרה מלאה או חלקית",
             "AddLead": {
                 "both":"שְׁנֵיהֶם",
                 "email":"אימייל",
@@ -2605,7 +2612,9 @@
         "search_your_address": "חפש את הכתובת שלך",
         "full_address": "כתובת מלאה",
         "auto_complete": "השלמה אוטומטית מכתובת גוגל",
-        "submit": "אשר"
+        "submit": "אשר",
+        "add": "הוסף",
+        "update": "עדכון"
     },
     "resendOtp": {
         "workerLoginOtpTitle": "אימות התחברות לעובד",

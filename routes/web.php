@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\Api\LeadWebhookController;
+use App\Http\Controllers\Api\WorkerLeadWebhookController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\iCountController;
 use App\Http\Controllers\PaymentController;
@@ -29,6 +30,8 @@ Route::post('/icount/webhook', [iCountController::class, 'webhook']);
 Route::get('/google/callback', [GoogleController::class, 'callback']);
 
 Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_fb');
+Route::any('/webhook_worker', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_worker');
+
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);
 Route::any('/facebook/webhook', [LeadController::class, 'facebookWebhook']);
 
