@@ -2507,7 +2507,7 @@ tbody tr:hover{
   background-color: white;
   display: flex;
   max-height: calc(90vh - 38px);
-  min-height: 91vh;
+  min-height: 90vh;
   overflow: auto;
 }
 
@@ -3584,6 +3584,71 @@ button.time-counter, span.time-counter {
     margin: 5px;
   }
 }
+
+
+/* whatsapp chat */
+.reply-message {
+  margin-bottom: 10px;
+}
+
+.reply-container {
+  background-color: #f0f2f5; /* Lighter background similar to WhatsApp */
+  padding: 12px 15px;
+  border-radius: 12px;
+  border: 1px solid #ccd0d5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  max-width: 90%; /* Constrain the width to make it look more compact */
+  font-family: Arial, sans-serif; /* Font similar to WhatsApp */
+}
+
+.reply-content {
+  flex: 1;
+}
+
+.reply-label {
+  font-weight: bold;
+  color: #3b4a54;
+  font-size: 0.9em;
+}
+
+.reply-text {
+  margin-left: 6px;
+  color: #3b4a54;
+  font-size: 0.9em;
+}
+
+.media-container {
+  margin-top: 10px;
+}
+
+.reply-video, .reply-image {
+  border-radius: 10px;
+  border: 1px solid #ccd0d5;
+}
+
+.reply-close-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: #888; /* Softer color for close button */
+  transition: color 0.2s ease;
+}
+
+.reply-close-btn:hover {
+  color: #d9534f; /* Hover color for close button */
+}
+
+.reply-close-icon {
+  font-size: 1.3em;
+}
+
 
 
 /*******End*************/

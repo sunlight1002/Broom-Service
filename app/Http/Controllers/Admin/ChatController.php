@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        // Fetch all webhook responses from the database
+        $webhookResponses = WebhookResponse::all();
+
+        // Return a JSON response
+        return response()->json($webhookResponses);
+    }
+    
     public function chats()
     {
         $data = WebhookResponse::distinct()->where('number', '!=', null)->get(['number']);
@@ -47,6 +57,50 @@ class ChatController extends Controller
             'clients' => $clients,
         ]);
     }
+
+
+    public function storeWebhookResponse(Request $request)
+    {
+        $response = $request->all();
+        \Log::info($response);
+        // Validate incoming request data
+        $validatedData = $request->validate([
+            'number' => 'required|string|unique:webhook_responses,number',
+        ]);
+    
+        // Check if the number already exists in the WebhookResponse table
+        $existingRecord = WebhookResponse::where('number', $validatedData['number'])->first();
+    
+        // If it exists, return a response indicating the record already exists
+        if ($existingRecord) {
+            return response()->json(['message' => 'Record with this number already exists.'], 409); // 409 Conflict
+        }
+    
+        // Check if the number exists in the clients table
+        $client = Client::where('phone', $validatedData['number'])->first();
+    
+        // If a client exists, use their name; otherwise, use a default name
+        $name = $client ? $client->firstname . ' ' . $client->lastname : 'Default Name';
+    
+        // Create a new WebhookResponse record with default values
+        $webhookResponse = WebhookResponse::create([
+            'name' => $name,                      // Fill name from the client if exists
+            'status' => 1,                 // Set your default status here
+            'entry_id' => null,                      // Set your default entry_id here
+            'message' => '',       // Set your default message here
+            'number' => $validatedData['number'], // Use the validated number from the request
+            'data' => json_encode([]),            // Set default data here (as JSON string)
+            'flex' => 'C',                        // Set your default flex value here
+            'read' => 0,                      // Set your default read status here
+            'res_id' => null,        // Set your default res_id here
+            'wa_id' => null           // Set your default wa_id here
+        ]);
+    
+        return response()->json(['message' => 'Webhook response stored successfully.', 'data' => $webhookResponse], 201); // 201 Created
+    }
+    
+
+
     public function chatsMessages($no)
     {
         $chat = WebhookResponse::where('number', $no)->get();
@@ -76,21 +130,76 @@ class ChatController extends Controller
 
     public function chatReply(Request $request)
     {
-        $result = sendWhatsappMessage($request->number, array('message' => $request->message));
+        $replyId = $request->input('replyId'); // Get replyId from request
+        $mediaPath = null;
+        $result = null;
+        $mimeType = null;   
+    
+        // Check if a media file is included in the request
+        if ($request->hasFile('media')) {
+            // Handle media upload
+            $mediaFile = $request->file('media');
+            $mediaPath = $mediaFile->store('public/uploads/media'); // Store the media file and get the path
+            $fullMediaPath = storage_path('app/' . $mediaPath); // Get the full path of the uploaded file
+    
+            // Determine the file MIME type
+            $mimeType = $mediaFile->getMimeType();
+    
+            // Check if the media is an image
+            if (strpos($mimeType, 'image') !== false) {
+                // Send image message
+                $result = sendWhatsappImageMessage(
+                    $request->number,
+                    $fullMediaPath, // Path to the uploaded image
+                    $request->message, // Caption for the image
+                    $mimeType, // MIME type (e.g., image/jpeg)
+                    $replyId ? $replyId : null
+                );
+            } else {
+                // Send video message
+                $result = sendWhatsappMediaMessage(
+                    $request->number,
+                    $fullMediaPath, // Full path of the uploaded video file
+                    $request->message,
+                    $replyId ? $replyId : null
+                );
+            }
+    
+            \Log::info($result);
+        } else {
+            // Send regular message (text only)
+            $result = sendWhatsappMessage(
+                $request->number, 
+                array('message' => $request->message),
+                $replyId ? $replyId : null
+            );
+        }
+    
+        // Accessing the result's message id properly, assuming it may be an object
+  
+    // Accessing the result's message id properly, assuming it may be an object or array
+    $messageId = is_array($result) ? ($result['message']['id'] ?? null) : ($result->message->id ?? null);
 
-        $response = WebhookResponse::create([
-            'status'        => 1,
-            'name'          => 'whatsapp',
-            'message'       => $request->message,
-            'number'        => $request->number,
-            'read'          => !is_null(Auth::guard('admin')) ? 1 : 0,
-            'flex'          => !is_null(Auth::guard('admin')) ? 'A' : 'C',
-        ]);
+    // Log the response and create a webhook response entry
+    $response = WebhookResponse::create([
+        'status' => 1,
+        'name' => 'whatsapp',
+        'message' => $request->message,
+        'number' => $request->number,
+        'read' => !is_null(Auth::guard('admin')) ? 1 : 0,
+        'flex' => !is_null(Auth::guard('admin')) ? 'A' : 'C',
+        'wa_id' => $replyId ? $replyId : null,
+        'res_id' => $messageId,
+        'video' => (strpos($mimeType, 'video') !== false) ? basename($mediaPath) : null, // Store video file name if it's a video
+        'image' => (strpos($mimeType, 'image') !== false) ? basename($mediaPath) : null, // Store image file name if it's an image
+    ]);
 
-        return response()->json([
-            'msg' => 'message send successfully'
-        ]);
+    return response()->json([
+        'msg' => 'Message sent successfully',
+        // 'response' => $result['message'],
+    ]);
     }
+    
 
     public function saveResponse(Request $request)
     {
@@ -195,30 +304,46 @@ class ChatController extends Controller
     public function search(Request $request)
     {
         $s = $request->s;
+        $type = $request->type; // Get the type ('lead' or 'client')
 
         if (is_null($s)) {
-            return $this->chats();
-        }
-
-        if (is_numeric($s)) {
-
-            return $this->chatSearch($s, 'number');
-        } else {
-
-            $cx = explode(' ', $s);
-            $fn  = $cx[0];
-            $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
-            $clients = Client::where('firstname', 'like', '%' . $fn . '%')->orwhere('lastname', 'like', '%' . $ln . '%')->get('phone');
-
-            if (count($clients) > 0) {
-                $nos = [];
-                foreach ($clients as $client) {
-                    $nos[] = $client->phone;
-                }
-
-                return $this->chatSearch($nos, 'name');
+            if ($type === 'lead') {
+                return Client::all(); // Return all leads
+            } else {
+                return $this->chats(); // Existing behavior for clients
             }
         }
+
+       if ($type == 'client') {
+            if (is_numeric($s)) {
+
+                return $this->chatSearch($s, 'number');
+            } else {
+
+                $cx = explode(' ', $s);
+                $fn  = $cx[0];
+                $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
+                $clients = Client::where('firstname', 'like', '%' . $fn . '%')->orwhere('lastname', 'like', '%' . $ln . '%')->get('phone');
+
+                if (count($clients) > 0) {
+                    $nos = [];
+                    foreach ($clients as $client) {
+                        $nos[] = $client->phone;
+                    }
+
+                    return $this->chatSearch($nos, 'name');
+                }
+            }
+       }else {
+        $cx = explode(' ', $s);
+        $fn  = $cx[0];
+        $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
+            $leads = Client::where('firstname', 'like', '%' . $fn . '%')
+                        ->orWhere('lastname', 'like', '%' . $ln . '%')
+                        ->orWhere('phone', 'like', '%' . $s . '%') // Search by phone number as well
+                        ->get(['phone', 'firstname', 'lastname']);
+            return $leads;
+       }
     }
 
     public function responseImport()

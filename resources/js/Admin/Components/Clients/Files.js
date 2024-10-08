@@ -62,7 +62,6 @@ export default function files() {
                 headers: type == "image" ? headers : videoHeader,
             })
             .then((res) => {
-                console.log(res);
                 if (res.data.error) {
                     for (let e in res.data.error) {
                         window.alert(res.data.error[e]);
