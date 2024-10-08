@@ -151,7 +151,7 @@ class WorkerLeadWebhookController extends Controller
     
                 // Send the step0 message
                 $initialMessage = $this->botMessages['step0']['heb'];
-                $result = sendWhatsappMessage($from, ['name' => '', 'message' => $initialMessage]);
+                $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $initialMessage]);
     
                 // Save the admin message for step0
                 WorkerWebhookResponse::create([
@@ -178,7 +178,7 @@ class WorkerLeadWebhookController extends Controller
 
             if ($nextMessage) {
                 // Send the next step message
-                $result = sendWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
     
                 if($nextMessage != $lastMessageSent){
                     // Update the current step in the state

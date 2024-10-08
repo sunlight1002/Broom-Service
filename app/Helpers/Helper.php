@@ -54,6 +54,32 @@ if (!function_exists('sendWhatsappMessage')) {
     }
 }
 
+if (!function_exists('sendWorkerWhatsappMessage')) {
+    function sendWorkerWhatsappMessage($number, $data = array(), $lang = 'he')
+    {
+        $mobile_no = $number;
+        $mobile_no = str_replace("-", "", "$mobile_no");
+
+        if (strlen($mobile_no) > 10) {
+            $mobile_no = $mobile_no;
+        } else {
+            $mobile_no = '972' . $mobile_no;
+        }
+        
+        $response = Http::withToken(config('services.whapi.worker_token'))
+            ->post(config('services.whapi.url') . 'messages/text', [
+                'to' => $mobile_no,
+                'body' => str_replace("\t", "", $data['message'])
+            ]);
+        Log::info($response->json());
+        if($response->successful()) { 
+            return 'message sent successfully.';
+        } else {
+            return $response->object();
+        }
+    }
+}
+
 if (!function_exists('sendJobWANotification')) {
     function sendJobWANotification($emailData)
     {
