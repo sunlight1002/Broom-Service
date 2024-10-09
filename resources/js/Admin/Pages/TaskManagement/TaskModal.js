@@ -27,11 +27,13 @@ function TaskModal({
     worker,
     setDescription,
     description,
+    type = 'admin'
 }) {
     const { t } = useTranslation();
     function onChange(e) {
         setDescription(e.target.value);
-      }
+    }
+
     return (
         <div>
             <Modal
@@ -57,6 +59,7 @@ function TaskModal({
                                     type="text"
                                     className="form-control"
                                     value={taskName}
+                                    disabled={type === 'worker'}
                                     onChange={(e) => setTaskName(e.target.value)}
                                     required
                                     placeholder={'Enter task name'}
@@ -64,39 +67,43 @@ function TaskModal({
                             </div>
                         </div>
                         <div className='d-flex flex-column'>
-                            <p className='navblueColor mb-2 font-18' style={{ fontWeight: "500" }}>Add Comments</p>
-                            <Editor value={description} onChange={onChange} />
+                            <p className='navblueColor mb-2 font-18' style={{ fontWeight: "500" }}>Description</p>
+                            <Editor value={description} onChange={onChange} disabled={type === 'worker'} />
                         </div>
-                        <div className="row form-group mt-3">
-                            <div className="col-md-6">
-                                <label className="control-label">Team Members</label>
-                                <Select
-                                    value={selectedOptions}
-                                    name="teamMembers"
-                                    isMulti
-                                    options={team}
-                                    className="basic-multi-select"
-                                    isClearable={true}
-                                    placeholder="-- Please select --"
-                                    classNamePrefix="select"
-                                    onChange={(e) => handleSelectChange(e)}
-                                />
-                            </div>
-                            <div className="col-md-6">
-                                <label className="control-label">Workers</label>
-                                <Select
-                                    value={selectedWorkers}
-                                    name="workers"
-                                    isMulti
-                                    options={worker}
-                                    className="basic-multi-select"
-                                    isClearable={true}
-                                    placeholder="-- Please select --"
-                                    classNamePrefix="select"
-                                    onChange={(e)=> handleWorkerSelectChange(e)}
-                                />
-                            </div>
-                        </div>
+                        {
+                            type === "admin" && (
+                                <div className="row form-group mt-3">
+                                    <div className="col-md-6">
+                                        <label className="control-label">Team Members</label>
+                                        <Select
+                                            value={selectedOptions}
+                                            name="teamMembers"
+                                            isMulti
+                                            options={team}
+                                            className="basic-multi-select"
+                                            isClearable={true}
+                                            placeholder="-- Please select --"
+                                            classNamePrefix="select"
+                                            onChange={(e) => handleSelectChange(e)}
+                                        />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="control-label">Workers</label>
+                                        <Select
+                                            value={selectedWorkers}
+                                            name="workers"
+                                            isMulti
+                                            options={worker}
+                                            className="basic-multi-select"
+                                            isClearable={true}
+                                            placeholder="-- Please select --"
+                                            classNamePrefix="select"
+                                            onChange={(e) => handleWorkerSelectChange(e)}
+                                        />
+                                    </div>
+                                </div>
+                            )
+                        }
                         <div className="row form-group mt-3">
                             <div className="col-sm">
                                 <div className="d-flex flex-column">
@@ -105,6 +112,7 @@ function TaskModal({
                                         className="form-control"
                                         name="priority"
                                         value={priority || ""}
+                                        disabled={type === 'worker'}
                                         onChange={(e) => setPriority(e.target.value)}
                                     >
                                         <option value="">-- Select priority</option>
@@ -121,6 +129,7 @@ function TaskModal({
                                         type="date"
                                         className="form-control"
                                         value={dueDate}
+                                        disabled={type === 'worker'}    
                                         onChange={(e) => setDueDate(e.target.value)}
                                         required
                                     />

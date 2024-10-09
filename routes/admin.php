@@ -354,9 +354,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('tasks/sort', [TaskController::class, 'sort']);
     Route::post('/tasks/{taskId}/comments', [TaskController::class, 'addComment']);
     Route::delete('/comments/{commentId}', [TaskController::class, 'deleteComment']);
-    Route::put('/tasks/{taskId}/comments/{commentId}', [TaskController::class, 'updateComment']);
-    Route::get('/tasks/list', [TaskController::class, 'tasksByPhase']);  
-    Route::get('tasks/worker/{workerId}', [TaskController::class, 'showWorkerTasks']);
+    Route::get('/tasks/list', [TaskController::class, 'tasksByPhase']);
+    Route::post('/tasks/{task}/move', [TaskController::class, 'moveTaskToPhase']);
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);

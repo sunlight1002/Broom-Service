@@ -100,10 +100,15 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
 
     //task and comment
     Route::apiResource('/phase', PhaseController::class)->only(['index', 'show']);
+    Route::apiResource('/tasks', TaskController::class);
     Route::post('/tasks/{taskId}/comments', [TaskController::class, 'addComment']);
     Route::delete('/comments/{commentId}', [TaskController::class, 'deleteComment']);
     Route::put('/tasks/{taskId}/comments/{commentId}', [TaskController::class, 'updateComment']);
     Route::get('/tasks/list', [TaskController::class, 'tasksByPhase']);
+
+    Route::get('tasks/worker/{workerId}', [TaskController::class, 'showWorkerTasks']);
+    Route::post('/tasks/change-worker-status', [TaskController::class, 'changeWorkerStatus']);
+    Route::delete('/worker-comment/{commentId}', [TaskController::class, 'deleteWorkerComment']);
 
     //sick-leaves
     Route::apiResource('sick-leaves', SickLeaveController::class);

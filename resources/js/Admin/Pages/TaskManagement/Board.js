@@ -37,8 +37,8 @@ const App = () => {
     const [selectedTaskId, setSelectedTaskId] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [selectedWorkers, setSelectedWorkers] = useState([]);
-    const uniqueId = uuidv4();
 
+    const admin_id = localStorage.getItem("admin-id");
 
     const handleSelectChange = (selectedOptions) => {
         setSelectedOptions(selectedOptions);
@@ -52,6 +52,11 @@ const App = () => {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+    const handleMoveTask = async (taskId, phaseId) => {
+        const res = await axios.post(`/api/admin/tasks/${taskId}/move`, { phase_id: phaseId }, { headers });
+        getTasks();
     };
 
     const getTeamMembers = async () => {
@@ -108,12 +113,10 @@ const App = () => {
 
 
     const handleDrop = async (taskId, newPhaseId) => {
-        // console.log(taskId);
 
         try {
             // Update the task's phase in the backend
             const res = await axios.put(`/api/admin/tasks/${14}`, { phase_id: newPhaseId }, { headers });
-            console.log(res.data);
 
             getTasks(); // Refresh the tasks after moving
         } catch (error) {
@@ -208,7 +211,6 @@ const App = () => {
             setSelectedTaskId(response.data?.id)
             setTaskComments(response.data?.comments)
             setTaskName(response.data?.task_name)
-            console.log(response.data);
         } catch (error) {
             console.error(error);
         }
@@ -219,7 +221,6 @@ const App = () => {
 
 
     const handleDeleteCard = async (tid) => {
-        console.log(tid);
 
         try {
             const res = await axios.delete(`/api/admin/tasks/${tid}`, { headers });
@@ -240,7 +241,6 @@ const App = () => {
         const data = phase[listIndex];
         try {
             const res = await axios.put(`/api/admin/phase/${phaseId}`, data, { headers });
-            console.log(res);
             getPhase()
             setPhaseEdit(null)
         } catch (error) {
@@ -266,7 +266,6 @@ const App = () => {
 
     const handleAddComment = async (task) => {
         handleEditTask(task.id);
-        // console.log(task);
         setIsComModal(true)
     }
 
@@ -371,11 +370,10 @@ const App = () => {
     };
 
 
-
     return (
         <div id="container">
             <Sidebar />
-            <div id="content">
+            <div id="content" style={{ overflowX: "hidden" }}>
                 <div className="titleBox customer-title">
                     <div className="row align-items-center justify-space-between">
                         <div className="col">
@@ -385,165 +383,162 @@ const App = () => {
                 </div>
 
                 <div className="dashBox" style={{ backgroundColor: "inherit", border: "none" }}>
-                    <div id="main" className="d-flex">
-                        {phase.length > 0 ? phase.map((list, listIndex) => {
-                            const tasksForPhase = tasks.filter(task => task.phase_id === list.id);
-                            console.log(tasksForPhase[0], "taskforphase");
-
-                            return (
-                                <div className="list" key={list.id}>
-                                    <div className='d-flex align-items-center mb-2'>
-                                        <input
-                                            type="text"
-                                            className="list-title editable mb-0"
-                                            value={list.phase_name}
-                                            readOnly={phaseEdit !== listIndex}
-                                            onChange={(e) => handleTitleChange(listIndex, e)}
-                                        />
-                                        {
-                                            phaseEdit === listIndex ? (
-                                                <button className="p-1 px-2 mr-1 btn-edit" style={{ fontSize: "14px", color: 'rgb(65 50 50)', borderRadius: "5px" }} onClick={() => updatePhase(list.id, listIndex)}>
-                                                    <i className="fa-solid fa-arrow-up-from-bracket"></i>
-                                                </button>
-                                            ) : (
-                                                <button className="mr-1 p-1 px-2 btn-edit" style={{ fontSize: "14px", color: 'rgb(65 50 50)', borderRadius: "5px" }} onClick={() => setPhaseEdit(listIndex)}>
-                                                    <i className="fa-solid fa-edit"></i>
-                                                </button>
-                                            )
-                                        }
-                                        <span className="del" onClick={() => handleDeleteList(list.id)}>&times;</span>
-                                    </div>
-
-                                    <div className="content">
-                                        <ReactSortable
-                                            list={tasksForPhase}
-                                            setList={(newTasksForPhase) => {
-                                                // Update the local state first
-                                                const updatedTasks = tasks.map(task => {
-                                                    const newTask = newTasksForPhase.find(t => t.id === task.id);
-                                                    if (newTask) {
-                                                        return { ...task, phase_id: list.id };  // Update the phase_id as needed
-                                                    }
-                                                    return task;
-                                                });
-
-                                                setTasks(updatedTasks);
-                                            }}
-                                            onEnd={async ({ oldIndex, newIndex, from, to }) => {
-                                                if (oldIndex === newIndex && from === to) return; // No change
-
-                                                // Get task IDs in the current phase before the move
-                                                const currentTaskIds = tasksForPhase.map(task => task.id);
-
-                                                // Handle reordering within the same phase
-                                                if (from === to) {
-                                                    const reorderedTaskIds = [...currentTaskIds];
-                                                    const [movedId] = reorderedTaskIds.splice(oldIndex, 1);  // Remove from old index
-                                                    reorderedTaskIds.splice(newIndex, 0, movedId);  // Add at new index
-
-                                                    // Call the handleSort function to update task order in the backend
-                                                    await handleSort(reorderedTaskIds);
-                                                } else {
-                                                    // Handle moving between phases
-                                                    const taskId = tasksForPhase[oldIndex].id;
-                                                    const newPhaseId = list.id;  // The ID of the phase to which the task is moved
-
-                                                    // Call the handleDrop function to update the phase in the backend
-                                                    // await handleDrop(taskId, newPhaseId);
-                                                }
-                                            }}
-                                            group="tasks"
-                                            animation={200}
-                                            delayOnDrag={0}
-                                            delayOnStart={0}
-                                        >
-                                            {tasksForPhase.length > 0 ? tasksForPhase.map((task, taskIndex) => (
-                                                <div className="taskcard" key={task.id}>
-                                                    <div className="task-info">
-                                                        <span className="task-name">{task.task_name}</span>
-                                                        <span className="task-priority">
-                                                            <i className="fa-solid fa-flag mr-1"></i>{task.priority}
-                                                        </span>
-                                                    </div>
-                                                    <div className="task-details">
-                                                        <span><i className="fa-solid fa-calendar-alt"></i> {task.due_date}</span>
-                                                        <span><i className="fa-solid fa-tasks"></i> {task.status}</span>
-                                                    </div>
-                                                    <div className="task-users d-flex justify-content-between">
-                                                        <div className='d-flex'>
-                                                            <div className="user-icons">
-                                                                {task.workers.map(worker => (
-                                                                    <div key={worker.id} className="user-icon">
-                                                                        {getInitials(worker.firstname)}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                            <div className="user-icons">
-                                                                {task.users.map(user => (
-                                                                    <div key={user.id} className="user-icon">
-                                                                        {getInitials(user.name)}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                        <div className="task-actions">
-                                                            <button className="mr-1 btn-add-comment" style={{ fontSize: "14px", color: 'rgb(65 50 50)' }} onClick={() => handleAddComment(task)}>
-                                                                <i className="fa-solid fa-comment-dots"></i>
-                                                            </button>
-                                                            <button className="mr-1 btn-edit" style={{ fontSize: "14px", color: 'rgb(65 50 50)' }} onClick={() => handleOpenEditTaskModal(task)}>
-                                                                <i className="fa-solid fa-edit"></i>
-                                                            </button>
-                                                            <button className="btn-delete" style={{ fontSize: "14px", color: 'rgb(65 50 50)' }} onClick={() => handleDeleteCard(task.id)}>
-                                                                <i className="fa-solid fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )) : <div>No tasks available</div>
+                    <div id='ko' style={{ overflowX: "scroll", maxWidth: "100%" }}>
+                        <div id="main" className="d-flex" >
+                            {phase.length > 0 ? phase.map((list, listIndex) => {
+                                const tasksForPhase = tasks.filter(task => task.phase_id === list.id);
+                                return (
+                                    <div className="list" key={list.id}>
+                                        <div className='d-flex align-items-center mb-2'>
+                                            <input
+                                                type="text"
+                                                className="list-title editable mb-0"
+                                                value={list.phase_name}
+                                                readOnly={phaseEdit !== listIndex}
+                                                onChange={(e) => handleTitleChange(listIndex, e)}
+                                            />
+                                            {
+                                                phaseEdit === listIndex ? (
+                                                    <button className="p-1 px-2 mr-1 btn-edit" style={{ fontSize: "14px", color: 'rgb(65 50 50)', borderRadius: "5px" }} onClick={() => updatePhase(list.id, listIndex)}>
+                                                        <i className="fa-solid fa-arrow-up-from-bracket"></i>
+                                                    </button>
+                                                ) : (
+                                                    <button className="mr-1 p-1 px-2 btn-edit" style={{ fontSize: "14px", color: 'rgb(65 50 50)', borderRadius: "5px" }} onClick={() => setPhaseEdit(listIndex)}>
+                                                        <i className="fa-solid fa-edit"></i>
+                                                    </button>
+                                                )
                                             }
-                                        </ReactSortable>
-                                    </div>
+                                            <span className="del" onClick={() => handleDeleteList(list.id)}>&times;</span>
+                                        </div>
 
-                                    <div className="add-card editable" onClick={() => handleOpenAddTaskModal(list.id)}>
-                                        Add another task
-                                    </div>
-                                </div>
-                            );
-                        }) : ""}
+                                        <div className="content">
+                                            <ReactSortable
+                                                list={tasksForPhase}
+                                                setList={(newTasksForPhase) => {
+                                                    const updatedTasks = tasks.map(task => {
+                                                        const newTask = newTasksForPhase.find(t => t.id === task.id);
+                                                        if (newTask) {
+                                                            return { ...task, phase_id: list.id };  // Update the phase_id as needed
+                                                        }
+                                                        return task;
+                                                    });
+                                                }}
+                                                onEnd={async ({ oldIndex, newIndex, from, to }) => {
+                                                    if (oldIndex === newIndex && from === to) return; // No change
 
-                        <div className="add-phase-container">
-                            {!isAddingPhase && (
-                                <button
-                                    type='button'
-                                    className=' px-3 py-2'
-                                    style={{ borderRadius: "5px", width: "8rem" }}
-                                    onClick={handleAddList}
-                                >
-                                    <i className="fa-solid fa-plus"></i> Add Phase
-                                </button>
-                            )}
-                            {isAddingPhase && (
-                                <div className="mb-4">
-                                    <div className='d-flex'>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Enter phase title"
-                                            value={newPhaseTitle}
-                                            onChange={(e) => setNewPhaseTitle(e.target.value)}
-                                        />
-                                        <span className="del" onClick={() => setIsAddingPhase(false)}>
-                                            &times;
-                                        </span>
+                                                    // Get task IDs in the current phase before the move
+                                                    const currentTaskIds = tasksForPhase.map(task => task.id);
+
+                                                    // Handle reordering within the same phase
+                                                    if (from === to) {
+                                                        const reorderedTaskIds = [...currentTaskIds];
+                                                        const [movedId] = reorderedTaskIds.splice(oldIndex, 1);  // Remove from old index
+                                                        reorderedTaskIds.splice(newIndex, 0, movedId);  // Add at new index
+
+                                                        // Call the handleSort function to update task order in the backend
+                                                        await handleSort(reorderedTaskIds);
+                                                    } else {
+                                                        // Handle moving between phases
+                                                        const taskId = tasksForPhase[oldIndex].id;
+                                                        // await handleMoveTask(taskIdPhaseId.taskId,taskIdPhaseId.phaseId);
+                                                        const destinationPhaseId = $(to).children('div').data('phase-id');  // Extract phase ID from the `to` container
+                                                        await handleMoveTask(taskId, destinationPhaseId);
+                                                    }
+                                                }}
+                                                group="tasks"
+                                                animation={200}
+                                                delayOnDrag={0}
+                                                delayOnStart={0}
+                                            >
+                                                {tasksForPhase.length > 0 ? tasksForPhase.map((task, taskIndex) => (
+                                                    <div className="taskcard" data-phase-id={list?.id} key={task.id}>
+                                                        <div className="task-info">
+                                                            <span className="task-name">{task.task_name}</span>
+                                                            <span className="task-priority">
+                                                                <i className="fa-solid fa-flag mr-1"></i>{task.priority}
+                                                            </span>
+                                                        </div>
+                                                        <div className="task-details">
+                                                            <span><i className="fa-solid fa-calendar-alt"></i> {task.due_date}</span>
+                                                            <span><i className="fa-solid fa-tasks"></i> {task.status}</span>
+                                                        </div>
+                                                        <div className="task-users d-flex justify-content-between">
+                                                            <div className='d-flex'>
+                                                                <div className="user-icons">
+                                                                    {task.workers.map(worker => (
+                                                                        <div key={worker.id} className="user-icon">
+                                                                            {getInitials(worker.firstname)}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                                <div className="user-icons">
+                                                                    {task.users.map(user => (
+                                                                        <div key={user.id} className="user-icon">
+                                                                            {getInitials(user.name)}
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                            <div className="task-actions">
+                                                                <button className="mr-1 btn-add-comment" style={{ fontSize: "14px", color: 'rgb(65 50 50)' }} onClick={() => handleAddComment(task)}>
+                                                                    <span className='mr-2'>{task?.comments?.length}</span>
+                                                                    <i className="fa-solid fa-comment-dots"></i>
+                                                                </button>
+                                                                <button className="mr-1 btn-edit" style={{ fontSize: "14px", color: 'rgb(65 50 50)' }} onClick={() => handleOpenEditTaskModal(task)}>
+                                                                    <i className="fa-solid fa-edit"></i>
+                                                                </button>
+                                                                <button className="btn-delete" style={{ fontSize: "14px", color: 'rgb(65 50 50)' }} onClick={() => handleDeleteCard(task.id)}>
+                                                                    <i className="fa-solid fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )) : <div data-phase-id={list?.id}>No tasks available</div>
+                                                }
+                                            </ReactSortable>
+                                        </div>
+
+                                        <div className="add-card editable" onClick={() => handleOpenAddTaskModal(list.id)}>
+                                            Add another task
+                                        </div>
                                     </div>
+                                );
+                            }) : ""}
+
+                            <div className="add-phase-container">
+                                {!isAddingPhase && (
                                     <button
-                                        className='btn  mt-2'
-                                        onClick={handleSavePhase}
+                                        type='button'
+                                        className=' px-3 py-2'
+                                        style={{ borderRadius: "5px", width: "8rem" }}
+                                        onClick={handleAddList}
                                     >
-                                        <i className="fa-solid fa-plus"></i> Add
+                                        <i className="fa-solid fa-plus"></i> Add Phase
                                     </button>
-                                </div>
-                            )}
+                                )}
+                                {isAddingPhase && (
+                                    <div className="mb-4">
+                                        <div className='d-flex'>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Enter phase title"
+                                                value={newPhaseTitle}
+                                                onChange={(e) => setNewPhaseTitle(e.target.value)}
+                                            />
+                                            <span className="del" onClick={() => setIsAddingPhase(false)}>
+                                                &times;
+                                            </span>
+                                        </div>
+                                        <button
+                                            className='btn  mt-2'
+                                            onClick={handleSavePhase}
+                                        >
+                                            <i className="fa-solid fa-plus"></i> Add
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -586,6 +581,7 @@ const App = () => {
                 setComments={setComments}
                 isEditable={isEditable}
                 setIsEditable={setIsEditable}
+                userType={"admin"} // Add userType prop (admin/worker)
             />
         </div>
     );

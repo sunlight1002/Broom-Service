@@ -329,4 +329,6 @@ div {
     background-image: url('data:image/svg+xml;base64,...'); /* Encode an SVG arrow icon for the dropdown */
     background-position: calc(100% - 10px) center;
     background-repeat: no-repeat;
-}   
+}
+
+
