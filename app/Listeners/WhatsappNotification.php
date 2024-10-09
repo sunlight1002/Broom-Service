@@ -1748,7 +1748,7 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.new_lead_arrived.follow_up');
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
-                    $text .= "\n\n" . __('mail.wa-message.button-label.call_lead') . ": " . "03 525 70 60";
+                    $text .= "\n\n" . __('mail.wa-message.button-label.call_lead') . ": " . $clientData['phone'];
 
                     break;
 
