@@ -30,7 +30,7 @@ export default function WorkerInvitationForm() {
     const [longitude, setLongitude] = useState(151.2099);
     const [place, setPlace] = useState();
     const navigate = useNavigate();
-    Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
+    Geocode.setApiKey("AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk");
 
     // console.log(worker);
     const [formValues, setFormValues] = useState({
@@ -582,7 +582,7 @@ export default function WorkerInvitationForm() {
                                                 )}
                                             </label>
                                             <LoadScript
-                                                googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
+                                                googleMapsApiKey="AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk"
                                                 libraries={libraries}
                                             >
                                                 <GoogleMap
