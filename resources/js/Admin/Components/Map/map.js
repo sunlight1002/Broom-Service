@@ -26,7 +26,7 @@ const Map = memo(function Map({
 }) {
     let addressSearchRef = useRef();
     const { t } = useTranslation();
-    Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
+    Geocode.setApiKey("AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk");
 
     const center = {
         lat: latitude,
@@ -46,7 +46,7 @@ const Map = memo(function Map({
                 {t("admin.global.location")}
             </label>
             <LoadScript
-                googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
+                googleMapsApiKey="AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk"
                 libraries={libraries}
             >
                 <div className="skyBorder">
