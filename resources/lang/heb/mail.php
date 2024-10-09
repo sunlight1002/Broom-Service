@@ -750,6 +750,9 @@ return [
         'not_confirm_job' => [
             'content' => "תזכורת: :worker_name עדיין לא אישר את הכתובת לעבודה מחר. נא לנקוט בפעולה אם לא יתקבל אישור עד השעה 18:00.",
         ],
+        'worker_webhook_irrelevant' => [
+    	    'message' => "🌟 תודה שפנית אלינו ב-Job4Service.\n\nאנחנו מציעים את המשרות הטובות ביותר בענף ניקיון בתים בישראל.\nאנחנו שוכרים רק אנשים עם אשרות מתאימות לעבודה בישראל.\nאנחנו מציעים עבודות ניקיון בתים רק באזור תל אביב, ורק בשעות הבוקר של ימי חול אנו לא עובדים בסופי שבוע או בערבים.\nאנחנו צוות ניקיון מקצועי, ולכן אנחנו שוכרים רק אנשים עם ניסיון בניקיון בתים.\nאם זה יכול להתאים לכם או. החברים שלכם עכשיו או בעתיד, אתם יותר ממוזמנים לפנות אלינו שוב 😀\n\n👫 מכירים מישהו שיתאים מאוד לצוות שלנו. פשוט שלח להם את הקישור הזה:\n\nhttps://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT\nhttps://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr\n\nשיהיה לך יום נפלא !🌟"
+        ],
         'button-label' => [
             'accept_reject' => 'קבל/דחה',
             'upload_file' => 'העלה קובץ',

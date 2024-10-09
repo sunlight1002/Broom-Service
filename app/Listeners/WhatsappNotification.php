@@ -2466,6 +2466,18 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.price_offer_reminder12.client_link',) . ": " . url("admin/clients/view/" . $eventData['client']['id']);
 
                     break;
+                
+                case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
+                    $clientData = $eventData['client'];
+                
+                    $receiverNumber = $clientData["phone"];
+                    App::setLocale($clientData['lng']??'en');
+                
+                    $text = '';
+                
+                    $text .=  __('mail.wa-message.worker_webhook_irrelevant.message');
+                    
+                    break;
             }
 
             if ($receiverNumber && $text) {

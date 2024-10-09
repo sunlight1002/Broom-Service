@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\WorkerLeads;
 use App\Models\WhatsAppBotWorkerState;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -189,6 +191,16 @@ class WorkerLeadsController extends Controller
         // Change the status
         $workerLead->status = $request->status;
         $workerLead->save();
+
+        if ($workerLead->status === 'irrelevant') {
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT,
+                "notificationData" => [
+                    'client' => $workerLead->toArray(),
+                ]
+            ]));
+        }
 
         return response()->json(['message' => 'Worker Lead status changed successfully']);
     }
