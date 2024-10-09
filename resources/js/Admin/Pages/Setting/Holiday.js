@@ -95,33 +95,33 @@ export default function ManageHolidays() {
                     initializeTableActions();
                 },
             });
-    
+
             $(tableRef.current).css('table-layout', 'fixed');
         }
     };
-    
+
     const initializeTableActions = () => {
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const id = $(this).data("id");
             navigate(`/admin/holidays/${id}/edit`);
         });
-    
+
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const id = $(this).data("id");
             handleDelete(id);
         });
     };
-    
+
     useEffect(() => {
         initializeDataTable();
-    
+
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true);
             }
         };
     }, []);
-    
+
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -181,6 +181,6 @@ export default function ManageHolidays() {
                 </div>
             { loading && <FullPageLoader visible={loading}/>}
         </div>
-        
+
     );
 }

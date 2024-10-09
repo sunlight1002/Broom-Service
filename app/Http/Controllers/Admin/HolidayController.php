@@ -36,7 +36,7 @@ class HolidayController extends Controller
 
         // Sorting
         $query->orderBy($columns[$column], $dir);
-        
+
 
         // Pagination
         $totalRecords = $query->count();

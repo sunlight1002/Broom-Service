@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\WorkerLeads;
 use App\Models\WhatsAppBotWorkerState;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WorkerLeadsController extends Controller
 {
@@ -91,28 +92,43 @@ class WorkerLeadsController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the request
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:worker_leads,email',
-            'phone' => 'required|string|max:15', // Adjust max length as needed
-            'status' => 'required|string',
-            'ready_to_get_best_job' => 'boolean',
-            'ready_to_work_in_house_cleaning' => 'boolean',
-            'areas_aviv_herzliya_ramat_gan_kiryat_ono_good' => 'boolean',
-            'none_id_visa' => 'required|string',
-            'you_have_valid_work_visa' => 'boolean',
-            'work_sunday_to_thursday_fit_schedule_8_10am_12_2pm' => 'boolean',
-            'full_or_part_time' => 'required|string',
-        ]);
+        try {
+            // Log the incoming request data
+            Log::info('Incoming Worker Lead Data:', $request->all());
+            Log::info('areas_aviv_herzliya_ramat_gan_kiryat_ono_good:', ['value' => $request->areas_aviv_herzliya_ramat_gan_kiryat_ono_good]);
 
-        // Create a new worker lead
-        $workerLead = WorkerLeads::create($request->all());
-
-        return response()->json([
-            'message' => 'Worker Lead created successfully',
-            'data' => $workerLead,
-        ], 201); // 201 status code for created resource
+            // Validate the request
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255|unique:worker_leads,email',
+                'phone' => 'required|string|max:15', // Adjust max length as needed
+                'status' => 'required|string',
+                'ready_to_get_best_job' => 'boolean',
+                'ready_to_work_in_house_cleaning' => 'boolean',
+                'areas_aviv_herzliya_ramat_gan_kiryat_ono_good' => 'boolean',
+                'none_id_visa' => 'required|string',
+                'you_have_valid_work_visa' => 'boolean',
+                'work_sunday_to_thursday_fit_schedule_8_10am_12_2pm' => 'boolean',
+                'full_or_part_time' => 'required|string',
+            ]);
+    
+            // Create a new worker lead
+            $workerLead = WorkerLeads::create($request->all());
+    
+            return response()->json([
+                'message' => 'Worker Lead created successfully',
+                'data' => $workerLead,
+            ], 201); // 201 status code for created resource
+    
+        } catch (ValidationException $e) {
+            // Log validation errors
+            Log::error('Validation Error:', $e->errors());
+    
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $e->errors(),
+            ], 422);
+        }
     }
 
 

@@ -114,7 +114,7 @@ export default function AddPaymentModal({
 
         setIsLoading(true);
         axios
-            .post(`/api/admin/client/${clientId}/update-invoice`, data, {
+            .post(`/api/admin/client/${clientId}/ucpdate-invoice`, data, {
                 headers,
             })
             .then((response) => {

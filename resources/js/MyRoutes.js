@@ -32,19 +32,19 @@ import ClientSetting from "./Client/Pages/Settings/Setting";
 
 import Worker from "./Worker/Worker";
 import WorkerMyAccount from "./Worker/Pages/MyAccount/MyAccount";
-import AddLeaves from "./Worker/Pages/MyAccount/AddLeaves";
 import AddRefund from "./Worker/Pages/MyAccount/AddRefund";
-import AdvanceLoan from "./Worker/Pages/MyAccount/AdvanceLoan";
-import EditLeaves from "./Worker/Pages/MyAccount/EditLeaves";
 import EditRefund from "./Worker/Pages/MyAccount/EditRefund";
 import RefundClaim from "./Worker/Pages/MyAccount/RefundClaim";
-import SickLeaves from "./Worker/Pages/MyAccount/SickLeaves";
 
 import WorkerDashboard from "./Worker/WorkerDashboard";
 import WorkerTotalJobs from "./Worker/Pages/Job/WorkerTotalJobs";
 import WorkerViewJob from "./Worker/Pages/Job/WorkerViewJob";
 import Availability from "./Worker/Pages/Availability/Availability";
 import NotAvailability from "./Worker/Pages/Availability/NotAvailability";
+import SickLeaves from "./Worker/Pages/MyAccount/SickLeaves";
+import AddLeaves from "./Worker/Pages/MyAccount/AddLeaves";
+import EditLeaves from "./Worker/Pages/MyAccount/EditLeaves";
+import AdvanceLoan from "./Worker/Pages/MyAccount/AdvanceLoan";
 
 // Admin Routes
 import Admin from "./Admin/Admin";
@@ -150,6 +150,9 @@ import WorkerInvitationForm from "./Pages/WorkerInvitationForm";
 import AdminLoginOtp from "./Admin/Pages/Auth/AdminLoginOtp";
 import WorkerLoginOtp from "./Worker/Auth/WorkerLoginOtp";
 import ClientLoginOtp from "./Client/Auth/ClientLoginOtp";
+import Holidays from "./Admin/Pages/Setting/Holiday";
+import Board from "./Admin/Pages/TaskManagement/Board";
+import Tasks from "./Worker/Pages/MyAccount/Tasks";
 import TeamButtons from "./Pages/TeamButtons";
 import { ContactManager } from "./Pages/ContactManager";
 import TeamSkippedComments from "./Pages/TeamSkippedComments";
@@ -408,21 +411,11 @@ export default function MyRoutes() {
                                 path="leaves"
                                 element={<SickLeaves />}
                             />
-                            <Route
-                                exact
-                                path="sick-leaves/create"
-                                element={<AddLeaves />}
-                            />
                             {/* <Route
                                 exact
                                 path="sick-leaves/:id/edit"
                                 element={<EditLeaves />}
                             /> */}
-                            <Route
-                                exact
-                                path="advance-loan"
-                                element={<AdvanceLoan />}
-                            />
                             <Route
                                 exact
                                 path="refund-claim"
@@ -452,6 +445,26 @@ export default function MyRoutes() {
                                 exact
                                 path="not-available"
                                 element={<NotAvailability />}
+                            />                    
+                            <Route
+                                exact
+                                path="sick-leaves/create"
+                                element={<AddLeaves />}
+                            />
+                            <Route
+                                exact
+                                path="sick-leaves/:id/edit"
+                                element={<EditLeaves />}
+                            />
+                            <Route
+                                exact
+                                path="advance-loan"
+                                element={<AdvanceLoan />}
+                            />
+                             <Route
+                                exact
+                                path="tasks"
+                                element={<Tasks />}
                             />
                         </Route>
                     </Route>
@@ -641,10 +654,10 @@ export default function MyRoutes() {
                                 path="manpower-companies"
                                 element={<ManpowerCompanies />}
                             />
-                            <Route
+                           <Route
                                 exact
                                 path="holidays"
-                                element={<Holiday />}
+                                element={<Holidays />}
                             />
                             <Route
                                 exact
@@ -655,6 +668,11 @@ export default function MyRoutes() {
                                 exact
                                 path="holidays/:id/edit"
                                 element={<EditHoliday />}
+                            />
+                            <Route
+                                exact
+                                path="task"
+                                element={<Board />}
                             />
                             <Route
                                 exact

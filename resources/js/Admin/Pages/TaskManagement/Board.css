@@ -1,0 +1,332 @@
+/* Base Styling */
+div {
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Main Container */
+#main {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 20px;
+    /* background-color: #f4f5f7; */
+}
+
+/* List and Card Styling */
+.list {
+    background: #fff;
+    padding: 20px;
+    /* min-width: 300px; */
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    position: relative;
+}
+
+/* Board.css */
+
+/* Task Card Styles */
+.taskcard {
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.task-header {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.task-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.user-icons {
+    display: flex;
+}
+
+.user-icon {
+    width: 27px;
+    height: 27px;
+    background-color: #007bff;
+    color: white;
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin-left: 5px;
+}
+
+.user-icon:first-child {
+    margin-left: 0;
+}
+
+
+.taskcard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Task Info */
+.task-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.task-info .task-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.task-info .task-priority {
+    font-size: 14px;
+    color: #999;
+}
+
+/* Users Assigned to the Task */
+.task-users {
+    display: flex;
+    margin-top: 10px;
+}
+
+.task-user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #eee;
+    display: inline-block;
+    margin-right: 5px;
+    overflow: hidden;
+    border: 2px solid #fff;
+}
+
+.task-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Add subtle icons for priority and due date */
+.task-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.task-details span {
+    font-size: 12px;
+    color: #666;
+}
+
+.task-details i {
+    margin-right: 4px;
+}
+
+/* Title Styling */
+.title {
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #ececec;
+    color: #333;
+}
+
+/* Editable Elements */
+.editable {
+    user-select: none;
+    outline: none;
+}
+
+.editing {
+    background: #ffffff;
+    color: #333 !important;
+    box-shadow: inset 0px 0px 0px 2px #0279bf;
+    border-radius: 5px;
+}
+
+.editing:hover {
+    background: #ffffff !important;
+}
+
+/* Add Card and List Styling */
+.add-card {
+    background-color: #e9ecef;
+    color: #000000;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.add-card:hover {
+    background-color: #ced4da;
+    color: #333;
+}
+
+.add-list {
+    background-color: #d1d8e0;
+    color: #333;
+    padding: 20px;
+    min-width: 300px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.add-list:hover {
+    background-color: #c0c6cc;
+    color: #000;
+}
+
+/* Ghost Element */
+.ghost {
+    opacity: 0.3;
+    background-color: #cccccc;
+}
+
+/* Delete Button Styling */
+.del {
+    font-weight: 600;
+    color: #999;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.del:hover {
+    color: #e74c3c;
+}
+
+/* Content Divider */
+.content {
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 15px;
+}
+
+
+.custom-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Focus Effect */
+.custom-input:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+/* Placeholder Styling */
+.custom-input::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* Hover Effect */
+.custom-input:hover {
+    border-color: #0056b3;
+}
+
+/* Disabled Input Styling */
+.custom-input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    border-color: #ced4da;
+}
+
+
+.list-title {
+    font-size: 19px;
+    font-weight: 600;
+    padding: 8px 0px;
+    border: none;
+    background: transparent;
+    border-bottom: 2px solid #ccc;
+    outline: none;
+    transition: border-color 0.3s ease;
+    flex-grow: 1; /* Allows the input to take available space */
+}
+
+/* Focus Effect */
+.list-title:focus {
+    border-color: #007bff;
+}
+
+/* Placeholder Styling */
+.list-title::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* Delete Button Styling */
+.del {
+    font-size: 24px;
+    color: #999;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.del:hover {
+    color: #e74c3c;
+}
+
+.custom-select {
+    width: 100%;
+    padding: 7px;
+    font-size: 16px;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.custom-select:focus {
+    border-color: #007bff;
+}
+
+.custom-select option {
+    padding: 10px;
+}
+
+/* Optional: Adding a hover effect */
+.custom-select:hover {
+    border-color: #007bff;
+}
+
+/* Optional: Custom dropdown arrow using an SVG */
+.custom-select {
+    background-image: url('data:image/svg+xml;base64,...'); /* Encode an SVG arrow icon for the dropdown */
+    background-position: calc(100% - 10px) center;
+    background-repeat: no-repeat;
+}   

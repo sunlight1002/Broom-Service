@@ -564,6 +564,7 @@ class LeadController extends Controller
                             'firstname'         => $name[0],
                             'lastname'          => $name[1],
                             'phone'             => $phone,
+                            'source'            => 'fblead',
                         ]);
                         if (!empty($phone)) {
                             $m = "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית";

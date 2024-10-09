@@ -147,7 +147,7 @@
         "problem": "בעיה",
         "noProblem": "אין בעיה",
         "noOfProblem": "מספר בעיות",
-        "Submit":"שלח"
+        "Submit": "שלח"
     },
     "modal": {
         "title": "מודל",
@@ -999,7 +999,8 @@
             "if_job_was_done": "אם העבודה נעשתה",
             "time_for_job": "זמן לעבודה",
             "time_worker_actually": "הזמן שהעובד עבד בפועל",
-            "client_review": "ביקורת לקוח"
+            "client_review": "ביקורת לקוח",
+            "visits":"ביקורים"
         },
         "modal": {
             "title": "מודל",
@@ -1585,6 +1586,7 @@
             "payments": "תשלומים",
             "earnings": "הכנסות",
             "notification": "התראות",
+            "workerLeave":"עובדים עוזבים",
             "settings": {
                 "title": "הגדרות",
                 "manage_team": "ניהול צוות",
@@ -1616,11 +1618,12 @@
             "logout": "התנתק"
         },
         "leaves":{
-            "confirm": "אשר",
-            "cancel": "ביטול",
-            "confirmation": "אישור",
-            "approveConfirm": "חופשה מאושרת",
-            "rejectionReason": "עזוב סיבה שנדחתה"
+            "confirmation": "אִשׁוּר",
+            "confirmationText": "הערה לדחייה",
+            "rejectionReason" : "סיבה לדחייה",
+            "confirm" : "לְאַשֵׁר",
+            "cancel" :"לְבַטֵל",
+            "approveConfirm":"אתה בטוח שאתה מאשר?"
         }
     },
     "worker": {
@@ -1631,27 +1634,21 @@
         "search": "לחפש",
         "next": "הַבָּא",
         "previous": "קודם",
-        "action" : "פעולה",
-        "status": "סטטוס",
-        "payment": "תשלום",
-        "worker_leave": "חופשת עובדים",
-        "worker_refund": "החזר לעובד",
-        "workerName": "שם",
-        "startDate": "תאריך התחלה",
-        "endDate": "תאריך סיום",
-        "doctorReport": "דוח רופא",
-        "leaveReason": "עזוב סיבה",
-        "leaveRequest": "משאיר בקשה",
+        "workerName":"שם העובד",
+        "endDate":"תאריך סיום",
+        "doctorReport":"דוח רופא",
+        "reason":"לְנַמֵק",
+        "status":"סטָטוּס",
+        "action":"פְּעוּלָה",
         "approve":"לְאַשֵׁר",
         "reject":"דחה",
-        "reason": "סיבה",
         "sidebar": {
             "dashboard": "לוּחַ מַחווָנִים",
             "jobs": "מקומות תעסוקה",
             "schedule": "לוח זמנים",
             "not_available": "תאריכים לא זמינים",
             "workingHours": "שעה (ות",
-            "leaves": "עלים"
+            "leaves":"עלים"
         },
         "dashboard": {
             "past_jobs": "משרות קודמות",
@@ -1813,8 +1810,20 @@
             "enterBankname":"הזן את שם הבנק",
             "enterBanknumber":"הזן מספר בנק",
             "enterBranchnumber":"הזן מספר סניף",
-            "enterAccountnumber":"הזן מספר חשבון"
-        }
+            "enterAccountnumber":"הזן מספר חשבון",
+            "advance":"מקדמה/הלוואה",
+            "type":"סוּג",
+            "amount":"סְכוּם",
+            "pendingAmount":"כמות בהמתנה",
+            "action":"פְּעוּלָה",
+            "addAdvance":"הוסף מקדמה/הלוואה",
+            "editAdvance":"ערוך מראש/הלוואה",
+            "selectType":"בחר סוג",
+            "Advance":"לְקַדֵם",
+            "loan":"לְהַלווֹת",
+            "monthlyPayment":"תשלום חודשי",
+            "loanStart":"תאריך תחילת ההלוואה",
+            "submit":"לְהַגִישׁ"        }
     },
     "worker_contract": {
         "company": "ברום סרוויס ל.מ בע'מ ח.פ. 515184208",

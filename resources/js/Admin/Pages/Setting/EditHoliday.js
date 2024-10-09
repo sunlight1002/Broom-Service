@@ -64,14 +64,7 @@ export default function EditHoliday() {
             }
         }).catch((error) => {
             setLoading(false);
-            if (error.response && error.response.data.errors) {
-                const errors = error.response.data.errors;
-                Object.keys(errors).forEach((field) => {
-                    alert.error(errors[field][0]); 
-                },2000);
-            } else {
-                alert.error("An unexpected error occurred.");
-            }
+            alert.error("Failed to update holiday");
         });
     };
 
@@ -96,6 +89,7 @@ export default function EditHoliday() {
                                         onChange={(e) =>
                                             setStartDate(e.target.value)
                                         }
+                                        required
                                     />
                                 </div>
                                 <div className="form-group">
@@ -109,7 +103,7 @@ export default function EditHoliday() {
                                         onChange={(e) =>
                                             setEndDate(e.target.value)
                                         }
-                                       
+                                        required
                                     />
                                 </div>
                                 <div className="form-group">
@@ -123,7 +117,7 @@ export default function EditHoliday() {
                                         onChange={(e) =>
                                             setHolidayName(e.target.value)
                                         }
-                                        
+                                        required
                                     />
                                 </div>
                                 <button

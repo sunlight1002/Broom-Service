@@ -10,14 +10,13 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import Sidebar from "../../Layouts/WorkerSidebar";
-import { leadStatusColor } from "../../../Utils/client.utils";
-
 
 export default function WorkerAdvance() {
-    
+
     const tableRef = useRef(null);
     const { t, i18n } = useTranslation();
     const [loading, setLoading] = useState(false);
+
     const alert = useAlert();
 
     const headers = {
@@ -27,70 +26,71 @@ export default function WorkerAdvance() {
     };
 
     const initializeDataTable = () => {
+        // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
                 autoWidth: false,
-               
+                paging: false, 
+                searching: false, 
+                ordering: false, 
+                info: false,
                 ajax: {
                     url: "/api/advance-loans",
                     type: "GET",
                     headers: headers,
-                    data: function (d) {
-                        d.search = d.search.value; // Pass the search value to the backend
-                        d.status = $('#status-filter').val(); // Example for filtering by status
-                    },
+                    dataSrc: '', // Ensure data is fetched correctly
                     error: function (xhr, error, thrown) {
                         console.error('Error fetching data:', error);
                         alert.error('Error fetching data');
                     },
                 },
                 columns: [
-                    { title: "Type", data: "type" , orderable: false},
-                    { title: "Date", data: "created_at", orderable: false},
+                    {
+                        title: "Type",
+                        data: "type",
+                    },
+                    {
+                        title: "Date",
+                        data: "created_at",
+                    },
+
                     {
                         title: "Monthly Payment",
                         data: "monthly_payment",
-                        render: function (data) {
+                        render: function(data, type, row) {
                             return formatCurrency(data);
-                        },
-                        orderable: false,
+                        }
                     },
                     {
                         title: "Amount",
                         data: "amount",
-                        render: function (data) {
+                        render: function(data, type, row) {
                             return formatCurrency(data);
-                        },
-                        orderable: false,
+                        }
                     },
                     {
                         title: "Paid Amount",
                         data: "total_paid_amount",
-                        render: function (data) {
+                        render: function(data, type, row) {
                             return formatCurrency(data);
-                        },
-                        orderable: false,
+                        }
                     },
                     {
                         title: "Pending Amount",
                         data: "latest_pending_amount",
-                        render: function (data) {
+                        render: function(data, type, row) {
                             return formatCurrency(data);
-                        },
-                        orderable: false,
+                        }
                     },
                     {
                         title: "Status",
                         data: "status",
-                        render: function (data) {
-                            const style =  leadStatusColor(data);
-                            return `<p style="background-color: ${style.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                            ${data}
-                        </p>`;
-                        },
-                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            const style = getStatusStyle(data);
+                            return `<span style="color: ${style.color}; font-weight: ${style.fontWeight};">${data}</span>`;
+                        }
                     },
                 ],
                 responsive: true,
@@ -99,7 +99,7 @@ export default function WorkerAdvance() {
                     $(row).attr("data-id", data.id);
                 },
             });
-    
+
             $(tableRef.current).css('table-layout', 'fixed');
         }
     };
@@ -108,7 +108,8 @@ export default function WorkerAdvance() {
         setLoading(true);
         initializeDataTable();
         setLoading(false);
-        
+
+        // Cleanup on unmount
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true);
@@ -116,7 +117,21 @@ export default function WorkerAdvance() {
         };
     }, []);
 
-
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'paid':
+                return {
+                    color: 'green',
+                    fontWeight: 'bold'
+                };
+            case 'active':
+                return { color: 'orange', fontWeight: 'bold' };
+            case 'pending':
+                return { color: 'red', fontWeight: 'bold' };
+            default:
+                return {};
+        }
+    };
     const formatCurrency = (amount) => {
         if (amount === null || amount === undefined) {
             return '-';

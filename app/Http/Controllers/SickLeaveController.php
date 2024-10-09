@@ -7,17 +7,12 @@ use App\Models\SickLeave;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
-use App\Enums\NotificationTypeEnum;
-use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
-use App\Traits\NotifySickLeave;
-
 
 class SickLeaveController extends Controller
 {
-    use NotifySickLeave;
     /**
      * Display a listing of the resource.
      *
@@ -26,35 +21,38 @@ class SickLeaveController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        
+
         $columns = ['id', 'start_date', 'end_date', 'status', 'rejection_comment'];
-    
+
         $length = $request->get('length', 10); // Number of records per page
         $start = $request->get('start', 0); // Pagination start
-    
+
         $order = $request->get('order', []);
         $columnIndex = $order[0]['column'] ?? 0;
-        $dir = $order[0]['dir'] ?? 'desc';
+        $direction = $order[0]['dir'] ?? 'asc';
 
-    
+        $search = $request->get('search', []);
+        $searchValue = $search['value'] ?? '';
+
         $query = SickLeave::where('worker_id', $user->id)
                     ->with('user');
-    
-        if ($search = $request->get('search')) {
-            $query->where(function ($query) use ($search) {
-                $query->where('start_date', 'like', "%{$search}%")
-                    ->orWhere('end_date', 'like', "%{$search}%")
-                    ->orWhere('status', 'like', "%{$search}%")
-                    ->orWhere('rejection_comment', 'like', "%{$search}%");
+
+        // Search filter
+        if ($searchValue) {
+            $query->where(function ($query) use ($searchValue) {
+                $query->where('start_date', 'like', "%{$searchValue}%")
+                    ->orWhere('end_date', 'like', "%{$searchValue}%")
+                    ->orWhere('status', 'like', "%{$searchValue}%")
+                    ->orWhere('rejection_comment', 'like', "%{$searchValue}%");
             });
         }
-    
+
         // Sorting
-        $query->orderBy($columns[$columnIndex] ?? 'id', $dir);
-    
+        $query->orderBy($columns[$columnIndex] ?? 'id', $direction);
+
         $totalRecords = $query->count();
         $sickLeaves = $query->skip($start)->take($length)->get();
-    
+
         return response()->json([
             'draw' => intval($request->get('draw')),
             'data' => $sickLeaves,
@@ -62,12 +60,13 @@ class SickLeaveController extends Controller
             'recordsFiltered' => $totalRecords,
         ]);
     }
-    
-    
+
+
 
     public function store(Request $request)
     {
-        $validated = $request->validate([     
+        $validated = $request->validate([
+
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'doctor_report' => 'required|file|mimes:pdf,jpg,png',
@@ -90,18 +89,10 @@ class SickLeaveController extends Controller
             'reason_for_leave'=>$validated['reason_for_leave'],
         ]);
 
-         // Send notification to admin
-         Notification::create([
-            'user_id' => $sickLeave->worker_id,
-            'type' => NotificationTypeEnum::SICK_LEAVE_CREATED,  
-            'status' => $sickLeave->status
-        ]);
-
-
         return response()->json($sickLeave, 201);
-    
+
     }
-   
+
     public function show($id)
     {
         $sickLeave = SickLeave::select('id', 'worker_id', 'start_date', 'end_date', 'doctor_report_path','reason_for_leave')   
@@ -118,10 +109,6 @@ class SickLeaveController extends Controller
     {
         $sickLeave = SickLeave::findOrFail($id);
 
-        if ($sickLeave->status === 'approved') {
-            return response()->json(['error' => 'Approved sick leave cannot be updated.'], 403);
-        }
-       
         // Validate the request data with required fields
         $validated = $request->validate([
             'start_date' => 'required|date',
@@ -129,14 +116,14 @@ class SickLeaveController extends Controller
             'doctor_report' => 'nullable|file|mimes:pdf,jpg,png',
             'reason_for_leave' => 'nullable|string'
         ]);
-    
+
         $workerId = Auth::id();
-    
+
         $sickLeave->worker_id = $workerId;
         $sickLeave->start_date = $validated['start_date'];
         $sickLeave->end_date = $validated['end_date'];
         $sickLeave->reason_for_leave = $validated['reason_for_leave'] ?? $sickLeave->reason_for_leave;
-    
+
         if ($request->hasFile('doctor_report')) {
             if ($sickLeave->doctor_report_path) {
                 Storage::disk('public')->delete($sickLeave->doctor_report_path);
@@ -144,87 +131,81 @@ class SickLeaveController extends Controller
             $reportPath = $request->file('doctor_report')->store('doctor_reports', 'public');
             $sickLeave->doctor_report_path = $reportPath;
         }
-    
+
         $sickLeave->save();
-    
+
         return response()->json($sickLeave);
     }
-       
+
     public function destroy($id)
     {
         $sickLeave = SickLeave::findOrFail($id);
-        
-        if ($sickLeave->status === 'approved') {
-            return response()->json(['error' => 'Approved sick leave cannot be deleted.'], 403);
-        }
+
         if ($sickLeave->doctor_report_path) {
             Storage::disk('public')->delete($sickLeave->doctor_report_path);
         }
         $sickLeave->delete();
-    
+
         return response()->json(null, 204);
     }
 
     public function allLeaves(Request $request)
     {
         $columns = ['id', 'worker_name', 'start_date', 'end_date', 'status'];
-    
+
         $length = $request->get('length', 10);
         $start = $request->get('start', 0);
         $column = $request->get('column', 0);
-        $dir = $request->get('dir', 'desc'); 
+        $dir = $request->get('dir', 'asc');
         $search = $request->get('search', '');
-        $status = $request->get('status');
-    
+        $status = $request->get('status', 'all');
+
         $query = SickLeave::with('user')
-            ->select('sick_leaves.*');
-    
+            ->select('sick_leaves.*') // Ensure to select from sick_leaves
+            ->orderBy('created_at', 'desc');
+
         // Search filter
         if ($search) {
-            $query->where(function ($query) use ($search) {
-                $query->whereHas('user', function ($query) use ($search) {
-                    $query->where('firstname', 'like', "%{$search}%")
-                        ->orWhere('lastname', 'like', "%{$search}%");
-                })
-                ->orWhere('start_date', 'like', "%{$search}%")
-                ->orWhere('end_date', 'like', "%{$search}%")
-                ->orWhere('status', 'like', "%{$search}%");
-            });
+            $query->whereHas('user', function ($query) use ($search) {
+                $query->where('firstname', 'like', "%{$search}%")
+                    ->orWhere('lastname', 'like', "%{$search}%");
+            })
+            ->orWhere('start_date', 'like', "%{$search}%")
+            ->orWhere('end_date', 'like', "%{$search}%");
         }
-    
+
         // Status filter
-        if ($status !== 'All') {
+        if ($status !== 'all') {
             $query->where('status', $status);
         }
-    
+
         // Sorting
         $query->orderBy($columns[$column], $dir);
-    
+
         // Pagination
         $totalRecords = $query->count();
         $leaveRequests = $query->skip($start)->take($length)->get()
             ->map(function ($leave) {
                 $leave->start_date = Carbon::parse($leave->start_date)->format('Y-m-d');
                 $leave->end_date = Carbon::parse($leave->end_date)->format('Y-m-d');
-    
+
                 $leave->doctor_report_path = $leave->doctor_report_path
                     ? url('storage/doctor_reports/' . basename($leave->doctor_report_path))
                     : null;
-    
+
                 $leave->worker_name = $leave->user ? $leave->user->firstname . ' ' . $leave->user->lastname : 'Unknown';
-    
+
                 return $leave;
             });
-    
+
         return response()->json([
-            'draw' => intval($request->get('draw')), // Added draw parameter
+            'draw' => intval($request->get('draw')),
             'data' => $leaveRequests,
             'recordsTotal' => $totalRecords,
             'recordsFiltered' => $totalRecords,
-           
-             // `recordsFiltered` is same as `recordsTotal` since no separate filtering count is used
         ]);
     }
+
 
     public function approve(Request $request,SickLeave $sickLeave)
     {
@@ -243,9 +224,7 @@ class SickLeaveController extends Controller
         }
 
         $sickLeave->save();
-        
-        $sickLeave->load('user');
-        $this->sendSickLeaveNotification($sickLeave);
+
         return response()->json($sickLeave);
     }
 }

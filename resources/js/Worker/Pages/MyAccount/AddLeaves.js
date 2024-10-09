@@ -33,7 +33,7 @@ export default function AddSickLeave() {
         formData.append("start_date", startDate);
         formData.append("end_date", endDate);
         formData.append("reason_for_leave", reason);
-        
+
         if (doctorReport) {
             formData.append("doctor_report", doctorReport);
         }
@@ -56,14 +56,8 @@ export default function AddSickLeave() {
                 }
             })
             .catch((error) => {
-                if (error.response && error.response.data.errors) {
-                    const errors = error.response.data.errors;
-                    Object.keys(errors).forEach((field) => {
-                        alert.error(errors[field][0]); 
-                    },2000);
-                } else {
-                    alert.error("An unexpected error occurred.");
-                }
+                setLoading(false);
+                alert.error("An unexpected error occurred.");
             });
     };
 
@@ -76,7 +70,7 @@ export default function AddSickLeave() {
                     <div className="row">
                         <div className="col-lg-6 col-12">
                             <div className="dashBox p-4">
-                            
+
                                 <div className="form-group">
                                     <label className="control-label">
                                       {t("global.startDate")}
@@ -86,7 +80,7 @@ export default function AddSickLeave() {
                                         className="form-control"
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
-                    
+                                        required
                                     />
                                 </div>
                                 <div className="form-group">
@@ -98,7 +92,7 @@ export default function AddSickLeave() {
                                         className="form-control"
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                       
+                                        required
                                     />
                                 </div>
                                 <div className="form-group">
@@ -120,7 +114,7 @@ export default function AddSickLeave() {
                                         className="form-control"
                                         value={reason}
                                         onChange={(e) => setReason(e.target.value)}
-                                        
+
                                     />
                                 </div>
                                 <button type="submit" className="btn btn-primary">

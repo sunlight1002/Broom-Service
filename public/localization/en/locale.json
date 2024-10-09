@@ -4,6 +4,8 @@
         "continue": "Continue"
     },
     "global": {
+        "search":"Search",
+        "all":"All",
         "alltime":"All time",
         "name":"Name",
         "Email":"Email",
@@ -147,7 +149,7 @@
         "problem": "Problem",
         "noProblem": "No Problem",
         "noOfProblem": "No. of Problems",
-        "Submit":"Submit"
+        "Submit": "Submit"
     },
     "modal": {
         "title": "Modal",
@@ -951,7 +953,9 @@
             "Export": "Export to CSV",
             "Import": "Import",
             "All": "All",
+            "Date":"Date",
             "done": "Done",
+            "visits":"Visits",
             "cancel": "Cancel",
             "undone": "Undone",
             "AddNew": "Add New",
@@ -1530,7 +1534,7 @@
                 }
             }
         },
-        "holidays":{
+        "holidays": { 
             "addNewHoliday":"Add New Holiday",
             "holidayName":"Holiday Name",
             "startDate":"Start Date",
@@ -1552,6 +1556,7 @@
             "payments": "Payments",
             "earnings": "Earnings",
             "notification": "Notitfications",
+            "workerLeave":"Workers Leave",
             "settings": {
                 "title": "Settings",
                 "manage_team": "Manage team",
@@ -1577,17 +1582,18 @@
                 "selectLang":"--- Select language ---",
                 "selectCurrency":"--- Select currency ---",
                 "uploadProfile": "Upload profile image",
-                "verification": "Two step Verification",
-                "holidays": "Holidays"
+               "verification": "Two step Verification",
+                "holidays":"Holidays"
             },
             "logout": "Logout"
         },
         "leaves":{
-            "confirm": "Confirm",
-            "cancel":"Cancel",
-            "confirmation": "Confirmation",
-            "approveConfirm": "Approved leave",
-            "rejectionReason": "Leave rejected reason"
+            "confirmation": "Reason for rejected",
+            "confirmationText": "comment for reject",
+            "rejectionReason" : "reason for reject",
+            "confirm" : "Confirm",
+            "cancel" :"Cancel",
+            "approveConfirm":"Are you sure to approve?"
         }
     },
     "worker": {
@@ -1598,28 +1604,27 @@
         "search": "search",
         "next": "Next",
         "previous": "Previous",
-        "action" : "Action",
-        "status": "Status",
-        "refund_request": "Refund Request",
-        "payment": "Payment",
-        "worker_leave": "Worker Leave",
-        "worker_refund": "Worker Refund",
-        "workerName": "Name",
-        "startDate":"Start Date",
+        "workerName":"Worker Name",
         "endDate":"End Date",
-        "doctorReport": "Doctor Report",
-        "leaveReason": "Leave Reason",
-        "leaveRequest": "Leaves Request",
-        "approve": "Approve",
-        "reject": "reject",
-        "reason": "Reason",
+        "doctorReport":"Doctor Report",
+        "reason":"Reason",
+        "refund_request":"Refund",
+        "status":"Status",
+        "leaveRequest":"Leads",
+        "action":"Action",
+        "approve":"Approve",
+        "reject":"Reject",
+        "statusPending":"Pending",
+        "statusApproved":"Approved",
+        "statusRejected":"Rejected",
+        "worker_refund": "Worker Refund",
         "sidebar": {
             "dashboard": "Dashboard",
             "jobs": "Jobs",
             "schedule": "Schedule",
             "not_available": "Not Available Dates",
             "workingHours": "Hours",
-            "leaves": "Leaves"
+            "leaves":"Leaves"
         },
         "dashboard": {
             "past_jobs": "Past Jobs",
@@ -1781,8 +1786,20 @@
             "enterBankname":"Enter Bank name",
             "enterBanknumber":"Enter Bank Number",
             "enterBranchnumber":"Enter Branch Number",
-            "enterAccountnumber":"Enter Account Number"
-
+            "enterAccountnumber":"Enter Account Number",
+            "advance":"Advance/Loan",
+            "type":"Type",
+            "amount":"Amount",
+            "pendingAmount":"Pending Amount",
+            "action":"Action",
+            "addAdvance":"Add Advance/Loan",
+            "editAdvance":"Edit Advance/Loan",
+            "selectType":"Select Type",
+            "Advance":"Advance",
+            "loan":"Loan",
+            "monthlyPayment":"Monthly Payment",
+            "loanStart":"Loan Start Date",
+            "submit":"Submit"
         }
     },
     "worker_contract": {

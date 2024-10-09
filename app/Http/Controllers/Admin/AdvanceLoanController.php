@@ -17,61 +17,39 @@ class AdvanceLoanController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
         $user = auth()->user();    
-        $query = AdvanceLoan::with('worker')
-                    ->where('worker_id', $user->id);
-    
-        // Apply search filter
-        if ($request->has('search') && !empty($request->search)) {
-            $query->where(function($q) use ($request) {
-                $q->where('type', 'LIKE', '%' . $request->search . '%')
-                  ->orWhere('status', 'LIKE', '%' . $request->search . '%');
+        $advanceLoans = AdvanceLoan::with('worker')
+                ->orderBy('created_at', 'desc')
+                ->where('worker_id', $user->id)
+                ->get()
+                ->map(function ($advanceLoan) {
+                    $latestTransaction = AdvanceLoanTransaction::where('advance_loan_id', $advanceLoan->id)
+                        ->orderBy('transaction_date', 'desc')
+                        ->first();
+
+                    $totalPaidAmount = AdvanceLoanTransaction::where('advance_loan_id', $advanceLoan->id)
+                    ->where('type', 'credit')
+                    ->sum('amount');
+
+
+                    $latestPendingAmount = $latestTransaction ? $latestTransaction->pending_amount : 0;
+                return [
+                    'id' => $advanceLoan->id,
+                    'worker_name' => $advanceLoan->worker->firstname . ' ' . $advanceLoan->worker->lastname,
+                    'type' => $advanceLoan->type,
+                    'amount' => $advanceLoan->amount,
+                    'monthly_payment' => $advanceLoan->monthly_payment,
+                    'loan_start_date' => $advanceLoan->loan_start_date,
+                    'status' => $advanceLoan->status,
+                    'created_at' => $advanceLoan->created_at->format('Y-m-d'),
+                    'latest_pending_amount' => $latestPendingAmount,
+                    'total_paid_amount' => $totalPaidAmount,
+                ];
             });
-        }
-    
-        // Apply status filter if provided
-        if ($request->has('status') && !empty($request->status)) {
-            $query->where('status', $request->status);
-        }
-    
-        $advanceLoans = $query->orderBy('created_at', 'desc')
-            ->paginate($request->length);
-    
-        $data = $advanceLoans->map(function ($advanceLoan) {
-            $latestTransaction = AdvanceLoanTransaction::where('advance_loan_id', $advanceLoan->id)
-                ->orderBy('transaction_date', 'desc')
-                ->first();
-    
-            $totalPaidAmount = AdvanceLoanTransaction::where('advance_loan_id', $advanceLoan->id)
-                ->where('type', 'credit')
-                ->sum('amount');
-    
-            $latestPendingAmount = $latestTransaction ? $latestTransaction->pending_amount : 0;
-            
-            return [
-                'id' => $advanceLoan->id,
-                'worker_name' => $advanceLoan->worker->firstname . ' ' . $advanceLoan->worker->lastname,
-                'type' => $advanceLoan->type,
-                'amount' => $advanceLoan->amount,
-                'monthly_payment' => $advanceLoan->monthly_payment,
-                'loan_start_date' => $advanceLoan->loan_start_date,
-                'status' => $advanceLoan->status,
-                'created_at' => $advanceLoan->created_at->format('Y-m-d'),
-                'latest_pending_amount' => $latestPendingAmount,
-                'total_paid_amount' => $totalPaidAmount,
-            ];
-        });
-    
-        return response()->json([
-            'draw' => $request->draw,
-            'recordsTotal' => $advanceLoans->total(),
-            'recordsFiltered' => $advanceLoans->total(),
-            'data' => $data,
-        ]);
+        return response()->json($advanceLoans);
     }
-    
 
     /**
      * Store a newly created resource in storage.
@@ -119,7 +97,7 @@ class AdvanceLoanController extends Controller
     public function show($worker_id)
     {
         $worker = User::findOrFail($worker_id);
-    
+
         $advanceLoans = AdvanceLoan::with('worker:id,firstname,lastname')
             ->orderBy('created_at', 'desc')
             ->where('worker_id', $worker_id)
@@ -147,8 +125,8 @@ class AdvanceLoanController extends Controller
                     'total_paid_amount' => $totalPaidAmount,
                 ];
             });
-        
-    
+
+
         return response()->json($advanceLoans);
     }
 
@@ -168,13 +146,13 @@ class AdvanceLoanController extends Controller
             'monthly_payment' => 'nullable|required_if:type,loan|numeric|min:0',
             'loan_start_date' => 'nullable|required_if:type,loan|date',
         ]);
-    
+
         $advanceLoan = AdvanceLoan::findOrFail($id);
-    
+
         $hasCreditEntry = AdvanceLoanTransaction::where('advance_loan_id', $id)
                             ->where('type', 'credit')
                             ->exists();
-    
+
         if ($hasCreditEntry) {
             return response()->json([
                 'message' => 'There are credit entries for this advance/loan. Can not upadte it.',
@@ -188,7 +166,7 @@ class AdvanceLoanController extends Controller
             'monthly_payment' => $request->monthly_payment,
             'loan_start_date' => $request->loan_start_date,
         ]);
-    
+
         $debitTransaction = AdvanceLoanTransaction::where('advance_loan_id', $id)
                             ->where('type', 'debit')
                             ->first();
@@ -200,10 +178,10 @@ class AdvanceLoanController extends Controller
                 'transaction_date' => now(),
             ]);
         }
-    
+
         return response()->json(['message' => 'Advance/Loan updated successfully', 'data' => $advanceLoan], 200);
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -218,20 +196,19 @@ class AdvanceLoanController extends Controller
         $hasCreditEntry = AdvanceLoanTransaction::where('advance_loan_id', $id)
             ->where('type', 'credit')
             ->exists();
-    
+
         if ($hasCreditEntry) {
             return response()->json([
                 'message' => 'There are credit entries for this advance/loan. Cannot delete it.',
                 'data' => $advanceLoan
             ], 400);
         }
-    
+
         AdvanceLoanTransaction::where('advance_loan_id', $advanceLoan->id)->delete();
         $advanceLoan->delete();
-    
+
         return response()->json(['message' => 'Advance/Loan deleted successfully']);
     }
 
 
 }
-

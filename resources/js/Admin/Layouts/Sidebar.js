@@ -32,9 +32,7 @@ export default function Sidebar() {
     const [isDropdownOpen, setDropdownOpen] = useState(false); // Manage dropdown open state
 
     // Check if the current path matches any of the routes in the dropdown
-    const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time", "/admin/settings","/admin/holidays","/admin/templates"].includes(location.pathname);
-
-    const getAdmin = () => {
+    const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time","/admin/holidays", "/admin/settings"].includes(location.pathname);    const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
         });
@@ -127,17 +125,24 @@ export default function Sidebar() {
                     </NavLink>
                 </li>
                 <li className="list-group-item">
+                    <NavLink to="/admin/workers-leaves"
+                        className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-calendar-minus font-20"></i>{t("admin.sidebar.workerLeave")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
+                    <NavLink to="/admin/task"
+                        className="d-flex align-items-center"
+                    >
+                        <i class="fa-solid fa-list-check"></i>Task Management
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
                     <NavLink to="/admin/worker-leads"
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-users font-20"></i>Worker Lead
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/admin/workers-leaves"
-                        className="d-flex align-items-center"
-                    >
-                        <i className="fa-solid fa-calendar-minus font-20"></i>{t("worker.worker_leave")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
@@ -265,7 +270,7 @@ export default function Sidebar() {
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.holidays) ? "active" : ""}`}>
-                                        <Link to={routes.holidays} style={isActive(routes.holidays)?{color: "white"}:{color: "#757589"}}>
+                                        <Link to={routes.holidays}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.holidays")}
                                         </Link>

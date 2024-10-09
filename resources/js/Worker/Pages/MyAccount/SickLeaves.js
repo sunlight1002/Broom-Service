@@ -12,7 +12,6 @@ import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 import Sidebar from "../../Layouts/WorkerSidebar";
-import { leadStatusColor } from "../../../Utils/client.utils";
 
 export default function ManageSickLeaves() {
     const { t } = useTranslation();
@@ -38,16 +37,12 @@ export default function ManageSickLeaves() {
                     type: "GET",
                     headers: headers,
                     data: function (d) {
-                        return {
-                            draw: d.draw,
-                            length: d.length,
-                            start: d.start,
-                            column: d.order[0].column,
-                            dir: d.order[0].dir,
-                            search: d.search.value,
-                        };
+                        d.length = d.length || 10;
+                        d.start = d.start || 0;
+                        d.column = d.order[0].column;
+                        d.dir = d.order[0].dir;
+                        d.search = d.search.value;
                     },
-                    dataSrc: 'data',
                 },
                 order: [[0, "desc"]],
                 columns: [
@@ -56,41 +51,36 @@ export default function ManageSickLeaves() {
                         data: "id",
                         visible: false,
                     },
-    
+
                     {
                         title: t("global.startDate"),
                         data: "start_date",
+                        className: "text-left",
                     },
                     {
                         title: t("worker.endDate"),
                         data: "end_date",
+                        className: "text-left",
                     },
                     {
                         title: t("worker.status"),
                         data: "status",
                         render: function (data, type, row, meta) {
-                            const style = leadStatusColor(data);
-                            return `<p style="background-color: ${style.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                            ${data}
-                        </p>`;
-                        },
+                            const style = getStatusStyle(data);
+                            return `<span style="color: ${style.color}; font-weight: ${style.fontWeight};">${data}</span>`;
+                        }
+
                     },
                     {
-                        title: "Reason for Reject",
+                        title: t("worker.reason"),
                         data: "rejection_comment",
-                        render: function (data, type, row, meta) {
-                            return `${data??"NA"}`;
-                        },
-                       
+
                     },
                     {
                         title: t("worker.action"),
                         data: null,
                         orderable: false,
                         render: function (data, type, row, meta) {
-                            if (row.status === 'approved') {
-                                return ''; // Return an empty string to hide the action buttons
-                            }
                             return `
                                 <div class="action-dropdown dropdown">
                                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -117,24 +107,24 @@ export default function ManageSickLeaves() {
             $(tableRef.current).css('table-layout', 'fixed');
         }
     };
-    
+
     const initializeTableActions = () => {
         // Handle Edit Button Click
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const id = $(this).data("id");
             navigate(`/worker/sick-leaves/${id}/edit`);
         });
-    
+
         // Handle Delete Button Click
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const id = $(this).data("id");
             handleDelete(id);
         });
     };
-    
+
     useEffect(() => {
         initializeDataTable();
-    
+
         // Cleanup on unmount
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
@@ -142,7 +132,7 @@ export default function ManageSickLeaves() {
             }
         };
     }, []);
-    
+
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -166,17 +156,29 @@ export default function ManageSickLeaves() {
                         }
                     })
                     .catch((error) => {
-                        if (error.response && error.response.status === 403) {
-                            Swal.fire("Error!", error.response.data.error, "error");
-                        } else {
-                            Swal.fire("Error!", "An unexpected error occurred.", "error");
-                        }
+                        Swal.fire("Error!", "An unexpected error occurred.", "error");
                     });
             }
         });
     };
     const sortTable = (colIdx) => {
         $(tableRef.current).DataTable().order([parseInt(colIdx), "asc"]).draw();
+    };
+
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'approved':
+                return {
+                    color: 'green',
+                    fontWeight: 'bold'
+                };
+            case 'pending':
+                return { color: 'orange', fontWeight: 'bold' };
+            case 'rejected':
+                return { color: 'red', fontWeight: 'bold' };
+            default:
+                return {};
+        }
     };
 
     return (
@@ -212,6 +214,6 @@ export default function ManageSickLeaves() {
             { loading && <FullPageLoader visible={loading}/>}
         </div>
         </div>
-        
+
     );
 }

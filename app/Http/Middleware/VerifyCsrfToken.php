@@ -19,5 +19,6 @@ class VerifyCsrfToken extends Middleware
         'newlead',
         'facebook/webhook',
         'icount/webhook',
+        'twilio/*',
     ];
 }

@@ -48,7 +48,7 @@ export default function WorkersRefund() {
                     },
                     dataSrc: function (json) {
                         // Debugging: Check the structure of the response
-                        console.log('DataTable Response:', json);
+                        // console.log('DataTable Response:', json);
                         if (!json.data) {
                             console.error('Invalid data format', json);
                             return [];
@@ -58,8 +58,12 @@ export default function WorkersRefund() {
                 },
                 order: [[0, "desc"]],
                 columns: [
-                    { title: t("worker.workerName"), data: "worker_name" },
-                    { title: "Date", data: "date" },
+                    { title: "Name", data: "worker_name" },
+                    { 
+                        title: "Date",
+                        data: "date",
+                        className: "text-left",
+                    },
                     { title: "Amount", data: "amount",
                         render: function (data) {
                             return formatCurrency(data);
@@ -77,7 +81,7 @@ export default function WorkersRefund() {
                     },
                 
                     {
-                        title: t("worker.status"),
+                        title: "Status",
                         data: "status",
                         render: function (data) {
                             const style = leadStatusColor(data);
@@ -87,7 +91,7 @@ export default function WorkersRefund() {
                         },
                     },
                     {
-                        title: t("worker.action"),
+                        title: "Action",
                         data: null,
                         orderable: false,
                         render: function (data, type, row) {

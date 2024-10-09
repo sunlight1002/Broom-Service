@@ -66,13 +66,19 @@ export default function WorkerSidebar() {
                 <li className="list-group-item">
                     <NavLink to="/worker/leaves">
                         <i className="fa-solid fa-calendar-xmark"></i>
-                        Leave
+                        {t("worker.sidebar.leaves")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/advance-loan">
                         <i className="fa-solid fa-hand-holding-usd"></i>
                         Advance/Loan
+                    </NavLink>
+                    </li>
+                <li className="list-group-item">
+                    <NavLink to="/worker/tasks">
+                    <i class="fa-solid fa-list-check"></i>
+                        Tasks
                     </NavLink>
                 </li>
                 <li className="list-group-item">

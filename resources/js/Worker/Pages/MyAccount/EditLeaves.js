@@ -55,7 +55,7 @@ export default function EditLeaves() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-    
+
         const formData = new FormData();
         formData.append("start_date", startDate);
         formData.append("end_date", endDate);
@@ -65,39 +65,29 @@ export default function EditLeaves() {
         if (doctorReport) {
             formData.append("doctor_report", doctorReport);
         }
-    
+
         axios
-        .post(`/api/sick-leaves/${id}`, formData, { headers })
-        .then((res) => {
-            setLoading(false);
-            if (res.data.errors) {
-                setErrors(res.data.errors);
-                for (let error in res.data.errors) {
-                    alert.error(res.data.errors[error]);
+            .post(`/api/sick-leaves/${id}`, formData, { headers })
+            .then((res) => {
+                setLoading(false);
+                if (res.data.errors) {
+                    setErrors(res.data.errors);
+                    for (let error in res.data.errors) {
+                        alert.error(res.data.errors[error]);
+                    }
+                } else {
+                    alert.success("Sick leave updated successfully!");
+                    setTimeout(() => {
+                        navigate("/worker/leaves");
+                    }, 1000);
                 }
-            } else {
-                alert.success("Sick leave updated successfully!");
-                setTimeout(() => {
-                    navigate("/worker/leaves");
-                }, 1000);
-            }
-        })
-        .catch((error) => {
-            setLoading(false);
-            if (error.response && error.response.status === 403) {
-                alert.error(error.response.data.error); 
-            } else if (error.response && error.response.data.errors) {
-                const errors = error.response.data.errors;
-                Object.keys(errors).forEach((field) => {
-                    alert.error(errors[field][0]);
-                }, 2000);
-            } else {
+            })
+            .catch((error) => {
+                setLoading(false);
                 alert.error("An unexpected error occurred.");
-            }
-        });
-    
+            });
     };
-    
+
 
     return (
         <div id="container">
