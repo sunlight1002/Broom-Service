@@ -77,7 +77,7 @@ export default function AddWorker() {
     const [longitude, setLongitude] = useState(151.2099);
     const [loading, setLoading] = useState(false);
     const [place, setPlace] = useState();
-    Geocode.setApiKey("AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM");
+    Geocode.setApiKey("AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk");
     const containerStyle = {
         width: "100%",
         height: "300px",
@@ -92,7 +92,7 @@ export default function AddWorker() {
             ...prev,
             [name]: value,
         }));
-    };    
+    };
 
     const handleBankDetails = (e) => {
         const { name, value } = e.target;
@@ -821,7 +821,7 @@ export default function AddWorker() {
                                         {t("admin.global.location")}
                                     </label>
                                     <LoadScript
-                                        googleMapsApiKey="AIzaSyBva3Ymax7XLY17ytw_rqRHggZmqegMBuM"
+                                        googleMapsApiKey="AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk"
                                         libraries={libraries}
                                     >
                                         <GoogleMap

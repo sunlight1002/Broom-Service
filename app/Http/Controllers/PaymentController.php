@@ -72,9 +72,8 @@ class PaymentController extends Controller
                                 ],
                             ]
                         ]);
-
                         if ($captureChargeResponse && !$captureChargeResponse['HasError']) {
-                            $refundResponse = $this->refundByReferenceID($captureChargeResponse['ReferenceNumber']);
+                            $refundResponse = $this->getTransactionByReferenceID($captureChargeResponse['ReferenceNumber']);
 
                             if ($refundResponse && !$refundResponse['HasError']) {
                                 $cardType = $this->cardBrandNameByCode($ZCreditTrx['CardBrandCode']);

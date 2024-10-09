@@ -135,7 +135,7 @@ trait PaymentAPI
             'UseAdvancedDuplicatesCheck' => "",
         ];
 
-        if(!isset($chargeData['obeligo_action']) || $chargeData['obeligo_action'] == 2) {
+        if(!isset($chargeData['obeligo_action']) || $chargeData['obeligo_action'] != 2) {
             $postData['ZCreditInvoiceReceipt'] = [
                 'Type' => "0",
                 'TaxRate' => config('services.app.tax_percentage'),
