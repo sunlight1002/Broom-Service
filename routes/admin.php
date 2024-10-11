@@ -38,6 +38,7 @@ use App\Http\Controllers\RefundClaimController;
 use App\Http\Controllers\LeadActivityController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\GoogleCalendarController;
+use App\Http\Controllers\SettingsController;
 
 
 /*
@@ -331,6 +332,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('settings', [SettingController::class, 'updateSettings']);
     Route::post('settings/payment', [SettingController::class, 'updatePaymentRate']);
 
+    //Payslip settings
+    Route::get('/settings/get', [SettingsController::class, 'getSettings']);
+    Route::post('/settings/save', [SettingsController::class, 'saveSettings']); 
+ 
     //documents
     Route::get('documents/{id}', [DocumentController::class, 'documents']);
     Route::delete('document/remove/{id}/{user_id}', [DocumentController::class, 'remove']);

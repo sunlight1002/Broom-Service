@@ -71,7 +71,9 @@ class User extends Authenticatable
         'bank_number',
         'branch_number',
         'account_number',
-        'driving_fees'
+        'driving_fees',
+        'employment_type',
+        'salary'
     ];
 
     /**

@@ -27,6 +27,11 @@ export default function WorkerHours() {
     const [selectedWorkerIDs, setSelectedWorkerIDs] = useState([]);
     const [selectedDateRange, setSelectedDateRange] = useState("Week");
     const [selectedDateStep, setSelectedDateStep] = useState("Current");
+    const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+    
+    const handleMonthChange = (e) => {
+        setMonth(e.target.value);
+    };
 
     const tableRef = useRef(null);
     const startDateRef = useRef(null);
@@ -241,8 +246,34 @@ export default function WorkerHours() {
                 document.body.removeChild(link);
                 URL.revokeObjectURL(href);
             });
+    }
+    
+    const handlepayslip = async () => {
+        try {
+            const response = await axios.get('/api/admin/generate-monthly-report', {
+                headers,
+                params: { month },
+                responseType: 'blob',
+            });
+    
+            const fileName = `Monthly_Report_${month}.xlsx`;
+    
+            const href = URL.createObjectURL(new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+    
+            const link = document.createElement("a");
+            link.href = href;
+            link.setAttribute("download", fileName);
+            document.body.appendChild(link);
+            link.click();
+    
+            document.body.removeChild(link);
+            URL.revokeObjectURL(href);
+        } catch (err) {
+            setError('Failed to generate report. Please try again.');
+            console.error(err);
+        }
     };
-
+    
 
     useEffect(() => {
         $(tableRef.current).DataTable().draw();
@@ -473,6 +504,45 @@ export default function WorkerHours() {
                                 }}
                             >
                                Export Pdf
+                            </button>
+                        </div>
+                    </div>
+                    <div className="col-sm-12 hidden-xs d-sm-flex mt-2">
+                        <div className="mr-3 align-items-center" style={{ fontWeight: "bold" }}>
+                            Payslip:
+                        </div>
+                        <div className="d-flex">
+                            <div className="position-relative">
+                                <input
+                                    type="month"
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    value={month}
+                                    onChange={(e) => setMonth(e.target.value)}
+                                    required
+                                    style={{ paddingLeft: "40px" }} // Add padding to accommodate the placeholder text
+                                />
+                                <span
+                                    style={{
+                                        position: "absolute",
+                                        left: "30px",
+                                        top: "50%",
+                                        transform: "translateY(-50%)",
+                                        color: month ? "transparent" : "#999", // Change color based on input value
+                                    }}
+                                >
+                                    Select Month
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                className="m-0 ml-4 btn border rounded px-3"
+                                onClick={handlepayslip}
+                                style={{
+                                    background: "#2c3f51",
+                                    color: "white",
+                                }}
+                            >
+                                Export Payslip
                             </button>
                         </div>
                     </div>

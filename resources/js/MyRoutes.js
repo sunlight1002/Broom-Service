@@ -151,6 +151,7 @@ import AdminLoginOtp from "./Admin/Pages/Auth/AdminLoginOtp";
 import WorkerLoginOtp from "./Worker/Auth/WorkerLoginOtp";
 import ClientLoginOtp from "./Client/Auth/ClientLoginOtp";
 import Holidays from "./Admin/Pages/Setting/Holiday";
+import PayslipSettings from "./Admin/Pages/Setting/PayslipSettings";
 import Board from "./Admin/Pages/TaskManagement/Board";
 import Tasks from "./Worker/Pages/MyAccount/Tasks";
 import TeamButtons from "./Pages/TeamButtons";
@@ -668,6 +669,11 @@ export default function MyRoutes() {
                                 exact
                                 path="holidays/:id/edit"
                                 element={<EditHoliday />}
+                            />
+                            <Route
+                                exact
+                                path="payslip-settings"
+                                element={<PayslipSettings />}
                             />
                             <Route
                                 exact

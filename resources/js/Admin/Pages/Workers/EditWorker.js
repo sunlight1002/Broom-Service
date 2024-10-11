@@ -64,7 +64,11 @@ export default function EditWorker() {
     const [latitude, setLatitude] = useState(-33.865143);
     const [longitude, setLongitude] = useState(151.2099);
     const [place, setPlace] = useState();
-    const [payment, setPayment] = useState("")
+    const [payment, setPayment] = useState("");
+
+    const [employmentType, setEmploymentType] = useState(""); 
+    const [salary, setSalary] = useState(""); 
+
     const [loading, setLoading] = useState(false);
     const [bankDetails, setBankDetails] = useState({
         payment_type: "",
@@ -151,6 +155,8 @@ export default function EditWorker() {
             latitude: latitude,
             longitude: longitude,
             payment_type: payment,
+            employment_type: employmentType,
+            salary: employmentType === "fixed" ? salary : null,
             bank_name: bankDetails.bank_name,
             full_name: bankDetails.full_name,
             bank_number: bankDetails.bank_no,
@@ -195,6 +201,8 @@ export default function EditWorker() {
                     country,
                     latitude,
                     longitude,
+                    employment_type,
+                    salary,
                     is_afraid_by_cat,
                     is_afraid_by_dog,
                 } = response.data.worker;
@@ -223,6 +231,8 @@ export default function EditWorker() {
                 })
                 setPayment(_worker.payment_type)
 
+                setEmploymentType(employment_type);
+                setSalary(salary);
                 setPassword(passcode);
                 setSkill(skill ? JSON.parse(skill) : []);
                 setAddress(address);
@@ -827,6 +837,35 @@ export default function EditWorker() {
                                         </div>
                                     </div>
                                 )}
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">{t("global.Type")}</label>
+                                            <select
+                                                className="form-control"
+                                                value={employmentType}
+                                                onChange={(e) => setEmploymentType(e.target.value)}
+                                            >
+                                                <option value="">{t("worker.settings.pleaseSelect")}</option>
+                                                <option value="fixed">{t("worker.settings.fixed")}</option>
+                                                <option value="hourly">{t("worker.settings.hourly")}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {employmentType === "fixed" && (
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">{t("worker.settings.salary")}</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    placeholder={t("worker.settings.salary")}
+                                                    value={salary}
+                                                    onChange={(e) => setSalary(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                             </div>
                             <div className="form-group">
                                 <label className="control-label">

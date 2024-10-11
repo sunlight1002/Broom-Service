@@ -16,11 +16,14 @@ use App\Exports\PayrollReportExport;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
+use App\Exports\MonthlyReportExport;
 
 class PayrollReportController extends Controller
 {
-
     public function generateMonthlyReport(Request $request)
     {
         $request->validate([
@@ -33,6 +36,7 @@ class PayrollReportController extends Controller
         $endDate = Carbon::parse($month)->endOfMonth();
         $daysInMonth = Carbon::parse($month)->daysInMonth;
 
+        // Fetch settings
         $settings = Setting::all()->pluck('value', 'key');
         $overtimeRate125 = $settings['overtime_rate_9to10_hours'];
         $overtimeRate150 = $settings['overtime_rate_11to12_hours'];
@@ -49,11 +53,11 @@ class PayrollReportController extends Controller
         // Fetch holidays 
         $holidays = Holiday::where(function ($query) use ($startDate, $endDate) {
             $query->whereBetween('start_date', [$startDate, $endDate])
-                  ->orWhereBetween('end_date', [$startDate, $endDate])
-                  ->orWhere(function ($query) use ($startDate, $endDate) {
-                      $query->where('start_date', '<=', $startDate)
+                ->orWhereBetween('end_date', [$startDate, $endDate])
+                ->orWhere(function ($query) use ($startDate, $endDate) {
+                    $query->where('start_date', '<=', $startDate)
                             ->where('end_date', '>=', $endDate);
-                  });
+                });
         })->get(['holiday_name', 'start_date', 'end_date']);
 
         // Generate a list of all holiday dates
@@ -64,33 +68,29 @@ class PayrollReportController extends Controller
         }
         $holidayDates = $holidayDates->unique()->map->format('Y-m-d')->toArray();
 
-         // Calculate the total working days excluding Fridays, Saturdays, and holidays
-         $currentDate = $startDate->copy();
-
-         $workingDays = 0;      
-         while ($currentDate->lte($endDate)) {
+        // Calculate the total working days excluding Fridays, Saturdays, and holidays
+        $currentDate = $startDate->copy();
+        $workingDays = 0;      
+        while ($currentDate->lte($endDate)) {
             if (!in_array($currentDate->format('Y-m-d'), $holidayDates) && !in_array($currentDate->dayOfWeek, [Carbon::FRIDAY, Carbon::SATURDAY])) {
                 $workingDays++;
             }
             $currentDate->addDay();
         }
 
-
         // Fetch all users regardless of whether they have jobs in the specified month
-        $users = User::select('users.id', 'users.firstname','users.lastname','users.role',
-                            'users.payment_per_hour','users.worker_id','users.created_at','users.address','users.driving_fees')
+        $users = User::select('users.id', 'users.firstname', 'users.lastname', 'users.role',
+                            'users.payment_per_hour', 'users.worker_id', 'users.created_at', 'users.address', 'users.driving_fees','users.country','users.employment_type', 'users.salary')
                     ->leftJoin('jobs', function($join) use ($startDate, $endDate) {
-                    $join->on('users.id', '=', 'jobs.worker_id')
-                    ->whereBetween('jobs.start_date', [$startDate, $endDate]);
-                })
-                ->groupBy('users.id')
-                ->get();
+                        $join->on('users.id', '=', 'jobs.worker_id')
+                        ->whereBetween('jobs.start_date', [$startDate, $endDate]);
+                    })
+                    ->groupBy('users.id')
+                    ->get();
 
         $reportData = [];
 
-
         foreach ($users as $user) {
-
             $workerDay = Job::where('worker_id', $user->id)
                 ->whereBetween('start_date', [$startDate, $endDate])
                 ->pluck('start_date')
@@ -104,51 +104,110 @@ class PayrollReportController extends Controller
                 ->whereBetween('start_date', [$startDate, $endDate])
                 ->sum('actual_time_taken_minutes');
 
+            $salary = ($user->employment_type == 'fixed') ? $user->salary : null;
+            $normalPayment = 0;
+            $holidayPayment175=0;
+            $holidayPayment200=0;
+            $annualRecoveryFee=0;
+            
+            if ($totalMinutesWorked == 0) {
+                $reportData[] = [
+                    'Number' => $user->id,
+                    'Passport Id' => $user->worker_id,
+                    'Last Name' => $user->lastname,
+                    'First Name' => $user->firstname,
+                    'Role' => $user->role,
+                    'Total Hours Worked' => ' ',
+                    'Normal Rate Hours (100%)' => ' ',
+                    'Hours at 125% Salary' => ' ',
+                    'Hours at 150% Salary' => ' ',
+                    'Holiday/Weekend Hours at 175% Salary' => ' ',
+                    'Holiday/Weekend Hours at 200% Salary' => ' ',
+                    'Total Days' => ' ',
+                    'Hourly Rate' => $user->payment_per_hour,
+                    'Salary' => $salary,
+                    'Normal Payment' => ' ',
+                    '125% Bonus Payment' => ' ',
+                    '150% Bonus Payment' => ' ',
+                    'Holiday Payment at 175%' => ' ',
+                    'Holiday Payment at 200%' => ' ',
+                    'Recovery Fee' => ' ',
+                    'Public Holiday Bonus' => ' ',
+                    'Insurance' => ' ',
+                    'Sick Leave Payment' => ' ',
+                    'Total Payment' => ' ',
+                    'Loan' => ' ',
+                    'Net Payment' => ' ',
+                    'Doctor Report' => ' ',
+                ];
+                continue;
+            }
 
-                if ($totalMinutesWorked == 0) {
-                    $reportData[] = [
-                        'Number' =>$user->id,
-                        'Passport Id' => $user->worker_id,
-                        'Last Name' =>$user->lastname,
-                        'First Name' => $user->firstname,
-                        'Role' => $user->role,
-                        'Total Hours Worked' => ' ',
-                        'Normal Rate Hours (100%)' => ' ',
-                        'Hours at 125% Salary' => ' ',
-                        'Hours at 150% Salary' => ' ',
-                        'Holiday/Weekend Hours at 175% Salary' => ' ',
-                        'Holiday/Weekend Hours at 200% Salary' => ' ',
-                        'Total Days' => ' ',
-                        'Hourly Rate' => $user->payment_per_hour,
-                        'Normal Payment' => ' ',
-                        '125% Bonus Payment' => ' ',
-                        '150% Bonus Payment' => ' ',
-                        'Holiday Payment at 175%' => ' ',
-                        'Holiday Payment at 200%' => ' ',
-                        'Recovery Fee' => ' ',
-                        'Public Holiday Bonus' => ' ',
-                        'Insurance' =>' ',
-                        'Sick Leave Payment' =>' ',
-                        'Total Payment' => ' ',
-                        'loan' =>' ',
-                        'Net Payment'=>' ',
-                        'Doctor Report' =>' ',   
-                    ];
-                    continue;
+            $totalHoursWorked = $totalMinutesWorked / 60;
+            $paymentPerHour = $user->payment_per_hour;
+
+            // Initialize variables
+            $standardHours = $workingDays * 8;
+            $holidayHours175 = 0;
+            $holidayHours200 = 0;
+            $regularHours = 0;
+            $extraHours = 0;
+
+
+            $sickLeavePayment = 0;
+            $sickLeaveDays = 0;
+            if ($user->employment_type == 'fixed') {
+                // Fetch sick leaves and calculate sick leave payment for fixed workers
+                $sickLeaves = SickLeave::where('worker_id', $user->id)
+                    ->where('status', 'approved')
+                    ->where(function ($query) use ($startDate, $endDate) {
+                        $query->where(function ($q) use ($startDate, $endDate) {
+                            $q->where('start_date', '<=', $endDate)
+                                ->where('end_date', '>=', $startDate);
+                        });
+                    })->get();
+        
+                // Calculate sick leave payment for fixed workers
+                foreach ($sickLeaves as $leave) {
+                    $sickStart = Carbon::parse($leave->start_date);
+                    $sickEnd = Carbon::parse($leave->end_date);
+                    $leaveDays = $sickStart->diffInDays($sickEnd) + 1;
+                    $sickLeaveDays += $leaveDays;
+        
+                    for ($i = 1; $i <= $leaveDays; $i++) {
+                        if ($sickLeaveDays > 1.5) {
+                            if ($i == 1) {
+                                // 1st day: No payment deduction
+                                continue;
+                            } elseif ($i == 2 || $i == 3) {
+                                // 2nd-3rd day: 50% of daily salary
+                                $sickLeavePayment += ($user->salary / $daysInMonth) * 0.5;
+                            } elseif ($i >= 4) {
+                                // 4th day onwards: 100% of daily salary deduction
+                                $sickLeavePayment += $user->salary / $daysInMonth;
+                            }
+                        } else {
+                            // No deduction for up to 1.5 sick leave days
+                            continue;
+                        }
+                    }            
                 }
-
-                $totalHoursWorked = $totalMinutesWorked / 60;
+                $insuranceDeduction = ($user->country !== 'Israel') ? $workerDeduction : 0;
+                // Calculate total payment for fixed employees
+                $totalPayment = $user->salary - $sickLeavePayment; // No hourly calculation for fixed employees
+                $loanDeduction = $this->handleAdvanceLoanDeductions($user, $totalPayment, $startDate, $endDate);
+                $netPayment = $loanDeduction['adjustedPayment'] - $insuranceDeduction;
+                $loanApplied = $loanDeduction['loanApplied'];
+            } else {
+                // Logic for non-fixed employment types
                 $paymentPerHour = $user->payment_per_hour;
+        
+                // Calculate normal payment based on total hours worked
+                $normalPayment = ($totalHoursWorked <= $standardHours)
+                    ? $totalHoursWorked * $paymentPerHour
+                    : $standardHours * $paymentPerHour;
 
-                // Initialize variables
-                $standardHours = $workingDays * 8;
-                $holidayHours175 = 0;
-                $holidayHours200 = 0;
-                $regularHours = 0;
-                $extraHours = 0;
-
-                // Get jobs worked on holidays or weekends
-                $holidayJobs = Job::where('worker_id', $user->id)
+                    $holidayJobs = Job::where('worker_id', $user->id)
                     ->whereIn(DB::raw('DATE(start_date)'), $holidayDates)
                     ->orWhere(function($query) use ($startDate, $endDate) {
                         $query->whereBetween(DB::raw('DATE(start_date)'), [$startDate, $endDate])
@@ -156,225 +215,96 @@ class PayrollReportController extends Controller
                     })
                     ->get();
 
-                $sickLeaves = SickLeave::where('worker_id', $user->id)
-                    -> where('status', 'approved')
-                    ->where(function($query) use ($startDate, $endDate) {
-                        $query->where(function($q) use ($startDate, $endDate) {
-                            $q->where('start_date', '<=', $endDate)
-                            ->where('end_date', '>=', $startDate);
-                        });
-                    })
-                    ->get();
-
-
-                // Calculate holiday hours
-                foreach ($holidayJobs as $job) {
-                    $hoursWorked = $job->actual_time_taken_minutes / 60;
-
-                    if ($hoursWorked <= 2) {
-                        $holidayHours175 += $hoursWorked;
-                    } else {
-                        $holidayHours175 += 2;
-                        $holidayHours200 += ($hoursWorked - 2);
+                    foreach ($holidayJobs as $job) {
+                        $hoursWorked = $job->actual_time_taken_minutes / 60;
+        
+                        if ($hoursWorked <= 2) {
+                            $holidayHours175 += $hoursWorked;
+                        } else {
+                            $holidayHours175 += 2;
+                            $holidayHours200 += ($hoursWorked - 2);
+                        }
                     }
-                }
-
-                // Calculate years of service
-                $hireDate = $user->created_at; 
-                if ($hireDate) {
-                    $yearsOfService = $hireDate->diffInYears(Carbon::now());
-                    $monthsWorked = $hireDate->diffInMonths(Carbon::now());
-                } else {
-                    $yearsOfService = 0;
-                    $monthsWorked = 0;
-                }
-
-                // Determine recovery fee days
-                $daysOfRecoveryFee = 0;
-
-                if ($yearsOfService >= 1 && $yearsOfService <= 3) {
-                    $daysOfRecoveryFee = 7;
-                } elseif ($yearsOfService >= 4 && $yearsOfService <= 10) {
-                    $daysOfRecoveryFee = 9;
-                } elseif ($yearsOfService >= 11 && $yearsOfService <= 15) {
-                    $daysOfRecoveryFee = 10;
-                } elseif ($yearsOfService >= 16 && $yearsOfService <= 19) {
-                    $daysOfRecoveryFee = 11;
-                } elseif ($yearsOfService >= 20 && $yearsOfService <= 24) {
-                    $daysOfRecoveryFee = 12;
-                } elseif ($yearsOfService >= 25) {
-                    $daysOfRecoveryFee = 13;
-                }
-
-                //payment increment on year of experience
-                $paymentPerHour = $user->payment_per_hour;
-                if ($yearsOfService >= 6) {
-                    $paymentPerHour += $bonusAfterSixYears;
-                } elseif ($yearsOfService >= 1) {
-                    $paymentPerHour += $bonusAfterOneYear;
-                }
-
+        
+                    // Calculate years of service
+                    $hireDate = $user->created_at; 
+                    if ($hireDate) {
+                        $yearsOfService = $hireDate->diffInYears(Carbon::now());
+                        $monthsWorked = $hireDate->diffInMonths(Carbon::now());
+                    } else {
+                        $yearsOfService = 0;
+                        $monthsWorked = 0;
+                    }
+        
+                    // Determine recovery fee days
+                    $daysOfRecoveryFee = 0;
+        
+                    if ($yearsOfService >= 1 && $yearsOfService <= 3) {
+                        $daysOfRecoveryFee = 7;
+                    } elseif ($yearsOfService >= 4 && $yearsOfService <= 10) {
+                        $daysOfRecoveryFee = 9;
+                    } elseif ($yearsOfService >= 11 && $yearsOfService <= 15) {
+                        $daysOfRecoveryFee = 10;
+                    } elseif ($yearsOfService >= 16 && $yearsOfService <= 19) {
+                        $daysOfRecoveryFee = 11;
+                    } elseif ($yearsOfService >= 20 && $yearsOfService <= 24) {
+                        $daysOfRecoveryFee = 12;
+                    } elseif ($yearsOfService >= 25) {
+                        $daysOfRecoveryFee = 13;
+                    }
                 $dailyRecoveryFee = $recoveryFee;
                 $annualRecoveryFee = $daysOfRecoveryFee * $dailyRecoveryFee;
-                $proratedRecoveryFee = ($annualRecoveryFee / 12) ;
 
-                // Calculate total hours worked excluding holiday hours
-                $totalHoursWithoutHoliday = $totalHoursWorked - ($holidayHours175 + $holidayHours200);
-                $standardHours = min($totalHoursWithoutHoliday, $standardHours);
-                $extraHours = max($totalHoursWithoutHoliday - $standardHours, 0);
+                // Holiday payments
+                $holidayPayment175 = $holidayHours175 * $holidayPay175;
+                $holidayPayment200 = $holidayHours200 * $holidayPay200;
+        
+                // Insurance deduction (if applicable)
+                $insuranceDeduction = ($user->country !== 'Israel') ? $workerDeduction : 0;
+        
+                // Total payments for non-fixed employees
+                $totalPayment = $normalPayment + $holidayPayment175 + $holidayPayment200 - $annualRecoveryFee;
+            }
+        
+            // Handling loan deductions and final net payment
+            $loanDeduction = $this->handleAdvanceLoanDeductions($user, $totalPayment, $startDate, $endDate);
+            $netPayment = $totalPayment - $insuranceDeduction - $loanDeduction['loanApplied'];
+            $loanApplied = $loanDeduction['loanApplied']; 
 
-                // Calculate overtime hours
-                $hoursAt125 = min($extraHours, $workingDays * 2);
-                $hoursAt150 = max($extraHours - $hoursAt125, 0);
-                // Calculate payments
-                $normalPayment = $standardHours * $paymentPerHour;
-                $bonus125Payment = $hoursAt125 * $paymentPerHour * $overtimeRate125;
-                $bonus150Payment = $hoursAt150 * $paymentPerHour * $overtimeRate150;
-                $holidayPayment175 = $holidayHours175 * $paymentPerHour * $holidayPay175;
-                $holidayPayment200 = $holidayHours200 * $paymentPerHour * $holidayPay200;
-
-                //holiday bonus
-                $publicHolidayBonusAmount = 0;
-                $normalizedHolidayNames = [
-                    'roshhashanah' => 'Rosh Hashanah',
-                    'passover' => 'Passover'
-                ];
-
-                foreach ($holidays as $holiday) {
-                    $normalizedHolidayName = strtolower(preg_replace('/\s+/', '', $holiday->holiday_name));
-
-                    if (array_key_exists($normalizedHolidayName, $normalizedHolidayNames)) {
-                        $holidayStartDate = Carbon::parse($holiday->start_date);
-                        $holidayEndDate = Carbon::parse($holiday->end_date);
-
-                        $holidayDurationDays = $holidayStartDate->diffInDays($holidayEndDate) + 1;
-
-                        $workedHoursInHolidayMonth = Job::where('worker_id', $user->id)
-                            ->whereMonth('start_date', Carbon::parse($month)->month)
-                            ->sum('actual_time_taken_minutes') / 60;
-
-                        // Calculate the bonus
-                        if ($workedHoursInHolidayMonth >= 91) {
-                            $publicHolidayBonusAmount += $publicHolidayBonus * $holidayDurationDays;
-                        } else {
-                            $publicHolidayBonusAmount += ($workedHoursInHolidayMonth / 182) * $publicHolidayBonus * $holidayDurationDays;
-                        }
-                    }
-                }
-
-                $sickLeavePayment = 0;
-                $doctorReports = ' ';
-                foreach ($sickLeaves as $leave) {
-                    $leavestartDate = Carbon::parse($leave->start_date);
-                    $leaveendDate = Carbon::parse($leave->end_date);
-                    $dailySalary = $paymentPerHour * 8; 
-                    $isCancerPatient = $leave->is_cancer_patient;
-                    $doctorReports = $leave->doctor_report_path; 
-
-                    $totalDays = $leavestartDate->diffInDays($leaveendDate) + 1;
-                    if ($isCancerPatient) {
-                        // Cancer patients get 100% payment from day one
-                        $sickLeavePayment += $dailySalary * $totalDays;
-                    } else {
-                        for ($dayCount = 1; $leavestartDate->lte($leaveendDate); $leavestartDate->addDay(), $dayCount++) {
-                            if ($totalDays <= 3) {
-                                if ($dayCount == 2 || $dayCount == 3) {
-                                    $sickLeavePayment += $dailySalary * 0.5;
-                                }
-                            } else {
-                                if ($dayCount == 1) {
-                                    continue;
-                                } elseif ($dayCount == 2 || $dayCount == 3) {
-                                    $sickLeavePayment += $dailySalary * 0.5;
-                                } else {
-                                    $sickLeavePayment += $dailySalary;
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-               // Deduction for foreign workers
-                $foreignWorkerDeduction = 0;
-                if ($user->address) {
-                    $addressLowercase = strtolower($user->address);
-                    if (!str_contains($addressLowercase, 'israel')) {
-                        $foreignWorkerDeduction = $workerDeduction;
-                    }
-                }
-
-                //driving fees
-                $totalDrivingFee = 0;
-                if ($user->driving_fees == 1) {
-                    $totalDrivingFee = $workerDay * $drivingFeeDay;
-
-                    // Compare with the monthly cap
-                    if ($totalDrivingFee > $drivingFeeMonth) {
-                        $totalDrivingFee = $drivingFeeMonth;
-                    }
-                }
-
-                $totalPayment = $normalPayment + $bonus125Payment + $bonus150Payment + $holidayPayment175 + $holidayPayment200
-                               + $proratedRecoveryFee +$publicHolidayBonusAmount +$totalDrivingFee + $sickLeavePayment- $foreignWorkerDeduction;
-
-                $newPayment = $totalPayment +$foreignWorkerDeduction;
-
-                $deduction = 0;
-                $adjustedPaymentData = $this->handleAdvanceLoanDeductions($user, $totalPayment, $startDate, $endDate);
-
-                $adjustedPayment = $adjustedPaymentData['adjustedPayment'] ;
-                $deduction = $adjustedPaymentData['deduction']; 
-
-                $grossPay = round($adjustedPayment,2);
-
-
-                $reportData[] = [
-                    'Number' =>$user->id,
-                    'Passport Id' => $user->worker_id,
-                    'Last Name' =>$user->lastname,
-                    'First Name' => $user->firstname,
-                    'Role' => $user->role,
-                    'Total Hours Worked' => round($totalHoursWorked, 2),
-                    'Normal Rate Hours (100%)' => round($standardHours, 2),
-                    'Hours at 125% Salary' => round($hoursAt125, 2),
-                    'Hours at 150% Salary' => round($hoursAt150, 2),
-                    'Holiday/Weekend Hours at 175% Salary' => round($holidayHours175, 2),
-                    'Holiday/Weekend Hours at 200% Salary' => round($holidayHours200, 2),
-                    'Total Days'=> $workerDay,
-                    'Hourly Rate' => $paymentPerHour,
-                    'Normal Payment' => round($normalPayment, 2),
-                    '125% Bonus Payment' => round($bonus125Payment, 2),
-                    '150% Bonus Payment' => round($bonus150Payment, 2),
-                    'Holiday Payment at 175%' => round($holidayPayment175, 2),
-                    'Holiday Payment at 200%' => round($holidayPayment200, 2),
-                    'Recovery Fee' => round($proratedRecoveryFee, 2),
-                    'Public Holiday Bonus' => round($publicHolidayBonusAmount, 2),
-                    'Driving Fees'=> round($totalDrivingFee, 2),
-                    'Sick Leave Payment' => round($sickLeavePayment, 2),
-                    'Total Payment' => round($newPayment , 2), 
-                    'Insurance' => $foreignWorkerDeduction, 
-                    'loan' => round($deduction,2),
-                    'Net Payment' => round($adjustedPayment, 2),
-                    'Doctor Report' => $doctorReports,        
-                ];
-
-
+            // Store report data
+            $reportData[] = [
+                'Number' => $user->id,
+                'Passport Id' => $user->worker_id,
+                'Last Name' => $user->lastname,
+                'First Name' => $user->firstname,
+                'Role' => $user->role,
+                'Total Hours Worked' => round($totalHoursWorked, 2),
+                'Normal Rate Hours (100%)' => round($standardHours, 2),
+                'Hours at 125% Salary' => round($holidayHours175, 2),
+                'Hours at 150% Salary' => round($holidayHours200, 2),
+                'Holiday/Weekend Hours at 175% Salary' => round($holidayHours175, 2),
+                'Holiday/Weekend Hours at 200% Salary' => round($holidayHours200, 2),
+                'Total Days' => round($workingDays, 2),
+                'Hourly Rate' => round($paymentPerHour, 2),
+                'Salary' => round($salary, 2),
+                'Normal Payment' => round($normalPayment, 2),
+                '125% Bonus Payment' => round($holidayPayment175, 2),
+                '150% Bonus Payment' => round($holidayPayment200, 2),
+                'Holiday Payment at 175%' => round($holidayPayment175, 2),
+                'Holiday Payment at 200%' => round($holidayPayment200, 2),
+                'Recovery Fee' => round($annualRecoveryFee, 2),
+                'Public Holiday Bonus' => round($publicHolidayBonus, 2),
+                'Insurance' => round($insuranceDeduction, 2),
+                'Sick Leave Payment' => round($sickLeavePayment, 2),
+                'Total Payment' => round($totalPayment, 2),
+                'Loan' => round($loanApplied, 2),
+                'Net Payment' => round($netPayment, 2),
+                'Doctor Report' => ' ',
+            ];
         }
 
-
-        $fileName = 'דוח שכר לעובד לחודש של' . $month . '.xlsx';
-        Excel::store(new PayrollReportExport($reportData ), $fileName, 'public');
-
-        // Return the path to the saved file
-        return response()->json([ 
-            'message' => 'Excel file has been saved.',
-            'file_path' => Storage::url($fileName)
-        ]);
-
-    } 
-
-
+        return Excel::download(new MonthlyReportExport($reportData), 'monthly_report_' . $month . '.xlsx');
+    }
 
     public function handleAdvanceLoanDeductions(User $user, $totalPayment, $startDate, $endDate)
     {
@@ -491,7 +421,16 @@ class PayrollReportController extends Controller
                 }                
                 $totalPayment -= $deductibleAmount;
 
-                if ($totalPayment <= 0) {
+                // if ($totalPayment <= 0) {
+                //     break; 
+                // }
+
+                if ($totalPayment < 0) {
+                    // Add remaining unpaid amount to the next month's pending amount       
+                    $advanceLoan->update([
+                        'pending_amount' => $remainingAmount + abs($totalPayment), // Adding the unpaid amount
+                    ]);
+                    $totalPayment = 0; // Reset total payment to prevent further deductions
                     break; 
                 }
 
@@ -508,6 +447,7 @@ class PayrollReportController extends Controller
         return [
             'adjustedPayment' => round($adjustedPayment, 2),
             'deduction' => round($deduction, 2),
+            'loanApplied' => round($deduction, 2),
         ];
     }
 

@@ -63,6 +63,7 @@ export default function Sidebar() {
         accountSettings: "/admin/settings",
         holidays:"/admin/holidays",
         waTemplates: "/admin/templates",
+        payslipSettings:"/admin/payslip-settings",
     };
 
     const isActive = (path) => location.pathname === path;
@@ -279,6 +280,12 @@ export default function Sidebar() {
                                         <Link to={routes.waTemplates} style={isActive(routes.waTemplates)?{color: "white"}:{color: "#757589"}}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             Templates
+                                        </Link>
+                                    </li>
+                                    <li className={`list-group-item ${isActive(routes.payslipSettings) ? "active" : ""}`}>
+                                        <Link to={routes.payslipSettings}  style={isActive(routes.payslipSettings)?{color: "white"}:{color: "#757589"}}>
+                                            <i className="fa fa-angle-right"></i>{" "}
+                                            {t("admin.sidebar.settings.payslip_settings")}
                                         </Link>
                                     </li>
                                 </ul>

@@ -77,6 +77,10 @@ export default function AddWorker() {
     const [longitude, setLongitude] = useState(151.2099);
     const [loading, setLoading] = useState(false);
     const [place, setPlace] = useState();
+
+    const [selectedType, setSelectedType] = useState("");
+    const [salary, setSalary] = useState("");
+
     Geocode.setApiKey("AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk");
     const containerStyle = {
         width: "100%",
@@ -147,6 +151,8 @@ export default function AddWorker() {
             latitude: latitude,
             longitude: longitude,
             payment_type: payment,
+            employment_type: selectedType,
+            salary: selectedType === "fixed" ? salary : null,
             bank_name: bankDetails.bank_name,
             full_name: bankDetails.full_name,
             bank_number: bankDetails.bank_no,
@@ -814,7 +820,36 @@ export default function AddWorker() {
                                             </div>
                                         </div>
                                     )}
-                                </div>
+                                    <div className="col-sm-6">
+                                        <div className="form-group">
+                                            <label className="control-label">{t("global.Type")}</label>
+                                            <select
+                                                className="form-control"
+                                                value={selectedType}
+                                                onChange={(e) => setSelectedType(e.target.value)}
+                                            >
+                                                <option value="">{t("worker.settings.pleaseSelect")}</option>
+                                                <option value="fixed">{t("worker.settings.fixed")}</option>
+                                                <option value="hourly">{t("worker.settings.hourly")}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                        {selectedType === "fixed" && (
+                                            <div className="col-sm-6">
+                                                <div className="form-group">
+                                                    <label className="control-label">{t("worker.settings.salary")}</label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        placeholder={t("worker.settings.salary")}
+                                                        value={salary}
+                                                        onChange={(e) => setSalary(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
 
                                 <div className="form-group">
                                     <label className="control-label">

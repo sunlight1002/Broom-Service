@@ -105,6 +105,7 @@
         "noCard": "No Card added",
         "addComment": "Add Comment",
         "company": "Company",
+        "Type":"Type",
         "send": "Send",
         "sendForm101": "Send Form101",
         "viewForm": "View Form",
@@ -1582,8 +1583,9 @@
                 "selectLang":"--- Select language ---",
                 "selectCurrency":"--- Select currency ---",
                 "uploadProfile": "Upload profile image",
-               "verification": "Two step Verification",
-                "holidays":"Holidays"
+                "verification": "Two step Verification",
+                "holidays":"Holidays",
+                "payslip_settings":"Payslip Settings"
             },
             "logout": "Logout"
         },
@@ -1799,7 +1801,10 @@
             "loan":"Loan",
             "monthlyPayment":"Monthly Payment",
             "loanStart":"Loan Start Date",
-            "submit":"Submit"
+            "submit":"Submit",
+            "fixed":"Fixed",
+            "hourly":"Hourly",
+            "salary":"Salary"
         }
     },
     "worker_contract": {

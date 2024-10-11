@@ -323,7 +323,8 @@ class WorkerController extends Controller
             'bank_number.required_if' => 'The bank number is required.',
             'branch_number.required_if' => 'The branch number is required.',
             'account_number.required_if' => 'The account number is required.',
-            'manpower_company_id.required_if' => 'Manpower Company ID is required.'
+            'manpower_company_id.required_if' => 'Manpower Company ID is required.',
+            'employment_type.required' => 'The employment type is required.'
         ]);
 
         if ($validator->fails()) {
@@ -362,6 +363,8 @@ class WorkerController extends Controller
                 ? $request->manpower_company_id
                 : NULL,
             'driving_fees' =>$request->driving_fees,
+            'employment_type' => $request->employment_type,
+            'salary' =>$request->salary
         ]);
 
         $i = 1;
@@ -1046,19 +1049,19 @@ class WorkerController extends Controller
         ])->render());
         
         $pdfFileName = 'worker_hours_report_' . time() . '.pdf';
-    $pdfFilePath = 'pdfs/' . $pdfFileName;
-    $pdfOutput = $pdf->Output('', 'S');
+        $pdfFilePath = 'pdfs/' . $pdfFileName;
+        $pdfOutput = $pdf->Output('', 'S');
 
-    // Save the PDF to the specified path
-    Storage::put($pdfFilePath, $pdfOutput);
+        // Save the PDF to the specified path
+        Storage::put($pdfFilePath, $pdfOutput);
 
-    // Generate the full URL for the PDF
-    $pdfUrl = url(Storage::url($pdfFilePath));
+        // Generate the full URL for the PDF
+        $pdfUrl = url(Storage::url($pdfFilePath));
 
-    // Serve the PDF directly if preferred
-    return response($pdfOutput, 200)
-        ->header('Content-Type', 'application/pdf')
-        ->header('Content-Disposition', 'attachment; filename="' . $pdfFileName . '"');
+        // Serve the PDF directly if preferred
+        return response($pdfOutput, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $pdfFileName . '"');
 
     }
     
