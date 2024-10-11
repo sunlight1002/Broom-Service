@@ -71,11 +71,11 @@ export default function Sidebar() {
         holidays: "/admin/holidays",
         waTemplates: "/admin/templates",
         // Client routes
-        clients: "/admin/clients",
-        pendingClient: "/admin/clients/pending",
-        activeClient: "/admin/clients/active",
-        freezeClient: "/admin/clients/freeze",
-        pastClient: "/admin/clients/past",
+        clients: "/admin/clients?type=all",
+        pendingClient: "/admin/clients?type=pending%20client",
+        activeClient: "/admin/clients?type=active%20client",
+        freezeClient: "/admin/clients?type=freeze%20client",
+        pastClient: "/admin/clients?type=past",
     };
 
     const isActive = (path) => location.pathname === path;

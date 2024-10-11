@@ -1,0 +1,26 @@
+.collapse {
+    /* transition: 0.35s ease-in-out, opacity 0.35s ease-in-out; */
+    /* opacity: 0; */
+    overflow-y: auto;
+    transition: left 0.35s ease-in-out; /* Transition for left position */
+
+}
+
+
+
+.navbar-collapse {
+    transition: left 0.5s ease-out,;
+    overflow: hidden;
+    opacity: 0; /* Start with opacity 0 */
+  }
+  
+  .navbar-collapse.show {
+    opacity: 1; /* Fully opaque when shown */
+    overflow-y: auto;
+  
+  }
+  
+  .mobileNav .navbar-collapse.show {
+      left: 0;
+      transition: left .1s ease-in-out;
+  }
