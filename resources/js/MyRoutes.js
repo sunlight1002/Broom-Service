@@ -543,7 +543,7 @@ export default function MyRoutes() {
                                 path="leads/view/:id"
                                 element={<ViewLead />}
                             />
-                            <Route exact path="clients" element={<Clients type=""/>} />
+                            <Route exact path="clients" element={<Clients />} />
                             <Route
                                 exact
                                 path="clients/create"
@@ -563,26 +563,6 @@ export default function MyRoutes() {
                                 exact
                                 path="clients/view/:id"
                                 element={<ViewClient />}
-                            />
-                            <Route
-                                exact
-                                path="clients/pending"
-                                element={<Clients type="pending client"/>}
-                            />
-                            <Route
-                                exact
-                                path="clients/active"
-                                element={<Clients type="active client"/>}
-                            />
-                            <Route
-                                exact
-                                path="clients/freeze"
-                                element={<Clients type="freeze client"/>}
-                            />
-                            <Route
-                                exact
-                                path="clients/past"
-                                element={<Clients type="past" />}
                             />
                             <Route
                                 exact

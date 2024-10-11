@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { CSVLink } from "react-csv";
@@ -20,10 +20,13 @@ import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
 
 
-export default function Clients({
-    type
-}) {
-    console.log(type);
+export default function Clients() {
+
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const type = params.get("type");
+    console.log(type); 
+    
 
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
@@ -76,7 +79,6 @@ export default function Clients({
                     data: function (d) {
                         d.type = type;
                         d.action = filters.action; // Filter by the selected action (status filter)
-
                     },
                 },
                 order: [[0, "desc"]],
@@ -284,7 +286,9 @@ export default function Clients({
     useEffect(() => {
         if (type == "past") {
             $(tableRef.current).DataTable().column(4).search(filters.action).draw();
-        } else {
+        } else if(type == "all"){
+            $(tableRef.current).DataTable().column(4).search('').draw();
+        }else{
             $(tableRef.current).DataTable().column(4).search(type).draw();
         }
     }, [type, filters]);
