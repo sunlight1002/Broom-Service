@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\SettingKeyEnum;
+use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\ClientLeadStatusChanged;
-use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Schedule;
@@ -104,6 +104,7 @@ class ScheduleController extends Controller
 
         $input = $request->input();
 
+        \Log::info($input['meet_via']);
         if ($input['start_time']) {
             $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
             $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->toTimeString();
@@ -130,6 +131,7 @@ class ScheduleController extends Controller
         );
 
         event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
+      
 
         LeadActivity::create([
             'client_id' => $client->id,
@@ -144,13 +146,22 @@ class ScheduleController extends Controller
 
             // $this->sendMeetingMail($schedule);
             SendMeetingMailJob::dispatch($schedule);
-
+            if ($input['meet_via'] == 'off-site') {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            }
 
             return response()->json([
                 'data' => $schedule,
                 'message' => 'Meeting scheduled successfully',
             ]);
         }
+
+        
 
         $googleAccessToken = Setting::query()
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)

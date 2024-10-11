@@ -95,4 +95,20 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const TO_TEAM_WORKER_NOT_CONFIRM_JOB = "to-team-worker-not-confirm-job";
     public const REMIND_WORKER_TO_JOB_CONFIRM = "remind-worker-to-job-confirm";
     public const REFUND_CLAIM_MESSAGE = "refund-claim-message";
+    public const PENDING = "pending";
+    public const POTENTIAL = "potential";
+    public const IRRELEVANT = "irrelevant";
+    public const UNANSWERED = "unanswered";
+    public const UNINTERESTED = "uninterested";
+    public const POTENTIAL_CLIENT = "potential-client";
+    public const PENDING_CLIENT = "pending-client";
+    public const WAITING = "waiting";
+    public const ACTIVE_CLIENT = "active-client";
+    public const FREEZE_CLIENT = "freeze-client";
+    public const UNHAPPY = "unhappy";
+    public const PRICE_ISSUE = "price-issue";
+    public const MOVED = "moved";
+    public const ONETIME = "onetime";
+    public const PAST = "past";
+
 }

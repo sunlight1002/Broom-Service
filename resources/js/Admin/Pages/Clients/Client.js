@@ -20,7 +20,11 @@ import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
 
 
-export default function Clients() {
+export default function Clients({
+    type
+}) {
+    console.log(type);
+
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
     const [changeStatusModal, setChangeStatusModal] = useState({
@@ -28,7 +32,7 @@ export default function Clients() {
         id: 0,
     });
     const [filters, setFilters] = useState({
-        action: "",
+        action: "past",
     });
 
     const tableRef = useRef(null);
@@ -37,11 +41,22 @@ export default function Clients() {
     const alert = useAlert();
     const { t, i18n } = useTranslation();
 
-    const statusArr = {
-        "pending client": t("admin.client.Pending_client"),
-        "freeze client": t("admin.client.Freeze_client"),
-        "active client": t("admin.client.Active_client"),
-    };
+    const statusArr = type === "past"
+        ? {
+            "unhappy": t("admin.client.Unhappy"),
+            "price issue": t("admin.client.Price_issue"),
+            "moved": t("admin.client.Moved"),
+            "one-time": t("admin.client.One_Time"),
+        }
+        : {
+            "pending client": "Waiting",
+            "freeze client": t("admin.client.Freeze_client"),
+            "active client": t("admin.client.Active_client"),
+        };
+
+
+    console.log(filters);
+
 
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -59,7 +74,9 @@ export default function Clients() {
                         );
                     },
                     data: function (d) {
-                        d.action = actionRef.current.value;
+                        d.type = type;
+                        d.action = filters.action; // Filter by the selected action (status filter)
+
                     },
                 },
                 order: [[0, "desc"]],
@@ -76,13 +93,13 @@ export default function Clients() {
                         title: t("admin.global.Email"),
                         data: "email",
                     },
-                    { 
-                        title: t("admin.global.Phone"), 
+                    {
+                        title: t("admin.global.Phone"),
                         data: "phone",
-                        render: function(data) {
+                        render: function (data) {
                             return `+${data}`;
                         }
-                    },     
+                    },
                     {
                         title: t("admin.global.Status"),
                         data: "lead_status",
@@ -219,161 +236,6 @@ export default function Clients() {
         };
     }, []);
 
-    // useEffect(() => {
-    //     $(tableRef.current).DataTable({
-    //         processing: true,
-    //         serverSide: true,
-    //         ajax: {
-    //             url: "/api/admin/clients",
-    //             type: "GET",
-    //             beforeSend: function (request) {
-    //                 request.setRequestHeader(
-    //                     "Authorization",
-    //                     `Bearer ` + localStorage.getItem("admin-token")
-    //                 );
-    //             },
-    //             data: function (d) {
-    //                 d.action = actionRef.current.value;
-    //             },
-    //         },
-    //         order: [[0, "desc"]],
-    //         columns: [
-    //             {
-    //                 title:t("global.date"),
-    //                 data: "created_at",
-    //             },
-    //             {
-    //                 title: t("admin.global.Name"),
-    //                 data: "name",
-    //             },
-    //             {
-    //                 title: t("admin.global.Email"),
-    //                 data: "email",
-    //             },
-    //             {
-    //                 title: t("admin.global.Phone"),
-    //                 data: "phone",
-    //             },
-    //             {
-    //                 title: t("admin.global.Status"),
-    //                 data: "lead_status",
-    //                 orderable: false,
-    //                 render: function (data, type, row, meta) {
-    //                     const _statusColor = leadStatusColor(data);
-    //                     // console.log(data);
-
-    //                     // return `<span class="badge" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
-    //                     return `<p style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-    //                     ${data}
-    //                 </p>`;
-    //                 },
-    //             },
-    //             {
-    //                 title: t("admin.global.Action"),
-    //                 data: "action",
-    //                 orderable: false,
-    //                 responsivePriority: 1,
-    //                 render: function (data, type, row, meta) {
-    //                     let _html =
-    //                         '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-    //                     if (row.has_contract == 1) {
-    //                         _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">Create Job</button>`;
-    //                     }
-
-    //                     _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
-
-    //                     _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
-
-    //                     _html += `<button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>`;
-
-    //                     _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
-
-    //                     _html += "</div> </div>";
-
-    //                     return _html;
-    //                 },
-    //             },
-    //         ],
-    //         ordering: true,
-    //         searching: true,
-    //         responsive: true,
-    //         createdRow: function (row, data, dataIndex) {
-    //             $(row).addClass("dt-row custom-row-class");
-    //             $(row).attr("data-id", data.id);
-    //         },
-    //         columnDefs: [
-    //             {
-    //                 targets: '_all',
-    //                 createdCell: function (td, cellData, rowData, row, col) {
-    //                     $(td).addClass('custom-cell-class ');
-    //                 }
-    //             }
-    //         ]
-    //     });
-
-    //       // Customize the search input
-    //       const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-    //       $("div.dt-search").append(searchInputWrapper);
-    //       $("div.dt-search").addClass("position-relative");
-
-    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
-    //         let _id = null;
-    //         if (e.target.closest("tr.dt-row")) {
-    //             if (
-    //                 !e.target.closest(".dropdown-toggle") &&
-    //                 !e.target.closest(".dropdown-menu") &&
-    //                 (!tableRef.current.classList.contains("collapsed") ||
-    //                     !e.target.closest(".dtr-control")) &&
-    //                 !e.target.closest(".dt-change-status-btn")
-    //             ) {
-    //                 _id = $(this).data("id");
-    //             }
-    //         } else {
-    //             if (
-    //                 !e.target.closest(".dropdown-toggle") &&
-    //                 !e.target.closest(".dropdown-menu") &&
-    //                 !e.target.closest(".dt-change-status-btn")
-    //             ) {
-    //                 _id = $(e.target).closest("tr.child").prev().data("id");
-    //             }
-    //         }
-
-    //         if (_id) {
-    //             navigate(`/admin/clients/view/${_id}`);
-    //         }
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-create-job-btn", function () {
-    //         const _id = $(this).data("id");
-    //         navigate(`/admin/create-job/${_id}`);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-edit-btn", function () {
-    //         const _id = $(this).data("id");
-    //         navigate(`/admin/clients/${_id}/edit`);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
-    //         const _id = $(this).data("id");
-    //         navigate(`/admin/clients/view/${_id}`);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-change-status-btn", function () {
-    //         const _id = $(this).data("id");
-    //         toggleChangeStatusModal(_id);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
-    //         const _id = $(this).data("id");
-    //         handleDelete(_id);
-    //     });
-
-    //     return function cleanup() {
-    //         $(tableRef.current).DataTable().destroy(true);
-    //     };
-    // }, []);
-
     const handleClose = () => {
         setImportFile("");
         setShow(false);
@@ -420,12 +282,12 @@ export default function Clients() {
     };
 
     useEffect(() => {
-        if (filters.action == "") {
-            $(tableRef.current).DataTable().column(4).search(null).draw();
-        } else {
+        if (type == "past") {
             $(tableRef.current).DataTable().column(4).search(filters.action).draw();
+        } else {
+            $(tableRef.current).DataTable().column(4).search(type).draw();
         }
-    }, [filters]);
+    }, [type, filters]);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -469,7 +331,7 @@ export default function Clients() {
                 : "f=";
 
         axios
-            .get("/api/admin/clients_export?" + cn + filters.action, {
+            .get("/api/admin/clients_export?" + cn + type, {
                 headers,
             })
             .then((response) => {
@@ -571,45 +433,51 @@ export default function Clients() {
                                             className="dropdown-item"
                                             onClick={(e) => {
                                                 setFilters({
-                                                    action: "",
+                                                    action: "past",
                                                 });
                                             }}
                                         >
-                                            {t("admin.global.All")}
+                                            Past
                                         </button>
                                         <button
                                             className="dropdown-item"
-                                            onClick={(e) => {
+                                            onClick={() => {
                                                 setFilters({
-                                                    action: "pending client",
+                                                    action: "unhappy",
                                                 });
                                             }}
                                         >
-                                            {t("admin.client.Pending_client")}
+                                            Unhappy
                                         </button>
                                         <button
                                             className="dropdown-item"
-                                            onClick={(e) => {
+                                            onClick={() => {
                                                 setFilters({
-                                                    action: "active client",
+                                                    action: "price issue",
                                                 });
                                             }}
                                         >
-                                            {t(
-                                                "admin.client.Active_client"
-                                            )}
+                                            Price Issue
                                         </button>
                                         <button
                                             className="dropdown-item"
-                                            onClick={(e) => {
+                                            onClick={() => {
                                                 setFilters({
-                                                    action: "freeze client",
+                                                    action: "moved",
                                                 });
                                             }}
                                         >
-                                            {t(
-                                                "admin.client.Freeze_client"
-                                            )}
+                                            Moved
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setFilters({
+                                                    action: "one-Time",
+                                                });
+                                            }}
+                                        >
+                                           One-Time
                                         </button>
                                         <button
                                             className="dropdown-item"
@@ -649,58 +517,73 @@ export default function Clients() {
                         </div>
                     </div>
                 </div>
-                <div className="row mb-2 d-none d-lg-block">
-                    <div className="col-sm-12 d-flex align-items-center">
-                        <div className="mr-3" style={{ fontWeight: "bold" }}>
-                            Status
-                        </div>
-                        <FilterButtons
-                            text={t("admin.client.All")}
-                            className="px-3 mr-1"
-                            value=""
-                            onClick={() => {
-                                setFilters({
-                                    action: "",
-                                });
-                            }}
-                            selectedFilter={filters.action}
-                        />
+                {
+                    type == "past" && (
+                        <div className="row mb-2 d-none d-lg-block">
+                            <div className="col-sm-12 d-flex align-items-center">
+                                <div className="mr-3" style={{ fontWeight: "bold" }}>
+                                    Status
+                                </div>
+                                <FilterButtons
+                                    text="Past"
+                                    className="px-3 mr-1"
+                                    value="past"
+                                    onClick={() => {
+                                        setFilters({
+                                            action: "past",
+                                        });
+                                    }}
+                                    selectedFilter={filters.action}
+                                />
 
-                        <FilterButtons
-                            text={t("admin.client.Pending_client")}
-                            value="pending client"
-                            className="px-3 mr-1"
-                            onClick={() => {
-                                setFilters({
-                                    action: "pending client",
-                                });
-                            }}
-                            selectedFilter={filters.action}
-                        />
-                        <FilterButtons
-                            text={t("admin.client.Active_client")}
-                            className="px-3 mr-1"
-                            value="active client"
-                            onClick={() => {
-                                setFilters({
-                                    action: "active client",
-                                });
-                            }}
-                            selectedFilter={filters.action}
-                        />
-                        <FilterButtons
-                            text={t("admin.client.Freeze_client")}
-                            className="px-3 mr-1"
-                            value="freeze client"
-                            onClick={() => {
-                                setFilters({
-                                    action: "freeze client",
-                                });
-                            }}
-                            selectedFilter={filters.action}
-                        />
-                    </div>
-                </div>
+                                <FilterButtons
+                                    text="Unhappy"
+                                    value="unhappy"
+                                    className="px-3 mr-1"
+                                    onClick={() => {
+                                        setFilters({
+                                            action: "unhappy",
+                                        });
+                                    }}
+                                    selectedFilter={filters.action}
+                                />
+                                <FilterButtons
+                                    text="Price issue"
+                                    className="px-3 mr-1"
+                                    value="price issue"
+                                    onClick={() => {
+                                        setFilters({
+                                            action: "price issue",
+                                        });
+                                    }}
+                                    selectedFilter={filters.action}
+                                />
+                                <FilterButtons
+                                    text="Moved"
+                                    className="px-3 mr-1"
+                                    value="moved"
+                                    onClick={() => {
+                                        setFilters({
+                                            action: "moved",
+                                        });
+                                    }}
+                                    selectedFilter={filters.action}
+                                />
+                                <FilterButtons
+                                    text="One-Time"
+                                    className="px-3 mr-1"
+                                    value="one-Time"
+                                    onClick={() => {
+                                        setFilters({
+                                            action: "one-Time",
+                                        });
+                                    }}
+                                    selectedFilter={filters.action}
+                                />
+                            </div>
+                        </div>
+                    )
+                }
                 <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body px-0">
                         <div className="boxPanel">

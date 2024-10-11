@@ -85,6 +85,16 @@ class UpdateClientLeadStatus extends Command
                        ]
                    ]));
                }
+
+               if($newLeadStatus === 'past'){
+                // Trigger WhatsApp Notification
+                event(new WhatsappNotificationEvent([
+                   "type" => WhatsappMessageTemplateEnum::PAST,
+                   "notificationData" => [
+                       'client' => $client->toArray(),
+                   ]
+               ]));
+           }
                 
                if ($client->notification_type === "both") {
 

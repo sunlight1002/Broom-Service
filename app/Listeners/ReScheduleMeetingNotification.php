@@ -3,9 +3,9 @@
 namespace App\Listeners;
 
 use App\Enums\NotificationTypeEnum;
+use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\ReScheduleMeetingJob;
-use App\Events\WhatsappNotificationEvent;
 use App\Models\Admin;
 use App\Models\Client;
 use App\Models\Notification;

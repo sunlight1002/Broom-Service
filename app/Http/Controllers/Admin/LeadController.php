@@ -98,7 +98,7 @@ class LeadController extends Controller
         $validator = Validator::make($data, [
             'firstname' => ['required', 'string', 'max:255'],
             'vat_number' => ['nullable', 'string', 'max:50'],
-            'email'     => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
+            'email'     => ['string', 'email:rfc,dns', 'max:255', 'unique:clients'],
             'phone'     => ['required', 'string', 'max:20', new ValidPhoneNumber(),'unique:clients'],
         ]);
 

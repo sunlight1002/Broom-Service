@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import FullCalendar from "@fullcalendar/react";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import axios from "axios";
+import { default as Moment, default as moment } from "moment";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useAlert } from "react-alert";
+import { Button, Modal } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import Moment from "moment";
-import Swal from "sweetalert2";
-import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
-import moment from "moment";
+import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
+import Select from "react-select";
 
-import Sidebar from "../../Layouts/Sidebar";
-import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
+import Map from "../../Components/Map/map";
+import Sidebar from "../../Layouts/Sidebar";
 
 export default function ViewSchedule() {
     const [client, setClient] = useState([]);
@@ -38,6 +38,13 @@ export default function ViewSchedule() {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
+    const [isModalOpen, setModalStatus] = useState(false);
+    const [place, setPlace] = useState();
+    const [latitude, setLatitude] = useState(32.109333);
+    const [longitude, setLongitude] = useState(34.855499);
+    const [libraries] = useState(["places", "geometry"]);
+    const [allWorkers, setAllWorkers] = useState([]);
+    const [workers, setWorkers] = useState([]);
 
     const params = useParams();
     const alert = useAlert();
@@ -46,6 +53,25 @@ export default function ViewSchedule() {
     const queryParams = new URLSearchParams(window.location.search);
     const sid = queryParams.get("sid");
     const urlParamAction = queryParams.get("action");
+
+    let isAdd = useRef(true);
+    let fullAddress = useRef();
+    let floor = useRef();
+    let Apt = useRef();
+    let enterance = useRef();
+    let zip = useRef();
+    let parking = useRef();
+    let addressId = useRef();
+    let lat = useRef();
+    let long = useRef();
+    let city = useRef();
+    let prefer_type = useRef();
+    let is_dog_avail = useRef();
+    let is_cat_avail = useRef();
+    let client_id = useRef();
+    let addressName = useRef();
+    let key = useRef();
+    let lobby = useRef();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -150,6 +176,28 @@ export default function ViewSchedule() {
                     });
                 });
         }
+    };
+
+    const resetForm = () => {
+        fullAddress.current && (fullAddress.current.value = "");
+        addressName.current && (addressName.current.value = "");
+        floor.current && (floor.current.value = "");
+        Apt.current && (Apt.current.value = "");
+        enterance.current && (enterance.current.value = "");
+        zip.current && (zip.current.value = "");
+        parking.current && (parking.current.value = "");
+        key.current && (key.current.value = "");
+        lobby.current && (lobby.current.value = "");
+        prefer_type.current && (prefer_type.current.value = "default");
+        is_cat_avail.current && (is_cat_avail.current.checked = false);
+        is_dog_avail.current && (is_dog_avail.current.checked = false);
+        client_id.current && (client_id.current.value = 0);
+        lat.current && (lat.current.value = 32.109333);
+        long.current && (long.current.value = 34.855499);
+        setAddress("");
+        setLatitude(32.109333);
+        setLongitude(34.855499);
+        setWorkers([]);
     };
 
     const createAndSendMeeting = (_scheduleID) => {
@@ -400,6 +448,152 @@ export default function ViewSchedule() {
         }
     };
 
+    const onLoad = (autocomplete) => {
+        setPlace(autocomplete);
+    };
+    const onPlaceChanged = () => {
+        if (place) {
+            const _place = place.getPlace();
+            setAddress(_place.formatted_address);
+            fullAddress.current.value = _place.formatted_address;
+            addressName.current.value = _place.name;
+            setLatitude(_place.geometry.location.lat());
+            lat.current.value = _place.geometry.location.lat();
+            setLongitude(_place.geometry.location.lng());
+            long.current.value = _place.geometry.location.lng();
+        }
+    };
+
+    useEffect(() => {
+        if (place?.getPlace() && isModalOpen && isAdd.current) {
+            const _place = place.getPlace();
+            lat.current.value = _place.geometry.location.lat();
+            long.current.value = _place.geometry.location.lng();
+            city.current.value = _place.vicinity;
+            const address_components = _place.address_components;
+            $.each(address_components, function (index, component) {
+                var types = component.types;
+                $.each(types, function (index, type) {
+                    if (type === "postal_code") {
+                        zip.current.value = component.long_name;
+                    }
+                });
+            });
+        }
+        if (!address && isModalOpen) {
+            zip.current.value = "";
+        }
+    }, [place?.getPlace(), isModalOpen]);
+
+    const handleAddress = (e) => {
+        e.preventDefault();
+        let addressVal = [...addresses];
+        if (address === "" && fullAddress.current.value === "") {
+            let newErrors = { ...errors };
+            newErrors.address = "Please Select address";
+            setErrors(newErrors);
+            return false;
+        } else if (addressName.current.value === "") {
+            let newErrors = { ...errors };
+            newErrors.address_name = "Please add address";
+            setErrors(newErrors);
+            return false;
+        } else {
+            const getWorkerId = [...workers].map((w) => w.value);
+            const updatedData = {
+                geo_address: fullAddress.current.value,
+                address_name: addressName.current.value
+                    ? addressName.current.value
+                    : "",
+                floor: floor.current.value,
+                apt_no: Apt.current.value,
+                entrence_code: enterance.current.value,
+                zipcode: zip.current.value,
+                parking: parking.current.value,
+                longitude: long.current.value,
+                latitude: lat.current.value,
+                city: city.current.value,
+                prefer_type: prefer_type.current.value,
+                key: key.current.value,
+                lobby: lobby.current.value,
+                is_dog_avail: is_dog_avail.current.checked,
+                is_cat_avail: is_cat_avail.current.checked,
+                client_id: client_id.current.value,
+                id: 0,
+                not_allowed_worker_ids:
+                    getWorkerId.length > 0 ? getWorkerId.toString() : null,
+            };
+            const adId = addressId.current?.value;
+            if (isAdd.current) {
+                if (!params.id) {
+                    addressVal = [updatedData, ...addressVal];
+                }
+            } else {
+                addressVal[addressId.current.value]["geo_address"] =
+                    updatedData.geo_address;
+                addressVal[addressId.current.value]["floor"] =
+                    updatedData.floor;
+                addressVal[addressId.current.value]["apt_no"] =
+                    updatedData.apt_no;
+                addressVal[addressId.current.value]["entrence_code"] =
+                    updatedData.entrence_code;
+                addressVal[addressId.current.value]["zipcode"] =
+                    updatedData.zipcode;
+                addressVal[addressId.current.value]["parking"] =
+                    updatedData.parking;
+                addressVal[addressId.current.value]["prefer_type"] =
+                    updatedData.prefer_type;
+                addressVal[addressId.current.value]["key"] =
+                    updatedData.key;
+                addressVal[addressId.current.value]["lobby"] =
+                    updatedData.lobby;
+                addressVal[addressId.current.value]["is_dog_avail"] =
+                    updatedData.is_dog_avail;
+                addressVal[addressId.current.value]["is_cat_avail"] =
+                    updatedData.is_cat_avail;
+                addressVal[addressId.current.value]["longitude"] =
+                    updatedData.longitude;
+                addressVal[addressId.current.value]["latitude"] =
+                    updatedData.latitude;
+                addressVal[addressId.current.value]["address_name"] =
+                    updatedData.address_name ? updatedData.address_name : "";
+                addressVal[addressId.current.value]["not_allowed_worker_ids"] =
+                    updatedData.not_allowed_worker_ids
+                        ? updatedData.not_allowed_worker_ids
+                        : "";
+                // console.log(updatedData.not_allowed_worker_ids);
+            }
+            if (params.id) {
+                axios
+                    .post(
+                        `/api/admin/leads/save-property-address`,
+                        {
+                            data: isAdd.current
+                                ? updatedData
+                                : addressVal[addressId.current.value],
+                        },
+                        { headers }
+                    )
+                    .then((response) => {
+                        if (isAdd.current) {
+                            addressVal = [response.data.data, ...addressVal];
+                        } else {
+                            addressVal[adId] = response.data.data;
+                        }
+                        setAddresses(addressVal);
+                        alert.success(
+                            "Lead property address saved successfully!"
+                        );
+                    });
+            } else {
+                setAddresses(addressVal);
+            }
+        }
+        resetForm();
+        setModalStatus(false);
+    };
+
+
     const formattedSelectedDate = useMemo(() => {
         if (selectedDate) {
             const _date = new Date(selectedDate);
@@ -583,8 +777,8 @@ export default function ViewSchedule() {
                                         value={purposeText}
                                         style={
                                             purpose != "Quality check" &&
-                                            purpose != "Price offer" &&
-                                            purpose != ""
+                                                purpose != "Price offer" &&
+                                                purpose != ""
                                                 ? { display: "block" }
                                                 : { display: "none" }
                                         }
@@ -643,29 +837,43 @@ export default function ViewSchedule() {
                         <div className="col-sm-4">
                             <div className="form-group">
                                 <label>{t("admin.schedule.Property")}</label>
-                                <select
-                                    name="address_id"
-                                    id="address_id"
-                                    value={address}
-                                    onChange={(e) => {
-                                        setAddress(e.target.value);
-                                    }}
-                                    className="form-control"
-                                >
-                                    <option value="">
-                                        {t(
-                                            "admin.schedule.options.pleaseSelect"
-                                        )}
-                                    </option>
-                                    {addresses.map((address, i) => (
-                                        <option
-                                            value={address.id}
-                                            key={address.id}
-                                        >
-                                            {address.address_name}
+                                <div className="d-flex">
+                                    <select
+                                        name="address_id"
+                                        id="address_id"
+                                        value={address}
+                                        onChange={(e) => {
+                                            setAddress(e.target.value);
+                                        }}
+                                        className="form-control"
+                                    >
+                                        <option value="">
+                                            {t(
+                                                "admin.schedule.options.pleaseSelect"
+                                            )}
                                         </option>
-                                    ))}
-                                </select>
+                                        {addresses.map((address, i) => (
+                                            <option
+                                                value={address.id}
+                                                key={address.id}
+                                            >
+                                                {address.address_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <button
+                                        style={{ fontSize: "15px", color: "#2F4054", padding: "1px 9px", background: "#E5EBF1", borderRadius: "5px" }}
+                                        className="d-flex ml-1 justify-content-center align-items-center"
+                                        onClick={() => {
+                                            setModalStatus(true);
+                                            isAdd.current = true;
+                                            resetForm();
+                                        }}
+                                    >
+                                        {" "}
+                                        <i className="fa fa-plus" ></i>{" "}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -707,12 +915,11 @@ export default function ViewSchedule() {
                                                             (t, index) => {
                                                                 return (
                                                                     <li
-                                                                        className={`py-2 px-3 border  mb-2  text-center border-primary  ${
-                                                                            selectedTime ===
+                                                                        className={`py-2 px-3 border  mb-2  text-center border-primary  ${selectedTime ===
                                                                             t
-                                                                                ? "bg-primary text-white"
-                                                                                : "text-primary"
-                                                                        }`}
+                                                                            ? "bg-primary text-white"
+                                                                            : "text-primary"
+                                                                            }`}
                                                                         key={
                                                                             index
                                                                         }
@@ -771,7 +978,412 @@ export default function ViewSchedule() {
                     </div>
                 </div>
             </div>
+            <Modal
+                size="lg"
+                className="modal-container"
+                dialogClassName="custom-modal-dialog" // Apply your custom class here
+                show={isModalOpen}
+                onHide={() => {
+                    isAdd.current = true;
+                    resetForm();
+                    setModalStatus(false);
+                }}
+            >
+                <Modal.Header closeButton
+                    className="border-0"
+                    style={{ padding: "1rem 2rem" }}
+                >
+                    <Modal.Title>
+                        <div className="navyblueColor">
+                            {isAdd.current
+                                ? t(
+                                    "admin.leads.AddLead.addAddress.AddPropertyAddress"
+                                )
+                                : t(
+                                    "admin.leads.AddLead.addAddress.EditPropertyAddress"
+                                )}
+                        </div>
+                    </Modal.Title>
+                </Modal.Header>
 
+                <Modal.Body
+                    className="border-0"
+                    style={{ padding: "1rem 2rem" }}
+                >
+                    <div className="row">
+                        <div className="w-100 mr-3 ml-3">
+                            <Map
+                                onLoad={onLoad}
+                                onPlaceChanged={onPlaceChanged}
+                                latitude={latitude}
+                                longitude={longitude}
+                                address={address}
+                                setLatitude={setLatitude}
+                                setLongitude={setLongitude}
+                                libraries={libraries}
+                                place={place}
+                            />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label navyblueColor">
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.FullAddress"
+                                    )}
+                                    <small className="text-pink mb-1">
+                                        &nbsp; (
+                                        {t(
+                                            "admin.leads.AddLead.addAddress.autocomplete"
+                                        )}
+                                        )
+                                    </small>
+                                </label>
+                                <input
+                                    ref={fullAddress}
+                                    type="text"
+                                    className="form-control skyBorder"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.placeHolder.fullAddress"
+                                    )}
+                                // readOnly
+                                />
+                                {/* {errors.address ? (
+                                    <small className="text-danger mb-1">
+                                        {errors.address}
+                                    </small>
+                                ) : (
+                                    ""
+                                )} */}
+                            </div>
+                        </div>
+                    </div>
+                    <div className=" d-flex property-modal">
+                        <div className="d-flex flex-column ">
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label mb-0 navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.Name"
+                                    )}
+                                </label>
+                                <input
+                                    name="address_name"
+                                    ref={addressName}
+                                    type="text"
+                                    className="form-control skyBorder"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.placeHolder.addressName"
+                                    )}
+                                />
+                                {/* {errors.address_name ? (
+                                    <small className="text-danger mb-1">
+                                        {errors.address_name}
+                                    </small>
+                                ) : (
+                                    ""
+                                )} */}
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.Floor"
+                                    )}
+                                </label>
+                                <input
+                                    type="text"
+                                    ref={floor}
+                                    className="form-control skyBorder"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.placeHolder.floor"
+                                    )}
+                                />
+                                {/* {errors.floor ? (
+                                    <small className="text-danger mb-1">
+                                        {errors.floor}
+                                    </small>
+                                ) : (
+                                    ""
+                                )} */}
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.AptNumberAndAptName"
+                                    )}
+                                </label>
+                                <input
+                                    type="text"
+                                    ref={Apt}
+                                    className="form-control skyBorder"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.placeHolder.AptNumberAndAptName"
+                                    )}
+                                />
+                                {/* {errors.Apt ? (
+                                    <small className="text-danger mb-1">
+                                        {errors.Apt}
+                                    </small>
+                                ) : (
+                                    ""
+                                )} */}
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.EnteranceCode"
+                                    )}
+                                </label>
+                                <input
+                                    type="text"
+                                    ref={enterance}
+                                    className="form-control skyBorder"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.placeHolder.EnteranceCode"
+                                    )}
+                                />
+                                {/* {errors.enterance ? (
+                                    <small className="text-danger mb-1">
+                                        {errors.enterance}
+                                    </small>
+                                ) : (
+                                    ""
+                                )} */}
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.ZipCode"
+                                    )}
+                                </label>
+                                <input
+                                    type="text"
+                                    ref={zip}
+                                    className="form-control skyBorder"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.placeHolder.ZipCode"
+                                    )}
+                                />
+                                {/* {errors.zip && (
+                                    <small className="text-danger mb-1">
+                                        {errors.zip}
+                                    </small>
+                                )} */}
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.parking"
+                                    )}
+                                </label>
+                                <input
+                                    type="text"
+                                    ref={parking}
+                                    className="form-control skyBorder"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.placeHolder.parking"
+                                    )}
+                                />
+                                {/* {errors.parking && (
+                                    <small className="text-danger mb-1">
+                                        {errors.parking}
+                                    </small>
+                                )} */}
+                            </div>
+                        </div>
+                        <div className="d-flex flex-column ml-3">
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.Lobby"
+                                    )}
+                                </label>
+                                <input
+                                    type="text"
+                                    ref={lobby}
+                                    className="form-control skyBorder"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.placeHolder.Lobby"
+                                    )}
+                                />
+                                {/* {errors.lobby ? (
+                                    <small className="text-danger mb-1">
+                                        {errors.lobby}
+                                    </small>
+                                ) : (
+                                    ""
+                                )} */}
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.Key"
+                                    )}
+                                </label>
+                                <input
+                                    type="text"
+                                    ref={key}
+                                    className="form-control skyBorder"
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.placeHolder.Key"
+                                    )}
+                                />
+                                {/* {errors.key ? (
+                                    <small className="text-danger mb-1">
+                                        {errors.key}
+                                    </small>
+                                ) : (
+                                    ""
+                                )} */}
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.PreferedType"
+                                    )}
+                                </label>
+                                <select
+                                    ref={prefer_type}
+                                    className="form-control skyBorder"
+                                    name="prefer_type"
+                                    defaultValue="default"
+                                >
+                                    <option value="default">
+                                        {t(
+                                            "admin.leads.AddLead.addAddress.Options.PreferedType.Default"
+                                        )}
+                                    </option>
+                                    <option value="female">
+                                        {t(
+                                            "admin.leads.AddLead.addAddress.Options.PreferedType.Female"
+                                        )}
+                                    </option>
+                                    <option value="male">
+                                        {" "}
+                                        {t(
+                                            "admin.leads.AddLead.addAddress.Options.PreferedType.Male"
+                                        )}
+                                    </option>
+                                    <option value="both">
+                                        {" "}
+                                        {t(
+                                            "admin.leads.AddLead.addAddress.Options.PreferedType.Both"
+                                        )}
+                                    </option>
+                                </select>
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <div className="form-check form-switch pl-0">
+                                    <label
+                                        className="form-check-label custom-checkbox navyblueColor"
+                                        htmlFor="isDogAvail"
+                                        style={{ fontWeight: "500", fontSize: "14px" }}
+                                    >
+                                        <input
+                                            ref={is_dog_avail}
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            id="isDogAvail"
+                                            name="is_dog_avail"
+
+                                        />
+                                        <span className="checkmark"></span>
+
+                                        {t(
+                                            "admin.leads.AddLead.addAddress.IsDOG"
+                                        )}
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <div className="form-check form-switch pl-0 ">
+                                    <label
+                                        className="form-check-label custom-checkbox navyblueColor"
+                                        htmlFor="isCatAvail"
+                                        style={{ fontWeight: "500", fontSize: "14px" }}
+                                    >
+                                        <input
+                                            ref={is_cat_avail}
+                                            className="form-check-input  skyBorder"
+                                            type="checkbox"
+                                            id="isCatAvail"
+                                            name="is_cat_avail"
+                                        />
+                                        <span className="checkmark"></span>
+
+                                        {t(
+                                            "admin.leads.AddLead.addAddress.IsCat"
+                                        )}
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="form-group d-flex align-items-center">
+                                <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                    {t(
+                                        "admin.leads.AddLead.addAddress.NotAllowedWorkers"
+                                    )}
+                                </label>
+                                <Select
+                                    value={workers}
+                                    name="workers"
+                                    isMulti
+                                    options={allWorkers}
+                                    className="basic-multi-single w-100 skyBorder"
+                                    isClearable={true}
+                                    placeholder={t(
+                                        "admin.leads.AddLead.addAddress.Options.pleaseSelect"
+                                    )}
+                                    classNamePrefix="select"
+                                    onChange={(newValue) =>
+                                        setWorkers(newValue)
+                                    }
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <input
+                        type="hidden"
+                        ref={addressId}
+                        name="addressId"
+                    />
+                    <input type="hidden" ref={lat} name="lat" />
+                    <input type="hidden" ref={long} name="long" />
+                    <input type="hidden" ref={city} name="city" />
+                    <input
+                        type="hidden"
+                        ref={client_id}
+                        name="client_id"
+                        defaultValue={params.id ? params.id : 0}
+                    />
+                </Modal.Body>
+                <Modal.Footer
+                    className="border-0"
+                    style={{ padding: "1rem 2rem" }}
+                >
+                    <div className="bg-transparent">
+                        <Button
+                            type="button"
+                            className="navyblue"
+                            onClick={() => {
+                                isAdd.current = true;
+                                resetForm();
+                                setModalStatus(false);
+                            }}
+                        >
+                            {t("admin.leads.AddLead.addAddress.Close")}
+                        </Button>
+                    </div>
+                    <div>
+                        <Button
+                            type="button"
+                            onClick={(e) => handleAddress(e)}
+                            className="navyblue"
+                        >
+                            {t("admin.leads.AddLead.addAddress.Save")}
+                        </Button>
+                    </div>
+                </Modal.Footer>
+            </Modal>
             <FullPageLoader visible={isLoading} />
         </div>
     );

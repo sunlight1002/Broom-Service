@@ -69,7 +69,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $action = $request->get('action');
-
+    
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
             ->leftJoin('contracts', 'contracts.client_id', '=', 'clients.id')
@@ -83,12 +83,12 @@ class ClientController extends Controller
             ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status', 'clients.created_at')
             ->selectRaw('IF(contracts.status = "' . ContractStatusEnum::VERIFIED . '", 1, 0) AS has_contract')
             ->groupBy('clients.id');
-
+    
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if (request()->has('search')) {
                     $keyword = request()->get('search')['value'];
-
+    
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
@@ -112,16 +112,21 @@ class ClientController extends Controller
             ->orderColumn('name', function ($query, $order) {
                 $query->orderBy('firstname', $order);
             })
-            ->addColumn('action', function ($data) {
-                return '';
+            ->editColumn('lead_status', function ($data) {
+                // Add the condition here to send "waiting on frontend" when lead_status is "pending client"
+                return $data->lead_status === 'pending client' ? 'waiting' : $data->lead_status;
             })
             ->filterColumn('lead_status', function ($query, $keyword) {
                 $sql = "leadstatus.lead_status like ?";
-                $query->whereRaw($sql, ["{$keyword}"]);
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->addColumn('action', function ($data) {
+                return '';
             })
             ->rawColumns(['action'])
             ->toJson();
     }
+    
 
     public function AllClients()
     {
@@ -956,6 +961,7 @@ class ClientController extends Controller
     public function clienStatusLog(Request $request)
     {
         $data = $request->all();
+        \Log::info($data['status']);
         $statusArr = [
             LeadStatusEnum::PENDING => 0,
             LeadStatusEnum::POTENTIAL => 0,
@@ -966,6 +972,10 @@ class ClientController extends Controller
             LeadStatusEnum::POTENTIAL_CLIENT => 1,
             LeadStatusEnum::PENDING_CLIENT => 2,
             LeadStatusEnum::ACTIVE_CLIENT => 2,
+            LeadStatusEnum::UNHAPPY => 2,
+            LeadStatusEnum::PRICE_ISSUE => 2,
+            LeadStatusEnum::MOVED => 2,
+            LeadStatusEnum::ONE_TIME => 2,
         ];
         $client = Client::find($data['id']);
         if (!$client) {
@@ -973,6 +983,8 @@ class ClientController extends Controller
                 'message' => 'Client not found!'
             ]);
         }
+        \Log::info($statusArr[$data['status']]);
+       
         $client->status = $statusArr[$data['status']];
         $client->save();
 
@@ -1023,12 +1035,6 @@ class ClientController extends Controller
                     ]
                 ]));
 
-                // App::setLocale($client['lng']);
-                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                //     $messages->to($emailData['client']['email']);
-                //     $sub = __('mail.unanswered_lead.header');
-                //     $messages->subject($sub);
-                // });
             }
 
             if ($newLeadStatus === 'irrelevant') {
@@ -1039,21 +1045,124 @@ class ClientController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                // App::setLocale($client['lng']);
-                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                //     $messages->to($emailData['client']['email']);
-                //     $sub = __('mail.irrelevant_lead.header');
-                //     $messages->subject($sub);
-                // });
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::IRRELEVANT,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                    ]));
             };
 
-                // event(new WhatsappNotificationEvent([
-                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                //     "notificationData" => [
-                //         'client' => $client->toArray(),
-                //         'status' => $newLeadStatus,
-                //     ]
-                // ]));
+            if ($newLeadStatus === 'pending') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::PENDING,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'potential') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::POTENTIAL,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'potential client') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::POTENTIAL_CLIENT,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'pending client') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::PENDING_CLIENT,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'waiting') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WAITING,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'active client') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::ACTIVE_CLIENT,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'unhappy') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::UNHAPPY,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'price issue') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::PRICE_ISSUE,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'moved') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::MOVED,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'one-time') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::ONETIME,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
 
         } elseif ($client->notification_type === "email") {
 
@@ -1115,15 +1224,122 @@ class ClientController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::IRRELEVANT,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                    ]));
             }
+            if ($newLeadStatus === 'pending') {
 
-                // event(new WhatsappNotificationEvent([
-                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                //     "notificationData" => [
-                //         'client' => $client->toArray(),
-                //         'status' => $newLeadStatus,
-                //     ]
-                // ]));
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::PENDING,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'potential') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::POTENTIAL,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'potential client') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::POTENTIAL_CLIENT,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'pending client') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::PENDING_CLIENT,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'waiting') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WAITING,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'active client') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::ACTIVE_CLIENT,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'unhappy') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::UNHAPPY,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'price issue') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::PRICE_ISSUE,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'moved') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::MOVED,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
+
+            if ($newLeadStatus === 'one-time') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::ONETIME,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            };
             }
         }
 

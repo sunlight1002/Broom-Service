@@ -1191,7 +1191,9 @@ class WhatsappNotification
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']);
 
-                    $text = __('mail.wa-message.client_reschedule_meeting.header');
+                    $text = __('mail.wa-message.client_reschedule_meeting.header',[
+                        'id' => $clientData['id']
+                    ]);
 
                     $text .= "\n\n";
 
@@ -1770,6 +1772,206 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.common.signature');
 
                     break;
+                
+                case WhatsappMessageTemplateEnum::PENDING:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb');
+                    
+                    $text .= __('mail.wa-message.pending.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::POTENTIAL:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb');
+
+                    $text .= __('mail.wa-message.potential.content',[
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+                    break;
+
+                case WhatsappMessageTemplateEnum::IRRELEVANT:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb');
+
+                    $text .= __('mail.wa-message.irrelevant.content',[
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::UNINTERESTED:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb'); 
+
+                    $text .= __('mail.wa-message.uninterested.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::POTENTIAL_CLIENT:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb');
+
+                    $text .= __('mail.wa-message.potential_client.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+                    break;
+
+                case WhatsappMessageTemplateEnum::PENDING_CLIENT:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb');
+
+                    $text .= __('mail.wa-message.pending_client.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::WAITING:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb'); 
+
+                    $text .= __('mail.wa-message.waiting.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::ACTIVE_CLIENT:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb'); 
+
+                    $text .= __('mail.wa-message.active_client.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::FREEZE_CLIENT:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb'); 
+
+                    $text .= __('mail.wa-message.freeze_client_team.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::UNHAPPY:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb');
+
+                    $text .= __('mail.wa-message.unhappy.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+                
+                case WhatsappMessageTemplateEnum::PRICE_ISSUE:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb');
+
+                    $text .= __('mail.wa-message.price_issue.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::MOVED:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb');
+
+                    $text .= __('mail.wa-message.moved.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::ONETIME:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb'); 
+
+                    $text .= __('mail.wa-message.onetime.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone']
+                    ]);
+
+                    break;
+                
+                case WhatsappMessageTemplateEnum::PAST:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale($clientData['lng']??'en');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                    ]);
+
+                    $text .= __('mail.wa-message.past.thankyou');
+
+                    $text .= "\n\n";
+
+                    // $text .= __('mail.wa-message.client_in_freeze_status.content', [
+                    //     'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    // ]);
+                    $text .= __('mail.wa-message.past.content');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.past.feelfree');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.past.signature');
+
+
+                    break;
+
 
                 case WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED:
                     $clientData = $eventData['client'];
@@ -1915,7 +2117,7 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST:
                     $clientData = $eventData['client'];
-
+                    \Log::info("heheh");
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']??'en'); // Ensure this matches the locale key used in your translation files
 
@@ -1994,23 +2196,27 @@ class WhatsappNotification
                 case WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS:
                     $clientData = $eventData['client'];
 
-                    $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('heb');
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale($clientData['lng']??'en');
+
 
                     // Create the message
-                    $text = __('mail.wa-message.client_in_freeze_status.header');
+                    // $text = __('mail.wa-message.client_in_freeze_status.header');
 
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
                     ]);
+
+                    $text .= __('mail.wa-message.client_in_freeze_status.thankyou');
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.client_in_freeze_status.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
-                    ]);
+                    // $text .= __('mail.wa-message.client_in_freeze_status.content', [
+                    //     'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    // ]);
+                    $text .= __('mail.wa-message.client_in_freeze_status.content');
 
                     $text .= "\n\n";
 
@@ -2018,11 +2224,8 @@ class WhatsappNotification
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.common.regards');
+                    $text .= __('mail.wa-message.client_in_freeze_status.signature');
 
-                    $text .= "\n";
-
-                    $text .= __('mail.common.company');
 
                     break;
 
@@ -2413,6 +2616,7 @@ class WhatsappNotification
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 // \Log::info($text);
+                $receiverNumber = '918000318833'. '@s.whatsapp.net';
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
