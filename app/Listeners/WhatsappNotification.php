@@ -2792,7 +2792,6 @@ class WhatsappNotification
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 // \Log::info($text);
-                $receiverNumber = '918000318833'. '@s.whatsapp.net';
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
