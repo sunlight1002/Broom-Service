@@ -31,12 +31,12 @@ export default function Services({ job }) {
 
     const service = job.jobservice;
 
-    const { durationInHours, startTime, endTime } = getShiftsDetails(job);    
+    const { durationInHours, startTime, endTime } = getShiftsDetails(job);
 
     return (
         <>
             <h2 className="text-custom">{t("worker.jobs.view.s_details")}</h2>
-            <div className="dashBox p-4 mb-3">
+            <div className="dashBox p-0 p-md-4 mb-3">
                 {service && (
                     <form>
                         <div className="row">

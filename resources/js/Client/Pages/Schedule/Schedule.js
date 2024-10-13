@@ -113,6 +113,9 @@ export default function Schedule() {
             searching: true,
             ordering: true,
             responsive: true,
+            autoWidth: true,
+            width: "100%",
+            scrollX: true,
             createdRow: function (row, data, dataIndex) {
                 $(row).addClass('custom-row-class');
             },

@@ -5,7 +5,7 @@ export default function ClientDetails({ client, address }) {
     const { t } = useTranslation();
     return (
         <>
-            <div className="dashBox p-4 mb-3">
+            <div className="dashBox p-0 p-md-4 mb-3">
                 <form>
                     <div className="row">
                         <div className="col-xl-4 col-md-6 col-12">

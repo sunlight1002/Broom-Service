@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 export default function WorkerDetails({ worker }) {
     const { t } = useTranslation();
     return (
-        <div className="dashBox p-4 mb-3 mt-3">
+        <div className="dashBox p-0 p-md-4 mb-3 mt-3">
             <form>
                 <div className="row">
                     <div className="col-sm-4">

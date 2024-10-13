@@ -67,7 +67,7 @@ export default function EditHoliday() {
             if (error.response && error.response.data.errors) {
                 const errors = error.response.data.errors;
                 Object.keys(errors).forEach((field) => {
-                    alert.error(errors[field][0]); 
+                    alert.error(errors[field][0]);
                 },2000);
             } else {
                 alert.error("An unexpected error occurred.");
@@ -84,7 +84,7 @@ export default function EditHoliday() {
                 <form onSubmit={handleSubmit}>
                     <div className="row">
                         <div className="col-lg-6 col-12">
-                            <div className="dashBox p-4">
+                            <div className="dashBox p-0 p-md-4">
                                 <div className="form-group">
                                     <label className="control-label">
                                        {t("admin.holidays.startDate")}
@@ -109,7 +109,7 @@ export default function EditHoliday() {
                                         onChange={(e) =>
                                             setEndDate(e.target.value)
                                         }
-                                       
+
                                     />
                                 </div>
                                 <div className="form-group">
@@ -123,7 +123,7 @@ export default function EditHoliday() {
                                         onChange={(e) =>
                                             setHolidayName(e.target.value)
                                         }
-                                        
+
                                     />
                                 </div>
                                 <button

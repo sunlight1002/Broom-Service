@@ -41,7 +41,7 @@ export default function WorkerProfile({ worker }) {
                     #{worker.worker_id}{" "}
                     {worker.firstname + " " + worker.lastname}
                 </h2>
-                <div className="dashBox p-4 mb-3">
+                <div className="dashBox p-0 p-md-4 mb-3">
                     <form>
                         <div className="row">
                             {/* <div className='col-sm-4'>

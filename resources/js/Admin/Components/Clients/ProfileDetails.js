@@ -180,7 +180,7 @@ export default function ProfileDetails({
                 </div>
                 <div className="row d-inline">
                     <div className="">
-                        <div className="ClientHistory  pl-4 pr-4">
+                        <div className="ClientHistory  pl-0 pr-0 pl-md-4 pr-md-4">
                             <ul className="nav nav-tabs" role="tablist">
                                 <li className="nav-item" role="presentation">
                                     <a
@@ -401,7 +401,7 @@ export default function ProfileDetails({
                             </div>
                         </div>
                     </div>
-                  
+
                 </div>
                 <div
                     className="modal fade"

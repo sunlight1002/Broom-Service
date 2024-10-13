@@ -146,6 +146,9 @@ export default function Clients() {
                 ordering: true,
                 searching: true,
                 responsive: true,
+                autoWidth: true,
+                width: "100%",
+                scrollX: true,
                 createdRow: function (row, data, dataIndex) {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);

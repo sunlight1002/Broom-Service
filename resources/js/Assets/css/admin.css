@@ -11,6 +11,7 @@ body {
   color: #2F2F3B !important;
   background: #f9f9fc !important;
   font-weight: 400;
+  overflow-x: hidden;
 }
 
 a:hover {
@@ -743,7 +744,7 @@ table tr td .dropdown-item {
 
   .client-view h1 {
     font-size: 24px !important;
-    padding-left: 22px;
+    padding-left: 0px;
   }
   .titleBox .addButton{
     margin-top: 24px !important;
@@ -2576,7 +2577,7 @@ tbody tr:hover{
   border-right: none;
 } */
 
-/* .worker-availability-table .slots { 
+/* .worker-availability-table .slots {
   border: 1px solid #E5EBF1;
   border-radius: 4px;;
 } */
@@ -2737,7 +2738,7 @@ button.time-counter, span.time-counter {
   flex-direction: row-reverse !important;
   width: 100%;
   justify-content: space-between !important;
-  
+
 }
 
 .custom-datatable {
@@ -2802,7 +2803,7 @@ button.time-counter, span.time-counter {
   box-shadow: none !important;
   background-color: #FFFFFF !important;
 }
-/* 
+/*
 .dt-paging-button{
   background-color: #1E1E1E !important;
   color: white !important;
@@ -2887,7 +2888,7 @@ button.time-counter, span.time-counter {
 
 #content .dt-search .dt-input{
   border: 1px solid #E9ECF2;
-} 
+}
 
 #content tr{
   border-top: 1px solid #E9ECF2;
@@ -2934,11 +2935,18 @@ button.time-counter, span.time-counter {
 @media screen and (max-width: 650px) {
   #content tbody tr td:last-child{
     display: flex;
-    justify-content: center;
-  } 
+    justify-content: left;
+  }
   #content tbody tr td:last-child .d-flex a{
     margin-left: 57px;
-  } 
+  }
+  table.dataTable > tbody > tr.child ul.dtr-details .dtr-data {
+    max-width: 150px;
+    display: block;
+}
+/* #content .dt-container tbody tr td {
+    width: 37%;
+} */
 }
 
 .card-item{
@@ -3277,9 +3285,20 @@ button.time-counter, span.time-counter {
     margin: 12px 0px !important;
   }
   .edit-customer .color {
-    /* margin-left: 3px !important; */
+    margin-left: 1.25rem !important;
+    margin-right: 1.25rem !important;
     flex-wrap: wrap;
     margin-bottom: 10px;
+  }
+  .card-heading p {
+    margin: 20px 1.25rem 20px !important;
+  }
+  .custom-modal-dialog .modal-header, .custom-modal-dialog .modal-body, .custom-modal-dialog .modal-footer {
+    padding: 1rem 1.25rem !important;
+  }
+  .card-body .col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
    .color .swatch{
@@ -3289,6 +3308,76 @@ button.time-counter, span.time-counter {
   .client-view > div{
     flex-direction: column;
   }
+  .client-view > div {
+    flex-direction: column;
+    align-items: start !important;
+  }
+  .ClientHistory .tab-content {
+    padding: 25px 0 10px 0px;
+  }
+
+  .ClientHistory .nav-tabs {
+    display: flex !important;
+    overflow-x: auto;
+    white-space: nowrap;
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
+
+  .view-applicant .card-body {
+    padding: 0;
+  }
+
+  .property-container tbody tr:hover {
+    background: none;
+  }
+
+  div#content .card .card-body {
+    padding: 0;
+}
+
+  .additional_contract_box .card-body > div {
+    flex-direction: column;
+  }
+
+  .responsiveTable td .tdBefore {
+    left: 0;
+  }
+
+  #container .responsiveTable td.pivoted {
+    border: none !important;
+    position: relative;
+    padding-left: calc(43% + 10px) !important;
+    text-align: left !important;
+    white-space: unset !important;
+    overflow-wrap: break-word;
+  }
+
+tbody tr:hover {
+    background: none;
+}
+
+  .responsiveTable td .tdBefore {
+    left: 0 !important;
+  }
+
+  .responsiveTable tbody tr td:last-child button.dropdown-toggle {
+    margin-top: 0 !important;
+    margin-left: 49px;
+}
+
+#container {
+    overflow-x:hidden !important;
+}
+#content thead tr th {
+    padding: 19px 0px;
+    border: none;
+}
+
+#content #tab-property-address tbody tr td:last-child {
+    display: flex;
+    justify-content: right;
+}
 
   /* .profile > .form-group{
     flex-direction: column-reverse;
@@ -3430,7 +3519,7 @@ button.time-counter, span.time-counter {
       flex-direction: column;
       align-items: flex-start;
   }
-  
+
   .chat-header {
       justify-content: flex-start;
       flex-direction: column;

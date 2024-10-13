@@ -89,6 +89,9 @@ export default function WorkerHours() {
             ordering: true,
             searching: true,
             responsive: true,
+            autoWidth: true,
+            width: "100%",
+            scrollX: true,
             drawCallback: function (settings) {
                 setSelectedWorkerIDs([]);
                 $(tableRef.current)

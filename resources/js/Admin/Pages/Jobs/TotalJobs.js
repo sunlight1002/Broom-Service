@@ -102,13 +102,16 @@ export default function TotalJobs() {
                                     <button type="button" class="dropdown-item dt-take-action-btn" data-id="${row.job_id}">Take action</button>
                                     <button type="button" class="dropdown-item dt-take-all-btn" data-id="${row.job_id}">all ok</button>
                                 </div>
-                                
+
                             </div>`;
                         return _html;
                     }
                 }
             ],
             responsive: true,
+            autoWidth: true,
+            width: "100%",
+            scrollX: true,
             order: [[0, 'desc']], // Default sorting
         });
 
@@ -184,7 +187,7 @@ export default function TotalJobs() {
                         d.start_date = startDateRef.current.value;
                         d.end_date = endDateRef.current.value;
                     },
-                    dataSrc: function (json) {                        
+                    dataSrc: function (json) {
                         json.data.forEach((job) => {
                             const { durationInHours, startTime, endTime } = getShiftsDetails(job);
                             job.durationInHours = durationInHours;
@@ -394,6 +397,9 @@ export default function TotalJobs() {
                 ordering: true,
                 searching: true,
                 responsive: true,
+                autoWidth: true,
+                width: "100%",
+                scrollX: true,
                 createdRow: function (row, data, dataIndex) {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);

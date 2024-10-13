@@ -86,12 +86,12 @@ export default function OfferPrice() {
                             } else {
                                 color = "red";
                             }
-    
+
                             // return `<span style="color: ${color};">${data}</span>`;
                             return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                             ${data}
                         </p>`;
-    
+
                         },
                     },
                     {
@@ -109,15 +109,15 @@ export default function OfferPrice() {
                         render: function (data, type, row, meta) {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-    
+
                             _html += `<button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>`;
-    
+
                             _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
-    
+
                             _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
-    
+
                             _html += "</div> </div>";
-    
+
                             return _html;
                         },
                     },
@@ -125,6 +125,9 @@ export default function OfferPrice() {
                 ordering: true,
                 searching: true,
                 responsive: true,
+                autoWidth: true,
+                width: "100%",
+                scrollX: true,
                 createdRow: function (row, data, dataIndex) {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);

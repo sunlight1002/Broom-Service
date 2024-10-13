@@ -62,7 +62,7 @@ export default function MeetingStatus() {
     return (
         <div className="container">
             {meeting && (
-                <div className="thankyou meet-status dashBox p-4">
+                <div className="thankyou meet-status dashBox p-0 p-md-4">
                     <svg
                         width="190"
                         height="77"

@@ -31,7 +31,7 @@ export default function ManageHolidays() {
             $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
-                autoWidth: false, // Prevent automatic column width adjustments
+                autoWidth: true, // Prevent automatic column width adjustments
                 ajax: {
                     url: "/api/admin/holidays",
                     type: "GET",
@@ -86,6 +86,8 @@ export default function ManageHolidays() {
                     },
                 ],
                 responsive: true,
+                width: "100%",
+                scrollX: true,
                 createdRow: function (row, data) {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);
@@ -95,33 +97,33 @@ export default function ManageHolidays() {
                     initializeTableActions();
                 },
             });
-    
+
             $(tableRef.current).css('table-layout', 'fixed');
         }
     };
-    
+
     const initializeTableActions = () => {
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const id = $(this).data("id");
             navigate(`/admin/holidays/${id}/edit`);
         });
-    
+
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const id = $(this).data("id");
             handleDelete(id);
         });
     };
-    
+
     useEffect(() => {
         initializeDataTable();
-    
+
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true);
             }
         };
     }, []);
-    
+
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -175,12 +177,12 @@ export default function ManageHolidays() {
                         </div>
                     </div>
                 </div>
-                <div className="dashBox p-4" style={{ backgroundColor: "inherit", border: "none" }}>
+                <div className="dashBox p-0 p-md-4" style={{ backgroundColor: "inherit", border: "none" }}>
                     <table ref={tableRef} className="display table table-bordered w-100" />
                 </div>
                 </div>
             { loading && <FullPageLoader visible={loading}/>}
         </div>
-        
+
     );
 }

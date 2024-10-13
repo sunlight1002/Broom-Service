@@ -54,7 +54,7 @@ export default function AddHoliday() {
                 if (error.response && error.response.data.errors) {
                     const errors = error.response.data.errors;
                     Object.keys(errors).forEach((field) => {
-                        alert.error(errors[field][0]); 
+                        alert.error(errors[field][0]);
                     },2000);
                 } else {
                     alert.error("An unexpected error occurred.");
@@ -70,7 +70,7 @@ export default function AddHoliday() {
                 <form onSubmit={handleSubmit}>
                     <div className="row">
                         <div className="col-lg-6 col-12">
-                            <div className="dashBox p-4">
+                            <div className="dashBox p-0 p-md-4">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t("admin.holidays.holidayName")}
@@ -81,7 +81,7 @@ export default function AddHoliday() {
                                         value={holidayName}
                                         onChange={(e) => setHolidayName(e.target.value)}
                                         placeholder="Enter holiday name"
-                                       
+
                                     />
                                 </div>
                                 <div className="form-group">
@@ -93,7 +93,7 @@ export default function AddHoliday() {
                                         className="form-control"
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
-                                        
+
                                     />
                                 </div>
                                 <div className="form-group">
@@ -105,7 +105,7 @@ export default function AddHoliday() {
                                         className="form-control"
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                        
+
                                     />
                                 </div>
                                 <button type="submit" className="btn btn-primary">

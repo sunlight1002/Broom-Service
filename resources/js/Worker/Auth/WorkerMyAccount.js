@@ -160,7 +160,7 @@ export default function WorkerMyAccount() {
     return (
         <>
             <div className="edit-customer worker-account">
-                <div className="dashBox p-4">
+                <div className="dashBox p-0 p-md-4">
                     <form>
                         <div className="row">
                             <div className="col-sm-6">

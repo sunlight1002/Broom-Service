@@ -277,7 +277,7 @@ export default function EditWorker() {
             <div id="content">
                 <div className="edit-customer">
                     <h1 className="page-title editEmployer">Edit Worker</h1>
-                    <div className="dashBox p-4" style={{ background: "inherit", border: "none" }}>
+                    <div className="dashBox p-0 p-md-4" style={{ background: "inherit", border: "none" }}>
                         <form>
                             <div className="row">
                                 <div className="col-sm-6">

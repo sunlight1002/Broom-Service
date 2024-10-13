@@ -159,6 +159,9 @@ export default function Payments() {
             ordering: true,
             searching: true,
             responsive: true,
+            autoWidth: true,
+            width: "100%",
+            scrollX: true,
             createdRow: function (row, data, dataIndex) {
                 $(row).addClass('custom-row-class');
             },
