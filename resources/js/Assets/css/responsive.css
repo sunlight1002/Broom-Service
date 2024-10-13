@@ -465,7 +465,7 @@ footer .copyright{
     color: #343A40;
     padding: 13px 15px;
     display: block;
-    font-size: 15px; 
+    font-size: 15px;
     text-align: left;
 }
 .mobileNav .nav-item a:hover{
@@ -484,7 +484,7 @@ footer .copyright{
 }
 .mobileNav .navbar-collapse {
     height: 100%;
-    left: 0;
+    left: -75%;
     padding-top: 15px;
     position: fixed;
     top: 0;
@@ -556,7 +556,7 @@ footer .copyright{
 }
 .user-page .usertype label > input + .forcustom{
     min-width: 200px;
-    display: block; 
+    display: block;
 }
 .cuisines h2, .featured h2{
     display: none;
@@ -625,7 +625,7 @@ footer .copyright{
 }
 .card.mt-3 .tab-content{
     padding: 0;
-    border: none;   
+    border: none;
 }
 .ViewOffer {
     padding: 0;
@@ -676,8 +676,8 @@ footer .copyright{
     font-size: 12px;
     height: unset;
 }
-} 
-.ofrTitle{ 
+}
+.ofrTitle{
     background: #70809014!important;
     color: #1b3f79;
 }
