@@ -722,6 +722,21 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
+                                path="holidays"
+                                element={<Holiday />}
+                            />
+                             <Route
+                                exact
+                                path="holidays/create"
+                                element={<AddHoliday />}
+                            />
+                             <Route
+                                exact
+                                path="holidays/:id/edit"
+                                element={<EditHoliday />}
+                            />
+                            <Route
+                                exact
                                 path="services/create"
                                 element={<AddService />}
                             />

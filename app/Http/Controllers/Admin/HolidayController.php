@@ -19,9 +19,9 @@ class HolidayController extends Controller
         $columns = ['id', 'holiday_name', 'start_date', 'end_date'];
 
         $length = $request->get('length', 10);
-        $start = $request->get('start', 0); 
-        $column = $request->get('column', 0); 
-        $dir = $request->get('dir', 'asc'); 
+        $start = $request->get('start', 0);
+        $column = $request->get('column', 0);
+        $dir = $request->get('dir', 'asc');
 
         $query = Holiday::select('id', 'holiday_name', 'start_date', 'end_date');
 
@@ -36,7 +36,6 @@ class HolidayController extends Controller
 
         // Sorting
         $query->orderBy($columns[$column], $dir);
-
 
         // Pagination
         $totalRecords = $query->count();

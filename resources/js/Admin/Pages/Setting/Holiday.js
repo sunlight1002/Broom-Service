@@ -105,7 +105,6 @@ export default function ManageHolidays() {
             const id = $(this).data("id");
             navigate(`/admin/holidays/${id}/edit`);
         });
-
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const id = $(this).data("id");
             handleDelete(id);
@@ -121,7 +120,6 @@ export default function ManageHolidays() {
             }
         };
     }, []);
-
 
     const handleDelete = (id) => {
         Swal.fire({
