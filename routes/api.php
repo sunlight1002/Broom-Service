@@ -8,7 +8,6 @@ use App\Http\Controllers\User\JobController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
 use App\Http\Controllers\User\DocumentController;
-use App\Http\Controllers\User\SkippedCommentController;
 use App\Http\Controllers\TwimlController;
 use App\Http\Controllers\Api\LeadTwilioController;
 use App\Http\Controllers\TaskController;
