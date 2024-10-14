@@ -155,6 +155,8 @@ import PayslipSettings from "./Admin/Pages/Setting/PayslipSettings";
 import Board from "./Admin/Pages/TaskManagement/Board";
 import Tasks from "./Worker/Pages/MyAccount/Tasks";
 import TeamButtons from "./Pages/TeamButtons";
+import TeamButtons from "./Pages/TeamButtons";
+import TeamBtnsAfter7days from "./Pages/TeamBtnsAfter7days";
 import { ContactManager } from "./Pages/ContactManager";
 import TeamSkippedComments from "./Pages/TeamSkippedComments";
 import { TimeManage } from "./Pages/TimeManage";
@@ -209,6 +211,11 @@ export default function MyRoutes() {
                         exact
                         path="team-btn/:id"
                         element={<TeamButtons/>}
+                    />
+                      <Route
+                        exact
+                        path="team-btn7days/:id"
+                        element={<TeamBtnsAfter7days/>}
                     />
                       <Route
                         exact
@@ -719,6 +726,21 @@ export default function MyRoutes() {
                                 exact
                                 path="workers-refund"
                                 element={<WorkersRefund />}
+                            />
+                            <Route
+                                exact
+                                path="holidays"
+                                element={<Holiday />}
+                            />
+                             <Route
+                                exact
+                                path="holidays/create"
+                                element={<AddHoliday />}
+                            />
+                             <Route
+                                exact
+                                path="holidays/:id/edit"
+                                element={<EditHoliday />}
                             />
                             <Route
                                 exact

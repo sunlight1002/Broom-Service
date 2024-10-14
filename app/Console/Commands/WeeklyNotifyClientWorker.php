@@ -83,7 +83,6 @@ class WeeklyNotifyClientWorker extends Command
                 ];
                 event(new WhatsappNotificationEvent($clientData));
             }
-
             if ($job->worker) {
                 $workerData = [
                     'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE,

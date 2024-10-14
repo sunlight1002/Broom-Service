@@ -71,12 +71,10 @@ class StatusNotUpdated24hours extends Command
                 $this->info("Client not found for Offer Status ID: {$offerStatus->id}");
             }
         }
-
+    
         return 0;
     }
-
-
-
+    
     // Check if the notification for the given key was already sent
     protected function isNotificationSent($clientId, $key)
     {
@@ -136,12 +134,6 @@ class StatusNotUpdated24hours extends Command
             'status' => $offerStatus->status,
         ]);
 
-        // App::setLocale($client->lng);
-        // Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $client->toArray()], function ($messages) use ($client) {
-        //     $messages->to($client->email);
-        //     $messages->subject(__('mail.price_offer_reminder.header'));
-        // });
-
         if ($response) {
             $this->info("3-day follow-up sent for Offer ID: {$offerStatus->id}");
         } else {
@@ -156,6 +148,7 @@ class StatusNotUpdated24hours extends Command
             "type" => WhatsappMessageTemplateEnum::FINAL_FOLLOW_UP_PRICE_OFFER,
             "notificationData" => [
                 'client' => $client->toArray(),
+                'offer' => $offerStatus->toArray()
             ]
         ]));
 
@@ -165,12 +158,6 @@ class StatusNotUpdated24hours extends Command
             'type' => NotificationTypeEnum::FINAL_FOLLOW_UP_PRICE_OFFER,
             'status' => $offerStatus->status,
         ]);
-
-        // App::setLocale($client->lng);
-        // Mail::send('Mails.ReminderLeadPriceOffer', ['client' => $client->toArray()], function ($messages) use ($client) {
-        //     $messages->to($client->email);
-        //     $messages->subject(__('mail.price_offer_reminder.header'));
-        // });
 
         if ($response) {
             $this->info("Final follow-up sent for Offer ID: {$offerStatus->id}");

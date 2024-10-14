@@ -8,14 +8,19 @@ export default function ChangeStatusModal({
     isOpen,
     clientId,
     getUpdatedData,
-    statusArr
+    statusArr,
 }) {
+    console.log(clientId);
+    
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         reason: "",
         status: "pending",
         id: clientId,
     });
+
+    console.log(formValues.status);
+    
     const [isLoading, setIsLoading] = useState(false);
 
     const headers = {
@@ -51,7 +56,7 @@ export default function ChangeStatusModal({
                     headers,
                 })
                 .then(async (response) => {
-                    Swal.fire("Added!", response.data.message, "success");
+                    Swal.fire("Added!", response?.data?.message, "success");
                     setIsLoading(false);
                     await getUpdatedData();
                     handleChangeStatusModalClose();
@@ -59,7 +64,7 @@ export default function ChangeStatusModal({
                 .catch((e) => {
                     Swal.fire({
                         title: "Error!",
-                        text: e.response.data.message,
+                        text: e.response?.data?.message,
                         icon: "error",
                     });
                     setIsLoading(false);

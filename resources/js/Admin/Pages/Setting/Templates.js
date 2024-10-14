@@ -46,7 +46,6 @@ export default function Templates() {
                 message_spa: res.message_spa,
                 message_rus: res.message_rus,
             })
-
         } catch (error) {
             console.log(error.response ? error.response.data : error.message);
         }
@@ -68,7 +67,6 @@ export default function Templates() {
         try {
             const response = await axios.put(`/api/admin/whatsapp-templates/${Base64.decode(params.id)}`, templates, { headers });
             handleGetTemplates()
-
             if (response.status === 200) {
                 Swal.fire({
                 icon: 'success',
@@ -76,7 +74,6 @@ export default function Templates() {
                 // text: response.data.message,
             });
             }
-
         } catch (error) {
             Swal.fire({
                 icon: 'error',

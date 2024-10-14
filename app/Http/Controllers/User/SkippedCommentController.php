@@ -57,7 +57,6 @@ class SkippedCommentController extends Controller
             'worker' => $comment->job->worker,   // The worker assigned to the job
             'client' => $comment->job->client,   // The client for the job
         ];
-
         // Fire the event with the correct data
         event(new WhatsappNotificationEvent([
             'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_SKIPPED_COMMENTS,
@@ -65,7 +64,6 @@ class SkippedCommentController extends Controller
                 'job' => $data, // Send the comment, worker, and client
             ],
         ]));
-
         // Return a successful response
         return response()->json([
             'success' => true,
@@ -123,7 +121,6 @@ class SkippedCommentController extends Controller
             'message' => 'Skipped comment status updated successfully.',
         ]);
     }
-
 
 }
 

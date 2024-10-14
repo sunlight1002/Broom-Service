@@ -461,13 +461,11 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         try {
             $whapiApiEndpoint = config('services.whapi.url');
             $whapiApiToken = config('services.whapi.token');
-
             // Build the payload for the API request
             $payload = [
                 'to' => $phoneNumber . '@s.whatsapp.net',
                 'body' => $message
             ];
-
             // If a reply ID is provided, include it in the payload
             if ($replyId) {
                 $payload['reply_to'] = $replyId; // Modify this key according to your API specification
@@ -486,5 +484,4 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             Log::alert($th->getMessage());
         }
     }
-
 }

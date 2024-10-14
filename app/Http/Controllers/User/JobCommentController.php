@@ -271,7 +271,6 @@ class JobCommentController extends Controller
     {
         // Ensure you're receiving the JSON data properly
         $commentId = $request->input('comment_id');
-
         // Check if the comment ID is received properly
         if (!$commentId) {
             return response()->json([
@@ -289,7 +288,6 @@ class JobCommentController extends Controller
                 'message' => 'Comment not found',
             ], 404);
         }
-
         // Toggle the comment status
         if ($comment->status === 'complete') {
             $comment->status = null;  // Set to null if it was complete

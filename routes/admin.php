@@ -158,6 +158,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('all-clients', [ClientController::class, 'AllClients']);
     Route::post('import-clients', [ClientController::class, 'import']);
     Route::post('client-status-log', [ClientController::class, 'clienStatusLog']);
+    Route::delete('/client-meta/{clientId}', [ClientController::class, 'deleteClientMetaIfExists']);
 
     // Client Comments
     Route::get('clients/{id}/comments', [ClientController::class, 'getComments']);

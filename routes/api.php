@@ -78,6 +78,7 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('jobs/{id}/comments', [JobCommentController::class, 'index']);
 
 
+
     Route::resource('job-comments', JobCommentController::class)->only(['store', 'destroy']);
     Route::post('job-comments/mark-complete', [JobCommentController::class, 'markComplete']);
     Route::post('jobs/{id}/adjust-time', [JobCommentController::class, 'adjustJobCompleteTime']);

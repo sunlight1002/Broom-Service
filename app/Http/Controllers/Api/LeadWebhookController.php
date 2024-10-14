@@ -587,7 +587,6 @@ class LeadWebhookController extends Controller
 
                 //     // Inform user that the OTP has been sent
                 //     $msg = $client->lng == 'heb' ? 'קוד האימות נשלח למייל ול-SMS שלך' : 'The verification code has been sent to your email and SMS';
-
                 //     WebhookResponse::create([
                 //         'status'        => 1,
                 //         'name'          => 'whatsapp',
@@ -618,7 +617,6 @@ class LeadWebhookController extends Controller
                 //     if ($client->otp == $message && $client->otp_expiry > now()) {
                 //         // OTP is correct and not expired
                 //         $msg = $client->lng == 'heb' ? 'קוד האימות נכון' : 'The verification code is correct';
-
                 //         WebhookResponse::create([
                 //             'status'        => 1,
                 //             'name'          => 'whatsapp',
@@ -646,7 +644,6 @@ class LeadWebhookController extends Controller
                 //     } else {
                 //         // OTP is wrong or expired
                 //         $msg = $client->lng == 'heb' ? 'קוד האימות שגוי או שפג תוקפו' : 'The verification code is incorrect or has expired';
-
                 //         WebhookResponse::create([
                 //             'status'        => 1,
                 //             'name'          => 'whatsapp',
@@ -1529,7 +1526,6 @@ class LeadWebhookController extends Controller
                 // if ($last_menu == 'customer_service') {
                 //     $msg = null;
                 //     $auth = null;
-
                 //     // Check if the message is an email or phone number
                 //     if (str_contains($message, '@')) {
                 //         $auth = Client::where('email', $message)->first();
@@ -1655,6 +1651,122 @@ class LeadWebhookController extends Controller
                 //     die("Send OTP verification result");
                 // }
 
+                //         // $msg = "1. View your quotes \n2. View your contracts \n3. When is my next service? \n4. Cancel a one-time service \n5. Terminate the agreement \n6. Contact a representative";
+                //         // if ($auth->lng == 'heb') {
+                //         //     $msg = "1. הצג את הציטוטים שלך \n2. הצג את החוזים שלך \n3. מתי השירות הבא שלי? \n4. בטל שירות חד פעמי \n5. סיים את ההסכם \n6. פנה לנציג";
+                //         // }
+
+
+                //         // Generate a 6-digit OTP
+                //         $otp = rand(100000, 999999);  
+                //         $auth->otp = $otp;
+                //         $auth->otp_expires_at = now()->addMinutes(5);  // OTP expires in 5 minutes
+                //         $auth->save();
+                
+                //         // Send OTP via email or WhatsApp
+                //         if (str_contains($message, '@')) {
+                //             // Send OTP via email
+                //             Mail::to($auth->email)->send(new OTPMail($otp)); // OTPMail should be a Mailable class
+                //             $msg = "An OTP has been sent to your email. Please enter the OTP to proceed.";
+                //         } else {
+                //             // Send OTP via WhatsApp
+                //              App::setLocale($client->lng);
+                                // $otpMessage = __('mail.otp.body', ['otp' => $otp]);
+            
+                                // $twilioAccountSid = config('services.twilio.twilio_id');
+                                // $twilioAuthToken = config('services.twilio.twilio_token');
+                                // $twilioPhoneNumber = config('services.twilio.twilio_number');
+            
+                                // $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
+                                // $phone_number = '+'.$client->phone;
+                            
+                                // $twilioClient->messages->create(
+                                //     $phone_number,
+                                //     ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
+                                // );
+
+                //             $msg = "An OTP has been sent to your phone. Please enter the OTP to proceed.";
+                //         }
+                
+                //         // Update bot state for OTP verification
+                //         WhatsAppBotClientState::updateOrCreate([
+                //             'client_id' => $client->id,
+                //         ], [
+                //             'menu_option' => 'main_menu->customer_service->otp_verification',
+                //             'language' => $auth->lng == 'heb' ? 'he' : 'en',
+                //             'auth_id' => $auth->id,
+                //         ]);
+                
+                //     } else {
+                //         $msg = "I couldn't find your details based on what you sent. Please try again.";
+                //         if ($client->lng == 'heb') {
+                //             $msg = 'לא הצלחתי למצוא את הפרטים שלך על סמך מה ששלחת. בבקשה נסה שוב.';
+                //         }
+                //     }
+                
+                //     // Send the message to the client
+                //     if (!empty($msg)) {
+                //         WebhookResponse::create([
+                //             'status'        => 1,
+                //             'name'          => 'whatsapp',
+                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                //             'message'       => $msg,
+                //             'number'        => $from,
+                //             'flex'          => 'A',
+                //             'read'          => 1,
+                //             'data'          => json_encode($get_data)
+                //         ]);
+                
+                //         $result = sendWhatsappMessage($from, array('message' => $msg));
+                //     }
+                
+                //     die("Send service menu");
+                
+                // } else if ($last_menu == 'customer_service->otp_verification') {
+                //     // This block handles OTP verification
+                //     $auth = Client::where('id', $client->id)->first();
+                
+                //     // Check if OTP matches and hasn't expired
+                //     if ($auth && $auth->otp == $message && now()->lessThan($auth->otp_expires_at)) {
+                //         // OTP is valid
+                //         $msg = "OTP verified successfully. You can now access your account details.";
+                //         if ($auth->lng == 'heb') {
+                //             $msg = "ה-OTP אומת בהצלחה. אתה יכול לגשת לפרטי החשבון שלך.";
+                //         }
+                
+                //         // Update bot state to show the customer service menu
+                //         WhatsAppBotClientState::updateOrCreate([
+                //             'client_id' => $client->id,
+                //         ], [
+                //             'menu_option' => 'main_menu->customer_service->customer_menu',
+                //             'language' => $auth->lng == 'heb' ? 'he' : 'en',
+                //             'auth_id' => $auth->id,
+                //         ]);
+                
+                //     } else {
+                //         // OTP is invalid or expired
+                //         $msg = "Invalid or expired OTP. Please try again.";
+                //         if ($auth->lng == 'heb') {
+                //             $msg = 'OTP שגוי או שפג תוקפו. בבקשה נסה שוב.';
+                //         }
+                //     }
+                
+                //     // Send the message to the client
+                //     WebhookResponse::create([
+                //         'status'        => 1,
+                //         'name'          => 'whatsapp',
+                //         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                //         'message'       => $msg,
+                //         'number'        => $from,
+                //         'flex'          => 'A',
+                //         'read'          => 1,
+                //         'data'          => json_encode($get_data)
+                //     ]);
+                
+                //     $result = sendWhatsappMessage($from, array('message' => $msg));
+                //     die("Send OTP verification result");
+                // }
+                
                 // Send about service message
                 if ($last_menu == 'main_menu' && isset($menus[$last_menu][$message]['content'][$client->lng == 'heb' ? 'he' : 'en'])) {
                     $msg = $menus[$last_menu][$message]['content'][$client->lng == 'heb' ? 'he' : 'en'];

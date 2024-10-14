@@ -39,6 +39,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Enums\ClientMetaEnum;
+use App\Models\ClientMetas;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
 use App\Enums\NotificationTypeEnum;
@@ -69,7 +71,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $action = $request->get('action');
-
+    
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
             ->leftJoin('contracts', 'contracts.client_id', '=', 'clients.id')
@@ -83,12 +85,12 @@ class ClientController extends Controller
             ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status', 'clients.created_at')
             ->selectRaw('IF(contracts.status = "' . ContractStatusEnum::VERIFIED . '", 1, 0) AS has_contract')
             ->groupBy('clients.id');
-
+    
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if (request()->has('search')) {
                     $keyword = request()->get('search')['value'];
-
+    
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
@@ -126,6 +128,7 @@ class ClientController extends Controller
             ->rawColumns(['action'])
             ->toJson();
     }
+    
 
 
     public function AllClients()
@@ -984,7 +987,7 @@ class ClientController extends Controller
             ]);
         }
         \Log::info($statusArr[$data['status']]);
-
+       
         $client->status = $statusArr[$data['status']];
         $client->save();
 
@@ -1034,12 +1037,6 @@ class ClientController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-                // App::setLocale($client['lng']);
-                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                //     $messages->to($emailData['client']['email']);
-                //     $sub = __('mail.unanswered_lead.header');
-                //     $messages->subject($sub);
-                // });
             }
 
             if ($newLeadStatus === 'irrelevant') {
@@ -1365,6 +1362,41 @@ class ClientController extends Controller
         return response()->json([
             'message' => 'Status has been changed successfully!',
         ]);
+    }
+
+
+    public function deleteClientMetaIfExists($clientId)
+    {
+        // Fetch all client metas with matching keys
+        $metaKeys = [
+            ClientMetaEnum::NOTIFICATION_SENT_24_HOURS,
+            ClientMetaEnum::NOTIFICATION_SENT_3_DAY,
+            ClientMetaEnum::NOTIFICATION_SENT_7_DAY,
+        ];
+
+        // Check if records exist for the given client_id and any of the keys
+        $clientMetas = ClientMetas::where('client_id', $clientId)
+            ->whereIn('key', $metaKeys)
+            ->get();
+
+        if ($clientMetas->isNotEmpty()) {
+            // Delete the matched records
+            ClientMetas::where('client_id', $clientId)
+                ->whereIn('key', $metaKeys)
+                ->delete();
+
+            // Log the deletion
+            \Log::info("Deleted meta records for client_id: $clientId with keys: " . implode(', ', $metaKeys));
+
+            return response()->json([
+                'message' => 'Client meta records deleted successfully.',
+            ]);
+        } else {
+            // If no records were found, return a message
+            return response()->json([
+                'message' => 'No matching client meta records found.',
+            ]);
+        }
     }
 
 }

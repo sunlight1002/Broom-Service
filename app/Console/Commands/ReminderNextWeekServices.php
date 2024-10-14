@@ -48,7 +48,6 @@ class ReminderNextWeekServices extends Command
         // Get the start and end dates for the following week
         $startOfNextWeek = Carbon::now()->startOfWeek()->addWeek()->format('Y-m-d');
         $endOfNextWeek = Carbon::now()->endOfWeek()->addWeek()->format('Y-m-d');
-
         \Log::info("Next week's dates: {$startOfNextWeek} to {$endOfNextWeek}");
 
         // Fetch all Jobs with their related JobService for services happening next week

@@ -54,7 +54,6 @@ class NotifyTeamToUpdateLeadStatus extends Command
         ->where('created_at', '<=', Carbon::now()->subHours(24))  // Created more than 24 hours ago
         ->get();
 
-
         foreach ($leadStatuses as $leadStatus) {
             $client = $leadStatus->client;
 
