@@ -1052,7 +1052,6 @@ class WhatsappNotification
                     $text .= __('mail.client_new_job.service') . ": " . ($jobData['client']['lng'] == 'heb' ? $jobData['jobservice']['heb_name'] : $jobData['jobservice']['name']) . "\n";
                     $text .= __('mail.client_new_job.date') . ": " . Carbon::parse($jobData['start_date'])->format('M d Y') . "\n";
                     $text .= __('mail.client_new_job.start_time') . ": " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i') . "\n";
-
                     // Add a closing statement
                     $text .= "\n" . __('mail.common.dont_hesitate_to_get_in_touch');
                     $text .= "\n" . __('mail.common.regards') . "\n";
@@ -1066,14 +1065,10 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
                     $template = $eventData['template'];
                     $recipientType = $eventData['recipientType'];
-
                     if ($recipientType === 'client') {
                         // Client details
                         $receiverNumber = $jobData->client->phone;
                         App::setLocale($jobData->client->lng ?? 'en');
-
-                        $firstname = $jobData->client->firstname;
-                        $lastname = $jobData->client->lastname;
 
                         $message = str_replace(
                             ['{firstname}', '{lastname}', '{Change_Service_Date}', '{Cancel_Service}'],
@@ -1085,7 +1080,6 @@ class WhatsappNotification
                             ],
                             $template->message_en
                         );
-
                     } elseif ($recipientType === 'worker') {
                         // Worker details
                         $receiverNumber = $jobData->worker->phone;
@@ -2593,6 +2587,7 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
+                \Log::info($text);
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,

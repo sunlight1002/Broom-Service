@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -46,20 +45,20 @@ class WeeklyNotifyClientWorker extends Command
         // Get the start and end dates for the following week
         $startOfNextWeek = Carbon::now()->addWeek()->startOfWeek();
         $endOfNextWeek = Carbon::now()->addWeek()->endOfWeek();
-        
+
         // \Log::info($startOfNextWeek." start");
         // \Log::info($endOfNextWeek." end");
 
         // Fetch scheduled jobs for the next week
         $scheduledJobs = Job::whereBetween('start_date', [$startOfNextWeek, $endOfNextWeek])
-            ->with(['client', 'worker']) 
+            ->with(['client', 'worker'])
             ->get();
 
         // Fetch holidays for the next week
         $holidays = Holiday::whereBetween('start_date', [$startOfNextWeek, $endOfNextWeek])
             ->orWhereBetween('end_date', [$startOfNextWeek, $endOfNextWeek])
             ->get();
-        
+
         // Build holiday message
         $holidayMessage = '';
         if ($holidays->count() > 0) {
@@ -78,20 +77,20 @@ class WeeklyNotifyClientWorker extends Command
                     'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE,
                     'notificationData' => [
                         'template' => $template,
-                        'job' => $job, 
+                        'job' => $job,
                         'recipientType' => 'client',
                         'holidayMessage' => $holidayMessage,
                     ],
                 ];
                 event(new WhatsappNotificationEvent($clientData));
             }
-        
+
             if ($job->worker) {
                 $workerData = [
                     'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE,
                     'notificationData' => [
                         'template' => $template,
-                        'job' => $job, 
+                        'job' => $job,
                         'recipientType' => 'worker',
                         'holidayMessage' => $holidayMessage,
                     ],

@@ -55,8 +55,8 @@ function AllTemplatesList() {
                                             <td>{index + 1}</td>
                                             <td>{template.key}</td>
                                             <td>
-                                                <Link 
-                                                    to={`edit/template/${Base64.encode(String(template.id))}`} 
+                                                <Link
+                                                    to={`edit/template/${Base64.encode(String(template.id))}`}
                                                     className="btn btn-primary">
                                                     Edit
                                                 </Link>

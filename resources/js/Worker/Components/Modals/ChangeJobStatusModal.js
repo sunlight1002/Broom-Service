@@ -37,20 +37,17 @@ export default function ChangeJobStatusModal({
     const handleSubmit = (e) => {
         e.preventDefault();
         setIsLoading(true);
-
         const data = new FormData();
         data.append("job_id", jobId);
         data.append("comment", comment);
         data.append("status", "completed");
         data.append("name", localStorage.getItem("worker-name"));
-
         if (cmtFileRef.current && cmtFileRef.current.files.length > 0) {
             for (let index = 0; index < cmtFileRef.current.files.length; index++) {
                 const element = cmtFileRef.current.files[index];
                 data.append("files[]", element);
             }
         }
-
         axios
             .post(`/api/job-comments`, data, { headers })
             .then((res) => {

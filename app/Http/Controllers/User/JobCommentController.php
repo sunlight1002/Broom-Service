@@ -305,7 +305,6 @@ class JobCommentController extends Controller
             'new_status' => $comment->status, // Return the new status for feedback
         ]);
     }
-
     public function adjustJobCompleteTime(Request $request, $id)
     {
         // Validate the input
@@ -333,5 +332,4 @@ class JobCommentController extends Controller
 
         return response()->json(['message' => 'Job time adjusted successfully.'], 200);
     }
-
 }

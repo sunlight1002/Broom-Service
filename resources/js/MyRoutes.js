@@ -210,6 +210,11 @@ export default function MyRoutes() {
                         path="team-btn/:id"
                         element={<TeamButtons/>}
                     />
+                      <Route
+                        exact
+                        path="time-manage/:id"
+                        element={<TimeManage/>}
+                    />
                      <Route
                         exact
                         path="action-comment/:id"
@@ -629,6 +634,16 @@ export default function MyRoutes() {
                                 exact
                                 path="manage-team"
                                 element={<ManageTeam />}
+                            />
+                              <Route
+                                exact
+                                path="templates"
+                                element={<AllTemplatesList/>}
+                            />
+                            <Route
+                                exact
+                                path="templates/edit/template/:id"
+                                element={<Templates />}
                             />
                             <Route
                                 exact

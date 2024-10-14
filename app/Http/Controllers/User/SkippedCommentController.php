@@ -104,12 +104,10 @@ class SkippedCommentController extends Controller
         }
 
         $skippedComment->save();
-
         // Update the corresponding JobComments status if skipped comment is 'approved'
         if ($skippedComment->status === 'approved') {
             // Find the JobComment by the same comment_id
             $jobComment = JobComments::where('id', $skippedComment->comment_id)->first();
-
             if ($jobComment) {
                 // Update the JobComment status to 'approved'
                 $jobComment->status = 'approved';

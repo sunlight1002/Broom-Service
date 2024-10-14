@@ -13,7 +13,7 @@ export default function Templates() {
     const params = useParams();
     const windowWidth = useWindowWidth();
     const [show, setShow] = useState(false)
-    
+
     const [templates, setTemplates] = useState({
         key:"",
         message_heb: "",
@@ -28,7 +28,7 @@ export default function Templates() {
         } else {
             setShow(false)
         }
-    }, [windowWidth])    
+    }, [windowWidth])
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -47,7 +47,7 @@ export default function Templates() {
                 message_spa: res.message_spa,
                 message_rus: res.message_rus,
             })
-            
+
         } catch (error) {
             console.log(error.response ? error.response.data : error.message);
         }
@@ -69,7 +69,7 @@ export default function Templates() {
         try {
             const response = await axios.put(`/api/admin/whatsapp-templates/${Base64.decode(params.id)}`, templates, { headers });
             handleGetTemplates()
-         
+
             if (response.status === 200) {
                 Swal.fire({
                 icon: 'success',
@@ -77,7 +77,7 @@ export default function Templates() {
                 // text: response.data.message,
             });
             }
-            
+
         } catch (error) {
             Swal.fire({
                 icon: 'error',
@@ -89,7 +89,7 @@ export default function Templates() {
 
     const suggestions = [
         "{firstname} :use this for client/worker first name" ,
-         "{lastname} :use this for client/worker last name",
+        "{lastname} :use this for client/worker last name",
         "{Change_Service_Date} :use this for change service date link",
         "{Cancel_Service} :use this for cancel service link",
         "{holidays} :use this for holiday date",
