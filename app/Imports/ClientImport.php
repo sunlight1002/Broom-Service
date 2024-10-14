@@ -456,11 +456,22 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
         }
     }
 
-    public function sendWhatsAppMessage($phoneNumber, $message)
+    public function sendWhatsAppMessage($phoneNumber, $message, $replyId = null)
     {
         try {
             $whapiApiEndpoint = config('services.whapi.url');
             $whapiApiToken = config('services.whapi.token');
+
+            // Build the payload for the API request
+            $payload = [
+                'to' => $phoneNumber . '@s.whatsapp.net',
+                'body' => $message
+            ];
+
+            // If a reply ID is provided, include it in the payload
+            if ($replyId) {
+                $payload['reply_to'] = $replyId; // Modify this key according to your API specification
+            }
 
             $response = Http::withToken($whapiApiToken)
                 ->post($whapiApiEndpoint . 'messages/text', [
@@ -468,9 +479,12 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                     'body' => $message
                 ]);
             Log::info($response->json());
+
+            // Handle the response as needed (e.g., check for success or errors)
         } catch (\Throwable $th) {
             Log::alert('WA NOTIFICATION ERROR');
             Log::alert($th->getMessage());
         }
     }
+
 }

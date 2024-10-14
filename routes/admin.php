@@ -313,8 +313,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // Admin Logout Api
     Route::post('logout', [AuthController::class, 'logout']);
 
+    Route::get('webhook-responses', [ChatController::class, 'index']);
     Route::get('chats', [ChatController::class, 'chats']);
     Route::get('chat-message/{no}', [ChatController::class, 'chatsMessages']);
+    Route::post('chat-message', [ChatController::class, 'storeWebhookResponse']);
     Route::post('chat-reply', [ChatController::class, 'chatReply']);
     Route::post('save-response', [ChatController::class, 'saveResponse']);
     Route::get('chat-responses', [ChatController::class, 'chatResponses']);
