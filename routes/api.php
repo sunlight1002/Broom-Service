@@ -16,7 +16,6 @@ use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\PayrollReportController;
 use App\Http\Controllers\SickLeaveController;
 use App\Http\Controllers\Admin\AdvanceLoanController;
-use App\Http\Controllers\User\SkippedCommentController;
 use App\Http\Controllers\RefundClaimController;
 /*
 |--------------------------------------------------------------------------
