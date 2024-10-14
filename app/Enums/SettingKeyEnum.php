@@ -15,6 +15,7 @@ final class SettingKeyEnum extends AbstractEnum
     public const ICOUNT_X_SECRET = 'icount_x_secret';
     public const GOOGLE_ACCESS_TOKEN = 'google_access_token';
     public const GOOGLE_REFRESH_TOKEN = 'google_refresh_token';
+    public const GOOGLE_CALENDAR_ID = 'google_calendar_id';
     public const OVERTIME_RATE_9TO10_HOURS = 'overtime_rate_9to10_hours';
     public const OVERTIME_RATE_11TO12_HOURS = 'overtime_rate_11to12_hours';
     public const HOLIDAY_RATE_FORTWO_HOURS = 'holiday_rate_forTwo_hours';

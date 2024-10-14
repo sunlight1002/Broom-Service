@@ -434,12 +434,8 @@ return [
         'worker_job_approval' => [
             'header' => "*עבודה אושרה | ברום סרוויס*",
             'content' => "אנא בדוק את הפרטים.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nשעת התחלה :start_time\nנכס: :address",
-<<<<<<< HEAD
             'start_info' => "ברכות מ-שירות ברום . אישרת את העבודה. בדוק את הקישור למטה ולחץ על *אני יוצא לעבודה עכשיו* כשתתחיל את העבודה שלך.",
             'select_option' => 'לחץ ובחר אפשרות'
-=======
-            'start_info' => "ברכות מ-שירות ברום . אישרת את העבודה. בדוק את הקישור למטה ולחץ על *אני יוצא לעבודה עכשיו* כשתתחיל את העבודה שלך."
->>>>>>> f3a0ec2d (add notification and disabled mail and fix)
         ],
         'worker_not_approved_job' => [
             'header' => "*עבודה לא אושרה | ברום סרוויס*",

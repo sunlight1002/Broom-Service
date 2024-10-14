@@ -1022,11 +1022,6 @@ class ClientController extends Controller
                         'client' => $client->toArray(),
                     ]
                 ]));
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> f3a0ec2d (add notification and disabled mail and fix)
                 // App::setLocale($client['lng']);
                 // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
                 //     $messages->to($emailData['client']['email']);
@@ -1049,11 +1044,7 @@ class ClientController extends Controller
                 //     $sub = __('mail.irrelevant_lead.header');
                 //     $messages->subject($sub);
                 // });
-<<<<<<< HEAD
             };
-=======
-            }; 
->>>>>>> f3a0ec2d (add notification and disabled mail and fix)
 
                 // event(new WhatsappNotificationEvent([
                 //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
@@ -1063,17 +1054,6 @@ class ClientController extends Controller
                 //     ]
                 // ]));
 
-<<<<<<< HEAD
-=======
-                // event(new WhatsappNotificationEvent([
-                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-                //     "notificationData" => [
-                //         'client' => $client->toArray(),
-                //         'status' => $newLeadStatus,
-                //     ]
-                // ]));
-            
->>>>>>> 971d5bf9 (fix createjob and notification)
         } elseif ($client->notification_type === "email") {
 
             if ($newLeadStatus === 'uninterested') {
@@ -1104,11 +1084,6 @@ class ClientController extends Controller
             //         'status' => $newLeadStatus,
             //     ]
             // ]));
-<<<<<<< HEAD
-
-=======
-            
->>>>>>> 971d5bf9 (fix createjob and notification)
         } else {
 
             if ($newLeadStatus === 'uninterested') {
@@ -1147,11 +1122,7 @@ class ClientController extends Controller
                 //         'status' => $newLeadStatus,
                 //     ]
                 // ]));
-<<<<<<< HEAD
             }
-=======
-            }  
->>>>>>> 971d5bf9 (fix createjob and notification)
         }
 
         $client->logs()->create([
