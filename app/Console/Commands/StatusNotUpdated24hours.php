@@ -25,24 +25,24 @@ class StatusNotUpdated24hours extends Command
         $offerStatuses = Offer::with('client')
             ->where('status', 'sent')
             ->whereHas('client', function ($q) {
-                $q->whereDate('created_at', '>=', '2024-09-20'); 
+                $q->whereDate('created_at', '>=', '2024-09-20');
             })
             ->whereDate('created_at', '<=', Carbon::now()->subDays(1)) // Fetch records older than 1 day
             ->get();
-    
+
         $todayDateTime = Carbon::now()->format('Y-m-d H:i:s');
-    
+
         // Loop through each offer to check how many days it has been in 'sent' status
         foreach ($offerStatuses as $offerStatus) {
             // dd($offerStatus);
             $client = $offerStatus->client;
-    
+
             if ($client) {
                 $createdAt = $offerStatus->created_at;
                 App::setLocale($client->lng);
-    
+
                 $daysSinceCreation = Carbon::now()->diffInDays($createdAt);
-    
+
                 // Check if the status has been 'sent' for over 7 days
                 if ($daysSinceCreation >= 7) {
                     if (!$this->isNotificationSent($client->id, ClientMetaEnum::NOTIFICATION_SENT_7_DAY)) {
@@ -71,10 +71,10 @@ class StatusNotUpdated24hours extends Command
                 $this->info("Client not found for Offer Status ID: {$offerStatus->id}");
             }
         }
-    
+
         return 0;
     }
-    
+
 
     // Check if the notification for the given key was already sent
     protected function isNotificationSent($clientId, $key)
