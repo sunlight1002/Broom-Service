@@ -51,9 +51,9 @@ trait ScheduleMeeting
 
     private function deleteGoogleCalendarEvent($schedule)
     {
-        $googleCalendarController = new GoogleCalendarController();
-        $calendarList = $googleCalendarController->getGoogleCalendarList();
-        $googleCalendarID = $calendarList[0]['id'] ?? null;
+        $googleCalendarID = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_CALENDAR_ID)
+                ->value('value');
 
         if (!$googleCalendarID) {
             Log::error('No Google Calendar ID found.');

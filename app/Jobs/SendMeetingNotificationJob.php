@@ -19,6 +19,7 @@ class SendMeetingNotificationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $scheduleArr;
+    protected $schedule;
 
     /**
      * Create a new job instance.
@@ -38,7 +39,7 @@ class SendMeetingNotificationJob implements ShouldQueue
     public function handle()
     {
         $scheduleArr = $this->scheduleArr;
-                   
+
         App::setLocale($scheduleArr['client']['lng']);
 
         // Send WhatsApp Notification
