@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function ChangeStatusModal({
     handleChangeStatusModalClose,
@@ -11,7 +12,7 @@ export default function ChangeStatusModal({
     statusArr,
 }) {
     console.log(clientId);
-    
+
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         reason: "",
@@ -20,7 +21,7 @@ export default function ChangeStatusModal({
     });
 
     console.log(formValues.status);
-    
+
     const [isLoading, setIsLoading] = useState(false);
 
     const headers = {
@@ -73,81 +74,84 @@ export default function ChangeStatusModal({
     };
 
     return (
-        <Modal
-            size="md"
-            className="modal-container"
-            show={isOpen}
-            onHide={() => handleChangeStatusModalClose()}
-            backdrop="static"
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>Change status</Modal.Title>
-            </Modal.Header>
+        <div>
+            <Modal
+                size="md"
+                className="modal-container"
+                show={isOpen}
+                onHide={() => handleChangeStatusModalClose()}
+                backdrop="static"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Change status</Modal.Title>
+                </Modal.Header>
 
-            <Modal.Body>
-                <div className="row">
-                    <div className="col-sm-12">
-                        <div className="form-group">
-                            <label className="control-label">Status</label>
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">Status</label>
 
-                            <select
-                                name="status"
-                                onChange={(e) => {
-                                    setFormValues({
-                                        ...formValues,
-                                        status: e.target.value,
-                                    });
-                                }}
-                                value={formValues.status}
-                                className="form-control mb-3"
-                            >
-                                {Object.keys(statusArr).map((s) => (
-                                    <option key={s} value={s}>
-                                        {statusArr[s]}
-                                    </option>
-                                ))}
-                            </select>
+                                <select
+                                    name="status"
+                                    onChange={(e) => {
+                                        setFormValues({
+                                            ...formValues,
+                                            status: e.target.value,
+                                        });
+                                    }}
+                                    value={formValues.status}
+                                    className="form-control mb-3"
+                                >
+                                    {Object.keys(statusArr).map((s) => (
+                                        <option key={s} value={s}>
+                                            {statusArr[s]}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">Reason</label>
+
+                                <textarea
+                                    name="reason"
+                                    type="text"
+                                    value={formValues.reason}
+                                    onChange={(e) => {
+                                        setFormValues({
+                                            ...formValues,
+                                            reason: e.target.value,
+                                        });
+                                    }}
+                                    className="form-control"
+                                    required
+                                ></textarea>
+                            </div>
                         </div>
                     </div>
-                    <div className="col-sm-12">
-                        <div className="form-group">
-                            <label className="control-label">Reason</label>
+                </Modal.Body>
 
-                            <textarea
-                                name="reason"
-                                type="text"
-                                value={formValues.reason}
-                                onChange={(e) => {
-                                    setFormValues({
-                                        ...formValues,
-                                        reason: e.target.value,
-                                    });
-                                }}
-                                className="form-control"
-                                required
-                            ></textarea>
-                        </div>
-                    </div>
-                </div>
-            </Modal.Body>
-
-            <Modal.Footer>
-                <Button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => handleChangeStatusModalClose()}
-                >
-                    Close
-                </Button>
-                <Button
-                    type="button"
-                    disabled={isLoading}
-                    onClick={handleSubmit}
-                    className="btn btn-primary"
-                >
-                    Save
-                </Button>
-            </Modal.Footer>
-        </Modal>
+                <Modal.Footer>
+                    <Button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => handleChangeStatusModalClose()}
+                    >
+                        Close
+                    </Button>
+                    <Button
+                        type="button"
+                        disabled={isLoading}
+                        onClick={handleSubmit}
+                        className="btn btn-primary"
+                    >
+                        Save
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            { isLoading && <FullPageLoader visible={isLoading}/>}
+        </div>
     );
 }
