@@ -198,20 +198,6 @@ class ContractController extends Controller
             SendNotificationJob::dispatch($client, $newLeadStatus, $emailData);
         }
 
-        event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-
         return response()->json([
             'message' => 'Contract verified successfully'
         ]);
