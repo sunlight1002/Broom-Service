@@ -388,7 +388,7 @@ export default function EditClient() {
                                         </div>
                                     </div>
                                     <div className="col">
-                                    <div className="form-group d-flex">
+                                    <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.PrimaryPhone")} *
                                             </label>

@@ -362,33 +362,6 @@ export default function AddClient() {
                                         </div>
                                     </div>
                                     <div className="col">
-                                        <div className="form-group d-flex">
-                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                                {t("admin.leads.AddLead.PrimaryPhone")} *
-                                            </label>
-                                            <div className="d-flex flex-column w-100">
-                                                <PhoneInput
-                                                    country={'il'}
-                                                    value={phone}
-                                                    onChange={(phone) => {
-                                                        setPhone(phone);
-                                                    }}
-                                                    inputClass="form-control"
-                                                    inputProps={{
-                                                        name: 'phone',
-                                                        required: true,
-                                                        placeholder: t("admin.leads.AddLead.placeHolder.PrimaryPhone"),
-                                                    }}
-                                                />
-                                                {errors.phone && (
-                                                    <small className="text-danger mb-1">
-                                                        {errors.phone[0]}
-                                                    </small>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="col">
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.PrimaryPhone")} *
