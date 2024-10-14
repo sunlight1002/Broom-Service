@@ -134,7 +134,7 @@ export default function EditTeam() {
                 <form>
                     <div className="row">
                         <div className="col-lg-6 col-12">
-                            <div className="dashBox p-4">
+                            <div className="dashBox p-0 p-md-4">
                                 <div className="form-group">
                                     <label className="control-label">
                                         Name - En
@@ -432,7 +432,7 @@ export default function EditTeam() {
                         {
                             payment === "money_transfer" && (
                                 <div className="col-sm-12 mt-2">
-                                    <div className="dashBox p-4">
+                                    <div className="dashBox p-0 p-md-4">
                                         <div className="row">
                                             <div className="col-md-6">
                                                 <div className="form-group">
@@ -545,7 +545,7 @@ export default function EditTeam() {
                             )
                         }
                         <div className="col-sm-12">
-                            <div className="dashBox p-4 mt-3">
+                            <div className="dashBox p-0 p-md-4 mt-3">
                                 <h4 className="mb-2">Preset permissions</h4>
                                 <div className="form-group">
                                     <input

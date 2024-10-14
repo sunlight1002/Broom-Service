@@ -6,7 +6,7 @@ export default function WorkerDetails({worker}) {
   return (
     <>
                     <h2 className="text-danger">{t('worker.jobs.view.w_details')}</h2>
-                    <div className='dashBox p-4 mb-3'>
+                    <div className='dashBox p-0 p-md-4 mb-3'>
                         <form>
                             <div className='row'>
                                 <div className='col-sm-4'>
@@ -33,7 +33,7 @@ export default function WorkerDetails({worker}) {
                                         <p>{worker.address}</p>
                                     </div>
                                 </div>
-                               
+
                         </div>
                 </form>
             </div>

@@ -35,7 +35,7 @@ const LeadActivityList = () => {
     }, [clientId]);
 
     return (
-        <div className="mr-8 p-4">
+        <div className="mr-0 mr-md-8 p-md-4 p-0">
             <h5 className="mb-3">Lead Activities</h5>
             <div className="overflow-x-auto">
                 <table ref={tableRef} className="display table table-bordered w-100">
@@ -50,7 +50,7 @@ const LeadActivityList = () => {
 
                         {leadActivities.length > 0 && leadActivities.map((activity, index) => {
                             const previousActivity = index > 0 ? leadActivities[index - 1] : null;
-                            const oldStatus = previousActivity ? previousActivity.changes_status : 'pending'; 
+                            const oldStatus = previousActivity ? previousActivity.changes_status : 'pending';
                             if (!activity.status_changed_date || activity.changes_status === oldStatus) {
                                 return null;
                             }

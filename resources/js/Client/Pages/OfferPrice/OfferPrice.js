@@ -44,7 +44,7 @@ export default function ClientOfferPrice() {
                         if (data == null) {
                             return "-";
                         }
-    
+
                         return data.map((s, j) => {
                             return data.length - 1 != j
                                 ? s.service == "10"
@@ -65,14 +65,14 @@ export default function ClientOfferPrice() {
                     responsivePriority: 1,
                     render: function (data, type, row, meta) {
                         const _id = Base64.encode(row.id.toString());
-    
+
                         let _html = `<a href="/price-offer/${_id}" class="ml-auto ml-md-2 mt-4 mt-md-0 btn dt-view-button" data-id="${_id}"
                                     style="font-size: 15px; color: #2F4054; padding: 5px 8px; background: #E5EBF1; border-radius: 5px;">`;
-    
+
                         _html += `<i class="fa fa-eye"></i></a>`;
-    
+
                         _html += `</a>`;
-    
+
                         return _html;
                     },
                 },
@@ -80,6 +80,9 @@ export default function ClientOfferPrice() {
             ordering: true,
             searching: true,
             responsive: true,
+            autoWidth: true,
+            width: "100%",
+            scrollX: true,
             createdRow: function (row, data, dataIndex) {
                 $(row).addClass('custom-row-class');
             },
@@ -95,19 +98,19 @@ export default function ClientOfferPrice() {
 
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
         $("div.dt-search").append(searchInputWrapper);
-        $("div.dt-search").addClass("position-relative");       
-    
+        $("div.dt-search").addClass("position-relative");
+
         $(tableRef.current).on("click", ".dt-view-button", function (e) {
             e.preventDefault();
             const _id = $(this).data("id").toString();
             navigate(`/price-offer/${_id}`);
         });
-    
+
         return function cleanup() {
             $(tableRef.current).DataTable().destroy(true);
         };
     }, []);
-    
+
 
     return (
         <div id="container">

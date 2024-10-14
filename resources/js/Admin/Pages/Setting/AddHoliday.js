@@ -63,7 +63,7 @@ export default function AddHoliday() {
                 <form onSubmit={handleSubmit}>
                     <div className="row">
                         <div className="col-lg-6 col-12">
-                            <div className="dashBox p-4">
+                            <div className="dashBox p-0 p-md-4">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t("admin.holidays.holidayName")}

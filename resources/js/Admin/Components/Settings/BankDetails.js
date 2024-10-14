@@ -119,7 +119,7 @@ function BankDetails() {
                     {
                         payment === "money_transfer" && (
                             <div className="col-sm-12 mt-2">
-                                <div className="dashBox p-4">
+                                <div className="dashBox p-0 p-md-4">
                                     <div className="row">
                                         <div className="col-md-6">
                                             <div className="form-group">

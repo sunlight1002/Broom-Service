@@ -55,7 +55,7 @@ export default function WorkerViewJob() {
         axios
             .get(`/api/jobs/${params.id}`, { headers })
             .then((res) => {
-                const r = res.data.job;                
+                const r = res.data.job;
                 setJob(r);
                 setJobStatus(r.status);
                 setClient(r.client);
@@ -79,7 +79,7 @@ export default function WorkerViewJob() {
 
     const handleMarkComplete = () => {
         console.log(isCompleteBtnDisable);
-        
+
         if (isCompleteBtnDisable !== false) {
             Swal.fire({
                 title: "Error!",
@@ -285,15 +285,15 @@ export default function WorkerViewJob() {
     };
 
     const handleSpeakToManager = async (e) => {
-        e.preventDefault();  
-        
+        e.preventDefault();
+
         const data = {
-            job_id: params.id,  
+            job_id: params.id,
             client_id: clientID,
             worker_id: workerID,
-            problem: problem 
+            problem: problem
         };
-    
+
         try {
             const res = await axios.post(`/api/client/jobs/speak-to-manager`, data, { headers });
             alert.success(res?.data?.message)
@@ -323,7 +323,7 @@ export default function WorkerViewJob() {
     useEffect(() => {
         handleGetSkippedComments()
     }, [])
-    
+
 
     useEffect(() => {
         getTimes();
@@ -336,8 +336,8 @@ export default function WorkerViewJob() {
             // Filter out comments with status "approved"
             const relevantComments = allComment.filter(c => c.status !== "approved");
             console.log(relevantComments,"approved");
-            
-    
+
+
             // If any of the relevant comments have a null status, disable the button
             const hasNullStatus = relevantComments.some(c => c.status === null);
             console.log(hasNullStatus,"null");
@@ -349,11 +349,11 @@ export default function WorkerViewJob() {
             // Disable the button if any status is null or if not all are completed
             return hasNullStatus || !allCompleted;
         }
-    
+
         // If the condition for 3 comments isn't met, keep it disabled
         return true;
-    }, [allComment]);    
-    
+    }, [allComment]);
+
 
     return (
         <div id="container">
@@ -515,7 +515,7 @@ export default function WorkerViewJob() {
                                     <h2 className="text-custom">
                                         {t("worker.jobs.view.w_time")}
                                     </h2>
-                                    <div className="dashBox p-4 mb-4">
+                                    <div className="dashBox p-0 p-md-4 mb-4">
                                         <div className="table-responsive">
                                             {job_time.length > 0 ? (
                                                 <Table className="table table-bordered responsiveTable">
@@ -630,13 +630,13 @@ export default function WorkerViewJob() {
                     <Modal.Header closeButton>
                         <Modal.Title>Speak to Manager</Modal.Title>
                     </Modal.Header>
-        
+
                     <Modal.Body>
                         <div className="row">
                             <div className="col-sm-12">
                                 <div className="form-group">
                                     <label className="control-label">{t("worker.jobs.view.cmt")}</label>
-        
+
                                     <textarea
                                         type="text"
                                         value={problem}
@@ -648,7 +648,7 @@ export default function WorkerViewJob() {
                             </div>
                         </div>
                     </Modal.Body>
-        
+
                     <Modal.Footer>
                         <Button
                             type="button"

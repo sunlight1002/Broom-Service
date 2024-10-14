@@ -9,7 +9,7 @@ import { Tooltip } from "react-tooltip";
 import LeadActivityList from "../../Pages/LeadActivity/ViewLeadActivity";
 
 export default function LeadDetails({ lead }) {
-    
+
     const { t } = useTranslation();
     const generatedOn = useMemo(() => {
         return (
@@ -19,7 +19,7 @@ export default function LeadDetails({ lead }) {
         );
     }, [lead.created_at]);
 
-    const param = useParams();    
+    const param = useParams();
 
     return (
         <>
@@ -64,7 +64,7 @@ export default function LeadDetails({ lead }) {
                 </div>
                 <div className="row d-inline">
                     <div className="">
-                        <div className="ClientHistory  pl-4 pr-4">
+                        <div className="ClientHistory  pl-0 pr-0 pl-md-4 pr-md-4">
                             <ul className="nav nav-tabs" role="tablist">
                                 <li className="nav-item" role="presentation">
                                     <a
@@ -326,7 +326,7 @@ export default function LeadDetails({ lead }) {
                                 </div>
 
                                 {/* <div id="tab-contact" className="tab-pane" role="tab-panel" aria-labelledby="card-details">
-                                   
+
                                     { lead.reply ? (<div className='form-group'>
                                     <div className='col-sm-6'>
                                             <div className='form-group'>
@@ -346,9 +346,9 @@ export default function LeadDetails({ lead }) {
                                     :(
                                         <p className='text-center form-control'>Data not availabe.</p>
                                     )
-                                    
+
                                 }
-                                    
+
                                 </div> */}
                             </div>
                         </div>

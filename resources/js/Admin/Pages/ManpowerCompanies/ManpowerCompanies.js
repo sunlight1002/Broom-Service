@@ -76,6 +76,9 @@ export default function ManpowerCompanies() {
             ordering: true,
             searching: true,
             responsive: true,
+            autoWidth: false,
+            width: "100%",
+            scrollX: true,
             createdRow: function (row, data, dataIndex) {
                 $(row).addClass('custom-row-class');
             },

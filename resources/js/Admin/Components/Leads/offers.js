@@ -95,6 +95,9 @@ export default function OfferedPrice() {
             ordering: true,
             searching: true,
             responsive: true,
+            autoWidth: true,
+            width: "100%",
+            scrollX: true,
             createdRow: function (row, data, dataIndex) {
                 $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
@@ -111,7 +114,7 @@ export default function OfferedPrice() {
 
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
         $("div.dt-search").append(searchInputWrapper);
-        $("div.dt-search").addClass("position-relative");  
+        $("div.dt-search").addClass("position-relative");
 
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;

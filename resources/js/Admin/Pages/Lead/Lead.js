@@ -92,13 +92,13 @@ export default function Lead() {
                         width: "15%", // Optional: You can specify a fixed width
                     },
                     { title: t("admin.global.Email"), data: "email" },
-                    { 
-                        title: t("admin.global.Phone"), 
+                    {
+                        title: t("admin.global.Phone"),
                         data: "phone",
                         render: function(data) {
                             return `+${data}`;
                         }
-                    },                    
+                    },
                     {
                         title: t("admin.global.Status"),
                         data: "lead_status",
@@ -135,6 +135,9 @@ export default function Lead() {
                 ordering: true,
                 searching: true,
                 responsive: true,
+                autoWidth: true,
+                width: "100%",
+                scrollX: true,
                 createdRow: function (row, data, dataIndex) {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);

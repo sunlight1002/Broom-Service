@@ -99,7 +99,7 @@ export default function AddTeam() {
                 <form>
                     <div className="row">
                         <div className="col-lg-6 col-12">
-                            <div className="dashBox p-4">
+                            <div className="dashBox p-0 p-md-4">
                                 <div className="form-group">
                                     <label className="control-label">
                                         {t("admin.global.NameEn")}
@@ -394,7 +394,7 @@ export default function AddTeam() {
                         {
                             payment === "money_transfer" && (
                                 <div className="col-sm-12 mt-2">
-                                    <div className="dashBox p-4">
+                                    <div className="dashBox p-0 p-md-4">
                                         <div className="row">
                                             <div className="col-md-6">
                                                 <div className="form-group">
@@ -473,7 +473,7 @@ export default function AddTeam() {
                         }
 
                         <div className="col-sm-12">
-                            <div className="dashBox p-4 mt-3">
+                            <div className="dashBox p-0 p-md-4 mt-3">
                                 <h4 className="mb-2">{t("worker.settings.Presetpermissions")}</h4>
                                 <div className="form-group">
                                     <input

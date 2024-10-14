@@ -337,7 +337,7 @@ const PropertyAddress = memo(function PropertyAddress({
     useEffect(() => {
         getWorkers();
     }, []);
-    
+
     return (
         <div>
             <div className="row align-items-center mt-3 ml-0 mr-0 justify-content-between">
@@ -574,7 +574,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                         )}
                                     </div>
                                 </div>
-                                <div className="d-flex flex-column ml-3">
+                                <div className="d-flex flex-column ml-0 ml-md-3">
                                     <div className="form-group d-flex align-items-center">
                                         <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
                                             {t(
@@ -823,7 +823,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                                 "admin.leads.AddLead.addAddress.Dog"
                                             )}
                                         </Th>
-                                      
+
                                         {/* <Th>
 
                                             {t(
@@ -893,10 +893,10 @@ const PropertyAddress = memo(function PropertyAddress({
                                                             style={{ fontWeight: "500", fontSize: "14px" }}
                                                         >
                                                             <input
+                                                                ref={is_cat_avail}
                                                                 className="form-check-input"
                                                                 type="checkbox"
                                                                 defaultChecked={item?.is_cat_avail != 0 ? true: false}
-                                                                disabled={item?.is_cat_avail != 0 ? true: false}
                                                             />
                                                             <span className="checkmark"></span>
                                                         </label>
@@ -909,10 +909,10 @@ const PropertyAddress = memo(function PropertyAddress({
                                                             style={{ fontWeight: "500", fontSize: "14px" }}
                                                         >
                                                             <input
+                                                                ref={is_dog_avail}
                                                                 className="form-check-input"
                                                                 type="checkbox"
                                                                 defaultChecked={item?.is_dog_avail != 0 ? true: false}
-                                                                disabled={item?.is_dog_avail != 0 ? true: false}
                                                             />
                                                             <span className="checkmark"></span>
                                                         </label>

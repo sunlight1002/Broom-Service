@@ -115,6 +115,9 @@ export default function TotalJobs() {
             ordering: true,
             searching: true,
             responsive: true,
+            autoWidth: true,
+            width: "100%",
+            scrollX: true,
             createdRow: function (row, data, dataIndex) {
                 $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
@@ -172,7 +175,7 @@ export default function TotalJobs() {
         return function cleanup() {
             $(tableRef.current).DataTable().destroy(true);
         };
-    }, []);    
+    }, []);
 
     return (
         <div id="container">

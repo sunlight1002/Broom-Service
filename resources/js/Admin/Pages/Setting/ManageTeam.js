@@ -90,6 +90,9 @@ export default function ManageTeam() {
             ordering: true,
             searching: true,
             responsive: true,
+            autoWidth: true,
+            width: "100%",
+            scrollX: true,
             createdRow: function (row, data, dataIndex) {
                 $(row).addClass("dt-row custom-row-class");
                 $(row).attr("data-id", data.id);
@@ -221,7 +224,7 @@ export default function ManageTeam() {
                         </div>
                     </div>
                 </div>
-                <div className="dashBox p-4" style={{backgroundColor: "inherit", border: "none"}}>
+                <div className="dashBox p-0 p-md-4" style={{backgroundColor: "inherit", border: "none"}}>
                     <table
                         ref={tableRef}
                         className="display table table-bordered"
