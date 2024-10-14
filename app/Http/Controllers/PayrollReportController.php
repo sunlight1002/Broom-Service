@@ -156,6 +156,10 @@ class PayrollReportController extends Controller
 
             $sickLeavePayment = 0;
             $sickLeaveDays = 0;
+            $doctorReportPath = " ";
+            $doctorReportLink = " ";
+            $doctorReportDisplay = " ";
+
             if ($user->employment_type == 'fixed') {
                 // Fetch sick leaves and calculate sick leave payment for fixed workers
                 $sickLeaves = SickLeave::where('worker_id', $user->id)
@@ -177,14 +181,11 @@ class PayrollReportController extends Controller
                     for ($i = 1; $i <= $leaveDays; $i++) {
                         if ($sickLeaveDays > 1.5) {
                             if ($i == 1) {
-                                // 1st day: No payment deduction
                                 continue;
                             } elseif ($i == 2 || $i == 3) {
-                                // 2nd-3rd day: 50% of daily salary
-                                $sickLeavePayment += ($user->salary / $daysInMonth) * 0.5;
+                                $sickLeavePayment += ($user->salary / $workingDays) * 0.5;
                             } elseif ($i >= 4) {
-                                // 4th day onwards: 100% of daily salary deduction
-                                $sickLeavePayment += $user->salary / $daysInMonth;
+                                $sickLeavePayment += $user->salary / $workingDays;
                             }
                         } else {
                             // No deduction for up to 1.5 sick leave days
@@ -192,17 +193,30 @@ class PayrollReportController extends Controller
                         }
                     }            
                 }
+
+                 $sickLeaves = SickLeave::where('worker_id', $user->id)
+                 ->where('status', 'approved')
+                 ->whereBetween('start_date', [$startDate, $endDate])
+                 ->get();
+ 
+                $doctorReportPath = $sickLeaves->pluck('doctor_report_path')->first();
+    
+                    if ($doctorReportPath) {
+                        $doctorReportLink = url('storage/' . $doctorReportPath);
+                        $doctorReportDisplay = $doctorReportLink;
+                    } else {
+                        $doctorReportDisplay = 'Not available';
+                    }
+        
                 $insuranceDeduction = ($user->country !== 'Israel') ? $workerDeduction : 0;
-                // Calculate total payment for fixed employees
-                $totalPayment = $user->salary - $sickLeavePayment; // No hourly calculation for fixed employees
+
+                $totalPayment = $user->salary - $sickLeavePayment;
                 $loanDeduction = $this->handleAdvanceLoanDeductions($user, $totalPayment, $startDate, $endDate);
                 $netPayment = $loanDeduction['adjustedPayment'] - $insuranceDeduction;
                 $loanApplied = $loanDeduction['loanApplied'];
             } else {
-                // Logic for non-fixed employment types
                 $paymentPerHour = $user->payment_per_hour;
         
-                // Calculate normal payment based on total hours worked
                 $normalPayment = ($totalHoursWorked <= $standardHours)
                     ? $totalHoursWorked * $paymentPerHour
                     : $standardHours * $paymentPerHour;
@@ -259,10 +273,7 @@ class PayrollReportController extends Controller
                 $holidayPayment175 = $holidayHours175 * $holidayPay175;
                 $holidayPayment200 = $holidayHours200 * $holidayPay200;
         
-                // Insurance deduction (if applicable)
                 $insuranceDeduction = ($user->country !== 'Israel') ? $workerDeduction : 0;
-        
-                // Total payments for non-fixed employees
                 $totalPayment = $normalPayment + $holidayPayment175 + $holidayPayment200 - $annualRecoveryFee;
             }
         
@@ -299,7 +310,7 @@ class PayrollReportController extends Controller
                 'Total Payment' => round($totalPayment, 2),
                 'Loan' => round($loanApplied, 2),
                 'Net Payment' => round($netPayment, 2),
-                'Doctor Report' => ' ',
+                'Doctor Report' => $doctorReportDisplay,
             ];
         }
 
