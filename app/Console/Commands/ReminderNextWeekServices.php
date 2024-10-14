@@ -16,7 +16,6 @@ class ReminderNextWeekServices extends Command
      *
      * @var string
      */
-
     protected $signature = 'remind:next-week-services';
 
     /**

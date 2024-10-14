@@ -34,6 +34,7 @@ class NotifyStartOfTheJob extends Command
     public function handle()
     {
         $currentTime = Carbon::now();
+        $admin_notified = false;
         \Log::info($currentTime);
 
         // Get jobs that were scheduled for today and not completed or started

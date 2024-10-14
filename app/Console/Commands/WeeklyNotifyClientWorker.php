@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -45,7 +46,6 @@ class WeeklyNotifyClientWorker extends Command
         // Get the start and end dates for the following week
         $startOfNextWeek = Carbon::now()->addWeek()->startOfWeek();
         $endOfNextWeek = Carbon::now()->addWeek()->endOfWeek();
-
         // \Log::info($startOfNextWeek." start");
         // \Log::info($endOfNextWeek." end");
 
@@ -58,7 +58,6 @@ class WeeklyNotifyClientWorker extends Command
         $holidays = Holiday::whereBetween('start_date', [$startOfNextWeek, $endOfNextWeek])
             ->orWhereBetween('end_date', [$startOfNextWeek, $endOfNextWeek])
             ->get();
-
         // Build holiday message
         $holidayMessage = '';
         if ($holidays->count() > 0) {
