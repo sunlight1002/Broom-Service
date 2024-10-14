@@ -224,7 +224,7 @@ class DashboardController extends Controller
     //         'file'      => $file_nm
     //     ]);
     //     event(new AdminLeadFilesNotificationJob($schedule, $files));
-        
+
 
     //     return response()->json([
     //         'message' => 'File uploaded',
@@ -356,7 +356,7 @@ class DashboardController extends Controller
 
             $input['avatar'] = $name;
         }
-        
+
         if ($request->has('twostepverification')) {
             $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
         }

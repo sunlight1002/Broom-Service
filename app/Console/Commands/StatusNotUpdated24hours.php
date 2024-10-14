@@ -76,6 +76,7 @@ class StatusNotUpdated24hours extends Command
     }
 
 
+
     // Check if the notification for the given key was already sent
     protected function isNotificationSent($clientId, $key)
     {

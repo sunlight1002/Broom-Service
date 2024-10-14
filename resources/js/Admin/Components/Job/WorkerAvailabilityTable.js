@@ -114,11 +114,11 @@ export default function WorkerAvailabilityTable({
     useEffect(() => {
      workers()
     }, [AllWorkers, sortOrder, searchKeyword, distance]);
-    
+
     // console.log(modifiedWorkers);
-    
-    
-    
+
+
+
 
     const getBookedSlotsForWorkerAndDate = (workerId, date) => {
         const bookedSlot = bookedSlots.find(slot => slot.worker_id === workerId && slot.date === date);
@@ -160,7 +160,7 @@ export default function WorkerAvailabilityTable({
             handleSlotFilter(selectedWorker, prevDate, prevIndex);
         }
     };
-    
+
 
     return (
         <>
