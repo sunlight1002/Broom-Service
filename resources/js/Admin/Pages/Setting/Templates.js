@@ -13,7 +13,6 @@ export default function Templates() {
     const params = useParams();
     const windowWidth = useWindowWidth();
     const [show, setShow] = useState(false)
-
     const [templates, setTemplates] = useState({
         key:"",
         message_heb: "",

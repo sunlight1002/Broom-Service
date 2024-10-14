@@ -32,7 +32,9 @@ export default function Sidebar() {
     const [isDropdownOpen, setDropdownOpen] = useState(false); // Manage dropdown open state
 
     // Check if the current path matches any of the routes in the dropdown
-    const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time","/admin/holidays", "/admin/settings"].includes(location.pathname);    const getAdmin = () => {
+    const isDropdownActive = ["/admin/manage-team", "/admin/services", "/admin/manpower-companies", "/admin/manage-time", "/admin/settings","/admin/holidays","/admin/templates"].includes(location.pathname);
+
+    const getAdmin = () => {
         axios.get(`/api/admin/details`, { headers }).then((res) => {
             setRole(res.data.success.role);
         });
@@ -271,7 +273,7 @@ export default function Sidebar() {
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.holidays) ? "active" : ""}`}>
-                                        <Link to={routes.holidays}>
+                                        <Link to={routes.holidays} style={isActive(routes.holidays)?{color: "white"}:{color: "#757589"}}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.holidays")}
                                         </Link>
