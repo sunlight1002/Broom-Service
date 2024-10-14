@@ -155,7 +155,6 @@ import PayslipSettings from "./Admin/Pages/Setting/PayslipSettings";
 import Board from "./Admin/Pages/TaskManagement/Board";
 import Tasks from "./Worker/Pages/MyAccount/Tasks";
 import TeamButtons from "./Pages/TeamButtons";
-import TeamButtons from "./Pages/TeamButtons";
 import TeamBtnsAfter7days from "./Pages/TeamBtnsAfter7days";
 import { ContactManager } from "./Pages/ContactManager";
 import TeamSkippedComments from "./Pages/TeamSkippedComments";
