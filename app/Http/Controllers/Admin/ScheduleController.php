@@ -159,6 +159,13 @@ class ScheduleController extends Controller
             $schedule->load(['client', 'team', 'propertyAddress']);
 
             $this->saveGoogleCalendarEvent($schedule);
+            Notification::create([
+                'user_id' => $schedule->client_id,
+                'user_type' => Client::class,
+                'type' => NotificationTypeEnum::SENT_MEETING,
+                'meet_id' => $schedule->id,
+                'status' => $schedule->booking_status
+            ]);
 
             // $this->sendMeetingMail($schedule);
             SendMeetingMailJob::dispatch($schedule);

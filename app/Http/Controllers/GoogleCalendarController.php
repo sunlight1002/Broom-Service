@@ -11,105 +11,72 @@ use Exception;
 
 class GoogleCalendarController extends Controller
 {
-    // public function getGoogleCalendarList()
-    // {
-    //     try {
-    //         $googleAccessToken = Setting::query()
-    //             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
-    //             ->value('value');
-
-    //         $url = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
-
-    //         $response = Http::withHeaders([
-    //             'Authorization' => 'Bearer ' . $googleAccessToken,
-    //             'Content-Type' => 'application/json',
-    //         ])->get($url);
-
-    //         $http_code = $response->status();
-
-    //         if ($http_code != 200) {
-    //             Log::error('Failed to retrieve calendar list', [
-    //                 'http_code' => $http_code,
-    //                 'response' => $response->json(),
-    //             ]);
-
-    //             throw new Exception('Error: Failed to retrieve calendar list');
-    //         }
-
-    //         $calendarList = $response->json();
-
-    //         return $calendarList['items'];
-
-    //     } catch (Exception $e) {
-    //         Log::error('Error retrieving calendar list: ' . $e->getMessage());
-    //         throw $e;
-    //     }
-    // }
-
-
     public function getGoogleCalendarList()
-{
-    try {
-        // Fetch access token and refresh token from the database
-        $googleAccessToken = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
-            ->value('value');
+    {
+        try {
+            // Fetch access token and refresh token from the database
+            $googleAccessToken = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
+                ->value('value');
 
-        $googleRefreshToken = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)
-            ->value('value');
+            $googleRefreshToken = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)
+                ->value('value');
 
-        $url = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
+            $url = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
 
-        // Try to get the calendar list with the current access token
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $googleAccessToken,
-            'Content-Type' => 'application/json',
-        ])->get($url);
-
-        $http_code = $response->status();
-
-        // If the token is expired (HTTP 401 or 403), refresh the token
-        if ($http_code == 401 || $http_code == 403) {
-            // Refresh the access token
-            $googleClient = $this->getClient();
-            $googleClient->refreshToken($googleRefreshToken);
-            $response = $googleClient->fetchAccessTokenWithRefreshToken($googleRefreshToken);
-            $googleAccessToken = $response['access_token'];
-
-            // Save the new access token
-            Setting::updateOrCreate(
-                ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
-                ['value' => $googleAccessToken]
-            );
-
-            // Retry the request with the new access token
+            // Try to get the calendar list with the current access token
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $googleAccessToken,
                 'Content-Type' => 'application/json',
             ])->get($url);
 
             $http_code = $response->status();
+
+            // If the token is expired (HTTP 401 or 403), refresh the token
+            if ($http_code == 401 || $http_code == 403) {
+                // Refresh the access token
+                $googleClient = $this->getClient();
+                $googleClient->refreshToken($googleRefreshToken);
+                $response = $googleClient->fetchAccessTokenWithRefreshToken($googleRefreshToken);
+                $googleAccessToken = $response['access_token'];
+
+                // Save the new access token
+                Setting::updateOrCreate(
+                    ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+                    ['value' => $googleAccessToken]
+                );
+
+                // Retry the request with the new access token
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $googleAccessToken,
+                    'Content-Type' => 'application/json',
+                ])->get($url);
+
+                $http_code = $response->status();
+            }
+
+            if ($http_code != 200) {
+                Log::error('Failed to retrieve calendar list', [
+                    'http_code' => $http_code,
+                    'response' => $response->json(),
+                ]);
+
+                throw new Exception('Error: Failed to retrieve calendar list');
+            }
+
+            $googleCalendarId = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_CALENDAR_ID)
+                ->value('value');
+
+            $calendarList = $response->json();
+
+            return response()->json(['items' => $calendarList['items'], 'selectedCalendarId' => $googleCalendarId], 200);
+        } catch (Exception $e) {
+            Log::error('Error retrieving calendar list: ' . $e->getMessage());
+            throw $e;
         }
-
-        if ($http_code != 200) {
-            Log::error('Failed to retrieve calendar list', [
-                'http_code' => $http_code,
-                'response' => $response->json(),
-            ]);
-
-            throw new Exception('Error: Failed to retrieve calendar list');
-        }
-
-        $calendarList = $response->json();
-
-        return $calendarList['items'];
-
-    } catch (Exception $e) {
-        Log::error('Error retrieving calendar list: ' . $e->getMessage());
-        throw $e;
     }
-}
 
 
     public function saveCalendar(Request $request)
@@ -120,7 +87,7 @@ class GoogleCalendarController extends Controller
 
         try {
             Setting::updateOrCreate(
-                ['key' => 'google_calendar_id'],
+                ['key' => SettingKeyEnum::GOOGLE_CALENDAR_ID],
                 ['value' => $request->calendarId]
             );
 

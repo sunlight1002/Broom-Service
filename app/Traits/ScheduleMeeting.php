@@ -57,19 +57,21 @@ trait ScheduleMeeting
 
         if (!$googleCalendarID) {
             Log::error('No Google Calendar ID found.');
-            throw new Exception('No Google Calendar ID found.');
         }
+        try {
+            $googleAccessToken = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
+                ->value('value');
 
-        $googleAccessToken = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
-            ->value('value');
+            $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events/' . $schedule->google_calendar_event_id;
 
-        $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events/' . $schedule->google_calendar_event_id;
-
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $googleAccessToken,
-            'Content-Type' => 'application/json',
-        ])->delete($url);
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $googleAccessToken,
+                'Content-Type' => 'application/json',
+            ])->delete($url);
+        } catch (\Throwable $th) {
+            Log::error($th);
+        }
 
         $schedule->update([
             'is_calendar_event_created' => false,

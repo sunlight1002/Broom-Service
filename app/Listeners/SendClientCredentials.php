@@ -31,13 +31,13 @@ class SendClientCredentials implements ShouldQueue
     {
         $client = $event->client;
 
-        // App::setLocale($client['lng']);
-        // Mail::send('/Mails/ClientLoginCredentialsMail', $client, function ($messages) use ($client) {
-        //     $messages->to($client['email']);
+        App::setLocale($client['lng']);
+        Mail::send('/Mails/ClientLoginCredentialsMail', $client, function ($messages) use ($client) {
+            $messages->to($client['email']);
 
-        //     $messages->subject(__('mail.client_credentials.subject', [
-        //         'client_name' => $client['firstname'] . " " . $client['lastname']
-        //     ]));
-        // });
+            $messages->subject(__('mail.client_credentials.subject', [
+                'client_name' => $client['firstname'] . " " . $client['lastname']
+            ]));
+        });
     }
 }

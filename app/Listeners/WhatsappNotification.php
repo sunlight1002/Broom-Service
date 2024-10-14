@@ -571,30 +571,6 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.remind_to_worker.content');
 
                     $text .= "\n\n" . __('mail.job_common.check_job_details') . ": " . url("worker/jobs/view/" . $jobData['id']);
-                    $text .= "\n" . __('mail.wa-message.button-label.contact_manager') . ": " . url("contact-manager/" . base64_encode($jobData['id'])) . "\n\n";
-
-                    $text .= __('mail.job_common.reply_txt') . "\n\n";
-                    $text .= __('mail.job_common.regards') . "\n";
-                    $text .= __('mail.job_common.company') . "\n";
-                    $text .= __('mail.job_common.tel') . ": 03-525-70-60\n";
-                    $text .= url("office@broomservice.co.il");
-
-                    break;
-
-                case WhatsappMessageTemplateEnum::REMIND_WORKER_TO_JOB_CONFIRM:
-                    // Extract job data
-                    $jobData = $eventData['job'];
-                    $worker = $eventData['worker'] ?? null;  // Check if emailData is present
-
-                    App::setLocale($worker['lng']);
-
-                    $receiverNumber = $jobData['client']['phone'];
-
-                    $text .= __('mail.wa-message.common.salutation', ['name' => $jobData['worker']['firstname']]) . "\n\n";
-
-                    $text .= __('mail.wa-message.remind_to_worker.content');
-
-                    $text .= "\n\n" . __('mail.job_common.check_job_details') . ": " . url("worker/jobs/view/" . $jobData['id']);
                     $text .= "\n" . __('mail.wa-message.button-label.contact_manager') . ": " . url("contact-manager/" . base64_encode($jobData['id'])). "\n\n";
 
                     $text .= __('mail.job_common.reply_txt') . "\n\n";
@@ -691,10 +667,7 @@ class WhatsappNotification
                         'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
                         'service_name' => ($jobData['jobservice']['name'] . ', '),
                         'address' => $jobData['property_address']['address_name']
-                            ? $jobData['property_address']['address_name']
-                            : 'NA',
                     ]);
-
                     $text .= "\n\n" . __('mail.wa-message.button-label.change_worker') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.change_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-shift");
@@ -1075,6 +1048,7 @@ class WhatsappNotification
                     $text .= __('mail.client_new_job.service') . ": " . ($jobData['client']['lng'] == 'heb' ? $jobData['jobservice']['heb_name'] : $jobData['jobservice']['name']) . "\n";
                     $text .= __('mail.client_new_job.date') . ": " . Carbon::parse($jobData['start_date'])->format('M d Y') . "\n";
                     $text .= __('mail.client_new_job.start_time') . ": " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i') . "\n";
+
                     // Add a closing statement
                     $text .= "\n" . __('mail.common.dont_hesitate_to_get_in_touch');
                     $text .= "\n" . __('mail.common.regards') . "\n";
