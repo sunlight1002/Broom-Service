@@ -97,9 +97,9 @@ class NotifyWorkerBeforeJob extends Command
                     'job' => $job,
                 ]
             ]));
-        
+
         } elseif ($notificationType === '30-min') {
-            
+
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_ON_MY_WAY,
                 "notificationData" => [

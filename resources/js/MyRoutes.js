@@ -205,6 +205,21 @@ export default function MyRoutes() {
                         path="meeting-files/:id"
                         element={<MeetingFiles />}
                     />
+                     <Route
+                        exact
+                        path="team-btn/:id"
+                        element={<TeamButtons/>}
+                    />
+                     <Route
+                        exact
+                        path="action-comment/:id"
+                        element={<TeamSkippedComments/>}
+                    />
+                     <Route
+                        exact
+                        path="contact-manager/:id"
+                        element={<ContactManager/>}
+                    />
                     <Route
                         exact
                         path="team-btn/:id"
@@ -446,7 +461,7 @@ export default function MyRoutes() {
                                 exact
                                 path="not-available"
                                 element={<NotAvailability />}
-                            />                    
+                            />
                             <Route
                                 exact
                                 path="sick-leaves/create"

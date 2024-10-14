@@ -85,7 +85,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_NOTIFY_AFTER_ON_MY_WAY = "worker-notify-after-on-my-way";
     public const TEAM_NOTIFY_WORKER_AFTER_ON_MY_WAY = "team_notify-worker-before-on-my-way";
     public const WORKER_NOTIFY_BEFORE_ON_MY_WAY = "worker-notify-before-on-my-way";
-    public const TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY = "team-notify-worker-before-on-my-way";
+    public const TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY = "team_notify-worker-before-on-my-way";
     public const TEAM_NOTIFY_CONTACT_MANAGER = "team-notify-contact-manager";
     public const WORKER_ON_MY_WAY_NOTIFY = "worker-on-my-way-notify";
     public const WORKER_ARRIVE_NOTIFY = "worker-arrive-notify";
@@ -99,4 +99,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const REFUND_CLAIM_MESSAGE = "refund-claim-message";
     public const WORKER_LEAD_WEBHOOK_IRRELEVANT = "worker-lead-webhook-irrelevant";
     public const WORKER_LEAD_WEBHOOK_UNANSWERED = "worker-lead-webhook-unanswered";
+
 }

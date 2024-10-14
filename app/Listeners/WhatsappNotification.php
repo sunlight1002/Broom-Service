@@ -373,8 +373,6 @@ class WhatsappNotification
 
                     break;
 
-
-
                 case WhatsappMessageTemplateEnum::WORKER_AFTER_APPROVE_JOB:
                     // $adminData = $eventData['admin'];
                     $jobData = $eventData['job'];
@@ -514,10 +512,7 @@ class WhatsappNotification
                             : 'NA',
                     ]);
 
-
                     $text .= "\n\n" . __('mail.wa-message.button-label.actions') . ": " . url("team-btn/" . base64_encode($jobData['id']));
-
-
 
                     break;
 
@@ -972,7 +967,6 @@ class WhatsappNotification
                     } else {
                         $text .= "Client information is not available.\n";
                     }
-
                     // Check if the worker data exists
                     if (isset($jobData['worker'])) {
                         // Add worker details
@@ -981,7 +975,6 @@ class WhatsappNotification
                     } else {
                         $text .= "Worker information is not available.\n\n";
                     }
-
                     // Comment information
                     if (isset($jobData['comment'])) {
                         $text .= "Comment: " . $jobData['comment'] . "\n";

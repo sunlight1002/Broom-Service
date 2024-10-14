@@ -8,6 +8,7 @@ use App\Http\Controllers\User\JobController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
 use App\Http\Controllers\User\DocumentController;
+use App\Http\Controllers\User\SkippedCommentController;
 use App\Http\Controllers\TwimlController;
 use App\Http\Controllers\Api\LeadTwilioController;
 use App\Http\Controllers\TaskController;
@@ -76,6 +77,7 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
     Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
     Route::get('jobs/{id}/comments', [JobCommentController::class, 'index']);
+
 
     Route::resource('job-comments', JobCommentController::class)->only(['store', 'destroy']);
     Route::post('job-comments/mark-complete', [JobCommentController::class, 'markComplete']);

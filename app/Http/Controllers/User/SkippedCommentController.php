@@ -19,11 +19,11 @@ class SkippedCommentController extends Controller
 
         // Return the data as JSON if this is an API
         return response()->json($skippedComments);
-        
+
         // Or return a view if this is a web route
         // return view('skipped_comments.index', compact('skippedComments'));
     }
-    
+
     public function store(Request $request)
     {
         // Validate the request
@@ -31,17 +31,17 @@ class SkippedCommentController extends Controller
             'comment_id' => 'required|exists:job_comments,id',
             'request_text' => 'required|string',
         ]);
-    
+
         // Find the comment and load related job, client, and worker
         $comment = JobComments::with(['job.client', 'job.worker'])->find($validatedData['comment_id']);
-    
+
         // Prepare the data for the event, correcting the client and worker mapping
-      
-    
+
+
         // Set the comment's status to 'pending'
         $comment->status = 'pending';
         $comment->save();
-    
+
         // Create a record in the skipped_comments table
         $skipcomment = SkippedComment::create([
             'comment_id' => $comment->id,
@@ -57,7 +57,7 @@ class SkippedCommentController extends Controller
             'worker' => $comment->job->worker,   // The worker assigned to the job
             'client' => $comment->job->client,   // The client for the job
         ];
-    
+
         // Fire the event with the correct data
         event(new WhatsappNotificationEvent([
             'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_SKIPPED_COMMENTS,
@@ -65,7 +65,7 @@ class SkippedCommentController extends Controller
                 'job' => $data, // Send the comment, worker, and client
             ],
         ]));
-    
+
         // Return a successful response
         return response()->json([
             'success' => true,
@@ -81,20 +81,20 @@ class SkippedCommentController extends Controller
             'status' => 'required|in:Approved,Rejected', // Validate that status is either 'Approved' or 'Rejected'
             'response_text' => 'nullable|string|max:255', // Add validation for the response text
         ]);
-    
+
         // Find the skipped comment by its comment_id
         $skippedComment = SkippedComment::where('comment_id', $validatedData['comment_id'])->first();
-    
+
         if (!$skippedComment) {
             return response()->json([
                 'success' => false,
                 'message' => 'Skipped comment not found.',
             ], 404);
         }
-    
+
         // Update the skipped comment's status to lowercase ('approved' or 'rejected')
         $skippedComment->status = strtolower($validatedData['status']); // 'approved' or 'rejected'
-    
+
         // If status is 'rejected', store the rejection text
         if ($skippedComment->status === 'rejected' && !empty($validatedData['response_text'])) {
             $skippedComment->response_text = $validatedData['response_text'];
@@ -102,31 +102,31 @@ class SkippedCommentController extends Controller
             // Clear the response_text if the status is not rejected
             $skippedComment->response_text = null;
         }
-    
+
         $skippedComment->save();
-    
+
         // Update the corresponding JobComments status if skipped comment is 'approved'
         if ($skippedComment->status === 'approved') {
             // Find the JobComment by the same comment_id
             $jobComment = JobComments::where('id', $skippedComment->comment_id)->first();
-    
+
             if ($jobComment) {
                 // Update the JobComment status to 'approved'
                 $jobComment->status = 'approved';
                 $jobComment->save();
             }
         }
-    
+
         // Optionally, fire an event if a notification is needed
         // event(new SkippedCommentStatusUpdated($skippedComment)); // Example event
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Skipped comment status updated successfully.',
         ]);
     }
 
-    
+
 }
 
 // $comment = Job::with('comments')

@@ -5,27 +5,27 @@ import logo from "../Assets/image/sample.svg";
 import { Base64 } from "js-base64";
 
 export const ContactManager = () => {
-    const { id } = useParams();  
+    const { id } = useParams();
     const [res, setRes] = useState('');
 
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
-    };    
+    };
 
     const handleContactManager = () => {
         axios
-            .post(`/api/worker/contact-manager/${Base64.decode(id)}`, null, { headers })  
+            .post(`/api/worker/contact-manager/${Base64.decode(id)}`, null, { headers })
             .then((res) => {
-                console.log(res); 
-                setRes(res?.data?.message);  
+                console.log(res);
+                setRes(res?.data?.message);
             })
             .catch((err) => {
-                console.log(err); 
+                console.log(err);
             });
     };
-    
+
     useEffect(() => {
         handleContactManager();
     }, [id]);
@@ -41,7 +41,7 @@ export const ContactManager = () => {
                 >
                     <image xlinkHref={logo} width="190" height="77"></image>
                 </svg>
-                <p className="text-center">{res || "Wait..."}</p> 
+                <p className="text-center">{res || "Wait..."}</p>
             </div>
         </div>
     );

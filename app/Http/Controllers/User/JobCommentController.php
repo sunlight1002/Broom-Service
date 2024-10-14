@@ -68,11 +68,11 @@ class JobCommentController extends Controller
             })
             ->latest()
             ->get();
-    
+
         // Get the target language and comment ID
         $targetLanguage = $request->input('target_language', 'en');
         $commentId = $request->input('comment_id', null);
-   
+
         // Translate the specific comment if a target language is provided
         if ($targetLanguage !== 'en' && $commentId) {
             foreach ($comments as $comment) {
@@ -88,21 +88,21 @@ class JobCommentController extends Controller
                             $comment->translated_text = $translation['text'];
                         } catch (\Exception $e) {
                             \Log::error('Translation API Error: ' . $e->getMessage());
-                            $comment->translated_text = $textToTranslate; 
+                            $comment->translated_text = $textToTranslate;
                         }
                     }
                 }
             }
         }
-    
+
         return response()->json([
             'comments' => $comments
         ]);
     }
-    
-    
-    
-    
+
+
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -137,10 +137,10 @@ class JobCommentController extends Controller
         if (!is_array($commentIds)) {
             $commentIds = [$commentIds];
         }
-    
+
         // Update the "done" column for each of the checked comments
         JobComments::whereIn('id', $commentIds)->update(['status' => 'complete']);
-    
+
 
         $comment = '';
         $filesArr = $request->file('files');
@@ -271,7 +271,7 @@ class JobCommentController extends Controller
     {
         // Ensure you're receiving the JSON data properly
         $commentId = $request->input('comment_id');
-    
+
         // Check if the comment ID is received properly
         if (!$commentId) {
             return response()->json([
@@ -279,33 +279,33 @@ class JobCommentController extends Controller
                 'message' => 'Comment ID is required',
             ], 400);
         }
-    
+
         // Find the comment by ID
         $comment = JobComments::find($commentId);
-    
+
         if (!$comment) {
             return response()->json([
                 'success' => false,
                 'message' => 'Comment not found',
             ], 404);
         }
-    
+
         // Toggle the comment status
         if ($comment->status === 'complete') {
             $comment->status = null;  // Set to null if it was complete
         } else {
             $comment->status = 'complete';  // Set to complete if it was null
         }
-    
+
         $comment->save();
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Comment status toggled successfully!',
             'new_status' => $comment->status, // Return the new status for feedback
         ]);
     }
-    
+
     public function adjustJobCompleteTime(Request $request, $id)
     {
         // Validate the input
@@ -333,5 +333,5 @@ class JobCommentController extends Controller
 
         return response()->json(['message' => 'Job time adjusted successfully.'], 200);
     }
-    
+
 }
