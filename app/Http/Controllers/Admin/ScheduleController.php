@@ -398,7 +398,6 @@ class ScheduleController extends Controller
         }
 
         $scheduleArr = $schedule->toArray();
-
         SendMeetingNotificationJob::dispatch($scheduleArr);
 
         $schedule->delete();
