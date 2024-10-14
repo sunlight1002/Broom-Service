@@ -136,7 +136,7 @@ class ScheduleController extends Controller
             'created_date' => " ",
             'status_changed_date' => Carbon::now(),
             'changes_status' => LeadStatusEnum::POTENTIAL,
-            'reason' => 'New schedule created', 
+            'reason' => 'New schedule created',
         ]);
 
         if (!$schedule->start_date) {
@@ -398,7 +398,7 @@ class ScheduleController extends Controller
         }
 
         $scheduleArr = $schedule->toArray();
-        
+
         SendMeetingNotificationJob::dispatch($scheduleArr);
 
         $schedule->delete();

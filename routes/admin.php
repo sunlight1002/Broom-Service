@@ -118,7 +118,6 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     //  Routes for Lead Activity
     Route::get('/lead-activities/{id}', [LeadActivityController::class, 'getLeadActivities']);
-
     // Client Property Address Comments
     Route::get('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'getComments']);
     Route::post('property-addresses/{id}/comments', [ClientPropertyAddressController::class, 'saveComment']);
@@ -233,7 +232,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('worker/hours/export', [JobController::class, 'exportTimeReport']);
     Route::post('jobs/{id}/worker/hours/export', [JobController::class, 'exportJobTrackedReport']);
 
-    // Income 
+    // Income
     Route::post('income', [DashboardController::class, 'income']);
 
     // Invoice
@@ -334,8 +333,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     //Payslip settings
     Route::get('/settings/get', [SettingsController::class, 'getSettings']);
-    Route::post('/settings/save', [SettingsController::class, 'saveSettings']); 
- 
+    Route::post('/settings/save', [SettingsController::class, 'saveSettings']);
+
     //documents
     Route::get('documents/{id}', [DocumentController::class, 'documents']);
     Route::delete('document/remove/{id}/{user_id}', [DocumentController::class, 'remove']);
@@ -397,11 +396,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 });
 // Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
 
-// Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);
-// Route::get('/facebook/campaigns/{id}/cost', [LeadChartsController::class, 'cost']);
+Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);
+Route::get('/facebook/campaigns/{id}/cost', [LeadChartsController::class, 'cost']);
 // Route::get('/facebook/campaign-cost', [LeadChartsController::class, 'getCampaignCost'])->name('facebook.api.campaign.cost');
 
 Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
 Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);
 Route::get('/facebook/campaigns/{id}/cost', [LeadChartsController::class, 'cost']);
-

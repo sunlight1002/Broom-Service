@@ -66,8 +66,8 @@ export default function EditWorker() {
     const [place, setPlace] = useState();
     const [payment, setPayment] = useState("");
 
-    const [employmentType, setEmploymentType] = useState(""); 
-    const [salary, setSalary] = useState(""); 
+    const [employmentType, setEmploymentType] = useState("");
+    const [salary, setSalary] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [bankDetails, setBankDetails] = useState({
