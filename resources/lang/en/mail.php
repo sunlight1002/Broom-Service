@@ -750,7 +750,6 @@ return [
         'worker_webhook_irrelevant' => [
             'message' => "🌟 Thank you for contacting us at Job4Service.\n\nWe offer the best jobs in the house cleaning industry in Israel.\nWe hire only people with suitable visas for work in Israel.\nWe offer house cleaning jobs only in the Tel Aviv area, and only during weekday mornings. We do not work on weekends or in the evenings.\nWe are a professional cleaning team, so we hire only people with experience in house cleaning.\nIf this may suit you or your friends now or in the future, you are more than welcome to contact us again. 😀\n\n👫 Know someone who'd be a great fit for our team? Invite them to join this group and explore the opportunities with us! Just send them this link:\n\nhttps://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT\nhttps://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr\n\nHave a wonderful day!🌟"
         ],
-
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',

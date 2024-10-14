@@ -2525,12 +2525,11 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_3DAY:
                     $clientData = $eventData['client'];
-                    $contractSentDate = $eventData['contract_sent_date']; // Assuming this data is passed in the event
                     $clientData1 = $eventData['contract'];
+                    $timestamp = $clientData1['created_at'];
 
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng'] ?? 'en');
-
                     // Set the subject
                     $text = __('mail.wa-message.contract_reminder.subject');
 
@@ -2544,7 +2543,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_reminder.content', [
-                        'contract_sent_date' => $clientData1['created_at']
+                        'contract_sent_date' => Carbon::parse($timestamp)->format('Y-m-d')
                     ]);
 
                     $text .= "\n\n";
@@ -2562,8 +2561,8 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR:
                     $clientData = $eventData['client'];
-                    $contractSentDate = $eventData['contract_sent_date']; // Assuming this data is passed in the event
                     $clientData1 = $eventData['contract'];
+                    $timestamp = $clientData1['created_at'];
 
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng'] ?? 'en');
@@ -2581,7 +2580,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_reminder.content2', [
-                        'contract_sent_date' => $clientData1['created_at']
+                        'contract_sent_date' => Carbon::parse($timestamp)->format('Y-m-d')
                     ]);
 
                     $text .= "\n\n";
@@ -2601,8 +2600,7 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                \Log::info($text);
-                $receiverNumber = '918000318833'. '@s.whatsapp.net';
+
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
