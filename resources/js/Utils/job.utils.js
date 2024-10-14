@@ -171,7 +171,6 @@ export const getAvailableSlots = async (
     const chosenDateMoment = moment(date, "YYYY-MM-DD");
     const chosenStartTimeMoment = moment(shift.time, "HH:mm:ss");
     let workerName = "";
-
     // Find the worker's slots for the chosen start date
     const workerSlots = workerAvailabilities.find((worker) => {
         return (
@@ -187,7 +186,6 @@ export const getAvailableSlots = async (
         return [];
     }
     workerName = workerSlots.workerName;
-
     // Find the slots for the chosen start time
     const chosenDateSlots = workerSlots.slots.find((slot) =>
         moment(slot.date, "YYYY-MM-DD").isSame(chosenDateMoment, "day")
@@ -219,7 +217,6 @@ export const getAvailableSlots = async (
             status = "unavailable";
             break;
         }
-
         if (
             !currentSlot.isBooked &&
             (((!currentSlot.isFreezed || currentSlot.isFreezed) && !isClient) ||
@@ -279,7 +276,6 @@ export const getAvailableSlots = async (
                             date: chosenDateSlots.date,
                             time: chosenDateSlots.allSlots[i],
                         });
-
                         if (
                             chosenDateSlots.allSlots[i].isBooked ||
                             chosenDateSlots.allSlots[i].isFreezed ||
@@ -302,7 +298,8 @@ export const getAvailableSlots = async (
                                                 if (slot.jobId != null) {
                                                     shifts.push({
                                                         workerId: w_id,
-                                                        workerName: worker.workerName,
+                                                        workerName:
+                                                            worker.workerName,
                                                         date: date,
                                                         jobId: slot.jobId,
                                                         time: {
@@ -314,7 +311,10 @@ export const getAvailableSlots = async (
                                             setUpdatedJobs(shifts.length > 0 ? convertShiftsFormat(shifts) : null);
                                             return {
                                                 ...s,
-                                                slots: adjustSchedule(overlapSlots, s.slots),
+                                                slots: adjustSchedule(
+                                                    overlapSlots,
+                                                    s.slots
+                                                ),
                                                 allSlots: _allSlots,
                                             };
                                         }
@@ -335,7 +335,7 @@ export const getAvailableSlots = async (
                 return [];
             }
         }
-        
+
         // Handle not enough available slots for the chosen work hours
         const confirmAlert = await Swal.fire({
             title: "Are you sure?",
@@ -349,7 +349,10 @@ export const getAvailableSlots = async (
 
         if (confirmAlert.isConfirmed) {
             try {
-                const lastSlot = chosenDateSlots.allSlots[chosenDateSlots.allSlots.length - 1];
+                const lastSlot =
+                    chosenDateSlots.allSlots[
+                        chosenDateSlots.allSlots.length - 1
+                    ];
                 if (lastSlot) {
                     const startTimeMoment = moment(lastSlot.time, "HH:mm:ss");
 
@@ -367,7 +370,9 @@ export const getAvailableSlots = async (
                                     let slots = worker.slots.map((s) => {
                                         if (s.date == chosenDateSlots.date) {
                                             s.slots.push({
-                                                time: slotTime.format("HH:mm:ss"),
+                                                time: slotTime.format(
+                                                    "HH:mm:ss"
+                                                ),
                                                 clientName: null,
                                                 isBooked: false,
                                                 isFreezed: false,
@@ -375,7 +380,9 @@ export const getAvailableSlots = async (
                                                 notAvailable: false,
                                             });
                                             s.allSlots.push({
-                                                time: slotTime.format("HH:mm:ss"),
+                                                time: slotTime.format(
+                                                    "HH:mm:ss"
+                                                ),
                                                 clientName: null,
                                                 isBooked: false,
                                                 isFreezed: false,
@@ -414,11 +421,10 @@ export const getAvailableSlots = async (
     }
 
     // console.log(endTime);
-    
+
 
     return availableSlots; // Return both available slots and end time
 };
-
 
 
 
@@ -480,7 +486,7 @@ export const getWorkerAvailabilities = (
     const splitInto15MinuteSlots = (slot) => {
         const slotStart = moment(slot.time, "HH:mm:ss");
         const slotEnd = moment(slot.time, "HH:mm:ss").add(1, "hour"); // Assuming original slot is 1 hour
-    
+
         let slots = [];
         while (slotStart.isBefore(slotEnd)) {
             const endSlot = moment(slotStart).add(15, "minutes"); // Create 15-minute intervals
@@ -497,7 +503,7 @@ export const getWorkerAvailabilities = (
         }
         return slots;
     };
-    
+
 
     return workers?.map((worker) => {
         let freeze_dates = worker.freeze_dates ?? [];
@@ -519,7 +525,7 @@ export const getWorkerAvailabilities = (
             // For today's slots, filter out past time slots
             if (key === _today) {
                 slots = slots.filter((i) => i.time > _currentTime);
-            }            
+            }
 
             // Split each slot into 15-minute intervals
             slots = slots.flatMap(splitInto15MinuteSlots);
@@ -561,7 +567,7 @@ export const getWorkerAvailabilities = (
 
 
 export const parseTimeSlots = (slots) => {
-    
+
     const pairs = slots.split(",").map((slot) => slot.split("-"));
     let groupedSlots = [];
     let currentGroup = [pairs[0][0]];
@@ -593,7 +599,7 @@ export const parseTimeSlots = (slots) => {
     });
 
     // Add the last group
-    groupedSlots.push(currentGroup.join(" - "));    
+    groupedSlots.push(currentGroup.join(" - "));
     return groupedSlots;
 };
 
@@ -610,8 +616,8 @@ export const getWorkersData = (workers) => {
                 shifts: shifts.join(", ") ?? "",
             });
         });
-    });    
-    
+    });
+
     return data;
 };
 

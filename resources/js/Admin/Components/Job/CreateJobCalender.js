@@ -91,7 +91,7 @@ export default function CreateJobCalender({
         setLoading(false)
     };
 
-    
+
 
     const getWorkers = (_service) => {
         setLoading(true);
@@ -107,12 +107,12 @@ export default function CreateJobCalender({
                     has_dog: _service.address.is_dog_avail,
                     prefer_type: _service.address.prefer_type,
                     ignore_worker_ids: _service.address.not_allowed_worker_ids,
-                    client_property_id: _service.address.id 
+                    client_property_id: _service.address.id
                 },
             })
             .then((res) => {
                 setAllWorkers(res.data.workers);
-                
+
 
                 const workerAvailityData = getWorkerAvailabilities(res?.data?.workers);
 
@@ -130,7 +130,7 @@ export default function CreateJobCalender({
     }, [serviceIndex, distance])
 
     // console.log(AllWorkers,"wo");
-    
+
 
     const submitForm = (_data) => {
         setLoading(true)

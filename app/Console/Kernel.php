@@ -42,6 +42,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('leadupdate24team')->daily();
         $schedule->command('notifyoffsite24')->daily();
 
+<<<<<<< HEAD
         // $schedule->command('notifyclientforcontract')->hourly();
         // $schedule->command('job:remind-workers-to-confirm')->dailyAt('17:00');
         // $schedule->command('mondayNotify')->weeklyOn(1, '08:00'); // 1 = Monday
@@ -50,6 +51,14 @@ class Kernel extends ConsoleKernel
         // $schedule->command('notifyteamoffer12')->hourly();
         // $schedule->command('notifyteamcontract12')->hourly();
         // $schedule->command('notifyStartOfJob')->everyThirtyMinutes();
+=======
+        // $schedule->command('update24')->daily();
+        // $schedule->command('StatusNotUpdated24')->daily();
+        // $schedule->command('updateteam24')->daily();
+        // $schedule->command('leadupdate24team')->daily();
+        // $schedule->command('notifyoffsite24')->daily();
+
+>>>>>>> 1b5fa34c (add notification and fix some lang)
 
     }
 

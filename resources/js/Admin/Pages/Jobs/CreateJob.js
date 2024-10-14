@@ -34,7 +34,6 @@ export default function CreateJob() {
             .get(`/api/admin/contract/${params.id}`, { headers })
             .then((res) => {
                 console.log(res);
-
                 const r = res.data.contract;
                 setClient(r.client);
                 let _services = JSON.parse(r.offer.services);

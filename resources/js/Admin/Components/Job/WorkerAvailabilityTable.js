@@ -379,7 +379,6 @@ export default function WorkerAvailabilityTable({
                                         filterSlots.map((shift, _sIdx) => {
                                             let isActive = hasActive(selectedWorker.id, selectedDate, shift);
                                             // console.log(shift);
-
                                             if (!hasStartActive) {
                                                 hasStartActive = isActive;
                                             } else if (isClient) {

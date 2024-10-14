@@ -51,7 +51,6 @@ class NotifyForContract implements ShouldQueue
                 ]));
             });
         }elseif ($notificationType === 'email') {
-            \Log::info("accepted");
             Mail::send('/Mails/ContractMail', $ofr, function ($messages) use ($ofr) {
                 $messages->to($ofr['client']['email']);
 

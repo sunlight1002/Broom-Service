@@ -145,6 +145,7 @@ class ScheduleController extends Controller
             // $this->sendMeetingMail($schedule);
             SendMeetingMailJob::dispatch($schedule);
 
+
             return response()->json([
                 'data' => $schedule,
                 'message' => 'Meeting scheduled successfully',

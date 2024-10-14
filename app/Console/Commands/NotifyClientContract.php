@@ -13,14 +13,35 @@ use App;
 
 class NotifyClientContract extends Command
 {
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
     protected $signature = 'notifyclientforcontract';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
     protected $description = 'Notify clients with "not-signed" contracts after specific durations';
 
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
     public function __construct()
     {
         parent::__construct();
     }
 
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
     public function handle()
     {
         $currentDateTime = Carbon::now();
@@ -40,7 +61,7 @@ class NotifyClientContract extends Command
         // Notify for contracts "not-signed" in the last 24 hours
         foreach ($contracts24Hours as $contract) {
             $client = $contract->client;
-            
+
             // Check if 24-hour notification has already been sent
             $metaExists = ClientMetas::where('client_id', $client->id)
                 ->where('key', ClientMetaEnum::NOTIFICATION_SENT_CONTRACT24HOUR)
@@ -78,7 +99,7 @@ class NotifyClientContract extends Command
         // Notify for contracts "not-signed" older than 3 days
         foreach ($contracts3Days as $contract) {
             $client = $contract->client;
-            
+
             // Check if 3-day notification has already been sent
             $metaExists = ClientMetas::where('client_id', $client->id)
                 ->where('key', ClientMetaEnum::NOTIFICATION_SENT_CONTRACT3DAY)
@@ -109,4 +130,3 @@ class NotifyClientContract extends Command
         return 0;
     }
 }
-
