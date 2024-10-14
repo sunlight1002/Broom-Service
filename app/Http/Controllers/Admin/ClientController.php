@@ -1055,6 +1055,17 @@ class ClientController extends Controller
                 //     ]
                 // ]));
 
+<<<<<<< HEAD
+=======
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
+            
+>>>>>>> 971d5bf9 (fix createjob and notification)
         } elseif ($client->notification_type === "email") {
 
             if ($newLeadStatus === 'uninterested') {
@@ -1085,7 +1096,11 @@ class ClientController extends Controller
             //         'status' => $newLeadStatus,
             //     ]
             // ]));
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 971d5bf9 (fix createjob and notification)
         } else {
 
             if ($newLeadStatus === 'uninterested') {
@@ -1124,7 +1139,11 @@ class ClientController extends Controller
                 //         'status' => $newLeadStatus,
                 //     ]
                 // ]));
+<<<<<<< HEAD
             }
+=======
+            }  
+>>>>>>> 971d5bf9 (fix createjob and notification)
         }
 
         $client->logs()->create([

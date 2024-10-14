@@ -128,7 +128,7 @@ class OfferController extends Controller
         // $input = $request->except(['action']);
         // $input['subtotal'] = $subtotal;
         // $input['total'] = $subtotal + $tax_amount;
-        
+
 
         $tax_percentage = config('services.app.tax_percentage');
         $subtotal = 0;
@@ -150,8 +150,8 @@ class OfferController extends Controller
             } else {
                 $serviceTotal += $service['fixed_price'];
                 $subtotal += $serviceTotal;
-            } 
-        
+            }
+
             $services[$skey]['totalamount'] = $serviceTotal;
         }
 
@@ -185,10 +185,150 @@ class OfferController extends Controller
 
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
+            $emailData = [
+                'client' => $client->toArray(),
+                'status' => $newLeadStatus,
+            ];
+
+            if($newLeadStatus === 'freeze client'){
+                // Trigger WhatsApp Notification
+                event(new WhatsappNotificationEvent([
+                   "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
+                   "notificationData" => [
+                       'client' => $client->toArray(),
+                   ]
+               ]));
+           }
+
+           if ($client->notification_type === "both") {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
+            if ($newLeadStatus === 'unanswered') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+                App::setLocale($client['lng']);
+                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                    $messages->to($emailData['client']['email']);
+                    $sub = __('mail.unanswered_lead.header');
+                    $messages->subject($sub);
+                });
+            }
+
+            if ($newLeadStatus === 'irrelevant') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+                App::setLocale($client['lng']);
+                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                    $messages->to($emailData['client']['email']);
+                    $sub = __('mail.irrelevant_lead.header');
+                    $messages->subject($sub);
+                });
+            };
+
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
+
+          } elseif ($client->notification_type === "email") {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                SendUninterestedClientEmail::dispatch($client, $emailData);
+            }
+
+            if ($newLeadStatus === 'unanswered') {
+                App::setLocale($client['lng']);
+                Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                    $messages->to($emailData['client']['email']);
+                    $sub = __('mail.unanswered_lead.header');
+                    $messages->subject($sub);
+                });
+            }
+            if ($newLeadStatus === 'irrelevant') {
+                App::setLocale($client['lng']);
+                Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
+                    $messages->to($emailData['client']['email']);
+                    $sub = __('mail.irrelevant_lead.header');
+                    $messages->subject($sub);
+                });
+            }
+
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+            //     "notificationData" => [
+            //         'client' => $client->toArray(),
+            //         'status' => $newLeadStatus,
+            //     ]
+            // ]));
+
+          } else {
+
+            if ($newLeadStatus === 'uninterested') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            }
+
+            if ($newLeadStatus === 'unanswered') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            }
+            if ($newLeadStatus === 'irrelevant') {
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            }
+
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'status' => $newLeadStatus,
+                //     ]
+                // ]));
+            }
         }
 
         if ($request->action == 'Save and Send') {
-            event(new OfferSaved($offer->toArray()));   
+            event(new OfferSaved($offer->toArray()));
         }
 
         return response()->json([
@@ -309,7 +449,7 @@ class OfferController extends Controller
                 }
                 $subtotal += $serviceTotal;
 
-            } 
+            }
             elseif ($service['type'] == 'squaremeter') {
                 if (isset($service['ratepersquaremeter']) && isset($service['totalsquaremeter'])) {
                     $serviceTotal += $service['ratepersquaremeter'] * $service['totalsquaremeter'];
@@ -321,8 +461,8 @@ class OfferController extends Controller
                 $serviceTotal += $service['fixed_price'];
                 $subtotal += $serviceTotal;
 
-            } 
-        
+            }
+
             $services[$skey]['totalamount'] = $serviceTotal;
         }
 

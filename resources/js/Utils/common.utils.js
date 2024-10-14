@@ -73,7 +73,7 @@ export const convertTimeSlotsToRange = (slots) => {
 
     // Add the last group
     groupedSlots.push(currentGroup.join(" - "));
-    
+
     return groupedSlots;
 };
 
