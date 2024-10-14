@@ -37,9 +37,11 @@ return [
     ],
     'contract' => [
         'subject'     => 'Contract with Broom Service for Offer #:id',
-        'content'     => 'A work agreement for digital signature is attached. Please add your credit card details to the secure system. It will be charged 1 ILS, which will be refunded after verification. The details will be stored securely. Then, please sign and accept the contract. If you have any questions, please contact us: 03-525-70-60 or reply to this email.',
+        'content'     => 'Greetings from Broom Service. A work agreement for digital signature is attached. Please fill in the necessary details and sign on the last page for payment details you must fill in the details of each ID number and the signature of the card holder without the CVV details which you will give us over the phone in order to save and secure your payment details and with your signature below for any questions please    contact us: 03-525-70-60 or reply to this email.',
         'below_txt'   => 'Click the below button to check the contract.',
         'btn_txt'     => 'Check Contract',
+        'dont_hesitate_to_get_in_touch'   => 'If you have any questions or concerns, please don\'t hesitate to get in touch with us by replying to this email.',
+
     ],
     'form_101' => [
         'subject'     => 'Form 101 | Broom Service #:id',
@@ -491,7 +493,7 @@ return [
             'content' => "You have successfully registered on our portal. Please sign the safety and gear form to start working on the job.\nClick the below button to check the Safety And Gear.",
         ],
         'client_reschedule_meeting'  =>  [
-            'header' => "*Re-schedule Meeting | Broom Service*",
+            'header' => "*Re-schedule Meeting #:id | Broom Service*",
             'content' => "Just a friendly reminder that you have an upcoming appointment with :team_name. Please check the details.\n\nDate/Time: :date\nProperty: :address\nPurpose: :purpose\nMeeting Link: :meet_link",
         ],
         'worker_forms'  =>  [
@@ -640,10 +642,17 @@ return [
             'no_reason_provided' => 'No reason provided.',
             'assistance' => 'Please review the details and update the status accordingly.',
         ],
+        // 'client_in_freeze_status' => [
+        //     'header' => 'Client in Freeze Status - Action Required',
+        //     'content' => 'A client named :client_name has been placed in Freeze status because they haven\'t received a service for 7 days since their last scheduled service date.',
+        //     'action_required' => 'Please check the status and update accordingly. If necessary, contact the client to reschedule the service.',
+        // ],
         'client_in_freeze_status' => [
             'header' => 'Client in Freeze Status - Action Required',
-            'content' => 'A client named :client_name has been placed in Freeze status because they haven\'t received a service for 7 days since their last scheduled service date.',
-            'action_required' => 'Please check the status and update accordingly. If necessary, contact the client to reschedule the service.',
+            'thankyou' => "At Broom Service, we understand that sometimes there’s a need to take a break, and we want to thank you for the trust you have placed in us so far.",
+            'content' => 'We wanted to remind you that we are here for you and ready to resume services whenever you decide. We continue to improve and expand our service offerings to ensure that you always receive the best.',
+            'action_required' => 'If your needs have changed or if you would like to discuss new options, we are here at your service. Feel free to reach out anytime.',
+            'signature' => "Best regards, \n Broom Service \n\n Phone: 03-525-70-60 \n 🌐 Website: www.broomservice.co.il"
         ],
         'status_not_updated' => [
             'header' => 'Status Not Updated - Action Required',
@@ -749,6 +758,63 @@ return [
         ],
         'worker_webhook_irrelevant' => [
             'message' => "🌟 Thank you for contacting us at Job4Service.\n\nWe offer the best jobs in the house cleaning industry in Israel.\nWe hire only people with suitable visas for work in Israel.\nWe offer house cleaning jobs only in the Tel Aviv area, and only during weekday mornings. We do not work on weekends or in the evenings.\nWe are a professional cleaning team, so we hire only people with experience in house cleaning.\nIf this may suit you or your friends now or in the future, you are more than welcome to contact us again. 😀\n\n👫 Know someone who'd be a great fit for our team? Invite them to join this group and explore the opportunities with us! Just send them this link:\n\nhttps://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT\nhttps://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr\n\nHave a wonderful day!🌟"
+        ],
+        'pending' => [
+            'content' => "New lead alert! A potential client, :name, has been added to the system and is awaiting initial contact. Phone: :phone. Click here to take action."
+        ],
+        'potential' => [
+            'content' => "Update: A meeting has been scheduled or a video has been requested from :name. Please prepare accordingly. Phone: :phone. Click here to take action."
+        ],
+        'irrelevant' => [
+            'content' => "Status change: The lead, :name, has been marked as irrelevant due to service mismatch or location constraints. Phone: :phone. Click here to take action."
+        ],
+        'uninterested' => [
+            'content' => "The lead, :name, has expressed no interest in continuing. Please mark as completed or close the lead. Phone: :phone. Click here to take action."
+        ],
+        'unanswered' => [
+            'content' => "Notification: The lead, :name, has not responded after multiple contact attempts. Please review and follow up as needed. Phone: :phone. Click here to take action."
+        ],
+        'potential_client' => [
+            'content' => "The lead, :name, has received a price offer and is considering it. Awaiting their decision. Phone: :phone. Click here to take action."
+        ],
+        'pending_client' => [
+            'content' => ":name has accepted the price offer and received the contract. Please proceed with the next steps. Phone: :phone. Click here to take action."
+        ],
+        'waiting' => [
+            'content' => "The client, :name, has signed the contract and is waiting for the first booking. Please schedule the service as soon as possible. Phone: :phone. Click here to take action."
+        ],
+        'active_client' => [
+            'content' => "Update: The client, :name, is now active and receiving services. Ensure the team is informed and ready for the upcoming sessions. Phone: :phone. Click here to take action."
+        ],
+        'freeze_client_team' => [
+            'content' => "Alert: The client, :name, has been marked as ‘Freeze’ since 7 days have passed without service. Please check with the client to resolve any issues. Phone: :phone. Click here to take action."
+        ],
+        'unhappy' => [
+            'content' => "The client, :name, has been moved to ‘Unhappy’ status due to dissatisfaction with the service quality. Please review and see if any corrective action is needed. Phone: :phone. Click here to take action."
+        ],
+        'price_issue' => [
+            'content' => "The client, :name, has been moved to ‘Price Issue’ status due to concerns regarding pricing. Consider revisiting the pricing strategy if necessary. Phone: :phone. Click here to take action."
+        ],
+        'moved' => [
+            'content' => "The client, :name, has been marked as ‘Moved’ since they relocated outside of the service area. No further action needed unless they return. Phone: :phone. Click here to take action."
+        ],
+        'onetime' => [
+            'content' => "The client, :name, has been marked as ‘One-Time’ since they only used the service once. Please keep this in mind for future follow-ups or promotions. Phone: :phone. Click here to take action.”"
+        ],
+        'past' => [
+            'header' => "Hello :name,",
+            'thankyou' => "At Broom Service, we want to thank you for the trust you placed in us in the past and remind you that we are always here for you.",
+            'content' => "If you would like to reconnect and enjoy our professional and high-quality cleaning services, we are at your service. We would be happy to talk with you and tailor our services to your unique needs.
+                            Additionally, we would like to offer you a 20% discount on your next visit.",
+            'feelfree' => "Feel free to contact us anytime.",
+            'signature' => "Best regards, \n Broom Service \n\n Phone: 03-525-70-60 \n 🌐 Website: www.broomservice.co.il"
+        ],
+        'freeze_client' => [
+            'header' => "Hello :name,",
+            'thankyou' => "At Broom Service, we understand that sometimes there’s a need to take a break, and we want to thank you for the trust you have placed in us so far.",
+            'content' => "We wanted to remind you that we are here for you and ready to resume services whenever you decide. We continue to improve and expand our service offerings to ensure that you always receive the best.",
+            'feelfree' => "If your needs have changed or if you would like to discuss new options, we are here at your service. Feel free to reach out anytime.",
+            'signature' => "Best regards, \n Broom Service \n\n Phone: 03-525-70-60 \n 🌐 Website: www.broomservice.co.il"
         ],
         'button-label' => [
             'accept_reject' => 'Accept/Reject',

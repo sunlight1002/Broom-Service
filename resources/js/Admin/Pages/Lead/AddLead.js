@@ -345,7 +345,7 @@ export default function AddLead() {
                                                 {t(
                                                     "admin.leads.AddLead.PrimaryEmail"
                                                 )}{" "}
-                                                *
+                                                
                                             </label>
                                             <div className="d-flex flex-column w-100">
 

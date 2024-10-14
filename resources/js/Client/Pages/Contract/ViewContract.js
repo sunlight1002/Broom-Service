@@ -111,6 +111,8 @@ export default function WorkContract() {
         axios
             .post(`/api/client/contracts/${param.hash}`)
             .then((res) => {
+                console.log(res);
+                
                 setCards(res.data.cards[0])
                 setoffer(res.data.offer);
                 setClient(res.data.offer?.client);
@@ -176,6 +178,8 @@ export default function WorkContract() {
         getOffer();
         getContract();
     }, [])
+    
+console.log(services[0]?.address?.city);
 
     return (
         <div className='container parent' >
@@ -194,7 +198,7 @@ export default function WorkContract() {
                     </div>
                     <h4 className='inHead' style={{ whiteSpace: 'pre-wrap' }}>{t('work-contract.inHead')}</h4>
                     <div className='signed'>
-                        <p>{t('work-contract.signed')} <span>{client && client.city ? client.city : 'NA'}</span> on <span>{Moment(contract && contract?.created_at).format('DD MMMM,Y')}</span></p>
+                        <p>{t('work-contract.signed')} <span>{services && services[0]?.address.city ? services[0]?.address.city : 'NA'}</span> on <span>{Moment(contract && contract?.created_at).format('DD MMMM,Y')}</span></p>
                     </div>
                     <div className='between'>
                         <p>{t('work-contract.between')}</p>
@@ -208,10 +212,10 @@ export default function WorkContract() {
                             <>
                                 <ul className='list-inline'>
                                     <li className='list-inline-item ml-2'>{t('work-contract.full_name')} <span>{offer.client.firstname + " " + offer.client.lastname}</span></li>
-                                    <li className='list-inline-item'>{t('work-contract.city')} <span>{offer.client.city}</span></li>
+                                    <li className='list-inline-item'>{t('work-contract.city')} <span>{services && services[0]?.address.city ? services[0]?.address.city : 'NA'}</span></li>
                                 </ul>
                                 <ul className='list-inline'>
-                                    <li className='list-inline-item ml-2'>{t('work-contract.street_and_number')} <span>{offer.client.geo_address}</span></li>
+                                    <li className='list-inline-item ml-2'>{t('work-contract.street_and_number')} <span>{services && services[0]?.address?.geo_address ? services[0]?.address?.geo_address : 'NA'}</span></li>
                                     {/* <li className='list-inline-item'>{t('work-contract.floor')} <span>{cl.floor}</span></li>*/}
                                 </ul>
                                 <ul className='list-inline'>

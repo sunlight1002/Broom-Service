@@ -29,6 +29,10 @@ export const leadStatusColor = (_status) => {
             _color = "purple";
             break;
 
+        case "waiting":
+            _color = "purple";
+            break;
+
         case "freeze client":
             _color = "#b98787";
             break;
@@ -47,6 +51,21 @@ export const leadStatusColor = (_status) => {
 
         case "rejected":
             _color = "#d51212";
+            break;
+        case "unhappy":
+            _color = "red";
+            break;
+
+        case "price issue":
+            _color = "#770000";
+            break;
+
+        case "moved":
+            _color = "#4561ab";
+            break;
+
+        case "one-time":
+            _color = "#626567";
             break;
 
         default:

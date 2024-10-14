@@ -83,6 +83,7 @@ export default function ContractHeb() {
         i18next.changeLanguage("heb");
         getContract();
     }, []);
+    
 
     return (
         <>
@@ -153,7 +154,7 @@ export default function ContractHeb() {
                                 <p>
                                     {t("work-contract.signed")}
                                     <span>
-                                        {client.city ? client.city : "NA"}
+                                        {services && services[0]?.address.city ? services[0]?.address.city : 'NA'}
                                     </span>{" "}
                                     on{" "}
                                     <span>
@@ -183,7 +184,7 @@ export default function ContractHeb() {
                                     <li className="list-inline-item">
                                         {t("work-contract.city")}{" "}
                                         <span>
-                                            {client.city ? client.city : "NA"}
+                                            {services && services[0]?.address.city ? services[0]?.address.city : 'NA'}
                                         </span>
                                     </li>
                                 </ul>
@@ -191,9 +192,7 @@ export default function ContractHeb() {
                                     <li className="list-inline-item ml-2">
                                         {t("work-contract.street_and_number")}{" "}
                                         <span>
-                                            {client?.geo_address
-                                                ? client?.geo_address
-                                                : "NA"}
+                                            {services && services[0]?.address?.geo_address ? services[0]?.address?.geo_address : 'NA'}
                                         </span>
                                     </li>
                                     {/* <li className="list-inline-item">{t('work-contract.floor')} <span>{client.floor ? client.floor : 'NA'}</span>

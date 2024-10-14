@@ -29,6 +29,8 @@ export default function PriceOffer() {
         subServiceId: [],
     })
 
+    // const clientLng = localStorage.getItem("client-lng")
+
 
     const getOffer = async () => {
         try {
@@ -928,7 +930,7 @@ export default function PriceOffer() {
                                                 {showWorkerHours && (
                                                     <th>
                                                         {t(
-                                                            "price_offer.worker_hours"
+                                                            "price_offer.Quantity/Hours"
                                                         )}
                                                     </th>
                                                 )}
@@ -941,6 +943,8 @@ export default function PriceOffer() {
                                         </thead>
                                         <tbody>
                                             {services.map((s, i) => {
+                                                console.log(s);
+
                                                 return (
                                                     <tr key={i}>
                                                         <td>
@@ -956,7 +960,15 @@ export default function PriceOffer() {
                                                                 ? s.other_title
                                                                 : s.name}
                                                         </td>
-                                                        <td>{s.type}</td>
+                                                        <td>
+                                                            {clientLng === 'heb' ? (
+                                                                s.type === 'fixed' ? 'קָבוּעַ' :
+                                                                    s.type === 'hourly' ? 'מדי שעה' :
+                                                                        s.type === 'squaremeter' ? 'מטר מרובע' : s.type
+                                                            ) : (
+                                                                s.type // Fallback to default value if ClientLng is not 'heb'
+                                                            )}
+                                                        </td>
                                                         <td>
                                                             {s.freq_name}{" "}
                                                             {/* <p>
@@ -965,12 +977,19 @@ export default function PriceOffer() {
                                                                 )}
                                                             </p> */}
                                                         </td>
-                                                        {showWorkerHours && (
+                                                        {s?.type == "squaremeter" ? (
                                                             <td>
-                                                                {workerHours(s)}
+                                                                {s.ratepersquaremeter}
                                                             </td>
+                                                        ) : (
+
+                                                            showWorkerHours && (<td>
+                                                                {workerHours(s)}
+                                                            </td>)
+
                                                         )}
-                                                        {s.type == "fixed" ? (
+
+                                                        {s?.type == "fixed" ? (
                                                             <td>
                                                                 {s.workers
                                                                     .length *
@@ -1211,7 +1230,7 @@ export default function PriceOffer() {
                         </footer>
                     </div>
                 </div>
-                {loading && <FullPageLoader visible={loading}/>}
+                {loading && <FullPageLoader visible={loading} />}
             </div>
         </>
     );
