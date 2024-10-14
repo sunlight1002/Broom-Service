@@ -155,6 +155,7 @@ class StatusNotUpdated24hours extends Command
             "type" => WhatsappMessageTemplateEnum::FINAL_FOLLOW_UP_PRICE_OFFER,
             "notificationData" => [
                 'client' => $client->toArray(),
+                'offer' => $offerStatus->toArray()
             ]
         ]));
 

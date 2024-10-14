@@ -405,7 +405,7 @@ return [
         ],
         'contract' => [
             'header' => "*Contract with Broom Service for Offer #:id*",
-            'content' => "A work agreement for digital signature is attached. Please add your credit card details to the secure system. It will be charged 1 ILS, which will be refunded after verification. The details will be stored securely. Then, please sign and accept the contract. If you have any questions, please contact us: 03-525-70-60.",
+            'content' => "Greetings from Broom Service. A work agreement for digital signature is attached. Please fill in the necessary details and sign on the last page for payment details you must fill in the details of each ID number and the signature of the card holder without the CVV details which you will give us over the phone in order to save and secure your payment details and with your signature below for any questions please    contact us: 03-525-70-60 or reply to this email.",
         ],
         'create_job' => [
             'header' => "*New Job Created | Broom Service*",
@@ -835,7 +835,8 @@ return [
             'contact_manager' => 'Contact Manager',
             'change_service_date' => 'Change Service Date',
             'cancel_service' => 'Cancel service',
-            'start_job' => 'Start job'
+            'start_job' => 'Start job',
+            'actions' => 'Action'
         ]
         ],
 

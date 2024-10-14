@@ -141,6 +141,7 @@ import AdminLoginOtp from "./Admin/Pages/Auth/AdminLoginOtp";
 import WorkerLoginOtp from "./Worker/Auth/WorkerLoginOtp";
 import ClientLoginOtp from "./Client/Auth/ClientLoginOtp";
 import TeamButtons from "./Pages/TeamButtons";
+import TeamBtnsAfter7days from "./Pages/TeamBtnsAfter7days";
 import { ContactManager } from "./Pages/ContactManager";
 import TeamSkippedComments from "./Pages/TeamSkippedComments";
 import { TimeManage } from "./Pages/TimeManage";
@@ -193,6 +194,11 @@ export default function MyRoutes() {
                         exact
                         path="team-btn/:id"
                         element={<TeamButtons/>}
+                    />
+                      <Route
+                        exact
+                        path="team-btn7days/:id"
+                        element={<TeamBtnsAfter7days/>}
                     />
                       <Route
                         exact

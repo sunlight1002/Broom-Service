@@ -70,7 +70,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                     ]);
 
                     $text .= "\n\n";
@@ -140,7 +140,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                     ]);
 
                     $text .= "\n\n";
@@ -168,7 +168,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                     ]);
 
                     $text .= "\n\n";
@@ -249,7 +249,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                     ]);
 
                     $text .= "\n\n";
@@ -308,7 +308,7 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.new_job.content', [
                         'content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
                         'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'service_name' => $workerData['lng'] == 'heb'
                             ? ($jobData['jobservice']['heb_name'] . ', ')
                             : ($jobData['jobservice']['name'] . ', '),
@@ -462,7 +462,7 @@ class WhatsappNotification
                     ]);
 
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("team-btn/" . base64_encode($jobData['id']));
+                    $text .= "\n\n" . __('mail.wa-message.button-label.actions') . ": " . url("team-btn/" . base64_encode($jobData['id']));
 
 
 
@@ -776,7 +776,7 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.worker_remind_job.content', [
                         'date' => Carbon::parse($jobData['start_date'])->format('M d Y'),
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'service_name' => $workerData['lng'] == 'heb'
                             ? ($jobData['jobservice']['heb_name'] . ', ')
                             : ($jobData['jobservice']['name'] . ', '),
@@ -1198,7 +1198,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                     ]);
 
                     $text .= "\n\n";
@@ -1394,7 +1394,7 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.common.salutation', ['name' => 'everyone']);
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.client_payment_failed.content', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'card_number' => $cardData['card_number']
                     ]);
 
@@ -1418,7 +1418,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.order_cancelled.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'order_id' => $orderData['order_id']
                     ]);
 
@@ -1443,7 +1443,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.payment_paid.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     break;
@@ -1466,7 +1466,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.client_invoice_created_and_sent_to_pay.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'invoice_id' => $invoiceData['invoice_id']
                     ]);
 
@@ -1490,7 +1490,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.client_invoice_paid_created_receipt.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'invoice_id' => $invoiceData['invoice_id']
                     ]);
 
@@ -1513,7 +1513,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.order_created_with_extra.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'order_id' => $eventData['order_id'],
                         'extra' => $eventData['extra'],
                         'total' => $eventData['total_amount'],
@@ -1538,7 +1538,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.order_created_with_discount.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'order_id' => $eventData['order_id'],
                         'discount' => $eventData['discount'],
                         'total' => $eventData['total_amount'],
@@ -1685,7 +1685,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.new_lead_arrived.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'contact' => $clientData['phone'],
                         'Service_Requested' => "",
                         'email' => $clientData['email'],
@@ -1714,7 +1714,7 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.common.salutation', ['name' => "Team"]);
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.user_status_changed.content', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'status' => $eventData['status']
                     ]);
 
@@ -1949,7 +1949,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                     ]);
 
                     $text .= __('mail.wa-message.past.thankyou');
@@ -1957,7 +1957,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     // $text .= __('mail.wa-message.client_in_freeze_status.content', [
-                    //     'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    //     'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     // ]);
                     $text .= __('mail.wa-message.past.content');
 
@@ -2004,33 +2004,38 @@ class WhatsappNotification
 
                     // Create the message
                     $text = __('mail.wa-message.follow_up_price_offer.header', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.follow_up_price_offer.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     break;
 
                 case WhatsappMessageTemplateEnum::FINAL_FOLLOW_UP_PRICE_OFFER:
                     $clientData = $eventData['client'];
+                    $offerData = $eventData['offer'];
+                    \Log::info($offerData);
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('heb'); // Adjust the locale if needed
 
                     // Create the message
                     $text = __('mail.wa-message.final_follow_up_price_offer.header', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.final_follow_up_price_offer.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.actions') . ": " . url("team-btn7days/" . base64_encode($clientData['id']));
+
 
                     break;
 
@@ -2041,13 +2046,13 @@ class WhatsappNotification
 
                     // Create the message
                     $text = __('mail.wa-message.lead_accepted_price_offer.header', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.lead_accepted_price_offer.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     break;
@@ -2071,7 +2076,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.book_client_after_signed_contract.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'client_contact_info' =>$clientData['email'],
                     ]);
 
@@ -2099,7 +2104,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.lead_declined_price_offer.details', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'reason' => $clientData['reason'] ?? __('mail.wa-message.lead_declined_price_offer.no_reason_provided'),
                     ]);
 
@@ -2137,7 +2142,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.file_submission_request.details', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
@@ -2177,7 +2182,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.lead_declined_contract.details', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'reason' => $clientData['reason'] ?? __('mail.wa-message.lead_declined_contract.no_reason_provided'),
                     ]);
 
@@ -2206,7 +2211,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                     ]);
 
                     $text .= __('mail.wa-message.client_in_freeze_status.thankyou');
@@ -2214,7 +2219,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     // $text .= __('mail.wa-message.client_in_freeze_status.content', [
-                    //     'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    //     'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     // ]);
                     $text .= __('mail.wa-message.client_in_freeze_status.content');
 
@@ -2247,7 +2252,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.status_not_updated.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
@@ -2274,7 +2279,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.client_lead_status_changed.content', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'new_status' => $eventData['new_status']
                     ]);
 
@@ -2292,7 +2297,7 @@ class WhatsappNotification
                     $text = __('mail.wa-message.follow_up.subject');
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.follow_up.salutation', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                     ]);
 
 
@@ -2342,7 +2347,7 @@ class WhatsappNotification
                         $text = __('mail.wa-message.follow_up.subject');
                         $text .= "\n\n";
                         $text .= __('mail.wa-message.follow_up.salutation', [
-                            'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname']
+                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                         ]);
                         $text .= "\n\n";
                         $text .= __('mail.wa-message.follow_up.introduction');
@@ -2403,7 +2408,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_verify.info',[
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
@@ -2429,7 +2434,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_verify_team.content',[
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     break;
@@ -2448,7 +2453,7 @@ class WhatsappNotification
 
                     // Add the body content with dynamic client name and contract date
                     $text .= __('mail.wa-message.contract_reminder.body', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
@@ -2485,7 +2490,7 @@ class WhatsappNotification
 
                     // Add the body content with dynamic client name and contract date
                     $text .= __('mail.wa-message.contract_reminder.body', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
@@ -2515,7 +2520,7 @@ class WhatsappNotification
 
                     // Add the body content with dynamic client name and contract date
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
@@ -2555,7 +2560,7 @@ class WhatsappNotification
 
                     // Adding follow-up instruction
                     $text .= __('mail.wa-message.contract_reminder_team.body_instruction', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
@@ -2593,7 +2598,7 @@ class WhatsappNotification
 
                     // Adding follow-up instruction
                     $text .= __('mail.wa-message.price_offer_reminder12.body_instruction', [
-                        'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
                     $text .= "\n\n";
@@ -2615,7 +2620,7 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                // \Log::info($text);
+                \Log::info($text);
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,

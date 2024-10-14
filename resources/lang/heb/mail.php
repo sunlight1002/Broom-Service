@@ -838,7 +838,8 @@ return [
             'contact_manager' => 'מנהל אנשי קשר',
             'change_service_date' => 'שנה תאריך שירות',
             'cancel_service' => 'בטל שירות',
-            'start_job' => 'התחל בעבודה'
+            'start_job' => 'התחל בעבודה',
+            'actions' => 'פְּעוּלָה'
         ]
 
 

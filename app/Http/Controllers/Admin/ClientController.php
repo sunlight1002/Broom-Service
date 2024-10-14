@@ -39,6 +39,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Enums\ClientMetaEnum;
+use App\Models\ClientMetas;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Notification;
 use App\Enums\NotificationTypeEnum;
@@ -961,6 +963,7 @@ class ClientController extends Controller
     public function clienStatusLog(Request $request)
     {
         $data = $request->all();
+        \Log::info($data);
         \Log::info($data['status']);
         $statusArr = [
             LeadStatusEnum::PENDING => 0,
@@ -1360,6 +1363,41 @@ class ClientController extends Controller
         return response()->json([
             'message' => 'Status has been changed successfully!',
         ]);
+    }
+
+
+    public function deleteClientMetaIfExists($clientId)
+    {
+        // Fetch all client metas with matching keys
+        $metaKeys = [
+            ClientMetaEnum::NOTIFICATION_SENT_24_HOURS,
+            ClientMetaEnum::NOTIFICATION_SENT_3_DAY,
+            ClientMetaEnum::NOTIFICATION_SENT_7_DAY,
+        ];
+
+        // Check if records exist for the given client_id and any of the keys
+        $clientMetas = ClientMetas::where('client_id', $clientId)
+            ->whereIn('key', $metaKeys)
+            ->get();
+
+        if ($clientMetas->isNotEmpty()) {
+            // Delete the matched records
+            ClientMetas::where('client_id', $clientId)
+                ->whereIn('key', $metaKeys)
+                ->delete();
+
+            // Log the deletion
+            \Log::info("Deleted meta records for client_id: $clientId with keys: " . implode(', ', $metaKeys));
+
+            return response()->json([
+                'message' => 'Client meta records deleted successfully.',
+            ]);
+        } else {
+            // If no records were found, return a message
+            return response()->json([
+                'message' => 'No matching client meta records found.',
+            ]);
+        }
     }
 
 }
