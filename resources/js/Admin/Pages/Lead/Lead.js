@@ -26,14 +26,14 @@ export default function Lead() {
     // }, [adminLng]);
 
     const statusArr = {
-        pending: t("admin.leads.Pending"),
-        potential: t("admin.leads.Potential"),
+        // pending: t("admin.leads.Pending"),
+        // potential: t("admin.leads.Potential"),
         irrelevant: t("admin.leads.Irrelevant"),
         uninterested: t("admin.leads.Uninterested"),
         unanswered: t("admin.leads.Unanswered"),
-        "potential client": t("admin.leads.Potential_client"),
-        "pending client": t("admin.leads.Pending_client"),
-        "freeze client": t("admin.leads.Freeze_client"),
+        // "potential client": t("admin.leads.Potential_client"),
+        // "pending client": t("admin.leads.Pending_client"),
+        // "freeze client": t("admin.leads.Freeze_client"),
         "active client": t("admin.leads.Active_client"),
     };
     const [filter, setFilter] = useState("All");
