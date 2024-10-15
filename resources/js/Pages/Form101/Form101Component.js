@@ -1184,7 +1184,7 @@ const Form101Component = () => {
     };
     useEffect(() => {
         getForm();
-    }, [values]);
+    }, []);
 
     const disableInputs = () => {
         // Disable inputs within the div with the id "targetDiv"
@@ -1205,6 +1205,8 @@ const Form101Component = () => {
 
     const getForm = () => {
         axios.get(`/api/get101/${id}/${formId}`).then((res) => {
+            console.log(res.data);
+            
             i18next.changeLanguage(res.data.lng);
 
 
@@ -1219,7 +1221,10 @@ const Form101Component = () => {
                 // console.log(res.data.form, "form");
                 setFormValues(res.data.form.data);
                 // setFieldValue("employeePassportNumber", res.data.worker.passport );
-                // setFieldValue("employeeLastName", )
+                // setFieldValue("employeeIdentityType", res?.data?.form?.data.employeeIdentityType)
+                console.log("dededxe");
+                
+                setFieldValue("employeecountry", res?.data?.worker?.country)
                 if (res.data.form.submitted_at) {
                     setTimeout(() => {
                         disableInputs();
@@ -1228,7 +1233,7 @@ const Form101Component = () => {
                 }
             } else if (res.data.worker) {
                 const _worker = res.data.worker;
-                // console.log(_worker, "worker");
+                console.log(_worker.country, "worker");
 
                 setFieldValue("employeeFirstName", _worker.firstname);
                 setFieldValue("employeeLastName", _worker.lastname);
@@ -1293,6 +1298,7 @@ const Form101Component = () => {
         }, 200);
     };
 
+console.log(values?.employeecountry);
 
     return (
         <div className="container targetDiv">
