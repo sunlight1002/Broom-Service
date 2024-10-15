@@ -6,6 +6,7 @@ use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Events\ClientReviewed;
 use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
@@ -519,95 +520,8 @@ class JobController extends Controller
                 ['lead_status' => $newLeadStatus]
             );
 
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
-            $emailData = [
-                'client' => $client->toArray(),
-                'status' => $newLeadStatus,
-            ];
-
-            if($newLeadStatus === 'freeze client'){
-                // Trigger WhatsApp Notification
-                event(new WhatsappNotificationEvent([
-                   "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
-                   "notificationData" => [
-                       'client' => $client->toArray(),
-                   ]
-               ]));
-           }
-            
-           if ($client->notification_type === "both") {
-
-            if ($newLeadStatus === 'uninterested') {
-
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
-                ]));
-        
-                SendUninterestedClientEmail::dispatch($client, $emailData);
-            }
-
-            if ($newLeadStatus === 'unanswered') {
-
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
-                ]));
-
-            }
-            
-            if ($newLeadStatus === 'irrelevant') {
-
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
-                ]));
-            }; 
-
-        } elseif ($client->notification_type === "email") {
-
-            if ($newLeadStatus === 'uninterested') {
-
-                SendUninterestedClientEmail::dispatch($client, $emailData);
-            }
-
-            
-        } else {
-            if ($newLeadStatus === 'uninterested') {
-
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
-                ]));
-            }
-            if ($newLeadStatus === 'unanswered') {
-
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
-                ]));
-            }
-            if ($newLeadStatus === 'irrelevant') {
-
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
-                ]));
-            }
-
-            }
         }
 
         Notification::create([

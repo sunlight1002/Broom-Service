@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
@@ -187,11 +188,7 @@ class ContractController extends Controller
                 ['lead_status' => $newLeadStatus]
             );
 
-
-            $emailData = [
-                'client' => $client->toArray(),
-                'status' => $newLeadStatus,
-            ];
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
             SendNotificationJob::dispatch($client, $newLeadStatus, $emailData);
         }

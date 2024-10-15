@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
 use App\Events\OfferSaved;
+use App\Events\ClientLeadStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\LeadStatus;
@@ -183,6 +184,7 @@ class OfferController extends Controller
 
 
         }
+        event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
         if ($request->action == 'Save and Send') {
             event(new OfferSaved($offer->toArray()));

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Enums\ContractStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Models\Client;
 use App\Traits\JobSchedule;
 use Illuminate\Console\Command;
@@ -68,107 +69,8 @@ class UpdateClientLeadStatus extends Command
                     ['lead_status' => $newLeadStatus]
                 );
 
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
-                $emailData = [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ];
-
-                if($newLeadStatus === 'freeze client'){
-                    // Trigger WhatsApp Notification
-                    event(new WhatsappNotificationEvent([
-                       "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
-                       "notificationData" => [
-                           'client' => $client->toArray(),
-                       ]
-                   ]));
-               }
-
-               if($newLeadStatus === 'past'){
-                // Trigger WhatsApp Notification
-                event(new WhatsappNotificationEvent([
-                   "type" => WhatsappMessageTemplateEnum::PAST,
-                   "notificationData" => [
-                       'client' => $client->toArray(),
-                   ]
-               ]));
-           }
-                
-               if ($client->notification_type === "both") {
-
-                if ($newLeadStatus === 'uninterested') {
-
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
-                        "notificationData" => [
-                            'client' => $client->toArray(),
-                        ]
-                    ]));
-    
-                    SendUninterestedClientEmail::dispatch($client, $emailData);
-                }
-    
-
-                if ($newLeadStatus === 'unanswered') {
-          
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                        "notificationData" => [
-                            'client' => $client->toArray(),
-                        ]
-                    ]));
-                }
-                
-                if ($newLeadStatus === 'irrelevant') {
-          
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                        "notificationData" => [
-                            'client' => $client->toArray(),
-                        ]
-                    ]));
-
-                }; 
-
-                
-              } elseif ($client->notification_type === "email") {
-
-                if ($newLeadStatus === 'uninterested') {
-                    SendUninterestedClientEmail::dispatch($client, $emailData);
-                }
-                
-              } else {
-
-                if ($newLeadStatus === 'uninterested') {
-
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
-                        "notificationData" => [
-                            'client' => $client->toArray(),
-                        ]
-                    ]));
-                }
-    
-                if ($newLeadStatus === 'unanswered') {
-          
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                        "notificationData" => [
-                            'client' => $client->toArray(),
-                        ]
-                    ]));
-                }
-                if ($newLeadStatus === 'irrelevant') {
-          
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                        "notificationData" => [
-                            'client' => $client->toArray(),
-                        ]
-                    ]));
-                }
-
-                }
             }
         }
 

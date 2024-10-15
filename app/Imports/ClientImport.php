@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Events\OfferAccepted;
+use App\Events\ClientLeadStatusChanged;
 use App\Models\Client;
 use App\Models\ClientPropertyAddress;
 use App\Models\Offer;
@@ -333,6 +334,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                             ['lead_status' => LeadStatusEnum::POTENTIAL_CLIENT]
                         );
 
+                        event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL_CLIENT));
                         event(new OfferSaved($offer->toArray()));
                     } else {
                         $offer->update([
@@ -390,6 +392,7 @@ class ClientImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
                         ['lead_status' => LeadStatusEnum::FREEZE_CLIENT]
                     );
 
+                    event(new ClientLeadStatusChanged($client, LeadStatusEnum::FREEZE_CLIENT));
 
                     $card = ClientCard::query()
                         ->where('client_id', $client->id)

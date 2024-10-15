@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\JobStatusEnum;
+use App\Events\ClientLeadStatusChanged;
 use App\Models\Job;
 use App\Models\ManageTime;
 use App\Models\Notification;
@@ -265,97 +266,9 @@ class ScheduleNextJobOccurring implements ShouldQueue
                     ['lead_status' => $newLeadStatus]
                 );
     
-                $emailData = [
-                    'client' => $client->toArray(),
-                    'status' => $newLeadStatus,
-                ];
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
-                if($newLeadStatus === 'freeze client'){
-                    // Trigger WhatsApp Notification
-                    event(new WhatsappNotificationEvent([
-                       "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
-                       "notificationData" => [
-                           'client' => $client->toArray(),
-                       ]
-                   ]));
-               }
-                
-                if ($client->notification_type === "both") {
-
-                    if ($newLeadStatus === 'uninterested') {
-
-                        event(new WhatsappNotificationEvent([
-                            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
-                            "notificationData" => [
-                                'client' => $client->toArray(),
-                            ]
-                        ]));
-                
-                        SendUninterestedClientEmail::dispatch($client, $emailData);
-                    }
-
-                    if ($newLeadStatus === 'unanswered') {
-
-                        // Trigger WhatsApp Notification
-                        event(new WhatsappNotificationEvent([
-                            "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                            "notificationData" => [
-                                'client' => $client->toArray(),
-                            ]
-                        ]));
-                    }
-                    
-                    if ($newLeadStatus === 'irrelevant') {
-
-                        // Trigger WhatsApp Notification
-                        event(new WhatsappNotificationEvent([
-                            "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                            "notificationData" => [
-                                'client' => $client->toArray(),
-                            ]
-                        ]));
-                    } 
-                    
-                } elseif ($client->notification_type === "email") {
-
-                    if ($newLeadStatus === 'uninterested') {
-
-                        SendUninterestedClientEmail::dispatch($client, $emailData);
-                    }
-
-                } else {
-
-                    if ($newLeadStatus === 'uninterested') {
-
-                        event(new WhatsappNotificationEvent([
-                            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
-                            "notificationData" => [
-                                'client' => $client->toArray(),
-                            ]
-                        ]));
-                    }
-
-                    if ($newLeadStatus === 'unanswered') {
-
-                        // Trigger WhatsApp Notification Only
-                        event(new WhatsappNotificationEvent([
-                            "type" => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
-                            "notificationData" => [
-                                'client' => $client->toArray(),
-                            ]
-                        ]));
-                    }
-                    if ($newLeadStatus === 'irrelevant') {
-
-                        // Trigger WhatsApp Notification Only
-                        event(new WhatsappNotificationEvent([
-                            "type" => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
-                            "notificationData" => [
-                                'client' => $client->toArray(),
-                            ]
-                        ]));
-                    }
-                }
+               
             }
         }
     }
