@@ -66,7 +66,6 @@ class NotifyForLeadStatusChanged implements ShouldQueue
                 ]
             ]));
 
-            SendUninterestedClientEmail::dispatch($client, $emailData);
         }
 
         if ($event->newStatus === 'unanswered') {

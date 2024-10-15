@@ -8,7 +8,6 @@ use App\Exports\ClientSampleFileExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportClientJob;
 use App\Events\ClientLeadStatusChanged;
-use App\Jobs\SendUninterestedClientEmail;
 use App\Models\Admin;
 use App\Models\Client;
 use App\Models\Files;
