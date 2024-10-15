@@ -30,6 +30,7 @@ export default function ChangeScheduleCalender({ job }) {
     const [currentFilter, setcurrentFilter] = useState("Current Week");
     const [customDateRange, setCustomDateRange] = useState([]);
     const [searchVal, setSearchVal] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const params = useParams();
     const navigate = useNavigate();
@@ -42,7 +43,7 @@ export default function ChangeScheduleCalender({ job }) {
     let isSameWorker = useRef();
 
     const headers = {
-        Accept: "application/json, text/plain, */*",
+        Accept: "application/json, text/plain, /",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("client-token"),
     };
@@ -50,6 +51,7 @@ export default function ChangeScheduleCalender({ job }) {
     const getTime = () => {
         axios.get(`/api/client/get-time`, { headers }).then((res) => {
             if (res.data.data) {
+                
                 let ar = JSON.parse(res.data.data.days);
                 setDays(ar);
             }
@@ -57,9 +59,10 @@ export default function ChangeScheduleCalender({ job }) {
     };
 
     const jobHours = useMemo(
-        () => job.jobservice.duration_minutes / 60,
+        () => (job.jobservice.duration_minutes / 4) / 60 ,
         [job.jobservice.duration_minutes]
     );
+
 
     const getWorkers = () => {
         axios
@@ -82,9 +85,13 @@ export default function ChangeScheduleCalender({ job }) {
             })
             .then((res) => {
                 setAllWorkers(res.data.workers);
-                setWorkerAvailabilities(
-                    getWorkerAvailabilities(res.data.workers, true, jobHours)
-                );
+
+
+                const workerAvailityData = getWorkerAvailabilities(res?.data?.workers);
+
+                setWorkerAvailabilities(workerAvailityData);
+
+                setLoading(false);
             });
     };
 
@@ -153,7 +160,7 @@ export default function ChangeScheduleCalender({ job }) {
 
                     axios
                         .post(
-                            `/api/client/jobs/${jobId}/change-worker`,
+                           ` /api/client/jobs/${jobId}/change-worker`,
                             formdata,
                             {
                                 headers,
@@ -201,40 +208,48 @@ export default function ChangeScheduleCalender({ job }) {
     let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const changeShift = (w_id, date, e) => {
-        let added = false;
+        const selectedSlotTimes = new Set(); // Track already selected slot times
+        
         const promises = selectedHours.map(async (worker, index) => {
-            if (
-                (worker.slots == null || worker?.slots[0]?.workerId == w_id) &&
-                !added
-            ) {
+            if (worker.slots == null) {
                 const slots = await getAvailableSlots(
                     workerAvailabilities,
                     w_id,
                     date,
                     e,
                     worker.jobHours,
-                    true,
+                    false,
                     alert,
                     setWorkerAvailabilities,
                     setUpdatedJobs
                 );
-                added = true;
+                
+
+                // Filter out slots that have already been selected
+                const filteredSlots = slots.filter(slot => !selectedSlotTimes.has(slot.time.time));
+
+                // Add current slot times to the set
+                filteredSlots.forEach(slot => selectedSlotTimes.add(slot.time.time));
+
                 return {
                     jobHours: worker.jobHours,
-                    slots: slots.length > 0 ? slots : null,
+                    slots: filteredSlots.length > 0 ? filteredSlots : null,
                     formattedSlots:
-                        slots.length > 0 ? convertShiftsFormat(slots) : null,
+                        filteredSlots.length > 0 ? convertShiftsFormat(filteredSlots) : null,
                 };
-            }
-            if (!added && selectedHours.length === index + 1) {
-                alert.error(t("client.jobs.change.alreadyOtherWorker"));
             }
             return worker;
         });
 
         // Wait for all promises to resolve
         Promise.all(promises).then((updatedData) => {
-            // Update the state with the resolved values
+            var isExist = selectedHours.filter((w) => w.slots == null);
+            if (!isExist.length) {
+                alert.error(
+                    "Other slots have already been selected. Please deselect and reselect."
+                );
+            }
+            
             setSelectedHours(updatedData);
         });
     };
@@ -307,7 +322,8 @@ export default function ChangeScheduleCalender({ job }) {
         getWorkers();
 
         $("#edit-work-time").modal("hide");
-    };
+    };    
+    
 
     return (
         <>
