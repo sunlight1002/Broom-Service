@@ -206,16 +206,11 @@ export default function ViewOffer() {
                                                             <tbody>
                                                                 {services &&
                                                                     services.map(
-                                                                        (
-                                                                            s,
-                                                                            i
-                                                                        ) => {
+                                                                        (s, i) => {
+                                                                            console.log(s);
+                                                                            
                                                                             return (
-                                                                                <tr
-                                                                                    key={
-                                                                                        i
-                                                                                    }
-                                                                                >
+                                                                                <tr key={ i}>
                                                                                     <td>
                                                                                         {s.address ? (
                                                                                             <Link
@@ -231,8 +226,7 @@ export default function ViewOffer() {
                                                                                             "NA"
                                                                                         )}
                                                                                     </td>
-                                                                                    {s.service ==
-                                                                                        10 ? (
+                                                                                    {s.service == 10 ? (
                                                                                         <td>
                                                                                             {" "}
                                                                                             {
@@ -258,15 +252,9 @@ export default function ViewOffer() {
                                                                                         }
                                                                                     </td>
                                                                                     <td className="text-right">
-                                                                                        {workerHours(
-                                                                                            s,
-                                                                                            "hour(s)"
-                                                                                        )}
+                                                                                        {workerHours(s,"hour(s)")}
                                                                                     </td>
-                                                                                    {s.type !=
-                                                                                        "fixed" ||
-                                                                                        perhour ==
-                                                                                        1 ? (
+                                                                                    {s.type != "fixed" || perhour == 1 ? (
                                                                                         <>
                                                                                             <td className="text-right">
                                                                                                 {s.rateperhour

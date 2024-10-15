@@ -13,6 +13,8 @@ export const monthNames = [
     "December",
 ];
 
+const adminToken = localStorage.getItem("admin-token");
+
 export const weekOccurrenceArr = [
     { value: 1, label: "first" },
     { value: 2, label: "second" },
@@ -155,9 +157,12 @@ export const objectToFormData = (obj, formData, namespace) => {
 };
 
 export const workerHours = (s, msg) => {
-    if (s.type === "hourly") {
+    if (adminToken) {
         return `${s.workers.map((i) => i.jobHours).join(", ")} ${msg}`;
-    }
-
+    }else{
+        if (s.type === "hourly") {
+            return `${s.workers.map((i) => i.jobHours).join(", ")} ${msg}`;
+        }
+    } 
     return "--";
 };
