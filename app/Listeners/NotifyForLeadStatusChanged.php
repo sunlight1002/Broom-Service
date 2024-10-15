@@ -41,6 +41,15 @@ class NotifyForLeadStatusChanged implements ShouldQueue
             ]
         ]);
 
+        if($event->newStatus === 'past'){
+            event(new WhatsappNotificationEvent([
+               "type" => WhatsappMessageTemplateEnum::PAST,
+               "notificationData" => [
+                   'client' => $event->client->toArray(),
+               ]
+           ]));
+       }
+
         if($event->newStatus === 'freeze client'){
             event(new WhatsappNotificationEvent([
                "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
