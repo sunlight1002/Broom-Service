@@ -6,7 +6,6 @@ use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\ClientLeadStatusChanged;
 use App\Events\ClientReviewed;
 use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
@@ -520,7 +519,6 @@ class JobController extends Controller
                 ['lead_status' => $newLeadStatus]
             );
 
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
             $emailData = [
                 'client' => $client->toArray(),

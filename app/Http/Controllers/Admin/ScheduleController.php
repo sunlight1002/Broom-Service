@@ -7,7 +7,6 @@ use App\Enums\NotificationTypeEnum;
 use App\Enums\SettingKeyEnum;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\ClientLeadStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Schedule;
@@ -130,8 +129,6 @@ class ScheduleController extends Controller
             ['lead_status' => LeadStatusEnum::POTENTIAL]
         );
 
-        event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
-      
 
         LeadActivity::create([
             'client_id' => $client->id,

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
-use App\Events\ClientLeadStatusChanged;
 use App\Events\OfferSaved;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
@@ -182,7 +181,6 @@ class OfferController extends Controller
                 'reason' => "New price offered",
             ]);
 
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
         }
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Client;
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
-use App\Events\ClientLeadStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Schedule;
@@ -117,7 +116,6 @@ class ClientEmailController extends Controller
                 ['lead_status' => $newLeadStatus]
             );
 
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
         }
         Notification::create([
             'user_id' => $ofr['client']['id'],
@@ -404,7 +402,6 @@ class ClientEmailController extends Controller
                     ['lead_status' => $newLeadStatus]
                 );
 
-                event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
                 $emailData = [
                     'client' => $client->toArray(),
@@ -663,8 +660,6 @@ class ClientEmailController extends Controller
                 [],
                 ['lead_status' => $newLeadStatus]
             );
-
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
             $emailData = [
                 'client' => $client->toArray(),

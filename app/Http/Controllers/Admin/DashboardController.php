@@ -141,7 +141,6 @@ class DashboardController extends Controller
               NotificationTypeEnum::CONTRACT_REJECT,
               NotificationTypeEnum::RESCHEDULE_MEETING,
               NotificationTypeEnum::FILES,
-              NotificationTypeEnum::CLIENT_LEAD_STATUS_CHANGED,
               NotificationTypeEnum::NEW_LEAD_ARRIVED,
               NotificationTypeEnum::FOLLOW_UP_REQUIRED,
               NotificationTypeEnum::FOLLOW_UP_PRICE_OFFER,
@@ -153,7 +152,6 @@ class DashboardController extends Controller
               NotificationTypeEnum::LEAD_DECLINED_CONTRACT,
               NotificationTypeEnum::CLIENT_IN_FREEZE_STATUS,
               NotificationTypeEnum::STATUS_NOT_UPDATED,
-              NotificationTypeEnum::CLIENT_LEAD_STATUS_CHANGED,
             ]);
           })
           ->when($groupType == 'worker-forms', function ($q) {
@@ -380,13 +378,6 @@ class DashboardController extends Controller
             if (isset($client)) {
               $noticeAll[$k]->data = "New lead <a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
                 "</a> has been added.";
-            }
-          } else if ($notice->type == NotificationTypeEnum::CLIENT_LEAD_STATUS_CHANGED) {
-            $client = Client::find($notice->user_id);
-
-            if (isset($client)) {
-              $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $client->id . "'>" . $client->firstname . " " . $client->lastname .
-                "</a> lead status has been changed to " . $notice->data['new_status'] . ".";
             }
           } else if ($notice->type == NotificationTypeEnum::CLIENT_CHANGED_JOB_SCHEDULE) {
             $job = Job::where('id', $notice->job_id)->first();

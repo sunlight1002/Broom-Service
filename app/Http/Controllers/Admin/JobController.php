@@ -30,7 +30,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\ClientLeadStatusChanged;
 use App\Events\ClientOrderCancelled;
 use App\Jobs\CreateJobOrder;
 use App\Jobs\ScheduleNextJobOccurring;
@@ -625,8 +624,6 @@ class JobController extends Controller
                 ['lead_status' => $newLeadStatus]
             );
 
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
-
             $emailData = [
                 'client' => $client->toArray(),
                 'status' => $newLeadStatus,
@@ -987,7 +984,6 @@ class JobController extends Controller
                 ['lead_status' => $newLeadStatus]
             );
 
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
             $emailData = [
                 'client' => $client->toArray(),
@@ -1368,7 +1364,6 @@ class JobController extends Controller
                 ['lead_status' => $newLeadStatus]
             );
 
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
             $emailData = [
                 'client' => $client->toArray(),

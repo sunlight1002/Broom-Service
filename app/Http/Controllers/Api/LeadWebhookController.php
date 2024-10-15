@@ -6,7 +6,6 @@ use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\SettingKeyEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\ClientLeadStatusChanged;
 use App\Events\SendClientLogin;
 use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
@@ -1096,7 +1095,6 @@ class LeadWebhookController extends Controller
                                     ['lead_status' => LeadStatusEnum::POTENTIAL]
                                 );
 
-                                event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
 
                                 $googleAccessToken = Setting::query()
                                     ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)

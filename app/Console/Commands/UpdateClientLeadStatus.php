@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Enums\ContractStatusEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
-use App\Events\ClientLeadStatusChanged;
 use App\Models\Client;
 use App\Traits\JobSchedule;
 use Illuminate\Console\Command;
@@ -69,7 +68,6 @@ class UpdateClientLeadStatus extends Command
                     ['lead_status' => $newLeadStatus]
                 );
 
-                event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
                 $emailData = [
                     'client' => $client->toArray(),

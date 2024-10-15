@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Enums\JobStatusEnum;
-use App\Events\ClientLeadStatusChanged;
 use App\Models\Job;
 use App\Models\ManageTime;
 use App\Models\Notification;
@@ -266,8 +265,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                     ['lead_status' => $newLeadStatus]
                 );
     
-                event(new ClientLeadStatusChanged($client, $newLeadStatus));
-
                 $emailData = [
                     'client' => $client->toArray(),
                     'status' => $newLeadStatus,
