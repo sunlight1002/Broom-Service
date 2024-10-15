@@ -1704,7 +1704,7 @@ class JobController extends Controller
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
                 'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
-            // sendJobWANotification($emailData);
+            sendJobWANotification($emailData);
             // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
             //     $messages->to($emailData['email']);
             //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
@@ -1727,7 +1727,7 @@ class JobController extends Controller
                 'content'  => __('mail.worker_new_job.change_in_job') . " " . __('mail.worker_new_job.please_check'),
                 'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
-            // sendJobWANotification($emailData);
+            sendJobWANotification($emailData);
             // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
             //     $messages->to($emailData['email']);
             //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
