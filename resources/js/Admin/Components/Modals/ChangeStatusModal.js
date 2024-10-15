@@ -11,7 +11,6 @@ export default function ChangeStatusModal({
     getUpdatedData,
     statusArr,
 }) {
-    console.log(clientId);
 
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
@@ -20,7 +19,6 @@ export default function ChangeStatusModal({
         id: clientId,
     });
 
-    console.log(formValues.status);
 
     const [isLoading, setIsLoading] = useState(false);
 

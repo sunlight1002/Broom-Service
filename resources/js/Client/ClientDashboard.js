@@ -8,6 +8,7 @@ import { Base64 } from "js-base64";
 import { BsSuitcaseLg } from "react-icons/bs";
 import { FaRegBookmark } from "react-icons/fa";
 import { FaArrowsToEye } from "react-icons/fa6";
+import { getShiftsDetails } from "../Utils/common.utils";
 
 
 export default function ClientDashboard() {
@@ -18,7 +19,7 @@ export default function ClientDashboard() {
     const { t, i18n } = useTranslation();
     const c_lng = i18n.language;
     const headers = {
-        Accept: "application/json, text/plain, */*",
+        Accept: "application/json, text/plain, /",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("client-token"),
     };
@@ -134,7 +135,8 @@ export default function ClientDashboard() {
                                                 if (status === "cancel") {
                                                     status = t("j_status.cancel");
                                                 }
-
+                                                const { durationInHours, startTime, endTime } = getShiftsDetails(item);
+                                                
                                                 return (
                                                     <Tr key={index}>
                                                         <Td>
@@ -144,7 +146,7 @@ export default function ClientDashboard() {
                                                                     : item.jobservice.heb_name)}
                                                         </Td>
                                                         <Td>{item.start_date}</Td>
-                                                        <Td>{item.shifts}</Td>
+                                                        <Td>{startTime}-{endTime}</Td>
                                                         <Td style={{ display: "none" }}>
                                                             {item.worker
                                                                 ? item.worker.firstname + " " + item.worker.lastname

@@ -25,7 +25,7 @@ class StatusNotUpdated24hours extends Command
         $offerStatuses = Offer::with('client')
             ->where('status', 'sent')
             ->whereHas('client', function ($q) {
-                $q->whereDate('created_at', '>=', '2024-09-20');
+                $q->whereDate('created_at', '>=', '2024-10-15');
             })
             ->whereDate('created_at', '<=', Carbon::now()->subDays(1)) // Fetch records older than 1 day
             ->get();

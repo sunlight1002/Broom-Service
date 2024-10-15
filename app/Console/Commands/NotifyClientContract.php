@@ -27,7 +27,7 @@ class NotifyClientContract extends Command
     $currentDateTime = Carbon::now();
 
     // Define the static date to start notifications from
-    $staticDate = "2024-09-20"; // Static date to start notifications from
+    $staticDate = "2024-10-15"; // Static date to start notifications from
 
     // Define time limits for 24-hour and 3-day notifications
     $timeLimit24Hours = $currentDateTime->subHours(24)->toDateTimeString(); // Contracts older than 24 hours

@@ -1456,6 +1456,7 @@ class WorkerFormService
             isset($formData['employeeIdentityType']) &&
             $formData['employeeIdentityType'] == 'IDNumber'
         ) {
+            \Log::info($formData['employeeIdCardCopy']);
             //create a page
             $pdf->AddPage();
 

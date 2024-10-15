@@ -46,7 +46,7 @@ class NotifyClientOffsite24 extends Command
      */
     public function handle()
     {
-        $staticDate = "2024-09-20"; // Static date to start notifications from
+        $staticDate = "2024-10-15"; // Static date to start notifications from
         $currentDateTime = Carbon::now();
         $yesterdayDateTime = $currentDateTime->subHours(24); // 24 hours ago from now
 

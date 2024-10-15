@@ -44,7 +44,7 @@ class UpdateTeam24 extends Command
     public function handle()
     {
         // Static date from which notifications should start
-        $staticDate = "2024-09-20"; // Static date to start notifications from
+        $staticDate = "2024-10-15"; // Static date to start notifications from
 
         // Define the 24-hour time limit
         $timeLimit24Hours = Carbon::now()->subHours(24);

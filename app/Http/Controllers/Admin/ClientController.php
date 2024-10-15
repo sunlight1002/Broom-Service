@@ -964,7 +964,6 @@ class ClientController extends Controller
     public function clienStatusLog(Request $request)
     {
         $data = $request->all();
-        \Log::info($data['status']);
         $statusArr = [
             LeadStatusEnum::PENDING => 0,
             LeadStatusEnum::POTENTIAL => 0,
@@ -986,7 +985,6 @@ class ClientController extends Controller
                 'message' => 'Client not found!'
             ]);
         }
-        \Log::info($statusArr[$data['status']]);
        
         $client->status = $statusArr[$data['status']];
         $client->save();
@@ -1021,6 +1019,13 @@ class ClientController extends Controller
 
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
                     "notificationData" => [
                         'client' => $client->toArray(),
                     ]
@@ -1070,16 +1075,6 @@ class ClientController extends Controller
 
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::POTENTIAL,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
-                ]));
-            };
-
-            if ($newLeadStatus === 'uninterested') {
-
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
                     "notificationData" => [
                         'client' => $client->toArray(),
                     ]
@@ -1166,36 +1161,11 @@ class ClientController extends Controller
                 ]));
             };
 
-        } elseif ($client->notification_type === "email") {
+        // } elseif ($client->notification_type === "email") {
 
-            if ($newLeadStatus === 'uninterested') {
-                SendUninterestedClientEmail::dispatch($client, $emailData);
-            }
-
-            if ($newLeadStatus === 'unanswered') {
-                // App::setLocale($client['lng']);
-                // Mail::send('Mails.UnansweredLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                //     $messages->to($emailData['client']['email']);
-                //     $sub = __('mail.unanswered_lead.header');
-                //     $messages->subject($sub);
-                // });
-            }
-            if ($newLeadStatus === 'irrelevant') {
-                // App::setLocale($client['lng']);
-                // Mail::send('Mails.IrrelevantLead', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-                //     $messages->to($emailData['client']['email']);
-                //     $sub = __('mail.irrelevant_lead.header');
-                //     $messages->subject($sub);
-                // });
-            }
-
-            // event(new WhatsappNotificationEvent([
-            //     "type" => WhatsappMessageTemplateEnum::USER_STATUS_CHANGED,
-            //     "notificationData" => [
-            //         'client' => $client->toArray(),
-            //         'status' => $newLeadStatus,
-            //     ]
-            // ]));
+        //     if ($newLeadStatus === 'uninterested') {
+        //         SendUninterestedClientEmail::dispatch($client, $emailData);
+        //     }
 
         } else {
 
@@ -1203,6 +1173,13 @@ class ClientController extends Controller
 
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
                     "notificationData" => [
                         'client' => $client->toArray(),
                     ]
@@ -1253,15 +1230,6 @@ class ClientController extends Controller
                 ]));
             };
 
-            if ($newLeadStatus === 'uninterested') {
-
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
-                ]));
-            };
 
             if ($newLeadStatus === 'potential client') {
 

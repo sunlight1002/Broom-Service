@@ -20,7 +20,7 @@ export default function LeadHistory({ client }) {
                         {t("admin.leads.viewLead.ScheduledMeeting")}
                     </h5>
 
-                    <div className="form-group ml-3 mb-0 d-flex" style={{padding: "10px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC"}}>
+                    <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "10px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
                         <span
                             id="ms"
                             className="dashStatus d-flex align-items-center mr-2"
@@ -31,7 +31,7 @@ export default function LeadHistory({ client }) {
                                 fontSize: "16px"
                             }}
                         >
-                            <p className="mr-2" style={{width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px"}}></p>
+                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
                             {client.latest_meeting
                                 ? client.latest_meeting.booking_status
                                 : t("admin.leads.leadDetails.NotSend")}
@@ -42,21 +42,20 @@ export default function LeadHistory({ client }) {
                     </div>
                 </div>
 
-               <div className="d-flex align-items-center navyblue client-div1-div2" style={{padding: "10px", borderRadius: "5px"}}>
-               <Link to={`/admin/schedule/view/${client.id}`}
-               className="text-white"
-               >
-                    <i className="fas fa-hand-point-right"></i>
+                    <Link to={`/admin/schedule/view/${client.id}`}
+                        className="text-white navyblue text-center"
+                        style={{ padding: "10px", borderRadius: "5px" }}
+                    >
+                        <i className="fas fa-hand-point-right"></i>
 
-                    {client.meetings?.length == 0
-                        ? t(
-                            "admin.leads.leadDetails.ScheduleMeeting"
-                        )
-                        : t(
-                            "admin.leads.leadDetails.ReScheduleMeeting"
-                        )}
-                </Link>
-               </div>
+                        {client.meetings?.length == 0
+                            ? t(
+                                "admin.leads.leadDetails.ScheduleMeeting"
+                            )
+                            : t(
+                                "admin.leads.leadDetails.ReScheduleMeeting"
+                            )}
+                    </Link>
             </div>
 
             <div className="tab-content border-0">
@@ -75,7 +74,7 @@ export default function LeadHistory({ client }) {
                     >
                         {t("admin.leads.viewLead.Offers")}
                     </h5>
-                    <div className="form-group ml-3 mb-0 d-flex" style={{padding: "10px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC"}}>
+                    <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "10px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
                         <span
                             id="os"
                             className="dashStatus d-flex align-items-center mr-2"
@@ -87,7 +86,7 @@ export default function LeadHistory({ client }) {
 
                             }}
                         >
-                            <p className="mr-2" style={{width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px"}}></p>
+                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
 
                             {client.latest_offer
                                 ? client.latest_offer.status
@@ -99,17 +98,16 @@ export default function LeadHistory({ client }) {
                         </label>
                     </div>
                 </div>
-                <div className="d-flex align-items-center navyblue client-div1-div2" style={{padding: "10px", borderRadius: "5px"}}>
 
                 <Link to={`/admin/offers/create?c=${client.id}`}
-                className="text-white"
+                    className="text-white  navyblue text-center"
+                    style={{ padding: "10px", borderRadius: "5px" }}
                 >
                     <i className="fas fa-hand-point-right"></i>
                     {client.offers?.length == 0
                         ? t("admin.leads.leadDetails.SendOffer")
                         : t("admin.leads.leadDetails.ReSendOffer")}
                 </Link>
-                </div>
             </div>
             <div className="tab-content border-0">
                 <div

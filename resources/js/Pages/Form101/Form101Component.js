@@ -1257,6 +1257,8 @@ const Form101Component = () => {
         axios
             .post(`/api/admin/document/save`, data, { headers })
             .then((res) => {
+                console.log(res);
+                
                 if (res.data.errors) {
                     console.log(res.data.errors);
 
