@@ -19,9 +19,19 @@ export default function EmployeeDetails({
     // console.log(Base64.decode(param.id));
     const [indentityType, setIndentityType] = useState(values.employeecountry);
     useEffect(() => {
-        console.log(values.employeecountry);
-        setIndentityType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
-    }, [values])
+        console.log(values.employeecountry,"useefect");
+        
+        if (values.employeecountry === "Israel") {
+            setIndentityType("IDNumber");
+        }
+        // Only update identity type if it's not yet set or country changes to Israel
+        if (values.employeeIdentityType === "" && values.employeecountry !== "Israel") {
+            setIndentityType("Passport");
+        }
+    }, [values.employeecountry]);
+
+
+    // console.log(values.employeecountry, "in");
 
 
 
@@ -111,7 +121,7 @@ export default function EmployeeDetails({
                             name="employeeIdentityType"
                             value="IDNumber"
                             className="mr-2"
-                            checked={indentityType === "IDNumber"}
+                            checked={indentityType === "IDNumber" ? true : false}
                             onChange={(e) => {
                                 setIndentityType(e.target.value);
                                 handleChange(e);
@@ -126,7 +136,7 @@ export default function EmployeeDetails({
                             name="employeeIdentityType"
                             value="Passport"
                             className="mr-2"
-                            checked={indentityType === "Passport"}
+                            checked={indentityType === "Passport" ? true : false}
                             onChange={(e) => {
                                 setIndentityType(e.target.value);
                                 handleChange(e);
@@ -150,14 +160,23 @@ export default function EmployeeDetails({
                         label={t("form101.country_passport")}
                         value={values.employeecountry}
                         onChange={(e) => {
-                            setIndentityType(e.target.value === "Israel" ? "IDNumber" : "Passport");
+                            const selectedCountry = e.target.value;
                             handleChange(e);
-                            setFieldValue("employeeIdentityType", e.target.value === "Israel" ? "IDNumber" : "Passport");
+
+                            // Set identity type based on country, but only modify the identity field
+                            if (selectedCountry === "Israel") {
+                                setIndentityType("IDNumber");
+                                setFieldValue("employeeIdentityType", "IDNumber");
+                            } else {
+                                setIndentityType("Passport");
+                                setFieldValue("employeeIdentityType", "Passport");
+                            }
+
+                            setFieldValue("employeecountry", selectedCountry); // Update country
                         }}
                         onBlur={handleBlur}
                         error={
-                            touched.employeecountry &&
-                                errors.employeecountry
+                            touched.employeecountry && errors.employeecountry
                                 ? errors.employeecountry
                                 : ""
                         }
@@ -200,7 +219,7 @@ export default function EmployeeDetails({
                                             "employeepassportCopy",
                                             e.target.files[0]
                                         );
-                                        handleFileChange(e,"passport");
+                                        handleFileChange(e, "passport");
                                     }
                                     }
                                     onBlur={handleBlur}
@@ -273,7 +292,7 @@ export default function EmployeeDetails({
                                         "employeeIdCardCopy",
                                         e.target.files[0]
                                     );
-                                    handleFileChange(e,"id_card");
+                                    handleFileChange(e, "id_card");
                                 }
                                 }
                                 onBlur={handleBlur}

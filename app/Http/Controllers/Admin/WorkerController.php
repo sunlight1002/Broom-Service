@@ -382,6 +382,7 @@ class WorkerController extends Controller
         $defaultFields['employeeLastName'] = $worker->lastname;
         $defaultFields['employeeMobileNo'] = $worker->phone;
         $defaultFields['employeeEmail'] = $worker->email;
+        $defaultFields['employeecountry'] = $worker->country;
         $defaultFields['sender']['employeeEmail'] = $worker->email;
         $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
         $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
