@@ -189,6 +189,11 @@ class ContractController extends Controller
             );
 
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            
+            $emailData = [
+                'client' => $client->toArray(),
+                'status' => $newLeadStatus,
+            ];
 
             SendNotificationJob::dispatch($client, $newLeadStatus, $emailData);
         }
