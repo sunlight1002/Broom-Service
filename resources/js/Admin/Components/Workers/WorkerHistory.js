@@ -6,6 +6,7 @@ import WorkerNotAvailabilty from "./WorkerNotAvailabilty";
 import WorkerAdvance from "./WorkerAdvance";
 import Document from "../Documents/Document";
 import WorkerForms from "./WorkerForms";
+import WorkerTermination from "./WorkerTermination";
 import { useTranslation } from "react-i18next";
 
 export default function WorkerHistory({ worker, getWorkerDetails }) {
@@ -119,6 +120,18 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                         {t("worker.settings.advance")}
                     </a>
                 </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="worker-termination"
+                        className="nav-link"
+                        data-toggle="tab"
+                        href="#tab-worker-termination"
+                        aria-selected="false"
+                        role="tab"
+                    >
+                        {t("worker.settings.termination")}
+                    </a>
+                </li>
             </ul>
             <div className="tab-content" style={{ background: "#fff" }}>
                 <div
@@ -179,6 +192,14 @@ export default function WorkerHistory({ worker, getWorkerDetails }) {
                     aria-labelledby="worker-loans"
                 >
                     <WorkerAdvance worker={worker} />
+                </div>
+                <div
+                    id="tab-worker-termination"
+                    className="tab-pane"
+                    role="tab-panel"
+                    aria-labelledby="worker-termination"
+                >
+                    <WorkerTermination worker={worker} getWorkerDetails={getWorkerDetails}/>
                 </div>
             </div>
         </div>

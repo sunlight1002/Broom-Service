@@ -39,8 +39,7 @@ use App\Http\Controllers\LeadActivityController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\SettingsController;
-
-
+use App\Http\Controllers\HearingInvitationController;
 /*
 |--------------------------------------------------------------------------
 | Admin API Routes
@@ -347,6 +346,13 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('worker-affected-availability/{id}', [WorkerAffectedAvailabilitiesController::class, 'show']);
     Route::post('worker-affected-availability/{id}/approve', [WorkerAffectedAvailabilitiesController::class, 'approve']);
     Route::post('worker-affected-availability/{id}/reject', [WorkerAffectedAvailabilitiesController::class, 'reject']);
+
+    //termination api -- schedule hearing 
+    Route::get('hearing-invitations', [HearingInvitationController::class, 'index']);
+    Route::get('/hearing-invitations/{id}', [HearingInvitationController::class, 'show']);
+    Route::post('/hearing-invitations/create', [HearingInvitationController::class, 'store']);
+    Route::put('/hearing-invitations/{id}', [HearingInvitationController::class, 'update']);
+    Route::post('/hearing-invitations/{id}/create-event', [HearingInvitationController::class, 'createEvent']);
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);

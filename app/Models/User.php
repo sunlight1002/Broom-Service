@@ -176,6 +176,11 @@ class User extends Authenticatable
         return $this->hasMany(WorkerFreezeDate::class);
     }
 
+    public function hearingInvitations()
+    {
+        return $this->hasMany(HearingInvitation::class);
+    }
+
     public function setPhoneAttribute($value)
     {
         $this->attributes['phone'] = preg_replace('/\D/', '', $value);

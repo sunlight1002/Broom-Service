@@ -1540,7 +1540,132 @@
                 }
             }
         },
+<<<<<<< HEAD
         "holidays": {
+=======
+        "hearing": {
+            "scheduleHearing": "Schedule Hearing",
+            "reSchedule": "Re-schedule Hearing",
+            "schedule": "Schedule",
+            "sendOffer": "Send Offer",
+            "bookClient": "Book Client",
+            "joinedOn": "Joined On",
+            "offeredPrice": "Offered Price",
+            "contract": "Contracts",
+            "Jobs": "Jobs",
+            "invoice": "Invoices",
+            "card": "Cards",
+            "notSent": "Not Sent",
+            "commenst": "Comments",
+            "noRecord": "No record found",
+            "hearingStatus": " Hearing Status",
+            "hearingAttender": "Hearing Attender",
+            "hearingPurpose": "Hearing Purpose",
+            "hearingTimeAndDate": "Hearing time and date",
+            "startTime": "Start Time",
+            "endTime": "End Time",
+            "meetVia": "Meet Via",
+            "meetLink": "Meet Link",
+            "selectAddress": "Select Address",
+            "btnSend": "Send hearing",
+            "workerAvailability": "Worker Availability",
+            "date": "Date",
+            "Property": "Property",
+            "options": {
+                "pleaseSelect": "--- Please Select ---",
+                "hearingStatus": {
+                    "Pending": "Pending",
+                    "Confirmed": "Confirmed",
+                    "Declined": "Declined",
+                    "Completed": "Completed",
+                    "Rescheduled": "Rescheduled"
+                },
+                "hearingPurpose": {
+                    "priceOffer": "Price offer",
+                    "qualityCheck": "Quality check",
+                    "other": "Other"
+                },
+                "startTime": {
+                    "defaultOpt": " --- Choose start time ---"
+                },
+                "endTime": {
+                    "defaultOpt": " --- Choose end time ---"
+                },
+                "meetVia": {
+                    "onSite": "On site",
+                    "offSite": "Off site"
+                }
+            },
+            "jobs": {
+                "Cancelled": "Cancelled",
+                "Cancel": "Cancel",
+                "Completed": "Completed",
+                "Back": "Back",
+                "Name": "Name",
+                "Email": "Email",
+                "Phone": "Phone",
+                "City": "City",
+                "Address": "Address",
+                "parking": "Parking",
+                "clientDetails": "client Details",
+                "workerDetails": "Worker Details",
+                "serviceDetailslabel": "Service Details",
+                "WorkTime": "Work Time",
+                "serviceDetails": {
+                    "Service": "Service",
+                    "Frequency": "Frequency",
+                    "CompleteTime": "Complete Time",
+                    "hours": "hours",
+                    "Shift": "Shift",
+                    "JobStatus": "Job Status",
+                    "Order": "Order",
+                    "Invoice": "Invoice"
+                },
+                "workerTiming": {
+                    "ExportToCSV": "Export to CSV",
+                    "ExportReport": " Export Report",
+                    "AddTiming": "Add Timing",
+                    "StartTime": "Start Time",
+                    "EndTime": "End Time",
+                    "Time": "Time",
+                    "Action": "Action",
+                    "TotalTime": "Total Time",
+                    "AddWorkerTiming": "Add Worker Timing",
+                    "TimingStartsAt": "Timing Starts at",
+                    "TimingEndsAt": "Timing Ends at",
+                    "Close": "Close",
+                    "SaveTiming": "Save Timing",
+                    "EditWorkerTiming": "Edit Worker Timing"
+                },
+                "comment": {
+                    "AddComment": "Add Comment",
+                    "ClientComment": "Client Comment",
+                    "WorkerComment": "Worker Comment",
+                    "CommentFor": "Comment For",
+                    "PleaseChooseCommentFor": "---Please Choose Comment For---",
+                    "Client": "Client",
+                    "Worker": "Worker",
+                    "Comment": "Comment",
+                    "Close": "Close",
+                    "SaveComment": "SaveComment"
+                },
+                "CancelModal": {
+                    "CancellationFee": "Cancellation fee",
+                    "NoCharge": "No charge.",
+                    "Repeatancy": "Repeatancy",
+                    "options": {
+                        "PleaseSelect": " Please select ---",
+                        "oneTime": "One Time ( for single job )",
+                        "Forever": "Forever",
+                        "UntilDate": "Until Date"
+                    },
+                    "Close": "Close",
+                    "Cancel": "Cancel"
+                }
+            }
+        },
+        "holidays": { 
+>>>>>>> 731531d8 (Add new functionality -> worker termination hearing process)
             "addNewHoliday":"Add New Holiday",
             "holidayName":"Holiday Name",
             "startDate":"Start Date",
@@ -1563,6 +1688,7 @@
             "earnings": "Earnings",
             "notification": "Notitfications",
             "workerLeave":"Workers Leave",
+            "workerHearing":"Workers Hearing",
             "settings": {
                 "title": "Settings",
                 "manage_team": "Manage team",
@@ -1809,7 +1935,9 @@
             "submit":"Submit",
             "fixed":"Fixed",
             "hourly":"Hourly",
-            "salary":"Salary"
+            "salary":"Salary",
+            "termination":"Termination",
+            "invitation_for_hearing":"Schedule Hearing"
         }
     },
     "worker_contract": {

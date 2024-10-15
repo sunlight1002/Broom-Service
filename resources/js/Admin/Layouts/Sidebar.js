@@ -224,6 +224,13 @@ export default function Sidebar() {
                     </NavLink>
                 </li>
                 <li className="list-group-item">
+                    <NavLink to="/admin/workers-hearing"
+                        className="d-flex align-items-center"
+                    >
+                        <i className="fa-solid fa-video font-20"></i>{t("admin.sidebar.workerHearing")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
                     <NavLink to="/admin/schedule"
                         className="d-flex align-items-center"
                     >
