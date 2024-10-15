@@ -70,7 +70,6 @@ class UpdateClientLeadStatus extends Command
                 );
 
                 event(new ClientLeadStatusChanged($client, $newLeadStatus));
-
             }
         }
 

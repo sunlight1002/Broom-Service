@@ -265,10 +265,10 @@ class ScheduleNextJobOccurring implements ShouldQueue
                     [],
                     ['lead_status' => $newLeadStatus]
                 );
-    
+
                 event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
-               
+
             }
         }
     }

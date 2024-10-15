@@ -63,7 +63,7 @@ class JobController extends Controller
         $has_no_worker = $request->get('has_no_worker');
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
-    
+
         $query = Job::query()
             ->leftJoin('clients', 'jobs.client_id', '=', 'clients.id')
             ->leftJoin('users', 'jobs.worker_id', '=', 'users.id')
@@ -99,47 +99,47 @@ class JobController extends Controller
                 return $q->whereNull('jobs.worker_id');
             })
             ->select(
-                'jobs.id', 
-                'jobs.start_date', 
-                'clients.id as client_id', 
-                'clients.color as client_color', 
+                'jobs.id',
+                'jobs.start_date',
+                'clients.id as client_id',
+                'clients.color as client_color',
                 'users.id as worker_id',
-                'jobs.shifts', 
-                'jobs.is_job_done', 
-                'jobs.status', 
-                'job_services.duration_minutes', 
+                'jobs.shifts',
+                'jobs.is_job_done',
+                'jobs.status',
+                'job_services.duration_minutes',
                 'job_services.freq_name', // Include freq_name
-                'jobs.actual_time_taken_minutes', 
-                'jobs.comment', 
-                'jobs.review', 
-                'jobs.rating', 
-                'jobs.total_amount', 
-                'jobs.is_order_generated', 
+                'jobs.actual_time_taken_minutes',
+                'jobs.comment',
+                'jobs.review',
+                'jobs.rating',
+                'jobs.total_amount',
+                'jobs.is_order_generated',
                 'jobs.job_group_id',
                 DB::raw("CONCAT_WS(' ', clients.firstname, clients.lastname) as client_name"),
                 DB::raw("CONCAT_WS(' ', users.firstname, users.lastname) as worker_name"),
                 DB::raw('IF(order.status = "Closed", 1, 0) AS is_order_closed'),
                 DB::raw('IF(clients.lng = "en", job_services.name, job_services.heb_name) AS service_name'),
                 DB::raw('
-                CASE 
+                CASE
                     WHEN job_services.name = "AirBnb" THEN "#00FF00" -- This condition should come first
                     WHEN job_services.freq_name = "Once Time week" AND job_services.name LIKE "%Star%" THEN "#FFFFFF"
                     WHEN job_services.freq_name = "Once in every two weeks" AND job_services.name LIKE "%Star%" THEN "#00FF"
                     WHEN job_services.freq_name = "One Time" OR job_services.name = "Cleaning After Renovation" OR job_services.name = "Window cleaning" OR job_services.name LIKE "%Basic%" OR job_services.name LIKE "%Standard%" OR job_services.name LIKE "%Premium%" THEN "#D3D3D3"
-                    WHEN job_services.name LIKE "%Star%" THEN "#FFFFFF" 
+                    WHEN job_services.name LIKE "%Star%" THEN "#FFFFFF"
                     WHEN job_services.name = "Office Cleaning" THEN "#FFA07A"
                     ELSE services.color_code
                 END AS service_color
-            ')            
-            
+            ')
+
             )
             ->groupBy('jobs.id');
-    
+
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if (request()->has('search')) {
                     $keyword = request()->get('search')['value'];
-    
+
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
@@ -476,42 +476,42 @@ class JobController extends Controller
             $workerDates = Arr::where($data['workers'], function ($value) use ($workerID) {
                 return $value['worker_id'] == $workerID;
             });
-    
+
             $workerDates = array_values($workerDates);
             foreach ($workerDates as $workerIndex => $workerDate) {
                 $job_date = Carbon::parse($workerDate['date']);
                 $preferredWeekDay = strtolower($job_date->format('l'));
                 $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
-    
+
                 $job_date = $job_date->toDateString();
-    
+
                 $slots = explode(',', $workerDate['shifts']);
                 sort($slots);
-    
+
                 $shiftFormattedArr = [];
                 foreach ($slots as $key => $shift) {
                     $timing = explode('-', $shift);
-    
+
                     $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
                     $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
-    
+
                     $shiftFormattedArr[$key] = [
                         'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
                         'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
                     ];
                 }
-    
+
                 $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
-    
+
                 $minutes = 0;
                 $slotsInString = '';
                 foreach ($mergedContinuousTime as $key => $slot) {
                     if (!empty($slotsInString)) {
                         $slotsInString .= ',';
                     }
-    
+
                     $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
-    
+
                     // Calculate duration in 15-minute slots
                     $start = Carbon::parse($slot['starting_at']);
                     $end = Carbon::parse($slot['ending_at']);
@@ -521,7 +521,7 @@ class JobController extends Controller
                         $minutes += $interval;
                     }
                 }
-    
+
                 if ($selectedService['type'] == 'hourly') {
                     $hours = ($minutes / 60);
                     $total_amount = ($selectedService['rateperhour'] * $hours);
@@ -530,16 +530,16 @@ class JobController extends Controller
                 } else {
                     $total_amount = ($selectedService['fixed_price']);
                 }
-    
+
                 $status = JobStatusEnum::SCHEDULED;
-    
+
                 if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerDate['worker_id'])) {
                     $status = JobStatusEnum::UNSCHEDULED;
                 }
-    
+
                 $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
                 $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
-    
+
                 $job = Job::create([
                     'worker_id'     => $workerDate['worker_id'],
                     'client_id'     => $contract->client_id,
@@ -560,7 +560,7 @@ class JobController extends Controller
                     'original_worker_id'     => $workerDate['worker_id'],
                     'original_shifts'        => $slotsInString,
                 ]);
-    
+
                 $jobser = JobService::create([
                     'job_id'            => $job->id,
                     'service_id'        => $s_id,
@@ -577,20 +577,20 @@ class JobController extends Controller
                         'preferred_weekday' => $preferredWeekDay
                     ]
                 ]);
-    
+
                 $jobGroupID = $jobGroupID ? $jobGroupID : $job->id;
-    
+
                 $job->update([
                     'origin_job_id' => $job->id,
                     'job_group_id' => $jobGroupID
                 ]);
-    
+
                 foreach ($mergedContinuousTime as $key => $shift) {
                     $job->workerShifts()->create($shift);
                 }
-    
+
                 $this->copyDefaultCommentsToJob($job);
-    
+
                 $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
                 if ($workerIndex == 0) {
                     $adminEmailData = [
@@ -603,7 +603,7 @@ class JobController extends Controller
                     ];
                     event(new JobNotificationToAdmin($adminEmailData));
                 }
-    
+
                 // Send notification to client
                 $jobData = $job->toArray();
                 $clientData = $jobData['client'];

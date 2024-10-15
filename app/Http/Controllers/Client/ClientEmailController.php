@@ -582,7 +582,7 @@ class ClientEmailController extends Controller
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
             };
-        
+
 
         $schedule->load(['client', 'team', 'propertyAddress']);
 

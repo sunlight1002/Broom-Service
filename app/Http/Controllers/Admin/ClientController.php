@@ -70,7 +70,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $action = $request->get('action');
-    
+
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
             ->leftJoin('contracts', 'contracts.client_id', '=', 'clients.id')
@@ -84,12 +84,12 @@ class ClientController extends Controller
             ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status', 'clients.created_at')
             ->selectRaw('IF(contracts.status = "' . ContractStatusEnum::VERIFIED . '", 1, 0) AS has_contract')
             ->groupBy('clients.id');
-    
+
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if (request()->has('search')) {
                     $keyword = request()->get('search')['value'];
-    
+
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
@@ -127,7 +127,7 @@ class ClientController extends Controller
             ->rawColumns(['action'])
             ->toJson();
     }
-    
+
 
 
     public function AllClients()
@@ -984,7 +984,7 @@ class ClientController extends Controller
                 'message' => 'Client not found!'
             ]);
         }
-       
+
         $client->status = $statusArr[$data['status']];
         $client->save();
 
