@@ -66,7 +66,6 @@ class WhatsappNotification
                     $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
 
                     $text = __('mail.wa-message.client_meeting_schedule.header');
-                    \Log::info($text);
 
                     $text .= "\n\n";
 
@@ -198,7 +197,7 @@ class WhatsappNotification
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.client_job_updated.content', [
+                    $text .= __('mail.wa-message.content', [
                         'date' => Carbon::parse($jobData['start_date'])->format('M d Y'),
                         'service_name' => $clientData['lng'] == 'heb'
                             ? $jobData['jobservice']['heb_name']
@@ -206,6 +205,7 @@ class WhatsappNotification
                     ]);
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.review') . ": " . url("client/jobs/" . base64_encode($jobData['id']) . "/review");
+                    \Log::info('Message text:', ['text'=>$text]);
 
                     break;
 

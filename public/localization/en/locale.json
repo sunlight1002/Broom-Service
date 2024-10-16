@@ -1540,9 +1540,6 @@
                 }
             }
         },
-<<<<<<< HEAD
-        "holidays": {
-=======
         "hearing": {
             "scheduleHearing": "Schedule Hearing",
             "reSchedule": "Re-schedule Hearing",
@@ -1665,7 +1662,6 @@
             }
         },
         "holidays": { 
->>>>>>> 731531d8 (Add new functionality -> worker termination hearing process)
             "addNewHoliday":"Add New Holiday",
             "holidayName":"Holiday Name",
             "startDate":"Start Date",

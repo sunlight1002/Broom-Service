@@ -820,9 +820,12 @@ return [
             'signature' => "בברכה, \n ברום סרוויס \n\n 📞 טלפון: 03-525-70-60 \n 🌐 Website: www.broomservice.co.il"
         ],
         'button-label' => [
+            'accept_reject' => 'קבל/דחה',
             'upload_file' => 'העלה קובץ',
             'price_offer' => 'הצעת מחיר',
             'check_contract' => 'בדוק חוזה',
+            'review' => 'סקירה',
+            'form101' => 'טופס 101',
             'view_job' => 'הצג עבודה',
             'change_worker' => 'החלף עובד',
             'change_shift' => 'החלף משמרת',
