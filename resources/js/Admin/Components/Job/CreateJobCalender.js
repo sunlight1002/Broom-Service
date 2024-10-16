@@ -329,6 +329,9 @@ export default function CreateJobCalender({
         return false;
     };
 
+    // console.log(workerAvailabilities, "la");
+    
+
     return (
         <>
             <div className="row mb-3">

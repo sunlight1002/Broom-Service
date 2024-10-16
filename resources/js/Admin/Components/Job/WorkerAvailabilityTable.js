@@ -9,6 +9,8 @@ import { Modal, Button, Carousel } from 'react-bootstrap';
 import { getWorkersData, parseTimeSlots } from "../../../Utils/job.utils";
 import useWindowWidth from "../../../Hooks/useWindowWidth";
 import WorkerAvailabilityTableMobile from "./WorkerAvailabilityTableMobile";
+import { getShiftsDetails } from "../../../Utils/common.utils";
+
 
 export default function WorkerAvailabilityTable({
     workerAvailabilities,
@@ -233,8 +235,10 @@ export default function WorkerAvailabilityTable({
                                                 </span>
                                             </td>
                                             {week?.map((element, index) => {
+                                                
                                                 const alreadyBooked = getBookedSlotsForWorkerAndDate(w.id, element);
-
+                                                // console.log(alreadyBooked, );
+                                                
                                                 let workerSlots =
                                                     workerAvailabilities?.find((_w) => _w.workerId === w.id) ?? [];
                                                 let slots =
@@ -261,13 +265,22 @@ export default function WorkerAvailabilityTable({
                                                                     </div>
                                                                     <div className="d-flex flex-wrap">
                                                                         {alreadyBooked.map((slot, idx) => {
+                                                                            // console.log(slot);
+                                                                            
+                                                                            const job = {
+                                                                                shifts: slot.slot
+                                                                             }
+                                                                            let { durationInHours, startTime, endTime } = getShiftsDetails(job);
+                                                                             console.log(startTime,"-",endTime);
+                                                                             
+                                                                            
                                                                             return (
                                                                                 <div key={idx} className="slot-info mr-1">
-                                                                                    {parseTimeSlots(slot.slot).map((time, timeIdx) => (
-                                                                                        <span key={timeIdx} className="badge badge-primary">
-                                                                                            {time}
+                                                                                    {/* {parseTimeSlots(slot.slot).map((time, timeIdx) => ( */}
+                                                                                        <span  className="badge badge-primary">
+                                                                                            {startTime}-{endTime}
                                                                                         </span>
-                                                                                    ))}
+                                                                                    {/* ))} */}
                                                                                 </div>
                                                                             )
                                                                         })}

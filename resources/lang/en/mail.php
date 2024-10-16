@@ -760,46 +760,46 @@ return [
             'message' => "🌟 Thank you for contacting us at Job4Service.\n\nWe offer the best jobs in the house cleaning industry in Israel.\nWe hire only people with suitable visas for work in Israel.\nWe offer house cleaning jobs only in the Tel Aviv area, and only during weekday mornings. We do not work on weekends or in the evenings.\nWe are a professional cleaning team, so we hire only people with experience in house cleaning.\nIf this may suit you or your friends now or in the future, you are more than welcome to contact us again. 😀\n\n👫 Know someone who'd be a great fit for our team? Invite them to join this group and explore the opportunities with us! Just send them this link:\n\nhttps://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT\nhttps://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr\n\nHave a wonderful day!🌟"
         ],
         'pending' => [
-            'content' => "New lead alert! A potential client, :name, has been added to the system and is awaiting initial contact. Phone: :phone. Click here to take action."
+            'content' => "New lead alert! A potential client, :name, has been added to the system and is awaiting initial contact.\n\n Phone: :phone. \n Click here to take action: :url"
         ],
         'potential' => [
-            'content' => "Update: A meeting has been scheduled or a video has been requested from :name. Please prepare accordingly. Phone: :phone. Click here to take action."
+            'content' => "Update: A meeting has been scheduled or a video has been requested from :name. \n Please prepare accordingly.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'irrelevant' => [
-            'content' => "Status change: The lead, :name, has been marked as irrelevant due to service mismatch or location constraints. Phone: :phone. Click here to take action."
+            'content' => "Status change: The lead, :name, has been marked as irrelevant due to service mismatch or location constraints.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'uninterested' => [
-            'content' => "The lead, :name, has expressed no interest in continuing. Please mark as completed or close the lead. Phone: :phone. Click here to take action."
+            'content' => "The lead, :name, has expressed no interest in continuing.\n Please mark as completed or close the lead.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'unanswered' => [
-            'content' => "Notification: The lead, :name, has not responded after multiple contact attempts. Please review and follow up as needed. Phone: :phone. Click here to take action."
+            'content' => "Notification: The lead, :name, has not responded after multiple contact attempts.\n Please review and follow up as needed.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'potential_client' => [
-            'content' => "The lead, :name, has received a price offer and is considering it. Awaiting their decision. Phone: :phone. Click here to take action."
+            'content' => "The lead, :name, has received a price offer and is considering it.\n Awaiting their decision.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'pending_client' => [
-            'content' => ":name has accepted the price offer and received the contract. Please proceed with the next steps. Phone: :phone. Click here to take action."
+            'content' => ":name has accepted the price offer and received the contract.\n Please proceed with the next steps. \n\n Phone: :phone. \n Click here to take action: :url"
         ],
         'waiting' => [
-            'content' => "The client, :name, has signed the contract and is waiting for the first booking. Please schedule the service as soon as possible. Phone: :phone. Click here to take action."
+            'content' => "The client, :name, has signed the contract and is waiting for the first booking.\n Please schedule the service as soon as possible.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'active_client' => [
-            'content' => "Update: The client, :name, is now active and receiving services. Ensure the team is informed and ready for the upcoming sessions. Phone: :phone. Click here to take action."
+            'content' => "Update: The client, :name, is now active and receiving services.\n Ensure the team is informed and ready for the upcoming sessions.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'freeze_client_team' => [
-            'content' => "Alert: The client, :name, has been marked as ‘Freeze’ since 7 days have passed without service. Please check with the client to resolve any issues. Phone: :phone. Click here to take action."
+            'content' => "Alert: The client, :name, has been marked as ‘Freeze’ since 7 days have passed without service.\n Please check with the client to resolve any issues.\n\n Phone: :phone. \n Click here to take action: :url"
         ],
         'unhappy' => [
-            'content' => "The client, :name, has been moved to ‘Unhappy’ status due to dissatisfaction with the service quality. Please review and see if any corrective action is needed. Phone: :phone. Click here to take action."
+            'content' => "The client, :name, has been moved to ‘Unhappy’ status due to dissatisfaction with the service quality.\n Please review and see if any corrective action is needed.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'price_issue' => [
-            'content' => "The client, :name, has been moved to ‘Price Issue’ status due to concerns regarding pricing. Consider revisiting the pricing strategy if necessary. Phone: :phone. Click here to take action."
+            'content' => "The client, :name, has been moved to ‘Price Issue’ status due to concerns regarding pricing.\n Consider revisiting the pricing strategy if necessary.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'moved' => [
-            'content' => "The client, :name, has been marked as ‘Moved’ since they relocated outside of the service area. No further action needed unless they return. Phone: :phone. Click here to take action."
+            'content' => "The client, :name, has been marked as ‘Moved’ since they relocated outside of the service area.\n No further action needed unless they return.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'onetime' => [
-            'content' => "The client, :name, has been marked as ‘One-Time’ since they only used the service once. Please keep this in mind for future follow-ups or promotions. Phone: :phone. Click here to take action.”"
+            'content' => "The client, :name, has been marked as ‘One-Time’ since they only used the service once.\n Please keep this in mind for future follow-ups or promotions.\n\n Phone: :phone.\n Click here to take action: :url"
         ],
         'past' => [
             'header' => "Hello :name,",

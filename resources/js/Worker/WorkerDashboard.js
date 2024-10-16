@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 
 import WorkerSidebar from "./Layouts/WorkerSidebar";
 import ChangeJobStatusModal from "./Components/Modals/ChangeJobStatusModal";
+import { getShiftsDetails } from "../Utils/common.utils";
 
 export default function WorkerDashboard() {
     const [pastJobCount, setPastJobCount] = useState(0);
@@ -263,32 +264,33 @@ export default function WorkerDashboard() {
 
                                                     let address_name =
                                                         address &&
-                                                        address.address_name
+                                                            address.address_name
                                                             ? address.address_name
                                                             : "NA";
+                                                    let { durationInHours, startTime, endTime } = getShiftsDetails(item);
                                                     return (
                                                         <Tr key={index}>
                                                             <Td>
                                                                 {item.client
                                                                     ? item
-                                                                          .client
-                                                                          .firstname +
-                                                                      " " +
-                                                                      item
-                                                                          .client
-                                                                          .lastname
+                                                                        .client
+                                                                        .firstname +
+                                                                    " " +
+                                                                    item
+                                                                        .client
+                                                                        .lastname
                                                                     : "NA"}
                                                             </Td>
                                                             <Td>
                                                                 {item.jobservice &&
                                                                     (w_lng ==
-                                                                    "en"
+                                                                        "en"
                                                                         ? item
-                                                                              .jobservice
-                                                                              .name
+                                                                            .jobservice
+                                                                            .name
                                                                         : item
-                                                                              .jobservice
-                                                                              .heb_name)}
+                                                                            .jobservice
+                                                                            .heb_name)}
                                                             </Td>
                                                             <Td>
                                                                 {
@@ -296,7 +298,7 @@ export default function WorkerDashboard() {
                                                                 }
                                                             </Td>
                                                             <Td>
-                                                                {item.shifts}
+                                                            {startTime}-{endTime}
                                                             </Td>
                                                             <Td>
                                                                 {item.property_address ? (
@@ -328,7 +330,7 @@ export default function WorkerDashboard() {
                                                                 <div className="d-flex mt-4 mt-md-0">
                                                                     <button
                                                                         type="button"
-                                                                        className="btn btn-primary"
+                                                                        className="btn btn-primary mr-2 "
                                                                         onClick={() =>
                                                                             handleApproveJob(
                                                                                 item.id
@@ -416,31 +418,32 @@ export default function WorkerDashboard() {
 
                                                 let address_name =
                                                     address &&
-                                                    address.address_name
+                                                        address.address_name
                                                         ? address.address_name
                                                         : "NA";
+                                                let { durationInHours, startTime, endTime } = getShiftsDetails(item);
                                                 return (
                                                     <Tr key={index}>
                                                         <Td>
                                                             {item.client
                                                                 ? item.client
-                                                                      .firstname +
-                                                                  " " +
-                                                                  item.client
-                                                                      .lastname
+                                                                    .firstname +
+                                                                " " +
+                                                                item.client
+                                                                    .lastname
                                                                 : "NA"}
                                                         </Td>
                                                         <Td>
                                                             {item.jobservice &&
                                                                 (w_lng == "en"
                                                                     ? item
-                                                                          .jobservice
-                                                                          .name
+                                                                        .jobservice
+                                                                        .name
                                                                     : item
-                                                                          .jobservice
-                                                                          .heb_name)}
+                                                                        .jobservice
+                                                                        .heb_name)}
                                                         </Td>
-                                                        <Td>{item.shifts}</Td>
+                                                        <Td>{startTime}-{endTime}</Td>
                                                         <Td>
                                                             {item.property_address ? (
                                                                 <Link
@@ -470,7 +473,7 @@ export default function WorkerDashboard() {
                                                         <Td>
                                                             {item.job_opening_timestamp ===
                                                                 null &&
-                                                            item.worker_approved_at ===
+                                                                item.worker_approved_at ===
                                                                 null ? (
                                                                 <button
                                                                     type="button"
@@ -490,9 +493,9 @@ export default function WorkerDashboard() {
                                                                     )}
                                                                 </button>
                                                             ) : item.job_opening_timestamp ===
-                                                                  null &&
-                                                              item.worker_approved_at !==
-                                                                  null ? (
+                                                                null &&
+                                                                item.worker_approved_at !==
+                                                                null ? (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() =>
@@ -515,7 +518,7 @@ export default function WorkerDashboard() {
                                                                     {item.status !=
                                                                         "completed" &&
                                                                         item.status !=
-                                                                            "cancel" && (
+                                                                        "cancel" && (
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() =>
@@ -538,7 +541,7 @@ export default function WorkerDashboard() {
                                                                     {item.status !=
                                                                         "completed" &&
                                                                         item.status !=
-                                                                            "cancel" && (
+                                                                        "cancel" && (
                                                                             <>
                                                                                 {!isRunning ? (
                                                                                     <button
@@ -556,13 +559,13 @@ export default function WorkerDashboard() {
                                                                                         {item
                                                                                             .time
                                                                                             .length >
-                                                                                        0
+                                                                                            0
                                                                                             ? t(
-                                                                                                  "worker.jobs.view.resbtn"
-                                                                                              )
+                                                                                                "worker.jobs.view.resbtn"
+                                                                                            )
                                                                                             : t(
-                                                                                                  "worker.jobs.view.startbtn"
-                                                                                              )}
+                                                                                                "worker.jobs.view.startbtn"
+                                                                                            )}
                                                                                     </button>
                                                                                 ) : (
                                                                                     <button
