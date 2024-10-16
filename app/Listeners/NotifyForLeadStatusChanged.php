@@ -76,6 +76,13 @@ class NotifyForLeadStatusChanged implements ShouldQueue
                     'client' => $event->client->toArray(),
                 ]
             ]));
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::UNANSWERED,
+                "notificationData" => [
+                    'client' => $event->client->toArray(),
+                ]
+            ]));
         }
 
         if ($event->newStatus === 'irrelevant') {

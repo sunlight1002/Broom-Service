@@ -1865,6 +1865,20 @@ class WhatsappNotification
 
                     break;
 
+                case WhatsappMessageTemplateEnum::UNANSWERED:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb'); 
+
+                    $text .= __('mail.wa-message.unanswered.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
+                    ]);
+
+                    break;
+
                 case WhatsappMessageTemplateEnum::POTENTIAL_CLIENT:
                     $clientData = $eventData['client'];
 
