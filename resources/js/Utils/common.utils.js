@@ -75,7 +75,6 @@ export const convertTimeSlotsToRange = (slots) => {
 
     // Add the last group
     groupedSlots.push(currentGroup.join(" - "));
-    
     return groupedSlots;
 };
 
@@ -113,11 +112,25 @@ export const generateUnique15MinShifts = (shiftsArray, maxDurationInHours) => {
 };
 
 export function getShiftsDetails(job) {
-    const durationInMinutes = job?.jobservice?.duration_minutes ? job?.jobservice?.duration_minutes / 4 : job?.duration_minutes / 4;
-    const durationInHours = durationInMinutes / 60;
+    let durationInMinutes;
+    let durationInHours;
+
+    // Check if job.duration_minutes exists and is not empty or undefined
+    if (job?.duration_minutes) {
+        durationInMinutes = job?.jobservice?.duration_minutes 
+            ? job?.jobservice?.duration_minutes / 4 
+            : job?.duration_minutes / 4;
+        durationInHours = durationInMinutes / 60;
+    } else {
+        durationInHours = 0; 
+    }
 
     const shiftsArray = job?.shifts ? job?.shifts?.split(",") : [];
+    if (durationInHours == 0) {
+        durationInHours = shiftsArray?.length / 4;
+    }    
     const allShifts = generateUnique15MinShifts(shiftsArray, durationInHours);
+    // console.log(allShifts, "all");
 
     const startTime = allShifts?.length > 0 ? allShifts[0]?.split("-")[0] : "";
     const endTime = allShifts?.length > 0 ? allShifts[allShifts.length - 1].split("-")[1] : "";
@@ -128,6 +141,21 @@ export function getShiftsDetails(job) {
         endTime
     };
 }
+
+
+// export function sendDirect(job) {
+
+//     const shiftsArray = job?.shifts ? job?.shifts?.split(",") : [];
+//     console.log(shiftsArray);
+    
+//     // const allShifts = generateUnique15MinShifts(shiftsArray, durationInHours);
+
+//     // return {
+//     //     durationInHours,
+//     //     startTime,
+//     //     endTime
+//     // };
+// }
 
 
 // Function to convert JSON object to FormData
@@ -157,7 +185,6 @@ export const objectToFormData = (obj, formData, namespace) => {
     return fd;
 };
 
-
 export const workerHours = (s, msg) => {
     if (adminToken) {
         return `${s.workers.map((i) => i.jobHours).join(", ")} ${msg}`;
@@ -165,6 +192,6 @@ export const workerHours = (s, msg) => {
         if (s.type === "hourly") {
             return `${s.workers.map((i) => i.jobHours).join(", ")} ${msg}`;
         }
-    } 
+    }
     return "--";
 };

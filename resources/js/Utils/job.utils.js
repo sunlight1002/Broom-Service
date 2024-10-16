@@ -335,8 +335,6 @@ export const getAvailableSlots = async (
                 return [];
             }
         }
-        
-        // Handle not enough available slots for the chosen work hours
         const confirmAlert = await Swal.fire({
             title: "Are you sure?",
             text: "Not enough available slots for the chosen work hours",
@@ -346,28 +344,32 @@ export const getAvailableSlots = async (
             cancelButtonColor: "#d33",
             confirmButtonText: "Yes, do it!",
         });
-
+        
         if (confirmAlert.isConfirmed) {
             try {
                 const lastSlot = chosenDateSlots.allSlots[chosenDateSlots.allSlots.length - 1];
                 if (lastSlot) {
                     const startTimeMoment = moment(lastSlot.time, "HH:mm:ss");
-
+        
                     for (let i = 0; i < remainingSlots; i++) {
-                        const slotTime = startTimeMoment.add(15, "minutes"); // Add 15 minutes per slot
+                        const time = startTimeMoment.format("HH:mm:ss"); // Current start time
+                        const endTime = startTimeMoment.clone().add(30, "minutes").format("HH:mm:ss"); // Calculate end time
+        
                         availableSlots.push({
                             workerName: workerName,
                             workerId: w_id,
                             date: chosenDateSlots.date,
-                            time: { time: slotTime.format("HH:mm:ss") },
+                            time: { time, endTime }, // Store both start and end time
                         });
+        
                         setWorkerAvailabilities(
                             workerAvailabilities.map((worker) => {
                                 if (worker.workerId == w_id) {
                                     let slots = worker.slots.map((s) => {
                                         if (s.date == chosenDateSlots.date) {
                                             s.slots.push({
-                                                time: slotTime.format("HH:mm:ss"),
+                                                time, // Add start time
+                                                endTime, // Add end time
                                                 clientName: null,
                                                 isBooked: false,
                                                 isFreezed: false,
@@ -375,14 +377,15 @@ export const getAvailableSlots = async (
                                                 notAvailable: false,
                                             });
                                             s.allSlots.push({
-                                                time: slotTime.format("HH:mm:ss"),
+                                                time, // Add start time
+                                                endTime, // Add end time
                                                 clientName: null,
                                                 isBooked: false,
                                                 isFreezed: false,
                                                 jobId: null,
                                                 notAvailable: false,
                                             });
-
+        
                                             return {
                                                 ...s,
                                                 slots: s.slots,
@@ -396,14 +399,19 @@ export const getAvailableSlots = async (
                                 return worker;
                             })
                         );
+        
+                        // Move to the next slot (increment by 30 minutes)
+                        startTimeMoment.add(30, "minutes");
                     }
                 }
             } catch (error) {
+                console.error(error);
                 return [];
             }
         } else {
             return [];
         }
+        
     }
 
     // Calculate end time based on available slots
@@ -414,7 +422,6 @@ export const getAvailableSlots = async (
     }
 
     // console.log(endTime);
-    
 
     return availableSlots; // Return both available slots and end time
 };
@@ -480,7 +487,7 @@ export const getWorkerAvailabilities = (
     const splitInto15MinuteSlots = (slot) => {
         const slotStart = moment(slot.time, "HH:mm:ss");
         const slotEnd = moment(slot.time, "HH:mm:ss").add(1, "hour"); // Assuming original slot is 1 hour
-    
+
         let slots = [];
         while (slotStart.isBefore(slotEnd)) {
             const endSlot = moment(slotStart).add(15, "minutes"); // Create 15-minute intervals
@@ -497,7 +504,7 @@ export const getWorkerAvailabilities = (
         }
         return slots;
     };
-    
+
 
     return workers?.map((worker) => {
         let freeze_dates = worker.freeze_dates ?? [];
@@ -519,7 +526,7 @@ export const getWorkerAvailabilities = (
             // For today's slots, filter out past time slots
             if (key === _today) {
                 slots = slots.filter((i) => i.time > _currentTime);
-            }            
+            }
 
             // Split each slot into 15-minute intervals
             slots = slots.flatMap(splitInto15MinuteSlots);
@@ -561,7 +568,7 @@ export const getWorkerAvailabilities = (
 
 
 export const parseTimeSlots = (slots) => {
-    
+
     const pairs = slots.split(",").map((slot) => slot.split("-"));
     let groupedSlots = [];
     let currentGroup = [pairs[0][0]];
@@ -593,7 +600,7 @@ export const parseTimeSlots = (slots) => {
     });
 
     // Add the last group
-    groupedSlots.push(currentGroup.join(" - "));    
+    groupedSlots.push(currentGroup.join(" - "));
     return groupedSlots;
 };
 
@@ -610,8 +617,8 @@ export const getWorkersData = (workers) => {
                 shifts: shifts.join(", ") ?? "",
             });
         });
-    });    
-    
+    });
+
     return data;
 };
 

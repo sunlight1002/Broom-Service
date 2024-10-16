@@ -15,7 +15,7 @@ export default function ChangeStatusModal({
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         reason: "",
-        status: "pending",
+        status: "irrelevant",
         id: clientId,
     });
 

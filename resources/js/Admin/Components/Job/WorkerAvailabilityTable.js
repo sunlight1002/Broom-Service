@@ -9,6 +9,7 @@ import { Modal, Button, Carousel } from 'react-bootstrap';
 import { getWorkersData, parseTimeSlots } from "../../../Utils/job.utils";
 import useWindowWidth from "../../../Hooks/useWindowWidth";
 import WorkerAvailabilityTableMobile from "./WorkerAvailabilityTableMobile";
+import { getShiftsDetails } from "../../../Utils/common.utils";
 
 export default function WorkerAvailabilityTable({
     workerAvailabilities,
@@ -118,8 +119,6 @@ export default function WorkerAvailabilityTable({
         const slots = workerSlots?.slots?.find((slot) => slot.date === date) ?? {};
 
         const filtered = isClient ? slots?.slots : slots?.allSlots;
-        console.log(filtered, "filterer");
-
 
         setFilterSlots(filtered);
         setSelectedDate(date);
@@ -246,14 +245,21 @@ export default function WorkerAvailabilityTable({
                                                                         </div>
                                                                     </div>
                                                                     <div className="d-flex flex-wrap">
-                                                                        {alreadyBooked.map((slot, idx) => {
+                                                                    {alreadyBooked.map((slot, idx) => {
+                                                                            
+                                                                            const job = {
+                                                                                shifts: slot.slot
+                                                                             }
+                                                                            let { durationInHours, startTime, endTime } = getShiftsDetails(job);
+                                                                             
+                                                                            
                                                                             return (
                                                                                 <div key={idx} className="slot-info mr-1">
-                                                                                    {parseTimeSlots(slot.slot).map((time, timeIdx) => (
-                                                                                        <span key={timeIdx} className="badge badge-primary">
-                                                                                            {time}
+                                                                                    {/* {parseTimeSlots(slot.slot).map((time, timeIdx) => ( */}
+                                                                                        <span  className="badge badge-primary">
+                                                                                            {startTime}-{endTime}
                                                                                         </span>
-                                                                                    ))}
+                                                                                    {/* ))} */}
                                                                                 </div>
                                                                             )
                                                                         })}
@@ -364,7 +370,6 @@ export default function WorkerAvailabilityTable({
                                     {filterSlots?.length > 0 ? (
                                         filterSlots.map((shift, _sIdx) => {
                                             let isActive = hasActive(selectedWorker.id, selectedDate, shift);
-                                            // console.log(shift);
 
                                             if (!hasStartActive) {
                                                 hasStartActive = isActive;

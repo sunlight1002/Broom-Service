@@ -68,6 +68,13 @@ class NotifyForLeadStatusChanged implements ShouldQueue
                 ]
             ]));
 
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
+                "notificationData" => [
+                    'client' => $event->client->toArray(),
+                ]
+            ]));
+
         }
 
         if ($event->newStatus === 'unanswered') {
@@ -79,6 +86,12 @@ class NotifyForLeadStatusChanged implements ShouldQueue
                 ]
             ]));
 
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::UNANSWERED,
+                "notificationData" => [
+                    'client' => $event->client->toArray(),
+                ]
+            ]));
         }
 
         if ($event->newStatus === 'irrelevant') {
@@ -118,16 +131,6 @@ class NotifyForLeadStatusChanged implements ShouldQueue
             ]));
         };
 
-        if ($event->newStatus === 'uninterested') {
-
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
-                "notificationData" => [
-                    'client' => $event->client->toArray(),
-                ]
-            ]));
-        };
-
         if ($event->newStatus === 'potential client') {
 
             event(new WhatsappNotificationEvent([
@@ -138,7 +141,7 @@ class NotifyForLeadStatusChanged implements ShouldQueue
             ]));
         };
 
-        if ($event->newStatus === 'pending client') {
+        if ($event->newStatus === 'waiting') {
 
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::PENDING_CLIENT,

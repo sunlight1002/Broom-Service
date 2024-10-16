@@ -15,6 +15,7 @@ import {
     getWorkerAvailabilities,
     getWorkersData,
 } from "../../../Utils/job.utils";
+import { getShiftsDetails } from "../../../Utils/common.utils";
 
 export default function CreateJobCalender({
     services: clientServices,
@@ -42,13 +43,20 @@ export default function CreateJobCalender({
     const [customDateRange, setCustomDateRange] = useState([]);
     const [searchVal, setSearchVal] = useState("");
     const [loading, setLoading] = useState(false);
+    const [shifts, setShifts] = useState([])
+
+    console.log(selectedHours, "ss");
+
+    let uniqueShifts = new Set(); // To track unique shifts
+    console.log(uniqueShifts,"ini");
+    
 
     useEffect(() => {
         setServices(clientServices);
     }, [clientServices]);
 
     const getTime = () => {
-        axios.get(`/api/admin/get-time`, { headers }).then((res) => {            
+        axios.get(`/api/admin/get-time`, { headers }).then((res) => {
             if (res.data.data) {
                 let ar = JSON.parse(res.data.data.days);
                 setDays(ar);
@@ -59,23 +67,21 @@ export default function CreateJobCalender({
         getTime();
     }, []);
 
-    console.log(selectedHours);
-    
 
     const handleServices = (index) => {
         setLoading(true)
-        setSelectedServiceIndex(index); 
-    
-        const _service = services[index]; 
-        setSelectedService(_service); 
-    
-        if (!_service) return;    
-        
+        setSelectedServiceIndex(index);
+
+        const _service = services[index];
+        setSelectedService(_service);
+
+        if (!_service) return;
+
         const hours = [];
-        if (_service?.workers && _service?.workers.length > 0) {        
+        if (_service?.workers && _service?.workers.length > 0) {
             const iterations = parseInt(_service?.cycle) > 0 ? parseInt(_service?.cycle) : 1;
             for (let i = 0; i < iterations; i++) {
-                _service?.workers?.forEach((worker) => {        
+                _service?.workers?.forEach((worker) => {
                     hours.push({
                         jobHours: worker?.jobHours,
                         slots: null,
@@ -84,7 +90,7 @@ export default function CreateJobCalender({
                 });
             }
         }
-    
+
         setSelectedHours(hours);
         getWorkers(_service);
         $("#edit-work-time").modal("hide");
@@ -107,17 +113,17 @@ export default function CreateJobCalender({
             })
             .then((res) => {
                 setAllWorkers(res.data.workers);
-    
+
                 const workerAvailityData = getWorkerAvailabilities(res?.data?.workers);
-                
+
                 setWorkerAvailabilities(workerAvailityData);
-    
+
                 setLoading(false);
             })
             .catch((err) => {
                 setLoading(false);
             });
-    };    
+    };
 
     const submitForm = (_data) => {
         setLoading(true)
@@ -220,7 +226,7 @@ export default function CreateJobCalender({
 
     const changeShift = (w_id, date, e) => {
         const selectedSlotTimes = new Set(); // Track already selected slot times
-    
+
         const promises = selectedHours.map(async (worker, index) => {
             if (worker.slots == null) {
                 const slots = await getAvailableSlots(
@@ -234,13 +240,13 @@ export default function CreateJobCalender({
                     setWorkerAvailabilities,
                     setUpdatedJobs
                 );
-    
+
                 // Filter out slots that have already been selected
                 const filteredSlots = slots.filter(slot => !selectedSlotTimes.has(slot.time.time));
-    
+
                 // Add current slot times to the set
                 filteredSlots.forEach(slot => selectedSlotTimes.add(slot.time.time));
-    
+
                 return {
                     jobHours: worker.jobHours,
                     slots: filteredSlots.length > 0 ? filteredSlots : null,
@@ -250,10 +256,10 @@ export default function CreateJobCalender({
             }
             return worker;
         });
-    
+
         // Wait for all promises to resolve
         Promise.all(promises).then((updatedData) => {
-            var isExist = selectedHours.filter((w) => w.slots == null);            
+            var isExist = selectedHours.filter((w) => w.slots == null);
             if (!isExist.length) {
                 alert.error(
                     "Other slots have already been selected. Please deselect and reselect."
@@ -261,7 +267,7 @@ export default function CreateJobCalender({
             }
             setSelectedHours(updatedData);
         });
-    };    
+    };
 
     const removeShift = (w_id, date, shift) => {
         setSelectedHours((data) => {
@@ -314,7 +320,7 @@ export default function CreateJobCalender({
         }
 
         return false;
-    };    
+    };
 
     return (
         <>
@@ -378,7 +384,7 @@ export default function CreateJobCalender({
                     </div>
                 </div>
             </div>
-                        
+
             {workerAvailabilities.length === 0 ? <Loader /> : (
                 <div className="tab-content">
                     <div
@@ -713,20 +719,39 @@ export default function CreateJobCalender({
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {getWorkersData(
-                                                    selectedHours
-                                                ) &&
-                                                    getWorkersData(
-                                                        selectedHours
-                                                    ).map((d, i) => (
-                                                        <tr key={i}>
-                                                            <td>
-                                                                {d.worker_name}
-                                                            </td>
-                                                            <td>{d.date}</td>
-                                                            <td>{d.shifts}</td>
-                                                        </tr>
-                                                    ))}
+                                            {getWorkersData(selectedHours) &&
+                getWorkersData(selectedHours).map((s, idx) => {
+                    return (
+                        selectedHours.map((d, i) => {
+                            return (
+                                d?.formattedSlots?.flatMap((slots, j) => {
+                                    const job = { shifts: slots.shifts };
+                                    const { startTime, endTime } = getShiftsDetails(job);
+                                    
+                                    // Create a unique identifier for each shift
+                                    const shiftKey = `${s.worker_name}-${s.date}-${startTime}-${endTime}`;
+
+                                    // Check if this shift has already been added
+                                    if (!uniqueShifts.has(shiftKey)) {
+                                        uniqueShifts.add(shiftKey); // Add the shift to the Set
+
+                                        return (
+                                            <tr key={shiftKey}>
+                                                <td>{s.worker_name}</td>
+                                                <td>{s.date}</td>
+                                                <td>{startTime} - {endTime}</td>
+                                            </tr>
+                                        );
+                                    }
+
+                                    return null; // Skip rendering if already rendered
+                                })
+                            );
+                        })
+                    );
+                })
+            }
+
                                             </tbody>
                                         </table>
                                     ) : (
@@ -804,7 +829,7 @@ export default function CreateJobCalender({
                     </div>
                 </div>
             </div>
-            {loading && <FullPageLoader visible={loading}/>}
+            {loading && <FullPageLoader visible={loading} />}
         </>
     );
 }

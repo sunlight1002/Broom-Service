@@ -1781,7 +1781,8 @@ class WhatsappNotification
                     
                     $text .= __('mail.wa-message.pending.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1794,7 +1795,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.potential.content',[
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
                     break;
 
@@ -1806,7 +1808,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.irrelevant.content',[
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1819,7 +1822,22 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.uninterested.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
+                    ]);
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::UNANSWERED:
+                    $clientData = $eventData['client'];
+
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    App::setLocale('heb'); 
+
+                    $text .= __('mail.wa-message.unanswered.content', [
+                        'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1832,7 +1850,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.potential_client.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
                     break;
 
@@ -1844,7 +1863,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.pending_client.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1857,7 +1877,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.waiting.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1870,7 +1891,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.active_client.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1883,7 +1905,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.freeze_client_team.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1896,7 +1919,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.unhappy.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1909,7 +1933,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.price_issue.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1922,7 +1947,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.moved.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
@@ -1935,7 +1961,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.onetime.content', [
                         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                        'phone' => $clientData['phone']
+                        'phone' => $clientData['phone'],
+                        'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
                     break;
