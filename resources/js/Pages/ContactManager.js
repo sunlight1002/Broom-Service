@@ -1,18 +1,25 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import logo from "../Assets/image/sample.svg";
 import { Base64 } from "js-base64";
 
 export const ContactManager = () => {
     const { id } = useParams();
     const [res, setRes] = useState('');
+    const navigate = useNavigate();
+    const workerToken = localStorage.getItem("worker-token");
+
+    if (!workerToken || workerToken == null) {
+        navigate('/')
+    }
 
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("worker-token"),
+        Authorization: `Bearer ` + workerToken,
     };
+    
 
     const handleContactManager = () => {
         axios
@@ -28,7 +35,7 @@ export const ContactManager = () => {
 
     useEffect(() => {
         handleContactManager();
-    }, [id]);
+    }, []);
 
     return (
         <div className="container">

@@ -6,6 +6,7 @@ use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
+use App\Events\WorkerApprovedJob;
 use App\Events\ClientLeadStatusChanged;
 use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
@@ -240,7 +241,8 @@ class JobController extends Controller
                 'jobservice',
                 'order',
                 'invoice',
-                'propertyAddress'
+                'propertyAddress',
+                'hours'
             ])
             ->find($id);
 
@@ -315,6 +317,37 @@ class JobController extends Controller
             'unordered'   => $unordered,
             'invoiced'    => $invoiced,
             'uninvoiced'  => $unordered
+        ]);
+    }
+
+    public function approveWorkerJob($wid, $jid)
+    {
+        $job = Job::query()
+            ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+            ->where('worker_id', $wid)
+            ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
+            ->find($jid);
+
+        if (!$job) {
+            return response()->json([
+                'message' => 'Something went wrong!'
+            ], 404);
+        }
+
+        if ($job->worker_approved_at) {
+            return response()->json([
+                'message' => 'Job already approved'
+            ], 403);
+        }
+
+        $job->update([
+            'worker_approved_at' => Carbon::now()->toDateTimeString()
+        ]);
+
+        event(new WorkerApprovedJob($job));
+
+        return response()->json([
+            'data' => 'Job approved successfully'
         ]);
     }
 
@@ -1960,6 +1993,156 @@ class JobController extends Controller
 
         return response()->json([
             'total_amount' => $jobs->total_amount
+        ]);
+    }
+
+    public function setJobOpeningTimestamp(Request $request)
+    {
+        $rData = $request->all();
+        try {
+            $job = Job::query()
+                ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+                ->where('worker_id', $rData['worker_id'])
+                ->whereNotIn('status', [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED])
+                ->find($rData['job_id']);
+
+            if (!$job) {
+                return response()->json([
+                    'message' => 'Something went wrong!'
+                ], 404);
+            }
+
+            if ($job->job_opening_timestamp) {
+                return response()->json([
+                    'message' => 'Worker already leave for work'
+                ], 403);
+            }
+
+            $job->update([
+                'job_opening_timestamp' => Carbon::now()->toDateTimeString()
+            ]);
+
+            Notification::create([
+                'user_id' => $job->client->id,
+                'user_type' => get_class($job->client),
+                'type' => NotificationTypeEnum::OPENING_JOB,
+                'job_id' => $job->id,
+                'status' => 'going to start'
+            ]);
+
+            App::setLocale('en');
+            $job->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray();
+            //send notification to admin
+            // $adminEmailData = [
+            //     'emailData'   => [
+            //         'job'   =>  $job,
+            //     ],
+            //     'emailSubject'  => __('mail.job_status.subject'),
+            //     'emailTitle'  => 'Job Status',
+            //     'emailContent'  => 'Below is the Job Details. Please check it.',
+            //     'isJobOpen' => true
+            // ];
+            // event(new JobNotificationToAdmin($adminEmailData));
+
+            //send notification to worker
+            $worker = $job['worker'];
+            // App::setLocale($worker['lng']);
+
+            // $emailData = [
+            //     'emailSubject'  => __('mail.job_status.subject'),
+            //     'emailTitle'  => __('mail.job_common.job_status'),
+            //     'emailContent'  => '',
+            //     'isJobOpen' => true
+            // ];
+            // event(new JobNotificationToWorker($worker, $job, $emailData));
+
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::WORKER_ARRIVE_NOTIFY,
+            //     "notificationData" => [
+            //         'job' => $job,
+            //         // 'client' => $client,
+            //         // 'worker' => $worker,
+            //     ]
+            // ]));
+
+            //old
+            // App::setLocale('en');
+            // $admin = Admin::where('role', 'admin')->first();
+            // $data = array(
+            //     'email'      => $admin->email,
+            //     'admin'      => $admin->toArray(),
+            //     'worker'     => $job->worker,
+            //     'job'        => $job->toArray(),
+            // );
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
+                "notificationData" => array(
+                    'worker'     => $job->worker,
+                    'job'        => $job->toArray(),
+                )
+            ]));
+
+            // Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
+            //     $messages->to($data['email']);
+            //     $sub = __('mail.job_status.subject');
+            //     $messages->subject($sub);
+            // });
+            return response()->json([
+                'message' => 'Job opening time has been updated!'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Something went wrong!'
+            ]);
+        }
+    }
+
+    public function JobStartTime(Request $request)
+    {
+        $data = $request->all();
+        $job = Job::find($data['job_id']);
+        \Log::info($job);
+
+        $time = JobHours::query()
+            ->where('worker_id', $data['worker_id'])
+            ->where('job_id', $data['job_id'])
+            ->whereNull('end_time')
+            ->first();
+
+        if ($time) {
+            return response()->json([
+                'message' => 'End timer',
+            ], 404);
+        }
+
+        $currentDateTime = now()->toDateTimeString();
+
+        if ($job->status != JobStatusEnum::PROGRESS) {
+            $job->status = JobStatusEnum::PROGRESS;
+            $job->save();
+            //send notification to worker
+            $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+            $jobData = $job->toArray();
+            $worker = $jobData['worker'];
+
+            $emailData = [
+                'emailSubject'  => __('mail.job_status.subject'),
+                'emailTitle'  => __('mail.job_common.job_status'),
+                'emailContent'  => __('mail.job_common.worker_job_start_time_content'),
+            ];
+
+            event(new JobNotificationToWorker($worker, $jobData, $emailData));
+        }
+
+        JobHours::create([
+            'job_id' => $job->id,
+            'worker_id' => $data['worker_id'],
+            'start_time' => $currentDateTime,
+        ]);
+
+        return response()->json([
+            'message' => 'Updated Successfully',
         ]);
     }
 }

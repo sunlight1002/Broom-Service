@@ -112,7 +112,7 @@ export const generateUnique15MinShifts = (shiftsArray, maxDurationInHours) => {
 };
 
 export function getShiftsDetails(job) {
-    console.log(job.shifts);
+    // console.log(job.shifts);
     let durationInMinutes;
     let durationInHours;
 

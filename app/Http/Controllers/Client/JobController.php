@@ -618,12 +618,17 @@ class JobController extends Controller
 
     public function addProblems(Request $request)
     {
+
+        // \Log::info($request->all());
         $validated = $request->validate([
             'problem' => 'required|string|max:1000',
         ]);
     
         $client = Client::with('property_addresses')->find($request->input('client_id'));
         $worker = User::find($request->input('worker_id'));
+        \Log::info($client);
+        \Log::info($worker);
+
 
         $problem = new Problems();
         $problem->client_id = $client->id;
@@ -633,11 +638,11 @@ class JobController extends Controller
         $problem->save();
     
         $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-        $text = '*Worker Speak To Manager | Broom Service*';
+        $text = '*Worker Contact To Manager | Broom Service*';
     
-        $text .= "\n\nHi, everyone\n\n";
+        $text .= "\n\nHi, Team\n\n";
         
-        $text .= 'The Worker Need to Speak with Manager.' . "\n\n";
+        $text .= 'The Worker Need to Contact with Manager.' . "\n\n";
         
         $text .= sprintf(
             "Date/Time: %s\nClient: %s\nWorker: %s\nProperty: %s",
@@ -646,6 +651,8 @@ class JobController extends Controller
             $worker->firstname . ' ' . $worker->lastname ?? 'NA',
             $client->property_addresses->first()->address_name ?? 'NA'
         );
+
+        \Log::info($text);
     
         $response = Http::withToken($this->whapiApiToken)
             ->post($this->whapiApiEndpoint . 'messages/text', [

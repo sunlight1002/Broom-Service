@@ -401,15 +401,16 @@ return [
         ],
         'offer_price' => [
             'header' => "*ההצעת מחיר מברום סרוויס*",
-            'content' => "אנא בדוק את הצעת המחיר מצ\"ב הצעת מחיר עבור *:service_names*. לאחר אישורכם, יישלח אליכם הסכם התקשרות אותו תצטרכו למלא ולחתום למטה ואז נהיה מוכנים להתחיל בעבודה.\n\nלחץ על הכפתור למטה כדי לראות את הצעת המחיר.",
+            'content' => 'מצ"ב הצעת מחיר עבור *:service_names*. לאחר אישורכם, יישלח אליכם הסכם התקשרות אותו תצטרכו למלא ולחתום למטה ואז נהיה מוכנים להתחיל בעבודה.\n\n לחץ על הכפתור למטה כדי לראות את הצעת המחיר.'
         ],
         'contract' => [
             'header' => '*הסכם התקשרות הצעת מחיר #:id | ברום סרוויס*',
             'content' => "מצורף בזאת הסכם התקשרות לחתימה דיגיטלית. יש להוסיף את כרטיס האשראי לתשלום, בצירוף חתימת בעל הכרטיס המאשר לחייבו במועד החיוב. הכרטיס יחויב בסכום של 1 ש\"ח ולאחר מכן יזוכה, זאת כדי לוודא את תקינותו. הפרטים יישמרו במערכת מאובטחת. בנוסף, יש לחתום בעמוד האחרון ולאשר את ההסכם.",
         ],
         'create_job' => [
-            'header' => "*עבודה חדשה נוצרה | שירות ברום*",
-            'content' => "נקבעה עבודה חדשה.\n\nתאריך: :date\nשירות: :service_name\n\nאנחנו מצפים לשרת אותך.",
+            'header' => "*תזכורת על שיבוץ קרוב | ברום סרוויס*",
+            'content' => "נקבע עבורך שירות *:service_name* בשעה *:date* בתאריך *:time*.",
+            'signature' => "בברכה,\nצוות ברום סרוויס \n🌐 www.broomservice.co.il\n📞: 03-525-70-60\noffice@broomservice.co.il",
         ],
 
         'client_job_updated' => [
@@ -460,8 +461,10 @@ return [
             'content' => "העובד חרג מזמן העבודה.\n\nתאריך/שעה: :date_time\nלקוח: :client_name\nעובד: :worker_name\nשירות: :service_name\nנכס: :address",
         ],
         'worker_remind_job' => [
-            'header' => "*פרטי העבודה שלך למחר | ברום סרוויס*",
-            'content' => "פרטי העבודה שלך למחר. אנא בדוק את הפרטים.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nזמן התחלה: :start_time\nסטטוס: :status",
+            'header' => "*נא לאשר את הכתובת למחר*",
+            // 'content' => "אנא אשר כי ראית את הכתובת לעבודה שלך מחר.\n\nתאריך: :date\nלקוח: :client_name\nשירות: :service_name\nנכס: :address\nזמן התחלה: :start_time\nסטטוס: :status \n\n *לחץ כאן כדי לאשר את הכתובת* :confirm \nאו *פנה למנהל* :contact_manager אם אתה צריך עזרה",
+            'content' => "אנא אשר שראית את הכתובת לעבודה מחר:\n*כתובת:* :address \n *תאריך/שעה:* :date_time\n\n*לחץ כאן לאישור:* :confirm\nאו צור *קשר עם המנהל שלך* אם יש שאלות/n:contact_manager\n\n",
+            'signature' => "בברכה,\nצוות ברום סרוויס \n🌐 www.broomservice.co.il\n📞: 03-525-70-60\noffice@broomservice.co.il",
         ],
         'worker_unassigned_job' => [
             'header' => "*עבודה בוטלה | ברום סרוויס*",
@@ -544,7 +547,7 @@ return [
             'content' => "העובד :worker_name השאיר תגובה עבור עבודה בתאריך :date_time.",
         ],
         'new_lead_arrived' => [
-            'header' => "*הובלה חדשה הגיעה | שירות ברוםים*",
+            'header' => "ליד חדש התקבל עם הפרטים הבאים",
             'content' => "ליד חדש התקבל עם הפרטים הבאים:\nשֵׁם: :client_name\nאיש קשר: :contact\nשירות מבוקש: :Service_Requested\nאימייל: :email\nכתובת: :address",
             'follow_up' => 'אנא בצעו מעקב בהקדם האפשרי.'
         ],
@@ -605,8 +608,8 @@ return [
             'content' => "שלום צוות,\n\n:client_name קיבל את ההצעת מחיר. אנא ודאו שהחוזה נחתם וכל הפרטים הנדרשים מאושרים כדי שנוכל להתקדם בתכנון השירות.\n\nתודה,\nשירות ברום",
         ],
         'book_client_after_signed_contract' => [
-            'header' => 'דרושה פעולה: יש לקבוע מועד שירות ללקוח לאחר חתימת חוזה',
-            'content' => ":client_name חתם על החוזה. אנא המשיכו לקבוע מועד לשירות המבוקש.\n\nפרטי הלקוח:\n- שם: :client_name\n- פרטי התקשרות: :client_contact_info\n\nאנא וודאו שהלקוח נקבע ושאישרתם את לוח הזמנים בהקדם האפשרי.",
+            'header' => 'דרוש פעולה: שיבוץ לקוח לאחר חתימת חוזה',
+            'content' => ":client_name חתם על החוזה. אנא המשיכו לתאם את השירות עבור הלקוח.\n\nפרטי הלקוח:\n- שם: :client_name\n- פרטי התקשרות: :client_contact_info\n\n אנא ודאו שהלקוח שובץ והתיאום אושר בהקדם האפשרי.",
         ],
         'lead_declined_contract' => [
             'header' => 'הלקוח סירב לחתום על החוזה',
@@ -624,7 +627,7 @@ return [
             'no_reason_provided' => 'לא סופקה סיבה.',
             'assistance' => 'אנא עיינו בפרטים ועדכנו את הסטטוס בהתאם.',
         ],
-        // 'client_in_freeze_status' => [
+        // 'client_in_freeze_status_team' => [
         //     'header' => 'לקוח במצב הקפאה - דרושה פעולה',
         //     'content' => 'לקוח בשם :client_name הועבר למצב הקפאה כי לא קיבל שירות במשך 7 ימים מאז תאריך השירות המתואם האחרון.',
         //     'action_required' => 'אנא בדוק את המצב ועדכן בהתאם. אם יש צורך, צור קשר עם הלקוח לתיאום מחדש של השירות.',
@@ -693,7 +696,7 @@ return [
         ],
         'contract_verify' => [
             'header' => 'אימות חוזה | שירות ברום',
-            'subject' => 'אישור ההסכם שלך',
+            'subject' => 'נושא: אישור ההסכם שלך',
             'info' => "שלום, *:name*",
             'content' => 'ההסכם שלך אומת בהצלחה. ניצור איתך קשר בקרוב לתיאום השירות.'
         ],
@@ -746,18 +749,32 @@ return [
             'action_btn' => '*לחצני פעולה:*'
         ],
         'worker_on_my_way' => [
-            'content' => "נא לא לשכוח ללחוץ התחל עבודה כשתגיע למיקום הלקוח היום. אם יש בעיות, אנא צור קשר עם המנהל שלך מיידית.",
-            'beforeContent' => "עדיין לא אישרת שאתה בדרך לעבודה החל מ-:job_time עם הלקוח :client_name. אנא אשר את הסטטוס שלך או צור קשר עם המנהל אם יש צורך בסיוע."
+            'subject' => "העבודה החלה - אנא סיים עד :end_time\n\n",
+            'content' => "התחלת את העבודה בשעה :start_time.\nיש לך :job_duration לסיים אותה, והעבודה צריכה להסתיים עד :end_time.\n\n:all_commentsלאחר שסיימת את כל המשימות,  *לחץ כאן כדי לאשר שהמשימות בוצעו*\n:view_job\n תוכל גם *ליצור קשר עם המנהל שלך * אם יש בעיות.\n:contact_manager\n\n *לחץ כאן כאשר סיימת את העבודה.* \n:view_job\n\n",
+            'beforeSubject' => " נא לאשר שאתה בדרך\n\n",
+            // 'beforeContent' => "עדיין לא אישרת שאתה בדרך לעבודה החל מ-:job_time עם הלקוח :client_name. אנא אשר את הסטטוס שלך או צור קשר עם המנהל אם יש צורך בסיוע.",
+            'beforeContent' => "אתה אמור להתחיל את העבודה בשעה :job_time בכתובת :address.\nאנא אשר שאתה בדרכך.\n\n*לחץ כאן אם אתה בדרכך:* \n:view_job\nאו *צור קשר עם המנהל* אם אתה מאחר.\n:contact_manager\n\n",
+            'signature' => "בברכה, \nברום סרוויס צוות\nטלפון: 03-525-70-60 \n🌐 Website: www.broomservice.co.il",
+            'all_comments' => "אל תשכח להשלים את משימות באות: \n:comments\n"
         ],
         'team_worker_on_my_way' => [
-            'content' => "תזכורת: :worker_name עדיין לא לחץ על 'התחל עבודה עבור השירות המתוכנן היום במיקום של :client_name. נא לעקוב במידת הצורך.",
-            'beforeContent' => ":worker_name לא אישרו שהם בדרכם לעבודה החל מ-:time_frame עם הלקוח :client_name. אנא עיין ופעל במידת הצורך."
+            'subject' => "העובד לא סיים את העבודה או לא אישר שהמשימות בוצעו\n\n",
+            // 'content' => "תזכורת: :worker_name עדיין לא לחץ על 'התחל עבודה עבור השירות המתוכנן היום במיקום של :client_name. נא לעקוב במידת הצורך.",
+            'content' => ":worker_name לא סיים את העבודה בזמן או לא אישר שהמשימות הושלמו.\n\nיש לכם שלוש אפשרויות:\n1.	לסיים את העבודה עבור העובד\n2.	לשנות את המשמרת\n3.	לשנות את העובד\n:team_btn\n\nמספר טלפון של העובד: :worker_phone\nמספר טלפון של הלקוח: :client_phone\n\n",
+            // 'beforeContent' => ":worker_name לא אישרו שהם בדרכם לעבודה החל מ-:time_frame עם הלקוח :client_name. אנא עיין ופעל במידת הצורך."
+            'beforeSubject' => " העובד לא אישר שהוא בדרך\n\n",
+            'beforeContent' => ":worker_name לא אישר שהוא בדרכו לעבודה בכתובת:address.\nתאריך/שעה: :date_time\n\nאפשרויות:\n1.	לאשר שהעובד בדרכו\n2.	לשנות את המשמרת3.	לשנות את העובד\n:team_btn\n\nמספר טלפון של העובד: :worker_phone\nמספר טלפון של הלקוח: :client_phone\n\n",
+            'signature' => "בברכה, \nברום סרוויס צוות\nטלפון: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
         ],
         'remind_to_worker' => [
             'content' => "נא לא לשכוח לאשר את הכתובת לעבודה מחר עד השעה 18:00 היום. אם יש לך בעיות או שאתה זקוק לעזרה, אנא צור קשר עם המנהל שלך.",
         ],
         'not_confirm_job' => [
-            'content' => "תזכורת: :worker_name עדיין לא אישר את הכתובת לעבודה מחר. נא לנקוט בפעולה אם לא יתקבל אישור עד השעה 18:00.",
+            'header' => "העובד לא אישר את הכתובת לעבודה מחר",
+            'salutation' => "שלום צוות,",
+            // 'content' => "תזכורת: :worker_name עדיין לא אישר את הכתובת לעבודה מחר. נא לנקוט בפעולה אם לא יתקבל אישור עד השעה 18:00.",
+            'content' => ":worker_name לא אישר את הכתובת לעבודה מחר:\nכתובת: :address\nתאריך/שעה: :date_time\n\nאפשרויות:\n1.	לאשר את הכתובת עבור העובד\n2.	לשנות את המשמרת\n3.	לשנות את העובד\n:change_shift\n\nמספר טלפון של העובד: :worker_phone\nמספר טלפון של הלקוח: :client_phone\n\n",
+            'signature' => "בברכה, \nברום סרוויס צוות\nטלפון: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
         ],
         'worker_webhook_irrelevant' => [
     	    'message' => "🌟 תודה שפנית אלינו ב-Job4Service.\n\nאנחנו מציעים את המשרות הטובות ביותר בענף ניקיון בתים בישראל.\nאנחנו שוכרים רק אנשים עם אשרות מתאימות לעבודה בישראל.\nאנחנו מציעים עבודות ניקיון בתים רק באזור תל אביב, ורק בשעות הבוקר של ימי חול אנו לא עובדים בסופי שבוע או בערבים.\nאנחנו צוות ניקיון מקצועי, ולכן אנחנו שוכרים רק אנשים עם ניסיון בניקיון בתים.\nאם זה יכול להתאים לכם או. החברים שלכם עכשיו או בעתיד, אתם יותר ממוזמנים לפנות אלינו שוב 😀\n\n👫 מכירים מישהו שיתאים מאוד לצוות שלנו. פשוט שלח להם את הקישור הזה:\n\nhttps://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT\nhttps://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr\n\nשיהיה לך יום נפלא !🌟"

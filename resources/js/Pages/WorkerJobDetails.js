@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import { useAlert } from "react-alert";
 
 import logo from "../Assets/image/sample.svg";
+import { getShiftsDetails } from "../Utils/common.utils";
 
 export default function WorkerJobDetails() {
     const { t } = useTranslation();
@@ -76,6 +77,8 @@ export default function WorkerJobDetails() {
         return "-";
     }, [job]);
 
+    const {durationInHours, startTime, endTime} = getShiftsDetails(job)    
+
     return (
         <div className="container">
             <div className="thankyou meet-status dashBox maxWidthControl p-4">
@@ -110,7 +113,7 @@ export default function WorkerJobDetails() {
                             </li>
                             <li>
                                 {t("worker.jobs.shift")}:{" "}
-                                <span>{job.shifts}</span>
+                                <span>{startTime} - {endTime}</span>
                             </li>
                         </ul>
                     </>

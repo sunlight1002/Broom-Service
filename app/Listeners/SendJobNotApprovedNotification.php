@@ -37,15 +37,15 @@ class SendJobNotApprovedNotification implements ShouldQueue
     {
         App::setLocale('en');
         //send notification to admin
-        $adminEmailData = [
-            'emailData'   => [
-                'job' => $event->job->toArray(),
-            ],
-            'emailSubject'  => 'Job Not Approved | Broom Service',
-            'emailTitle'  => 'Worker Not Approved Job',
-            'emailContent'  => 'Worker has not approved the job yet.'
-        ];
-        event(new JobNotificationToAdmin($adminEmailData));
+        // $adminEmailData = [
+        //     'emailData'   => [
+        //         'job' => $event->job->toArray(),
+        //     ],
+        //     'emailSubject'  => 'Job Not Approved | Broom Service',
+        //     'emailTitle'  => 'Worker Not Approved Job',
+        //     'emailContent'  => 'Worker has not approved the job yet.'
+        // ];
+        // event(new JobNotificationToAdmin($adminEmailData));
 
         //send notification to worker
         $job = $event->job->toArray();

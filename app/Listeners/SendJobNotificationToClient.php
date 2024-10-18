@@ -39,47 +39,56 @@ class SendJobNotificationToClient implements ShouldQueue
 
         $notificationType = $client["notification_type"] ?? '';
 
+        if (isset($client["phone"]) && !empty($client["phone"])) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::CREATE_JOB,
+                "notificationData" => [
+                    'job' => $job,
+                    'client' => $client,
+                ]
+            ]));
+        };
 
-        if ($notificationType === 'both') {
-            if (isset($client["phone"]) && !empty($client["phone"])) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::CREATE_JOB,
-                    "notificationData" => [
-                        'job' => $job,
-                        'client' => $client,
-                    ]
-                ]));
-            };
+        // if ($notificationType === 'both') {
+        //     if (isset($client["phone"]) && !empty($client["phone"])) {
+        //         event(new WhatsappNotificationEvent([
+        //             "type" => WhatsappMessageTemplateEnum::CREATE_JOB,
+        //             "notificationData" => [
+        //                 'job' => $job,
+        //                 'client' => $client,
+        //             ]
+        //         ]));
+        //     };
 
-            // Mail::send('/Mails/client/JobNotification', [
-            //     'job' => $job,
-            //     'worker' => $worker,
-            //     'emailData' => $emailData,
-            //     'client' => $client,
-            // ], function ($messages) use ($client, $emailData) {
-            //     $messages->to($client['email']);
-            //     $messages->subject($emailData['emailSubject']);
-            // });
-        } elseif ($notificationType === 'email') {
-            // Mail::send('/Mails/client/JobNotification', [
-            //     'job' => $job,
-            //     'worker' => $worker,
-            //     'emailData' => $emailData,
-            //     'client' => $client,
-            // ], function ($messages) use ($client, $emailData) {
-            //     $messages->to($client['email']);
-            //     $messages->subject($emailData['emailSubject']);
-            // });
-        } else {
-            if (isset($client["phone"]) && !empty($client["phone"])) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::CREATE_JOB,
-                    "notificationData" => [
-                        'job' => $job,
-                        'client' => $client,
-                    ]
-                ]));
-            };
-        }
+        //     // Mail::send('/Mails/client/JobNotification', [
+        //     //     'job' => $job,
+        //     //     'worker' => $worker,
+        //     //     'emailData' => $emailData,
+        //     //     'client' => $client,
+        //     // ], function ($messages) use ($client, $emailData) {
+        //     //     $messages->to($client['email']);
+        //     //     $messages->subject($emailData['emailSubject']);
+        //     // });
+        // } elseif ($notificationType === 'email') {
+        //     // Mail::send('/Mails/client/JobNotification', [
+        //     //     'job' => $job,
+        //     //     'worker' => $worker,
+        //     //     'emailData' => $emailData,
+        //     //     'client' => $client,
+        //     // ], function ($messages) use ($client, $emailData) {
+        //     //     $messages->to($client['email']);
+        //     //     $messages->subject($emailData['emailSubject']);
+        //     // });
+        // } else {
+        //     if (isset($client["phone"]) && !empty($client["phone"])) {
+        //         event(new WhatsappNotificationEvent([
+        //             "type" => WhatsappMessageTemplateEnum::CREATE_JOB,
+        //             "notificationData" => [
+        //                 'job' => $job,
+        //                 'client' => $client,
+        //             ]
+        //         ]));
+        //     };
+        // }
     }
 }

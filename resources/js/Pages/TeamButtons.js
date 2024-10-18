@@ -23,19 +23,14 @@ export default function TeamButtons() {
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("worker-token"),
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-
-    console.log(params);
 
 
     const handleApproveJob = () => {
         axios
             .post(
-                `/api/worker/${workerID}/jobs/${Base64.decode(params.id)}/approve`,
-                {},
-                { headers }
-            )
+                `/api/admin/worker/${workerID}/jobs/${Base64.decode(params.id)}/approve`, {}, { headers })
             .then((res) => {
                 getJob();
                 alert.success(res.data.data);
@@ -47,10 +42,10 @@ export default function TeamButtons() {
 
     const getJob = () => {
         axios
-            .get(`/api/jobs/${Base64.decode(params.id)}`, { headers })
+            .get(`/api/admin/jobs/${Base64.decode(params.id)}`, { headers })
             .then((res) => {
                 const r = res.data.job;
-                console.log(r);
+                console.log(res);
 
                 setJob(r);
                 setClientID(r.client.id)
@@ -72,10 +67,11 @@ export default function TeamButtons() {
     const handleOpeningTime = () => {
         let data = {
             job_id: Base64.decode(params.id),
+            worker_id: workerID
         };
 
         axios
-            .post(`/api/job-opening-timestamp`, data, { headers })
+            .post(`/api/admin/job-opening-timestamp`, data, { headers })
             .then((res) => {
                 alert.success(res.data.message); // Show success message if everything is fine
                 getJob()
@@ -94,27 +90,49 @@ export default function TeamButtons() {
     };
 
 
-    const startTimer = () => {
+    const startJob = async () => {
+        let data = {
+            job_id: Base64.decode(params.id),
+            worker_id: workerID
+        };
+        try {
+            const response = await axios.post(`/api/admin/jobs/start-time`, data, { headers });
+            console.log(response);
 
-        axios
-            .post(`/api/jobs/${params.id}/start-time`, {}, { headers })
-            .then((res) => {
-                getTime();
-                setTimeout(() => {
-                    setIsSubmitting(false);
-                }, 500);
-            });
+            // Handle successful response
+            alert.success(response.data.message);
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                alert.error('End timer');
+            } else {
+                alert.error('Something went wrong. Please try again.');
+            }
+        }
     };
-    const stopTimer = () => {
-        axios
-            .post(`/api/jobs/${params.id}/end-time`, {}, { headers })
-            .then((res) => {
-                getTimes();
-                setTimeout(() => {
-                    setIsSubmitting(false);
-                }, 500);
-            });
-    };
+
+
+
+    // const startTimer = () => {
+
+    //     axios
+    //         .post(`/api/jobs/${params.id}/start-time`, {}, { headers })
+    //         .then((res) => {
+    //             getTime();
+    //             setTimeout(() => {
+    //                 setIsSubmitting(false);
+    //             }, 500);
+    //         });
+    // };
+    // const stopTimer = () => {
+    //     axios
+    //         .post(`/api/jobs/${params.id}/end-time`, {}, { headers })
+    //         .then((res) => {
+    //             getTimes();
+    //             setTimeout(() => {
+    //                 setIsSubmitting(false);
+    //             }, 500);
+    //         });
+    // };
 
     const handleSpeakToManager = async (e) => {
         e.preventDefault();
@@ -176,7 +194,7 @@ export default function TeamButtons() {
                                 <div className="ml-2">
                                     <Link
                                         className="btn btn-pink addButton"
-                                        style={{width: "9rem"}}
+                                        style={{ width: "9rem" }}
                                         to={`/admin/jobs/view/${job.id}`}
                                     >
                                         Cancel Worker
@@ -199,11 +217,27 @@ export default function TeamButtons() {
                                 }
 
                                 {
+                                    job && job?.worker_approved_at != null && job?.job_opening_timestamp != null
+                                     && job?.hours[0]?.job_id != Base64.decode(params.id) && (
+                                        <div className="ml-2">
+                                            <button
+                                                className="btn btn-pink addButton mt-2"
+                                                style={{ textTransform: "none", width: "9rem" }}
+                                                type="button"
+                                                onClick={startJob}
+                                            >
+                                                Start Job/Time
+                                            </button>
+                                        </div>
+                                    )
+                                }
+
+                                {
                                     job && job?.worker_approved_at == null && (
                                         <div className="ml-2">
                                             <button
                                                 className="btn btn-pink addButton mt-2"
-                                                style={{ textTransform: "none" , width: "9rem"}}
+                                                style={{ textTransform: "none", width: "9rem" }}
                                                 type="button"
                                                 onClick={handleApproveJob}
                                             >
@@ -216,7 +250,7 @@ export default function TeamButtons() {
                                 <div className="ml-2">
                                     <Link
                                         className="btn btn-pink addButton"
-                                        style={{width: "9rem"}}
+                                        style={{ width: "9rem" }}
                                         to={`/admin/jobs/${job.id}/change-worker`}
                                     >
                                         Change Worker

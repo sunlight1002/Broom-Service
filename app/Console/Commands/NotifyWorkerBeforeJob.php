@@ -48,6 +48,8 @@ class NotifyWorkerBeforeJob extends Command
 
         // Calculate time 1 hour and 30 minutes from now
         $oneHourLater = $currentTime->copy()->addHour();
+        \Log::info($oneHourLater->toTimeString());
+        \Log::info("kkdkdk");
         $thirtyMinutesLater = $currentTime->copy()->addMinutes(30);
 
         // Fetch jobs where worker has approved and hasn't tapped the "I am leaving" button,
@@ -55,8 +57,9 @@ class NotifyWorkerBeforeJob extends Command
         $jobsToNotify = Job::with(['client', 'worker'])
             ->whereNotNull('worker_approved_at') // Only jobs where the worker has approved
             ->whereDate('start_date', $currentTime->toDateString()) // Only jobs for today
-            ->whereTime('start_time', '=', $oneHourLater->toTimeString()) // Jobs starting in exactly 1 hour
-            ->orWhereTime('start_time', '=', $thirtyMinutesLater->toTimeString()) // Jobs starting in 30 minutes
+            ->whereTime('start_time', '=', $oneHourLater->format('H:i')) // Jobs starting in exactly 1 hour
+            ->orWhereTime('start_time', '=', $thirtyMinutesLater->format('H:i')) // Jobs starting in 30 minutes
+            // Jobs starting in 30 minutes
             ->get();
 
         \Log::info($jobsToNotify);
@@ -65,12 +68,13 @@ class NotifyWorkerBeforeJob extends Command
             // Calculate the difference in minutes between now and the job's start time
             $jobStartTime = Carbon::parse($job->start_time);
             $minutesDifference = $currentTime->diffInMinutes($jobStartTime, false);
+            \Log::info($minutesDifference);
 
             // Check if it's 1 hour or 30 minutes before start_time
-            if ($minutesDifference === 60) {
+            if ($minutesDifference === 59) {
                 \Log::info("Sending 1-hour notification to worker for Job ID: " . $job->id);
                 $this->sendNotification($job, '1-hour');
-            } elseif ($minutesDifference === 30) {
+            } elseif ($minutesDifference === 29) {
                 \Log::info("Sending 30-minute notification to worker for Job ID: " . $job->id);
                 $this->sendNotification($job, '30-min');
             }

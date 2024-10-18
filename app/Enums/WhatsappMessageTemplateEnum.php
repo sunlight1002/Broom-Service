@@ -83,7 +83,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const JOB_APPROVED_NOTIFICATION_TO_TEAM = "job-approved-notification-to-team";
     public const WORKER_AFTER_APPROVE_JOB = "worker-after-approve-job";
     public const WORKER_NOTIFY_AFTER_ON_MY_WAY = "worker-notify-after-on-my-way";
-    public const TEAM_NOTIFY_WORKER_AFTER_ON_MY_WAY = "team_notify-worker-before-on-my-way";
+    public const TEAM_NOTIFY_WORKER_AFTER_ON_MY_WAY = "team_notify-worker-after-on-my-way";
     public const WORKER_NOTIFY_BEFORE_ON_MY_WAY = "worker-notify-before-on-my-way";
     public const TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY = "team_notify-worker-before-on-my-way";
     public const TEAM_NOTIFY_CONTACT_MANAGER = "team-notify-contact-manager";
@@ -114,5 +114,6 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const MOVED = "moved";
     public const ONETIME = "onetime";
     public const PAST = "past";
+    public const NOTIFY_WORKER_BEFORE_30MIN_JOB_END_TIME = "notify-worker-before-30min-job-end-time";
 
 }

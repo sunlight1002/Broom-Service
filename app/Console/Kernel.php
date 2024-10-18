@@ -50,6 +50,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('notifyteamoffer12')->hourly();
         // $schedule->command('notifyteamcontract12')->hourly();
         // $schedule->command('notifyStartOfJob')->everyThirtyMinutes();
+        // $schedule->command('notifyWorkerBeforeJobTime')->everyMinute();
 
     }
 

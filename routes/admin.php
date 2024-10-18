@@ -61,7 +61,6 @@ Route::get('countries', [SettingController::class, 'getCountries']);
 Route::get('get_services', [ServicesController::class, 'create']);
 Route::any('save-lead', [LeadWebhookController::class, 'saveLead']);
 
-
 Route::get('clients-sample-file', [ClientController::class, 'sampleFileExport']);
 Route::get('workers/import/sample', [WorkerController::class, 'sampleFileExport']);
 
@@ -98,6 +97,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('shift-change-worker/{sid}/{date}', [JobController::class, 'shiftChangeWorker']);
     Route::resource('job-comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
     Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
+    Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
+    Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
+    Route::post('jobs/start-time', [JobController::class, 'JobStartTime']);
 
     Route::post('get-job-time', [JobController::class, 'getJobTime']);
     Route::post('add-job-time', [JobController::class, 'addJobTime']);
@@ -109,6 +111,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('jobs/{id}/update-job-done', [JobController::class, 'updateJobDone']);
     Route::post('jobs/{id}/discount', [JobController::class, 'saveDiscount']);
     Route::post('jobs/{id}/extra-amount', [JobController::class, 'saveExtraAmount']);
+
 
     // Lead Api
     Route::resource('leads', LeadController::class)->except(['create', 'show']);

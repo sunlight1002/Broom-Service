@@ -35,16 +35,6 @@ class SendNotificationJob implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->newLeadStatus === 'freeze client') {
-            // Trigger WhatsApp Notification
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
-                "notificationData" => [
-                    'client' => $this->client->toArray(),
-                ]
-            ]));
-        }
-
         // Trigger contract verification notifications
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT,

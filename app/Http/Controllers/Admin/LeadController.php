@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
+use App\Events\ClientLeadStatusChanged;
 use App\Models\Fblead;
 use App\Models\Client;
 use App\Models\LeadComment;
@@ -145,6 +146,8 @@ class LeadController extends Controller
             [],
             ['lead_status' => LeadStatusEnum::PENDING]
         );
+
+        event(new ClientLeadStatusChanged($client, LeadStatusEnum::PENDING));
 
         // Create a notification
         Notification::create([
@@ -313,7 +316,11 @@ class LeadController extends Controller
         ]);
     }
 
-    
+    public function jobstarttime(Request $request)
+    {
+        \Log::info("Request received");
+        \Log::info($request->all());
+    }
 
     public function addComment(Request $request)
     {

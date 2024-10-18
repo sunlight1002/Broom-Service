@@ -54,6 +54,8 @@ class WorkerNotifyNextDayJob extends Command
             ->whereDate('start_date', $tomorrow)
             ->get();
 
+            \Log::info($jobs);
+
         foreach ($jobs as $key => $job) {
             $worker = $job->worker;
 

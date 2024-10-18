@@ -41,6 +41,16 @@ export default function WorkerViewJob() {
     const [workerID, setWorkerID] = useState(null)
     const [skippedComments, setSkippedComments] = useState([])
 
+    const query = new URLSearchParams(location.search);
+    const q = query.get("q");
+    
+    useEffect(() => {
+         if (q === "contact_manager") {
+            setSpeakModal(true);
+        }
+    }, [])
+    
+
 
     const alert = useAlert();
     const { t } = useTranslation();
@@ -78,15 +88,14 @@ export default function WorkerViewJob() {
     }, []);
 
     const handleMarkComplete = () => {
-        console.log(isCompleteBtnDisable);
 
         if (isCompleteBtnDisable !== false) {
             Swal.fire({
                 title: "Error!",
-                text:  "You can't mark a job as complete if it's not finished.",
+                text: "You can't mark a job as complete if it's not finished.",
                 icon: "error",
             });
-        }else{
+        } else {
             isRunning ? stopTimer() : "";
             // setIsCompleteBtnDisable(true);
             setIsOpenChangeJobStatus(true);
@@ -330,27 +339,25 @@ export default function WorkerViewJob() {
     }, [targetLanguage]);
 
     const isCompleteBtnDisable = useMemo(() => {
-        if (allComment.length === 3) {
-            // Filter out comments with status "approved"
-            const relevantComments = allComment.filter(c => c.status !== "approved");
-            console.log(relevantComments,"approved");
-
-
-            // If any of the relevant comments have a null status, disable the button
-            const hasNullStatus = relevantComments.some(c => c.status === null);
-            console.log(hasNullStatus,"null");
-
-            // If all the relevant comments have "completed" status, enable the button
-            const allCompleted = relevantComments.every(c => c.status === "complete");
-            console.log(allCompleted,"comple");
-
-            // Disable the button if any status is null or if not all are completed
-            return hasNullStatus || !allCompleted;
-        }
-
-        // If the condition for 3 comments isn't met, keep it disabled
-        return true;
+        // Check if there are any comments with a status of "approved"
+        const hasApprovedStatus = allComment.some(c => c.status === "approved");
+    
+        // Filter out approved comments for further checks
+        const relevantComments = hasApprovedStatus 
+            ? allComment.filter(c => c.status !== "approved") 
+            : allComment;
+    
+        // Check if any of the relevant comments have a null status
+        const hasNullStatus = relevantComments.some(c => c.status === null);
+    
+        // Check if not all relevant comments are completed
+        const allCompleted = relevantComments.every(c => c.status === "complete");
+    
+        // Disable the button if any status is null or if not all are completed
+        return hasNullStatus || !allCompleted;
     }, [allComment]);
+    
+    
 
 
     return (
@@ -363,7 +370,7 @@ export default function WorkerViewJob() {
                             <div className="row">
                                 <div className="col-sm-12">
                                     <div className="row mb-3 mt-4 gap-2">
-                                        <div className="col-sm-6 col-12">
+                                        <div className="col-sm-6 col-6">
                                             <h2 className="text-custom">
                                                 {t(
                                                     "worker.jobs.view.c_details"
@@ -385,14 +392,14 @@ export default function WorkerViewJob() {
                                                     )}
                                                 </button>
 
-                                                <button
+                                                {/* <button
                                                     type="button"
                                                     onClick={() => setSpeakModal(prev => !prev)}
                                                     // disabled={isApproving}
                                                     className="btn btn-primary"
                                                 >
                                                     Speak to manager
-                                                </button>
+                                                </button> */}
                                             </div>
                                         ) : job.job_opening_timestamp ===
                                             null &&
@@ -499,6 +506,20 @@ export default function WorkerViewJob() {
                                                 )}
                                             </>
                                         )}
+                                        {
+                                            (job_status != "completed") && (job_status != "cancel") && (
+                                               <div className="col-sm-3 col-xl-2 col-6">
+                                                 <button
+                                                    type="button"
+                                                    onClick={() => setSpeakModal(prev => !prev)}
+                                                    // disabled={isApproving}
+                                                    className="btn btn-primary"
+                                                >
+                                                    Contact Manager
+                                                </button>
+                                               </div>
+                                            )
+                                        }
                                     </div>
 
                                     <ClientDetails
@@ -607,6 +628,7 @@ export default function WorkerViewJob() {
                                             handleGetSkippedComments={handleGetSkippedComments}
                                             setSkippedComments={setSkippedComments}
                                             skippedComments={skippedComments}
+                                            job_status={job_status}
                                         />
                                     </div>
                                 </div>
@@ -619,51 +641,51 @@ export default function WorkerViewJob() {
             {
                 speakModal && (
                     <Modal
-                    size="md"
-                    className="modal-container"
-                    show={speakModal}
-                    onHide={() => setSpeakModal(false)}
-                    backdrop="static"
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title>Speak to Manager</Modal.Title>
-                    </Modal.Header>
+                        size="md"
+                        className="modal-container"
+                        show={speakModal}
+                        onHide={() => setSpeakModal(false)}
+                        backdrop="static"
+                    >
+                        <Modal.Header closeButton>
+                            <Modal.Title>Contact Manager</Modal.Title>
+                        </Modal.Header>
 
-                    <Modal.Body>
-                        <div className="row">
-                            <div className="col-sm-12">
-                                <div className="form-group">
-                                    <label className="control-label">{t("worker.jobs.view.cmt")}</label>
+                        <Modal.Body>
+                            <div className="row">
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">{t("worker.jobs.view.cmt")}</label>
 
-                                    <textarea
-                                        type="text"
-                                        value={problem}
-                                        onChange={(e) => setProblem(e.target.value)}
-                                        className="form-control"
-                                        required
-                                    ></textarea>
+                                        <textarea
+                                            type="text"
+                                            value={problem}
+                                            onChange={(e) => setProblem(e.target.value)}
+                                            className="form-control"
+                                            required
+                                        ></textarea>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </Modal.Body>
+                        </Modal.Body>
 
-                    <Modal.Footer>
-                        <Button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => setSpeakModal(false)}
-                        >
-                            {t("modal.close")}
-                        </Button>
-                        <Button
-                            type="button"
-                            onClick={handleSpeakToManager}
-                            className="btn btn-primary"
-                        >
-                            {t("global.send")}
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
+                        <Modal.Footer>
+                            <Button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => setSpeakModal(false)}
+                            >
+                                {t("modal.close")}
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={handleSpeakToManager}
+                                className="btn btn-primary"
+                            >
+                                {t("global.send")}
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
                 )
             }
 

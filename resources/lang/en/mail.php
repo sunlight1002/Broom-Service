@@ -408,8 +408,9 @@ return [
             'content' => "Greetings from Broom Service. A work agreement for digital signature is attached. Please fill in the necessary details and sign on the last page for payment details you must fill in the details of each ID number and the signature of the card holder without the CVV details which you will give us over the phone in order to save and secure your payment details and with your signature below for any questions please    contact us: 03-525-70-60 or reply to this email.",
         ],
         'create_job' => [
-            'header' => "*New Job Created | Broom Service*",
-            'content' => "A new job has been scheduled.\n\nDate: :date\nService: :service_name\n\nWe look forward to serving you.",
+            'header' => "*Reminder for Upcoming Service | Broom Service*",
+            'content' => "A service has been scheduled for you: *:service_name* on *:date* at *:time* \nPlease note that the estimated arrival time of our team can be up to an hour and a half from the scheduled start time.\n\nFor any questions or requests, feel free to contact us.",
+            'signature' => "\n\nBest Regards,\nBroom Service Team \n🌐 www.broomservice.co.il\n📞: 03-525-70-60\noffice@broomservice.co.il",
         ],
         'client_job_updated' => [
             'header' => "*Job Completed | Broom Service*",
@@ -477,8 +478,10 @@ return [
             'content' => "The worker has exceeded the job time.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nProperty: :address",
         ],
         'worker_remind_job' => [
-            'header' => "*Information about your job tomorrow | Broom Service*",
-            'content' => "This is to inform you about your job tomorrow. Please check the details.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nStart Time: :start_time\nStatus: :status",
+            'header' => "*Please Confirm Tomorrow’s Address*",
+            // 'content' => "Please confirm that you have seen the address for tomorrow’s job.\n\nDate: :date\nClient: :client_name\nService: :service_name\nProperty: :address\nStart Time: :start_time\nStatus: :status \n\n *Click here to confirm the address:* :confirm \n or  *contact the manager:* :contact_manager \n if you need assistance. ",
+            'content' => "Please confirm that you have seen the address for tomorrow’s job:\nAddress: :address\nDate/Time: :date_time\n\n*Click here to confirm:* :confirm \nor *Contact your manager* if you have any questions\n :contact_manager\n\n",
+            'signature' => "Best Regards,\nBroom Service Team \n🌐 www.broomservice.co.il\n📞: 03-525-70-60\noffice@broomservice.co.il",
         ],
         'worker_unassigned_job' => [
             'header' => "*Job Unassigned | Broom Service*",
@@ -642,7 +645,7 @@ return [
             'no_reason_provided' => 'No reason provided.',
             'assistance' => 'Please review the details and update the status accordingly.',
         ],
-        // 'client_in_freeze_status' => [
+        // 'client_in_freeze_status_team' => [
         //     'header' => 'Client in Freeze Status - Action Required',
         //     'content' => 'A client named :client_name has been placed in Freeze status because they haven\'t received a service for 7 days since their last scheduled service date.',
         //     'action_required' => 'Please check the status and update accordingly. If necessary, contact the client to reschedule the service.',
@@ -652,7 +655,7 @@ return [
             'thankyou' => "At Broom Service, we understand that sometimes there’s a need to take a break, and we want to thank you for the trust you have placed in us so far.",
             'content' => 'We wanted to remind you that we are here for you and ready to resume services whenever you decide. We continue to improve and expand our service offerings to ensure that you always receive the best.',
             'action_required' => 'If your needs have changed or if you would like to discuss new options, we are here at your service. Feel free to reach out anytime.',
-            'signature' => "Best regards, \n Broom Service \n\n Phone: 03-525-70-60 \n 🌐 Website: www.broomservice.co.il"
+            'signature' => "Best regards, \n Broom Service Team\n\n Phone: 03-525-70-60 \n 🌐 Website: www.broomservice.co.il"
         ],
         'status_not_updated' => [
             'header' => 'Status Not Updated - Action Required',
@@ -743,18 +746,33 @@ return [
             'action_btn' => '*Action Buttons:*'
         ],
         'worker_on_my_way' => [
-            'content' => "Please remember to click 'Start Job' when you arrive at the client's location today. If you have any issues, contact your manager immediately.",
-            'beforeContent' => "you have not yet confirmed that you are on your way for the job starting at :job_time with client :client_name. Please confirm your status or contact the manager if assistance is needed."
+            'subject' => "Job Started - Please Finish by :end_time\n\n",
+            // 'content' => "Please remember to click 'Start Job' when you arrive at the client's location today. If you have any issues, contact your manager immediately.",
+            'content' => "You have started the job at :start_time.\nYou have :job_duration to complete it, and the job should be finished by :end_time.\n\n:all_commentsOnce you’ve completed all the tasks, *Click here to confirm all tasks are done* \n:view_job\nYou can also *Contact your manager* if there are any issues.\n:contact_manager \n\n*Click here when you finish the job.* \n:view_job \n\n",
+            'beforeSubject' => "Please Confirm You’re On Your Way\n\n",
+            // 'beforeContent' => "you have not yet confirmed that you are on your way for the job starting at :job_time with client :client_name. Please confirm your status or contact the manager if assistance is needed.",
+            'beforeContent' => "You are scheduled to start your job at :job_time at :address\n.Please confirm that you’re on your way.\n\n*Click here if you’re on your way*\n:view_job\nor *Contact your manager* if you’re running late.\n:contact_manager",
+            'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il",
+            'all_comments' => "Don’t forget to complete the following tasks:\n:comments\n"
         ],
         'team_worker_on_my_way' => [
-            'content' => "Reminder: :worker_name hasn’t clicked 'Start Job' yet for today’s scheduled service at :client_name's location. Please follow up as needed.",
-            'beforeContent' => ":worker_name has not confirmed they are on their way for the job starting in :job_time with client :client_name. Please review and take action if necessary."
+            'subject' => "Worker Did Not Finish the Job or Confirm Tasks\n\n",
+            'content' => ":worker_name did not finish the job on time or did not confirm that all tasks were completed.\n\nYou have three options:\n1.	Finish the job for the worker\n2.	Change the shift\n3.	Change the worker\n:team_btn \n\nWorker’s Phone Number: :worker_phone\nClient’s Phone Number: :client_phone\n\n",
+            // 'beforeContent' => ":worker_name has not confirmed they are on their way for the job starting in :job_time with client :client_name. Please review and take action if necessary."
+            'beforeSubject' => "Worker Has Not Confirmed They’re On Their Way",
+            'beforeContent' => ":worker_name has not confirmed that they’re on their way to the job at :address.\nDate/Time: :date_time\n\nYou can:\n1.	Confirm that the worker is on the way\n2.	Change the shift\n3.	Change the worker\n:team_btn\n\nWorker’s Phone Number: :worker_phone\nClient’s Phone Number: :client_phone\n\n",
+            'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
+
         ],
         'remind_to_worker' => [
             'content' => "Please don't forget to confirm the address for tomorrow's job by 6 PM today. If you have any issues or need help, please contact your manager.",
         ],
         'not_confirm_job' => [
-            'content' => "Reminder: :worker_name hasn’t confirmed the address for tomorrow’s job yet. Please take action if no confirmation is received by 6 PM.",
+            'header' => "Worker Has Not Confirmed Tomorrow's Address",
+            'salutation' => "Hi Team,",
+            // 'content' => "Reminder: :worker_name hasn’t confirmed the address for tomorrow’s job yet. Please take action if no confirmation is received by 6 PM.",
+            'content' => ":worker_name has not yet confirmed the address for tomorrow’s job.\nAddress: :address \nDate/Time: :date_time\n\nYou can:\n1.	Confirm the address for the worker\n2.	Change the shift\n3.	Change the worker\n:change_shift\n\nWorker’s Phone Number: :worker_phone\nClient’s Phone Number: :client_phone\n\n",
+            'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
         ],
         'worker_webhook_irrelevant' => [
             'message' => "🌟 Thank you for contacting us at Job4Service.\n\nWe offer the best jobs in the house cleaning industry in Israel.\nWe hire only people with suitable visas for work in Israel.\nWe offer house cleaning jobs only in the Tel Aviv area, and only during weekday mornings. We do not work on weekends or in the evenings.\nWe are a professional cleaning team, so we hire only people with experience in house cleaning.\nIf this may suit you or your friends now or in the future, you are more than welcome to contact us again. 😀\n\n👫 Know someone who'd be a great fit for our team? Invite them to join this group and explore the opportunities with us! Just send them this link:\n\nhttps://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT\nhttps://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr\n\nHave a wonderful day!🌟"

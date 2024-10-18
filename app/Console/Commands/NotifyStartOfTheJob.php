@@ -38,12 +38,14 @@ class NotifyStartOfTheJob extends Command
         \Log::info($currentTime);
 
         // Get jobs that were scheduled for today and not completed or started
-        $jobsToNotify = Job::with(['client', 'worker', 'hours'])
+        $jobsToNotify = Job::with(['client', 'worker', 'hours','comments'])
+            ->where('status' , '!=' ,"completed")
             ->whereNotNull('worker_approved_at') // Only jobs where the worker has approved
             ->whereNotNull('job_opening_timestamp') // Exclude completed jobs
             ->whereDoesntHave('hours') // Jobs that don't have hours recorded (e.g., not started)
             ->whereDate('start_date', $currentTime->toDateString()) // Only jobs for today
             ->get();
+        \Log::info($jobsToNotify);
 
         foreach ($jobsToNotify as $job) {
             $startTime = Carbon::parse($job->start_time);
