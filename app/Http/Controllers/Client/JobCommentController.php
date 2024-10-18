@@ -12,9 +12,62 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Google\Cloud\Translate\V2\TranslateClient;
 
 class JobCommentController extends Controller
 {
+    private $translateClient;
+
+    public function __construct()
+    {
+        $this->translateClient = new TranslateClient([
+            'key' => config('services.google.translate_key'),
+        ]);
+    }
+
+    public function language(Request $request, $id)
+    {
+        $comments = JobComments::query()
+            ->with(['attachments'])
+            ->where('job_id', $id)
+            ->where(function ($q) {
+                $q
+                    ->where('comment_for', 'client') // Adjust if needed
+                    ->orWhereHasMorph(
+                        'commenter',
+                        [Client::class],
+                        function (Builder $query) {
+                            $query->where('commenter_id', Auth::id());
+                        }
+                    );
+            })
+            ->latest()
+            ->get();
+
+        $targetLanguage = $request->input('target_language', 'en');
+
+        if ($targetLanguage !== 'en') {
+            foreach ($comments as $comment) {
+                $textToTranslate = $comment->comment;
+                if (!empty($textToTranslate)) {
+                    try {
+                        $translation = $this->translateClient->translate($textToTranslate, [
+                            'target' => $targetLanguage,
+                        ]);
+                        $comment->comment = $translation['text'];
+                        $comment->translated_text = $translation['text']; 
+                    } catch (\Exception $e) {
+                        \Log::error('Translation API Error: ' . $e->getMessage());
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'comments' => $comments
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *

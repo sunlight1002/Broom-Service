@@ -205,7 +205,6 @@ class WhatsappNotification
                     ]);
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.review') . ": " . url("client/jobs/" . base64_encode($jobData['id']) . "/review");
-                    \Log::info('Message text:', ['text'=>$text]);
 
                     break;
 
@@ -342,6 +341,7 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.worker_contract.content');
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.check_contract') . ": " . url("worker-contract/" . base64_encode($workerData['worker_id']));
+                    \Log::info('Message text:', ['text'=>$text]);
 
                     break;
 
@@ -2459,7 +2459,7 @@ class WhatsappNotification
                     }
                     break;
 
-                case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
+                    case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
                     $clientData = $eventData['client'];
 
                     $receiverNumber = $clientData['phone'];

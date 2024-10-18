@@ -45,6 +45,8 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
     Route::resource('jobs/{id}/comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
 
+    Route::get('jobs/{id}/comments', [JobCommentController::class, 'language']);
+
     // My Account Api
     Route::get('my-account', [DashboardController::class, 'getAccountDetails']);
     Route::post('my-account', [DashboardController::class, 'saveAccountDetails']);

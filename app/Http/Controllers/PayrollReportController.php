@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\Holiday;
 use App\Models\AdvanceLoan;
 use App\Models\SickLeave;
+use App\Models\Form;
 use App\Models\AdvanceLoanTransaction;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -139,6 +140,7 @@ class PayrollReportController extends Controller
                     'Loan' => ' ',
                     'Net Payment' => ' ',
                     'Doctor Report' => ' ',
+                    'Form 101' => ' ', 
                 ];
                 continue;
             }
@@ -193,21 +195,24 @@ class PayrollReportController extends Controller
                         }
                     }            
                 }
-
-                 $sickLeaves = SickLeave::where('worker_id', $user->id)
-                 ->where('status', 'approved')
-                 ->whereBetween('start_date', [$startDate, $endDate])
-                 ->get();
- 
-                $doctorReportPath = $sickLeaves->pluck('doctor_report_path')->first();
-    
-                    if ($doctorReportPath) {
-                        $doctorReportLink = url('storage/' . $doctorReportPath);
-                        $doctorReportDisplay = $doctorReportLink;
-                    } else {
-                        $doctorReportDisplay = 'Not available';
-                    }
-        
+                
+                $sickLeaves = SickLeave::where('worker_id', $user->id)
+                ->where('status', 'approved')
+                ->whereBetween('start_date', [$startDate, $endDate])
+                ->get();
+            
+                $doctorReportPaths = $sickLeaves->pluck('doctor_report_path');
+                
+                if ($doctorReportPaths->isNotEmpty()) {
+                    $doctorReportLinks = $doctorReportPaths->map(function($path) {
+                        return url('storage/' . $path);
+                    });
+                
+                    $doctorReportDisplay = $doctorReportLinks->implode(', ');
+                } else {
+                    $doctorReportDisplay = 'Not available';
+                }
+                
                 $insuranceDeduction = ($user->country !== 'Israel') ? $workerDeduction : 0;
 
                 $totalPayment = $user->salary - $sickLeavePayment;
@@ -282,6 +287,22 @@ class PayrollReportController extends Controller
             $netPayment = $totalPayment - $insuranceDeduction - $loanDeduction['loanApplied'];
             $loanApplied = $loanDeduction['loanApplied']; 
 
+            $form101 = Form::where('user_id', $user->id)
+            ->where('type', 'form101')
+            ->whereNotNull('pdf_name') 
+            ->orderBy('pdf_name', 'asc')
+            ->first();
+                        
+            $form101Display = 'Not available';
+            
+            if ($form101) {
+                $form101Path = $form101->pdf_name;        
+                if ($form101Path) {                     
+                    $form101Link = url('storage/' . $form101Path);
+                    $form101Display = $form101Link;    
+                }
+            }
+                                
             // Store report data
             $reportData[] = [
                 'Number' => $user->id,
@@ -311,6 +332,7 @@ class PayrollReportController extends Controller
                 'Loan' => round($loanApplied, 2),
                 'Net Payment' => round($netPayment, 2),
                 'Doctor Report' => $doctorReportDisplay,
+                'Form 101' => $form101Display, 
             ];
         }
 

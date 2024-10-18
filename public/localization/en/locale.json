@@ -1541,6 +1541,7 @@
             }
         },
         "hearing": {
+            "title":"Hearings",
             "scheduleHearing": "Schedule Hearing",
             "reSchedule": "Re-schedule Hearing",
             "schedule": "Schedule",
@@ -1736,6 +1737,7 @@
         "workerName":"Worker Name",
         "endDate":"End Date",
         "doctorReport":"Doctor Report",
+        "form101":"Form 101",
         "reason":"Reason",
         "refund_request":"Refund",
         "status":"Status",

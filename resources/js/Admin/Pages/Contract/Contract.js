@@ -221,7 +221,8 @@ export default function Contract() {
             }
 
             if (_id) {
-                navigate(`/admin/view-contract/${_id}`);
+            const url = `/admin/view-contract/${_id}`;
+            window.open(url, '_blank'); 
             }
         });
 

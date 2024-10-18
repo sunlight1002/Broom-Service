@@ -227,7 +227,7 @@ const WorkersHearing = () => {
             <div className="titleBox customer-title">
                 <div className="row">
                     <div className="col-sm-6">
-                        <h1 className="page-title">{t("client.common.meetings")}</h1>
+                        <h1 className="page-title">{t("admin.hearing.title")}</h1>
                     </div>
                     <div className="col-sm-6 hidden-xl mt-4">
                         <select

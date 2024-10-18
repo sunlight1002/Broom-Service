@@ -222,8 +222,6 @@ export default function WorkerViewJob() {
         });
     };
 
-
-
     useEffect(() => {
         const interval = setInterval(() => {
             let timeDiff =

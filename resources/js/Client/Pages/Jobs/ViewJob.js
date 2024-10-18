@@ -59,6 +59,8 @@ export default function ViewJob() {
         setIsOpenCancelModal(true);
     };
 
+    const jobId = Base64.decode(params.id);
+
     return (
         <div id="container">
             <Sidebar />
@@ -105,7 +107,7 @@ export default function ViewJob() {
                             </div>
                             <div className="col-sm-12">
                                 <Services job={job} />
-                                <Comment />
+                                <Comment jobId={jobId} />
                             </div>
                             <div className="col-sm-12 text-center">
                                 <button

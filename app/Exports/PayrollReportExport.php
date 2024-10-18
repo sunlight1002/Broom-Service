@@ -72,6 +72,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
             'מפרעה/ ADVANCE',
             'תשלום נטו/NET PAYMENT',
             'דוח הרופא/DOCTOR REPORT',
+            '101 טופס/Form 101',
 
         ];
 
@@ -81,6 +82,7 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
     public function map($row): array
     {
         $doctorReportUrl = $row['Doctor Report'] ? url(Storage::url($row['Doctor Report'])) : '';
+        $form101Url = $row['Form 101'] ? url(Storage::url($row['Form 101'])) : '';
 
         $mappedRow = [
               $row['Number'],
@@ -108,7 +110,8 @@ class PayrollReportExport implements  FromArray, WithHeadings, WithMapping,WithS
               $row['Insurance'],
               $row['loan'],
               $row['Net Payment'],
-              $doctorReportUrl
+              $doctorReportUrl,
+              $form101Url,
         ];
 
             return $mappedRow;

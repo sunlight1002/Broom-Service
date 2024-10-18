@@ -45,6 +45,8 @@ export default function AddWorker() {
         renewal_date: "",
         company_type: "",
         manpower_company_id: "",
+        employment_type: "",
+        salary: ""
     });
     const [isLoading, setIsLoading] = useState(false);
     const [password, setPassword] = useState("");

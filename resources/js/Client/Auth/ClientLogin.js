@@ -118,7 +118,7 @@ export default function ClientLogin() {
                         </svg>
                     </div>
                     <h1 className="page-title">
-                        {dir == "heb" ? "לקוחות רשומים" : "Client Login"}
+                        {dir == "heb" ? "כניסה ללקוח" : "Client Login"}
                     </h1>
                     <form onSubmit={HandleLogin}>
                         <div className="form-group">

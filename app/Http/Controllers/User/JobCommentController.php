@@ -99,11 +99,7 @@ class JobCommentController extends Controller
             'comments' => $comments
         ]);
     }
-
-
-
-
-
+    
     /**
      * Store a newly created resource in storage.
      *
