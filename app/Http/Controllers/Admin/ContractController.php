@@ -188,8 +188,8 @@ class ContractController extends Controller
                 ['lead_status' => $newLeadStatus]
             );
 
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
-            
+            // event(new ClientLeadStatusChanged($client, $newLeadStatus));
+
             $emailData = [
                 'client' => $client->toArray(),
                 'status' => $newLeadStatus,
