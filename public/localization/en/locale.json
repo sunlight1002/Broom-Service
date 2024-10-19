@@ -728,7 +728,8 @@
             "cc_holder_name": "Cardholder Name",
             "cc_id_number": "ID Number",
             "cc_signature": "Cardholder Signature",
-            "add_cc_click_here": "To add a credit card, click here",
+            "add_cc_click_here": "Selecting an Additional Payment Method",
+            "add_cc_click_here1": "After adding a new credit card, you can choose an existing card from the list below or opt to add another credit card for payment.",
             "add_credit_card": "Add Credit Card",
             "cc_compensation": " The compensation is for the services as described above. Additional services that may be added in the future (if and as required) will be charged according to an additional service agreement to be made between the parties in advance.",
             "ca3_4": "All the aforementioned amounts will be subject to legal VAT, against which a valid tax invoice will be issued to the Customer.",
@@ -1662,7 +1663,7 @@
                 }
             }
         },
-        "holidays": { 
+        "holidays": {
             "addNewHoliday":"Add New Holiday",
             "holidayName":"Holiday Name",
             "startDate":"Start Date",

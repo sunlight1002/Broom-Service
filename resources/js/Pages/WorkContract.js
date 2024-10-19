@@ -338,7 +338,17 @@ export default function WorkContract() {
                             <label htmlFor="">
                                 {t("client.contract-form.address")}:
                             </label>
-                            <span className="text-underline mx-3"></span>
+                            <span className="text-underline mx-3">
+                                {offer?.services?.length
+                                    ? JSON.parse(offer.services)
+                                          .map(
+                                              (item) =>
+                                                  item?.address?.address_name ||
+                                                  ""
+                                          )
+                                          .join(", ")
+                                    : ""}
+                            </span>
                         </div>
                         <div className="col-md-12 d-flex">
                             <label htmlFor="">
@@ -562,6 +572,11 @@ export default function WorkContract() {
                                     <p>
                                         {t(
                                             "client.contract-form.add_cc_click_here"
+                                        )}
+                                    </p>
+                                    <p>
+                                        {t(
+                                            "client.contract-form.add_cc_click_here1"
                                         )}
                                     </p>
 
