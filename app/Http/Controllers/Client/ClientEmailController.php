@@ -340,94 +340,94 @@ class ClientEmailController extends Controller
     public function AcceptContract(Request $request)
     {
         try {
-            $contract = Contract::query()
-                ->with('client')
-                ->where('unique_hash', $request->unique_hash)
-                ->first();
+        $contract = Contract::query()
+            ->with('client')
+            ->where('unique_hash', $request->unique_hash)
+            ->first();
 
-            if (!$contract) {
-                return response()->json([
-                    'message' => "Contract not found"
-                ], 404);
-            }
-
-            $client = $contract->client;
-            if (!$client) {
-                return response()->json([
-                    'message' => "Client not found"
-                ], 404);
-            }
-
-
-            $args = [
-                'client_id'   => $client->id,
-                'card_type'   => $request->input('card_type'),
-                'card_number' => $request->input('card_number'),
-                'cvv'         => $request->input('cvv'),
-                'card_holder_id' => $client->id,
-                'card_holder_name' => $request->input('card_holder_name')
-            ];
-
-            $card = ClientCard::create($args);
-
-            $contract->update(['card_id' => $card->id]);
-
-            // $card = ClientCard::query()->find($request->id);
-
-            // if (!$card) {
-            //   return response()->json([
-            //     'message' => "No card found"
-            //   ], 404);
-            // }
-
-            $input = $request->input();
-            $input['signed_at'] = now()->toDateTimeString();
-
-            $contract->update($input);
-
-            if ($client->status != 2) {
-                $client->update([
-                    'status' => 2
-                ]);
-
-                Notification::create([
-                    'user_id' => $contract->client_id,
-                    'user_type' => get_class($client),
-                    'type' => NotificationTypeEnum::CONVERTED_TO_CLIENT,
-                    'status' => 'converted'
-                ]);
-            }
-
-            $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
-
-            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
-                $client->lead_status()->updateOrCreate(
-                    [],
-                    ['lead_status' => $newLeadStatus]
-                );
-
-                event(new ClientLeadStatusChanged($client, $newLeadStatus));
-
-            }
-
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                ]
-            ]));
-
-            $client->makeVisible('passcode');
-
-            event(new SendClientLogin($client->toArray()));
-
+        if (!$contract) {
             return response()->json([
-                'message' => "Thanks, for accepting contract"
+            'message' => "Contract not found"
+            ], 404);
+        }
+
+        $client = $contract->client;
+        if (!$client) {
+            return response()->json([
+            'message' => "Client not found"
+            ], 404);
+        }
+
+
+        $args = [
+            'client_id'   => $client->id,
+            'card_type'   => $request->input('card_type'),
+            'card_number' => $request->input('card_number'),
+            'cvv'         => $request->input('cvv'),
+            'card_holder_id' => $client->id,
+            'card_holder_name' => $request->input('card_holder_name')
+        ];
+
+        $card = ClientCard::create($args);
+
+        $contract->update(['card_id' => $card->id]);
+
+        // $card = ClientCard::query()->find($request->id);
+
+        // if (!$card) {
+        //   return response()->json([
+        //     'message' => "No card found"
+        //   ], 404);
+        // }
+
+        $input = $request->input();
+        $input['signed_at'] = now()->toDateTimeString();
+
+        $contract->update($input);
+
+        if ($client->status != 2) {
+            $client->update([
+            'status' => 2
             ]);
+
+            Notification::create([
+            'user_id' => $contract->client_id,
+            'user_type' => get_class($client),
+            'type' => NotificationTypeEnum::CONVERTED_TO_CLIENT,
+            'status' => 'converted'
+            ]);
+        }
+
+        $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
+
+        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+            [],
+            ['lead_status' => $newLeadStatus]
+            );
+
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+
+        }
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
+            "notificationData" => [
+                'client' => $client->toArray(),
+            ]
+        ]));
+
+        $client->makeVisible('passcode');
+
+        event(new SendClientLogin($client->toArray()));
+
+        return response()->json([
+            'message' => "Thanks, for accepting contract"
+        ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 500);
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
         }
     }
 

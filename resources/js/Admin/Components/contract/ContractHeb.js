@@ -83,7 +83,7 @@ export default function ContractHeb() {
         i18next.changeLanguage("heb");
         getContract();
     }, []);
-    
+
 
     return (
         <>

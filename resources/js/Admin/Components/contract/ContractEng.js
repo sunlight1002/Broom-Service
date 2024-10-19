@@ -84,7 +84,7 @@ export default function ContractEng() {
     }, []);
 
     console.log(services);
-    
+
 
     return (
         <>
