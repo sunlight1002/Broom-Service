@@ -43,13 +43,13 @@ class NotifyTeamContract12 extends Command
      */
     public function handle()
     {
-        $staticDate = "2024-10-15"; // Static date to start notifications from
+        $staticDate = "2024-10-19"; // Static date to start notifications from
         $timeLimit12Hours = Carbon::now()->subHours(12); // Define the 12-hour time limit
 
         // Fetch contracts that are "not-signed" and were created (sent) more than 12 hours ago
         $contracts = Contract::with('client')
             ->where('status', 'not-signed')
-            ->where('created_at', '>=', $staticDate) // Filter contracts created after the static date
+            ->whereDate('created_at', '>=', $staticDate) // Filter contracts created after the static date
             ->where('created_at', '<=', $timeLimit12Hours) // Check if they were created more than 12 hours ago
             ->get();
 

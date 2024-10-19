@@ -14,7 +14,7 @@ class AddApprovedDateToRefundClaimTable extends Migration
     public function up()
     {
         Schema::table('refund_claim', function (Blueprint $table) {
-            $table->timestamp('approved_date')->nullable();
+            // $table->timestamp('approved_date')->nullable();
         });
     }
 

@@ -25,7 +25,7 @@ class StatusNotUpdated24hours extends Command
         $offerStatuses = Offer::with('client')
             ->where('status', 'sent')
             ->whereHas('client', function ($q) {
-                $q->whereDate('created_at', '>=', '2024-10-15');
+                $q->whereDate('created_at', '>=', '2024-10-19');
             })
             ->whereDate('created_at', '<=', Carbon::now()->subDays(1)) // Fetch records older than 1 day
             ->get();
@@ -71,10 +71,10 @@ class StatusNotUpdated24hours extends Command
                 $this->info("Client not found for Offer Status ID: {$offerStatus->id}");
             }
         }
-    
+
         return 0;
     }
-    
+
     // Check if the notification for the given key was already sent
     protected function isNotificationSent($clientId, $key)
     {

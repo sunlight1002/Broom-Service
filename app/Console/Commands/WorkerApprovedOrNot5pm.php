@@ -44,6 +44,8 @@ class WorkerApprovedOrNot5pm extends Command
      */
     public function handle()
     {
+        // Define the static date to start notifications from
+        $staticDate = "2024-10-19"; // Static date to start notifications from
         // Get current time
         $currentTime = now();
         \Log::info($currentTime);
@@ -51,6 +53,7 @@ class WorkerApprovedOrNot5pm extends Command
         // Get unconfirmed jobs where the current time is 5:00 PM or later
         $unconfirmedJobs = Job::with(['client', 'worker'])
             ->where('worker_approved_at', null)
+            ->whereDate('created_at', '>=', $staticDate)
             ->whereTime('start_date', '<=', $currentTime) // Ensure the job has started
             ->get();
 

@@ -44,14 +44,14 @@ class UpdateTeam24 extends Command
     public function handle()
     {
         // Static date from which notifications should start
-        $staticDate = "2024-10-15"; // Static date to start notifications from
+        $staticDate = "2024-10-19"; // Static date to start notifications from
 
         // Define the 24-hour time limit
         $timeLimit24Hours = Carbon::now()->subHours(24);
 
         // Get all offers with status 'sent' that are older than 24 hours and created after the static date
         $offerStatuses = Offer::where('status', 'sent')
-            ->where('created_at', '>=', $staticDate) // Offers created after the static date
+            ->whereDate('created_at', '>=', $staticDate) // Offers created after the static date
             ->where('created_at', '<=', $timeLimit24Hours) // Older than 24 hours
             ->get();
 

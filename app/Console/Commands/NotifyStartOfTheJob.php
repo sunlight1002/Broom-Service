@@ -37,9 +37,12 @@ class NotifyStartOfTheJob extends Command
         $admin_notified = false;
         \Log::info($currentTime);
 
+        $staticDate = "2024-10-19"; // Static date to start notifications from
+
         // Get jobs that were scheduled for today and not completed or started
         $jobsToNotify = Job::with(['client', 'worker', 'hours','comments'])
             ->where('status' , '!=' ,"completed")
+            ->whereDate('created_at', '>=', $staticDate)
             ->whereNotNull('worker_approved_at') // Only jobs where the worker has approved
             ->whereNotNull('job_opening_timestamp') // Exclude completed jobs
             ->whereDoesntHave('hours') // Jobs that don't have hours recorded (e.g., not started)

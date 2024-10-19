@@ -14,7 +14,7 @@ class AddStatusFieldToAdvancesLoansTable extends Migration
     public function up()
     {
         Schema::table('advances_loans', function (Blueprint $table) {
-            $table->string('status')->default('pending')->after('loan_start_date');
+            // $table->string('status')->default('pending')->after('loan_start_date');
         });
     }
 

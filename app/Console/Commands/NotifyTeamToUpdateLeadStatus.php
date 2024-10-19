@@ -49,7 +49,7 @@ class NotifyTeamToUpdateLeadStatus extends Command
         $leadStatuses = LeadStatus::with('client')
         ->where('lead_status', 'pending')
         ->whereHas('client', function ($q) use ($todayDate) {
-            $q->whereDate('created_at', '>=', "2024-10-15"); // Limit to leads created on or after 2024-09-19
+            $q->whereDate('created_at', '>=', "2024-10-19"); // Limit to leads created on or after 2024-09-19
         })
         ->where('created_at', '<=', Carbon::now()->subHours(24))  // Created more than 24 hours ago
         ->get();

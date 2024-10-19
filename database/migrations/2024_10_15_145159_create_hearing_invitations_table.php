@@ -16,7 +16,13 @@ class CreateHearingInvitationsTable extends Migration
         Schema::create('hearing_invitations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('team_id')->nullable()->constrained()->onDelete('set null');
+
+            // Define team_id correctly
+            $table->foreignId('team_id')
+                ->nullable()
+                ->constrained('users') // Reference the 'users' table explicitly
+                ->nullOnDelete(); // Use 'nullOnDelete()' for nullable foreign keys
+
             $table->date('start_date');
             $table->string('start_time');
             $table->string('end_time');
@@ -24,7 +30,13 @@ class CreateHearingInvitationsTable extends Migration
             $table->string('meet_link')->nullable();
             $table->string('purpose')->nullable();
             $table->string('booking_status')->nullable();
-            $table->foreignId('address_id')->nullable()->constrained()->onDelete('set null');
+
+            // Define address_id correctly
+            // $table->foreignId('address_id')
+            //     ->nullable()
+            //     ->constrained()
+            //     ->nullOnDelete(); // Use 'nullOnDelete()' to avoid errors
+
             $table->timestamps();
         });
     }

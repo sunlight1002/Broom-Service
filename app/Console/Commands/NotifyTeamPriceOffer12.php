@@ -45,7 +45,7 @@ class NotifyTeamPriceOffer12 extends Command
      */
     public function handle()
     {
-        $staticDate = "2024-10-15"; // Static date to start notifications from
+        $staticDate = "2024-10-19"; // Static date to start notifications from
         $currentDateTime = Carbon::now();
         $yesterdayDateTime = $currentDateTime->subHours(12); // 12 hours ago
 

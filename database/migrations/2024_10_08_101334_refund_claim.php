@@ -13,27 +13,27 @@ class RefundClaim extends Migration
      */
     public function up()
     {
-        Schema::create('refund_claim', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->string('user_type');
-            $table->date('date');
-            $table->decimal('amount', 10, 2);
-            $table->string('bill_file')->nullable();
-            $table->string('status')->default('pending');
-            $table->string('paid_status')->default('unpaid');
-            $table->timestamps();
-            $table->softDeletes();
-        });
-        Schema::table('refund_claim', function (Blueprint $table) {
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-        });
+        // Schema::create('refund_claim', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->unsignedBigInteger('user_id');
+        //     $table->string('user_type');
+        //     $table->date('date');
+        //     $table->decimal('amount', 10, 2);
+        //     $table->string('bill_file')->nullable();
+        //     $table->string('status')->default('pending');
+        //     $table->string('paid_status')->default('unpaid');
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
+        // Schema::table('refund_claim', function (Blueprint $table) {
+        //     $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        // });
     }
 
     /**
      * Reverse the migrations.
      *
-     * @return void 
+     * @return void
      */
     public function down()
     {

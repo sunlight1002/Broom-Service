@@ -22,97 +22,97 @@ class NotifyClientContract extends Command
     }
 
     public function handle()
-{
-    // Capture the current date and time once
-    $currentDateTime = Carbon::now();
+    {
+        // Capture the current date and time once
+        $currentDateTime = Carbon::now();
 
-    // Define the static date to start notifications from
-    $staticDate = "2024-10-15"; // Static date to start notifications from
+        // Define the static date to start notifications from
+        $staticDate = "2024-10-19"; // Static date to start notifications from
 
-    // Define time limits for 24-hour and 3-day notifications
-    $timeLimit24Hours = $currentDateTime->subHours(24)->toDateTimeString(); // Contracts older than 24 hours
-    $timeLimit3Days = $currentDateTime->subDays(3)->toDateTimeString(); // Contracts older than 3 days
+        // Define time limits for 24-hour and 3-day notifications
+        $timeLimit24Hours = $currentDateTime->subHours(24)->toDateTimeString(); // Contracts older than 24 hours
+        $timeLimit3Days = $currentDateTime->subDays(3)->toDateTimeString(); // Contracts older than 3 days
 
-    // Fetch contracts "not-signed" that were created more than 24 hours ago, but within the last 3 days
-    $contracts24Hours = Contract::with('client')
-        ->where('status', 'not-signed')
-        ->where('created_at', '>=', $staticDate)
-        ->where('created_at', '<=', $timeLimit24Hours)
-        ->where('created_at', '>', $timeLimit3Days) // Older than 24 hours but not older than 3 days
-        ->get();
+        // Fetch contracts "not-signed" that were created more than 24 hours ago, but within the last 3 days
+        $contracts24Hours = Contract::with('client')
+            ->where('status', 'not-signed')
+            ->whereDate('created_at', '>=', $staticDate)
+            ->where('created_at', '<=', $timeLimit24Hours)
+            ->where('created_at', '>', $timeLimit3Days) // Older than 24 hours but not older than 3 days
+            ->get();
 
-    // Notify for contracts "not-signed" in the last 24 hours
-    foreach ($contracts24Hours as $contract) {
-        \Log::info($contract);
-        $client = $contract->client;
-        
-        // Check if 24-hour notification has already been sent
-        $metaExists = ClientMetas::where('client_id', $client->id)
-            ->where('key', ClientMetaEnum::NOTIFICATION_SENT_CONTRACT24HOUR)
-            ->exists();
+        // Notify for contracts "not-signed" in the last 24 hours
+        foreach ($contracts24Hours as $contract) {
+            \Log::info($contract);
+            $client = $contract->client;
 
-        if ($client && !$metaExists) {
-            App::setLocale($client->lng); // Set locale for notifications
+            // Check if 24-hour notification has already been sent
+            $metaExists = ClientMetas::where('client_id', $client->id)
+                ->where('key', ClientMetaEnum::NOTIFICATION_SENT_CONTRACT24HOUR)
+                ->exists();
 
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'contract' => $contract->toArray(),
-                ]
-            ]));
+            if ($client && !$metaExists) {
+                App::setLocale($client->lng); // Set locale for notifications
 
-            // Store that the 24-hour notification has been sent
-            ClientMetas::create([
-                'client_id' => $client->id,
-                'key' => ClientMetaEnum::NOTIFICATION_SENT_CONTRACT24HOUR,
-                'value' => Carbon::now(),
-            ]);
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                        'contract' => $contract->toArray(),
+                    ]
+                ]));
 
-            $this->info("24-hour notification sent for client: " . $client->firstname);
+                // Store that the 24-hour notification has been sent
+                ClientMetas::create([
+                    'client_id' => $client->id,
+                    'key' => ClientMetaEnum::NOTIFICATION_SENT_CONTRACT24HOUR,
+                    'value' => Carbon::now(),
+                ]);
+
+                $this->info("24-hour notification sent for client: " . $client->firstname);
+            }
         }
-    }
 
-    // Fetch contracts "not-signed" that were created more than 3 days ago
-    $contracts3Days = Contract::with('client')
-        ->where('status', 'not-signed')
-        ->where('created_at', '>=', $staticDate) // Start from static date
-        ->where('created_at', '<=', $timeLimit3Days) // Older than 3 days
-        ->get();
+        // Fetch contracts "not-signed" that were created more than 3 days ago
+        $contracts3Days = Contract::with('client')
+            ->where('status', 'not-signed')
+            ->whereDate('created_at', '>=', $staticDate) // Start from static date
+            ->where('created_at', '<=', $timeLimit3Days) // Older than 3 days
+            ->get();
 
-    // Notify for contracts "not-signed" older than 3 days
-    foreach ($contracts3Days as $contract) {
-        $client = $contract->client;
-        
-        // Check if 3-day notification has already been sent
-        $metaExists = ClientMetas::where('client_id', $client->id)
-            ->where('key', ClientMetaEnum::NOTIFICATION_SENT_CONTRACT3DAY)
-            ->exists();
+        // Notify for contracts "not-signed" older than 3 days
+        foreach ($contracts3Days as $contract) {
+            $client = $contract->client;
 
-        if ($client && !$metaExists) {
-            App::setLocale($client->lng); // Set locale for notifications
+            // Check if 3-day notification has already been sent
+            $metaExists = ClientMetas::where('client_id', $client->id)
+                ->where('key', ClientMetaEnum::NOTIFICATION_SENT_CONTRACT3DAY)
+                ->exists();
 
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_3DAY,
-                "notificationData" => [
-                    'client' => $client->toArray(),
-                    'contract' => $contract->toArray(),
-                ]
-            ]));
+            if ($client && !$metaExists) {
+                App::setLocale($client->lng); // Set locale for notifications
 
-            // Store that the 3-day notification has been sent
-            ClientMetas::create([
-                'client_id' => $client->id,
-                'key' => ClientMetaEnum::NOTIFICATION_SENT_CONTRACT3DAY,
-                'value' => Carbon::now(),
-            ]);
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_3DAY,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                        'contract' => $contract->toArray(),
+                    ]
+                ]));
 
-            $this->info("3-day notification sent for client: " . $client->firstname);
+                // Store that the 3-day notification has been sent
+                ClientMetas::create([
+                    'client_id' => $client->id,
+                    'key' => ClientMetaEnum::NOTIFICATION_SENT_CONTRACT3DAY,
+                    'value' => Carbon::now(),
+                ]);
+
+                $this->info("3-day notification sent for client: " . $client->firstname);
+            }
         }
-    }
 
-    return 0;
-}
+        return 0;
+    }
 
 }
 

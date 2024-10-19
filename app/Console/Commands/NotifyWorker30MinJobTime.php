@@ -46,14 +46,14 @@ class NotifyWorker30MinJobTime extends Command
      */
     public function handle()
     {
-        $staticDate = "2024-10-18"; // Static date to start notifications from
+        $staticDate = "2024-10-19"; // Static date to start notifications from
         $currentTime = Carbon::now();
         \Log::info('Current Time: ' . $currentTime->format('H:i'));
-    
+
         // Calculate 30 minutes after the current time
         $timeBefore30Min = $currentTime->copy()->addMinutes(30);
         \Log::info('Time 30 Minutes Later: ' . $timeBefore30Min->format('H:i'));
-    
+
         // Fetch jobs that are ending in 30 minutes
         $jobs = Job::with("hours")
                     ->where('end_time', '>=', $currentTime->format('H:i'))
@@ -64,13 +64,13 @@ class NotifyWorker30MinJobTime extends Command
                         $query->whereDate('created_at', '>=', $staticDate);
                     })
                     ->get();
-    
+
         foreach ($jobs as $job) {
             // Check if notification has already been sent
             $notificationSent = WorkerMetas::where('worker_id', $job->worker_id)
                                             ->where('key', WorkerMetaEnum::NOTIFICATION_SENT_30MIN_BEFORE_JOB_ENDTIME)
                                             ->exists();
-    
+
             if (!$notificationSent) {
                 // Send notification here
                 // event(new WhatsappNotificationEvent(
@@ -82,10 +82,10 @@ class NotifyWorker30MinJobTime extends Command
                 //         'job_id' => $job->id
                 //     ]
                 // ));
-    
+
                 // Log info for tracking (optional)
                 \Log::info("WhatsApp notification sent to worker ID: {$job->worker_id} for Job ID: {$job->id}.");
-    
+
                 // Log that the notification has been sent
                 WorkerMetas::updateOrCreate(
                     [
@@ -98,9 +98,9 @@ class NotifyWorker30MinJobTime extends Command
                 );
             }
         }
-    
+
         return 0;
     }
-    
-    
+
+
 }
