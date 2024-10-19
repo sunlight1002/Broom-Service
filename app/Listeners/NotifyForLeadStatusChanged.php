@@ -132,7 +132,7 @@ class NotifyForLeadStatusChanged implements ShouldQueue
             ]));
         };
 
-        if ($event->newStatus === 'pending client') {
+        if ($event->newStatus === 'waiting') {
 
             event(new WhatsappNotificationEvent([
                 "type" => WhatsappMessageTemplateEnum::PENDING_CLIENT,

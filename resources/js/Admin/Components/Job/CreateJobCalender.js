@@ -15,6 +15,7 @@ import {
     getWorkerAvailabilities,
     getWorkersData,
 } from "../../../Utils/job.utils";
+import { getShiftsDetails } from "../../../Utils/common.utils";
 
 export default function CreateJobCalender({
     services: clientServices,
@@ -43,6 +44,9 @@ export default function CreateJobCalender({
     const [searchVal, setSearchVal] = useState("");
     const [loading, setLoading] = useState(false);
     const [serviceIndex, setServiceIndex] = useState(null)
+
+    let uniqueShifts = new Set(); // To track unique shifts
+
 
     useEffect(() => {
         setServices(clientServices);
@@ -113,7 +117,6 @@ export default function CreateJobCalender({
             .then((res) => {
                 setAllWorkers(res.data.workers);
 
-
                 const workerAvailityData = getWorkerAvailabilities(res?.data?.workers);
 
                 setWorkerAvailabilities(workerAvailityData);
@@ -128,8 +131,6 @@ export default function CreateJobCalender({
     useEffect(() => {
         handleServices(serviceIndex);
     }, [serviceIndex, distance])
-
-    // console.log(AllWorkers,"wo");
 
 
     const submitForm = (_data) => {
@@ -328,9 +329,6 @@ export default function CreateJobCalender({
 
         return false;
     };
-
-    // console.log(workerAvailabilities, "la");
-    
 
     return (
         <>
@@ -745,20 +743,39 @@ export default function CreateJobCalender({
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {getWorkersData(
-                                                    selectedHours
-                                                ) &&
-                                                    getWorkersData(
-                                                        selectedHours
-                                                    ).map((d, i) => (
-                                                        <tr key={i}>
-                                                            <td>
-                                                                {d.worker_name}
-                                                            </td>
-                                                            <td>{d.date}</td>
-                                                            <td>{d.shifts}</td>
-                                                        </tr>
-                                                    ))}
+                                            {getWorkersData(selectedHours) &&
+                getWorkersData(selectedHours).map((s, idx) => {
+                    return (
+                        selectedHours.map((d, i) => {
+                            return (
+                                d?.formattedSlots?.flatMap((slots, j) => {
+                                    const job = { shifts: slots.shifts };
+                                    const { startTime, endTime } = getShiftsDetails(job);
+
+                                    // Create a unique identifier for each shift
+                                    const shiftKey = `${s.worker_name}-${s.date}-${startTime}-${endTime}`;
+
+                                    // Check if this shift has already been added
+                                    if (!uniqueShifts.has(shiftKey)) {
+                                        uniqueShifts.add(shiftKey); // Add the shift to the Set
+
+                                        return (
+                                            <tr key={shiftKey}>
+                                                <td>{s.worker_name}</td>
+                                                <td>{s.date}</td>
+                                                <td>{startTime} - {endTime}</td>
+                                            </tr>
+                                        );
+                                    }
+
+                                    return null; // Skip rendering if already rendered
+                                })
+                            );
+                        })
+                    );
+                })
+            }
+
                                             </tbody>
                                         </table>
                                     ) : (

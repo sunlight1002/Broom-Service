@@ -112,24 +112,23 @@ export const generateUnique15MinShifts = (shiftsArray, maxDurationInHours) => {
 };
 
 export function getShiftsDetails(job) {
-    // console.log(job.shifts);
     let durationInMinutes;
     let durationInHours;
 
     // Check if job.duration_minutes exists and is not empty or undefined
     if (job?.duration_minutes) {
-        durationInMinutes = job?.jobservice?.duration_minutes 
-            ? job?.jobservice?.duration_minutes / 4 
+        durationInMinutes = job?.jobservice?.duration_minutes
+            ? job?.jobservice?.duration_minutes / 4
             : job?.duration_minutes / 4;
         durationInHours = durationInMinutes / 60;
     } else {
-        durationInHours = 0; 
+        durationInHours = 0;
     }
 
     const shiftsArray = job?.shifts ? job?.shifts?.split(",") : [];
     if (durationInHours == 0) {
         durationInHours = shiftsArray?.length / 4;
-    }    
+    }
     const allShifts = generateUnique15MinShifts(shiftsArray, durationInHours);
     // console.log(allShifts, "all");
 
@@ -148,7 +147,7 @@ export function getShiftsDetails(job) {
 
 //     const shiftsArray = job?.shifts ? job?.shifts?.split(",") : [];
 //     console.log(shiftsArray);
-    
+
 //     // const allShifts = generateUnique15MinShifts(shiftsArray, durationInHours);
 
 //     // return {

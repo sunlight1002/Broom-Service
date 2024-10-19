@@ -11,7 +11,6 @@ import useWindowWidth from "../../../Hooks/useWindowWidth";
 import WorkerAvailabilityTableMobile from "./WorkerAvailabilityTableMobile";
 import { getShiftsDetails } from "../../../Utils/common.utils";
 
-
 export default function WorkerAvailabilityTable({
     workerAvailabilities,
     week,
@@ -133,8 +132,6 @@ export default function WorkerAvailabilityTable({
         const slots = workerSlots?.slots?.find((slot) => slot.date === date) ?? {};
 
         const filtered = isClient ? slots?.slots : slots?.allSlots;
-        console.log(filtered, "filterer");
-
 
         setFilterSlots(filtered);
         setSelectedDate(date);
@@ -235,10 +232,10 @@ export default function WorkerAvailabilityTable({
                                                 </span>
                                             </td>
                                             {week?.map((element, index) => {
-                                                
+
                                                 const alreadyBooked = getBookedSlotsForWorkerAndDate(w.id, element);
                                                 // console.log(alreadyBooked, );
-                                                
+
                                                 let workerSlots =
                                                     workerAvailabilities?.find((_w) => _w.workerId === w.id) ?? [];
                                                 let slots =
@@ -266,14 +263,13 @@ export default function WorkerAvailabilityTable({
                                                                     <div className="d-flex flex-wrap">
                                                                         {alreadyBooked.map((slot, idx) => {
                                                                             // console.log(slot);
-                                                                            
+
                                                                             const job = {
                                                                                 shifts: slot.slot
                                                                              }
                                                                             let { durationInHours, startTime, endTime } = getShiftsDetails(job);
-                                                                             console.log(startTime,"-",endTime);
-                                                                             
-                                                                            
+
+
                                                                             return (
                                                                                 <div key={idx} className="slot-info mr-1">
                                                                                     {/* {parseTimeSlots(slot.slot).map((time, timeIdx) => ( */}
@@ -391,7 +387,6 @@ export default function WorkerAvailabilityTable({
                                     {filterSlots?.length > 0 ? (
                                         filterSlots.map((shift, _sIdx) => {
                                             let isActive = hasActive(selectedWorker.id, selectedDate, shift);
-                                            // console.log(shift);
                                             if (!hasStartActive) {
                                                 hasStartActive = isActive;
                                             } else if (isClient) {
