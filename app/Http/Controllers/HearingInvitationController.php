@@ -184,7 +184,17 @@ class HearingInvitationController extends Controller
             ->rawColumns(['action'])
             ->toJson();
     }
-
     
-
+    public function getScheduledHearings($id)
+    {
+        // Fetch the hearing invitation by ID
+        $hearing = HearingInvitation::find($id);
+    
+        if (!$hearing) {
+            return response()->json(['message' => 'Hearing Invitation not found'], 404);
+        }
+    
+        return response()->json($hearing);
+    }
+    
 }

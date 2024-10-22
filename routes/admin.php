@@ -359,6 +359,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::put('/hearing-invitations/{id}', [HearingInvitationController::class, 'update']);
     Route::post('/hearing-invitations/{id}/create-event', [HearingInvitationController::class, 'createEvent']);
 
+    Route::get('scheduled-hearings/{id}', [HearingInvitationController::class, 'getScheduledHearings']);
+    
+
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);
     Route::post('holidays', [HolidayController::class, 'store']);

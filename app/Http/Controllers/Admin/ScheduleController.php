@@ -160,8 +160,6 @@ class ScheduleController extends Controller
             ]);
         }
 
-        
-
         $googleAccessToken = Setting::query()
             ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
             ->value('value');

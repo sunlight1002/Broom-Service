@@ -223,13 +223,13 @@ export default function Sidebar() {
                         <i className="fa-solid fa-undo-alt font-20"></i>{t("worker.worker_refund")}
                     </NavLink>
                 </li>
-                <li className="list-group-item">
+                {/* <li className="list-group-item">
                     <NavLink to="/admin/workers-hearing"
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-video font-20"></i>{t("admin.sidebar.workerHearing")}
                     </NavLink>
-                </li>
+                </li> */}
                 <li className="list-group-item">
                     <NavLink to="/admin/schedule"
                         className="d-flex align-items-center"

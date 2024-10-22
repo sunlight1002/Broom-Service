@@ -70,6 +70,7 @@ import EditWorker from "./Admin/Pages/Workers/EditWorker";
 import WorkersLeave from "./Admin/Pages/Workers/WorkersLeave";
 import WorkersRefund from "./Admin/Pages/Workers/WorkersRefund";
 import WorkersHearing from "./Admin/Pages/Workers/WorkersHearing";
+import ViewHearing from "./Admin/Pages/Hearing/ViewHearing";
 import ViewWorker from "./Admin/Pages/Workers/ViewWorker";
 import ViewWorkerContract from "./Admin/Pages/Workers/WorkerContract";
 import AdminLogin from "./Admin/Pages/Auth/AdminLogin";
@@ -731,6 +732,11 @@ export default function MyRoutes() {
                                 exact
                                 path="workers-hearing"
                                 element={<WorkersHearing />}
+                            />
+                            <Route
+                                exact
+                                path="workers-hearing/view/:id"
+                                element={<ViewHearing />}
                             />
                             <Route
                                 exact
