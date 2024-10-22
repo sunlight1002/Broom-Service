@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddStatusFieldToAdvancesLoansTable extends Migration
+class AddIsExtendedToJobsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddStatusFieldToAdvancesLoansTable extends Migration
      */
     public function up()
     {
-        Schema::table('advances_loans', function (Blueprint $table) {
-            // $table->string('status')->default('pending')->after('loan_start_date');
+        Schema::table('jobs', function (Blueprint $table) {
+            $table->boolean('is_extended')->default(false)->after('end_time');
         });
     }
 
@@ -25,8 +25,8 @@ class AddStatusFieldToAdvancesLoansTable extends Migration
      */
     public function down()
     {
-        Schema::table('advances_loans', function (Blueprint $table) {
-            //
+        Schema::table('jobs', function (Blueprint $table) {
+            $table->dropColumn('is_extended'); // Drop the columns on rollback
         });
     }
 }

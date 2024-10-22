@@ -338,17 +338,15 @@ export default function WorkContract() {
                             <label htmlFor="">
                                 {t("client.contract-form.address")}:
                             </label>
-                            <span className="text-underline mx-3">
-                                {offer?.services?.length
-                                    ? JSON.parse(offer.services)
-                                          .map(
-                                              (item) =>
-                                                  item?.address?.address_name ||
-                                                  ""
-                                          )
-                                          .join(", ")
-                                    : ""}
-                            </span>
+                            {services.map((s, i) => (
+                                <span key={i} className="text-underline mx-3">
+                                    {s.address &&
+                                        s.address.address_name
+                                        ? s.address
+                                            .address_name
+                                        : "NA"}
+                                </span>
+                            ))}
                         </div>
                         <div className="col-md-12 d-flex">
                             <label htmlFor="">
@@ -434,9 +432,9 @@ export default function WorkContract() {
                                                 <tr key={i}>
                                                     <td>
                                                         {s.address &&
-                                                        s.address.address_name
+                                                            s.address.address_name
                                                             ? s.address
-                                                                  .address_name
+                                                                .address_name
                                                             : "NA"}
                                                     </td>
                                                     <td>
@@ -598,7 +596,7 @@ export default function WorkContract() {
                                                         disabled={
                                                             contract &&
                                                             contract.status !=
-                                                                "not-signed"
+                                                            "not-signed"
                                                         }
                                                     />
                                                     **** **** ****{" "}
@@ -833,7 +831,7 @@ export default function WorkContract() {
                             ) : (
                                 <div className="col-sm-12 mt-2 float-right">
                                     {status == "un-verified" ||
-                                    status == "verified" ? (
+                                        status == "verified" ? (
                                         <h4 className="btn btn-success">
                                             {t("global.accepted")}
                                         </h4>

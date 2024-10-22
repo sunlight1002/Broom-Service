@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddApprovedDateToRefundClaimTable extends Migration
+class AddJobIdToWorkerMetasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddApprovedDateToRefundClaimTable extends Migration
      */
     public function up()
     {
-        Schema::table('refund_claim', function (Blueprint $table) {
-            // $table->timestamp('approved_date')->nullable();
+        Schema::table('worker_metas', function (Blueprint $table) {
+            $table->integer('job_id')->nullable()->after('worker_id'); 
         });
     }
 
@@ -25,8 +25,8 @@ class AddApprovedDateToRefundClaimTable extends Migration
      */
     public function down()
     {
-        Schema::table('refund_claim', function (Blueprint $table) {
-            $table->dropColumn('approved_date');
+        Schema::table('worker_metas', function (Blueprint $table) {
+            $table->dropColumn('job_id'); // Drop the columns on rollback
         });
     }
 }

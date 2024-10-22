@@ -108,7 +108,7 @@ class JobCommentController extends Controller
      */
     public function store(Request $request)
     {
-        $job = Job::with(['client', 'worker', 'jobservice'])
+        $job = Job::with(['client', 'worker', 'jobservice', 'propertyAddress'])
             ->where('worker_id', Auth::id())
             ->find($request->job_id);
 
@@ -173,16 +173,23 @@ class JobCommentController extends Controller
             ];
 
             if ($request->status == JobStatusEnum::COMPLETED) {
-                $end_time = $job->start_date."".$job->end_time;
-                if ($end_time > now()->toDateTimeString()) {
-                    $jobData['completed_at'] = $end_time;
-                }else{
-                    // $jobData['completed_at'] = now()->toDateTimeString();
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::TEAM_ADJUST_WORKER_JOB_COMPLETED_TIME,
+                $end_time = $job->start_date." ".$job->end_time;
+
+                $jobData['completed_at'] = now()->toDateTimeString();
+
+                // if ($job->is_extended == 1) {
+                //     $jobData['completed_at'] = now()->toDateTimeString();
+                // }else if($job->is_extended == 0){
+                //     $jobData['completed_at'] = now()->toDateTimeString();
+                // }
+           
+                if(($end_time <  now()->toDateTimeString()) && ($job->is_extended == 0)){
+                      // $jobData['completed_at'] = now()->toDateTimeString();
+                      event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::WORKER_NEED_EXTRA_TIME,
                         "notificationData" => [
                             'job' => $job->toArray(),
-                            'complete_time' => now()->toDateTimeString(),
+                            // 'complete_time' => now()->toDateTimeString(),
                         ]
                     ]));
                 }
@@ -299,31 +306,34 @@ class JobCommentController extends Controller
             'new_status' => $comment->status, // Return the new status for feedback
         ]);
     }
-    public function adjustJobCompleteTime(Request $request, $id)
-    {
-        // Validate the input
-        $request->validate([
-            'action' => 'required|string|in:keep,adjust',
-        ]);
+    // public function adjustJobCompleteTime(Request $request, $id)
+    // {
+    //     // Validate the input
+    //     $request->validate([
+    //         'action' => 'required|string|in:keep,adjust',
+    //     ]);
 
-        // Fetch the job by ID
-        $job = Job::find($id);
-        if (!$job) {
-            return response()->json(['message' => 'Job not found.'], 404);
-        }
+    //     // Fetch the job by ID
+    //     $job = Job::find($id);
+    //     if (!$job) {
+    //         return response()->json(['message' => 'Job not found.'], 404);
+    //     }
 
-        // Check the action and update the completed_at field accordingly
-        if ($request->action === 'adjust') {
-            // Adjust to the scheduled time
-            $job->completed_at = $job->start_date . ' ' . $job->end_time;
-        } else if ($request->action === 'keep') {
-            // Keep the actual time (set to current time)
-            $job->completed_at = Carbon::now()->toDateTimeString();
-        }
+    //     $end_time = $job->start_date." ".$job->end_time;
 
-        // Save the job with the updated time
-        $job->save();
+    //     // Check the action and update the completed_at field accordingly
+    //     if ($request->action === 'adjust') {
+    //         // Adjust to the scheduled time
+    //         $job->is_extended = true;
+    //     } else if ($request->action === 'keep') {
+    //         // Keep the actual time (set to current time)
+    //         $job->completed_at = $end_time;
+    //         $job->is_extended = false;
+    //     }
 
-        return response()->json(['message' => 'Job time adjusted successfully.'], 200);
-    }
+    //     // Save the job with the updated time
+    //     $job->save();
+
+    //     return response()->json(['message' => 'Job time adjusted successfully.'], 200);
+    // }
 }

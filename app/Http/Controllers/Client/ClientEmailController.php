@@ -500,7 +500,7 @@ class ClientEmailController extends Controller
             ], 404);
         }
 
-        $client = Client::find($contract->client_id);
+        $client = Client::with('property_addresses')->find($contract->client_id);
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found',

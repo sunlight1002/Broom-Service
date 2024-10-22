@@ -55,34 +55,30 @@ class NotifyWorker30MinJobTime extends Command
         \Log::info('Time 30 Minutes Later: ' . $timeBefore30Min->format('H:i'));
 
         // Fetch jobs that are ending in 30 minutes
-        $jobs = Job::with("hours")
+        $jobs = Job::with(["hours", 'worker', 'client', 'propertyAddress'])
                     ->where('end_time', '>=', $currentTime->format('H:i'))
                     ->where('end_time', '<=', $timeBefore30Min)
-                    // ->where('status', 'progress')
+                    ->where('status', 'progress')
                     ->whereHas('hours', function ($query) use ($staticDate) {
                         // Limit to JobHours records created on or after the static date
                         $query->whereDate('created_at', '>=', $staticDate);
                     })
                     ->get();
-
         foreach ($jobs as $job) {
             // Check if notification has already been sent
-            $notificationSent = WorkerMetas::where('worker_id', $job->worker_id)
+            $notificationSent = WorkerMetas::where('job_id', $job->id)
                                             ->where('key', WorkerMetaEnum::NOTIFICATION_SENT_30MIN_BEFORE_JOB_ENDTIME)
                                             ->exists();
 
             if (!$notificationSent) {
                 // Send notification here
-                // event(new WhatsappNotificationEvent(
-                //     $job->worker->phone,  // Worker phone number
-                //     WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_END, // Use your template enum here
-                //     [
-                //         'worker_name' => $job->worker->firstname . ' ' . $job->worker->lastname,
-                //         'end_time' => $job->end_time->format('H:i'), // Ensure end_time is correctly formatted
-                //         'job_id' => $job->id
-                //     ]
-                // ));
-
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::NOTIFY_WORKER_BEFORE_30MIN_JOB_END_TIME,
+                    "notificationData" => array(
+                        'job'        => $job->toArray(),
+                    )
+                ]));
+    
                 // Log info for tracking (optional)
                 \Log::info("WhatsApp notification sent to worker ID: {$job->worker_id} for Job ID: {$job->id}.");
 
@@ -90,10 +86,11 @@ class NotifyWorker30MinJobTime extends Command
                 WorkerMetas::updateOrCreate(
                     [
                         'worker_id' => $job->worker_id,
+                        'job_id' => $job->id,
                         'key' => WorkerMetaEnum::NOTIFICATION_SENT_30MIN_BEFORE_JOB_ENDTIME,
                     ],
                     [
-                        'value' => Carbon::now(), // Store the current timestamp
+                        'value' => Carbon::now(),
                     ]
                 );
             }

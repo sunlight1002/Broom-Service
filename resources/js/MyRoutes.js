@@ -157,7 +157,7 @@ import Board from "./Admin/Pages/TaskManagement/Board";
 import Tasks from "./Worker/Pages/MyAccount/Tasks";
 import TeamButtons from "./Pages/TeamButtons";
 import TeamBtnsAfter7days from "./Pages/TeamBtnsAfter7days";
-import { ContactManager } from "./Pages/ContactManager";
+import {ExtraLinks} from "./Pages/ExtraLinks";
 import TeamSkippedComments from "./Pages/TeamSkippedComments";
 import { TimeManage } from "./Pages/TimeManage";
 import Templates from "./Admin/Pages/Setting/Templates";
@@ -229,8 +229,8 @@ export default function MyRoutes() {
                     />
                      <Route
                         exact
-                        path="contact-manager/:id"
-                        element={<ContactManager/>}
+                        path="confirmation/:id"
+                        element={<ExtraLinks/>}
                     />
                     <Route
                         exact
@@ -247,11 +247,11 @@ export default function MyRoutes() {
                         path="action-comment/:id"
                         element={<TeamSkippedComments />}
                     />
-                    <Route
+                    {/* <Route
                         exact
                         path="contact-manager/:id"
                         element={<ContactManager />}
-                    />
+                    /> */}
                     <Route
                         exact
                         path="meeting-schedule/:id"

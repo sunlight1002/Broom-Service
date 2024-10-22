@@ -135,7 +135,7 @@ class ContractController extends Controller
     public function getContract($id)
     {
         $contract = Contract::query()
-            ->with(['client', 'offer', 'card'])
+            ->with(['client.property_addresses', 'offer', 'card'])
             ->find($id);
 
         if ($contract && $contract->offer) {

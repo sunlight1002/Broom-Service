@@ -1,12 +1,11 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Link, useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import i18next from "i18next";
 import moment from "moment";
+import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useParams } from "react-router-dom";
 
-import logo from "../../../Assets/image/sample.svg";
 import companySign from "../../../Assets/image/company-sign.png";
+import logo from "../../../Assets/image/sample.svg";
 
 export default function ViewContract() {
     const [lng, setLng] = useState("en");
@@ -36,6 +35,9 @@ export default function ViewContract() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    console.log(client,"Frfr");
+    
+
     const getContract = () => {
         axios
             .post(`/api/admin/get-contract/${params.id}`, {}, { headers })
@@ -58,16 +60,18 @@ export default function ViewContract() {
                         moment(_contract.signed_at).format("DD/MM/YYYY")
                     );
                 }
-                i18next.changeLanguage(_contract.client.lng);
+                // i18next.changeLanguage(_contract.client.lng);
 
-                if (_contract.client.lng == "heb") {
-                    import("../../../Assets/css/rtl.css");
-                    document.querySelector("html").setAttribute("dir", "rtl");
-                } else {
-                    document.querySelector("html").removeAttribute("dir");
-                }
+                // if (_contract.client.lng == "heb") {
+                //     import("../../../Assets/css/rtl.css");
+                //     document.querySelector("html").setAttribute("dir", "rtl");
+                // } else {
+                //     document.querySelector("html").removeAttribute("dir");
+                // }
             });
     };
+
+    
 
     const handleVerify = (e) => {
         e.preventDefault();
@@ -218,17 +222,14 @@ export default function ViewContract() {
                             <label htmlFor="">
                                 {t("client.contract-form.address")}:
                             </label>
-                            <span className="text-underline mx-3">
-                                {offer?.services?.length
-                                    ? JSON.parse(offer.services)
-                                          .map(
-                                              (item) =>
-                                                  item?.address?.address_name ||
-                                                  ""
-                                          )
-                                          .join(", ")
-                                    : ""}
-                            </span>
+                            {services.map((s, i) => (
+                                    <span key={i} className="text-underline mx-3">
+                                         {s.address && s.address.address_name
+                                                            ? s.address.address_name
+                                                            : "NA"}
+                                    </span>
+                                ))
+                            }
                         </div>
                         <div className="col-md-12 d-flex">
                             <label htmlFor="">
@@ -310,13 +311,13 @@ export default function ViewContract() {
                                     </thead>
                                     <tbody>
                                         {services.map((s, i) => {
+                                            console.log(s.address.address_name);
+                                            
                                             return (
                                                 <tr key={i}>
                                                     <td>
-                                                        {s.address &&
-                                                        s.address.address_name
-                                                            ? s.address
-                                                                  .address_name
+                                                        {s.address && s.address.address_name
+                                                            ? s.address.address_name
                                                             : "NA"}
                                                     </td>
                                                     <td>

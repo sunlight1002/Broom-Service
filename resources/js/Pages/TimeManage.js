@@ -15,13 +15,13 @@ export const TimeManage = () => {
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("worker-token"),
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
     // Function to fetch job details
     const getJob = () => {
         axios
-            .get(`/api/jobs/${Base64.decode(id)}`, { headers })
+            .get(`/api/admin/jobs/${Base64.decode(id)}`, { headers })
             .then((res) => {
                 const r = res.data.job;
                 setJob(r);
@@ -42,7 +42,7 @@ export const TimeManage = () => {
 
         if (selectedAction === "keep" || selectedAction === "adjust") {
             axios
-                .post(`/api/jobs/${Base64.decode(id)}/adjust-time`, { action: selectedAction }, { headers })
+                .post(`/api/admin/jobs/${Base64.decode(id)}/adjust-time`, { action: selectedAction }, { headers })
                 .then((response) => {
                     if (selectedAction === "keep") {
                         setRes("You have chosen to keep the actual time.");
