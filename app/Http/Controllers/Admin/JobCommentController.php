@@ -111,4 +111,35 @@ class JobCommentController extends Controller
             'message' => 'Comments has been deleted successfully'
         ]);
     }
+
+    public function adjustJobCompleteTime(Request $request, $id)
+    {
+        // Validate the input
+        $request->validate([
+            'action' => 'required|string|in:keep,adjust',
+        ]);
+
+        // Fetch the job by ID
+        $job = Job::find($id);
+        if (!$job) {
+            return response()->json(['message' => 'Job not found.'], 404);
+        }
+
+        $end_time = $job->start_date." ".$job->end_time;
+
+        // Check the action and update the completed_at field accordingly
+        if ($request->action === 'adjust') {
+            // Adjust to the scheduled time
+            $job->is_extended = true;
+        } else if ($request->action === 'keep') {
+            // Keep the actual time (set to current time)
+            $job->completed_at = $end_time;
+            $job->is_extended = false;
+        }
+
+        // Save the job with the updated time
+        $job->save();
+
+        return response()->json(['message' => 'Job time adjusted successfully.'], 200);
+    }
 }

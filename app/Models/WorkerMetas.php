@@ -13,6 +13,7 @@ class WorkerMetas extends Model
 
     protected $fillable = [
         'worker_id',
+        'job_id',
         'key',
         'value',
     ];

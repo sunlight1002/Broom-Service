@@ -115,5 +115,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const ONETIME = "onetime";
     public const PAST = "past";
     public const NOTIFY_WORKER_BEFORE_30MIN_JOB_END_TIME = "notify-worker-before-30min-job-end-time";
-
+    public const WORKER_NEED_EXTRA_TIME = "worker-need-extra-time";
 }

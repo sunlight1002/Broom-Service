@@ -571,5 +571,23 @@ class JobController extends Controller
         return response()->json(['message' => 'Notification sent successfully to Manger.'], 200);
     }
     
+    public function NeedExtraTime(Request $request)
+    {
+        $job_id = $request->job_id;
+        \Log::info($job_id);
+        \Log::info("rgrg");
+        $job = Job::with(['client', 'worker', 'propertyAddress'])->where('id', $job_id)->first();
+        if(!$job){
+            return response()->json(['error' => 'Job not found'], 404);
+        }
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::WORKER_NEED_EXTRA_TIME,
+            "notificationData" => array(
+                'job'        => $job->toArray(),
+            )
+        ]));
+     
+        return response()->json(['message' => 'Notification sent successfully to Manger for extra time...'], 200);
+    }
 
 }

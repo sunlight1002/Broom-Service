@@ -405,7 +405,7 @@ return [
         ],
         'contract' => [
             'header' => "*Contract with Broom Service for Offer #:id*",
-            'content' => "Greetings from Broom Service. A work agreement for digital signature is attached. Please fill in the necessary details and sign on the last page for payment details you must fill in the details of each ID number and the signature of the card holder without the CVV details which you will give us over the phone in order to save and secure your payment details and with your signature below for any questions please    contact us: 03-525-70-60 or reply to this email.",
+            'content' => "Greetings from Broom Service. \n\nA work agreement for digital signature is attached. Please fill in the necessary details and sign on the last page for payment details you must fill in the details of each ID number and the signature of the card holder without the CVV details which you will give us over the phone in order to save and secure your payment details and with your signature below for any questions please  \n\ncontact us: 03-525-70-60 or reply to this email.",
         ],
         'create_job' => [
             'header' => "*Reminder for Upcoming Service | Broom Service*",
@@ -774,6 +774,16 @@ return [
             'content' => ":worker_name has not yet confirmed the address for tomorrow’s job.\nAddress: :address \nDate/Time: :date_time\n\nYou can:\n1.	Confirm the address for the worker\n2.	Change the shift\n3.	Change the worker\n:change_shift\n\nWorker’s Phone Number: :worker_phone\nClient’s Phone Number: :client_phone\n\n",
             'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
         ],
+        'before_job_endtime' => [
+            'header' => "Finish Job Reminder - 30 Minutes Left\n\n",
+            'content' => "You have 30 minutes left to complete your job at :address\n*Click here if you will finish on time* \n:finish_on_time \n or *Click here if you need extra time* \n:extra_time\n\n",
+            'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
+        ],
+        'need_extra_time_team' => [
+            'header' => "Worker Needs Extra Time or Did Not Finish the Job on Time\n\n",
+            'content' => ":worker_name either requested extra time or did not finish the job on time at :address\nPlease check the status and take action.\nYou can:\n1.	Extend the job duration\n:extend_time\n2.	Keep the job duration\n:adjust_time\n3.	Change the shift\n4.	Change the worker\n:change_shift\n\nWorker’s Phone Number: :worker_phone \nClient’s Phone Number: :client_phone\n\n",
+            'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
+        ],
         'worker_webhook_irrelevant' => [
             'message' => "🌟 Thank you for contacting us at Job4Service.\n\nWe offer the best jobs in the house cleaning industry in Israel.\nWe hire only people with suitable visas for work in Israel.\nWe offer house cleaning jobs only in the Tel Aviv area, and only during weekday mornings. We do not work on weekends or in the evenings.\nWe are a professional cleaning team, so we hire only people with experience in house cleaning.\nIf this may suit you or your friends now or in the future, you are more than welcome to contact us again. 😀\n\n👫 Know someone who'd be a great fit for our team? Invite them to join this group and explore the opportunities with us! Just send them this link:\n\nhttps://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT\nhttps://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr\n\nHave a wonderful day!🌟"
         ],
@@ -844,6 +854,7 @@ return [
             'view_job' => 'View Job',
             'change_worker' => 'Change worker',
             'change_shift' => 'Change shift',
+            'change_worker_shift' => 'Change worker/shift',
             'approve' => 'Approve',
             'safety_and_gear' => 'Check Safety And Gear',
             'check_form' => 'Check Forms',

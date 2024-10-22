@@ -76,12 +76,13 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('worker/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
     Route::post('job-opening-timestamp', [JobController::class, 'setJobOpeningTimestamp']);
     Route::get('jobs/{id}/comments', [JobCommentController::class, 'index']);
+    Route::post('jobs/need-extra-time/{job_id}', [JobController::class, 'NeedExtraTime']);
 
 
 
     Route::resource('job-comments', JobCommentController::class)->only(['store', 'destroy']);
     Route::post('job-comments/mark-complete', [JobCommentController::class, 'markComplete']);
-    Route::post('jobs/{id}/adjust-time', [JobCommentController::class, 'adjustJobCompleteTime']);
+    // Route::post('jobs/{id}/adjust-time', [JobCommentController::class, 'adjustJobCompleteTime']);
 
     Route::post('job-comments/skip-comment', [SkippedCommentController::class, 'store']);
     Route::get('job-comments/skipped-comments', [SkippedCommentController::class, 'index']);

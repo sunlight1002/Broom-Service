@@ -15,7 +15,6 @@ export default function WorkContract() {
     };
 
 
-
     const getContract = () => {
         axios
             .post(`/api/admin/get-contract/${param.id}`, {}, { headers })

@@ -23,6 +23,7 @@ class Job extends Model
         'end_date',
         'start_time',
         'end_time',
+        'is_extended',
         'shifts',
         'comment',
         'extra_amount',

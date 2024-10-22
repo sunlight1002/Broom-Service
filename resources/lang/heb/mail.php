@@ -776,11 +776,21 @@ return [
             'content' => ":worker_name לא אישר את הכתובת לעבודה מחר:\nכתובת: :address\nתאריך/שעה: :date_time\n\nאפשרויות:\n1.	לאשר את הכתובת עבור העובד\n2.	לשנות את המשמרת\n3.	לשנות את העובד\n:change_shift\n\nמספר טלפון של העובד: :worker_phone\nמספר טלפון של הלקוח: :client_phone\n\n",
             'signature' => "בברכה, \nברום סרוויס צוות\nטלפון: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
         ],
+        'before_job_endtime' => [
+            'header' => "תזכורת לסיום העבודה - נשארו 30 דקות\n\n",
+            'content' => "נשארו לך 30 דקות לסיום העבודה בכתובת :address\n*לחץ כאן אם תסיים בזמן * \n:finish_on_time \nאו *לחץ כאן אם אתה צריך יותר זמן* \n:extra_time\n\n",
+            'signature' => "בברכה, \nברום סרוויס צוות\nטלפון: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
+        ],
+        'need_extra_time_team' => [
+            'header' => "העובד צריך יותר זמן או לא סיים את העבודה בזמן\n\n",
+            'content' => ":worker_name  ביקש זמן נוסף או לא סיים את העבודה בזמן בכתובת :address\nאנא בדקו את הסטטוס ופעילו בהתאם.\nיש לכם אפשרויות:\n1.	להאריך את משך העבודה\n:extend_duration\n2.	שמרו על משך העבודה\n:adjust_duration\n3.	לשנות את המשמרת\n4.	לשנות את העובד\n:change_shift\n\nמספר טלפון של העובד: :worker_phone \nמספר טלפון של הלקוח: :client_phone\n\n",
+            'signature' => "בברכה, \nברום סרוויס צוות\nטלפון: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
+        ],
         'worker_webhook_irrelevant' => [
     	    'message' => "🌟 תודה שפנית אלינו ב-Job4Service.\n\nאנחנו מציעים את המשרות הטובות ביותר בענף ניקיון בתים בישראל.\nאנחנו שוכרים רק אנשים עם אשרות מתאימות לעבודה בישראל.\nאנחנו מציעים עבודות ניקיון בתים רק באזור תל אביב, ורק בשעות הבוקר של ימי חול אנו לא עובדים בסופי שבוע או בערבים.\nאנחנו צוות ניקיון מקצועי, ולכן אנחנו שוכרים רק אנשים עם ניסיון בניקיון בתים.\nאם זה יכול להתאים לכם או. החברים שלכם עכשיו או בעתיד, אתם יותר ממוזמנים לפנות אלינו שוב 😀\n\n👫 מכירים מישהו שיתאים מאוד לצוות שלנו. פשוט שלח להם את הקישור הזה:\n\nhttps://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT\nhttps://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr\n\nשיהיה לך יום נפלא !🌟"
         ],
         'pending' => [
-            'content' => "לקוח פוטנציאלי חדש, :name, נוסף  \n\n למערכת וממתין ליצירת קשר ראשוני.\n\n טלפון: :phone.\n לחץ כאן כדי לפעול: :url"
+            'content' => "לקוח פוטנציאלי חדש,\n\n :name, נוסף  \n למערכת וממתין ליצירת קשר ראשוני.\n טלפון: :phone.\n לחץ כאן כדי לפעול: :url"
         ],
         'potential' => [
             'content' => "עדכון: פגישה נקבעה או סרטון הוזמן מ:name. נא להיערך בהתאם.\n\n טלפון: :phone.\n לחץ כאן כדי לפעול: :url"
@@ -846,6 +856,7 @@ return [
             'view_job' => 'הצג עבודה',
             'change_worker' => 'החלף עובד',
             'change_shift' => 'החלף משמרת',
+            'change_worker_shift' => 'החלף עובד/משמרת',
             'approve' => 'לְאַשֵׁר',
             'safety_and_gear' => 'בדוק בטיחות וציוד',
             'check_form' => 'בדוק טפסים',

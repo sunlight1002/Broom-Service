@@ -1750,6 +1750,7 @@
         "statusApproved":"Approved",
         "statusRejected":"Rejected",
         "worker_refund": "Worker Refund",
+        "thankyou": "Thank you for your confirmation...",
         "sidebar": {
             "dashboard": "Dashboard",
             "jobs": "Jobs",

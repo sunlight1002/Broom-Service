@@ -197,7 +197,7 @@ class WhatsappNotification
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.content', [
+                    $text .= __('mail.wa-message.client_job_updated.content', [
                         'date' => Carbon::parse($jobData['start_date'])->format('M d Y'),
                         'service_name' => $clientData['lng'] == 'heb'
                             ? $jobData['jobservice']['heb_name']
@@ -359,7 +359,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -468,7 +468,7 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.team_worker_on_my_way.subject');
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'קְבוּצָה'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -539,7 +539,7 @@ class WhatsappNotification
 
 
                       $text .= __('mail.wa-message.common.salutation', [
-                          'name' => 'קְבוּצָה'
+                          'name' => 'צוות'
                       ]);
 
                       $text .= "\n\n";
@@ -552,8 +552,8 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.team_worker_on_my_way.beforeContent', [
                         'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
-                        'address' => $jobData['geo_address']
-                            ? $jobData['geo_address']
+                        'address' => $jobData['property_address']
+                            ? $jobData['property_address']['address_name']
                             : 'NA',
                         'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . "/" . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'). "-" .Carbon::today()->setTimeFromTimeString($jobData['end_time'])->format('H:i'),
                         'worker_phone' => $jobData['worker']['phone'],
@@ -568,13 +568,59 @@ class WhatsappNotification
                       break;
 
                 case WhatsappMessageTemplateEnum::NOTIFY_WORKER_BEFORE_30MIN_JOB_END_TIME:
-                    // $adminData = $eventData['admin'];
                     $jobData = $eventData['job'];
-                    //   $content = $eventData['emailData'];
+                    // \Log::info($jobData);
 
-                    $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-                    App::setLocale('heb');
-                    \Log::info("Efsd");
+                    $receiverNumber = $jobData['worker']['phone'];
+                    App::setLocale($jobData['worker']['lng']);
+
+                    $text = __('mail.wa-message.before_job_endtime.header');
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.before_job_endtime.content', [
+                        'address' => $jobData['property_address']
+                            ? $jobData['property_address']['address_name']
+                            : 'NA',
+                        'finish_on_time' => url("confirmation/" . base64_encode($jobData['id']). "?q=finish"),
+                        'extra_time' => url("confirmation/" . base64_encode($jobData['id']))
+                    ]);
+
+                    $text .= __('mail.wa-message.before_job_endtime.signature');
+
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_NEED_EXTRA_TIME:
+                    $jobData = $eventData['job'];
+
+                    $receiverNumber = $jobData['worker']['phone'];
+                    App::setLocale($jobData['worker']['lng']);
+
+                    $text = __('mail.wa-message.need_extra_time_team.header');
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => "צוות"
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.need_extra_time_team.content', [
+                        'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
+                        'change_shift' => url("admin/jobs/" . $jobData['id'] . "/change-worker"),
+                        'address' => $jobData['property_address']
+                            ? $jobData['property_address']['address_name']
+                            : 'NA',
+                        'extend_time' => url("time-manage/" . base64_encode($jobData["id"]) . "?action=adjust"),
+                        'adjust_time' => url("time-manage/" . base64_encode($jobData["id"]) . "?action=keep"),
+                        'worker_phone' => $jobData['worker']['phone'],
+                        'client_phone' => $jobData['client']['phone'],
+                    ]);
+
+                    $text .= __('mail.wa-message.need_extra_time_team.signature');
 
                     break;
 
@@ -594,8 +640,8 @@ class WhatsappNotification
                         'client_name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname'],
                         'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
                         'service_name' => ($jobData['jobservice']['name'] . ', '),
-                        'address' => $jobData['geo_address']
-                            ? $jobData['geo_address']
+                        'address' => $jobData['property_address']
+                            ? $jobData['property_address']['address_name']
                             : 'NA',
                     ]);
 
@@ -682,7 +728,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -697,7 +743,10 @@ class WhatsappNotification
                             : 'NA',
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.change_worker') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
+                    \Log::info("fefefe");
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.change_worker_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
+                    \Log::info("fef33333333efe");
 
                     // $text .= "\n\n" . __('mail.wa-message.button-label.change_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-shift");
 
@@ -730,7 +779,7 @@ class WhatsappNotification
                         // 'contact_manager' => url("worker/jobs/view/" . $jobData['id']."?q=contact_manager")
                     ]);
 
-                    // $text .= "\n\n" . __('mail.wa-message.button-label.change_worker') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
+                    // $text .= "\n\n" . __('mail.wa-message.button-label.change_worker_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
 
                     // $text .= "\n\n" . __('mail.wa-message.button-label.change_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-shift");
 
@@ -750,7 +799,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -762,9 +811,9 @@ class WhatsappNotification
                         'service_name' => ($jobData['jobservice']['name'] . ', '),
                         'address' => $jobData['property_address']['address_name']
                     ]);
-                    $text .= "\n\n" . __('mail.wa-message.button-label.change_worker') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
+                    $text .= "\n\n" . __('mail.wa-message.button-label.change_worker_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.change_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-shift");
+                    // $text .= "\n\n" . __('mail.wa-message.button-label.change_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-shift");
 
                     break;
 
@@ -780,7 +829,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -795,9 +844,9 @@ class WhatsappNotification
                             : 'NA',
                     ]);
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.change_worker') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
+                    $text .= "\n\n" . __('mail.wa-message.button-label.change_worker_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
 
-                    $text .= "\n\n" . __('mail.wa-message.button-label.change_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-shift");
+                    // $text .= "\n\n" . __('mail.wa-message.button-label.change_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-shift");
 
                     break;
 
@@ -813,7 +862,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -844,7 +893,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -875,7 +924,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1010,7 +1059,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1056,7 +1105,7 @@ class WhatsappNotification
                     App::setLocale('en');
 
                     $text = __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]) . "\n\n";
 
                     // Direct text for the skipped comment notification
@@ -1110,23 +1159,23 @@ class WhatsappNotification
                     $text = __('mail.job_nxt_step.completed_nxt_step_email_title'); // Optional localized message title
                     $text .= "\n\n";
 
-                    $text .= "Hello team,\n\n";
-                    $text .= "The job for the task has exceeded the scheduled time.\n";
+                    $text .= "שלום, צוות\n\n";
+                    $text .= "העבודה עבור המשימה חרגה מהזמן המתוכנן.\n";
 
                     // Adding worker details and job ID
-                    $text .= "Job ID: " . $jobData['id'] . "\n";
-                    $text .= "Worker: " . $jobData['worker']['firstname'] . $jobData['worker']['lastname'] . "\n\n"; // Assuming worker's first name is under 'worker'
+                    $text .= "מזהה משרה: " . $jobData['id'] . "\n";
+                    $text .= "עוֹבֵד: " . $jobData['worker']['firstname'] . $jobData['worker']['lastname'] . "\n\n"; // Assuming worker's first name is under 'worker'
 
                     // Scheduled and actual completion times
-                    $text .= "Scheduled time: " . $jobData['start_date'] . " " . $jobData['end_time'] . "\n";
-                    $text .= "Actual time: " . $completeTime . "\n\n";
+                    $text .= " זמן מתוכנן: " . $jobData['start_date'] . " " . $jobData['end_time'] . "\n";
+                    $text .= "זמן בפועל: " . $completeTime . "\n\n";
 
                     // Options for the team to choose from
-                    $text .= "Please choose the appropriate option:\n";
-                    $text .= "Keep the actual time as it is: " . url("time-manage/" . base64_encode($jobData["id"]) . "?action=keep") . "\n";
-                    $text .= "Adjust the time to match the scheduled time: " . url("time-manage/" . base64_encode($jobData["id"]) . "?action=adjust") . "\n\n";
+                    $text .= "  אנא בחר את האפשרות המתאימה:\n";
+                    $text .= "שמור את הזמן האמיתי כפי שהוא: " . url("time-manage/" . base64_encode($jobData["id"]) . "?action=keep") . "\n";
+                    $text .= "התאם את הזמן כך שיתאים לזמן המתוכנן: " . url("time-manage/" . base64_encode($jobData["id"]) . "?action=adjust") . "\n\n";
 
-                    $text .= "Thank you,\nManagement team\n";
+                    $text .= __('mail.wa-message.team_worker_on_my_way.signature');
 
                     break;
 
@@ -1253,7 +1302,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1310,7 +1359,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1370,7 +1419,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1393,7 +1442,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1415,7 +1464,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1462,7 +1511,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1491,7 +1540,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1514,7 +1563,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1535,7 +1584,7 @@ class WhatsappNotification
 
                     $text = __('mail.wa-message.client_payment_failed.header');
                     $text .= "\n\n";
-                    $text .= __('mail.wa-message.common.salutation', ['name' => 'everyone']);
+                    $text .= __('mail.wa-message.common.salutation', ['name' => 'צוות']);
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.client_payment_failed.content', [
                         'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
@@ -1556,7 +1605,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1581,7 +1630,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1604,7 +1653,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1628,7 +1677,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1651,7 +1700,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1676,7 +1725,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1702,7 +1751,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1728,7 +1777,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1752,7 +1801,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1776,7 +1825,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1800,7 +1849,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1815,15 +1864,32 @@ class WhatsappNotification
                 case WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED:
                     $clientData = $eventData['client'];
 
+                    \Log::info("efeffe1");
+
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('heb');
+                    App::setLocale('en');
+
+
+                    $addresses = [];
+                
+                    // Add all property addresses if they exist
+                    if (!empty($clientData['property_addresses']) && is_array($clientData['property_addresses'])) {
+                        foreach ($clientData['property_addresses'] as $propertyAddress) {
+                            if (!empty($propertyAddress['address_name'])) {
+                                $addresses[] = $propertyAddress['address_name'];
+                            }
+                        }
+                    }
+                
+                    // Concatenate all addresses into a single string, separated by a comma
+                    $fullAddress = implode(', ', $addresses);
 
                     $text = __('mail.wa-message.new_lead_arrived.header');
 
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1833,7 +1899,7 @@ class WhatsappNotification
                         'contact' => $clientData['phone'],
                         'Service_Requested' => "",
                         'email' => $clientData['email'],
-                        'address' => $clientData['geo_address'] ?? $clientData['property_addresses'][0]['geo_address'] ?? "",
+                        'address' => $fullAddress ?? "NA",
                     ]);
 
                     $text .= "\n\n";
@@ -1855,7 +1921,7 @@ class WhatsappNotification
                     // Build the WhatsApp message content
                     $text = __('mail.wa-message.user_status_changed.header');
                     $text .= "\n\n";
-                    $text .= __('mail.wa-message.common.salutation', ['name' => "Team"]);
+                    $text .= __('mail.wa-message.common.salutation', ['name' => "צוות"]);
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.user_status_changed.content', [
                         'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
@@ -2226,6 +2292,8 @@ class WhatsappNotification
                         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                     ]);
 
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
+
                     break;
 
                 case WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT:
@@ -2241,7 +2309,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'Team',
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
@@ -2265,7 +2333,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'Team',
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
@@ -2278,6 +2346,7 @@ class WhatsappNotification
                         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'reason' => $clientData['reason'] ?? __('mail.wa-message.lead_declined_price_offer.no_reason_provided'),
                     ]);
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
 
                     $text .= "\n\n";
 
@@ -2343,7 +2412,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'Team',
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
@@ -2356,6 +2425,8 @@ class WhatsappNotification
                         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
                         'reason' => $clientData['reason'] ?? __('mail.wa-message.lead_declined_contract.no_reason_provided'),
                     ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
 
                     $text .= "\n\n";
 
@@ -2417,7 +2488,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'Team',
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
@@ -2444,7 +2515,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -2596,7 +2667,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_verify_team.info',[
-                        'name' => "Team",
+                        'name' => "צוות",
                     ]);
 
                     $text .= "\n\n";
@@ -2826,7 +2897,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_verify_team.info',[
-                        'name' => "Team",
+                        'name' => "צוות",
                     ]);
 
                     $text .= "\n\n";
@@ -2914,20 +2985,19 @@ class WhatsappNotification
 
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
-                \Log::info($text);
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
                         'body' => $text
                     ]);
 
-                // Log::info($response->json());
+                Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
             Log::alert('WA NOTIFICATION ERROR');
-            // Log::alert($th);
+            Log::alert($th);
         }
     }
 }

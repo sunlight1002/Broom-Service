@@ -38,12 +38,12 @@ class SendJobNotificationToAdmin implements ShouldQueue
 
         App::setLocale('en');
         foreach ($admins as $key => $admin) {
-            if (isset($admin) && !empty($admin['phone'])) {
-                // event(new WhatsappNotificationEvent([
-                //     "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED,
-                //     "notificationData" => [$emailData, $admin->toArray()]
-                // ]));
-            }
+            // if (isset($admin) && !empty($admin['phone'])) {
+            //     event(new WhatsappNotificationEvent([
+            //         "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED,
+            //         "notificationData" => [$emailData, $admin->toArray()]
+            //     ]));
+            // }
             // Mail::send('/Mails/admin/JobNotification', [
             //     'data' => $adminEmailData,
             //     'job' => $adminEmailData['emailData']['job'],

@@ -2145,4 +2145,9 @@ class JobController extends Controller
             'message' => 'Updated Successfully',
         ]);
     }
+
+    public function extendWorkerJobTime(Request $request){
+        $data = $request->all();
+        $job = Job::find($data['job_id']);
+    }
 }

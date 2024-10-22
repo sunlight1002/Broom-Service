@@ -1656,6 +1656,11 @@
         "action":"פעולה",
         "approve":"לְאַשֵׁר",
         "reject":"דחה",
+        "statusPending":"תָלוּי וְעוֹמֵד",
+        "statusApproved":"מְאוּשָׁר",
+        "statusRejected":"נִדחֶה",
+        "worker_refund": "עוֹבֵד הֶחזֵר",
+        "thankyou": "תודה על האישור...",
         "sidebar": {
             "dashboard": "דף הבית",
             "jobs": "שירותים שהזמנתי",
