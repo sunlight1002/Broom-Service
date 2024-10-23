@@ -49,6 +49,7 @@ class NotifyWorker30MinJobTime extends Command
         $staticDate = "2024-10-19"; // Static date to start notifications from
         $currentTime = Carbon::now();
         \Log::info('Current Time: ' . $currentTime->format('H:i'));
+        $currentDate = Carbon::now()->toDateString();
 
         // Calculate 30 minutes after the current time
         $timeBefore30Min = $currentTime->copy()->addMinutes(30);
@@ -59,6 +60,7 @@ class NotifyWorker30MinJobTime extends Command
                     ->where('end_time', '>=', $currentTime->format('H:i'))
                     ->where('end_time', '<=', $timeBefore30Min)
                     ->where('status', 'progress')
+                    ->whereDate('start_date', $currentDate)
                     ->whereHas('hours', function ($query) use ($staticDate) {
                         // Limit to JobHours records created on or after the static date
                         $query->whereDate('created_at', '>=', $staticDate);

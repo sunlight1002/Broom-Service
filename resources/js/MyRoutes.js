@@ -243,11 +243,11 @@ export default function MyRoutes() {
                         path="time-manage/:id"
                         element={<TimeManage />}
                     />
-                    <Route
+                    {/* <Route
                         exact
                         path="action-comment/:id"
                         element={<TeamSkippedComments />}
-                    />
+                    /> */}
                     {/* <Route
                         exact
                         path="contact-manager/:id"

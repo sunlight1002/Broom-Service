@@ -1,17 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import Moment from "moment";
-import i18next from "i18next";
-import { Base64 } from "js-base64";
-import logo from "../Assets/image/sample.svg";
 import { useAlert } from "react-alert";
-import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
-import useToggle from "../Hooks/useToggle";
-import { useTranslation } from "react-i18next";
-import Modal from 'react-bootstrap/Modal'; // Ensure you have the import for Modal
 import Button from 'react-bootstrap/Button'; // Ensure you have the import for Button
+import Modal from 'react-bootstrap/Modal'; // Ensure you have the import for Modal
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import logo from "../Assets/image/sample.svg";
 
 export default function TeamSkippedComments() {
     const { t } = useTranslation();

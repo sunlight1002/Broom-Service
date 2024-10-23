@@ -6,10 +6,23 @@ import { useTranslation } from "react-i18next";
 import SkipCommentModal from "./SkipCommentModal";
 import { useAlert } from "react-alert";
 
-export default function Comment({ allComment = [], skippedComments, setSkippedComments, handleGetSkippedComments, setAllComment, handleGetComments, setTargetLanguage, setJobId, setCommentId, job_status }) {
+
+export default function Comment({
+    allComment = [],
+    skippedComments,
+    setSkippedComments,
+    handleGetSkippedComments,
+    setAllComment,
+    handleGetComments,
+    setTargetLanguage,
+    setJobId,
+    setCommentId,
+    job_status
+}) {
     const [commentLanguageMap, setCommentLanguageMap] = useState({});
     const [isOpen, setIsOpen] = useState(false)
     const [comment, setComment] = useState([])
+    const [additionalLanguagesVisible, setAdditionalLanguagesVisible] = useState(false); // New state
     const alert = useAlert()
     const { t } = useTranslation();
 
@@ -18,6 +31,68 @@ export default function Comment({ allComment = [], skippedComments, setSkippedCo
         { value: 'he', label: 'עִברִית' },
         { value: 'ru', label: 'Русский' },
         { value: 'en', label: 'English' },
+        { value: 'es', label: 'Spanish' },
+        { value: 'other', label: 'Other' },
+    ];
+
+    // List of additional languages
+    const additionalLanguages = [
+        { value: 'am', label: 'Amharic' },
+        { value: 'ar', label: 'Arabic' },
+        { value: 'eu', label: 'Basque' },
+        { value: 'bn', label: 'Bengali' },
+        { value: 'en-GB', label: 'English (UK)' },
+        { value: 'pt-BR', label: 'Portuguese (Brazil)' },
+        { value: 'bg', label: 'Bulgarian' },
+        { value: 'ca', label: 'Catalan' },
+        { value: 'chr', label: 'Cherokee' },
+        { value: 'hr', label: 'Croatian' },
+        { value: 'cs', label: 'Czech' },
+        { value: 'da', label: 'Danish' },
+        { value: 'nl', label: 'Dutch' },
+        { value: 'en', label: 'English (US)' },
+        { value: 'et', label: 'Estonian' },
+        { value: 'fil', label: 'Filipino' },
+        { value: 'fi', label: 'Finnish' },
+        { value: 'fr', label: 'French' },
+        { value: 'de', label: 'German' },
+        { value: 'el', label: 'Greek' },
+        { value: 'gu', label: 'Gujarati' },
+        { value: 'iw', label: 'Hebrew' },
+        { value: 'hi', label: 'Hindi' },
+        { value: 'hu', label: 'Hungarian' },
+        { value: 'is', label: 'Icelandic' },
+        { value: 'id', label: 'Indonesian' },
+        { value: 'it', label: 'Italian' },
+        { value: 'ja', label: 'Japanese' },
+        { value: 'kn', label: 'Kannada' },
+        { value: 'ko', label: 'Korean' },
+        { value: 'lv', label: 'Latvian' },
+        { value: 'lt', label: 'Lithuanian' },
+        { value: 'ms', label: 'Malay' },
+        { value: 'ml', label: 'Malayalam' },
+        { value: 'mr', label: 'Marathi' },
+        { value: 'no', label: 'Norwegian' },
+        { value: 'pl', label: 'Polish' },
+        { value: 'pt-PT', label: 'Portuguese (Portugal)' },
+        { value: 'ro', label: 'Romanian' },
+        { value: 'ru', label: 'Russian' },
+        { value: 'sr', label: 'Serbian' },
+        { value: 'zh-CN', label: 'Chinese (PRC)' },
+        { value: 'sk', label: 'Slovak' },
+        { value: 'sl', label: 'Slovenian' },
+        { value: 'es', label: 'Spanish' },
+        { value: 'sw', label: 'Swahili' },
+        { value: 'sv', label: 'Swedish' },
+        { value: 'ta', label: 'Tamil' },
+        { value: 'te', label: 'Telugu' },
+        { value: 'th', label: 'Thai' },
+        { value: 'zh-TW', label: 'Chinese (Taiwan)' },
+        { value: 'tr', label: 'Turkish' },
+        { value: 'ur', label: 'Urdu' },
+        { value: 'uk', label: 'Ukrainian' },
+        { value: 'vi', label: 'Vietnamese' },
+        { value: 'cy', label: 'Welsh' },
     ];
 
     const headers = {
@@ -64,6 +139,11 @@ export default function Comment({ allComment = [], skippedComments, setSkippedCo
                 newState[index] = false;
                 return newState;
             });
+
+            // Reset additional languages visibility when a language other than "Other" is selected
+            if (language !== 'other') {
+                setAdditionalLanguagesVisible(false);
+            }
 
             await handleGetComments();
 
@@ -187,28 +267,52 @@ export default function Comment({ allComment = [], skippedComments, setSkippedCo
                                                 <i className="fa fa-trash"></i>
                                             </button>
                                         ) : null}
-                                        <div className="dropdown">
-                                            {/* Language Dropdown */}
-                                            <button
-                                                className="btn btn-default dropdown-toggle droptoggle navyblue text-white"
-                                                type="button"
-                                                onClick={() => toggleDropdown(i)}
-                                                aria-haspopup="true"
-                                                aria-expanded={dropdownOpen[i]}
-                                            >
-                                                <i className="fa-solid fa-language"></i>
-                                            </button>
-                                            <div className="dropdown-menu" style={dropdownOpen[i] ? { display: "block", left: "-100px" } : { display: "none" }}>
-                                                {languageOptions.map(option => (
-                                                    <button
-                                                        key={option.value}
-                                                        className="dropdown-item"
-                                                        onClick={() => handleLanguageChange(option.value, i, c)}
-                                                    >
-                                                        {option.label}
-                                                    </button>
-                                                ))}
+                                         <div className="col-sm-4">
+                                            <div className="dropdown">
+                                                {/* Language Dropdown Button */}
+                                                <button
+                                                    className="btn btn-default dropdown-toggle droptoggle navyblue text-white"
+                                                    type="button"
+                                                    onClick={() => toggleDropdown(i)}
+                                                    aria-haspopup="true"
+                                                    aria-expanded={dropdownOpen[i]}
+                                                >
+                                                    <i className="fa-solid fa-language"></i> Select Language
+                                                </button>
+                                                <div className="dropdown-menu" style={dropdownOpen[i] ? { display: "block", left: "-100px" } : { display: "none" }}>
+                                                    {languageOptions.map(option => (
+                                                        <button
+                                                            key={option.value}
+                                                            className="dropdown-item"
+                                                            onClick={() => {
+                                                                const language = option.value;
+                                                                // Check if 'other' option is selected to show additional languages
+                                                                if (language === 'other') {
+                                                                    setAdditionalLanguagesVisible(true);
+                                                                } else {
+                                                                    setAdditionalLanguagesVisible(false);
+                                                                }
+                                                                handleLanguageChange(language, i, c);
+                                                            }}
+                                                        >
+                                                            {option.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             </div>
+
+                                            {/* Additional Languages Dropdown (Visible if 'other' is selected) */}
+                                            {additionalLanguagesVisible && (
+                                                <div className="additional-languages mt-3">
+                                                    <select onChange={(e) => handleLanguageChange(e.target.value, i, c)}>
+                                                        {additionalLanguages.map((lang) => (
+                                                            <option key={lang.value} value={lang.value}>
+                                                                {lang.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
