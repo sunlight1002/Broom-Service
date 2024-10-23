@@ -1159,23 +1159,23 @@ class WhatsappNotification
                     $text = __('mail.job_nxt_step.completed_nxt_step_email_title'); // Optional localized message title
                     $text .= "\n\n";
 
-                    $text .= "Hello team,\n\n";
-                    $text .= "The job for the task has exceeded the scheduled time.\n";
+                    $text .= "שלום, צוות\n\n";
+                    $text .= "העבודה עבור המשימה חרגה מהזמן המתוכנן.\n";
 
                     // Adding worker details and job ID
-                    $text .= "Job ID: " . $jobData['id'] . "\n";
-                    $text .= "Worker: " . $jobData['worker']['firstname'] . $jobData['worker']['lastname'] . "\n\n"; // Assuming worker's first name is under 'worker'
+                    $text .= "מזהה משרה: " . $jobData['id'] . "\n";
+                    $text .= "עוֹבֵד: " . $jobData['worker']['firstname'] . $jobData['worker']['lastname'] . "\n\n"; // Assuming worker's first name is under 'worker'
 
                     // Scheduled and actual completion times
-                    $text .= "Scheduled time: " . $jobData['start_date'] . " " . $jobData['end_time'] . "\n";
-                    $text .= "Actual time: " . $completeTime . "\n\n";
+                    $text .= " זמן מתוכנן: " . $jobData['start_date'] . " " . $jobData['end_time'] . "\n";
+                    $text .= "זמן בפועל: " . $completeTime . "\n\n";
 
                     // Options for the team to choose from
-                    $text .= "Please choose the appropriate option:\n";
-                    $text .= "Keep the actual time as it is: " . url("time-manage/" . base64_encode($jobData["id"]) . "?action=keep") . "\n";
-                    $text .= "Adjust the time to match the scheduled time: " . url("time-manage/" . base64_encode($jobData["id"]) . "?action=adjust") . "\n\n";
+                    $text .= "  אנא בחר את האפשרות המתאימה:\n";
+                    $text .= "שמור את הזמן האמיתי כפי שהוא: " . url("time-manage/" . base64_encode($jobData["id"]) . "?action=keep") . "\n";
+                    $text .= "התאם את הזמן כך שיתאים לזמן המתוכנן: " . url("time-manage/" . base64_encode($jobData["id"]) . "?action=adjust") . "\n\n";
 
-                    $text .= "Thank you,\nManagement team\n";
+                    $text .= __('mail.wa-message.team_worker_on_my_way.signature');
 
                     break;
 
@@ -1921,7 +1921,7 @@ class WhatsappNotification
                     // Build the WhatsApp message content
                     $text = __('mail.wa-message.user_status_changed.header');
                     $text .= "\n\n";
-                    $text .= __('mail.wa-message.common.salutation', ['name' => "Team"]);
+                    $text .= __('mail.wa-message.common.salutation', ['name' => "צוות"]);
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.user_status_changed.content', [
                         'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
@@ -2309,7 +2309,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'Team',
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
@@ -2333,7 +2333,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'Team',
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
@@ -2412,7 +2412,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'Team',
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
@@ -2488,7 +2488,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'Team',
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
@@ -2667,7 +2667,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_verify_team.info',[
-                        'name' => "Team",
+                        'name' => "צוות",
                     ]);
 
                     $text .= "\n\n";
@@ -2897,7 +2897,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.contract_verify_team.info',[
-                        'name' => "Team",
+                        'name' => "צוות",
                     ]);
 
                     $text .= "\n\n";
