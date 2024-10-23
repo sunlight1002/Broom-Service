@@ -359,7 +359,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -728,7 +728,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -799,7 +799,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -829,7 +829,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -862,7 +862,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -893,7 +893,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -924,7 +924,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1059,7 +1059,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1105,7 +1105,7 @@ class WhatsappNotification
                     App::setLocale('en');
 
                     $text = __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]) . "\n\n";
 
                     // Direct text for the skipped comment notification
@@ -1302,7 +1302,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1359,7 +1359,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1419,7 +1419,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1442,7 +1442,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1464,7 +1464,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1511,7 +1511,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1540,7 +1540,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1563,7 +1563,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1584,7 +1584,7 @@ class WhatsappNotification
 
                     $text = __('mail.wa-message.client_payment_failed.header');
                     $text .= "\n\n";
-                    $text .= __('mail.wa-message.common.salutation', ['name' => 'everyone']);
+                    $text .= __('mail.wa-message.common.salutation', ['name' => 'צוות']);
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.client_payment_failed.content', [
                         'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
@@ -1605,7 +1605,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1630,7 +1630,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1653,7 +1653,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1677,7 +1677,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1700,7 +1700,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1725,7 +1725,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1751,7 +1751,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1777,7 +1777,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1801,7 +1801,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1825,7 +1825,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1849,7 +1849,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -1889,7 +1889,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
@@ -2515,7 +2515,7 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.common.salutation', [
-                        'name' => 'everyone'
+                        'name' => 'צוות'
                     ]);
 
                     $text .= "\n\n";
