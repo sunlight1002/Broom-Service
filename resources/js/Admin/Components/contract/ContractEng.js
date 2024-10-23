@@ -83,8 +83,6 @@ export default function ContractEng() {
         getContract();
     }, []);
 
-    console.log(services);
-
 
     return (
         <>
@@ -154,9 +152,11 @@ export default function ContractEng() {
                             <div className="signed">
                                 <p>
                                     {t("work-contract.signed")}
-                                    <span>
-                                        {services && services[0]?.address.city ? services[0]?.address.city : 'NA'}
-                                    </span>{" "}
+                                    {
+                                        services && services?.map((service, i) => (
+                                            <span className='mr-1' key={i}> {service?.address?.city != "undefined" ? service?.address?.city : "NA"}</span>
+                                        ))
+                                    }
                                     on{" "}
                                     <span>
                                         {Moment(contract.created_at).format(
@@ -184,17 +184,21 @@ export default function ContractEng() {
                                     </li>
                                     <li className="list-inline-item">
                                         {t("work-contract.city")}{" "}
-                                        <span>
-                                            {services && services[0]?.address.city ? services[0]?.address.city : 'NA'}
-                                        </span>
+                                        {
+                                            services && services?.map((service, i) => (
+                                                <span className='mr-1' key={i}> {service?.address?.city != "undefined" ? service?.address?.city : "NA"}</span>
+                                            ))
+                                        }
                                     </li>
                                 </ul>
                                 <ul className="list-inline">
                                     <li className="list-inline-item ml-2">
                                         {t("work-contract.street_and_number")}{" "}
-                                        <span>
-                                            {services && services[0]?.address?.geo_address ? services[0]?.address?.geo_address : 'NA'}
-                                        </span>
+                                        {
+                                            services && services?.map((service, i) => (
+                                                <span className='mr-1' key={i}> {service?.address?.address_name != "undefined" ? service?.address?.address_name : "NA"}</span>
+                                            ))
+                                        }
                                     </li>
                                     {/* <li className="list-inline-item">{t('work-contract.floor')} <span>{client.floor ? client.floor : 'NA'}</span>
                                     </li>*/}
@@ -325,7 +329,7 @@ export default function ContractEng() {
                                                         return (
                                                             <p>
                                                                 {s.service !=
-                                                                "10"
+                                                                    "10"
                                                                     ? s.name
                                                                     : s.other_title}
                                                             </p>
@@ -347,15 +351,15 @@ export default function ContractEng() {
                                                             {contract?.client
                                                                 ?.geo_address
                                                                 ? contract
-                                                                      .client
-                                                                      .geo_address +
-                                                                  ", "
+                                                                    .client
+                                                                    .geo_address +
+                                                                ", "
                                                                 : ""}
                                                         </span>
 
-                                                        {contract.additional_address ? (
+                                                        {contract?.form_data?.additional_address ? (
                                                             contract.status ===
-                                                            "not-signed" ? (
+                                                                "not-signed" ? (
                                                                 <>
                                                                     <span
                                                                         style={{
@@ -403,7 +407,7 @@ export default function ContractEng() {
                                                                     <br />
                                                                     <span className="form-control">
                                                                         {
-                                                                            contract.additional_address
+                                                                            contract?.form_data?.additional_address
                                                                         }
                                                                     </span>
                                                                 </>
@@ -488,7 +492,7 @@ export default function ContractEng() {
                                                                     ) +
                                                                     " " +
                                                                     (s.service !=
-                                                                    "10"
+                                                                        "10"
                                                                         ? s.name
                                                                         : s.other_title) +
                                                                     ", " +
@@ -516,7 +520,7 @@ export default function ContractEng() {
                                         </Tr>
                                         {contract &&
                                             (contract.status ===
-                                            "not-signed" ? (
+                                                "not-signed" ? (
                                                 <>
                                                     {/* Uncommented out part for selecting card type if needed */}
                                                     {/*<Tr>
@@ -856,7 +860,7 @@ export default function ContractEng() {
                                         </h5>
                                         {contract &&
                                             (contract.status ===
-                                            "not-signed" ? (
+                                                "not-signed" ? (
                                                 <>
                                                     <h6>
                                                         {t(
@@ -890,7 +894,7 @@ export default function ContractEng() {
                                     {contract && (
                                         <>
                                             {contract.status ===
-                                            "un-verified" ? (
+                                                "un-verified" ? (
                                                 <div className="col-sm-6">
                                                     <div className="mt-2">
                                                         <input
@@ -903,7 +907,7 @@ export default function ContractEng() {
                                                     </div>
                                                 </div>
                                             ) : contract.status ===
-                                              "verified" ? (
+                                                "verified" ? (
                                                 <div className="col-sm-6">
                                                     <div className="mt-2">
                                                         <input

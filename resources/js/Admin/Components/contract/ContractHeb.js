@@ -30,12 +30,12 @@ export default function ContractHeb() {
         axios
             .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
             .then((res) => {
+                
                 const _contract = res.data.contract;
                 setOffer(_contract.offer);
                 setServices(JSON.parse(_contract.offer.services));
                 setClient(_contract.client);
                 setContract(_contract);
-                console.log(_contract.offer);
                 // setStatus(_contract.status);
                 // setConsentToAds(_contract.consent_to_ads ? true : false);
 
@@ -49,7 +49,6 @@ export default function ContractHeb() {
                 //         moment(_contract.signed_at).format("DD/MM/YYYY")
                 //     );
                 // }
-                console.log(_contract.client.lng);
                 i18next.changeLanguage(_contract.client.lng);
                 if (_contract.client.lng == "heb") {
                     import("../../../Assets/css/rtl.css");
@@ -83,7 +82,6 @@ export default function ContractHeb() {
         i18next.changeLanguage("heb");
         getContract();
     }, []);
-
 
     return (
         <>
@@ -153,9 +151,11 @@ export default function ContractHeb() {
                             <div className="signed">
                                 <p>
                                     {t("work-contract.signed")}
-                                    <span>
-                                        {services && services[0]?.address.city ? services[0]?.address.city : 'NA'}
-                                    </span>{" "}
+                                    {
+                                        services && services?.map((service, i) => (
+                                            <span className='mr-1' key={i}> {service?.address?.city != "undefined" ? service?.address?.city : "NA"}</span>
+                                        ))
+                                    }
                                     on{" "}
                                     <span>
                                         {Moment(contract.created_at).format(
@@ -183,17 +183,21 @@ export default function ContractHeb() {
                                     </li>
                                     <li className="list-inline-item">
                                         {t("work-contract.city")}{" "}
-                                        <span>
-                                            {services && services[0]?.address.city ? services[0]?.address.city : 'NA'}
-                                        </span>
+                                        {
+                                            services && services?.map((service, i) => (
+                                                <span className='mr-1' key={i}> {service?.address?.city != "undefined" ? service?.address?.city : "NA"}</span>
+                                            ))
+                                        }
                                     </li>
                                 </ul>
                                 <ul className="list-inline customRTL">
                                     <li className="list-inline-item ml-2">
                                         {t("work-contract.street_and_number")}{" "}
-                                        <span>
-                                            {services && services[0]?.address?.geo_address ? services[0]?.address?.geo_address : 'NA'}
-                                        </span>
+                                        {
+                                            services && services?.map((service, i) => (
+                                                <span className='mr-1' key={i}> {service?.address?.address_name != "undefined" ? service?.address?.address_name : "NA"}</span>
+                                            ))
+                                        }
                                     </li>
                                     {/* <li className="list-inline-item">{t('work-contract.floor')} <span>{client.floor ? client.floor : 'NA'}</span>
                                     </li>*/}
@@ -352,7 +356,7 @@ export default function ContractHeb() {
                                                                 : ""}
                                                         </span>
 
-                                                        {contract.additional_address ? (
+                                                        {contract?.form_data?.additional_address ? (
                                                             contract.status ===
                                                             "not-signed" ? (
                                                                 <>
@@ -402,7 +406,7 @@ export default function ContractHeb() {
                                                                     <br />
                                                                     <span className="form-control">
                                                                         {
-                                                                            contract.additional_address
+                                                                           contract?.form_data?.additional_address
                                                                         }
                                                                     </span>
                                                                 </>
