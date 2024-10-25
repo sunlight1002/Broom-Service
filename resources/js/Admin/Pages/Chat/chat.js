@@ -883,7 +883,7 @@ export default function chat() {
                                             </header>
                                             {/* <hr style={{ marginTop: "0" }} /> */}
                                             {/* Chat messages */}
-                                            <div className="chat-conversation"
+                                            <div className="wa chat-conversation"
                                                 style={{ borderRadius: "0" }}
                                             >
                                                 {/* <img src={wa} /> */}
