@@ -11,6 +11,9 @@ import MiniLoader from "../../../Components/common/MiniLoader";
 import useWindowWidth from "../../../Hooks/useWindowWidth";
 import Sidebar from "../../Layouts/Sidebar";
 import './ChatFooter.css'; // Import the CSS
+import { RiAccountCircleFill } from "react-icons/ri";
+
+import wa from '../../../../../public/images/wa.jpg'
 
 export default function chat() {
 
@@ -288,7 +291,7 @@ export default function chat() {
     const search = (s) => {
         axios.get(`/api/admin/chat-search?s=${s}&type=${lead ? 'lead' : 'client'}`, { headers }).then((res) => {
             const r = res.data.data;
-    
+
             if (lead) {
                 setAllLeads(res.data);
             } else {
@@ -297,7 +300,7 @@ export default function chat() {
             setData(r);
         });
     };
-    
+
 
     useEffect(() => {
         getLead();
@@ -401,8 +404,13 @@ export default function chat() {
                     key={i}
                 >
                     <div className="d-flex align-items-center">
-                        <div className="user-icon2">
-                            <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} />
+                        <div
+                            //  className="user-icon2"
+                            className=""
+                        >
+                            {/* <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} /> */}
+                            <svg viewBox="0 0 212 212" height="45" width="45" preserveAspectRatio="xMidYMid meet" class="xh8yej3 x5yr21d" version="1.1" x="0px" y="0px" enable-background="new 0 0 212 212"><title>default-user</title><path fill="#DFE5E7" class="background" d="M106.251,0.5C164.653,0.5,212,47.846,212,106.25S164.653,212,106.25,212C47.846,212,0.5,164.654,0.5,106.25 S47.846,0.5,106.251,0.5z"></path><g><path fill="#FFFFFF" class="primary" d="M173.561,171.615c-0.601-0.915-1.287-1.907-2.065-2.955c-0.777-1.049-1.645-2.155-2.608-3.299 c-0.964-1.144-2.024-2.326-3.184-3.527c-1.741-1.802-3.71-3.646-5.924-5.47c-2.952-2.431-6.339-4.824-10.204-7.026 c-1.877-1.07-3.873-2.092-5.98-3.055c-0.062-0.028-0.118-0.059-0.18-0.087c-9.792-4.44-22.106-7.529-37.416-7.529 s-27.624,3.089-37.416,7.529c-0.338,0.153-0.653,0.318-0.985,0.474c-1.431,0.674-2.806,1.376-4.128,2.101 c-0.716,0.393-1.417,0.792-2.101,1.197c-3.421,2.027-6.475,4.191-9.15,6.395c-2.213,1.823-4.182,3.668-5.924,5.47 c-1.161,1.201-2.22,2.384-3.184,3.527c-0.964,1.144-1.832,2.25-2.609,3.299c-0.778,1.049-1.464,2.04-2.065,2.955 c-0.557,0.848-1.033,1.622-1.447,2.324c-0.033,0.056-0.073,0.119-0.104,0.174c-0.435,0.744-0.79,1.392-1.07,1.926 c-0.559,1.068-0.818,1.678-0.818,1.678v0.398c18.285,17.927,43.322,28.985,70.945,28.985c27.678,0,52.761-11.103,71.055-29.095 v-0.289c0,0-0.619-1.45-1.992-3.778C174.594,173.238,174.117,172.463,173.561,171.615z"></path><path fill="#FFFFFF" class="primary" d="M106.002,125.5c2.645,0,5.212-0.253,7.68-0.737c1.234-0.242,2.443-0.542,3.624-0.896 c1.772-0.532,3.482-1.188,5.12-1.958c2.184-1.027,4.242-2.258,6.15-3.67c2.863-2.119,5.39-4.646,7.509-7.509 c0.706-0.954,1.367-1.945,1.98-2.971c0.919-1.539,1.729-3.155,2.422-4.84c0.462-1.123,0.872-2.277,1.226-3.458 c0.177-0.591,0.341-1.188,0.49-1.792c0.299-1.208,0.542-2.443,0.725-3.701c0.275-1.887,0.417-3.827,0.417-5.811 c0-1.984-0.142-3.925-0.417-5.811c-0.184-1.258-0.426-2.493-0.725-3.701c-0.15-0.604-0.313-1.202-0.49-1.793 c-0.354-1.181-0.764-2.335-1.226-3.458c-0.693-1.685-1.504-3.301-2.422-4.84c-0.613-1.026-1.274-2.017-1.98-2.971 c-2.119-2.863-4.646-5.39-7.509-7.509c-1.909-1.412-3.966-2.643-6.15-3.67c-1.638-0.77-3.348-1.426-5.12-1.958 c-1.181-0.355-2.39-0.655-3.624-0.896c-2.468-0.484-5.035-0.737-7.68-0.737c-21.162,0-37.345,16.183-37.345,37.345 C68.657,109.317,84.84,125.5,106.002,125.5z"></path></g></svg>
+
                         </div>
                         <div className="ml-2">
                             {cd && (
@@ -612,17 +620,72 @@ export default function chat() {
                             <div className="card mb-0 " style={{ boxShadow: "none" }}>
                                 <div className="card-body p-0">
 
-                                    <div className="row">
+                                    <div className="row"
+                                        style={{
+                                            marginRight: "-29px",
+                                            marginLeft: "-26px",
+                                            borderTop: "1px solid #e0e0e0"
+                                        }}
+                                    >
                                         <div
-                                            className="card col-sm-4 card-body sidemsg mb-0 pt-0 d-none d-xl-flex"
+                                            className="card col-sm-4 card-body sidemsg mb-0 p-0 d-none d-xl-flex"
                                             style={{
                                                 borderRadius: "0",
                                                 boxShadow: "none",
-                                                borderRight: "1px solid #E5EBF1"
+                                                borderRight: "1px solid #E5EBF1",
+                                                // paddingRight: "0",
+                                                // paddingBottom: "0"
                                             }}
                                         >
 
-                                            <div className="d-none mb-3 mt-3  d-lg-block position-relative">
+                                            <header className="header-container">
+                                                <div className="profile-picture-container" >
+                                                    <button
+                                                        className="btn navyblue mr-2 d-lg-none"
+                                                        onClick={handleBack}
+                                                        style={{ borderRadius: "50%" }}
+                                                    >
+                                                        <i className="fa-solid fa-arrow-left"></i>
+                                                    </button>
+                                                    <div className="user-icon2"
+                                                        style={{
+                                                            background: "#dfe5e7"
+                                                        }}
+                                                    >
+                                                        <RiAccountCircleFill className="font-24" style={{ color: "#2F4054" }} />
+                                                    </div>
+                                                </div>
+                                                {/* <div className="contact-info-container" role="button">
+                                                    <div className="contact-info">
+                                                        <div className="contact-name"><span className="phone-number">{chatName}</span></div>
+                                                    </div>
+                                                    <div className="last-seen-container"><span title="last seen today at 6:15 PM" className="last-seen">+{selectNumber}</span></div>
+                                                </div> */}
+                                                <div className="header-buttons-container">
+                                                    <div className="button-icons">
+                                                        {/* <div className="icon-container">
+                                                        <div title="Search">
+                                                            <span data-icon="search-alt" className="search-icon"></span>
+                                                        </div>
+                                                        <span></span>
+                                                    </div>
+                                                    <div className="icon-container">
+                                                        <div role="button" title="Attach">
+                                                            <span data-icon="clip" className="attach-icon"></span>
+                                                        </div>
+                                                        <span></span>
+                                                    </div>
+                                                    <div className="icon-container">
+                                                        <div title="Menu">
+                                                            <span data-icon="menu" className="menu-icon"></span>
+                                                        </div>
+                                                        <span></span>
+                                                    </div> */}
+                                                    </div>
+                                                </div>
+                                            </header>
+
+                                            <div className="d-none mb-3 mt-3 mx-3 d-lg-block position-relative">
                                                 <input
                                                     type="text"
                                                     name="smsg"
@@ -673,7 +736,12 @@ export default function chat() {
                                                 </ul>
                                             </div>
 
-                                            <div className="tab-content">
+                                            <div className="tab-content"
+                                                style={{
+                                                    height: "77.6vh",
+                                                    overflowY: "auto",
+                                                }}
+                                            >
                                                 <div
                                                     id="tab-chat-details"
                                                     className="tab-pane fade active show"  // Corrected class for active tab
@@ -746,9 +814,15 @@ export default function chat() {
                                             </div>
 
                                         </div>
+
+
+
+
+
+
                                         <div className="col-xl-8 col-12 p-0" style={{ backgroundColor: "white" }}>
-                                            <div className="d-flex justify-content-between align-items-center my-2 pl-3 pr-3">
-                                                <h4 className="header-title d-flex mr-2 align-items-center">
+                                            <header className="header-container">
+                                                <div className="profile-picture-container" >
                                                     <button
                                                         className="btn navyblue mr-2 d-lg-none"
                                                         onClick={handleBack}
@@ -756,23 +830,64 @@ export default function chat() {
                                                     >
                                                         <i className="fa-solid fa-arrow-left"></i>
                                                     </button>
-                                                    <div className="user-icon2">
-                                                        <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} />
+                                                    <div
+                                                        // className="user-icon2"
+                                                        className=""
+                                                        // style={{
+                                                        //     background: "#dfe5e7"
+                                                        // }}
+                                                    >
+                                                        {/* <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} /> */}
+                                                        <svg viewBox="0 0 212 212" height="45" width="45" preserveAspectRatio="xMidYMid meet" class="xh8yej3 x5yr21d" version="1.1" x="0px" y="0px" enable-background="new 0 0 212 212"><title>default-user</title><path fill="#DFE5E7" class="background" d="M106.251,0.5C164.653,0.5,212,47.846,212,106.25S164.653,212,106.25,212C47.846,212,0.5,164.654,0.5,106.25 S47.846,0.5,106.251,0.5z"></path><g><path fill="#FFFFFF" class="primary" d="M173.561,171.615c-0.601-0.915-1.287-1.907-2.065-2.955c-0.777-1.049-1.645-2.155-2.608-3.299 c-0.964-1.144-2.024-2.326-3.184-3.527c-1.741-1.802-3.71-3.646-5.924-5.47c-2.952-2.431-6.339-4.824-10.204-7.026 c-1.877-1.07-3.873-2.092-5.98-3.055c-0.062-0.028-0.118-0.059-0.18-0.087c-9.792-4.44-22.106-7.529-37.416-7.529 s-27.624,3.089-37.416,7.529c-0.338,0.153-0.653,0.318-0.985,0.474c-1.431,0.674-2.806,1.376-4.128,2.101 c-0.716,0.393-1.417,0.792-2.101,1.197c-3.421,2.027-6.475,4.191-9.15,6.395c-2.213,1.823-4.182,3.668-5.924,5.47 c-1.161,1.201-2.22,2.384-3.184,3.527c-0.964,1.144-1.832,2.25-2.609,3.299c-0.778,1.049-1.464,2.04-2.065,2.955 c-0.557,0.848-1.033,1.622-1.447,2.324c-0.033,0.056-0.073,0.119-0.104,0.174c-0.435,0.744-0.79,1.392-1.07,1.926 c-0.559,1.068-0.818,1.678-0.818,1.678v0.398c18.285,17.927,43.322,28.985,70.945,28.985c27.678,0,52.761-11.103,71.055-29.095 v-0.289c0,0-0.619-1.45-1.992-3.778C174.594,173.238,174.117,172.463,173.561,171.615z"></path><path fill="#FFFFFF" class="primary" d="M106.002,125.5c2.645,0,5.212-0.253,7.68-0.737c1.234-0.242,2.443-0.542,3.624-0.896 c1.772-0.532,3.482-1.188,5.12-1.958c2.184-1.027,4.242-2.258,6.15-3.67c2.863-2.119,5.39-4.646,7.509-7.509 c0.706-0.954,1.367-1.945,1.98-2.971c0.919-1.539,1.729-3.155,2.422-4.84c0.462-1.123,0.872-2.277,1.226-3.458 c0.177-0.591,0.341-1.188,0.49-1.792c0.299-1.208,0.542-2.443,0.725-3.701c0.275-1.887,0.417-3.827,0.417-5.811 c0-1.984-0.142-3.925-0.417-5.811c-0.184-1.258-0.426-2.493-0.725-3.701c-0.15-0.604-0.313-1.202-0.49-1.793 c-0.354-1.181-0.764-2.335-1.226-3.458c-0.693-1.685-1.504-3.301-2.422-4.84c-0.613-1.026-1.274-2.017-1.98-2.971 c-2.119-2.863-4.646-5.39-7.509-7.509c-1.909-1.412-3.966-2.643-6.15-3.67c-1.638-0.77-3.348-1.426-5.12-1.958 c-1.181-0.355-2.39-0.655-3.624-0.896c-2.468-0.484-5.035-0.737-7.68-0.737c-21.162,0-37.345,16.183-37.345,37.345 C68.657,109.317,84.84,125.5,106.002,125.5z"></path></g></svg>
+
                                                     </div>
-                                                    {chatName}
-                                                </h4>
-                                                <button
-                                                    type="button"
-                                                    className="btn navyblue text-right float-right py-1 px-2"
-                                                    onClick={(e) => handleDeleteConversation(e)}
-                                                >
-                                                    <i className="fa fa-trash"></i>
-                                                </button>
-                                            </div>
-                                            <hr style={{ marginTop: "0" }} />
+                                                </div>
+                                                <div className="contact-info-container" role="button">
+                                                    <div className="contact-info">
+                                                        <div className="contact-name"><span className="phone-number">{chatName}</span></div>
+                                                    </div>
+                                                    <div className="last-seen-container"><span title="last seen today at 6:15 PM" className="last-seen">+{selectNumber}</span></div>
+                                                </div>
+                                                <div className="header-buttons-container">
+                                                    <div className="button-icons">
+                                                        {/* <div className="icon-container">
+                                                        <div title="Search">
+                                                            <span data-icon="search-alt" className="search-icon"></span>
+                                                        </div>
+                                                        <span></span>
+                                                    </div>
+                                                    <div className="icon-container">
+                                                        <div role="button" title="Attach">
+                                                            <span data-icon="clip" className="attach-icon"></span>
+                                                        </div>
+                                                        <span></span>
+                                                    </div>
+                                                    <div className="icon-container">
+                                                        <div title="Menu">
+                                                            <span data-icon="menu" className="menu-icon"></span>
+                                                        </div>
+                                                        <span></span>
+                                                    </div> */}
+                                                        <div className="icon-container">
+                                                            <button
+                                                                type="button"
+                                                                className="btn navyblue text-right float-right py-1 px-2"
+                                                                onClick={(e) => handleDeleteConversation(e)}
+                                                            >
+                                                                <i className="fa fa-trash"></i>
+                                                            </button>
+                                                            <span></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </header>
+                                            {/* <hr style={{ marginTop: "0" }} /> */}
                                             {/* Chat messages */}
-                                            <div className="chat-conversation">
-                                                <div data-simplebar="init" style={{ minHeight: "74vh" }}>
+                                            <div className="chat-conversation"
+                                                style={{ borderRadius: "0" }}
+                                            >
+                                                {/* <img src={wa} /> */}
+                                                <div data-simplebar="init" style={{ minHeight: "76vh" }}>
                                                     <div className="simplebar-wrapper" style={{ margin: "0px" }}>
                                                         <div
                                                             chat-content=""
@@ -780,7 +895,7 @@ export default function chat() {
                                                             style={{
                                                                 overflowY: "scroll",
                                                                 width: "auto",
-                                                                height: "74vh",
+                                                                height: "76vh",
                                                             }}
                                                         >
                                                             <div
@@ -806,62 +921,69 @@ export default function chat() {
                                                                                             justifyContent: m.flex != "C" && "end"
                                                                                         }}
                                                                                     >
-                                                                                        <div className="ctext-wrap card" style={{
-                                                                                            boxShadow: "none",
-                                                                                            border: "1px solid #DDE2E8",
-                                                                                            backgroundColor: m.flex === "C" ? "#E5EBF1" : "rgb(247 247 247 / 39%)" // Conditional background color
-                                                                                        }}>
-                                                                                            <div className="d-flex justify-content-between align-items-center">
-                                                                                                <span className="pr-2">{m.flex == "C" ? chatName : "You"}</span>
-                                                                                                <small>
-                                                                                                    {new Date(m.created_at).toLocaleString("en-GB")}
-                                                                                                </small>
+                                                                                        {/* <span class="tail-container"></span><span class="tail-container highlight"></span> */}
+
+                                                                                        <div className={`message-bubble ${m.flex !== "C" ? "message-outgoing " : "message-incoming"} `}>
+                                                                                            <div className="message-content">
+                                                                                                {/* <div className="text-content">
+                                                                                                    <span className="message-text">Your card is not charged yet</span>
+                                                                                                </div> */}
+                                                                                                <div className="text-content"
+                                                                                                style={{display: "flex", flexDirection: "column"}}
+                                                                                                >
+                                                                                                    {/* Check if the message starts with "Replying to:" */}
+                                                                                                    {m?.message != null && m?.message?.startsWith("Replying to:") && (
+                                                                                                        <span className="replying-text">{m.message}</span>
+                                                                                                    )}
+
+                                                                                                    {/* Check for media based on wa_id */}
+                                                                                                    {m?.message != null && m?.message?.startsWith("Replying to:") && (
+                                                                                                        <>
+                                                                                                            {webhookResponses?.filter(response => response.id == m.wa_id) // Check for matching wa_id
+                                                                                                                .map((response) => (
+                                                                                                                    <React.Fragment key={response.id}>
+                                                                                                                        {response.video && (
+                                                                                                                            <video width="300" height="220" controls>
+                                                                                                                                <source src={`/storage/uploads/media/${response.video}`} type="video/mp4" />
+                                                                                                                            </video>
+                                                                                                                        )}
+                                                                                                                        {response.image && (
+                                                                                                                            <img src={`/storage/uploads/media/${response.image}`} alt="image" width="300" />
+                                                                                                                        )}
+                                                                                                                    </React.Fragment>
+                                                                                                                ))}
+                                                                                                        </>
+                                                                                                    )}
+
+                                                                                                    {/* Display regular message if no media */}
+                                                                                                    {!m?.message?.startsWith("Replying to:") && (
+                                                                                                        <>
+                                                                                                            {m?.video && (
+                                                                                                                <video width="300" height="220" controls>
+                                                                                                                    <source src={`/storage/uploads/media/${m.video}`} type="video/mp4" />
+                                                                                                                </video>
+                                                                                                            )}
+                                                                                                            {m?.image && (
+                                                                                                                <img src={`/storage/uploads/media/${m.image}`} alt="image" width="300" />
+                                                                                                            )}
+                                                                                                            <br />
+                                                                                                            {m.message}
+                                                                                                        </>
+                                                                                                    )}
+                                                                                                </div>
+                                                                                                <div className="message-info">
+                                                                                                    <span className="message-time"> {new Date(m.created_at).toLocaleString("en-GB")}</span>
+                                                                                                    <span className="message-status">
+                                                                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 15" width="16" height="15">
+                                                                                                            <path fill="#727678" d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path>
+                                                                                                        </svg>
+                                                                                                    </span>
+                                                                                                </div>
                                                                                             </div>
-                                                                                            <p>
-                                                                                                {/* Check if the message starts with "Replying to:" */}
-                                                                                                {m?.message != null && m?.message?.startsWith("Replying to:") && (
-                                                                                                    <span className="replying-text">{m.message}</span>
-                                                                                                )}
-
-                                                                                                {/* Check for media based on wa_id */}
-                                                                                                {m?.message != null && m?.message?.startsWith("Replying to:") && (
-                                                                                                    <>
-                                                                                                        {webhookResponses?.filter(response => response.id == m.wa_id) // Check for matching wa_id
-                                                                                                            .map((response) => (
-                                                                                                                <React.Fragment key={response.id}>
-                                                                                                                    {response.video && (
-                                                                                                                        <video width="300" height="220" controls>
-                                                                                                                            <source src={`/storage/uploads/media/${response.video}`} type="video/mp4" />
-                                                                                                                        </video>
-                                                                                                                    )}
-                                                                                                                    {response.image && (
-                                                                                                                        <img src={`/storage/uploads/media/${response.image}`} alt="image" width="300" />
-                                                                                                                    )}
-                                                                                                                </React.Fragment>
-                                                                                                            ))}
-                                                                                                    </>
-                                                                                                )}
-
-                                                                                                {/* Display regular message if no media */}
-                                                                                                {!m?.message?.startsWith("Replying to:") && (
-                                                                                                    <>
-                                                                                                        {m?.video && (
-                                                                                                            <video width="300" height="220" controls>
-                                                                                                                <source src={`/storage/uploads/media/${m.video}`} type="video/mp4" />
-                                                                                                            </video>
-                                                                                                        )}
-                                                                                                        {m?.image && (
-                                                                                                            <img src={`/storage/uploads/media/${m.image}`} alt="image" width="300" />
-                                                                                                        )}
-                                                                                                        <br />
-                                                                                                        {m.message}
-                                                                                                    </>
-                                                                                                )}
-                                                                                            </p>
                                                                                         </div>
                                                                                         <i
                                                                                             className="fa-solid fa-reply"
-                                                                                            style={{ marginBottom: "50px", marginLeft: "5px", cursor: "pointer" }}
+                                                                                            style={{ marginBottom: "50px", cursor: "pointer", background: "#e7e3e3", padding: "7px", borderRadius: "100%" }}
                                                                                             onClick={() => {
                                                                                                 if (m?.video != null) {
                                                                                                     setMedia(m.video);
@@ -875,6 +997,7 @@ export default function chat() {
                                                                                         ></i>
                                                                                     </div>
                                                                                 </li>
+
                                                                             );
                                                                         }
                                                                     })}

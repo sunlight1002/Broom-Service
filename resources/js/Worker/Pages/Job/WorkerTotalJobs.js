@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
-import ReactPaginate from "react-paginate";
 import axios from "axios";
-import { Link } from "react-router-dom";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
-import { useLocation } from "react-router-dom";
 import Moment from "moment";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import ReactPaginate from "react-paginate";
+import { Link } from "react-router-dom";
+import { Table, Tbody, Td, Th, Thead, Tr } from "react-super-responsive-table";
 
-import WorkerSidebar from "../../Layouts/WorkerSidebar";
-import { convertMinsToDecimalHrs, getShiftsDetails } from "../../../Utils/common.utils";
 import FilterButtons from "../../../Components/common/FilterButton";
+import WorkerSidebar from "../../Layouts/WorkerSidebar";
 
 export default function WorkerTotalJobs() {
     const todayFilter = {
@@ -279,8 +277,6 @@ export default function WorkerTotalJobs() {
                                         </Thead>
                                         <Tbody>
                                             {totalJobs.map((item, index) => {
-                                                //let services =  (item.offer.services) ? JSON.parse(item.offer.services) : [];
-                                                const { durationInHours, startTime, endTime } = getShiftsDetails(item);
 
                                                 let address =
                                                     item.property_address;
@@ -318,7 +314,7 @@ export default function WorkerTotalJobs() {
                                                                           .jobservice
                                                                           .heb_name)}
                                                         </Td>
-                                                        <Td>{startTime + "-" + endTime}</Td>
+                                                        <Td>{item?.shifts}</Td>
                                                         <Td>
                                                             {item.property_address ? (
                                                                 <Link
@@ -338,8 +334,8 @@ export default function WorkerTotalJobs() {
                                                             )}
                                                         </Td>
                                                         <Td>
-                                                            {item.jobservice
-                                                                ? durationInHours + " Hours"
+                                                            {item?.jobservice
+                                                                ? item?.jobservice?.duration_minutes / 60 + " Hours"
                                                                 : "NA"}
                                                         </Td>
                                                         <Td

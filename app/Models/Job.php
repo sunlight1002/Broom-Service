@@ -17,6 +17,7 @@ class Job extends Model
         'offer_id',
         'contract_id',
         'schedule_id',
+        'parent_job_id',
         'schedule',
         'address_id',
         'start_date',

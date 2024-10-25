@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Problems;
 use App\Models\Job;
+use App\Models\ParentJobs;
 use App\Models\User;
 use App\Models\Contract;
 use App\Models\Services;
@@ -594,6 +595,23 @@ class JobController extends Controller
                     'original_shifts'        => $slotsInString,
                 ]);
 
+                // Create entry in ParentJobs
+                $parentJob = ParentJobs::create([
+                    'job_id' => $job->id,
+                    'client_id' => $contract->client_id,
+                    'worker_id' => $workerDate['worker_id'],
+                    'offer_id' => $contract->offer_id,
+                    'contract_id' => $contract->id,
+                    'schedule'      => $repeat_value,
+                    'schedule_id'   => $s_id,
+                    'start_date' => $job_date,
+                    'next_start_date'   => $next_job_date,
+                    'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
+                    'status' => $status, // You can set this according to your needs
+                ]);
+
+                
+
                 $jobser = JobService::create([
                     'job_id'            => $job->id,
                     'service_id'        => $s_id,
@@ -615,7 +633,8 @@ class JobController extends Controller
 
                 $job->update([
                     'origin_job_id' => $job->id,
-                    'job_group_id' => $jobGroupID
+                    'job_group_id' => $jobGroupID,
+                    'parent_job_id' => $parentJob->id
                 ]);
 
                 foreach ($mergedContinuousTime as $key => $shift) {
@@ -647,8 +666,13 @@ class JobController extends Controller
                     'emailContent'  => __('mail.worker_new_job.new_job_assigned')
                 ];
                 event(new JobNotificationToClient($workerData, $clientData, $jobData, $emailData));
+            ScheduleNextJobOccurring::dispatch($job->id, null);
+
             }
         }
+
+        // if ($job->status == JobStatusEnum::SCHEDULED) {
+        // }
 
         $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
 
@@ -1441,7 +1465,7 @@ class JobController extends Controller
             ]);
 
             CreateJobOrder::dispatch($job->id);
-            ScheduleNextJobOccurring::dispatch($job->id);
+            ScheduleNextJobOccurring::dispatch($job->id,null);
 
             App::setLocale('en');
             $data = array(

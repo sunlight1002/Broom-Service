@@ -15,8 +15,11 @@ export default function WorkerAvailabilityTableMobile({
     removeShift,
     searchKeyword = "",
     isClient = false,
-    selectedHours
+    selectedHours,
 }) {
+
+    console.log(isClient);
+
     const [filterSlots, setFilterSlots] = useState([]);
     const [selectedWorker, setSelectedWorker] = useState(null);
     const [selectedDate, setSelectedDate] = useState(week[0]);
@@ -78,7 +81,7 @@ export default function WorkerAvailabilityTableMobile({
         });
 
         return _workers;
-    }, [AllWorkers, sortOrder, searchKeyword]);
+    }, [AllWorkers, sortOrder, searchKeyword, distance]);
 
     const getBookedSlotsForWorkerAndDate = (workerId, date) => {
         const bookedSlot = bookedSlots.find(slot => slot.worker_id === workerId && slot.date === date);
@@ -227,22 +230,39 @@ export default function WorkerAvailabilityTableMobile({
                                             {filterSlots.length > 0 ? (
                                                 filterSlots.map((shift, idx) => {
                                                     const isActive = hasActive(worker.id, selectedDate, shift);
-                                                    const tooltip = !isClient ? (
-                                                        shift.isBooked ? shift.clientName + shift.jobId :
-                                                            shift.isFreezed ? t("client.jobs.change.shiftFreezedByAdmin") :
-                                                                shift.notAvailable ? t("client.jobs.change.workNotAvail") : ""
-                                                    ) : "";
+                                                    let tooltip = "";
+                                                    if (!isClient) {
+                                                        if (shift?.isBooked) {
+                                                            tooltip = shift?.clientName + shift?.jobId;
+                                                        } else if (shift?.isFreezed && isClient) {
+                                                            tooltip = t("client.jobs.change.shiftFreezedByAdmin");
+                                                        } else if (shift?.isFreezed && !isClient) {
+                                                            tooltip = t("client.jobs.change.shiftFreezed");
+                                                        } else if (shift?.notAvailable) {
+                                                            tooltip = t("client.jobs.change.workNotAvail");
+                                                        }
+                                                    }
 
                                                     return (
                                                         <div key={idx} className="mb-2">
                                                             <div
-                                                                data-tooltip-hidden={shift.isBooked || shift.isFreezed || shift.notAvailable}
+                                                                 data-tooltip-hidden={
+                                                                    shift?.isBooked ||
+                                                                    (shift?.isFreezed && !isClient) ||
+                                                                    shift?.notAvailable
+                                                                }
                                                                 data-tooltip-id="slot-tooltip"
                                                                 data-tooltip-content={tooltip}
-                                                                className={`d-flex slot justify-content-between ${isActive ? "bg-primary-selected" : ""} ${shift.isBooked || shift.isFreezed || shift.notAvailable ? "slot-disabled" : ""}`}
+                                                                className={`d-flex slot justify-content-between ${shift?.isBooked || (shift?.isFreezed && isClient) || shift?.notAvailable ? "slot-disabled" : ""} ${isActive ? "none bg-primary-selected" : ""}`}
                                                                 onClick={() => {
-                                                                    if (!shift.isBooked && !shift.isFreezed && !shift.notAvailable) {
-                                                                        isActive ? removeShift(worker.id, selectedDate, shift) : changeShift(worker.id, selectedDate, shift);
+                                                                    if (
+                                                                        !shift?.isBooked &&
+                                                                        (!shift?.isFreezed || !isClient) &&
+                                                                        !shift?.notAvailable
+                                                                    ) {
+                                                                        isActive
+                                                                            ? removeShift(selectedWorker.id, selectedDate, shift)
+                                                                            : changeShift(selectedWorker.id, selectedDate, shift);
                                                                     }
                                                                 }}
                                                             >

@@ -345,31 +345,30 @@ trait JobSchedule
 
     private function scheduleNextJobDate($jobDate, $period, $preferredWeekDay, $workingWeekDays)
     {
+        \Log::info($period);
+    
         if ($period == 'na') {
             return NULL;
         }
-
+        // Ensure $jobDate is a Carbon instance
+        $jobDate = is_string($jobDate) ? Carbon::parse($jobDate) : $jobDate;
+    
         $next_job_date = NULL;
-
+    
         // recurring
         [$period_type, $period_sequence_length] = $this->periodType($period);
+    
         if ($period_type == "day") {
-            $next_job_date = $jobDate
-                ->clone()
-                ->addDays($period_sequence_length);
-
+            $next_job_date = $jobDate->clone()->addDays($period_sequence_length);
+    
             if ($this->isHoliday($next_job_date, $workingWeekDays)) {
                 $next_job_date->modify('next sunday');
             }
-        } else if ($period_type == 'week') {
-            $next_job_date = $jobDate
-                ->clone()
-                ->addWeeks($period_sequence_length);
+        } elseif ($period_type == 'week') {
+            $next_job_date = $jobDate->clone()->addWeeks($period_sequence_length);
         } elseif ($period_type == 'month') {
-            $next_job_date = $jobDate
-                ->clone()
-                ->addMonths($period_sequence_length);
-
+            $next_job_date = $jobDate->clone()->addMonths($period_sequence_length);
+    
             if (
                 !$next_job_date->is($preferredWeekDay) ||
                 $this->isHoliday($next_job_date, $workingWeekDays)
@@ -377,10 +376,8 @@ trait JobSchedule
                 $next_job_date->modify('next ' . $preferredWeekDay);
             }
         } elseif ($period_type == 'year') {
-            $next_job_date = $jobDate
-                ->clone()
-                ->addYears($period_sequence_length);
-
+            $next_job_date = $jobDate->clone()->addYears($period_sequence_length);
+    
             if (
                 !$next_job_date->is($preferredWeekDay) ||
                 $this->isHoliday($next_job_date, $workingWeekDays)
@@ -388,10 +385,11 @@ trait JobSchedule
                 $next_job_date->modify('next ' . $preferredWeekDay);
             }
         }
-
+    
         return $next_job_date ? $next_job_date->toDateString() : NULL;
     }
-
+    
+    
     private function isHoliday($date, $workingWeekDays)
     {
         return !in_array($date->dayOfWeek, $workingWeekDays);

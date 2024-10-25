@@ -31,6 +31,7 @@ export default function ChangeScheduleCalender({ job }) {
     const [customDateRange, setCustomDateRange] = useState([]);
     const [searchVal, setSearchVal] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isSameWorker, setIsSameWorker] = useState(false); // Track checkbox state
 
     const params = useParams();
     const navigate = useNavigate();
@@ -40,7 +41,7 @@ export default function ChangeScheduleCalender({ job }) {
     const jobId = Base64.decode(params.id);
 
     const flatpickrRef = useRef(null);
-    let isSameWorker = useRef();
+    // let isSameWorker = useRef();
 
     const headers = {
         Accept: "application/json, text/plain, /",
@@ -51,7 +52,7 @@ export default function ChangeScheduleCalender({ job }) {
     const getTime = () => {
         axios.get(`/api/client/get-time`, { headers }).then((res) => {
             if (res.data.data) {
-                
+
                 let ar = JSON.parse(res.data.data.days);
                 setDays(ar);
             }
@@ -59,7 +60,7 @@ export default function ChangeScheduleCalender({ job }) {
     };
 
     const jobHours = useMemo(
-        () => (job.jobservice.duration_minutes / 4) / 60 ,
+        () => (job.jobservice.duration_minutes / 4) / 60,
         [job.jobservice.duration_minutes]
     );
 
@@ -74,12 +75,8 @@ export default function ChangeScheduleCalender({ job }) {
                     has_cat: job.property_address.is_cat_avail,
                     has_dog: job.property_address.is_dog_avail,
                     prefer_type: job.property_address.prefer_type,
-                    ignore_worker_ids: isSameWorker.current.checked
-                        ? ""
-                        : job.worker_id,
-                    only_worker_ids: isSameWorker.current.checked
-                        ? job.worker_id
-                        : "",
+                    ignore_worker_ids: !isSameWorker ? job.worker_id : "",
+                    only_worker_ids: isSameWorker ? job.worker_id : "",
                     job_id: job.id,
                 },
             })
@@ -98,10 +95,10 @@ export default function ChangeScheduleCalender({ job }) {
     useEffect(() => {
         getTime();
 
-        $("#edit-work-time").modal({
-            backdrop: "static",
-            keyboard: false,
-        });
+        // $("#edit-work-time").modal({
+        //     backdrop: "static",
+        //     keyboard: false,
+        // });
     }, []);
 
     useEffect(() => {
@@ -121,6 +118,7 @@ export default function ChangeScheduleCalender({ job }) {
             },
         ]);
     }, [jobHours]);
+
 
     const handleSubmit = () => {
         if (!formValues.repeatancy) {
@@ -160,7 +158,7 @@ export default function ChangeScheduleCalender({ job }) {
 
                     axios
                         .post(
-                           ` /api/client/jobs/${jobId}/change-worker`,
+                            ` /api/client/jobs/${jobId}/change-worker`,
                             formdata,
                             {
                                 headers,
@@ -208,8 +206,9 @@ export default function ChangeScheduleCalender({ job }) {
     let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const changeShift = (w_id, date, e) => {
-        const selectedSlotTimes = new Set(); // Track already selected slot times
         
+        const selectedSlotTimes = new Set(); // Track already selected slot times
+
         const promises = selectedHours.map(async (worker, index) => {
             if (worker.slots == null) {
                 const slots = await getAvailableSlots(
@@ -218,12 +217,11 @@ export default function ChangeScheduleCalender({ job }) {
                     date,
                     e,
                     worker.jobHours,
-                    false,
+                    true,
                     alert,
                     setWorkerAvailabilities,
                     setUpdatedJobs
                 );
-                
 
                 // Filter out slots that have already been selected
                 const filteredSlots = slots.filter(slot => !selectedSlotTimes.has(slot.time.time));
@@ -249,7 +247,7 @@ export default function ChangeScheduleCalender({ job }) {
                     "Other slots have already been selected. Please deselect and reselect."
                 );
             }
-            
+
             setSelectedHours(updatedData);
         });
     };
@@ -318,12 +316,11 @@ export default function ChangeScheduleCalender({ job }) {
         return job.total_amount * (_feePercentage / 100);
     }, [job]);
 
-    const handleWorkerList = () => {
-        getWorkers();
+    useEffect(() => {
+        getWorkers()
+    }, [isSameWorker])
 
-        $("#edit-work-time").modal("hide");
-    };    
-    
+
 
     return (
         <>
@@ -335,7 +332,7 @@ export default function ChangeScheduleCalender({ job }) {
                     >
                         {t("client.jobs.change.worker_availability")}
                     </div>
-                    <div className="col-12 col-lg-9 d-flex align-items-center flex-wrap float-left">
+                    <div className="col-12 col-lg-9 d-flex align-items-center flex-wrap float-left pl-0">
                         <FilterButtons
                             text={t("client.jobs.change.currentWeek")}
                             className="px-3 mr-2 mb-2 mb-sm-0"
@@ -374,6 +371,21 @@ export default function ChangeScheduleCalender({ job }) {
                                 setSearchVal(e.target.value);
                             }}
                         />
+                    </div>
+                </div>
+                <div className="col-sm-12 mb-3 mt-3">
+                    <div className="form-check">
+                        <label className="form-check-label">
+                            <input
+                                type="checkbox"
+                                className="form-check-input"
+                                checked={isSameWorker}
+                                onChange={(e) => setIsSameWorker(e.target.checked)}
+                            />
+                            {t(
+                                "client.jobs.change.KeepSameWorker"
+                            )}
+                        </label>
                     </div>
                 </div>
             </div>
@@ -626,17 +638,17 @@ export default function ChangeScheduleCalender({ job }) {
                                                             .is_cat_avail
                                                             ? "Cat ,"
                                                             : job
-                                                                  .property_address
-                                                                  .is_dog_avail
-                                                            ? "Dog"
-                                                            : !job
-                                                                  .property_address
-                                                                  .is_cat_avail &&
-                                                              !job
-                                                                  .property_address
-                                                                  .is_dog_avail
-                                                            ? "NA"
-                                                            : ""}
+                                                                .property_address
+                                                                .is_dog_avail
+                                                                ? "Dog"
+                                                                : !job
+                                                                    .property_address
+                                                                    .is_cat_avail &&
+                                                                    !job
+                                                                        .property_address
+                                                                        .is_dog_avail
+                                                                    ? "NA"
+                                                                    : ""}
                                                     </p>
                                                 </td>
                                             </tr>
@@ -645,7 +657,7 @@ export default function ChangeScheduleCalender({ job }) {
                                 </div>
                                 <div className="table-responsive">
                                     {getWorkersData(selectedHours).length >
-                                    0 ? (
+                                        0 ? (
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
@@ -786,7 +798,7 @@ export default function ChangeScheduleCalender({ job }) {
                     </div>
                 </div>
             </div>
-            <div
+            {/* <div
                 className="modal fade"
                 id="edit-work-time"
                 tabIndex="-1"
@@ -830,7 +842,7 @@ export default function ChangeScheduleCalender({ job }) {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </>
     );
 }
@@ -848,15 +860,15 @@ const FilterButtons = ({
         style={
             selectedFilter !== text
                 ? {
-                      background: "#EDF1F6",
-                      color: "#2c3f51",
-                      borderRadius: "6px",
-                  }
+                    background: "#EDF1F6",
+                    color: "#2c3f51",
+                    borderRadius: "6px",
+                }
                 : {
-                      background: "#2c3f51",
-                      color: "white",
-                      borderRadius: "6px",
-                  }
+                    background: "#2c3f51",
+                    color: "white",
+                    borderRadius: "6px",
+                }
         }
         onClick={() => {
             onClick?.();

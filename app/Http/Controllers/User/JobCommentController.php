@@ -111,33 +111,30 @@ class JobCommentController extends Controller
         $job = Job::with(['client', 'worker', 'jobservice', 'propertyAddress'])
             ->where('worker_id', Auth::id())
             ->find($request->job_id);
-
+    
         if (!$job) {
             return response()->json([
                 'message' => 'Job not found',
             ], 404);
         }
-
+    
         $validator = Validator::make($request->all(), [
             'name' => ['required'],
             'job_id' => ['required'],
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
-
+    
         $commentIds = $request->input('comment_ids', []);
-
-        // Ensure it is an array even if a single ID is passed
+    
         if (!is_array($commentIds)) {
             $commentIds = [$commentIds];
         }
-
-        // Update the "done" column for each of the checked comments
+    
         JobComments::whereIn('id', $commentIds)->update(['status' => 'complete']);
-
-
+    
         $comment = '';
         $filesArr = $request->file('files');
         $isFiles = ($request->hasFile('files') && count($filesArr) > 0);
@@ -166,73 +163,83 @@ class JobCommentController extends Controller
                 $comment->attachments()->createMany($resultArr);
             }
         }
-
+    
         if (isset($request->status) && $request->status != '') {
-            $jobData = [
-                'status' => $request->status
-            ];
-
+            $jobData = ['status' => $request->status];
+    
             if ($request->status == JobStatusEnum::COMPLETED) {
-                $end_time = $job->start_date." ".$job->end_time;
-
+                $end_time = $job->start_date . " " . $job->end_time;
+    
                 $jobData['completed_at'] = now()->toDateTimeString();
-
-                // if ($job->is_extended == 1) {
-                //     $jobData['completed_at'] = now()->toDateTimeString();
-                // }else if($job->is_extended == 0){
-                //     $jobData['completed_at'] = now()->toDateTimeString();
-                // }
-           
-                if(($end_time <  now()->toDateTimeString()) && ($job->is_extended == 0)){
-                      // $jobData['completed_at'] = now()->toDateTimeString();
-                      event(new WhatsappNotificationEvent([
+    
+                if (($end_time < now()->toDateTimeString()) && ($job->is_extended == 0)) {
+                    event(new WhatsappNotificationEvent([
                         "type" => WhatsappMessageTemplateEnum::WORKER_NEED_EXTRA_TIME,
                         "notificationData" => [
                             'job' => $job->toArray(),
-                            // 'complete_time' => now()->toDateTimeString(),
                         ]
                     ]));
                 }
-
+    
                 if ($request->status == JobStatusEnum::COMPLETED) {
                     $jobArray = $job->load(['propertyAddress'])->toArray();
                     $worker = $jobArray['worker'];
-
+    
                     $emailData = [
-                        'emailSubject'  => __('mail.job_nxt_step.completed_nxt_step_email_subject'),
-                        'emailTitle'  => __('mail.job_nxt_step.completed_nxt_step_email_title'),
-                        'emailContent'  => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " <b>" . $jobArray['id'] . "</b>"]),
-                        'emailContentWa'  => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " *" . $jobArray['id'] . "*"]),
-
+                        'emailSubject' => __('mail.job_nxt_step.completed_nxt_step_email_subject'),
+                        'emailTitle' => __('mail.job_nxt_step.completed_nxt_step_email_title'),
+                        'emailContent' => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " <b>" . $jobArray['id'] . "</b>"]),
+                        'emailContentWa' => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " *" . $jobArray['id'] . "*"]),
                     ];
-
+    
                     event(new JobNotificationToWorker($worker, $jobArray, $emailData));
                 }
             }
-
+    
             $job->update($jobData);
-
+    
             event(new WorkerUpdatedJobStatus($job, $comment));
-
+    
             if ($job->status == JobStatusEnum::COMPLETED) {
                 $this->updateJobWorkerMinutes($job->id);
                 $this->updateJobAmount($job->id);
-
-                ScheduleNextJobOccurring::dispatch($job->id);
+    
+                // Get values from the updated job
+                $clientId = $job->client_id;
+                $addressId = $job->address_id;
+                $contractId = $job->contract_id;
+                $offerId = $job->offer_id;
+    
+                // Find the last job based on the values obtained
+                $lastJob = Job::where('client_id', $clientId)
+                    ->where('address_id', $addressId)
+                    ->where('contract_id', $contractId)
+                    ->where('offer_id', $offerId)
+                    ->orderBy('start_date', 'desc')
+                    ->first();
+    
+                // Check if a last job exists
+                if ($lastJob) {
+                    // If a last job exists, pass the required values to the queue
+                    ScheduleNextJobOccurring::dispatch($job->id, $lastJob->start_date); // Assuming you still want to dispatch this
+                }
+    
                 CreateJobOrder::dispatch($job->id);
             }
-
+    
+    
             if (now()->hour >= 17 && now()->minute >= 1) {
                 event(new JobReviewRequest($job));
             }
         }
-
+    
         event(new WorkerCommented(Auth::user()->toArray(), $job->toArray()));
-
+    
         return response()->json([
             'message' => 'Comment has been created successfully'
         ]);
     }
+    
 
     /**
      * Remove the specified resource from storage.

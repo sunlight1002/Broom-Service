@@ -35,7 +35,6 @@ export default function ContractHeb() {
                 setServices(JSON.parse(_contract.offer.services));
                 setClient(_contract.client);
                 setContract(_contract);
-                console.log(_contract.offer);
                 // setStatus(_contract.status);
                 // setConsentToAds(_contract.consent_to_ads ? true : false);
 
@@ -49,7 +48,6 @@ export default function ContractHeb() {
                 //         moment(_contract.signed_at).format("DD/MM/YYYY")
                 //     );
                 // }
-                console.log(_contract.client.lng);
                 i18next.changeLanguage(_contract.client.lng);
                 if (_contract.client.lng == "heb") {
                     import("../../../Assets/css/rtl.css");

@@ -1,15 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { getShiftsDetails } from "../../../Utils/common.utils";
 
 export default function Service({ job }) {
     const { t, i18n } = useTranslation();
     const w_lng = i18n.language;
 
     const service = job.jobservice;
-
-    const { durationInHours, startTime, endTime } = getShiftsDetails(job);
-
 
     return (
         <>
@@ -44,7 +40,7 @@ export default function Service({ job }) {
                                         {t("worker.jobs.view.c_time")}
                                     </label>
                                     <p>
-                                        {durationInHours} hours
+                                        {service?.duration_minutes / 60} hours
                                     </p>
                                 </div>
                             </div>
@@ -54,7 +50,7 @@ export default function Service({ job }) {
                                         {t("worker.jobs.view.shift")}
                                     </label>
                                     <p>
-                                        {startTime} - {endTime}
+                                        {job?.shifts}
                                     </p>
                                 </div>
                             </div>

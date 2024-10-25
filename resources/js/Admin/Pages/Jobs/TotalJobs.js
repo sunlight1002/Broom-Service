@@ -1,28 +1,26 @@
-import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { useAlert } from "react-alert";
 import Moment from "moment";
-import { useNavigate } from "react-router-dom";
-import { Rating } from "react-simple-star-rating";
-import "react-tooltip/dist/react-tooltip.css";
-import { Tooltip } from "react-tooltip";
+import React, { useEffect, useRef, useState } from "react";
+import { useAlert } from "react-alert";
 import { CSVLink } from "react-csv";
-import Swal from "sweetalert2";
 import { renderToString } from "react-dom/server";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { Rating } from "react-simple-star-rating";
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
+import Swal from "sweetalert2";
 
-import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
+import $ from "jquery";
 
-import Sidebar from "../../Layouts/Sidebar";
-import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
-import CancelJobModal from "../../Components/Modals/CancelJobModal";
 import FilterButtons from "../../../Components/common/FilterButton";
-import { Card, ListGroup } from "react-bootstrap";
-import { getShiftsDetails } from "../../../Utils/common.utils";
+import CancelJobModal from "../../Components/Modals/CancelJobModal";
+import SwitchWorkerModal from "../../Components/Modals/SwitchWorkerModal";
+import Sidebar from "../../Layouts/Sidebar";
 
 export default function TotalJobs() {
     const { t, i18n } = useTranslation();
@@ -187,15 +185,17 @@ export default function TotalJobs() {
                         d.start_date = startDateRef.current.value;
                         d.end_date = endDateRef.current.value;
                     },
-                    dataSrc: function (json) {
-                        json.data.forEach((job) => {
-                            const { durationInHours, startTime, endTime } = getShiftsDetails(job);
-                            job.durationInHours = durationInHours;
-                            job.startTime = startTime;
-                            job.endTime = endTime;
-                        });
-                        return json.data;
-                    },
+                    // dataSrc: function (json) {
+                    //     json.data.forEach((job) => {
+                    //         const { durationInHours, startTime, endTime } = getShiftsDetails(job);
+                    //         job.durationInHours = durationInHours;
+                    //         job.startTime = startTime;
+                    //         job.endTime = endTime;
+                    //     });
+                    //     console.log(json.data);
+                        
+                    //     return json.data;
+                    // },
                 },
                 order: [[0, "desc"]],
                 columns: [
@@ -252,9 +252,7 @@ export default function TotalJobs() {
                         title: t("client.jobs.shift"),
                         data: null,
                         render: function (data, type, row, meta) {
-                            const { startTime, endTime } = row;
-                            return `<div class="rounded mb-1 shifts-badge"> ${startTime + "-" + endTime} </div>`;
-
+                            return `<div class="rounded mb-1 shifts-badge">${data?.shifts}</div>`;
                         },
                     },
                     {
@@ -275,9 +273,7 @@ export default function TotalJobs() {
                         data: null,
                         orderable: false,
                         render: function (data, type, row, meta) {
-                            const { durationInHours } = row;
-
-                            return `<span class="text-nowrap"> ${durationInHours +" "+ "Hours"} </span>`;
+                            return `<span class="text-nowrap"> ${data.duration_minutes/60 +" "+ "Hours"} </span>`;
                         },
                     },
                     {

@@ -14,12 +14,12 @@ class AddBankDetailsToAdminsTable extends Migration
     public function up()
     {
         Schema::table('admins', function (Blueprint $table) {
-            $table->string('payment_type')->nullable();
-            $table->string('full_name')->nullable();
-            $table->string('bank_name')->nullable();
-            $table->string('bank_number')->nullable();
-            $table->string('branch_number')->nullable();
-            $table->string('account_number')->nullable();
+            // $table->string('payment_type')->nullable();
+            // $table->string('full_name')->nullable();
+            // $table->string('bank_name')->nullable();
+            // $table->string('bank_number')->nullable();
+            // $table->string('branch_number')->nullable();
+            // $table->string('account_number')->nullable();
         });
     }
 

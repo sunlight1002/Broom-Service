@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from "react";
-import "rsuite/dist/rsuite.min.css";
 import axios from "axios";
-import moment from "moment";
-import { useParams } from "react-router-dom";
-import Swal from "sweetalert2";
 import { Base64 } from "js-base64";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import "rsuite/dist/rsuite.min.css";
+import Swal from "sweetalert2";
 
-import ClientSidebar from "../../Layouts/ClientSidebar";
 import ChangeScheduleCalender from "../../Component/Job/ChangeScheduleCalender";
-import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
+import ClientSidebar from "../../Layouts/ClientSidebar";
 
 export default function ChangeSchedule() {
     const params = useParams();

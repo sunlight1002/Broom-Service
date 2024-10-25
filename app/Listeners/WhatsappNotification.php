@@ -2984,6 +2984,7 @@ class WhatsappNotification
             }
 
             if ($receiverNumber && $text) {
+                // \Log::info($text);
                 Log::info('SENDING WA to ' . $receiverNumber);
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
@@ -2991,13 +2992,13 @@ class WhatsappNotification
                         'body' => $text
                     ]);
 
-                Log::info($response->json());
+                // Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
             Log::alert('WA NOTIFICATION ERROR');
-            Log::alert($th);
+            // Log::alert($th);
         }
     }
 }

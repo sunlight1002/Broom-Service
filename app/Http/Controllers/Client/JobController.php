@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\CreateJobOrder;
 use App\Jobs\GenerateJobInvoice;
 use App\Jobs\ScheduleNextJobOccurring;
+use App\Jobs\AdjustNextJobSchedule;
 use App\Models\Admin;
 use App\Models\User;
 use App\Models\Problems;
@@ -224,13 +225,9 @@ class JobController extends Controller
             ]);
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-            \Log::info("CreateJobOrder dispatch from cancel job");
-
             CreateJobOrder::dispatch($job->id);
 
-            \Log::info("CreateJobOrder dispatch from cancel job end here");
-
-            ScheduleNextJobOccurring::dispatch($job->id);
+            ScheduleNextJobOccurring::dispatch($job->id,null);
 
             Notification::create([
                 'user_id' => $job->client->id,
@@ -395,12 +392,16 @@ class JobController extends Controller
         }
 
         $oldWorker = $job->worker;
+        // \Log::info(['oldWorker'=> $oldWorker]);
 
         $old_job_data = [
             'start_date' => $job->start_date,
             'start_time' => $job->start_time,
             'shifts' => $job->shifts,
         ];
+
+        // \Log::info(['old_job_data'=> $old_job_data]);
+
 
         $manageTime = ManageTime::first();
         $workingWeekDays = json_decode($manageTime->days);
@@ -456,32 +457,97 @@ class JobController extends Controller
 
         $jobData = [
             'worker_id'     => $data['worker']['worker_id'],
-            'start_date'    => $job_date,
             'start_time'    => $start_time,
             'end_time'      => $end_time,
             'shifts'        => $slotsInString,
             'status'        => $status,
-            'next_start_date'   => $next_job_date,
         ];
-
+        
         if ($data['repeatancy'] == 'one_time') {
+            $jobData['start_date'] = $job_date;  // Ensure start_date is set
+            $jobData['next_start_date'] = $next_job_date;
             $jobData['previous_worker_id'] = $job->worker_id;
             $jobData['previous_worker_after'] = NULL;
             $jobData['previous_shifts'] = $job->shifts;
             $jobData['previous_shifts_after'] = NULL;
+            $job->update($jobData);
+        
         } else if ($data['repeatancy'] == 'until_date') {
             $jobData['previous_worker_id'] = $job->worker_id;
             $jobData['previous_worker_after'] = $data['until_date'];
             $jobData['previous_shifts'] = $job->shifts;
             $jobData['previous_shifts_after'] = $data['until_date'];
+
+
+        
+            // $jobsToUpdate = Job::where('parent_job_id', $job->parent_job_id)
+            //     ->whereDate('start_date', '<=', $data['until_date'])
+            //     ->where('id', '!=', $job->id)
+            //     ->orderBy('start_date', 'asc')
+            //     ->get();
+        
+            // if ($old_job_data['start_date'] == $job_date) {
+            //     foreach ($jobsToUpdate as $jobToUpdate) {
+            //         $jobToUpdate->update($jobData);
+            //     }
+            // } else {
+                // $date = $job_date;
+
+                AdjustNextJobSchedule::dispatch($data, $jobData, $job_date, $preferredWeekDay, $workingWeekDays, $repeat_value, $job, $old_job_data, 'until_date');
+
+        
+                // foreach ($jobsToUpdate as $jobToUpdate) {
+                //     $nextJobDate = $this->scheduleNextJobDate($date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+        
+                //     $jobToUpdate->update(array_merge($jobData, [
+                //         'start_date' => $date,
+                //         'next_start_date' => $nextJobDate
+                //     ]));
+        
+                //     $date = $nextJobDate;
+        
+                //     if ($date > $data['until_date']) {
+                //         break;
+                //     }
+                // }
+            // }
+        
         } else if ($data['repeatancy'] == 'forever') {
             $jobData['previous_worker_id'] = NULL;
             $jobData['previous_worker_after'] = NULL;
             $jobData['previous_shifts'] = NULL;
             $jobData['previous_shifts_after'] = NULL;
-        }
+        
+            // $jobsToUpdate = Job::where('parent_job_id', $job->parent_job_id)
+            //     ->where('id', '!=', $job->id)
+            //     ->where('start_date', '>=', $job->start_date)
+            //     ->orderBy('start_date', 'asc')
+            //     ->get();
+        
+            // if ($old_job_data['start_date'] == $job_date) {
+            //     foreach ($jobsToUpdate as $jobToUpdate) {
+            //         $jobToUpdate->update($jobData);
+            //     }
+            // } else {
+                // $date = $job_date;
 
-        $job->update($jobData);
+                AdjustNextJobSchedule::dispatch($data, $jobData, $job_date, $preferredWeekDay, $workingWeekDays, $repeat_value, $job, $old_job_data, 'forever');
+        
+                // foreach ($jobsToUpdate as $jobToUpdate) {
+                //     $nextJobDate = $this->scheduleNextJobDate($date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+        
+                //     $jobToUpdate->update(array_merge($jobData, [
+                //         'start_date' => $date,
+                //         'next_start_date' => $nextJobDate
+                //     ]));
+        
+                //     $date = $nextJobDate;
+                // }
+            // }
+        }
+        
+        
+        // $job->update($jobData);
 
         $job->jobservice()->update([
             'duration_minutes'  => $minutes,

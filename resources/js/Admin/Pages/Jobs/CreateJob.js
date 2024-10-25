@@ -33,7 +33,6 @@ export default function CreateJob() {
         axios
             .get(`/api/admin/contract/${params.id}`, { headers })
             .then((res) => {
-                console.log(res);
                 const r = res.data.contract;
                 setClient(r.client);
                 let _services = JSON.parse(r.offer.services);
@@ -51,7 +50,7 @@ export default function CreateJob() {
     }, []);
 
     useEffect(() => {
-        if (services.length) {
+        if (services?.length) {
             $("#edit-work-time").modal({
                 backdrop: "static",
                 keyboard: false,

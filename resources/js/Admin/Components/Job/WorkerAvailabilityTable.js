@@ -23,7 +23,7 @@ export default function WorkerAvailabilityTable({
     selectedHours,
     distance
 }) {
-    let hasStartActive;
+    let hasStartActive;    
 
     const [filterSlots, setFilterSlots] = useState([])
     const [selectedWorker, setSelectedWorker] = useState(null);
@@ -113,21 +113,19 @@ export default function WorkerAvailabilityTable({
     }
 
     useEffect(() => {
-     workers()
+        workers()
     }, [AllWorkers, sortOrder, searchKeyword, distance]);
 
-    // console.log(modifiedWorkers);
-
-
-
-
     const getBookedSlotsForWorkerAndDate = (workerId, date) => {
-        const bookedSlot = bookedSlots.find(slot => slot.worker_id === workerId && slot.date === date);
+        const bookedSlot = bookedSlots.find(
+            (slot) => slot.worker_id === workerId && slot.date === date
+        );
         return bookedSlot ? bookedSlot.slots : [];
     };
 
 
     const handleSlotFilter = (worker, date, index) => {
+        
         const workerSlots = workerAvailabilities?.find((wa) => wa.workerId === worker.id) ?? {};
         const slots = workerSlots?.slots?.find((slot) => slot.date === date) ?? {};
 
@@ -139,6 +137,41 @@ export default function WorkerAvailabilityTable({
         setSelectedWorker(worker);
         setShow(true);;
     };
+
+
+    const getGroupedSlots = (filteredSlots) => {
+
+        if (!filteredSlots.length) return [];
+
+        const timeString = filteredSlots.map(slot => `${slot.time.time}-${slot.time.endTime}`).join(",");
+        const pairs = timeString.split(",").map(slot => slot.split("-"));
+        const groupedSlots = [];
+        let currentGroup = [pairs[0][0]];
+
+        const timeToMinutes = (time) => {
+            const [hours, minutes] = time.split(":").map(Number);
+            return hours * 60 + minutes;
+        };
+
+        pairs.forEach((pair, index) => {
+            if (index > 0) {
+                const previousEndTime = pairs[index - 1][1];
+                const currentStartTime = pair[0];
+                const timeDifference = timeToMinutes(currentStartTime) - timeToMinutes(previousEndTime);
+
+                if (timeDifference <= 15) {
+                    currentGroup[1] = pair[1];
+                } else {
+                    groupedSlots.push(`${currentGroup[0].slice(0, 5)} - ${currentGroup[1].slice(0, 5)}`);
+                    currentGroup = [pair[0], pair[1]];
+                }
+            }
+        });
+
+        groupedSlots.push(`${currentGroup[0].slice(0, 5)} - ${currentGroup[1]?.slice(0, 5) || 'N/A'}`);
+        return groupedSlots;
+    };
+
 
     const handleNext = () => {
         if (currentDateIndex < week.length - 1) {
@@ -232,9 +265,7 @@ export default function WorkerAvailabilityTable({
                                                 </span>
                                             </td>
                                             {week?.map((element, index) => {
-
                                                 const alreadyBooked = getBookedSlotsForWorkerAndDate(w.id, element);
-                                                // console.log(alreadyBooked, );
 
                                                 let workerSlots =
                                                     workerAvailabilities?.find((_w) => _w.workerId === w.id) ?? [];
@@ -246,110 +277,68 @@ export default function WorkerAvailabilityTable({
                                                 const filteredSlots = isClient
                                                     ? slots?.slots
                                                     : slots?.allSlots;
-
                                                 return (
                                                     <td key={index} style={{ border: "1px solid #dee2e6" }}>
-                                                        {
-                                                            filteredSlots?.length > 0 ? (
-                                                                <div className="d-flex flex-column my-1">
-                                                                    <div className="d-flex justify-content-between mb-1">
-                                                                        {bookedSlots && <div className="busy-time-text mb-1">Busy Time</div>}
-                                                                        <div className="ml-2 d-flex justify-content-end">
-                                                                            <button type="button" onClick={() => handleSlotFilter(w, element, index)}>
-                                                                                <i className="fa-solid fa-calendar-days"></i>
-                                                                            </button>
+                                                        {filteredSlots?.length > 0 ? (
+                                                            <div className="d-flex flex-column my-1">
+                                                                <div className="d-flex justify-content-between mb-1">
+                                                                    {bookedSlots && (
+                                                                        <div className="busy-time-text mb-1">
+                                                                            Busy
+                                                                            Time
                                                                         </div>
-                                                                    </div>
-                                                                    <div className="d-flex flex-wrap">
-                                                                        {alreadyBooked.map((slot, idx) => {
-                                                                            // console.log(slot);
-
-                                                                            const job = {
-                                                                                shifts: slot.slot
-                                                                             }
-                                                                            let { durationInHours, startTime, endTime } = getShiftsDetails(job);
-
-
-                                                                            return (
-                                                                                <div key={idx} className="slot-info mr-1">
-                                                                                    {/* {parseTimeSlots(slot.slot).map((time, timeIdx) => ( */}
-                                                                                        <span  className="badge badge-primary">
-                                                                                            {startTime}-{endTime}
-                                                                                        </span>
-                                                                                    {/* ))} */}
-                                                                                </div>
-                                                                            )
-                                                                        })}
-                                                                        {selectedHours
-                                                                            ?.filter((slot) => slot?.slots?.some((s) => s.workerId === w.id)) // Ensure we only map the selected slots for the current worker
-                                                                            ?.map((slot, idx) => {
-                                                                                // Filter slots for the current worker and the current date
-                                                                                const filteredSlots = slot?.slots?.filter((s) => s.date === element && s.workerId === w.id);
-
-                                                                                if (filteredSlots?.length > 0) {
-                                                                                    // Combine all time ranges into a single string
-                                                                                    const timeString = filteredSlots
-                                                                                        .map((filteredSlot) => `${filteredSlot.time.time}-${filteredSlot.time.endTime}`)
-                                                                                        .join(",");
-
-                                                                                    // Group time slots directly in the map function
-                                                                                    const pairs = timeString.split(",").map((slot) => slot.split("-"));
-                                                                                    let groupedSlots = [];
-                                                                                    let currentGroup = [pairs[0][0]];
-
-                                                                                    // Helper function to convert time "HH:MM" to total minutes
-                                                                                    const timeToMinutes = (time) => {
-                                                                                        const [hours, minutes] = time.split(":").map(Number);
-                                                                                        return hours * 60 + minutes;
-                                                                                    };
-
-                                                                                    // Iterate over pairs and group them based on the time difference
-                                                                                    pairs.forEach((pair, index) => {
-                                                                                        if (index > 0) {
-                                                                                            const previousEndTime = pairs[index - 1][1];
-                                                                                            const currentStartTime = pair[0];
-
-                                                                                            // Check if the break is 15 minutes or more
-                                                                                            const timeDifference = timeToMinutes(currentStartTime) - timeToMinutes(previousEndTime);
-
-                                                                                            if (timeDifference <= 15) {
-                                                                                                // Continue the current group
-                                                                                                currentGroup[1] = pair[1];
-                                                                                            } else {
-                                                                                                // Break found, finish the current group and start a new one
-                                                                                                groupedSlots.push(`${currentGroup[0]?.slice(0, 5)} - ${currentGroup[1]?.slice(0, 5)}`);
-                                                                                                currentGroup = [pair[0], pair[1]];
-                                                                                            }
-                                                                                        }
-                                                                                    });
-
-                                                                                    // Add the last group
-                                                                                    groupedSlots.push(`${currentGroup[0]?.slice(0, 5)} - ${currentGroup[1]?.slice(0, 5)}`);
-                                                                                    return (
-                                                                                        <div key={idx} className="slot-info ml-1">
-                                                                                            {groupedSlots.map((timeRange, slotIdx) => (
-                                                                                                <span key={slotIdx} className="badge badge-info text-white">
-                                                                                                    {timeRange}
-                                                                                                </span>
-                                                                                            ))}
-                                                                                        </div>
-                                                                                    );
-                                                                                }
-
-                                                                                return null;
-                                                                            })
-                                                                        }
-
-
-
+                                                                    )}
+                                                                    <div className="ml-2 d-flex justify-content-end">
+                                                                        <button type="button"
+                                                                            onClick={() =>
+                                                                                handleSlotFilter(
+                                                                                    w,
+                                                                                    element,
+                                                                                    index
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <i className="fa-solid fa-calendar-days"></i>
+                                                                        </button>
                                                                     </div>
                                                                 </div>
-                                                            ) : (
-                                                                <div className={`navyblueColor text-right pr-5 pr-md-0 text-md-center`}>
-                                                                    {t("client.jobs.change.notAvail")}
-                                                                </div>
-                                                            )}
+                                                                <div className="d-flex flex-wrap">
+                                                                    {alreadyBooked.map((slot, idx) => {
+                                                                        return (
+                                                                            <div key={idx} className="slot-info mr-1">
+                                                                                <span className="badge badge-primary" >
+                                                                                    {slot?.slot}
+                                                                                </span>
+                                                                            </div>
+                                                                        );
 
+                                                                    }
+                                                                    )}
+                                                                    {selectedHours?.filter(slot => slot?.slots?.some(s => s.workerId === w.id)).map((slot, idx) => {
+                                                                        const filteredSlots = slot.slots.filter(s => s.date === element && s.workerId === w.id);
+                                                                        const groupedSlots = getGroupedSlots(filteredSlots);
+
+                                                                        return (
+                                                                            <div key={idx} className="slot-info ml-1">
+                                                                                {groupedSlots.map((timeRange, slotIdx) => (
+                                                                                    <span key={slotIdx} className="badge badge-info text-white">
+                                                                                        {timeRange}
+                                                                                    </span>
+                                                                                ))}
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <div
+                                                                className={`navyblueColor text-right pr-5 pr-md-0 text-md-center`}
+                                                            >
+                                                                {t(
+                                                                    "client.jobs.change.notAvail"
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </td>
                                                 );
 
@@ -405,6 +394,7 @@ export default function WorkerAvailabilityTable({
                                                     tooltip = t("client.jobs.change.workNotAvail");
                                                 }
                                             }
+
                                             return (
                                                 <div key={_sIdx} className={`mb-2`}>
                                                     <div
@@ -414,8 +404,9 @@ export default function WorkerAvailabilityTable({
                                                             shift?.notAvailable
                                                         }
                                                         data-tooltip-id="slot-tooltip"
-                                                        data-tooltip-content={tooltip}
+                                                        data-tooltip-content={ tooltip }
                                                         className={`d-flex slot justify-content-between ${shift?.isBooked || (shift?.isFreezed && isClient) || shift?.notAvailable ? "slot-disabled" : ""} ${isActive ? "none bg-primary-selected" : ""}`}
+
                                                         onClick={() => {
                                                             if (
                                                                 !shift?.isBooked &&
@@ -428,17 +419,23 @@ export default function WorkerAvailabilityTable({
                                                             }
                                                         }}
                                                     >
-                                                        <span className="" style={{ marginLeft: "4px", marginTop: "2px" }}>
+                                                        <span className="" style={{
+                                                                marginLeft: "4px",
+                                                                marginTop: "2px",
+                                                            }}
+                                                        >
                                                             {shift.time ? (
                                                                 <>
-                                                                    <div style={{ fontSize: "14px" }}>
+                                                                    <div style={{ fontSize: "14px", }}>
                                                                         {moment(shift.time, "HH:mm").format("HH")}
                                                                     </div>
                                                                     <div>
-                                                                        {moment(shift.time, "HH:mm").format("mm")}
+                                                                        {moment( shift.time,"HH:mm").format("mm")}
                                                                     </div>
                                                                 </>
-                                                            ) : "-"}
+                                                            ) : (
+                                                                "-"
+                                                            )}
                                                         </span>
                                                     </div>
                                                 </div>

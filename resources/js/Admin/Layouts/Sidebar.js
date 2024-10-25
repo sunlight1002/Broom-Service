@@ -206,7 +206,7 @@ export default function Sidebar() {
                     <NavLink to="/admin/task"
                         className="d-flex align-items-center"
                     >
-                        <i class="fa-solid fa-list-check"></i>Task Management
+                        <i className="fa-solid fa-list-check"></i>Task Management
                     </NavLink>
                 </li>
                 <li className="list-group-item">

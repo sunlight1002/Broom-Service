@@ -14,7 +14,7 @@ class AddStatusToJobComments extends Migration
     public function up()
     {
         Schema::table('job_comments', function (Blueprint $table) {
-            $table->string('status')->nullable();
+            // $table->string('status')->nullable();
         });
     }
 
