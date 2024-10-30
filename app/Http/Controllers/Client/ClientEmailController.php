@@ -116,7 +116,6 @@ class ClientEmailController extends Controller
                 [],
                 ['lead_status' => $newLeadStatus]
             );
-
         }
 
         event(new ClientLeadStatusChanged($client, $newLeadStatus));
@@ -358,27 +357,13 @@ class ClientEmailController extends Controller
                 ], 404);
             }
 
+            $card = ClientCard::query()->find($request->card_id);
 
-            $args = [
-                'client_id'   => $client->id,
-                'card_type'   => $request->input('card_type'),
-                'card_number' => $request->input('card_number'),
-                'cvv'         => $request->input('cvv'),
-                'card_holder_id' => $client->id,
-                'card_holder_name' => $request->input('card_holder_name')
-            ];
-
-            $card = ClientCard::create($args);
-
-            $contract->update(['card_id' => $card->id]);
-
-            // $card = ClientCard::query()->find($request->id);
-
-            // if (!$card) {
-            //   return response()->json([
-            //     'message' => "No card found"
-            //   ], 404);
-            // }
+            if (!$card) {
+                return response()->json([
+                    'message' => "No card found"
+                ], 404);
+            }
 
             $input = $request->input();
             $input['signed_at'] = now()->toDateTimeString();
@@ -407,7 +392,6 @@ class ClientEmailController extends Controller
                 );
 
                 event(new ClientLeadStatusChanged($client, $newLeadStatus));
-
             }
 
             event(new WhatsappNotificationEvent([
@@ -416,6 +400,14 @@ class ClientEmailController extends Controller
                     'client' => $client->toArray(),
                 ]
             ]));
+
+            Notification::create([
+                'user_id' => $contract->client_id,
+                'user_type' => get_class($client),
+                'type' => NotificationTypeEnum::CONTRACT_ACCEPT,
+                'contract_id' => $contract->id,
+                'status' => 'accepted'
+            ]);
 
             $client->makeVisible('passcode');
 
@@ -580,8 +572,7 @@ class ClientEmailController extends Controller
             );
 
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
-
-            };
+        };
 
 
         $schedule->load(['client', 'team', 'propertyAddress']);
