@@ -53,6 +53,7 @@ class Client extends Authenticatable
         'otp',
         'otp_expiry',
         'two_factor_enabled',
+        'first_login',
     ];
 
     /**

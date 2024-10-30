@@ -439,6 +439,10 @@ return [
             'start_info' => "Greetings from Broom Service. You have approved the job. Check the below link and click *I'm leaving for work now* when you will going to start your work.",
             'select_option' => 'Click and Select option'
         ],
+        'worker_hearing_schedule' => [
+            'header' => "*Hearing scheduled | Broom Service*",
+            'content' => "Just a friendly reminder that your meeting *:team_name* on *:date* between *:start_time* to *:end_time* has been scheduled.",
+        ],
         'contact_manager' => [
             'header' => "*Job Approved | Broom Service*",
             'content' => "Please check the details.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nStart time: :start_time\nProperty: :address",
@@ -567,7 +571,6 @@ return [
             'header' => "*New Lead Received | Broom Service*",
             'content' => "A new lead has arrived with the following details:\nName: :client_name\nContact: :contact\nService Requested: :Service_Requested\nEmail: :email\nAddress: :address",
             'follow_up' => "Please follow up as soon as possible."
-
         ],
         'client_lead_status_changed' => [
             'header' => "*Lead Status Changed | Broom Service*",

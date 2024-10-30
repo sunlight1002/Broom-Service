@@ -58,6 +58,18 @@ export default function WorkerSidebar() {
                     </NavLink>
                 </li>
                 <li className="list-group-item">
+                    <NavLink to="/worker/hearing">
+                        <i className="fa-solid fa-briefcase"></i>
+                        {t("worker.sidebar.hearing")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
+                    <NavLink to="/worker/protocol">
+                        <i className="fa-solid fa-briefcase"></i>
+                        {t("worker.sidebar.protocol")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
                     <NavLink to="/worker/schedule">
                         <i className="fa-solid fa-calendar-days"></i>
                         {t("worker.sidebar.schedule")}

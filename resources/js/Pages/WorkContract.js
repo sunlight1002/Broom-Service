@@ -355,11 +355,6 @@ export default function WorkContract() {
                             <span className="text-underline mx-3">
                                 {client ? client.phone : ""}
                             </span>
-                            <div className="mx-4">
-                                <label htmlFor="">
-                                    {t("client.contract-form.fax")}:
-                                </label>
-                            </div>
                             <span className="text-underline mx-3"></span>
                         </div>
                         <div className="col-md-12">

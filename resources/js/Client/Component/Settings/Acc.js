@@ -32,7 +32,7 @@ export default function Acc() {
     const [file, setFile] = useState("");
     const [avatar, setAvatar] = useState("");
     const [errors, setErrors] = useState([]);
-    const [twostepverification, setTwostepverification] = useState(false);
+    const [twostepverification, setTwostepverification] = useState(true);
     const { t } = useTranslation();
     const alert = useAlert();
     const fileInputRef = useRef(null);
@@ -385,7 +385,7 @@ export default function Acc() {
                     </div>
 
                     <div className="form-group d-flex align-items-center">
-                    <div className="toggle-switch">
+                        <div className="toggle-switch">
                             <div className="switch">
                                 <span className="mr-2">Two step Verification</span>
                                 <input

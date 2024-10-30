@@ -5,7 +5,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\Auth\AuthController;
 use App\Http\Controllers\User\JobController;
-use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\User\JobCommentController;
 use App\Http\Controllers\User\DocumentController;
 use App\Http\Controllers\TwimlController;
@@ -17,6 +16,8 @@ use App\Http\Controllers\SickLeaveController;
 use App\Http\Controllers\Admin\AdvanceLoanController;
 use App\Http\Controllers\User\SkippedCommentController;
 use App\Http\Controllers\RefundClaimController;
+use App\Http\Controllers\User\DashboardController;
+
 /*
 |--------------------------------------------------------------------------
 | Employee API Routes
@@ -78,8 +79,6 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('jobs/{id}/comments', [JobCommentController::class, 'index']);
     Route::post('jobs/need-extra-time/{job_id}', [JobController::class, 'NeedExtraTime']);
 
-
-
     Route::resource('job-comments', JobCommentController::class)->only(['store', 'destroy']);
     Route::post('job-comments/mark-complete', [JobCommentController::class, 'markComplete']);
     // Route::post('jobs/{id}/adjust-time', [JobCommentController::class, 'adjustJobCompleteTime']);
@@ -88,6 +87,7 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('job-comments/skipped-comments', [SkippedCommentController::class, 'index']);
     Route::post('job-comments/update-status', [SkippedCommentController::class, 'updateStatus']);
 
+    Route::get('/schedule', [DashboardController::class, 'index']);
 
     Route::get('availabilities', [JobController::class, 'getAvailability']);
     Route::post('availabilities', [JobController::class, 'updateAvailability']);

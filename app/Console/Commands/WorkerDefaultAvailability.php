@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class WorkerDefaultAvailability extends Command
 {
@@ -93,6 +94,8 @@ class WorkerDefaultAvailability extends Command
                 }
             }
         }
+
+        \Log::info($workers);
 
         return 0;
     }

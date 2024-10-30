@@ -602,6 +602,14 @@ class LeadController extends Controller
 
     public function getLeadData($leadgen_id, $pageAccessToken)
     {
+        Log::info("Received leadgen_id:", ['leadgen_id' => $leadgen_id]);
+
+        if (is_array($leadgen_id)) {
+            Log::info("leadgen_id is an array containing multiple IDs.", ['leadgen_ids' => $leadgen_id]);
+        } else {
+            Log::info("leadgen_id is a single ID.", ['leadgen_id' => $leadgen_id]);
+        }
+
         $url = "https://graph.facebook.com/v20.0/" . $leadgen_id . "/";
         $lead_response = Http::get($url, [
             'access_token' => $pageAccessToken,

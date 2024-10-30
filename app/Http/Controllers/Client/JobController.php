@@ -65,7 +65,9 @@ class JobController extends Controller
             ->where('jobs.client_id', Auth::user()->id)
             ->select('jobs.id', 'jobs.start_date', 'jobs.shifts', 'jobs.status', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'jobs.start_time', 'client_property_addresses.geo_address')
             ->selectRaw("$service_column AS service_name")
-            ->groupBy('jobs.id');
+            ->groupBy('jobs.id')
+            ->orderBy('jobs.start_date', 'asc');
+
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -684,18 +686,13 @@ class JobController extends Controller
 
     public function addProblems(Request $request)
     {
-
-        // \Log::info($request->all());
         $validated = $request->validate([
             'problem' => 'required|string|max:1000',
         ]);
     
         $client = Client::with('property_addresses')->find($request->input('client_id'));
         $worker = User::find($request->input('worker_id'));
-        \Log::info($client);
-        \Log::info($worker);
-
-
+    
         $problem = new Problems();
         $problem->client_id = $client->id;
         $problem->job_id = $request->input('job_id');
@@ -703,35 +700,18 @@ class JobController extends Controller
         $problem->problem = $validated['problem'];
         $problem->save();
     
-        $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-        $text = '*Worker Contact To Manager | Broom Service*';
+        // Dispatch the WhatsApp notification event
+        event(new WhatsappNotificationEvent([
+            'type' => WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER,
+            'notificationData' => [
+                'client' => $client,
+                'worker' => $worker
+            ]
+        ]));
     
-        $text .= "\n\nHi, Team\n\n";
-        
-        $text .= 'The Worker Need to Contact with Manager.' . "\n\n";
-        
-        $text .= sprintf(
-            "Date/Time: %s\nClient: %s\nWorker: %s\nProperty: %s",
-            Carbon::now()->format('M d Y H:i'),
-            $client->firstname . ' ' . $client->lastname,
-            $worker->firstname . ' ' . $worker->lastname ?? 'NA',
-            $client->property_addresses->first()->address_name ?? 'NA'
-        );
-
-        \Log::info($text);
-    
-        $response = Http::withToken($this->whapiApiToken)
-            ->post($this->whapiApiEndpoint . 'messages/text', [
-                'to' => $receiverNumber,
-                'body' => $text  
-            ]);
-    
-        if ($response->successful()) {
-            return response()->json(['message' => 'Problem saved successfully'], 201);
-        } else {
-            return response()->json(['error' => 'Failed to send WhatsApp message'], $response->status());
-        }
-    }
+        // Return success response
+        return response()->json(['message' => 'Problem saved successfully'], 201);
+    }    
     
     public function getProblems(Request $request)
     {

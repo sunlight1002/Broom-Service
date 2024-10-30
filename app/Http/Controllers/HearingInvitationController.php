@@ -11,6 +11,8 @@ use App\Models\Admin;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Traits\GoogleAPI;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class HearingInvitationController extends Controller
 {
@@ -73,6 +75,38 @@ class HearingInvitationController extends Controller
         $invitationData['end_time'] = $endTime;  
 
         $invitation = HearingInvitation::create($invitationData);
+        
+         $worker = User::find($request->input('user_id'));
+         $teamName = null;
+         
+         if ($request->input('team_id')) {
+            $team = Admin::find($request->input('team_id'));
+            $teamName = $team ? $team->name : "No team specified";
+        }
+
+         if ($worker) {
+             // Prepare the notification data
+             $notificationData = [
+                 'worker' => [
+                     'phone' => $worker->phone,
+                     'lng' => $worker->lng,
+                     'firstname' => $worker->firstname,
+                     'lastname' => $worker->lastname,
+                 ], 
+                 'start_date' => $request->input('start_date'),
+                 'start_time' => $startTime,
+                 'end_time' => $endTime,
+                 'purpose' => $request->input('purpose'),
+                 'team_name' => $teamName,
+                 'id' => $invitation->id,
+             ];
+ 
+             // Dispatch the WhatsApp notification event
+             event(new WhatsappNotificationEvent([
+                'type' => WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE,
+                'notificationData' => $notificationData
+            ]));         
+        }
 
         return response()->json(['message' => 'Hearing Invitation created successfully', 'data' => $invitation], 201);
     }
@@ -108,7 +142,21 @@ class HearingInvitationController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $invitation->update($request->all());
+        $startDateTime = Carbon::createFromFormat('Y-m-d h:i A', $request->input('start_date') . ' ' . $request->input('start_time'));
+        $endDateTime = $startDateTime->copy()->addMinutes(30);
+
+        $invitation->update([
+            'user_id' => $request->input('user_id'),
+            'team_id' => $request->input('team_id'),
+            'start_date' => $request->input('start_date'),
+            'start_time' => $startDateTime->format('h:i A'),
+            'end_time' => $endDateTime->format('h:i A'),
+            'meet_via' => $request->input('meet_via'),
+            'meet_link' => $request->input('meet_link'),
+            'purpose' => $request->input('purpose'),
+            'booking_status' => $request->input('booking_status'),
+            'address_id' => $request->input('address_id'),
+        ]);    
 
         return response()->json(['message' => 'Hearing Invitation updated successfully', 'data' => $invitation], 200);
     }
@@ -130,64 +178,124 @@ class HearingInvitationController extends Controller
         return response()->json(['message' => 'Event created successfully for hearing invitation', 'data' => $invitation], 201);
     }
 
+    // public function index(Request $request)
+    // {
+    //     $query = HearingInvitation::query()
+    //         ->leftJoin('admins', 'hearing_invitations.team_id', '=', 'admins.id')
+    //         ->leftJoin('users', 'hearing_invitations.user_id', '=', 'users.id')
+    //         ->select(
+    //             'hearing_invitations.id',
+    //             'hearing_invitations.start_date',
+    //             'hearing_invitations.start_time',
+    //             'hearing_invitations.end_time',
+    //             'hearing_invitations.booking_status',
+    //             'admins.name as attender_name',
+    //             'users.firstname',
+    //             'users.lastname',
+    //             'users.phone',
+    //             'users.address',
+    //             'users.id as worker_id'
+    //         );
+
+    //     return DataTables::eloquent($query)
+    //         ->filter(function ($query) use ($request) {
+    //             if ($request->has('search')) {
+    //                 $keyword = $request->get('search')['value'];
+
+    //                 if (!empty($keyword)) {
+    //                     $query->where(function ($sq) use ($keyword) {
+    //                         $sq->whereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
+    //                             ->orWhere('users.address', 'like', "%" . $keyword . "%")
+    //                             ->orWhere('users.phone', 'like', "%" . $keyword . "%")
+    //                             ->orWhere('admins.name', 'like', "%" . $keyword . "%");
+    //                     });
+    //                 }
+    //             }
+    //         })
+    //         ->editColumn('name', function ($data) {
+    //             return $data->firstname . ' ' . $data->lastname; // Concatenate worker's name
+    //         })
+    //         ->filterColumn('name', function ($query, $keyword) {
+    //             $sql = "CONCAT_WS(' ', users.firstname, users.lastname) like ?";
+    //             $query->whereRaw($sql, ["%{$keyword}%"]);
+    //         })
+    //         ->orderColumn('name', function ($query, $order) {
+    //             $query->orderBy('users.firstname', $order);
+    //         })
+    //         ->orderColumn('start_date', function ($query, $order) {
+    //             $query->orderBy('hearing_invitations.start_date', $order)
+    //                 ->orderBy('hearing_invitations.start_time', $order);
+    //         })
+    //         ->addColumn('action', function ($data) {
+    //             return '';
+    //         })
+    //         ->rawColumns(['action'])
+    //         ->toJson();
+    // }
+
     public function index(Request $request)
-    {
-        $query = HearingInvitation::query()
-            ->leftJoin('admins', 'hearing_invitations.team_id', '=', 'admins.id')
-            ->leftJoin('users', 'hearing_invitations.user_id', '=', 'users.id')
-            ->select(
-                'hearing_invitations.id',
-                'hearing_invitations.start_date',
-                'hearing_invitations.start_time',
-                'hearing_invitations.end_time',
-                'hearing_invitations.booking_status',
-                'admins.name as attender_name',
-                'users.firstname',
-                'users.lastname',
-                'users.phone',
-                'users.address',
-                'users.id as worker_id'
-            );
+{
+    $query = HearingInvitation::query()
+        ->leftJoin('admins', 'hearing_invitations.team_id', '=', 'admins.id')
+        ->leftJoin('users', 'hearing_invitations.user_id', '=', 'users.id')
+        ->select(
+            'hearing_invitations.id',
+            'hearing_invitations.start_date',
+            'hearing_invitations.start_time',
+            'hearing_invitations.end_time',
+            'hearing_invitations.booking_status',
+            'admins.name as attender_name',
+            'users.firstname',
+            'users.lastname',
+            'users.phone',
+            'users.address',
+            'users.id as worker_id'
+        );
 
-        return DataTables::eloquent($query)
-            ->filter(function ($query) use ($request) {
-                if ($request->has('search')) {
-                    $keyword = $request->get('search')['value'];
-
-                    if (!empty($keyword)) {
-                        $query->where(function ($sq) use ($keyword) {
-                            $sq->whereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
-                                ->orWhere('users.address', 'like', "%" . $keyword . "%")
-                                ->orWhere('users.phone', 'like', "%" . $keyword . "%")
-                                ->orWhere('admins.name', 'like', "%" . $keyword . "%");
-                        });
-                    }
-                }
-            })
-            ->editColumn('name', function ($data) {
-                return $data->firstname . ' ' . $data->lastname; // Concatenate worker's name
-            })
-            ->filterColumn('name', function ($query, $keyword) {
-                $sql = "CONCAT_WS(' ', users.firstname, users.lastname) like ?";
-                $query->whereRaw($sql, ["%{$keyword}%"]);
-            })
-            ->orderColumn('name', function ($query, $order) {
-                $query->orderBy('users.firstname', $order);
-            })
-            ->orderColumn('start_date', function ($query, $order) {
-                $query->orderBy('hearing_invitations.start_date', $order)
-                    ->orderBy('hearing_invitations.start_time', $order);
-            })
-            ->addColumn('action', function ($data) {
-                return ''; // Define your action buttons here if needed
-            })
-            ->rawColumns(['action'])
-            ->toJson();
+    // Filter by worker ID if provided
+    if ($request->has('worker_id')) {
+        $query->where('hearing_invitations.user_id', $request->input('worker_id'));
     }
-    
+
+    return DataTables::eloquent($query)
+        ->filter(function ($query) use ($request) {
+            if ($request->has('search')) {
+                $keyword = $request->get('search')['value'];
+                if (!empty($keyword)) {
+                    $query->where(function ($sq) use ($keyword) {
+                        $sq->whereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
+                            ->orWhere('users.address', 'like', "%" . $keyword . "%")
+                            ->orWhere('users.phone', 'like', "%" . $keyword . "%")
+                            ->orWhere('admins.name', 'like', "%" . $keyword . "%");
+                    });
+                }
+            }
+        })
+        ->editColumn('name', function ($data) {
+            return $data->firstname . ' ' . $data->lastname;
+        })
+        ->filterColumn('name', function ($query, $keyword) {
+            $sql = "CONCAT_WS(' ', users.firstname, users.lastname) like ?";
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+        })
+        ->orderColumn('name', function ($query, $order) {
+            $query->orderBy('users.firstname', $order);
+        })
+        ->orderColumn('start_date', function ($query, $order) {
+            $query->orderBy('hearing_invitations.start_date', $order)
+                ->orderBy('hearing_invitations.start_time', $order);
+        })
+        ->addColumn('action', function ($data) {
+            return '';
+        })
+        ->rawColumns(['action'])
+        ->toJson();
+}
+
+
+
     public function getScheduledHearings($id)
     {
-        // Fetch the hearing invitation by ID
         $hearing = HearingInvitation::find($id);
     
         if (!$hearing) {
@@ -197,4 +305,15 @@ class HearingInvitationController extends Controller
         return response()->json($hearing);
     }
     
+    public function destroy($id)
+    {
+        $invitation = HearingInvitation::find($id);
+
+        if (!$invitation) {
+            return response()->json(['message' => 'Hearing Invitation not found'], 404);
+        }
+        $invitation->delete();
+
+        return response()->json(['message' => 'Hearing Invitation deleted successfully'], 200);
+    }
 }

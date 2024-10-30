@@ -524,6 +524,29 @@ export default function EditClient() {
                                                 ""
                                             )}
                                         </div>
+                                        <div className="form-group d-flex align-items-center">
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
+                                            {t("admin.leads.AddLead.VatNumber")}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={vatNumber}
+                                                onChange={(e) =>
+                                                    setVatNumber(e.target.value)
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Vat Number"
+                                                autoComplete="vat-number"
+                                            />
+                                            {errors.vatNumber ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.vatNumber}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="form-group color d-flex align-items-center ml-5" >

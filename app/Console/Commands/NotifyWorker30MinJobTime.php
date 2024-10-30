@@ -46,7 +46,7 @@ class NotifyWorker30MinJobTime extends Command
      */
     public function handle()
     {
-        $staticDate = "2024-10-19"; // Static date to start notifications from
+        $staticDate = "2024-10-29"; // Static date to start notifications from
         $currentTime = Carbon::now();
         \Log::info('Current Time: ' . $currentTime->format('H:i'));
         $currentDate = Carbon::now()->toDateString();

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddOtpFieldsToClientsTable extends Migration
+class AddFirstLoginToClientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,7 @@ class AddOtpFieldsToClientsTable extends Migration
     public function up()
     {
         Schema::table('clients', function (Blueprint $table) {
-            $table->boolean('two_factor_enabled')->default(true);
-            $table->string('otp')->nullable();
-            $table->timestamp('otp_expiry')->nullable();
+            $table->boolean('first_login')->default(true);
         });
     }
 
@@ -28,8 +26,7 @@ class AddOtpFieldsToClientsTable extends Migration
     public function down()
     {
         Schema::table('clients', function (Blueprint $table) {
-            $table->dropColumn('otp');
-            $table->dropColumn('otp_expiry');
+            $table->dropColumn('first_login');
         });
     }
 }

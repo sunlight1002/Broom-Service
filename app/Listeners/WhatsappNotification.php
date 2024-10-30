@@ -83,6 +83,8 @@ class WhatsappNotification
                         'purpose'       => $eventData['purpose'] ? $eventData['purpose'] : " "
                     ]);
 
+
+
                     $text .= "\n\n" . __('mail.wa-message.button-label.accept_reject') . ": " . url("meeting-schedule/" . base64_encode($eventData['id']));
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.upload_file') . ": " . url("meeting-files/" . base64_encode($eventData['id']));
@@ -343,8 +345,38 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.worker_contract.content');
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.check_contract') . ": " . url("worker-contract/" . base64_encode($workerData['worker_id']));
-                    \Log::info('Message text:', ['text'=>$text]);
 
+                    break;
+
+                case WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE:
+                    $workerData = $eventData['worker'];  
+                    // $teamData = $eventData['team'];
+
+                    $receiverNumber = $workerData['phone']; 
+                    App::setLocale($workerData['lng']); 
+
+                    $text = __('mail.wa-message.worker_hearing_schedule.header');  
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => trim(trim($workerData['firstname']) . ' ' . trim($workerData['lastname']))
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.worker_hearing_schedule.content', [
+                        'team_name' => isset($eventData['team']) && !empty($eventData['team']['name'])
+                            ? $eventData['team']['name']
+                            : ' ',   
+                        'date'          => Carbon::parse($eventData['start_date'])->format('d-m-Y'),
+                        'start_time'    => date("H:i", strtotime($eventData['start_time'])),
+                        'end_time'      => date("H:i", strtotime($eventData['end_time'])),
+                        'purpose'       => $eventData['purpose'] ? $eventData['purpose'] : "No purpose provided"
+                    ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.accept_reject') . ": " . url("hearing-schedule/" . base64_encode($eventData['id']));
+                    
                     break;
 
                 case WhatsappMessageTemplateEnum::WORKER_JOB_APPROVAL:
@@ -396,7 +428,10 @@ class WhatsappNotification
                     $text .= "*Thank you!* Click here when you are on your way to the client.";
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.check_contract') . ": " . url("worker/jobs/view/" . base64_encode($jobData['job_id']));
-
+                    $text .= __('mail.job_common.regards') . "\n";
+                    $text .= __('mail.job_common.company') . "\n";
+                    $text .= __('mail.job_common.tel') . ": 03-525-70-60\n";
+                    $text .= url("office@broomservice.co.il");
                     break;
 
                 case WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_ON_MY_WAY:
@@ -429,9 +464,7 @@ class WhatsappNotification
                             $commentsText .= "- " . $comment['comment'] . " (by " . $comment['name'] . ") \n";
                         }
                     }
-                    \Log::info($commentsText);
-                    \Log::info("Eded");
-                    
+                    \Log::info($commentsText);                    
 
                     $commenttext = __('mail.wa-message.worker_on_my_way.all_comments',[
                         'comments' => $commentsText
@@ -489,6 +522,9 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.team_worker_on_my_way.signature');
 
+                    \Log::info("Text",["text" => $text]);
+
+
                     break;
 
 
@@ -535,8 +571,6 @@ class WhatsappNotification
 
                       $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                       App::setLocale('heb');
-                      \Log::info("Efsd");
-
 
                       $text .= __('mail.wa-message.common.salutation', [
                           'name' => 'צוות'
@@ -565,14 +599,14 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.team_worker_on_my_way.signature');
 
-                      break;
+                    break;
 
                 case WhatsappMessageTemplateEnum::NOTIFY_WORKER_BEFORE_30MIN_JOB_END_TIME:
                     $jobData = $eventData['job'];
-                    // \Log::info($jobData);
 
                     $receiverNumber = $jobData['worker']['phone'];
-                    App::setLocale($jobData['worker']['lng']);
+                    $locale = isset($jobData['worker']['heb']) ? $jobData['worker']['heb'] : 'en';
+                    App::setLocale($locale);
 
                     $text = __('mail.wa-message.before_job_endtime.header');
 
@@ -626,7 +660,6 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::TEAM_NOTIFY_CONTACT_MANAGER:
                     $jobData = $eventData['job'];
-                    \Log::info($jobData);
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                     App::setLocale('heb'); // Set the language to Hebrew
 
@@ -743,10 +776,7 @@ class WhatsappNotification
                             : 'NA',
                     ]);
 
-                    \Log::info("fefefe");
-
                     $text .= "\n\n" . __('mail.wa-message.button-label.change_worker_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-worker");
-                    \Log::info("fef33333333efe");
 
                     // $text .= "\n\n" . __('mail.wa-message.button-label.change_shift') . ": " . url("admin/jobs/" . $jobData['id'] . "/change-shift");
 
@@ -1229,7 +1259,6 @@ class WhatsappNotification
                         $firstname = $jobData->worker->firstname;
                         $lastname = $jobData->worker->lastname;
                         $lng = $jobData->worker->lng;
-                        \Log::info($lng . " worker");
 
                         // Select the language-specific message
                         $messageLng = $lng == 'en' ? $template->message_en
@@ -1252,8 +1281,6 @@ class WhatsappNotification
                         // Remove '*Action Buttons:*' and all lines after it
                         $message = preg_replace('/\*Action Buttons:\*.*?Best regards,/s', 'Best regards,', $message);
                         $message = trim($message);
-
-                        \Log::info("Worker message: " . $message); // Log the message for debugging
 
                     } elseif ($recipientType === 'client') {
                         // Client details
@@ -1281,8 +1308,6 @@ class WhatsappNotification
                             ],
                             $messageLng // Use the correct language-specific message template
                         );
-
-                        \Log::info("Client message: " . $message); // Log the message for debugging
                     }
 
                     $text .= $message; // Combine messages for sending
@@ -1759,8 +1784,9 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.client_reviewed.content', [
                         'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                         'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
-                        // 'rating' => $jobData['rating'],
-                        // 'review' => $jobData['review'],
+                        'client_phone' => $clientData['phone'],
+                        'rating' => $jobData['rating'],
+                        'review' => $jobData['review'],
                     ]);
 
                     break;
@@ -1864,10 +1890,8 @@ class WhatsappNotification
                 case WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED:
                     $clientData = $eventData['client'];
 
-                    \Log::info("efeffe1");
-
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('en');
+                    App::setLocale('heb');
 
 
                     $addresses = [];
@@ -2105,8 +2129,37 @@ class WhatsappNotification
                         'url' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
+                    \Log::info("Text",["text" => $text]);
+
                     break;
 
+                case WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER:
+                    $clientData = $eventData['client'];
+                    $workerData = $eventData['worker'];
+                    
+                    $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+                    App::setLocale('heb');
+                    
+                    $text = '*Worker Contact To Manager | Broom Service*';
+                    $text .= "\n\nHi, Team\n\n";
+                    $text .= 'The Worker Need to Contact with Manager.' . "\n\n";
+                    
+                    $text .= sprintf(
+                        "Date/Time: %s\nClient: %s\nWorker: %s\nProperty: %s",
+                        Carbon::now()->format('M d Y H:i'),
+                        $clientData['firstname'] . ' ' . $clientData['lastname'],
+                        $workerData['firstname'] . ' ' . $workerData['lastname'] ?? 'NA',
+                        $clientData['property_addresses'][0]['address_name'] ?? 'NA'
+                    );
+                                        
+                    $response = Http::withToken($this->whapiApiToken)
+                        ->post($this->whapiApiEndpoint . 'messages/text', [
+                            'to' => $receiverNumber,
+                            'body' => $text
+                    ]);
+                    
+                break;                    
+             
                 case WhatsappMessageTemplateEnum::FREEZE_CLIENT:
                     $clientData = $eventData['client'];
 
@@ -2255,7 +2308,6 @@ class WhatsappNotification
                 case WhatsappMessageTemplateEnum::FINAL_FOLLOW_UP_PRICE_OFFER:
                     $clientData = $eventData['client'];
                     $offerData = $eventData['offer'];
-                    \Log::info($offerData);
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('heb'); // Adjust the locale if needed
@@ -2319,6 +2371,13 @@ class WhatsappNotification
                         'client_contact_info' =>$clientData['email'],
                     ]);
 
+                    if (isset($eventData['contract_id'])) {
+                        $text .= __('mail.wa-message.button-label.check_contract') . ": " . url("work-contract/" . $eventData['contract_id']);
+                    } else {
+                        \Log::warning('Contract ID is missing in eventData:', $eventData);
+                        $text .= __('mail.wa-message.button-label.check_contract') . ": NA";
+                    }
+
                     break;
 
                 case WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER:
@@ -2362,7 +2421,6 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST:
                     $clientData = $eventData['client'];
-                    \Log::info("heheh");
                     $receiverNumber = $clientData['phone'];
                     App::setLocale($clientData['lng']??'en'); // Ensure this matches the locale key used in your translation files
 
@@ -2396,6 +2454,8 @@ class WhatsappNotification
                     $text .= "\n";
 
                     $text .= __('mail.common.company');
+
+                    
 
                     break;
 
@@ -2577,7 +2637,6 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
                     $clientData = $eventData['client'];
-                    \Log::info("here");
 
                     $whapiApiEndpoint = config('services.whapi.url');
                     $whapiApiToken = config('services.whapi.token');
@@ -2585,7 +2644,6 @@ class WhatsappNotification
                     App::setLocale($clientData['lng'] ?? 'en');
                     $receiverNumber = $clientData['phone'];
                     $number = $clientData['phone'] . "@s.whatsapp.net";
-                    \Log::info($number);
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.follow_up.introduction');
                     $text .= "\n\n";
@@ -2888,6 +2946,7 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
                     $clientData = $eventData['client'];
+                    $jobData = $eventData['job'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('heb');
@@ -2905,6 +2964,8 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.contract_verify_team.content',[
                         'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
                     ]);
+
+                    $text .= "\n\n" . __('mail.wa-message.button-label.review') . ": " . url("client/jobs/" . base64_encode($jobData['id']) . "/review");
 
                     break;
 

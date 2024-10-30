@@ -21,7 +21,6 @@ class HearingInvitation extends Model
         'meet_link',
         'purpose',
         'booking_status',
-        'address_id',
     ];
 
     public function user()
@@ -29,9 +28,9 @@ class HearingInvitation extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function team()
+    public function admin()
     {
-        return $this->belongsTo(Admin::class, 'team_id');
+        return $this->belongsTo(Admin::class, 'team_id', 'id');
     }
 
     // public function address()

@@ -49,7 +49,6 @@ class NotifyWorkerBeforeJob extends Command
         // Calculate time 1 hour and 30 minutes from now
         $oneHourLater = $currentTime->copy()->addHour();
         \Log::info($oneHourLater->toTimeString());
-        \Log::info("kkdkdk");
         $thirtyMinutesLater = $currentTime->copy()->addMinutes(30);
 
         // Fetch jobs where worker has approved and hasn't tapped the "I am leaving" button,
@@ -93,6 +92,8 @@ class NotifyWorkerBeforeJob extends Command
      */
     protected function sendNotification($job, $notificationType)
     {
+        $currentDate = Carbon::now()->toDateString();
+
         // Customize the message based on the notification type
         if ($notificationType === '1-hour') {
             event(new WhatsappNotificationEvent([
@@ -111,12 +112,14 @@ class NotifyWorkerBeforeJob extends Command
                 ]
             ]));
 
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY,
-                "notificationData" => [
-                    'job' => $job,
-                ]
-            ]));
+            if ($job->start_date === $currentDate) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY,
+                    "notificationData" => [
+                        'job' => $job,
+                    ]
+                ]));
+            }
         }
 
     }

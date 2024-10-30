@@ -17,11 +17,10 @@ class CreateHearingInvitationsTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-            // Define team_id correctly
             $table->foreignId('team_id')
                 ->nullable()
-                ->constrained('users') // Reference the 'users' table explicitly
-                ->nullOnDelete(); // Use 'nullOnDelete()' for nullable foreign keys
+                ->constrained('users')
+                ->nullOnDelete();
 
             $table->date('start_date');
             $table->string('start_time');
@@ -30,13 +29,6 @@ class CreateHearingInvitationsTable extends Migration
             $table->string('meet_link')->nullable();
             $table->string('purpose')->nullable();
             $table->string('booking_status')->nullable();
-
-            // Define address_id correctly
-            // $table->foreignId('address_id')
-            //     ->nullable()
-            //     ->constrained()
-            //     ->nullOnDelete(); // Use 'nullOnDelete()' to avoid errors
-
             $table->timestamps();
         });
     }

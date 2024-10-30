@@ -59,7 +59,8 @@ class JobNotStartedReminder extends Command
             ->whereNotNull('job_opening_timestamp')
             ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
             ->get();
-
+        
+            
         foreach ($jobs as $key => $job) {
             //send notification to worker
             $jobArray = $job->toArray();

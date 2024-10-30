@@ -51,7 +51,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('notifyteamcontract12')->hourly();
         $schedule->command('notifyStartOfJob')->everyThirtyMinutes();
         $schedule->command('notifyWorkerBeforeJobTime')->everyMinute();
-
+        $schedule->command('facebook:fetch-yesterday-leads')->dailyAt('01:00');
     }
 
     /**

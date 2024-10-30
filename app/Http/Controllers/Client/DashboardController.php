@@ -349,6 +349,11 @@ class DashboardController extends Controller
         }
 
         $input = $request->all();
+
+        if (!isset($input['two_factor_enabled'])) {
+            $input['two_factor_enabled'] = true; // or 1
+        }
+    
         if ($request->hasfile('avatar')) {
             $image = $request->file('avatar');
             $name = $image->getClientOriginalName();
@@ -357,9 +362,9 @@ class DashboardController extends Controller
             $input['avatar'] = $name;
         }
 
-        if ($request->has('twostepverification')) {
-            $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
-        }
+        // if ($request->has('twostepverification')) {
+        //     $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
+        // }
 
         $client = Client::find(Auth::user()->id);
 

@@ -11,9 +11,9 @@ import "datatables.net-dt/css/dataTables.dataTables.css";
 import "datatables.net-responsive";
 import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
-import Sidebar from "../../Layouts/ClientSidebar";
+import Sidebar from "../../Layouts/WorkerSidebar";
 
-export default function Schedule() {
+export default function Hearing() {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const tableRef = useRef(null);
@@ -23,12 +23,12 @@ export default function Schedule() {
             serverSide: true,
             processing: true,
             ajax: {
-                url: "/api/client/schedule",
+                url: "/api/schedule",
                 type: "GET",
                 beforeSend: function (request) {
                     request.setRequestHeader(
                         "Authorization",
-                        `Bearer ` + localStorage.getItem("client-token")
+                        `Bearer ` + localStorage.getItem("worker-token")
                     );
                 },
             },
@@ -128,21 +128,21 @@ export default function Schedule() {
             ]
         });
 
-        // Customize the search input
-        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-        $("div.dt-search").append(searchInputWrapper);
-        $("div.dt-search").addClass("position-relative");
+        // // Customize the search input
+        // const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        // $("div.dt-search").append(searchInputWrapper);
+        // $("div.dt-search").addClass("position-relative");
 
-        // Handle search input event
-        $(document).on('keyup', '.input-search', function () {
-            table.search(this.value).draw();
-        });
+        // // Handle search input event
+        // $(document).on('keyup', '.input-search', function () {
+        //     table.search(this.value).draw();
+        // });
 
-        $(tableRef.current).on("click", ".dt-file-button", function (e) {
-            e.preventDefault();
-            const _id = $(this).data("id").toString();
-            navigate(`/client/files/${_id}`);
-        });
+        // $(tableRef.current).on("click", ".dt-file-button", function (e) {
+        //     e.preventDefault();
+        //     const _id = $(this).data("id").toString();
+        //     navigate(`/client/files/${_id}`);
+        // });
 
         return function cleanup() {
             $(tableRef.current).DataTable().destroy(true);
@@ -157,7 +157,7 @@ export default function Schedule() {
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">
-                                {t("client.common.meetings")}
+                                {t("worker.common.meetings")}
                             </h1>
                         </div>
                     </div>

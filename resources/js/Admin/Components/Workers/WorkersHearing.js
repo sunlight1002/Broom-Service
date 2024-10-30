@@ -4,6 +4,7 @@ import Moment from "moment";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
@@ -14,12 +15,26 @@ import Sidebar from "../../Layouts/Sidebar";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import FilterButtons from "../../../Components/common/FilterButton";
 
-const WorkersHearing = () => {
+const WorkersHearing = ({ worker, getWorkerDetails }) => {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const tableRef = useRef(null);
     const [filter, setFilter] = useState("All");
+    
+    const id = worker?.id;
+
+    const handleScheduleHearing = () => {
+        navigate(`/admin/workers/view/${id}/hearing-invitation`, {
+            state: { worker, getWorkerDetails },
+        });
+    };
+
+    const handleUploadClaim = () => {
+        navigate(`/admin/workers/view/${id}/upload-claim`, {
+            state: { worker, getWorkerDetails },
+        });
+    };
 
     const meetingStatuses = [
         t("admin.schedule.options.meetingStatus.Pending"),
@@ -43,6 +58,7 @@ const WorkersHearing = () => {
                 ajax: {
                     url: "/api/admin/hearing-invitations",
                     type: "GET",
+                    data: { worker_id: id },
                     beforeSend: function (request) {
                         request.setRequestHeader(
                             "Authorization",
@@ -53,8 +69,8 @@ const WorkersHearing = () => {
                 order: [[0, "desc"]],
                 columns: [
                     {
-                        // title: t("admin.dashboard.pending.scheduled"),
-                        title:"Scheduled",
+                        title: t("admin.dashboard.pending.scheduled"),
+                        // title:"Scheduled",
                         data: "start_date",
                         render: function (data, type, row, meta) {
                             let _html = "";
@@ -78,7 +94,7 @@ const WorkersHearing = () => {
                         },
                     },
                     {
-                        // title: t("admin.global.Name"),
+                        title: t("admin.global.Name"),
                         title:"Name",
                         data: "firstname",
                         render: function (data, type, row, meta) {
@@ -86,7 +102,7 @@ const WorkersHearing = () => {
                         },
                     },
                     {
-                        // title: t("admin.dashboard.pending.contact"),
+                        title: t("admin.dashboard.pending.contact"),
                         title:"Contact",
                         data: "phone", 
                         render: function (data) {
@@ -94,7 +110,7 @@ const WorkersHearing = () => {
                         }
                     },
                     {
-                        // title: t("admin.global.Address"),
+                        title: t("admin.global.Address"),
                         title:"Address",
                         data: "address", 
                         render: function (data, type, row, meta) {
@@ -106,12 +122,12 @@ const WorkersHearing = () => {
                         },
                     },
                     {
-                        // title: t("client.meeting.attender"),
+                        title: t("client.meeting.attender"),
                         title:"Meeting Attender",
                         data: "attender_name",
                     },
                     {
-                        // title: t("admin.global.Status"),
+                        title: t("admin.global.Status"),
                         title:" Status",
                         data: "booking_status",
                         render: function (data, type, row, meta) {
@@ -131,7 +147,7 @@ const WorkersHearing = () => {
                         },
                     },
                     {
-                        // title: t("admin.global.Action"),
+                        title: t("admin.global.Action"),
                         title:"Action",
                         data: "action",
                         orderable: false,
@@ -140,9 +156,9 @@ const WorkersHearing = () => {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}" data-client-id="${row.client_id}">${t("admin.leads.view")}</button>`;
+                            _html += `<button type="button" class="dropdown-item dt-view-btn" data-worker-id="${row.worker_id}" data-hid="${row.id}">View</button>`;
 
-                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+                            _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">Delete</button>`;
 
                             _html += "</div> </div>";
 
@@ -170,16 +186,27 @@ const WorkersHearing = () => {
     useEffect(() => {
         initializeDataTable();
 
-        $(tableRef.current).on("click", "tr.dt-row", function () {
-            const _id = $(this).data("id");
-            const _workerID = $(this).data("worker-id");
-            navigate(`/admin/workers-hearing/view/${_workerID}?hid=${_id}`);
-        });
+        // $(tableRef.current).on("click", "tr.dt-row", function () {
+        //     const _id = $(this).data("id");
+        //     const _workerID = $(this).data("worker-id");
+        //     navigate(`/admin/workers-hearing/view/${_workerID}?hid=${_id}`);
+        // });
 
+        // $(tableRef.current).on("click", ".dt-view-btn", function () {
+        //     const _id = $(this).data("id");
+        //     const _workerID = $(this).data("worker-id");
+        //     navigate(`/admin/workers/view/${_workerID}?hid=${_id}`);
+        // });
+        
+        // $(tableRef.current).on("click", ".dt-view-btn", function () {
+        //     const _workerID = $(this).data("worker-id");
+        //     const _hid = $(this).data("hid"); // Get the hearing ID
+        //     navigate(`/admin/workers/view/${_workerID}?hid=${_hid}`);   
+        // });  
         $(tableRef.current).on("click", ".dt-view-btn", function () {
-            const _id = $(this).data("id");
             const _workerID = $(this).data("worker-id");
-            navigate(`/admin/workers-hearing/view/${_workerID}?hid=${_id}`);
+            const _hid = $(this).data("hid"); // Get the hearing ID
+            navigate(`/admin/workers/view/${_workerID}/hearing-invitation/${_hid}`);
         });
 
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
@@ -221,23 +248,29 @@ const WorkersHearing = () => {
     };
 
     return (
-        <div id="container">
-        <Sidebar />
-        <div id="content">
+        <div className="WorkersHearing">
             <div className="titleBox customer-title">
                 <div className="row">
-                    <div className="col-sm-6">
+                    <div className="col-sm-6 d-flex align-items-center justify-content-between">
                         <h1 className="page-title">{t("admin.hearing.title")}</h1>
-                    </div>
-                    <div className="col-sm-6 hidden-xl mt-4">
-                        <select
-                            className="form-control"
-                            onChange={(e) => sortTable(e.target.value)}
-                        >
-                            <option value="">{t("admin.leads.Options.sortBy")}</option>
-                            <option value="0">{t("j_status.scheduled")}</option>
-                            <option value="5">{t("global.status")}</option>
-                        </select>
+                        <div className="ml-auto d-flex">
+                            <button 
+                                className="text-white navyblue text-left mr-2"
+                                style={{ padding: "5px", borderRadius: "5px" }}
+                                onClick={handleScheduleHearing}
+                            >
+                                <i className="fas fa-hand-point-right "></i>
+                                {t("admin.hearing.scheduleHearing")}
+                            </button>
+                            <button 
+                                className="text-white navyblue text-left mr-2"
+                                style={{ padding: "5px", borderRadius: "5px" }}
+                                onClick={handleUploadClaim}
+                            >
+                                <i className="fas fa-upload"></i>
+                                Upload Claim
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -283,10 +316,9 @@ const WorkersHearing = () => {
                     </div>
                 </div>
             </div>
-        </div>
 
-        <FullPageLoader visible={isLoading} />
-    </div>
+            <FullPageLoader visible={isLoading} />
+        </div>
     );
 };
 

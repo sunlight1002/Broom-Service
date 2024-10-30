@@ -43,6 +43,8 @@ export default function ViewContract() {
             .post(`/api/admin/get-contract/${params.id}`, {}, { headers })
             .then((res) => {
                 const _contract = res.data.contract;
+                console.log("Contract data:",_contract);
+                
                 setOffer(_contract.offer);
                 setServices(JSON.parse(_contract.offer.services));
                 setClient(_contract.client);
@@ -238,11 +240,6 @@ export default function ViewContract() {
                             <span className="text-underline mx-3">
                                 {client ? client.phone : ""}
                             </span>
-                            <div className="mx-4">
-                                <label htmlFor="">
-                                    {t("client.contract-form.fax")}:
-                                </label>
-                            </div>
                             <span className="text-underline mx-3"></span>
                         </div>
                         <div className="col-md-12">

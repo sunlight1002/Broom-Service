@@ -857,10 +857,8 @@
                 "title": "Review and Rating Job",
                 "Services": "Services",
                 "Frequency": "Frequency",
-                "timeToComplete": "Time to Complete",
                 "hours": "hours",
                 "Property": "Property",
-                "PetAnimals": "Pet animals",
                 "GenderPreference": "Gender preference",
                 "Worker": "Worker",
                 "Date": "Date",
@@ -1107,6 +1105,7 @@
                 "InvoiceName": "Invoice name",
                 "PrimaryEmail": "Primary email",
                 "Password": "Password",
+                "VatNumber": "Vat Number",
                 "SendWPBotMessage": "Send WP bot message",
                 "PrimaryPhone": "Primary phone",
                 "AlternateEmail": "Alternate email",
@@ -1751,9 +1750,14 @@
         "statusRejected":"Rejected",
         "worker_refund": "Worker Refund",
         "thankyou": "Thank you for your confirmation...",
+        "common": {
+            "meetings": "Meetings"
+        },
         "sidebar": {
             "dashboard": "Dashboard",
             "jobs": "Jobs",
+            "hearing": "Hearing",
+            "protocol": "Protocol",
             "schedule": "Schedule",
             "not_available": "Not Available Dates",
             "workingHours": "Hours",

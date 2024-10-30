@@ -39,6 +39,8 @@ import RefundClaim from "./Worker/Pages/MyAccount/RefundClaim";
 import WorkerDashboard from "./Worker/WorkerDashboard";
 import WorkerTotalJobs from "./Worker/Pages/Job/WorkerTotalJobs";
 import WorkerViewJob from "./Worker/Pages/Job/WorkerViewJob";
+import HearingInvitation from "./Admin/Components/Workers/HearingInvitationForm";
+import Hearing from "./Worker/Pages/Hearing/Hearing";
 import Availability from "./Worker/Pages/Availability/Availability";
 import NotAvailability from "./Worker/Pages/Availability/NotAvailability";
 import SickLeaves from "./Worker/Pages/MyAccount/SickLeaves";
@@ -69,8 +71,10 @@ import AddWorker from "./Admin/Pages/Workers/AddWorker";
 import EditWorker from "./Admin/Pages/Workers/EditWorker";
 import WorkersLeave from "./Admin/Pages/Workers/WorkersLeave";
 import WorkersRefund from "./Admin/Pages/Workers/WorkersRefund";
-import WorkersHearing from "./Admin/Pages/Workers/WorkersHearing";
+import WorkerTermination from "./Admin/Components/Workers/WorkerTermination";
+import WorkersHearing from "./Admin/Components/Workers/WorkersHearing";
 import ViewHearing from "./Admin/Pages/Hearing/ViewHearing";
+import HearingProtocol from "./Admin/Components/Workers/HearingProtocol";
 import ViewWorker from "./Admin/Pages/Workers/ViewWorker";
 import ViewWorkerContract from "./Admin/Pages/Workers/WorkerContract";
 import AdminLogin from "./Admin/Pages/Auth/AdminLogin";
@@ -107,6 +111,7 @@ import MeetingStatus from "./Pages/MeetingStatus";
 import WorkerJobDetails from "./Pages/WorkerJobDetails";
 import CalendarTeam from "./Pages/CalendarTeam";
 import Thankyou from "./Pages/Thankyou";
+import ThankYouHearingSchedule from "./Pages/ThankYouHearingSchedule";
 import ManageTime from "./Admin/Pages/Setting/Time/ManageTime";
 import AddTime from "./Admin/Pages/Setting/Time/AddTime";
 import EditTime from "./Admin/Pages/Setting/Time/EditTime";
@@ -312,6 +317,11 @@ export default function MyRoutes() {
                     />
                     <Route
                         exact
+                        path="/hearing-schedule/:id"
+                        element={<ThankYouHearingSchedule />}
+                    />
+                    <Route
+                        exact
                         path="schedule-meet/:id"
                         element={<ScheduleMeet />}
                     />
@@ -434,6 +444,11 @@ export default function MyRoutes() {
                                 exact
                                 path="jobs"
                                 element={<WorkerTotalJobs />}
+                            />
+                            <Route
+                                exact
+                                path="hearing"
+                                element={<Hearing/>}
                             />
                             <Route
                                 exact
@@ -623,6 +638,16 @@ export default function MyRoutes() {
                                 path="workers/view/:id"
                                 element={<ViewWorker />}
                             />
+                            <Route 
+                                exact
+                                path="workers/view/:id/hearing-invitation" 
+                                element={<HearingInvitation />} 
+                            />
+                            <Route 
+                                exact
+                                path="workers/view/:id/upload-claim" 
+                                element={<HearingProtocol />} 
+                            />
                             <Route
                                 exact
                                 path="worker-contract/:id"
@@ -724,19 +749,24 @@ export default function MyRoutes() {
                                 element={<WorkersLeave />}
                             />
                             <Route
-                                exact
+                                
                                 path="workers-refund"
                                 element={<WorkersRefund />}
                             />
-                             <Route
+                            <Route 
                                 exact
-                                path="workers-hearing"
-                                element={<WorkersHearing />}
+                                path="workers/view/:workerId" 
+                                element={<WorkerTermination />} 
                             />
-                            <Route
+                            <Route 
                                 exact
-                                path="workers-hearing/view/:id"
-                                element={<ViewHearing />}
+                                path="workers/view/:workerId/hearing-invitation" 
+                                element={<WorkersHearing />} 
+                            />
+                            <Route 
+                                exact
+                                path="workers/view/:workerId/hearing-invitation/:hid" 
+                                element={<ViewHearing />} 
                             />
                             <Route
                                 exact

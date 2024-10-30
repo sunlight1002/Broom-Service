@@ -14,7 +14,7 @@ class AddOtpFieldsToAdminsTable extends Migration
     public function up()
     {
         Schema::table('admins', function (Blueprint $table) {
-            $table->boolean('two_factor_enabled')->default(false);
+            $table->boolean('two_factor_enabled')->default(true);
             $table->string('otp')->nullable();
             $table->timestamp('otp_expiry')->nullable();
         });

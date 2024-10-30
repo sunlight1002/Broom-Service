@@ -16,6 +16,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const NEW_JOB = 'new_job';
     public const WORKER_CONTRACT = 'worker_contract';
     public const WORKER_JOB_APPROVAL = 'worker_job_approval';
+    public const WORKER_HEARING_SCHEDULE ='worker_hearing_schedule';
     public const WORKER_NOT_APPROVED_JOB = 'worker_not_approved_job';
     public const WORKER_NOT_LEFT_FOR_JOB = 'worker_not_left_for_job';
     public const WORKER_NOT_STARTED_JOB = 'worker_not_started_job';
@@ -108,6 +109,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const PENDING_CLIENT = "pending-client";
     public const WAITING = "waiting";
     public const ACTIVE_CLIENT = "active-client";
+    public const WORKER_CONTACT_TO_MANAGER = "worker-contact-to-manager";
     public const FREEZE_CLIENT = "freeze-client";
     public const UNHAPPY = "unhappy";
     public const PRICE_ISSUE = "price-issue";
