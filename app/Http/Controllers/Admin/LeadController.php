@@ -147,7 +147,7 @@ class LeadController extends Controller
             ['lead_status' => LeadStatusEnum::PENDING]
         );
 
-        event(new ClientLeadStatusChanged($client, LeadStatusEnum::PENDING));
+        // event(new ClientLeadStatusChanged($client, LeadStatusEnum::PENDING));
 
         // Create a notification
         Notification::create([

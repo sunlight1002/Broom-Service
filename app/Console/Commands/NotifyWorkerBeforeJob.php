@@ -5,122 +5,87 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Enums\WorkerMetaEnum;
 use App\Models\Job;
+use App\Models\WorkerMetas;
 use Carbon\Carbon;
 
 class NotifyWorkerBeforeJob extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'notifyBeforeJob';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Notify worker 1 hour and 30 minutes before job starts on the same day.';
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
     public function handle()
     {
-        // Get the current date and time
         $currentTime = Carbon::now();
-
-        \Log::info($currentTime);
-
-        // Calculate time 1 hour and 30 minutes from now
         $oneHourLater = $currentTime->copy()->addHour();
-        \Log::info($oneHourLater->toTimeString());
         $thirtyMinutesLater = $currentTime->copy()->addMinutes(30);
 
-        // Fetch jobs where worker has approved and hasn't tapped the "I am leaving" button,
-        // and the job start time is exactly 1 hour or 30 minutes from now.
         $jobsToNotify = Job::with(['client', 'worker'])
-            ->whereNotNull('worker_approved_at') // Only jobs where the worker has approved
-            ->whereDate('start_date', $currentTime->toDateString()) // Only jobs for today
-            ->whereTime('start_time', '=', $oneHourLater->format('H:i')) // Jobs starting in exactly 1 hour
-            ->orWhereTime('start_time', '=', $thirtyMinutesLater->format('H:i')) // Jobs starting in 30 minutes
-            // Jobs starting in 30 minutes
+            ->whereNotNull('worker_approved_at')
+            ->whereDate('start_date', $currentTime->toDateString())
+            ->whereTime('start_time', '=', $oneHourLater->format('H:i'))
+            ->orWhereTime('start_time', '=', $thirtyMinutesLater->format('H:i'))
             ->get();
 
-        \Log::info($jobsToNotify);
 
         foreach ($jobsToNotify as $job) {
-            // Calculate the difference in minutes between now and the job's start time
             $jobStartTime = Carbon::parse($job->start_time);
             $minutesDifference = $currentTime->diffInMinutes($jobStartTime, false);
-            \Log::info($minutesDifference);
 
-            // Check if it's 1 hour or 30 minutes before start_time
             if ($minutesDifference === 59) {
-                \Log::info("Sending 1-hour notification to worker for Job ID: " . $job->id);
-                $this->sendNotification($job, '1-hour');
+                $this->sendNotification($job, WorkerMetaEnum::NOTIFICATION_SENT_1HOUR_BEFORE_JOB_STARTS, 'worker');
             } elseif ($minutesDifference === 29) {
-                \Log::info("Sending 30-minute notification to worker for Job ID: " . $job->id);
-                $this->sendNotification($job, '30-min');
+                $this->sendNotification($job, WorkerMetaEnum::NOTIFICATION_SENT_30MIN_BEFORE_JOB_STARTS, 'worker');
+                $this->sendNotification($job, WorkerMetaEnum::NOTIFICATION_SENT_30MIN_BEFORE_JOB_STARTS, 'team');
             }
         }
 
         return 0;
     }
 
-
-    /**
-     * Send notification to the worker.
-     *
-     * @param Job $job
-     * @param string $notificationType
-     * @return void
-     */
-    protected function sendNotification($job, $notificationType)
+    protected function sendNotification($job, string $notificationType, string $recipient)
     {
         $currentDate = Carbon::now()->toDateString();
 
-        // Customize the message based on the notification type
-        if ($notificationType === '1-hour') {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_ON_MY_WAY,
-                "notificationData" => [
-                    'job' => $job,
-                ]
-            ]));
+        // Check if notification has already been sent for this job
+        $existingNotification = WorkerMetas::where([
+            'job_id' => $job->id,
+            'key' => $notificationType . '_' . $recipient, 
+        ])->first();
 
-        } elseif ($notificationType === '30-min') {
-
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_ON_MY_WAY,
-                "notificationData" => [
-                    'job' => $job,
-                ]
-            ]));
-
-            if ($job->start_date === $currentDate) {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY,
-                    "notificationData" => [
-                        'job' => $job,
-                    ]
-                ]));
-            }
+        if ($existingNotification) {
+            return; 
         }
 
+        // Determine the event type based on the recipient and notification type
+        $eventType = match ($recipient) {
+            'worker' => WhatsappMessageTemplateEnum::WORKER_NOTIFY_BEFORE_ON_MY_WAY,
+            'team' => WhatsappMessageTemplateEnum::TEAM_NOTIFY_WORKER_BEFORE_ON_MY_WAY,
+            default => null,
+        };
+
+        // Only send the notification if the event type is defined
+        if ($eventType) {
+            event(new WhatsappNotificationEvent([
+                "type" => $eventType,
+                "notificationData" => [
+                    'job' => $job,
+                ]
+            ]));
+        }
+
+        // Record that the notification was sent
+        WorkerMetas::create([
+            'worker_id' => $job->worker_id,
+            'job_id' => $job->id,
+            'key' => $notificationType . '_' . $recipient,
+            'value' => Carbon::now(),
+        ]);
     }
 }

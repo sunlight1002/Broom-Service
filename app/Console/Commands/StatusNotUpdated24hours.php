@@ -100,6 +100,7 @@ class StatusNotUpdated24hours extends Command
             "type" => WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED,
             "notificationData" => [
                 'client' => $client->toArray(),
+                'offer' => $offerStatus->toArray()
             ]
         ]));
 
@@ -124,6 +125,7 @@ class StatusNotUpdated24hours extends Command
             "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER,
             "notificationData" => [
                 'client' => $client->toArray(),
+                'offer' => $offerStatus->toArray()
             ]
         ]));
 

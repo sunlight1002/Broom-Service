@@ -1244,76 +1244,152 @@ class WhatsappNotification
 
                     break;
 
-                case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE:
-                    $jobData = $eventData['job'];
-                    $template = $eventData['template'];
-                    $recipientType = $eventData['recipientType'];
+                // case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE:
+                //     $jobData = $eventData['job'];
+                //     $template = $eventData['template'];
+                //     $recipientType = $eventData['recipientType'];
+                //     $holidayMessage = $eventData['holidayMessage'];
+                //     $message = '';
+
+                //     if ($recipientType === 'worker') {
+                //         // Worker details
+                //         $receiverNumber = $jobData->worker->phone;
+                //         App::setLocale($jobData->worker->lng ?? 'en');
+
+                //         $firstname = $jobData->worker->firstname;
+                //         $lastname = $jobData->worker->lastname;
+                //         $lng = $jobData->worker->lng;
+
+                //         // Select the language-specific message
+                //         $messageLng = $lng == 'en' ? $template->message_en
+                //                     : ($lng == 'heb' ? $template->message_heb
+                //                     : ($lng == 'rus' ? $template->message_rus : $template->message_spa));
+
+                //         // Build the final message for the worker
+                //         $message .= str_replace(
+                //             ['{firstname}', '{lastname}', '{holidays}', '{Change_Service_Date}', '{Cancel_Service}'],
+                //             [
+                //                 $firstname,
+                //                 $lastname,
+                //                 $holidayMessage ?? "NA",
+                //                 url("client/jobs/view/" . base64_encode($jobData->id)),
+                //                 url("client/jobs/view/" . base64_encode($jobData->id)) . "/cancel-service",
+                //             ],
+                //             $messageLng // Use the correct language-specific message template
+                //         );
+
+                //         // Remove '*Action Buttons:*' and all lines after it
+                //         $message = preg_replace('/\*Action Buttons:\*.*?Best regards,/s', 'Best regards,', $message);
+                //         $message = trim($message);
+
+                //     } elseif ($recipientType === 'client') {
+                //         // Client details
+                //         $receiverNumber = $jobData->client->phone;
+                //         App::setLocale($jobData->client->lng ?? 'en');
+
+                //         $firstname = $jobData->client->firstname;
+                //         $lastname = $jobData->client->lastname;
+                //         $lng = $jobData->client->lng;
+
+                //         // Select the language-specific message
+                //         $messageLng = $lng == 'en' ? $template->message_en
+                //             : ($lng == 'heb' ? $template->message_heb
+                //             : ($lng == 'rus' ? $template->message_rus : $template->message_spa));
+
+                //         // Build the final message for the client
+                //         $message .= str_replace(
+                //             ['{firstname}', '{lastname}', '{holidays}', '{Change_Service_Date}', '{Cancel_Service}'],
+                //             [
+                //                 $firstname,
+                //                 $lastname,
+                //                 $holidayMessage ?? "NA",
+                //                 url("client/jobs/view/" . base64_encode($jobData->id)),
+                //                 url("client/jobs/view/" . base64_encode($jobData->id)) . "/cancel-service",
+                //             ],
+                //             $messageLng // Use the correct language-specific message template
+                //         );
+                //     }
+
+                //     $text .= $message; // Combine messages for sending
+                //     break;
+
+                case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE:
+                    $clientData = $eventData['client'];
                     $holidayMessage = $eventData['holidayMessage'];
-                    $message = '';
 
-                    if ($recipientType === 'worker') {
-                        // Worker details
-                        $receiverNumber = $jobData->worker->phone;
-                        App::setLocale($jobData->worker->lng ?? 'en');
+                    $receiverNumber = $clientData['phone'];
+                    App::setLocale($clientData['lng'] ?? 'heb');
 
-                        $firstname = $jobData->worker->firstname;
-                        $lastname = $jobData->worker->lastname;
-                        $lng = $jobData->worker->lng;
+                    $text = __('mail.wa-message.notify_monday_client.subject');
 
-                        // Select the language-specific message
-                        $messageLng = $lng == 'en' ? $template->message_en
-                                    : ($lng == 'heb' ? $template->message_heb
-                                    : ($lng == 'rus' ? $template->message_rus : $template->message_spa));
+                    $text .= "\n\n";
 
-                        // Build the final message for the worker
-                        $message .= str_replace(
-                            ['{firstname}', '{lastname}', '{holidays}', '{Change_Service_Date}', '{Cancel_Service}'],
-                            [
-                                $firstname,
-                                $lastname,
-                                $holidayMessage ?? "NA",
-                                url("client/jobs/view/" . base64_encode($jobData->id)),
-                                url("client/jobs/view/" . base64_encode($jobData->id)) . "/cancel-service",
-                            ],
-                            $messageLng // Use the correct language-specific message template
-                        );
+                    $text .= __('mail.wa-message.notify_monday_client.salutation');
 
-                        // Remove '*Action Buttons:*' and all lines after it
-                        $message = preg_replace('/\*Action Buttons:\*.*?Best regards,/s', 'Best regards,', $message);
-                        $message = trim($message);
+                    $text .= "\n\n";
 
-                    } elseif ($recipientType === 'client') {
-                        // Client details
-                        $receiverNumber = $jobData->client->phone;
-                        App::setLocale($jobData->client->lng ?? 'en');
+                    $text .= __('mail.wa-message.notify_monday_client.content');
 
-                        $firstname = $jobData->client->firstname;
-                        $lastname = $jobData->client->lastname;
-                        $lng = $jobData->client->lng;
+                    $text .= "\n\n";
 
-                        // Select the language-specific message
-                        $messageLng = $lng == 'en' ? $template->message_en
-                            : ($lng == 'heb' ? $template->message_heb
-                            : ($lng == 'rus' ? $template->message_rus : $template->message_spa));
-
-                        // Build the final message for the client
-                        $message .= str_replace(
-                            ['{firstname}', '{lastname}', '{holidays}', '{Change_Service_Date}', '{Cancel_Service}'],
-                            [
-                                $firstname,
-                                $lastname,
-                                $holidayMessage ?? "NA",
-                                url("client/jobs/view/" . base64_encode($jobData->id)),
-                                url("client/jobs/view/" . base64_encode($jobData->id)) . "/cancel-service",
-                            ],
-                            $messageLng // Use the correct language-specific message template
-                        );
+                    if ($holidayMessage) {
+                        $text .= __('mail.wa-message.notify_monday_client.holiday',[
+                            'holidays' => $holidayMessage
+                        ]);
+                    $text .= "\n";
                     }
 
-                    $text .= $message; // Combine messages for sending
+                    $text .= __('mail.wa-message.notify_monday_client.request');
+                    
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.notify_monday_client.link', [
+                        'client_jobs' => url('client/jobs'),
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.notify_monday_client.signature');
+
                     break;
 
+                case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE:
+                    $workerData = $eventData['worker'];
+                    $holidayMessage = $eventData['holidayMessage'];
 
+                    $receiverNumber = $workerData['phone'];
+                    App::setLocale($workerData['lng'] ?? 'heb');
+
+                    $text = __('mail.wa-message.notify_monday_worker.subject');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.notify_monday_worker.salutation',[
+                        'worker_name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.notify_monday_worker.content');
+
+                    $text .= "\n\n";
+
+                    if ($holidayMessage) {
+                        $text .= __('mail.wa-message.notify_monday_worker.holiday',[
+                            'holidays' => $holidayMessage
+                        ]);
+                    $text .= "\n";
+                    }
+
+                    $text .= __('mail.wa-message.notify_monday_worker.link', [
+                        'worker_jobs' => url('worker/jobs'),
+                    ]);
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.notify_monday_worker.signature');
+
+                    break;
 
                 case WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION:
                     $comment = $eventData['comment'];
@@ -2274,56 +2350,112 @@ class WhatsappNotification
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.follow_up_required.salutation');
                     $text .= "\n\n";
+                    // $text .= __('mail.wa-message.follow_up_required.content', [
+                    //     'lead_name' => $clientData['firstname'] . " " . $clientData['lastname'],
+                    //     'contact_info' => $clientData['phone'],
+                    //     'inquiry_date' => Carbon::now()->format('M d Y'),
+                    // ]);
                     $text .= __('mail.wa-message.follow_up_required.content', [
                         'lead_name' => $clientData['firstname'] . " " . $clientData['lastname'],
-                        'contact_info' => $clientData['phone'],
-                        'inquiry_date' => Carbon::now()->format('M d Y'),
+                        'lead_phone' => $clientData['phone'],
+                        'lead_date' => Carbon::parse($clientData['created_at'])->format('Y-m-d H:i'),
+                        'view_lead' => url("admin/leads/view/" . $clientData['id']),
                     ]);
                     $text .= "\n\n";
-                    $text .= __('mail.wa-message.follow_up_required.common.closing');
-                    $text .= "\n\n";
+                    // $text .= __('mail.wa-message.follow_up_required.common.closing');
+                    // $text .= "\n\n";
                     $text .= __('mail.wa-message.follow_up_required.common.signature');
 
                     break;
 
                 case WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER:
+                    // $clientData = $eventData['client'];
+
+                    // $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    // App::setLocale('heb');
+
+                    // // Create the message
+                    // $text = __('mail.wa-message.follow_up_price_offer.header', [
+                    //     'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    // ]);
+
+                    // $text .= "\n\n";
+
+                    // $text .= __('mail.wa-message.follow_up_price_offer.content', [
+                    //     'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    // ]);
+
+
                     $clientData = $eventData['client'];
+                    $offerData = $eventData['offer'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('heb');
 
                     // Create the message
-                    $text = __('mail.wa-message.follow_up_price_offer.header', [
-                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    $text = __('mail.wa-message.follow_up_price_offer.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.follow_up_price_offer.content', [
                         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                        'client_contact' => $clientData['phone'],
+                        'offer_date' => Carbon::parse($offerData['created_at'])->format('Y-m-d H:i'),
+                        'view_client' => url("admin/clients/view/" . $clientData['id'])
                     ]);
+                    
 
                     break;
 
                 case WhatsappMessageTemplateEnum::FINAL_FOLLOW_UP_PRICE_OFFER:
+                    // $clientData = $eventData['client'];
+                    // $offerData = $eventData['offer'];
+
+                    // $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    // App::setLocale('heb'); // Adjust the locale if needed
+
+                    // // Create the message
+                    // $text = __('mail.wa-message.final_follow_up_price_offer.header', [
+                    //     'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    // ]);
+
+                    // $text .= "\n\n";
+
+                    // $text .= __('mail.wa-message.final_follow_up_price_offer.content', [
+                    //     'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    // ]);
+
+                    // $text .= "\n\n" . __('mail.wa-message.button-label.actions') . ": " . url("team-btn7days/" . base64_encode($clientData['id']));
+
                     $clientData = $eventData['client'];
                     $offerData = $eventData['offer'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    App::setLocale('heb'); // Adjust the locale if needed
+                    App::setLocale('heb');
 
                     // Create the message
-                    $text = __('mail.wa-message.final_follow_up_price_offer.header', [
-                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    $text = __('mail.wa-message.final_follow_up_price_offer.header');
+
+                    $text .= "\n\n";
+
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => 'צוות',
                     ]);
 
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.final_follow_up_price_offer.content', [
                         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                        'client_contact' => $clientData['phone'],
+                        'offer_date' => Carbon::parse($offerData['created_at'])->format('Y-m-d H:i'),
+                        'view_client' => url("admin/clients/view/" . $clientData['id'])
                     ]);
-
-                    $text .= "\n\n" . __('mail.wa-message.button-label.actions') . ": " . url("team-btn7days/" . base64_encode($clientData['id']));
 
 
                     break;
@@ -2538,6 +2670,7 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED:
                     $clientData = $eventData['client'];
+                    $offerData = $eventData['offer'];
 
                     $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('heb');
@@ -2555,11 +2688,14 @@ class WhatsappNotification
 
                     $text .= __('mail.wa-message.status_not_updated.content', [
                         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                        'client_contact' => $clientData['phone'],
+                        'offer_date' => Carbon::parse($offerData['created_at'])->format('Y-m-d H:i'),
+                        'view_client' => url("admin/clients/view/" . $clientData['id'])
                     ]);
 
-                    $text .= "\n\n";
+                    // $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.status_not_updated.action_required');
+                    // $text .= __('mail.wa-message.status_not_updated.action_required');
 
                     break;
 
@@ -2842,7 +2978,7 @@ class WhatsappNotification
                     $clientData = $eventData['client'];
                     $clientData1 = $eventData['contract'];
 
-                    $receiverNumber = $clientData['phone'];
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('heb');
 
                     // Set the subject
@@ -2878,9 +3014,8 @@ class WhatsappNotification
 
                 case WhatsappMessageTemplateEnum::PRICE_OFFER_REMINDER_12_HOURS:
                     $clientData = $eventData['client'];
-                    $clientData1 = $eventData['contract'];
 
-                    $receiverNumber = $clientData['phone'];
+                    $receiverNumber = config('services.whatsapp_groups.lead_client');
                     App::setLocale('heb');
 
                     // Set the subject
@@ -3047,6 +3182,7 @@ class WhatsappNotification
             if ($receiverNumber && $text) {
                 // \Log::info($text);
                 Log::info('SENDING WA to ' . $receiverNumber);
+                Log::info($text);
                 $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,

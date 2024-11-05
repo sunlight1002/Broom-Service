@@ -102,7 +102,7 @@ class NotifyTeamPriceOffer12 extends Command
                 ]));
 
                 // Log the success
-                $this->info("Notification sent for client: " . $client->firstname . " (No offer generated)");
+                $this->info("Notification sent to team: " . $client->firstname . " (No offer generated)");
             } else {
                 // Log if the client is not found
                 $this->error("Client not found for Lead Activity ID: {$leadActivity->id}");

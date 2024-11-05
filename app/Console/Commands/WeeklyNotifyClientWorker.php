@@ -59,7 +59,7 @@ class WeeklyNotifyClientWorker extends Command
             ->orWhereBetween('end_date', [$startOfNextWeek, $endOfNextWeek])
             ->get();
         // Build holiday message
-        $holidayMessage = '';
+        $holidayMessage = null;
         if ($holidays->count() > 0) {
             $holidayMessage = "";
             foreach ($holidays as $holiday) {
@@ -73,11 +73,10 @@ class WeeklyNotifyClientWorker extends Command
         foreach ($scheduledJobs as $job) {
             if ($job->client) {
                 $clientData = [
-                    'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE,
+                    'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
                     'notificationData' => [
-                        'template' => $template,
-                        'job' => $job,
-                        'recipientType' => 'client',
+                        // 'job' => $job,
+                        'client' => $job->client,
                         'holidayMessage' => $holidayMessage,
                     ],
                 ];
@@ -85,11 +84,10 @@ class WeeklyNotifyClientWorker extends Command
             }
             if ($job->worker) {
                 $workerData = [
-                    'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE,
+                    'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE,
                     'notificationData' => [
-                        'template' => $template,
-                        'job' => $job,
-                        'recipientType' => 'worker',
+                        // 'job' => $job,
+                        'worker' => $job->worker,
                         'holidayMessage' => $holidayMessage,
                     ],
                 ];
