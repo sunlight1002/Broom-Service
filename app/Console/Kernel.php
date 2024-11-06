@@ -44,11 +44,12 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('notifyclientforcontract')->hourly();
         $schedule->command('job:remind-workers-to-confirm')->dailyAt('17:00');
+        $schedule->command('job:remind-workers-to-confirm')->dailyAt('18:00');
         $schedule->command('mondayNotify')->weeklyOn(1, '08:00'); // 1 = Monday
         $schedule->command('remind:next-week-services')->weeklyOn(3, '9:00');
         $schedule->command('notifyBeforeJob')->everyMinute();
         $schedule->command('notifyteamoffer12')->hourly();
-        $schedule->command('notifyteamcontract12')->hourly();
+        // $schedule->command('notifyteamcontract12')->hourly();
         $schedule->command('notifyStartOfJob')->everyThirtyMinutes();
         $schedule->command('notifyWorkerBeforeJobTime')->everyMinute();
         $schedule->command('facebook:fetch-yesterday-leads')->dailyAt('01:00');

@@ -7,9 +7,13 @@ namespace App\Enums;
 final class ClientMetaEnum extends AbstractEnum
 {
     public const NOTIFICATION_SENT_24_HOURS = 'notification_sent_24_hour';
+    public const NOTIFICATION_SENT_OFFSITE_7DAYS = 'notification_sent_offsite_7days';
+    public const NOTIFICATION_SENT_OFFSITE_3DAYS = 'notification_sent_offsite_3days';
+    public const NOTIFICATION_SENT_OFFSITE_24HOURS = 'notification_sent_offsite_24hours';
     public const NOTIFICATION_SENT_3_DAY = 'notification_sent_3_day';
     public const NOTIFICATION_SENT_7_DAY = 'notification_sent_7_day';
     public const NOTIFICATION_SENT_OFFSITE = 'notification_sent_offsite';
     public const NOTIFICATION_SENT_CONTRACT24HOUR = 'notification_sent_contract24hour';
     public const NOTIFICATION_SENT_CONTRACT3DAY = 'notification_sent_contract3day';
+    public const NOTIFICATION_SENT_CONTRACT7DAY = 'notification_sent_contract7day';
 }

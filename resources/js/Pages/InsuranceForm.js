@@ -33,6 +33,26 @@ const InsuranceForm = () => {
     const currentDate = moment().format("YYYY-MM-DD");
     const [pdfData, setPdfData] = useState(null);
     const { t } = useTranslation();
+
+    const [formSubmitted, setFormSubmitted] = useState(false);
+
+    const scrollToError = (errors) => {
+        if (formSubmitted) {
+            const errorFields = Object.keys(errors);
+            if (errorFields.length > 0) {
+                const firstErrorField = errorFields[0];
+                console.log(firstErrorField);
+
+                const errorElement = document.getElementById(firstErrorField);
+                if (errorElement) {
+                    errorElement.scrollIntoView({ behavior: "smooth" });
+                    errorElement.focus();
+                }
+            }
+        }
+        setFormSubmitted(false)
+    };
+
     const initialValues = {
         // page 1
         type: "New",
@@ -88,6 +108,7 @@ const InsuranceForm = () => {
         g24Treatment: "",
         // page 4
         canDate: currentDate,
+        details: "",
         signature: "",
         // stamp: companySign
     };
@@ -119,6 +140,9 @@ const InsuranceForm = () => {
         canCellPhone: yup.number().required(t("insurance.phoneReq")),
         canEmail: yup.string().trim().email().required(t("insurance.emailReq")),
         gender: yup.string().trim().required(t("insurance.genderReq")),
+        g1Height: yup.string().trim().required(t("insurance.heightReq")),
+        g1Weight: yup.string().trim().required(t("insurance.weightReq")),
+        details: yup.string().optional(), // Add validation for details
         signature: yup.mixed().required(t("form101.errorMsg.sign")),
     });
     const [formValues, setFormValues] = useState(null);
@@ -136,6 +160,7 @@ const InsuranceForm = () => {
         values,
         setFieldValue,
         isSubmitting,
+        isValid,
     } = useFormik({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
@@ -144,6 +169,12 @@ const InsuranceForm = () => {
             await saveFormData(true);
         },
     });
+
+    useEffect(() => {
+        if (!isValid && formSubmitted) {
+            scrollToError(errors);
+        }
+    }, [errors, isValid, formSubmitted]);
 
     const saveFormData = async (isSubmit) => {
         const formPdfBytes = await fetch("/pdfs/health-insurance.pdf").then(
@@ -156,64 +187,65 @@ const InsuranceForm = () => {
 
         const pdfForm = pdfDoc.getForm();
 
-        pdfForm.getTextField("canFirstName").setText(values.canFirstName);
-        pdfForm.getTextField("canLastName").setText(values.canLastName);
-        pdfForm.getTextField("canPassport").setText(values.canPassport);
-        pdfForm.getTextField("canOrigin").setText(values.canOrigin);
-        pdfForm.getTextField("canDOB").setText(values.canDOB);
+        pdfForm.getTextField("canFirstName").setText(values.canFirstName || "");
+        pdfForm.getTextField("canLastName").setText(values.canLastName || "");
+        pdfForm.getTextField("canPassport").setText(values.canPassport || "");
+        pdfForm.getTextField("canOrigin").setText(values.canOrigin || "");
+        pdfForm.getTextField("canDOB").setText(values.canDOB || "");
         pdfForm
             .getTextField("canFirstDateOfIns")
-            .setText(values.canFirstDateOfIns);
-        pdfForm.getTextField("canZipcode").setText(values.canZipcode);
-        pdfForm.getTextField("canTown").setText(values.canTown);
-        pdfForm.getTextField("canHouseNo").setText(values.canHouseNo);
-        pdfForm.getTextField("canStreet").setText(values.canStreet);
-        pdfForm.getTextField("canTelephone").setText(values.canTelephone);
-        pdfForm.getTextField("canCellPhone").setText(values.canCellPhone);
+            .setText(values.canFirstDateOfIns || "");
+        pdfForm.getTextField("canZipcode").setText(values.canZipcode || "");
+        pdfForm.getTextField("canTown").setText(values.canTown || "");
+        pdfForm.getTextField("canHouseNo").setText(values.canHouseNo || "");
+        pdfForm.getTextField("canStreet").setText(values.canStreet || "");
+        pdfForm.getTextField("canTelephone").setText(values.canTelephone || "");
+        pdfForm.getTextField("canCellPhone").setText(values.canCellPhone || "");
         pdfForm.getTextField("canEmail").setFontSize(9);
-        pdfForm.getTextField("canEmail").setText(values.canEmail);
+        pdfForm.getTextField("canEmail").setText(values.canEmail || "");
         const genderRadioGroup = pdfForm.getRadioGroup("gender");
         genderRadioGroup.select(values.gender);
         genderRadioGroup.defaultUpdateAppearances();
 
-        pdfForm.getTextField("G-firstname").setText(values.canFirstName);
-        pdfForm.getTextField("G-lastname").setText(values.canLastName);
-        pdfForm.getTextField("G-passportno").setText(values.canPassport);
-        pdfForm.getTextField("G-candidatename").setText(values.GCandidatename);
+        pdfForm.getTextField("G-firstname").setText(values.canFirstName || "");
+        pdfForm.getTextField("G-lastname").setText(values.canLastName || "");
+        pdfForm.getTextField("G-passportno").setText(values.canPassport || "");
+        pdfForm.getTextField("G-candidatename").setText(values.GCandidatename || "");
         pdfForm.getTextField("G-date").setText(values.canDate);
         pdfForm
             .getTextField("candidate-passport-no")
-            .setText(values.canPassport);
-        pdfForm.getTextField("candidate-name").setText(values.GCandidatename);
-        pdfForm.getTextField("candidate-date").setText(values.canDate);
+            .setText(values.canPassport || "");
+        pdfForm.getTextField("candidate-name").setText(values.GCandidatename || "");
+        pdfForm.getTextField("candidate-date").setText(values.canDate || "");
         pdfForm.getTextField("G-height-en").setFontSize(9);
-        pdfForm.getTextField("G-height-en").setText(values.g1Height);
+        pdfForm.getTextField("G-height-en").setText(values.g1Height || "");
         pdfForm.getTextField("G-height-heb").setFontSize(9);
-        pdfForm.getTextField("G-height-heb").setText(values.g1Height);
+        pdfForm.getTextField("G-height-heb").setText(values.g1Height || "");
         pdfForm.getTextField("G-weight-en").setFontSize(9);
-        pdfForm.getTextField("G-weight-en").setText(values.g1Weight);
+        pdfForm.getTextField("G-weight-en").setText(values.g1Weight || "");
         pdfForm.getTextField("G-weight-heb").setFontSize(9);
-        pdfForm.getTextField("G-weight-heb").setText(values.g1Weight);
+        pdfForm.getTextField("G-weight-heb").setText(values.g1Weight || "");
         pdfForm.getTextField("G7-reason-en").setFontSize(9);
-        pdfForm.getTextField("G7-reason-en").setText(values.g7Reason);
+        pdfForm.getTextField("G7-reason-en").setText(values.g7Reason || "");
         pdfForm.getTextField("G7-reason-heb").setFontSize(9);
-        pdfForm.getTextField("G7-reason-heb").setText(values.g7Reason);
+        pdfForm.getTextField("G7-reason-heb").setText(values.g7Reason || "");
         pdfForm.getTextField("G18-treatment-en").setFontSize(9);
-        pdfForm.getTextField("G18-treatment-en").setText(values.g18Treatment);
+        pdfForm.getTextField("G18-treatment-en").setText(values.g18Treatment || "");
         pdfForm.getTextField("G18-treatment-heb").setFontSize(9);
-        pdfForm.getTextField("G18-treatment-heb").setText(values.g18Treatment);
+        pdfForm.getTextField("G18-treatment-heb").setText(values.g18Treatment || "");
         pdfForm.getTextField("G24-answer-en").setFontSize(9);
-        pdfForm.getTextField("G24-answer-en").setText(values.g24Treatment);
+        pdfForm.getTextField("G24-answer-en").setText(values.g24Treatment || "");
         pdfForm.getTextField("G24-answer-heb").setFontSize(9);
-        pdfForm.getTextField("G24-answer-heb").setText(values.g24Treatment);
+        pdfForm.getTextField("G24-answer-heb").setText(values.g24Treatment || "");
         pdfForm.getTextField("G-stopped-smoking-on-en").setFontSize(9);
         pdfForm
             .getTextField("G-stopped-smoking-on-en")
-            .setText(values.g4WhenStop);
+            .setText(values.g4WhenStop || "");
         pdfForm.getTextField("G-stopped-smoking-on-heb").setFontSize(9);
         pdfForm
             .getTextField("G-stopped-smoking-on-heb")
-            .setText(values.g4WhenStop);
+            .setText(values.g4WhenStop || "");
+        // pdfForm.getTextField("details").setText(values.details || "");
 
         for (let i = 1; i <= 24; i++) {
             const key = "g" + i;
@@ -254,14 +286,14 @@ const InsuranceForm = () => {
                 x: 480,
                 y: page2.getHeight() / 2 - pngDims1.height / 2 - 190,
                 size: 14,
-              });
+            });
 
             page2.drawText("ברום סרוויס ל.מ בע\'מ", {
                 x: 320,
                 y: page2.getHeight() / 2 - pngDims1.height / 2 - 190,
                 size: 18,
                 font: hebrewFont
-              });
+            });
 
             page2.drawImage(stamp, {
                 x: page3.getWidth() / 2 - pngDims1.width / 2 - 150,
@@ -275,6 +307,12 @@ const InsuranceForm = () => {
                 y: page3.getHeight() / 2 - pngDims1.height / 2 - 390,
                 width: pngDims1.width,
                 height: pngDims1.height,
+            });
+
+            page3.drawText(values.details, {
+                x: page3.getWidth() / 2 - pngDims1.width / 2 - 200,
+                y: page3.getHeight() / 2 - pngDims1.height / 2 - 355,
+                size: 14,
             });
 
             page4.drawImage(pngImage, {
@@ -382,7 +420,7 @@ const InsuranceForm = () => {
                 setFieldValue("canPassport", _worker.passport);
                 setFieldValue("canFirstDateOfIns", _worker.first_date);
 
-                console.log( _worker);
+                console.log(_worker);
 
                 const _gender = _worker.gender;
                 setFieldValue(
@@ -429,7 +467,7 @@ const InsuranceForm = () => {
         setFieldValue("signature", "");
     };
 
-    // console.log(formValues);
+    console.log(values.GCandidatename);
 
 
     return (
@@ -469,6 +507,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canLastName"}
+                            id={"canLastName"}
                             className="form-control"
                             value={values.canLastName}
                             onChange={handleChange}
@@ -491,6 +530,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canPassport"}
+                            id={"canPassport"}
                             className="form-control"
                             value={values.canPassport}
                             onChange={handleChange}
@@ -509,6 +549,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canOrigin"}
+                            id={"canOrigin"}
                             className="form-control"
                             value={values.canOrigin}
                             onChange={handleChange}
@@ -530,6 +571,7 @@ const InsuranceForm = () => {
                         <input
                             type="date"
                             name={"canDOB"}
+                            id={"canDOB"}
                             className="form-control"
                             value={values.canDOB}
                             onChange={handleChange}
@@ -548,6 +590,7 @@ const InsuranceForm = () => {
                         <input
                             type="date"
                             name={"canFirstDateOfIns"}
+                            id={"canFirstDateOfIns"}
                             className="form-control"
                             value={values.canFirstDateOfIns}
                             onChange={handleChange}
@@ -570,6 +613,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canZipcode"}
+                            id={"canZipcode"}
                             className="form-control"
                             value={values.canZipcode}
                             onChange={handleChange}
@@ -588,6 +632,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canTown"}
+                            id={"canTown"}
                             className="form-control"
                             value={values.canTown}
                             onChange={handleChange}
@@ -609,6 +654,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canHouseNo"}
+                            id={"canHouseNo"}
                             className="form-control"
                             value={values.canHouseNo}
                             onChange={handleChange}
@@ -627,6 +673,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canStreet"}
+                            id={"canStreet"}
                             className="form-control"
                             value={values.canStreet}
                             onChange={handleChange}
@@ -648,6 +695,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canTelephone"}
+                            id={"canTelephone"}
                             className="form-control"
                             value={values.canTelephone}
                             onChange={handleChange}
@@ -666,6 +714,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canCellPhone"}
+                            id={"canCellPhone"}
                             className="form-control"
                             value={values.canCellPhone}
                             onChange={handleChange}
@@ -688,6 +737,7 @@ const InsuranceForm = () => {
                         <input
                             type="text"
                             name={"canEmail"}
+                            id={"canEmail"}
                             className="form-control"
                             value={values.canEmail}
                             onChange={handleChange}
@@ -774,18 +824,24 @@ const InsuranceForm = () => {
                                 <div className="mr-2">
                                     {t("insurance.Height")}
                                 </div>
-                                <input
-                                    type="text"
-                                    name="height"
-                                    className="form-control"
-                                    value={values.g1Height}
-                                    onChange={(e) =>
-                                        setFieldValue(
-                                            "g1Height",
-                                            e.target.value
-                                        )
-                                    }
-                                />{" "}
+                                <div className="w-100">
+                                    <input
+                                        type="text"
+                                        name="height"
+                                        id="g1Height"
+                                        className="form-control"
+                                        value={values.g1Height}
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "g1Height",
+                                                e.target.value
+                                            )
+                                        }
+                                    />{" "}
+                                    <span className="text-danger">
+                                        {touched.g1Height && errors.g1Height}
+                                    </span>
+                                </div>
                                 <div
                                     style={{
                                         whiteSpace: "nowrap",
@@ -794,18 +850,24 @@ const InsuranceForm = () => {
                                 >
                                     {t("insurance.andWidth")}
                                 </div>
-                                <input
-                                    type="text"
-                                    name="width"
-                                    className="form-control"
-                                    value={values.g1Weight}
-                                    onChange={(e) =>
-                                        setFieldValue(
-                                            "g1Weight",
-                                            e.target.value
-                                        )
-                                    }
-                                />
+                                <div className="w-100">
+                                    <input
+                                        type="text"
+                                        name="width"
+                                        id="g1Weight"
+                                        className="form-control"
+                                        value={values.g1Weight}
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "g1Weight",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                    <span className="text-danger">
+                                        {touched.g1Weight && errors.g1Weight}
+                                    </span>
+                                </div>
                             </label>
                             <div>
                                 <div className="form-check form-check-inline">
@@ -2143,6 +2205,25 @@ const InsuranceForm = () => {
                             </div>
                         </div>
                         <hr />
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    Details of positive findings
+                                </label>
+                                <textarea
+                                    type="text"
+                                    value={values.details}
+                                    onChange={(e) =>
+                                        setFieldValue("details", e.target.value)
+                                    }
+                                    className="form-control"
+                                    required
+                                    placeholder={"Enter if it required..."}
+                                ></textarea>
+                            </div>
+                        </div>
+                        <hr />
+
                     </div>
                 </div>
             </div>
@@ -2180,17 +2261,22 @@ const InsuranceForm = () => {
                             <img src={formValues.signature} />
                         ) : (
                             <>
-                                <SignatureCanvas
-                                    penColor="black"
-                                    canvasProps={{
-                                        width: 250,
-                                        height: 100,
-                                        className:
-                                            "sign101 border mt-1 bg-white",
-                                    }}
-                                    ref={sigRef}
-                                    onEnd={handleSignatureEnd}
-                                />
+                                <div id="signature">
+                                    <SignatureCanvas
+                                        penColor="black"
+                                        canvasProps={{
+                                            width: 250,
+                                            height: 100,
+                                            className:
+                                                "sign101 border mt-1 bg-white",
+                                        }}
+                                        ref={sigRef}
+                                        onEnd={handleSignatureEnd}
+                                    />
+                                    <span className="text-danger">
+                                        {touched.signature && errors.signature}
+                                    </span>
+                                </div>
                                 <p className="ml-2">
                                     <button
                                         className="btn btn-warning mb-2"
@@ -2222,7 +2308,10 @@ const InsuranceForm = () => {
                             <button
                                 type="submit"
                                 className="btn btn-primary"
-                                onClick={handleSubmit}
+                                onClick={(e) => {
+                                    handleSubmit(e);
+                                    setFormSubmitted(true);
+                                }}
                                 disabled={isSubmitting}
                             >
                                 {t("insurance.Submit")}

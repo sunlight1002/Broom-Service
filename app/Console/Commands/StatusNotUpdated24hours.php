@@ -30,11 +30,11 @@ class StatusNotUpdated24hours extends Command
             ->whereDate('created_at', '<=', Carbon::now()->subDays(1)) // Fetch records older than 1 day
             ->get();
 
+
         $todayDateTime = Carbon::now()->format('Y-m-d H:i:s');
 
         // Loop through each offer to check how many days it has been in 'sent' status
         foreach ($offerStatuses as $offerStatus) {
-            // dd($offerStatus);
             $client = $offerStatus->client;
 
             if ($client) {
@@ -42,6 +42,7 @@ class StatusNotUpdated24hours extends Command
                 App::setLocale($client->lng);
 
                 $daysSinceCreation = Carbon::now()->diffInDays($createdAt);
+                \Log::info($daysSinceCreation);
 
                 // Check if the status has been 'sent' for over 7 days
                 if ($daysSinceCreation >= 7) {
@@ -104,6 +105,14 @@ class StatusNotUpdated24hours extends Command
             ]
         ]));
 
+        $responseClient = event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'offer' => $offerStatus->toArray()
+            ]
+        ]));
+
         Notification::create([
             'user_id' => $client->id,
             'user_type' => get_class($client),
@@ -111,7 +120,7 @@ class StatusNotUpdated24hours extends Command
             'status' => $offerStatus->status,
         ]);
 
-        if ($response) {
+        if ($response && $responseClient) {
             $this->info("24-hour notification sent for Offer ID: {$offerStatus->id}");
         } else {
             $this->error("Failed to send 24-hour notification for Offer ID: {$offerStatus->id}");
@@ -129,6 +138,14 @@ class StatusNotUpdated24hours extends Command
             ]
         ]));
 
+        $responseClient = event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'offer' => $offerStatus->toArray()
+            ]
+        ]));
+
         Notification::create([
             'user_id' => $client->id,
             'user_type' => get_class($client),
@@ -136,7 +153,7 @@ class StatusNotUpdated24hours extends Command
             'status' => $offerStatus->status,
         ]);
 
-        if ($response) {
+        if ($response && $responseClient) {
             $this->info("3-day follow-up sent for Offer ID: {$offerStatus->id}");
         } else {
             $this->error("Failed to send 3-day follow-up for Offer ID: {$offerStatus->id}");
@@ -154,6 +171,14 @@ class StatusNotUpdated24hours extends Command
             ]
         ]));
 
+        $responseClient = event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT,
+            "notificationData" => [
+                'client' => $client->toArray(),
+                'offer' => $offerStatus->toArray()
+            ]
+        ]));
+
         Notification::create([
             'user_id' => $client->id,
             'user_type' => get_class($client),
@@ -161,7 +186,7 @@ class StatusNotUpdated24hours extends Command
             'status' => $offerStatus->status,
         ]);
 
-        if ($response) {
+        if ($response && $responseClient) {
             $this->info("Final follow-up sent for Offer ID: {$offerStatus->id}");
         } else {
             $this->error("Failed to send after 7 days final follow-up for Offer ID: {$offerStatus->id}");

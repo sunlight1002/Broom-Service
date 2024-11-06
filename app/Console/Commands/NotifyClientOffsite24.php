@@ -27,7 +27,7 @@ class NotifyClientOffsite24 extends Command
      *
      * @var string
      */
-    protected $description = 'Notify clients with potential status for 24 hours and have not submitted files';
+    protected $description = 'Notify clients with potential status for 24 hours , 3days and 7days have not submitted files';
 
     /**
      * Create a new command instance.
@@ -48,14 +48,17 @@ class NotifyClientOffsite24 extends Command
     {
         $staticDate = "2024-10-19"; // Static date to start notifications from
         $currentDateTime = Carbon::now();
-        $yesterdayDateTime = $currentDateTime->subHours(24); // 24 hours ago from now
+
+        // Define time thresholds
+        $yesterdayDateTime = $currentDateTime->copy()->subHours(24); // 24 hours ago
+        $threeDaysAgoDateTime = $currentDateTime->copy()->subDays(3); // 3 days ago
+        $sevenDaysAgoDateTime = $currentDateTime->copy()->subDays(7); // 7 days ago
 
         // Fetch LeadActivities where changes_status is 'potential' and it's older than 24 hours
         $leadActivities = LeadActivity::with('client')
             ->where('changes_status', 'potential')
-            ->where('status_changed_date', '<=', $yesterdayDateTime) // Status changed more than 24 hours ago
+            ->where('status_changed_date', '<=', $yesterdayDateTime) // Include all activities older than 7 days
             ->whereHas('client', function ($q) use ($staticDate) {
-                // Only include clients created on or after the static date
                 $q->whereDate('created_at', '>=', $staticDate);
             })
             ->get();
@@ -67,25 +70,12 @@ class NotifyClientOffsite24 extends Command
             $client = $leadActivity->client;
 
             if ($client) {
-                // Find the associated schedule
                 $schedule = Schedule::where('client_id', $client->id)
-                    ->where('meet_via', 'off-site') // Ensure meet_via is 'off-site'
+                    ->where('meet_via', 'off-site')
                     ->first();
 
-                // Skip if no schedule or meet_via is not 'off-site'
                 if (!$schedule) {
                     $this->info("No off-site meeting found for client: " . $client->firstname);
-                    continue;
-                }
-
-                // Check if the notification has already been sent
-                $notificationSent = ClientMetas::where('client_id', $client->id)
-                    ->where('key', ClientMetaEnum::NOTIFICATION_SENT_OFFSITE)
-                    ->exists();
-
-                if ($notificationSent) {
-                    // Skip sending the notification if it was already sent
-                    $this->info("Notification already sent for client: " . $client->firstname);
                     continue;
                 }
 
@@ -93,39 +83,85 @@ class NotifyClientOffsite24 extends Command
                 $fileSubmitted = Files::where('user_id', $client->id)->exists();
 
                 if (!$fileSubmitted) {
-                    // Set locale based on client's language
                     App::setLocale($client->lng);
 
-                    // Trigger WhatsApp notification for missing file submission
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
-                        "notificationData" => [
-                            'client' => $client->toArray(),
-                        ]
-                    ]));
-
-                    // Log the success
-                    $this->info("Notification sent for client: " . $client->firstname . " (File submission missing)");
-
-                    // Store the notification status in the client_metas table to ensure it's only sent once
-                    ClientMetas::updateOrCreate(
-                        [
-                            'client_id' => $client->id,
-                            'key' => ClientMetaEnum::NOTIFICATION_SENT_OFFSITE,
-                        ],
-                        [
-                            'value' => Carbon::now()->toDateTimeString(), // Value indicating the notification has been sent
-                        ]
-                    );
+                    // Notify if no file has been submitted based on different time thresholds
+                    if ($leadActivity->status_changed_date <= $sevenDaysAgoDateTime) {
+                        // 7-Day Notification
+                        $this->sendNotification(
+                            $client, 
+                            ClientMetaEnum::NOTIFICATION_SENT_OFFSITE_7DAYS,
+                            WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
+                            "7-day notification sent for client: "
+                        );
+                    } elseif ($leadActivity->status_changed_date <= $threeDaysAgoDateTime) {
+                        // 3-Day Notification
+                        $this->sendNotification(
+                            $client, 
+                            ClientMetaEnum::NOTIFICATION_SENT_OFFSITE_3DAYS,
+                            WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
+                            "3-day notification sent for client: "
+                        );
+                    } elseif ($leadActivity->status_changed_date <= $yesterdayDateTime) {
+                        // 24-Hour Notification
+                        $this->sendNotification(
+                            $client, 
+                            ClientMetaEnum::NOTIFICATION_SENT_OFFSITE_24HOURS,
+                            WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
+                            "24-hour notification sent for client: "
+                        );
+                    }
                 } else {
                     $this->info("Client: " . $client->firstname . " has already submitted files.");
                 }
             } else {
-                // Log if the client is not found
                 $this->error("Client not found for Lead Activity ID: {$leadActivity->id}");
             }
         }
 
         return 0;
     }
+
+/**
+ * Helper function to send notifications and store meta
+ */
+private function sendNotification($client, $metaKey, $templateEnum, $logMessage)
+{
+    // Check if notification has already been sent
+    $notificationSent = ClientMetas::where('client_id', $client->id)
+        ->where('key', $metaKey)
+        ->exists();
+
+    if (!$notificationSent) {
+        event(new WhatsappNotificationEvent([
+            "type" => $templateEnum,
+            "notificationData" => [
+                'client' => $client->toArray(),
+            ]
+        ]));
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM,
+            "notificationData" => [
+                'client' => $client->toArray(),
+            ]
+        ]));
+
+        $this->info($logMessage . $client->firstname);
+
+        // Store the notification status in the client_metas table
+        ClientMetas::updateOrCreate(
+            [
+                'client_id' => $client->id,
+                'key' => $metaKey,
+            ],
+            [
+                'value' => Carbon::now()->toDateTimeString(),
+            ]
+        );
+    } else {
+        $this->info("Notification already sent for client: " . $client->firstname);
+    }
+}
+
 }

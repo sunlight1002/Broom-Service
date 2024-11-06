@@ -51,7 +51,7 @@ class WorkerApprovedOrNot5pm extends Command
         \Log::info($currentTime);
 
         // Get unconfirmed jobs where the current time is 5:00 PM or later
-        $unconfirmedJobs = Job::with(['client', 'worker'])
+        $unconfirmedJobs = Job::with(['client', 'worker', 'propertyAddress'])
             ->where('worker_approved_at', null)
             ->whereDate('created_at', '>=', $staticDate)
             ->whereTime('start_date', '<=', $currentTime) // Ensure the job has started
@@ -66,7 +66,7 @@ class WorkerApprovedOrNot5pm extends Command
                         "type" => WhatsappMessageTemplateEnum::REMIND_WORKER_TO_JOB_CONFIRM,
                         "notificationData" => [
                             'job' => $job,
-                            'worker' => $job->worker
+                            'time' => "5PM"
                         ]
                     ]));
 
@@ -77,23 +77,22 @@ class WorkerApprovedOrNot5pm extends Command
         }
 
         // 5:30 PM notification
-        if ($currentTime->isBetween($currentTime->copy()->setTime(17, 30), $currentTime->copy()->setTime(17, 31))) {
-            foreach ($unconfirmedJobs as $job) {
-                if (!$this->hasNotificationBeenSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_5_30PM)) {
-                    // Send the notification
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::REMIND_WORKER_TO_JOB_CONFIRM,
-                        "notificationData" => [
-                            'job' => $job,
-                            'worker' => $job->worker
-                        ]
-                    ]));
+        // if ($currentTime->isBetween($currentTime->copy()->setTime(17, 30), $currentTime->copy()->setTime(17, 31))) {
+        //     foreach ($unconfirmedJobs as $job) {
+        //         if (!$this->hasNotificationBeenSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_5_30PM)) {
+        //             // Send the notification
+        //             event(new WhatsappNotificationEvent([
+        //                 "type" => WhatsappMessageTemplateEnum::REMIND_WORKER_TO_JOB_CONFIRM,
+        //                 "notificationData" => [
+        //                     'job' => $job,
+        //                 ]
+        //             ]));
 
-                    // Mark the notification as sent in WorkerMetas
-                    $this->markNotificationAsSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_5_30PM);
-                }
-            }
-        }
+        //             // Mark the notification as sent in WorkerMetas
+        //             $this->markNotificationAsSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_5_30PM);
+        //         }
+        //     }
+        // }
 
         // 6:00 PM notification to the team
         if ($currentTime->isBetween($currentTime->copy()->setTime(18, 0), $currentTime->copy()->setTime(18, 1))) {
@@ -101,15 +100,30 @@ class WorkerApprovedOrNot5pm extends Command
                 $client = $job->client;
                 $worker = $job->worker;
 
-                // Send the final notification to the team
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::TO_TEAM_WORKER_NOT_CONFIRM_JOB,
-                    "notificationData" => [
-                        'job' => $job,
-                        'client' => $client,
-                        'worker' => $worker,
-                    ]
-                ]));
+                if (!$this->hasNotificationBeenSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_6PM)) {
+                    // Send the notification
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::REMIND_WORKER_TO_JOB_CONFIRM,
+                        "notificationData" => [
+                            'job' => $job,
+                            'time' => "6PM"
+                        ]
+                    ]));
+
+                    // Mark the notification as sent in WorkerMetas
+                    $this->markNotificationAsSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_6PM);
+
+                     // Send the final notification to the team
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::TO_TEAM_WORKER_NOT_CONFIRM_JOB,
+                        "notificationData" => [
+                            'job' => $job,
+                            'client' => $client,
+                            'worker' => $worker,
+                        ]
+                    ]));
+                }
+               
             }
         }
 

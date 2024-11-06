@@ -73,12 +73,16 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const INQUIRY_RESPONSE = "inquiry-response";
     public const FOLLOW_UP_REQUIRED = "follow-up-required";
     public const FILE_SUBMISSION_REQUEST = "file-submission-request";
-    public const FOLLOW_UP_ON_OUR_CONVERSATION = "follow-up-on-our-conversation";
+    public const FILE_SUBMISSION_SUCCESS = "file-submission-success";
+    public const FILE_SUBMISSION_REQUEST_TEAM = "file-submission-request-team";
     public const JOB_APPROVED_NOTIFICATION_TO_WORKER = "job-approved-notification-to-worker";
     public const NOTIFY_CONTRACT_VERIFY_TO_CLIENT = "notify-contract-verify-to-client";
     public const NOTIFY_CONTRACT_VERIFY_TO_TEAM = "notify-contract-verify-to-team";
+    public const CONTRACT_REMINDER_TO_CLIENT_AFTER_7DAY = "contract-reminder-to-client-after-7day";
     public const CONTRACT_REMINDER_TO_CLIENT_AFTER_3DAY = "contract-reminder-to-client-after-3day";
     public const CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR = "contract-reminder-to-client-after-24hour";
+    public const CONTRACT_REMINDER_TO_TEAM_AFTER_24HOUR_3_AND_7DAYS = "contract-reminder-to-team-after-24hour-3-and-7days";
+    public const FOLLOW_UP_ON_OUR_CONVERSATION = "follow-up-on-our-conversation";
     public const PRICE_OFFER_REMINDER_12_HOURS = "price-offer-reminder-12-hours";
     public const CONTRACT_NOT_SIGNED_12_HOURS = "contract-not-signed-12-hours";
     public const JOB_APPROVED_NOTIFICATION_TO_TEAM = "job-approved-notification-to-team";
@@ -96,6 +100,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     // public const NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE = "notify-monday-client-and-worker-for-schedule";
     public const NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE = "notify-monday-client-for-schedule";
     public const NOTIFY_MONDAY_WORKER_FOR_SCHEDULE = "notify-monday-worker-for-schedule";
+    public const FOLLOW_UP_PRICE_OFFER_SENT_CLIENT = "follow-up-price-offer-sent-client";
     public const WEEKLY_CLIENT_SCHEDULED_NOTIFICATION = "weekly-client-scheduled-notification";
     public const TO_TEAM_WORKER_NOT_CONFIRM_JOB = "to-team-worker-not-confirm-job";
     public const REMIND_WORKER_TO_JOB_CONFIRM = "remind-worker-to-job-confirm";

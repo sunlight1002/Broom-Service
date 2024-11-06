@@ -32,6 +32,7 @@ class NotifyClientContract extends Command
         // Define time limits for 24-hour and 3-day notifications
         $timeLimit24Hours = $currentDateTime->subHours(24)->toDateTimeString(); // Contracts older than 24 hours
         $timeLimit3Days = $currentDateTime->subDays(3)->toDateTimeString(); // Contracts older than 3 days
+        $timeLimit7Days = $currentDateTime->subDays(7)->toDateTimeString(); // Contracts older than 7 days
 
         // Fetch contracts "not-signed" that were created more than 24 hours ago, but within the last 3 days
         $contracts24Hours = Contract::with('client')
@@ -43,7 +44,6 @@ class NotifyClientContract extends Command
 
         // Notify for contracts "not-signed" in the last 24 hours
         foreach ($contracts24Hours as $contract) {
-            \Log::info($contract);
             $client = $contract->client;
 
             // Check if 24-hour notification has already been sent
@@ -56,6 +56,14 @@ class NotifyClientContract extends Command
 
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                        'contract' => $contract->toArray(),
+                    ]
+                ]));
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_TEAM_AFTER_24HOUR_3_AND_7DAYS,
                     "notificationData" => [
                         'client' => $client->toArray(),
                         'contract' => $contract->toArray(),
@@ -79,9 +87,11 @@ class NotifyClientContract extends Command
             ->whereDate('created_at', '>=', $staticDate) // Start from static date
             ->where('created_at', '<=', $timeLimit3Days) // Older than 3 days
             ->get();
+            
 
         // Notify for contracts "not-signed" older than 3 days
         foreach ($contracts3Days as $contract) {
+            \Log::info($contract);
             $client = $contract->client;
 
             // Check if 3-day notification has already been sent
@@ -100,6 +110,14 @@ class NotifyClientContract extends Command
                     ]
                 ]));
 
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_TEAM_AFTER_24HOUR_3_AND_7DAYS,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                        'contract' => $contract->toArray(),
+                    ]
+                ]));
+
                 // Store that the 3-day notification has been sent
                 ClientMetas::create([
                     'client_id' => $client->id,
@@ -108,6 +126,52 @@ class NotifyClientContract extends Command
                 ]);
 
                 $this->info("3-day notification sent for client: " . $client->firstname);
+            }
+        }
+
+        // Fetch contracts "not-signed" that were created more than 7 days ago
+        $contracts7Days = Contract::with('client')
+        ->where('status', 'not-signed')
+        ->whereDate('created_at', '>=', $staticDate) // Start from static date
+        ->where('created_at', '<=', $timeLimit7Days) // Older than 7 days
+        ->get();
+
+        // Notify for contracts "not-signed" older than 7 days
+        foreach ($contracts7Days as $contract) {
+        $client = $contract->client;
+
+        // Check if 7-day notification has already been sent
+        $metaExists7Days = ClientMetas::where('client_id', $client->id)
+            ->where('key', ClientMetaEnum::NOTIFICATION_SENT_CONTRACT7DAY)
+            ->exists();
+
+            if ($client && !$metaExists7Days) {
+                App::setLocale($client->lng); // Set locale for notifications
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_CLIENT_AFTER_7DAY,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                        'contract' => $contract->toArray(),
+                    ]
+                ]));
+
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CONTRACT_REMINDER_TO_TEAM_AFTER_24HOUR_3_AND_7DAYS,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                        'contract' => $contract->toArray(),
+                    ]
+                ]));
+
+                // Store that the 7-day notification has been sent
+                ClientMetas::create([
+                    'client_id' => $client->id,
+                    'key' => ClientMetaEnum::NOTIFICATION_SENT_CONTRACT7DAY,
+                    'value' => Carbon::now(),
+                ]);
+
+                $this->info("7-day notification sent for client: " . $client->firstname);
             }
         }
 

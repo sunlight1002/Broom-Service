@@ -623,12 +623,22 @@ return [
             'header' => 'Final Reminder: Follow-up on Price Offer for :client_name',
             'content' => "Hi Team,\n\nThis is a final reminder that it's been 7 days since :client_name received the price offer. Please follow up with the client to confirm their decision and update the status accordingly.\n\nThank you,\nBroom Service",
         ],
+        'price_offer_reminder_sent' => [
+            'header' => 'Price Offer Reminder from Broom Service',
+            'salutation' => "Hello :client_name,",
+            'content' => "Just a reminder that you received a price offer from us on :offer_date.\nPlease find attached the price offer again for :service_name. \nOnce you confirm, we will send you an engagement agreement to complete and sign.\n\nClick the button below to view the price offer.\nIf you have any questions or need any assistance, we are here to help.\n\nClick here to view your price offer :price_offer_link",
+	        'signature' => "\n\nBest regards,  \nBroom Service\n📞 03-525-70-60\n🌐 www.broomservice.co.il"
+        ],
         'lead_accepted_price_offer' => [
             'header' => 'Action Required: Contract Signing for :client_name',
             'content' => "Hi Team,\n\n:client_name has accepted the price offer. Please ensure that the contract is signed and all necessary details are confirmed so we can proceed with scheduling the service.\n\nThank you,\nBroom Service",
         ],
+        // 'book_client_after_signed_contract' => [
+        //     'header' => 'Lead Accept the Contract',
+        //     'content' => ":client_name has signed the contract. Please proceed to schedule the client's service.\n\nClient Details:\n- Name: :client_name\n- Contact Information: :client_contact_info\n\nPlease ensure the client is booked and the schedule is confirmed as soon as possible.",
+        // ],
         'book_client_after_signed_contract' => [
-            'header' => 'Lead Accept the Price Offer',
+            'header' => 'Lead Accept the Contract',
             'content' => ":client_name has signed the contract. Please proceed to schedule the client's service.\n\nClient Details:\n- Name: :client_name\n- Contact Information: :client_contact_info\n\nPlease ensure the client is booked and the schedule is confirmed as soon as possible.",
         ],
         'lead_declined_contract' => [
@@ -692,11 +702,18 @@ return [
             ],
         ],
         
+        // 'file_submission_request' => [
+        //     'header' => 'File Submission Request for Quote | Broom Service',
+        //     'content' => 'To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.',
+        //     'details' => 'Please reply to this email with the requested files at your earliest convenience.',
+        //     'assistance' => 'If you have any questions or need assistance, feel free to reach out to us.',
+        // ],
         'file_submission_request' => [
-            'header' => 'File Submission Request for Quote | Broom Service',
-            'content' => 'To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.',
-            'details' => 'Please reply to this email with the requested files at your earliest convenience.',
-            'assistance' => 'If you have any questions or need assistance, feel free to reach out to us.',
+            'header' => 'Reminder to Submit Photos/Video for Your Quote',
+            'content' => 'Just a friendly reminder that we have not yet received the requested photos or video of the area needing cleaning, which are essential to prepare your quote.',
+            'details' => 'Please send the files at your earliest convenience to help us provide an accurate quote and proceed with the service.',
+            'assistance' => "If you have any questions or requests, we’re here to assist you.\n\nClick here to upload your photos/video :upload_file",
+            'signature' => "\n\nBest regards,  \nBroom Service  \n📞 03-525-70-60\n🌐 www.broomservice.co.il"
         ],
         'user_status_changed' => [
             'header' => "*Status Changed | Broom Service*",
@@ -722,20 +739,26 @@ return [
             'info' => 'Hello *:name*',
             'content' => 'Your agreement has been successfully confirmed. We will contact you soon to schedule your service.'
         ],
+        // 'contract_reminder' => [
+        //     'subject' => 'Contract Reminder | Broom Service',
+        //     'subject2' => 'Contract Follow-Up | Broom Service',
+        //     'body' => 'Hi :client_name',
+        //     'content' => 'This is a friendly reminder regarding the contract we sent you on :contract_date. \nIf you have any questions or concerns, we’d be happy to assist you. We’re looking forward to working together!',
+        //     'content2' => 'We wanted to follow up with you to ensure that you received the contract we sent on :contract_date. \nPlease review it, and feel free to reach out if you have any questions. We’re here to assist you.'
+        // ],
         'contract_reminder' => [
-            'subject' => 'Contract Reminder | Broom Service',
-            'subject2' => 'Contract Follow-Up | Broom Service',
-            'body' => 'Hi :client_name',
-            'content' => 'This is a friendly reminder regarding the contract we sent you on :contract_sent_date. \nIf you have any questions or concerns, we’d be happy to assist you. We’re looking forward to working together!',
-            'content2' => 'We wanted to follow up with you to ensure that you received the contract we sent on :contract_sent_date.. \nPlease review it, and feel free to reach out if you have any questions. We’re here to assist you.'
+            'header' => 'Agreement Signature Reminder - Broom Service',
+            'salutation' => "Hello :client_name,",
+            'content' => "Just a reminder that an engagement agreement was sent to you on :contract_date.\nPlease find the agreement attached again. Kindly complete all details and sign where required.\n\nClick the button below to view the agreement.\nIf you have any questions or need assistance, we are here to help.\n\nClick here to view your agreement :contract_link",
+	        'signature' => "\n\nBest regards,  \nBroom Service  \n📞 03-525-70-60\n🌐 www.broomservice.co.il"
         ],
-        'contract_reminder_team' => [
-            'subject' => 'Follow-Up on Sent Contract | Broom Service',
-            'body_intro' => 'Hi Team,',
-            'body_instruction' => 'The contract was sent to :client_name 12 hours ago. Please follow up to confirm that the client has received and reviewed the contract. It’s important to keep the process moving smoothly.',
-            'client_contact' => 'You can contact the client at: :client_phone',
-            'client_link' => 'Client details are available here: :client_link',
-        ],
+        // 'contract_reminder_team' => [
+        //     'subject' => 'Follow-Up on Sent Contract | Broom Service',
+        //     'body_intro' => 'Hi Team,',
+        //     'body_instruction' => 'The contract was sent to :client_name 12 hours ago. Please follow up to confirm that the client has received and reviewed the contract. It’s important to keep the process moving smoothly.',
+        //     'client_contact' => 'You can contact the client at: :client_phone',
+        //     'client_link' => 'Client details are available here: :client_link',
+        // ],
         'price_offer_reminder12' => [
             'subject' => 'Price Offer Reminder | Broom Service',
             'body_intro' => 'Hi Team',
@@ -767,8 +790,14 @@ return [
             'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
 
         ],
+        // 'remind_to_worker' => [
+        //     'content' => "Please don't forget to confirm the address for tomorrow's job by 6 PM today. If you have any issues or need help, please contact your manager.",
+        // ],
         'remind_to_worker' => [
-            'content' => "Please don't forget to confirm the address for tomorrow's job by 6 PM today. If you have any issues or need help, please contact your manager.",
+            'header' => 'Agreement Signature Reminder - Broom Service',
+            'content' => "Please confirm that you have seen the address for tomorrow’s job:\n\n*Address:* :fullAddress\n*Date/Time:* :date_time\n\n*Accept Address* :view_job\n*Contact Manager* :contact_manager if you have any questions.",
+            'content2' => "This is a reminder to confirm the address for tomorrow’s job as soon as possible:\n\n*Address:* :fullAddress\n*Date/Time:* :date_time\n\n*Accept Address* :view_job\n*Contact Manager* :contact_manager if you have any questions.",
+            'signature' => "\n\nBest regards,  \nBroom Service Team"
         ],
         'not_confirm_job' => [
             'header' => "Worker Has Not Confirmed Tomorrow's Address",
