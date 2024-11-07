@@ -1128,7 +1128,7 @@ class WhatsappNotification
 
                     $text .= "\n\n";
 
-                    $text .= "When you arrive at the client, click here to start the job.";
+                    $text .= __('mail.wa-message.worker_arrive.content');
 
                     $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/jobs/view/" . $jobData['id']);
 

@@ -510,6 +510,9 @@ return [
             'header' => "*Worker Changed Job Status | Broom Service*",
             'content' => ':client_name is now on their way to work.'
         ],
+        'worker_arrive' => [
+            'content' => 'When you arrive at the client, click here to start the job.'
+        ],
         'worker_job_status_notification' => [
             'header' => "*Worker Changed Job Status | Broom Service*",
             'content' => "A worker changed the Job status to :status. Please check the details below.\n\nDate/Time: :date\nWorker: :worker_name\nClient: :client_name\nService: :service_name\nStatus: :status",

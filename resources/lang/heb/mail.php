@@ -490,6 +490,9 @@ return [
             'header' => "*עובד השתנה מצב עבודה | ברום סרוויס*",
             'content' => ":client_name נמצא כעת בדרכו לעבודה.",
         ],
+        'worker_arrive' => [
+            'content' => 'בהגיעך ללקוח לחץ כאן כדי להתחיל בעבודה.'
+        ],
         'worker_job_status_notification' => [
             'header' => "*עובד השתנה מצב עבודה | ברום סרוויס*",
             'content' => "עובד שינה את סטטוס העבודה ל-:status. אנא בדוק את הפרטים למטה.\n\nתאריך/שעה: :date\nעובד: :worker_name\nלקוח: :client_name\nשירות: :service_name\nסטטוס: :status",
