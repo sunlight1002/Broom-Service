@@ -390,7 +390,7 @@ return [
         'common' => [
             'salutation' => "שלום, *:name*",
             'closing' => 'נשמח לעזור לך.',
-            'signature' => "בברכה,\nשירות מטאטאים 🌹\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il",
+            'signature' => "בברכה,\nצוות ברום סרוויס🌹\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il",
         ],
         'client_meeting_reminder' => [
             'header' => "*תזכורת לפגישה*",
@@ -669,14 +669,15 @@ return [
         ],
         'tried_to_contact_you' => [
             'header' => 'ניסינו ליצור איתך קשר | שירות ברום',
-            'content' => 'תודה שפנית אלינו ב-שירות ברום. רצינו להודיע לך שניסינו ליצור איתך קשר אך לא הצלחנו להשיגך. אנו כאן וזמינים לעזור לך מיום ראשון עד יום חמישי, בין השעות 8:00 עד 16:00.',
-            'availability' => 'נשמח לדעת מתי יהיה לך נוח שנחזור אליך במהלך שעות הפעילות שלנו.',
-            'contact_details' => 'תוכל ליצור איתנו קשר בטלפון: 03-525-70-60.',
+            'content' => "בהמשך לפנייתך אלינו בברום סרוויס, רצינו ליידע אותך שניסינו ליצור איתך קשר ולא הצלחנו להשיג אותך. אנו כאן וזמינים לעמוד לשירותך בימים א'-ה' בין השעות 8:00 ל-16:00.",
+            'availability' => "לחלופין, נשמח לדעת מתי יהיה נוח לך שנתקשר אליך במהלך שעות הפעילות שלנו.\n\nנשמח לעמוד לשירותך.",
+            'contact_details' => 'ניתן ליצור איתנו קשר בטלפון: 03-525-70-60.',
         ],
         'inquiry_response' => [
-            'header' => 'בהתייחס לפנייתך | שירות ברום',
-            'content' => 'תודה על ההתעניינות שלך ב-שירות ברום. עיינו בפנייתך, ולצערנו איננו מספקים שירותים באזור שלך או את השירות הספציפי שאתה מחפש.',
-            'service_areas' => "אזורי השירות שלנו כוללים:\n- תל אביב\n- רמת גן\n- גבעתיים\n- קריית אונו\n- גני תקווה\n- רמת השרון\n- כפר שמריהו\n- רישפון\n- הרצליה\n\nאם בעתיד תצטרך את שירותינו או אם אתה נמצא באחד מהאזורים הללו, נשמח לעמוד לשירותך.",
+            'greeting' => 'שלום, :name,',
+            'content' => 'תודה על התעניינותך בשירותי ברום סרוויס. בדקנו את פנייתך, ולצערנו, אנו לא מספקים שירותים באזור מגוריך או את השירות המסוים שאתה מחפש.',
+            'service_areas' => "אזורי השירות שלנו כוללים:\n- תל אביב\n- רמת גן\n- גבעתיים\n- קריית אונו\n- גני תקווה\n- רמת השרון\n- כפר שמריהו\n- רשפון\n- הרצליה\n\nאם בעתיד תצטרך את שירותינו או אם אתה נמצא באחד מהאזורים הללו, נשמח לעמוד לשירותך.",
+            'future_contact' => 'אם הצרכים שלך ישתנו או אם אתה נמצא באחד מהאזורים הללו, נשמח לעזור לך בעתיד.',
         ],
         // 'follow_up_required' => [
         //     'header' => 'מעקב נדרש: לידים ממתינים | שירות ברום',
@@ -732,14 +733,11 @@ return [
             'subject' => 'מעקב אחר השיחה שלנו',
             'salutation' => 'שלום :client_name,',
             'introduction' => 'ראשית, תודה שפנית אלינו. שמחתי מאוד להכיר ולשוחח איתך.',
-            'testimonials' => 'בהמשך לשיחתנו, מצרפת לעיונך המלצות מלקוחות קיימים שלנו, למען התרשמותך מהשירות המעולה שלנו: [Client Testimonials](:testimonials_link)',
+            'testimonials' => "בהמשך לשיחתנו, מצרפת לעיונך המלצות מלקוחות קיימים שלנו, למען התרשמותך מהשירות המעולה שלנו:\nהמלצות מלקוחות קיימים: :testimonials_link",
             'brochure' => 'כמו כן, מצורף לעיונך ספרון השירותים שלנו כדי להתרשם מהשירותים שאנו מציעים.',
             'commitment' => 'בברום סרוויס, אנו מתחייבים לאיכות, מקצועיות ושירות אישי.',
-            'help' => 'אני כאן כדי לעזור ולענות על כל שאלה נוספת,אשמח לעמוד לשירותך תמיד בכל עת.',
-            'best_regards' => 'בברכה',
-            'service_name' => 'ברום סרוויס',
-            'contact' => `📞 03-525-70-60`,
-            'service_website' => '🌐 :[www.broomservice.co.il](http://www.broomservice.co.il)',
+            'help' => "אני כאן כדי לעזור ולענות על כל שאלה נוספת,\nאשמח לעמוד לשירותך תמיד בכל עת.",
+            'signature' => "\n\nבברכה,  \nצוות ברום סרוויס  \n📞 03-525-70-60\n🌐 www.broomservice.co.il \nhttp://www.broomservice.co.il",
         ],
         'contract_verify' => [
             'header' => 'אימות חוזה | שירות ברום',
@@ -750,19 +748,19 @@ return [
         'contract_verify_team' => [
             'header' => 'אימות חוזה | שירות ברום',
             'subject' => 'אימות הסכם ללקוח',
-            'info' => 'היי *:name*',
+            'info' => 'שלום *:name*',
             'content' => 'הלקוח :name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.'
         ],
         // 'contract_verify' => [
         //     'header' => 'אימות חוזה | שירות ברום',
         //     'subject' => 'אישור ההסכם שלך',
-        //     'info' => 'היי *:name*',
+        //     'info' => 'שלום *:name*',
         //     'content' => 'ההסכם שלך אומת בהצלחה. ניצור איתך קשר בקרוב לתיאום השירות.'
         // ],
         // 'contract_reminder' => [
         //     'subject' => 'תזכורת חוזה | שירות ברום',
         //     'subject2' => 'מעקב חוזים | שירות ברום',
-        //     'body' => 'היי :client_name',
+        //     'body' => 'שלום :client_name',
         //     'content' => 'זוהי תזכורת ידידותית לגבי החוזה ששלחנו לך ב- :contract_date. אם יש לך שאלות או חששות, נשמח לעמוד לשירותך. אנו מצפים לעבוד יחד!',
         //     'content2' => 'רצינו לבצע מעקב ולוודא שקיבלת את החוזה ששלחנו לך ב-  :contract_date. נשמח אם תוכל לעיין בו ולהודיע לנו אם יש לך שאלות. אנחנו כאן כדי לעזור.'
         // ],
@@ -774,7 +772,7 @@ return [
         ],
         // 'contract_reminder_team' => [
         //     'subject' => 'מעקב על חוזה שנשלח | שירות ברום',
-        //     'body_intro' => 'היי צוות',
+        //     'body_intro' => 'שלום צוות',
         //     'body_instruction' => 'החוזה נשלח ל- :client_name לפני 12 שעות אנא בצעו מעקב כדי לוודא שהלקוח קיבל ועיין בחוזה. חשוב לשמור על התקדמות התהליך בצורה חלקה.',
         //     'client_contact' => 'ניתן ליצור קשר עם הלקוח בטלפון: :client_phone',
         //     'client_link' => 'פרטי הלקוח זמינים כאן:  :client_link',
@@ -787,7 +785,7 @@ return [
         ],
         'price_offer_reminder12' => [
             'subject' => 'תזכורת להצעת מחיר | שירות ברום',
-            'body_intro' => 'היי צוות',
+            'body_intro' => 'שלום צוות',
             'body_instruction' => 'חלפו 12 שעות מאז הפגישה עם :client_name, ועדיין לא נשלחה הצעת מחיר. אנא שלחו את ההצעה בהקדם האפשרי או עדכנו את סטטוס הפגישה.',
             'client_contact' => 'ניתן ליצור קשר עם הלקוח בטלפון: :client_phone',
             'client_link' => 'פרטי הלקוח זמינים כאן: :client_link',

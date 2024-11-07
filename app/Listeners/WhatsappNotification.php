@@ -2043,10 +2043,8 @@ class WhatsappNotification
 
                     $receiverNumber = $clientData["phone"];
 
-                    App::setLocale($clientData['lng']);
+                    App::setLocale($clientData["lng"]?? "heb");
 
-                    $text = __('mail.wa-message.tried_to_contact_you.header');
-                    $text .= "\n\n";
                     $text .= __('mail.wa-message.common.salutation', ['name' => $clientData['firstname']]);
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.tried_to_contact_you.content', [
@@ -2054,17 +2052,14 @@ class WhatsappNotification
                     ]);
                     $text .= "\n\n";
 
+                    $text .= __('mail.wa-message.tried_to_contact_you.contact_details');
+                    
+                    $text .= "\n\n";
+                    
                     $text .= __('mail.wa-message.tried_to_contact_you.availability');
 
                     $text .= "\n\n";
 
-                    $text .= __('mail.wa-message.tried_to_contact_you.contact_details');
-
-                    $text .= "\n\n";
-
-                    $text .= __('mail.wa-message.common.closing');
-
-                    $text .= "\n\n";
                     $text .= __('mail.wa-message.common.signature');
 
                     break;
@@ -2075,17 +2070,13 @@ class WhatsappNotification
                     $receiverNumber = $clientData["phone"];
                     App::setLocale($clientData['lng']);
 
-                    $text = __('mail.wa-message.inquiry_response.header');
-                    $text .= "\n\n";
-                    $text .= __('mail.wa-message.common.salutation', ['name' => $clientData['firstname']]);
-                    $text .= "\n\n";
-                    $text .= __('mail.wa-message.inquiry_response.content', [
-                        'name' => $clientData['firstname'],
+                    $text .= __('mail.wa-message.common.salutation', [
+                        'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
                     ]);
                     $text .= "\n\n";
-                    $text .= __('mail.wa-message.inquiry_response.service_areas');
+                    $text .= __('mail.wa-message.inquiry_response.content');
                     $text .= "\n\n";
-                    $text .= __('mail.wa-message.common.closing');
+                    $text .= __('mail.wa-message.inquiry_response.service_areas');
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.common.signature');
 
@@ -2855,6 +2846,10 @@ class WhatsappNotification
                     App::setLocale($clientData['lng'] ?? 'en');
                     $receiverNumber = $clientData['phone'];
                     $number = $clientData['phone'] . "@s.whatsapp.net";
+
+                    $text .= __('mail.wa-message.follow_up.salutation',[
+                        'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
+                    ]);
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.follow_up.introduction');
                     $text .= "\n\n";
@@ -2867,14 +2862,8 @@ class WhatsappNotification
                     $text .= __('mail.wa-message.follow_up.commitment');
                     $text .= "\n\n";
                     $text .= __('mail.wa-message.follow_up.help');
-                    $text .= "\n\n";
-                    $text .= __('mail.wa-message.follow_up.best_regards');
-                    $text .= "\n";
-                    $text .= __('mail.wa-message.follow_up.service_name');
-                    $text .= "\n";
-                    $text .= '📞 03-525-70-60';
-                    $text .= "\n";
-                    $text .= __('mail.wa-message.follow_up.service_website');
+
+                    $text .= __('mail.wa-message.follow_up.signature');
 
                     $fileName = $clientData['lng'] === 'heb' ? 'BroomServiceHebrew.pdf' : 'BroomServiceEnglish.pdf';
 
