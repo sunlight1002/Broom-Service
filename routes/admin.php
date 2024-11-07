@@ -350,6 +350,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::delete('document/remove/{id}/{user_id}', [DocumentController::class, 'remove']);
     Route::post('document/save', [DocumentController::class, 'save']);
     Route::get('get-doc-types', [DocumentController::class, 'getDocumentTypes']);
+    Route::post('document/reset/{form_id}', [DocumentController::class, 'resetForm']);
 
     Route::get('worker-affected-availability/{id}', [WorkerAffectedAvailabilitiesController::class, 'show']);
     Route::post('worker-affected-availability/{id}/approve', [WorkerAffectedAvailabilitiesController::class, 'approve']);

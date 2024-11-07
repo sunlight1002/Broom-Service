@@ -5,6 +5,7 @@ import { useAlert } from "react-alert";
 import { Base64 } from "js-base64";
 import Form101Table from "./Form101Table";
 import { useTranslation } from "react-i18next";
+import Swal from "sweetalert2";
 
 export default function WorkerForms({ worker, getWorkerDetails }) {
     const { t } = useTranslation();
@@ -56,6 +57,30 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
     useEffect(() => {
         getForm();
     }, []);
+
+
+
+    const ResetForm = async (form_id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You want to reset this form!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const res = await axios.post(`/api/admin/document/reset/${form_id}`, {}, { headers })
+                    alert.success(res?.data?.message)
+                    getForm();
+                } catch (error) {
+                    alert.error(error.response.data?.message);
+                }
+            }
+        });
+    }
 
     const save = (data) => {
         axios
@@ -169,7 +194,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
 
                                 <div className="d-flex ">
                                     <div className=" mb-2 mr-4 text-center">
-                                        {(contractForm && worker) || worker.worker_contract ? (
+                                        {(contractForm?.submitted_at && worker) || worker.worker_contract ? (
                                             <span className="btn btn-success">
                                                 {t("global.signed")}
                                             </span>
@@ -181,7 +206,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                     </div>
 
                                     <div className=" mb-2 mr-4  text-center">
-                                        {(contractForm && worker) || worker.worker_contract ? (
+                                        {(contractForm?.submitted_at && worker) || worker.worker_contract ? (
                                             <Link
                                                 target="_blank"
                                                 to={
@@ -201,14 +226,17 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
 
                                     <div className="mb-2 mr-4 text-center">
                                         {((contractForm || worker.form_insurance) && contractForm?.pdf_name) ? (
-                                            <a
-                                                href={`/storage/signed-docs/${contractForm.pdf_name}`}
-                                                target={"_blank"}
-                                                download={`${contractForm.type}.pdf`}
-                                                className="btn btn-warning"
-                                            >
-                                                <i className="fa fa-download"></i>
-                                            </a>
+                                            <div className="d-flex" style={{ gap: "22px" }}>
+                                                <a
+                                                    href={`/storage/signed-docs/${contractForm.pdf_name}`}
+                                                    target={"_blank"}
+                                                    download={`${contractForm.type}.pdf`}
+                                                    className="btn btn-warning"
+                                                >
+                                                    <i className="fa fa-download"></i>
+                                                </a>
+                                                <button onClick={() => ResetForm(contractForm?.id)} className="btn btn-warning">Reset</button>
+                                            </div>
                                         ) : (
                                             <span className="btn btn-warning">-</span>
                                         )}
@@ -247,7 +275,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
 
                                     <div className="d-flex">
                                         <div className="mb-2 text-center">
-                                            {!form && worker.form_101 ? (
+                                            {!form?.submitted_at && worker.form_101 ? (
                                                 <span className="btn btn-success">
                                                     {t("global.signed")}
                                                 </span>
@@ -258,7 +286,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             )}
                                         </div>
                                         <div className="mb-2 text-center">
-                                            {!form && worker.form_101 ? (
+                                            {!form?.submitted_at && worker.form_101 ? (
                                                 <Link
                                                     target="_blank"
                                                     to={
@@ -276,14 +304,17 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                         </div>
                                         <div className="mb-2 text-center">
                                             {((form || worker.form_insurance) && form?.pdf_name) ? (
-                                                <a
-                                                    href={`/storage/signed-docs/${form.pdf_name}`}
-                                                    target={"_blank"}
-                                                    download={`${form.type}.pdf`}
-                                                    className="btn btn-warning"
-                                                >
-                                                    <i className="fa fa-download"></i>
-                                                </a>
+                                                <div className="d-flex" style={{ gap: "22px" }}>
+                                                    <a
+                                                        href={`/storage/signed-docs/${form.pdf_name}`}
+                                                        target={"_blank"}
+                                                        download={`${form.type}.pdf`}
+                                                        className="btn btn-warning"
+                                                    >
+                                                        <i className="fa fa-download"></i>
+                                                    </a>
+                                                    <button onClick={() => ResetForm(form?.id)} className="btn btn-warning">Reset</button>
+                                                </div>
                                             ) : (
                                                 <span className="btn btn-warning">-</span>
                                             )}
@@ -324,7 +355,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
 
                                 <div className="d-flex">
                                     <div className="mb-2 mr-4 text-center">
-                                        {safetyAndGearForm || worker.safety_and_gear_form ? (
+                                        {safetyAndGearForm?.submitted_at || worker.safety_and_gear_form ? (
                                             <span className="btn btn-success ">
                                                 {t("global.signed")}
                                             </span>
@@ -336,7 +367,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                     </div>
 
                                     <div className=" mb-2 mr-4 text-center">
-                                        {safetyAndGearForm || worker.safety_and_gear_form ? (
+                                        {safetyAndGearForm?.submitted_at || worker.safety_and_gear_form ? (
                                             <Link
                                                 target="_blank"
                                                 to={
@@ -355,14 +386,18 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
 
                                     <div className="mb-2 mr-4 text-center">
                                         {((safetyAndGearForm || worker.form_insurance) && safetyAndGearForm?.pdf_name) ? (
-                                            <a
-                                                href={`/storage/signed-docs/${safetyAndGearForm.pdf_name}`}
-                                                target="_blank"
-                                                download={`${safetyAndGearForm.type}.pdf`}
-                                                className="btn btn-warning"
-                                            >
-                                                <i className="fa fa-download"></i>
-                                            </a>
+                                            <div className="d-flex" style={{ gap: "22px" }}>
+                                                <a
+                                                    href={`/storage/signed-docs/${safetyAndGearForm.pdf_name}`}
+                                                    target="_blank"
+                                                    download={`${safetyAndGearForm.type}.pdf`}
+                                                    className="btn btn-warning"
+                                                >
+                                                    <i className="fa fa-download"></i>
+                                                </a>
+                                                <button onClick={() => ResetForm(safetyAndGearForm?.id)} className="btn btn-warning">Reset</button>
+                                            </div>
+
                                         ) : (
                                             <span className="btn btn-warning">-</span>
                                         )}
@@ -390,7 +425,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                             borderRadius: "5px",
                         }}
                     >
-                         <div className="d-flex justify-content-between align-items-center flex-res-column-505" >
+                        <div className="d-flex justify-content-between align-items-center flex-res-column-505" >
                             <div className=" mb-2">
                                 <span className="noteDate font-weight-bold">
                                     {t("formTxt.insuranceForm")}
@@ -398,56 +433,59 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                             </div>
 
                             <div className="d-flex">
-                            <div className=" mb-2 mr-4 text-center">
-                                {insuranceForm || worker.form_insurance ? (
-                                    <span className="btn btn-success">
-                                        {t("global.signed")}
-                                    </span>
-                                ) : (
-                                    <span className="btn btn-warning">
-                                        {t("global.notSigned")}
-                                    </span>
-                                )}
-                            </div>
+                                <div className=" mb-2 mr-4 text-center">
+                                    {insuranceForm?.submitted_at || worker.form_insurance ? (
+                                        <span className="btn btn-success">
+                                            {t("global.signed")}
+                                        </span>
+                                    ) : (
+                                        <span className="btn btn-warning">
+                                            {t("global.notSigned")}
+                                        </span>
+                                    )}
+                                </div>
 
-                            <div className="mb-2 mr-4 text-center">
-                                {insuranceForm || worker.form_insurance ? (
-                                    <Link
-                                        target="_blank"
-                                        to={
-                                            worker.form_insurance
-                                                ? `/storage/uploads/worker/insurance/${worker.form_insurance}`
-                                                : `/insurance-form/` + Base64.encode(worker.id.toString())
-                                        }
-                                        className="btn btn-warning"
-                                    >
-                                        <i className="fa fa-eye"></i>
+                                <div className="mb-2 mr-4 text-center">
+                                    {insuranceForm?.submitted_at || worker.form_insurance ? (
+                                        <Link
+                                            target="_blank"
+                                            to={
+                                                worker.form_insurance
+                                                    ? `/storage/uploads/worker/insurance/${worker.form_insurance}`
+                                                    : `/insurance-form/` + Base64.encode(worker.id.toString())
+                                            }
+                                            className="btn btn-warning"
+                                        >
+                                            <i className="fa fa-eye"></i>
 
-                                    </Link>
-                                ) : (
-                                    <span className="btn btn-warning">-</span>
-                                )}
-                            </div>
+                                        </Link>
+                                    ) : (
+                                        <span className="btn btn-warning">-</span>
+                                    )}
+                                </div>
 
-                            <div className=" mb-2 mr-4 text-center">
-                                {((insuranceForm || worker.form_insurance) && insuranceForm?.pdf_name) ? (
-                                    <a
-                                        href={`/storage/signed-docs/${insuranceForm.pdf_name}`}
-                                        target="_blank"
-                                        download={`${insuranceForm.type}.pdf`}
-                                        className="btn btn-warning "
-                                    >
-                                        <i className="fa fa-download"></i>
-                                    </a>
-                                ) : (
-                                    <span className="btn btn-warning">-</span>
-                                )}
-                            </div>
+                                <div className=" mb-2 mr-4 text-center">
+                                    {((insuranceForm || worker.form_insurance) && insuranceForm?.pdf_name) ? (
+                                        <div className="d-flex" style={{ gap: "22px" }}>
+                                            <a
+                                                href={`/storage/signed-docs/${insuranceForm.pdf_name}`}
+                                                target="_blank"
+                                                download={`${insuranceForm.type}.pdf`}
+                                                className="btn btn-warning "
+                                            >
+                                                <i className="fa fa-download"></i>
+                                            </a>
+                                            <button onClick={() => ResetForm(insuranceForm?.id)} className="btn btn-warning">Reset</button>
+                                        </div>
+                                    ) : (
+                                        <span className="btn btn-warning">-</span>
+                                    )}
+                                </div>
 
-                            {Object.is(worker.form_insurance, null) &&
-                                worker.is_exist
-                                ? uploadFormDiv("form_insurance")
-                                : ""}
+                                {Object.is(worker.form_insurance, null) &&
+                                    worker.is_exist
+                                    ? uploadFormDiv("form_insurance")
+                                    : ""}
                             </div>
                         </div>
 
@@ -460,7 +498,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     style={{ boxShadow: "none" }}
                 >
                     <div className="card-comments cardforResponsive"></div>
-                    <Form101Table formdata={forms} workerId={worker.id} />
+                    <Form101Table formdata={forms} workerId={worker.id} ResetForm={ResetForm} />
                 </div>
             )}
         </div>

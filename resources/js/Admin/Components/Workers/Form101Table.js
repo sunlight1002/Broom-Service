@@ -3,18 +3,19 @@ import { Link } from "react-router-dom";
 import { Base64 } from "js-base64";
 import Moment from "moment";
 
-export default function Form101Table({ formdata, workerId }) {
+export default function Form101Table({ formdata, workerId, ResetForm }) {
     const [formData, setFormData] = useState([]);
     const [order, setOrder] = useState("ASC");
 
     useEffect(() => {
-        if (!formData.length) {
+        // if (!formData.length) {
             const form101Foms = formdata.filter((f) =>
                 f.type.includes("form101")
             );
+            
             setFormData(form101Foms);
-        }
-    }, [formdata]);
+        // }
+    }, [formdata, ResetForm]);
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -97,8 +98,8 @@ export default function Form101Table({ formdata, workerId }) {
                                         <td>
                                             {item.submitted_at
                                                 ? Moment(
-                                                      item.submitted_at
-                                                  ).format("MMMM DD, Y")
+                                                    item.submitted_at
+                                                ).format("MMMM DD, Y")
                                                 : "-"}
                                         </td>
                                         <td
@@ -112,30 +113,37 @@ export default function Form101Table({ formdata, workerId }) {
                                         </td>
                                         <td>
                                             <div className="d-flex">
-                                                <Link
-                                                    target="_blank"
-                                                    to={`/form101/${Base64.encode(
-                                                        workerId.toString()
-                                                    )}/${Base64.encode(
-                                                        item.id.toString()
-                                                    )}`}
-                                                    className="ml-2 btn btn-warning"
-                                                >
-                                                    <i className="fa fa-eye"></i>
-                                                </Link>
+                                                {
+                                                    item?.pdf_name ? (
+                                                        <Link
+                                                            target="_blank"
+                                                            to={`/form101/${Base64.encode(
+                                                                workerId.toString()
+                                                            )}/${Base64.encode(
+                                                                item.id.toString()
+                                                            )}`}
+                                                            className="ml-2 btn btn-warning"
+                                                        >
+                                                            <i className="fa fa-eye"></i>
+                                                        </Link>
+                                                    ) : <span className="btn btn-warning">-</span>
+                                                }
                                                 {
                                                     item.pdf_name ? (
-                                                        <Link
-                                                        target="_blank"
-                                                        to={`/storage/signed-docs/${item.pdf_name}`}
-                                                        className="ml-2 btn btn-warning"
-                                                    >
-                                                        <i class="fa-solid fa-download"></i>
-                                                    </Link>
+                                                        <div className="d-flex" style={{ gap: "8px" }}>
+                                                            <Link
+                                                                target="_blank"
+                                                                to={`/storage/signed-docs/${item.pdf_name}`}
+                                                                className="ml-2 btn btn-warning"
+                                                            >
+                                                                <i class="fa-solid fa-download"></i>
+                                                            </Link>
+                                                            <button onClick={() => ResetForm(item?.id)} className="btn btn-warning">Reset</button>
+                                                        </div>
                                                     ) : ''
                                                 }
-                                    
-                                                
+
+
                                             </div>
                                         </td>
                                     </tr>

@@ -41,8 +41,6 @@ const InsuranceForm = () => {
             const errorFields = Object.keys(errors);
             if (errorFields.length > 0) {
                 const firstErrorField = errorFields[0];
-                console.log(firstErrorField);
-
                 const errorElement = document.getElementById(firstErrorField);
                 if (errorElement) {
                     errorElement.scrollIntoView({ behavior: "smooth" });
@@ -142,7 +140,24 @@ const InsuranceForm = () => {
         gender: yup.string().trim().required(t("insurance.genderReq")),
         g1Height: yup.string().trim().required(t("insurance.heightReq")),
         g1Weight: yup.string().trim().required(t("insurance.weightReq")),
-        details: yup.string().optional(), // Add validation for details
+        details: yup.string().test(
+            "is-required",
+            "Details are required",
+            function (value) {
+                const { g1, g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22, g23, g24 } = this.parent;
+                
+                const requiresDetails = [
+                    g1, g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10, 
+                    g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22, 
+                    g23, g24
+                ].includes("yes");
+    
+                if (requiresDetails && !value) {
+                    return this.createError({ message: "Details are required because a field is marked 'yes'" });
+                }
+                return true;
+            }
+        ),
         signature: yup.mixed().required(t("form101.errorMsg.sign")),
     });
     const [formValues, setFormValues] = useState(null);
@@ -182,7 +197,6 @@ const InsuranceForm = () => {
         );
         const pdfDoc = await PDFDocument.load(formPdfBytes);
         // setPdfDoc(PdfDoc);
-        console.log(pdfDoc);
         pdfDoc.registerFontkit(fontkit);
 
         const pdfForm = pdfDoc.getForm();
@@ -310,9 +324,9 @@ const InsuranceForm = () => {
             });
 
             page3.drawText(values.details, {
-                x: page3.getWidth() / 2 - pngDims1.width / 2 - 200,
+                x: page3.getWidth() / 2 - pngDims1.width / 2 - 220,
                 y: page3.getHeight() / 2 - pngDims1.height / 2 - 355,
-                size: 14,
+                size: 10,
             });
 
             page4.drawImage(pngImage, {
@@ -378,7 +392,6 @@ const InsuranceForm = () => {
                     });
                 });
         }
-        // console.log(pdfBytes, "arrayBytes");
     };
 
     const handleShow = async () => {
@@ -419,8 +432,6 @@ const InsuranceForm = () => {
                 setFieldValue("canCellPhone", _worker.phone);
                 setFieldValue("canPassport", _worker.passport);
                 setFieldValue("canFirstDateOfIns", _worker.first_date);
-
-                console.log(_worker);
 
                 const _gender = _worker.gender;
                 setFieldValue(
@@ -466,9 +477,6 @@ const InsuranceForm = () => {
         sigRef.current.clear();
         setFieldValue("signature", "");
     };
-
-    console.log(values.GCandidatename);
-
 
     return (
         <form className="my-2 mx-4" onSubmit={handleSubmit}>
@@ -2210,16 +2218,21 @@ const InsuranceForm = () => {
                                 <label className="control-label">
                                     Details of positive findings
                                 </label>
-                                <textarea
-                                    type="text"
-                                    value={values.details}
-                                    onChange={(e) =>
-                                        setFieldValue("details", e.target.value)
-                                    }
-                                    className="form-control"
-                                    required
-                                    placeholder={"Enter if it required..."}
-                                ></textarea>
+                                <div>
+                                    <textarea
+                                        type="text"
+                                        value={values.details}
+                                        onChange={(e) =>
+                                            setFieldValue("details", e.target.value)
+                                        }
+                                        className="form-control"
+                                        required
+                                        placeholder={"Enter if it required..."}
+                                    ></textarea>
+                                    <span className="text-danger">
+                                        {touched.details && errors.details}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <hr />
@@ -2261,7 +2274,7 @@ const InsuranceForm = () => {
                             <img src={formValues.signature} />
                         ) : (
                             <>
-                                <div id="signature">
+                                <div id="signature" className="d-flex flex-column">
                                     <SignatureCanvas
                                         penColor="black"
                                         canvasProps={{

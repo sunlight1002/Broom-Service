@@ -619,8 +619,8 @@ class AuthController extends Controller
             ->where('type', WorkerFormTypeEnum::CONTRACT)
             ->first();
 
-        if ($form) {
-            return response()->json([
+        if ($form && $form->pdf_name !== null && $form->submitted_at !== null) {
+                return response()->json([
                 'message' => 'Contract already signed.'
             ], 403);
         }
@@ -636,12 +636,21 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $form = $worker->forms()->create([
-            'type' => WorkerFormTypeEnum::CONTRACT,
-            'data' => $data,
-            'submitted_at' => now()->toDateTimeString(),
-            'pdf_name' => $file_name
-        ]);
+        // Update the existing form if it exists and is not signed yet, otherwise create a new form
+        if ($form) {
+            $form->update([
+                'data' => $data,
+                'submitted_at' => now()->toDateTimeString(),
+                'pdf_name' => $file_name
+            ]);
+        } else {
+            $form = $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::CONTRACT,
+                'data' => $data,
+                'submitted_at' => now()->toDateTimeString(),
+                'pdf_name' => $file_name
+            ]);
+        }
 
         event(new ContractFormSigned($worker, $form));
 
@@ -836,8 +845,8 @@ class AuthController extends Controller
             ->where('type', WorkerFormTypeEnum::SAFTEY_AND_GEAR)
             ->first();
 
-        if ($form) {
-            return response()->json([
+        if ($form && $form->pdf_name !== null && $form->submitted_at !== null) {
+                return response()->json([
                 'message' => 'Safety and gear already signed.'
             ], 403);
         }
@@ -853,12 +862,22 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $form = $worker->forms()->create([
-            'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
-            'data' => $data,
-            'submitted_at' => now()->toDateTimeString(),
-            'pdf_name' => $file_name
-        ]);
+
+          // Update the existing form if it exists and is not signed yet, otherwise create a new form
+          if ($form) {
+            $form->update([
+                'data' => $data,
+                'submitted_at' => now()->toDateTimeString(),
+                'pdf_name' => $file_name
+            ]);
+        } else {
+            $form = $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::SAFTEY_AND_GEAR,
+                'data' => $data,
+                'submitted_at' => now()->toDateTimeString(),
+                'pdf_name' => $file_name
+            ]);
+        }
 
         event(new SafetyAndGearFormSigned($worker, $form));
 
@@ -973,50 +992,64 @@ class AuthController extends Controller
     public function saveInsuranceForm(Request $request, $id)
     {
         $worker = User::find($id);
-
+    
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
         }
-
+    
         $data = $request->all();
         $pdfFile = $data['pdf_file'];
         unset($data['pdf_file']);
-
+    
+        // Fetch the existing insurance form for this year
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::INSURANCE)
             ->whereYear('created_at', now()->year)
             ->first();
-
-        if ($form) {
+    
+        // Check if form already signed
+        if ($form && $form->pdf_name !== null && $form->submitted_at !== null) {
             return response()->json([
                 'message' => 'Insurance form already signed.'
             ], 403);
         }
-
+    
+        // Ensure the directory exists
         if (!Storage::drive('public')->exists('signed-docs')) {
             Storage::drive('public')->makeDirectory('signed-docs');
         }
-
+    
+        // Save the PDF file
         $file_name = Str::uuid()->toString() . '.pdf';
         if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
             return response()->json([
                 'message' => "Can't save PDF"
             ], 403);
         }
-
-        $form = $worker->forms()->create([
-            'type' => WorkerFormTypeEnum::INSURANCE,
-            'data' => $data,
-            'submitted_at' => now()->toDateTimeString(),
-            'pdf_name' => $file_name
-        ]);
-
+    
+        // Update the existing form if it exists and is not signed yet, otherwise create a new form
+        if ($form) {
+            $form->update([
+                'data' => $data,
+                'submitted_at' => now()->toDateTimeString(),
+                'pdf_name' => $file_name
+            ]);
+        } else {
+            $form = $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::INSURANCE,
+                'data' => $data,
+                'submitted_at' => now()->toDateTimeString(),
+                'pdf_name' => $file_name
+            ]);
+        }
+    
         event(new InsuranceFormSigned($worker, $form));
-
+    
         return response()->json([
             'message' => 'Insurance form signed successfully.'
         ]);
     }
+    
 }

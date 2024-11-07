@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\DocumentType;
 use App\Models\User;
 use App\Models\Document;
+use App\Models\Form;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -153,5 +154,26 @@ class DocumentController extends Controller
         return response()->json([
             'documentTypes' => $documentTypes
         ]);
+    }
+
+    public function resetForm($form_id)
+    {
+        // Find the form by ID
+        $form = Form::find($form_id);
+
+        if ($form) {
+            $form->update([
+                'pdf_name' => null,
+                'submitted_at' => null,
+            ]);
+
+            return response()->json([
+                'message' => 'Document has been reset successfully!',
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Form not found!',
+        ], 404);
     }
 }
