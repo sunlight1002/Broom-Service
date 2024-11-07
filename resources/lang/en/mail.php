@@ -794,7 +794,7 @@ return [
         //     'content' => "Please don't forget to confirm the address for tomorrow's job by 6 PM today. If you have any issues or need help, please contact your manager.",
         // ],
         'remind_to_worker' => [
-            'header' => 'Agreement Signature Reminder - Broom Service',
+            'header' => "Agreement Signature Reminder - Broom Service\n\n",
             'content' => "Please confirm that you have seen the address for tomorrow’s job:\n\n*Address:* :fullAddress\n*Date/Time:* :date_time\n\n*Accept Address* :view_job\n*Contact Manager* :contact_manager if you have any questions.",
             'content2' => "This is a reminder to confirm the address for tomorrow’s job as soon as possible:\n\n*Address:* :fullAddress\n*Date/Time:* :date_time\n\n*Accept Address* :view_job\n*Contact Manager* :contact_manager if you have any questions.",
             'signature' => "\n\nBest regards,  \nBroom Service Team"

@@ -728,7 +728,7 @@ class WhatsappNotification
                     $jobData = $eventData['job'];
                     $time = $eventData['time'];
 
-                    App::setLocale($jobData['worker']['lng']);
+                    App::setLocale($jobData['worker']['lng'] ?? "heb");
 
                     $receiverNumber = $jobData['client']['phone'];
 
@@ -742,18 +742,14 @@ class WhatsappNotification
                         $text .= __('mail.wa-message.remind_to_worker.content',[
                             'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                             'view_job' => url("worker/jobs/view/" . $jobData['id']),
-                            'fullAddress' => $jobData['property_address']
-                                        ? $jobData['property_address']['address_name']
-                                        : 'NA',
+                            'fullAddress' => $jobData->propertyAddress->address_name ?? 'NA',
                             'contact_manager' => url("worker/jobs/view/" . $jobData['id']."?q=contact_manager")
                         ]);
                     }else{
                         $text .= __('mail.wa-message.remind_to_worker.content2',[
                             'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                             'view_job' => url("worker/jobs/view/" . $jobData['id']),
-                            'fullAddress' => $jobData['property_address']
-                                        ? $jobData['property_address']['address_name']
-                                        : 'NA',
+                            'fullAddress' => $jobData->propertyAddress->address_name ?? 'NA',
                             'contact_manager' => url("worker/jobs/view/" . $jobData['id']."?q=contact_manager")
                         ]);
                     }
@@ -802,8 +798,6 @@ class WhatsappNotification
                 case WhatsappMessageTemplateEnum::TO_TEAM_WORKER_NOT_CONFIRM_JOB:
                     // $adminData = $eventData['admin'];
                     $jobData = $eventData['job'];
-                    $clientData = $eventData['client'];
-                    $workerData = $eventData['worker'];
 
                     $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
                     App::setLocale('heb');
@@ -813,12 +807,11 @@ class WhatsappNotification
                     $text .= "\n\n";
 
                     $text .= __('mail.wa-message.not_confirm_job.content', [
-                        'client_name' => $clientData['firstname'] . " " . $clientData['lastname'],
-                        'worker_contact' => $workerData['phone'],
-                        'client_contact' => $clientData['phone'],
-                        'fullAddress' => $jobData['property_address']
-                                    ? $jobData['property_address']['address_name']
-                                    : 'NA',
+                        'client_name' => trim(trim($jobData['client']['firstname']) . ' ' . trim($jobData['client']['lastname'])),
+                        'worker_name' => trim(trim($jobData['worker']['firstname']) . ' ' . trim($jobData['worker']['lastname'])),
+                        'worker_contact' => $jobData['worker']['phone'],
+                        'client_contact' => $jobData['client']['phone'],
+                        'fullAddress' => $jobData->propertyAddress->address_name ?? 'NA',
                         'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . "/" . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'). "-" .  Carbon::today()->setTimeFromTimeString($jobData['end_time'])->format('H:i'),
                         'team_btn' => url("team-btn/" . base64_encode($jobData['id'])),
                         // 'contact_manager' => url("worker/jobs/view/" . $jobData['id']."?q=contact_manager")
@@ -3312,13 +3305,13 @@ class WhatsappNotification
                         'body' => $text
                     ]);
 
-                Log::info($response->json());
+                // Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
             Log::alert('WA NOTIFICATION ERROR');
-            Log::alert($th);
+            // Log::alert($th);
         }
     }
 }

@@ -43,8 +43,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('notifyoffsite24')->daily();
 
         $schedule->command('notifyclientforcontract')->hourly();
-        $schedule->command('job:remind-workers-to-confirm')->dailyAt('17:00');
-        $schedule->command('job:remind-workers-to-confirm')->dailyAt('18:00');
+        $schedule->command('job:remind-workers-to-confirm')->twiceDaily(17, 18);
         $schedule->command('mondayNotify')->weeklyOn(1, '08:00'); // 1 = Monday
         $schedule->command('remind:next-week-services')->weeklyOn(3, '9:00');
         $schedule->command('notifyBeforeJob')->everyMinute();

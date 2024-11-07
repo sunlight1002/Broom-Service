@@ -390,7 +390,7 @@ return [
         'common' => [
             'salutation' => "שלום, *:name*",
             'closing' => 'נשמח לעזור לך.',
-            'signature' => "בברכה,\nBroom Service 🌹\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il",
+            'signature' => "בברכה,\nשירות מטאטאים 🌹\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il",
         ],
         'client_meeting_reminder' => [
             'header' => "*תזכורת לפגישה*",
@@ -826,7 +826,7 @@ return [
         //     'content' => "נא לא לשכוח לאשר את הכתובת לעבודה מחר עד השעה 18:00 היום. אם יש לך בעיות או שאתה זקוק לעזרה, אנא צור קשר עם המנהל שלך.",
         // ],
         'remind_to_worker' => [
-            'header' => 'נא לאשר את הכתובת למחר | ברום סרוויס',
+            'header' => "נא לאשר את הכתובת למחר | ברום סרוויס\n\n",
             'content' => "אנא אשר שראית את הכתובת לעבודה מחר:\n\n*כתובת:* :fullAddress\n*תאריך/שעה:* :date_time\n\n*אשר כתובת* :view_job\n*צור קשר עם המנהל* :contact_manager במידה ויש לך שאלות או בעיות.",
             'content2' => "תזכורת לאשר בהקדם האפשרי את הכתובת לעבודה מחר:\n\n*כתובת:* :fullAddress\n*תאריך/שעה:* :date_time\n\n*אשר כתובת* :view_job\n*צור קשר עם המנהל* :contact_manager במידה ויש לך שאלות או בעיות.",
             'signature' => "\n\nבברכה,  \nצוות ברום סרוויס"

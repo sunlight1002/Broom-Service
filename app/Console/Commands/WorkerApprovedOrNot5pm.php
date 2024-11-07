@@ -48,19 +48,28 @@ class WorkerApprovedOrNot5pm extends Command
         $staticDate = "2024-10-19"; // Static date to start notifications from
         // Get current time
         $currentTime = now();
-        \Log::info($currentTime);
+        \Log::info($currentTime->format('Y-m-d'));
 
         // Get unconfirmed jobs where the current time is 5:00 PM or later
         $unconfirmedJobs = Job::with(['client', 'worker', 'propertyAddress'])
             ->where('worker_approved_at', null)
             ->whereDate('created_at', '>=', $staticDate)
-            ->whereTime('start_date', '<=', $currentTime) // Ensure the job has started
+            ->whereDate('start_date', '=', $currentTime->copy()->addDay()->format('Y-m-d')) // Get jobs for tomorrow
             ->get();
+
+            $addresses=[];
+                foreach ($unconfirmedJobs as $jobs) {
+                    // if (!empty($jobs['property_address'])) {
+                    //     // $addresses[] = $jobs['property_address']['address_name'];
+                    // }
+                    $addresses = $jobs->propertyAddress->address_name;
+                }
+
 
         // 5:00 PM notification
         if ($currentTime->isBetween($currentTime->copy()->setTime(17, 0), $currentTime->copy()->setTime(17, 1))) {
             foreach ($unconfirmedJobs as $job) {
-                if (!$this->hasNotificationBeenSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_5_PM)) {
+                if (!$this->hasNotificationBeenSent($job->id, $job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_5_PM)) {
                     // Send the notification
                     event(new WhatsappNotificationEvent([
                         "type" => WhatsappMessageTemplateEnum::REMIND_WORKER_TO_JOB_CONFIRM,
@@ -71,7 +80,7 @@ class WorkerApprovedOrNot5pm extends Command
                     ]));
 
                     // Mark the notification as sent in WorkerMetas
-                    $this->markNotificationAsSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_5_PM);
+                    $this->markNotificationAsSent($job->id, $job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_5_PM);
                 }
             }
         }
@@ -97,10 +106,8 @@ class WorkerApprovedOrNot5pm extends Command
         // 6:00 PM notification to the team
         if ($currentTime->isBetween($currentTime->copy()->setTime(18, 0), $currentTime->copy()->setTime(18, 1))) {
             foreach ($unconfirmedJobs as $job) {
-                $client = $job->client;
-                $worker = $job->worker;
 
-                if (!$this->hasNotificationBeenSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_6PM)) {
+                if (!$this->hasNotificationBeenSent($job->id, $job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_6PM)) {
                     // Send the notification
                     event(new WhatsappNotificationEvent([
                         "type" => WhatsappMessageTemplateEnum::REMIND_WORKER_TO_JOB_CONFIRM,
@@ -111,15 +118,13 @@ class WorkerApprovedOrNot5pm extends Command
                     ]));
 
                     // Mark the notification as sent in WorkerMetas
-                    $this->markNotificationAsSent($job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_6PM);
+                    $this->markNotificationAsSent($job->id, $job->worker->id, WorkerMetaEnum::NOTIFICATION_SENT_6PM);
 
                      // Send the final notification to the team
                     event(new WhatsappNotificationEvent([
                         "type" => WhatsappMessageTemplateEnum::TO_TEAM_WORKER_NOT_CONFIRM_JOB,
                         "notificationData" => [
                             'job' => $job,
-                            'client' => $client,
-                            'worker' => $worker,
                         ]
                     ]));
                 }
@@ -138,9 +143,9 @@ class WorkerApprovedOrNot5pm extends Command
      * @param string $notificationKey
      * @return bool
      */
-    private function hasNotificationBeenSent(int $workerId, string $notificationKey): bool
+    private function hasNotificationBeenSent(int $jobId, int $workerId, string $notificationKey): bool
     {
-        return WorkerMetas::where('worker_id', $workerId)
+        return WorkerMetas::where('job_id', $jobId)
             ->where('key', $notificationKey)
             ->exists();
     }
@@ -152,10 +157,11 @@ class WorkerApprovedOrNot5pm extends Command
      * @param int $jobId
      * @param string $notificationKey
      */
-    private function markNotificationAsSent(int $workerId, string $notificationKey): void
+    private function markNotificationAsSent(int $jobId, int $workerId, string $notificationKey): void
     {
         WorkerMetas::create([
             'worker_id' => $workerId,
+            'job_id' => $jobId,
             'key' => $notificationKey,
             'value' => Carbon::now(),
         ]);
