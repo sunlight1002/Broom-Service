@@ -278,7 +278,7 @@ class JobController extends Controller
                 'emailContent'  => __('mail.job_common.worker_job_start_time_content'),
             ];
 
-            event(new JobNotificationToWorker($worker, $jobData, $emailData));
+            // event(new JobNotificationToWorker($worker, $jobData, $emailData));
         }
 
         JobHours::create([
@@ -399,7 +399,7 @@ class JobController extends Controller
                 'emailContent'  => '',
                 'isJobOpen' => true
             ];
-            event(new JobNotificationToWorker($worker, $job, $emailData));
+            // event(new JobNotificationToWorker($worker, $job, $emailData));
 
             // event(new WhatsappNotificationEvent([
             //     "type" => WhatsappMessageTemplateEnum::WORKER_ARRIVE_NOTIFY,

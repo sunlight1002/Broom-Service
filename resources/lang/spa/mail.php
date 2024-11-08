@@ -532,6 +532,14 @@ return [
             'content2' => "Este es un recordatorio para confirmar la dirección para el trabajo de mañana lo antes posible:\n\n*Dirección:* :fullAddress\n*Fecha/Hora:* :date_time\n\n*Aceptar dirección* :view_job\n*Contacta al gerente* :contact_manager si tienes alguna pregunta.",
             'signature' => "\n\nSaludos cordiales, \nEquipo de Servicio de escoba"
         ],
+        'worker_start_the_job' => [
+            'content' => "Su trabajo en :client_address ha comenzado. Tiene :job_duration para completar el servicio, y debería estar terminado antes de *:end_time*.\n\nRevise y complete las siguientes tareas:\n\n- *Servicio:* :service_name \n- *Instrucciones especiales:* :comments \nCuando haya terminado, confirme:\n\n- *Haga clic aquí para confirmar que los comentarios están listos* :view_job \n- *Comuníquese con el gerente* :contact_manager si tiene algún problema con las tareas.",
+            'signature' => "\n\nSaludos cordiales, \nEquipo de servicio de Broom",
+        ],
+        'update_on_comment_resolution' => [
+            'content' => "Hemos agregado actualizaciones a las tareas de su trabajo para *:service_name* programadas para *:date_time*. \nRevise las últimas actualizaciones y nuestras respuestas a cada tarea.\n\n*Ver comentarios y actualizaciones:* :view_worker_job",
+            'signature' => "\n\nSaludos cordiales,\nEquipo de servicio de Broom"
+        ],
         'button-label' => [
             'accept_reject' => 'Aceptar/Rechazar',
             'upload_file' => 'Subir archivo',

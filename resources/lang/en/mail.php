@@ -321,6 +321,7 @@ return [
         'start_time_nxt_step_email_subject' => 'Job time started | Next step | Broom Service',
         'start_time_nxt_step_email_title' => 'Job time started',
         'start_time_nxt_step_email_content' => 'Job time has been started by you. Check the below link and click :label when you want to stop your job work time.',
+        'start_time_nxt_step_email_contentWa' => 'Job time has been started by you. Check the below link and click :label when you want to stop your job work time.',
         'end_time_nxt_step_email_subject' => 'Job time Ended | Next step | Broom Service',
         'end_time_nxt_step_email_title' => 'Job time ended',
         'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
@@ -780,6 +781,10 @@ return [
             'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il",
             'all_comments' => "Don’t forget to complete the following tasks:\n:comments\n"
         ],
+        'worker_start_the_job' => [
+            'content' => "Your job at :client_address has started. You have :job_duration to complete the service, and it should be finished by *:end_time*.\n\nPlease review and complete the following tasks:\n\n- *Service:* :service_name \n- *Special Instructions:* :comments \nWhen you’re finished, please confirm:\n\n- *Click Here to Confirm Comments are Done* :view_job \n- *Contact Manager* :contact_manager if you have any issues with the tasks.",
+            'signature' => "\n\nBest regards, \nBroom Service Team",
+        ],
         'team_worker_on_my_way' => [
             'subject' => "Worker Did Not Finish the Job or Confirm Tasks\n\n",
             'content' => ":worker_name did not finish the job on time or did not confirm that all tasks were completed.\n\nYou have three options:\n1.	Finish the job for the worker\n2.	Change the shift\n3.	Change the worker\n:team_btn \n\nWorker’s Phone Number: :worker_phone\nClient’s Phone Number: :client_phone\n\n",
@@ -892,6 +897,10 @@ return [
             'holiday' => "Please note the following holidays during this week: :holidays",
             'signature' => "Best Regards,\nBroom Service Team \nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
         ],
+        'update_on_comment_resolution' => [
+            'content' => "We’ve added updates to the tasks on your job for *:service_name* scheduled for *:date_time*. \nPlease review the latest updates and our responses to each task.\n\n*View Comments and Updates:* :view_worker_job",
+            'signature' => "\n\nBest regards,\nBroom Service Team"
+        ],    
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',

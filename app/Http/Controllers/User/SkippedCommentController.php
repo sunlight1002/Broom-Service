@@ -33,7 +33,7 @@ class SkippedCommentController extends Controller
         ]);
 
         // Find the comment and load related job, client, and worker
-        $comment = JobComments::with(['job.client', 'job.worker'])->find($validatedData['comment_id']);
+        $comment = JobComments::with(['job.client', 'job.worker', 'job.propertyAddress'])->find($validatedData['comment_id']);
 
         // Prepare the data for the event, correcting the client and worker mapping
 
@@ -56,6 +56,7 @@ class SkippedCommentController extends Controller
             'skipcomment' => $skipcomment,               // The comment itself
             'worker' => $comment->job->worker,   // The worker assigned to the job
             'client' => $comment->job->client,   // The client for the job
+            'property_address' => $comment->job->propertyAddress,
         ];
         // Fire the event with the correct data
         event(new WhatsappNotificationEvent([
@@ -102,10 +103,13 @@ class SkippedCommentController extends Controller
         }
 
         $skippedComment->save();
+
+        $jobComment = JobComments::with(["job.jobservice","job.worker"])
+                    ->where('id', $skippedComment->comment_id)->first();
+
         // Update the corresponding JobComments status if skipped comment is 'approved'
         if ($skippedComment->status === 'approved') {
             // Find the JobComment by the same comment_id
-            $jobComment = JobComments::where('id', $skippedComment->comment_id)->first();
             if ($jobComment) {
                 // Update the JobComment status to 'approved'
                 $jobComment->status = 'approved';
@@ -113,8 +117,18 @@ class SkippedCommentController extends Controller
             }
         }
 
-        // Optionally, fire an event if a notification is needed
-        // event(new SkippedCommentStatusUpdated($skippedComment)); // Example event
+        $data = [
+            'service_name' => $jobComment->job->jobservice->name,
+            'job' => $jobComment->job,
+            'worker' => $jobComment->job->worker
+        ];
+ 
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION,
+            "notificationData" => [
+                'job' => $data,
+            ]
+        ]));
 
         return response()->json([
             'success' => true,

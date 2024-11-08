@@ -267,7 +267,7 @@ export default function Comment({
                                                 <i className="fa fa-trash"></i>
                                             </button>
                                         ) : null}
-                                         <div className="col-sm-4">
+                                        <div className="col-sm-4">
                                             <div className="dropdown">
                                                 {/* Language Dropdown Button */}
                                                 <button
@@ -320,9 +320,14 @@ export default function Comment({
                                     <p>{c.comment}</p>
                                     {/* Display Response Text */}
                                     {skippedComment && skippedComment.response_text && (
-                                        <p className="response-text" style={{ color: 'green' }}>
-                                            Team Response: {skippedComment.response_text}
-                                        </p>
+                                        <div>
+                                            <p className="response-text" style={{ color: 'red' }}>
+                                                Worker Comment: {skippedComment.request_text}
+                                            </p>
+                                            <p className="response-text" style={{ color: 'green' }}>
+                                                Team Response: {skippedComment.response_text}
+                                            </p>
+                                        </div>
                                     )}
                                     {/* Attachments */}
                                     {c.attachments && c.attachments.length > 0 && c.attachments.map((cm, i) => {

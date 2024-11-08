@@ -816,6 +816,10 @@ return [
             'signature' => "בברכה, \nברום סרוויס צוות\nטלפון: 03-525-70-60 \n🌐 Website: www.broomservice.co.il",
             'all_comments' => "אל תשכח להשלים את משימות באות: \n:comments\n"
         ],
+        'worker_start_the_job' => [
+            'content' => "התחלת את העבודה בכתובת :client_address . יש לך :job_duration לסיום העבודה, והיא צריכה להסתיים עד  *:end_time*.\n\nאנא עיין ובצע את המשימות הבאות:\n\n- *שירות:* :service_name \n- *הוראות מיוחדות:* :comments \nכשתסיים, נא אשר:\n\n- *לחץ כאן לאישור שהמשימות בוצעו* :view_job \n- *צור קשר עם המנהל* :contact_manager אם יש בעיות בביצוע המשימות.",
+            'signature' => "\n\nבברכה, \nצוות ברום סרוויס",
+        ],
         'team_worker_on_my_way' => [
             'subject' => "העובד לא סיים את העבודה או לא אישר שהמשימות בוצעו\n\n",
             'content' => ":worker_name לא סיים את העבודה בזמן או לא אישר שהמשימות הושלמו.\n\nיש לכם שלוש אפשרויות:\n1.	לסיים את העבודה עבור העובד\n2.	לשנות את המשמרת\n3.	לשנות את העובד\n:team_btn\n\nמספר טלפון של העובד: :worker_phone\nמספר טלפון של הלקוח: :client_phone\n\n",
@@ -930,8 +934,11 @@ return [
             'link' => 'לחץ כאן לבקשת שינוי בלוח הזמנים שלך: :worker_jobs',
             'holiday' => "שימו לב לחגים הבאים במהלך השבוע הזה: :holidays",
             'signature' => "בברכה,\nצוות ברום סרוויס \n🌐 www.broomservice.co.il\n📞: 03-525-70-60\noffice@broomservice.co.il",
-
         ],
+        'update_on_comment_resolution' => [
+            'content' => "הוספנו עדכונים לביצוע המשימות בעבודה שלך לשירות *:service_name*, שנקבעה ל-*:date_time*.\n אנא עיין בעדכונים האחרונים ובתגובות שלנו לכל משימה.",
+            'signature' => "\n\nבברכה,\nצוות ברום סרוויס"
+        ], 
         'button-label' => [
             'accept_reject' => 'קבל/דחה',
             'upload_file' => 'העלה קובץ',

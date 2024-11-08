@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Events\JobNotificationToWorker;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class JobHours extends Model
 {
@@ -17,24 +19,20 @@ class JobHours extends Model
 
         //send notification to worker about next step
         static::saving(function ($model) {
-            $isSend = false;
-            $model->load(['job', 'job.client', 'job.worker', 'job.jobservice', 'job.propertyAddress']);
+            $model->load(['job', 'job.client', 'job.worker', 'job.jobservice', 'job.propertyAddress', 'job.comments']);
             $job = $model->job->toArray();
             $worker = $job['worker'];
             $job['start_time'] = $model->start_time;
             if (auth()->user()->email == $worker['email']) {
                 if ($model->isDirty('start_time')) {
-                    $isSend = true;
-                    $emailData = [
-                        'emailSubject'  => __('mail.job_nxt_step.start_time_nxt_step_email_subject'),
-                        'emailTitle'  => __('mail.job_nxt_step.start_time_nxt_step_email_title'),
-                        'emailContent'  => __('mail.job_nxt_step.start_time_nxt_step_email_content', ['label' => " <b>".__('mail.job_common.end_time')."</b>"]),
-                        'emailContentWa'  => __('mail.job_nxt_step.start_time_nxt_step_email_content', ['label' => " *".__('mail.job_common.end_time')."*"]),
-
-                    ];
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::WORKER_START_THE_JOB,
+                        "notificationData" => [
+                            'job' => $job,
+                        ]
+                    ]));
                     
                 } elseif ($model->isDirty('end_time')) {
-                    $isSend = true;
                     $emailData = [
                         'emailSubject'  => __('mail.job_nxt_step.end_time_nxt_step_email_subject'),
                         'emailTitle'  => __('mail.job_nxt_step.end_time_nxt_step_email_title'),
@@ -42,10 +40,8 @@ class JobHours extends Model
                         'emailContentWa'  => __('mail.job_nxt_step.end_time_nxt_step_email_content', ['l1' => " *".__('mail.job_common.mark_as_complete')."*", 'l2' => " *".__('mail.job_common.resume_timer')."*"]),
 
                     ];
-                }
-
-                if ($isSend) {
                     event(new JobNotificationToWorker($worker, $job, $emailData));
+
                 }
             }
         });
