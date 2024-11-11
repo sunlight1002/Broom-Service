@@ -86,28 +86,27 @@ export default function Hearing() {
                                 </p>`;
                     }
                 },
+                // {
+                //     title: "Files",
+                //     data: "action",
+                //     orderable: false,
+                //     responsivePriority: 1,
+                //     render: function (data, type, row, meta) {
+                //         const _id = Base64.encode(row.id.toString());
 
-                {
-                    title: "Files",
-                    data: "action",
-                    orderable: false,
-                    responsivePriority: 1,
-                    render: function (data, type, row, meta) {
-                        const _id = Base64.encode(row.id.toString());
+                //         let _html = `<a href="/client/files/${_id}" class="d-block d-md-flex text-center pl-5 pl-md-0 dt-file-button" data-id="${_id}">`;
+                //         _html += `<i class="fa-regular fa-folder" style="font-size: 24px; color: #2F4054; padding: 7px; background: #E5EBF1; border-radius: 5px;"></i></a>`;
+                //         // if (row.file_exists == 1) {
+                //         //     _html += `<i class="fa fa-image" style="font-size: 24px"></i></a>`;
+                //         // } else {
+                //         //     _html += `<i class="fa fa-upload" style="font-size: 24px"></i></a>`;
+                //         // }
 
-                        let _html = `<a href="/client/files/${_id}" class="d-block d-md-flex text-center pl-5 pl-md-0 dt-file-button" data-id="${_id}">`;
-                        _html += `<i class="fa-regular fa-folder" style="font-size: 24px; color: #2F4054; padding: 7px; background: #E5EBF1; border-radius: 5px;"></i></a>`;
-                        // if (row.file_exists == 1) {
-                        //     _html += `<i class="fa fa-image" style="font-size: 24px"></i></a>`;
-                        // } else {
-                        //     _html += `<i class="fa fa-upload" style="font-size: 24px"></i></a>`;
-                        // }
+                //         // _html += `</a>`;
 
-                        // _html += `</a>`;
-
-                        return _html;
-                    },
-                },
+                //         return _html;
+                //     },
+                // },
             ],
             searching: true,
             ordering: true,

@@ -369,6 +369,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     
     Route::post('/hearing-protocol', [HearingProtocolController::class, 'store']);
+    Route::get('/protocol/{id}', [HearingProtocolController::class, 'show']);
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);

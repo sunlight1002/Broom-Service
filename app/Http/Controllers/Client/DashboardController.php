@@ -265,6 +265,8 @@ class DashboardController extends Controller
         $client->primary_address = ClientPropertyAddress::where('client_id', $client->id)->first();
         $client->avatar = $client->avatar ? Storage::disk('public')->url('uploads/client/' . $client->avatar) : asset('images/man.png');
 
+        $client->is_first_login = $client->first_login;
+        
         return response()->json([
             'account' => $client,
         ]);

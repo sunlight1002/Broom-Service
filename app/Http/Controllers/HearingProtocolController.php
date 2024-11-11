@@ -27,4 +27,15 @@ class HearingProtocolController extends Controller
 
         return response()->json(['message' => 'Protocol saved successfully!'], 201);
     }
+
+    public function show($id)
+    {
+        $protocol = HearingProtocol::find($id);
+
+        if (!$protocol) {
+            return response()->json(['message' => 'Protocol not found.'], 404);
+        }
+
+        return response()->json(['file' => $protocol->file], 200);
+    }
 }
