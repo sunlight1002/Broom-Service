@@ -924,6 +924,10 @@
             "default": "ברירת מחדל",
             "markAsDefault": "סמן כברירת מחדל",
             "NoCardAdded": "לא נוסף כרטיס"
+        },
+        "other": {
+            "change_or_request": "שלח הודעה לגבי שינוי או בקשה:",
+            "message": "הוֹדָעָה"
         }
     },
     "admin": {

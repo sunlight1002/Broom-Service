@@ -163,7 +163,7 @@ import Board from "./Admin/Pages/TaskManagement/Board";
 import Tasks from "./Worker/Pages/MyAccount/Tasks";
 import TeamButtons from "./Pages/TeamButtons";
 import TeamBtnsAfter7days from "./Pages/TeamBtnsAfter7days";
-import {ExtraLinks} from "./Pages/ExtraLinks";
+import { ExtraLinks } from "./Pages/ExtraLinks";
 import TeamSkippedComments from "./Pages/TeamSkippedComments";
 import { TimeManage } from "./Pages/TimeManage";
 import Templates from "./Admin/Pages/Setting/Templates";
@@ -173,6 +173,7 @@ import AddHoliday from "./Admin/Pages/Setting/AddHoliday";
 import EditHoliday from "./Admin/Pages/Setting/EditHoliday";
 import WorkerLead from "./Admin/Pages/Workers/WorkerLead";
 import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
+import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -213,30 +214,31 @@ export default function MyRoutes() {
                         path="meeting-files/:id"
                         element={<MeetingFiles />}
                     />
-                     <Route
+                    <Route
                         exact
                         path="team-btn/:id"
-                        element={<TeamButtons/>}
+                        element={<TeamButtons />}
                     />
-                      <Route
+                    <Route
                         exact
                         path="team-btn7days/:id"
-                        element={<TeamBtnsAfter7days/>}
+                        element={<TeamBtnsAfter7days />}
                     />
-                      <Route
+                    <Route
                         exact
                         path="time-manage/:id"
-                        element={<TimeManage/>}
+                        element={<TimeManage />}
                     />
-                     <Route
+                    <Route
                         exact
                         path="action-comment/:id"
-                        element={<TeamSkippedComments/>}
+                        element={<TeamSkippedComments />}
                     />
-                     <Route
+
+                    <Route
                         exact
                         path="confirmation/:id"
-                        element={<ExtraLinks/>}
+                        element={<ExtraLinks />}
                     />
                     <Route
                         exact
@@ -340,6 +342,12 @@ export default function MyRoutes() {
                         exact
                         path="worker-invitation-form/:id"
                         element={<WorkerInvitationForm />}
+                    />
+
+                    <Route
+                        exact
+                        path="/request-to-change/:id"
+                        element={<RequestToChangeScheduled />}
                     />
 
                     {/* Client Routes Start  */}
@@ -448,7 +456,7 @@ export default function MyRoutes() {
                             <Route
                                 exact
                                 path="hearing"
-                                element={<Hearing/>}
+                                element={<Hearing />}
                             />
                             <Route
                                 exact
@@ -505,7 +513,7 @@ export default function MyRoutes() {
                                 path="advance-loan"
                                 element={<AdvanceLoan />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="tasks"
                                 element={<Tasks />}
@@ -638,15 +646,15 @@ export default function MyRoutes() {
                                 path="workers/view/:id"
                                 element={<ViewWorker />}
                             />
-                            <Route 
+                            <Route
                                 exact
-                                path="workers/view/:id/hearing-invitation" 
-                                element={<HearingInvitation />} 
+                                path="workers/view/:id/hearing-invitation"
+                                element={<HearingInvitation />}
                             />
-                            <Route 
+                            <Route
                                 exact
-                                path="workers/view/:id/upload-claim" 
-                                element={<HearingProtocol />} 
+                                path="workers/view/:id/upload-claim"
+                                element={<HearingProtocol />}
                             />
                             <Route
                                 exact
@@ -668,10 +676,10 @@ export default function MyRoutes() {
                                 path="manage-team"
                                 element={<ManageTeam />}
                             />
-                              <Route
+                            <Route
                                 exact
                                 path="templates"
-                                element={<AllTemplatesList/>}
+                                element={<AllTemplatesList />}
                             />
                             <Route
                                 exact
@@ -718,7 +726,7 @@ export default function MyRoutes() {
                                 path="manpower-companies"
                                 element={<ManpowerCompanies />}
                             />
-                           <Route
+                            <Route
                                 exact
                                 path="holidays"
                                 element={<Holidays />}
@@ -749,36 +757,36 @@ export default function MyRoutes() {
                                 element={<WorkersLeave />}
                             />
                             <Route
-                                
+
                                 path="workers-refund"
                                 element={<WorkersRefund />}
                             />
-                            <Route 
+                            <Route
                                 exact
-                                path="workers/view/:workerId" 
-                                element={<WorkerTermination />} 
+                                path="workers/view/:workerId"
+                                element={<WorkerTermination />}
                             />
-                            <Route 
+                            <Route
                                 exact
-                                path="workers/view/:workerId/hearing-invitation" 
-                                element={<WorkersHearing />} 
+                                path="workers/view/:workerId/hearing-invitation"
+                                element={<WorkersHearing />}
                             />
-                            <Route 
+                            <Route
                                 exact
-                                path="workers/view/:workerId/hearing-invitation/:hid" 
-                                element={<ViewHearing />} 
+                                path="workers/view/:workerId/hearing-invitation/:hid"
+                                element={<ViewHearing />}
                             />
                             <Route
                                 exact
                                 path="holidays"
                                 element={<Holiday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/create"
                                 element={<AddHoliday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/:id/edit"
                                 element={<EditHoliday />}
@@ -788,12 +796,12 @@ export default function MyRoutes() {
                                 path="holidays"
                                 element={<Holiday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/create"
                                 element={<AddHoliday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/:id/edit"
                                 element={<EditHoliday />}

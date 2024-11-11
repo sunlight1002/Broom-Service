@@ -63,6 +63,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED = "notify_to_client_contract_not_signed";
     public const NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED = "notify_to_team_contract_not_signed";
     public const OFF_SITE_MEETING_REMINDER_TO_CLIENT = "off_site_meeting_reminder_to_client";
+    public const OFF_SITE_MEETING_REMINDER_TO_TEAM = "off_site_meeting_reminder_to_team";
     public const CLIENT_LEAD_STATUS_CHANGED = "client_lead_status_changed";
     public const CLIENT_CHANGED_JOB_SCHEDULE = "client_changed_job_schedule";
     public const WORKER_CHANGED_AVAILABILITY_AFFECT_JOB = "worker_changed_availability_affect_job";
@@ -141,4 +142,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_NEED_EXTRA_TIME = "worker-need-extra-time";
     public const WORKER_START_THE_JOB = "worker-start-the-job";
     public const UPDATE_ON_COMMENT_RESOLUTION = "update-on-comment-resolution";
+    public const NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE = "notify-team-request-to-change-schedule";
 }

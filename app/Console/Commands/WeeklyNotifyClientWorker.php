@@ -77,10 +77,10 @@ class WeeklyNotifyClientWorker extends Command
                     'notificationData' => [
                         // 'job' => $job,
                         'client' => $job->client,
-                        'holidayMessage' => $holidayMessage,
+                        // 'holidayMessage' => $holidayMessage,
                     ],
                 ];
-                event(new WhatsappNotificationEvent($clientData));
+                // event(new WhatsappNotificationEvent($clientData));
             }
             if ($job->worker) {
                 $workerData = [
@@ -88,7 +88,7 @@ class WeeklyNotifyClientWorker extends Command
                     'notificationData' => [
                         // 'job' => $job,
                         'worker' => $job->worker,
-                        'holidayMessage' => $holidayMessage,
+                        // 'holidayMessage' => $holidayMessage,
                     ],
                 ];
                 event(new WhatsappNotificationEvent($workerData));

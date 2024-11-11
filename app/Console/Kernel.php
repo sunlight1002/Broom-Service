@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('team:lead-status-pending-from-24-hours')->daily();
         $schedule->command('team:price-offer-reminder-to-team')->daily();
         $schedule->command('team:contract-reminder')->hourly();
-        $schedule->command('team:offsite-meeting-reminder')->daily();
+        $schedule->command('client:offsite-meeting-reminder')->daily();
 
         // Admin reminder
         // $schedule->command('admin:send-worker-invitation-report')->twiceDailyAt(8, 18);
@@ -56,7 +56,7 @@ class Kernel extends ConsoleKernel
 
 
 
-        $schedule->command('notifyclientforcontract')->hourly();
+        // $schedule->command('notifyclientforcontract')->hourly();
         $schedule->command('mondayNotify')->weeklyOn(1, '08:00'); // 1 = Monday
         $schedule->command('remind:next-week-services')->weeklyOn(3, '9:00');
     }

@@ -28,7 +28,7 @@ class WhatsappNotification
         $this->whapiApiToken = config('services.whapi.token');
     }
 
-    private function replaceClientFields($text, $clientData)
+    private function replaceClientFields($text, $clientData, $eventData)
     {
         $placeholders = [];
         if (isset($clientData) && !empty($clientData)) {
@@ -59,19 +59,24 @@ class WhatsappNotification
                 ':inquiry_date' => Carbon::now()->format('M d Y'),
                 ':client_create_date' => isset($clientData['created_at']) ? Carbon::parse($clientData['created_at'])->format('M d Y H:i') : '',
                 ':lead_detail_url' => url("admin/leads/view/" . $clientData['id'] ?? ''),
+                ':request_change_schedule' => url("/request-to-change/" .  base64_encode($clientData['id']). "?type=client" ?? ''),
+                ':request_details' => isset($eventData['request_details']) ? $eventData['request_details'] : '',
+
             ];
 
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
 
-    private function replaceWorkerFields($text, $workerData)
+    private function replaceWorkerFields($text, $workerData, $eventData)
     {
         $placeholders = [];
         if(isset($workerData) && !empty($workerData)) {
             $placeholders = [
                 ':worker_name' => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                 ':worker_phone_number' => '+' . ($workerData['phone'] ?? ''),
+                ':request_change_schedule' => url("/request-to-change/" .  base64_encode($workerData['id']) . "?type=worker" ?? ''),
+                ':request_details' => isset($eventData['request_details']) ? $eventData['request_details'] : '',
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -233,6 +238,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB:
                     case WhatsappMessageTemplateEnum::WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY:
                     case WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER:
+                    case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE:
                         $receiverNumber = $workerData['phone'];
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
@@ -259,22 +265,24 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT:
                     case WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED:
                     case WhatsappMessageTemplateEnum::OFF_SITE_MEETING_REMINDER_TO_CLIENT:
+                    case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE:
                         $receiverNumber = $clientData['phone'];
-                        $lng = $clientData['lng'] ?? 'heb';
+                        $lng =  'heb';
                         break;
 
                     case WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES:
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED:
                     case WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED:
                     case WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT:
+                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';
                         break;
                 }
 
                 $text = $template->{'message_' . $lng};
-                $text = $this->replaceClientFields($text, $clientData);
-                $text = $this->replaceWorkerFields($text, $workerData);
+                $text = $this->replaceClientFields($text, $clientData, $eventData);
+                $text = $this->replaceWorkerFields($text, $workerData, $eventData);
                 $text = $this->replaceJobFields($text, $jobData, $workerData, $commentData);
                 $text = $this->replaceMeetingFields($text, $eventData);
                 $text = $this->replaceOfferFields($text, $offerData);
@@ -629,83 +637,83 @@ class WhatsappNotification
 
                         break;
 
-                    case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE:
-                        $clientData = $eventData['client'];
-                        $holidayMessage = $eventData['holidayMessage'];
+                    // case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE:
+                    //     $clientData = $eventData['client'];
+                    //     $holidayMessage = $eventData['holidayMessage'];
 
-                        $receiverNumber = $clientData['phone'];
-                        App::setLocale($clientData['lng'] ?? 'heb');
+                    //     $receiverNumber = $clientData['phone'];
+                    //     App::setLocale($clientData['lng'] ?? 'heb');
 
-                        $text = __('mail.wa-message.notify_monday_client.subject');
+                    //     $text = __('mail.wa-message.notify_monday_client.subject');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.notify_monday_client.salutation');
+                    //     $text .= __('mail.wa-message.notify_monday_client.salutation');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.notify_monday_client.content');
+                    //     $text .= __('mail.wa-message.notify_monday_client.content');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        if ($holidayMessage) {
-                            $text .= __('mail.wa-message.notify_monday_client.holiday',[
-                                'holidays' => $holidayMessage
-                            ]);
-                        $text .= "\n";
-                        }
+                    //     if ($holidayMessage) {
+                    //         $text .= __('mail.wa-message.notify_monday_client.holiday',[
+                    //             'holidays' => $holidayMessage
+                    //         ]);
+                    //     $text .= "\n";
+                    //     }
 
-                        $text .= __('mail.wa-message.notify_monday_client.request');
+                    //     $text .= __('mail.wa-message.notify_monday_client.request');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.notify_monday_client.link', [
-                            'client_jobs' => url('client/jobs'),
-                        ]);
+                    //     $text .= __('mail.wa-message.notify_monday_client.link', [
+                    //         'client_jobs' => url('client/jobs'),
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.notify_monday_client.signature');
+                    //     $text .= __('mail.wa-message.notify_monday_client.signature');
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE:
-                        $workerData = $eventData['worker'];
-                        $holidayMessage = $eventData['holidayMessage'];
+                    // case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE:
+                    //     $workerData = $eventData['worker'];
+                    //     $holidayMessage = $eventData['holidayMessage'];
 
-                        $receiverNumber = $workerData['phone'];
-                        App::setLocale($workerData['lng'] ?? 'heb');
+                    //     $receiverNumber = $workerData['phone'];
+                    //     App::setLocale($workerData['lng'] ?? 'heb');
 
-                        $text = __('mail.wa-message.notify_monday_worker.subject');
+                    //     $text = __('mail.wa-message.notify_monday_worker.subject');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.notify_monday_worker.salutation',[
-                            'worker_name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
-                        ]);
+                    //     $text .= __('mail.wa-message.notify_monday_worker.salutation',[
+                    //         'worker_name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.notify_monday_worker.content');
+                    //     $text .= __('mail.wa-message.notify_monday_worker.content');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        if ($holidayMessage) {
-                            $text .= __('mail.wa-message.notify_monday_worker.holiday',[
-                                'holidays' => $holidayMessage
-                            ]);
-                        $text .= "\n";
-                        }
+                    //     if ($holidayMessage) {
+                    //         $text .= __('mail.wa-message.notify_monday_worker.holiday',[
+                    //             'holidays' => $holidayMessage
+                    //         ]);
+                    //     $text .= "\n";
+                    //     }
 
-                        $text .= __('mail.wa-message.notify_monday_worker.link', [
-                            'worker_jobs' => url('worker/jobs'),
-                        ]);
+                    //     $text .= __('mail.wa-message.notify_monday_worker.link', [
+                    //         'worker_jobs' => url('worker/jobs'),
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.notify_monday_worker.signature');
+                    //     $text .= __('mail.wa-message.notify_monday_worker.signature');
 
-                        break;
+                    //     break;
 
                     case WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION:
                         $comment = $eventData['comment'];

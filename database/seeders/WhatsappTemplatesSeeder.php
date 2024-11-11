@@ -55,7 +55,7 @@ Por favor confirma que has visto la dirección para el trabajo de mañana:
 
 Saludos cordiales,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 Пожалуйста, подтвердите, что вы видели адрес для завтрашней работы:
 
@@ -110,7 +110,7 @@ Este es un recordatorio para confirmar la dirección para el trabajo de mañana 
 Saludos cordiales,
 Equipo de Broom Service
 ',
-    'message_ru' => 'Здравствуйте, *:worker_name*,
+    'message_rus' => 'Здравствуйте, *:worker_name*,
 
 Это напоминание подтвердить адрес для завтрашней работы как можно скорее:
 
@@ -144,7 +144,7 @@ Equipo de Broom Service
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -186,7 +186,7 @@ Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 
 Saludos cordiales,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 У вас назначена работа на *:job_start_time* по следующему адресу:
 
@@ -220,7 +220,7 @@ Equipo de Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -253,7 +253,7 @@ Una vez que llegue al lugar de trabajo, por favor confirme haciendo clic en el b
 
 Atentamente,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 По прибытии на место работы, пожалуйста, подтвердите это, нажав на кнопку ниже.
 
@@ -285,7 +285,7 @@ Equipo de Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -333,7 +333,7 @@ Cuando haya terminado, por favor confirme:
 
 Atentamente,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 Ваша работа по адресу *:job_full_address* началась. У вас есть *:job_remaining_hours часа* для завершения работы, и она должна быть завершена к *:job_end_time*.
 
@@ -367,7 +367,7 @@ Equipo de Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -390,7 +390,7 @@ Broom Service Team',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -421,7 +421,7 @@ Todas las tareas han sido marcadas como completadas. Ahora puedes finalizar tu t
 
 Saludos cordiales,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 Все задачи отмечены как выполненные. Теперь вы можете завершить смену.
 
@@ -468,7 +468,7 @@ Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 
 Saludos cordiales,
 Equipo Broom Service',
-                'message_ru' => 'Спасибо, *:worker_name*!
+                'message_rus' => 'Спасибо, *:worker_name*!
 
 У вас назначена работа на *:job_start_time* по следующему адресу:
 
@@ -497,7 +497,7 @@ Broom Service Team',
 
 Saludos cordiales,
 Equipo Broom Service',
-                'message_ru' => 'Спасибо, :worker_name! Приятного вам дня.
+                'message_rus' => 'Спасибо, :worker_name! Приятного вам дня.
 
 С уважением,
 Команда Broom Service',
@@ -520,7 +520,7 @@ Equipo Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -550,7 +550,7 @@ El trabajo en :job_full_address estaba programado para completarse a las :job_en
 
 Saludos cordiales,
 Equipo Broom Service',
-                'message_ru' => 'Привет, :worker_name,
+                'message_rus' => 'Привет, :worker_name,
 Работа по адресу :job_full_address должна была завершиться к :job_end_time. Пожалуйста, завершите работу, если все задачи выполнены, или свяжитесь с менеджером, если нужна помощь.
 *Варианты:*
 - Завершить работу :worker_job_link
@@ -576,7 +576,7 @@ Equipo Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -597,7 +597,7 @@ Upload file: :meeting_file_upload_link',
 
 העלה קובץ: :meeting_file_upload_link',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
 
@@ -635,7 +635,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -650,7 +650,7 @@ office@broomservice.co.il',
 
 בדוק קובץ: :meeting_uploaded_file_url',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -664,7 +664,7 @@ Just a friendly reminder that your meeting *:meeting_team_member_name* on *:meet
 
 זוהי תזכורת לכך שהפגישה שלך *:meeting_team_member_name* ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בוטלה כעת.',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -683,7 +683,7 @@ Price Offer: :client_price_offer_link',
 
 הצעת מחיר: :client_price_offer_link',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
 
@@ -706,7 +706,7 @@ Price Offer: :client_price_offer_link',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -728,7 +728,7 @@ Price Offer: :client_price_offer_link',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -763,7 +763,7 @@ Broom Service
 📞 03-525-70-60
 🌐 www.broomservice.co.il',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -798,7 +798,7 @@ Broom Service
 📞 03-525-70-60
 🌐 www.broomservice.co.il',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -819,7 +819,7 @@ Broom Service
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -840,7 +840,7 @@ Broom Service
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -854,7 +854,7 @@ Please send the files at your earliest convenience to help us provide an accurat
 
 If you have any questions or requests, we’re here to assist you.
 
-Click here to upload your photos/video :meeting_uploaded_file_url
+Click here to upload your photos/video :meeting_file_upload_link
 
 Best regards,
 Broom Service
@@ -868,7 +868,7 @@ Broom Service
 
 אם יש לך שאלות או בקשות, אנו פה לשירותך.
 
-לחץ כאן לשליחת התמונות/סרטון :meeting_uploaded_file_url
+לחץ כאן לשליחת התמונות/סרטון :meeting_file_upload_link
 
 בברכה,
 ברום סרוויס
@@ -876,7 +876,123 @@ Broom Service
 🌐 http://www.broomservice.co.il
 ',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::OFF_SITE_MEETING_REMINDER_TO_TEAM,
+                'description' => 'Notification to Team - Reminder for Pending Client Files (Sent after 24 hours, 3 days, and 7 days)',
+                'message_en' => '',
+                'message_heb' => "שלום צוות,
+
+הלקוח :client_name עדיין לא שלח תמונות או סרטון של האזור הנדרש לניקוי.
+אנא עקבו אחר הלקוח לבדיקת סטטוס והשלמת הפרטים לצורך מתן הצעת המחיר.
+
+פרטי הלקוח:
+    • שם: :client_name
+    • טלפון: :client_phone_number
+
+בברכה,
+צוות ברום סרוויס",
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
+                'description' => 'Every Monday, send a notification to all clients and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule. Also, notify them if there is any holiday during that week.',
+                'message_en' => 'Dear Clients, good morning,  
+
+Today is Monday, and we’re finalizing the work schedule for next week. If you have any constraints, changes, or special requests, please send them to us by the end of the day.
+
+For any questions or requests, we’re here to assist you.
+
+*Click here to send a message regarding a change or request* :request_change_schedule
+
+Wishing you a wonderful day! 🌸  
+Broom Service  
+📞 03-525-70-60  
+🌐 http://www.broomservice.co.il',
+                'message_heb' => "לקוחות יקרים, בוקר טוב,  
+
+היום יום שני, ואנו סוגרים סידור עבודה לשבוע הבא. במידה ויש לכם אילוצים, שינויים או בקשות מיוחדות, נבקש להעבירם עוד היום.
+
+לכל שאלה או בקשה, אנו פה לשירותכם.
+
+*לחץ כאן לשליחת הודעה על שינוי או בקשה* :request_change_schedule
+
+המשך יום נהדר! 🌸  
+ברום סרוויס  
+📞 03-525-70-60  
+🌐 http://www.broomservice.co.il",
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE,
+                'description' => 'Every Monday, send a notification to all workers and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule. Also, notify them if there is any holiday during that week.',
+                'message_en' => "Hi :worker_name, how are you?
+
+Do you need any day or half-day off next week?  
+We need to finalize next week’s schedule today, so please let us know as soon as possible if you have any specific requirements.
+
+If your schedule is the same as last week, no changes are needed.  
+*Click here to request a change in your schedule* :request_change_schedule
+
+Best Regards,  
+Broom Service Team",
+                'message_heb' => "שלום :worker_name,
+
+האם אתה זקוק ליום חופש מלא או חצי יום חופש בשבוע הבא?  
+אנו סוגרים את סידור העבודה להיום ונבקש לדעת בהקדם אם יש לך בקשות מיוחדות.
+
+אם הלוז שלך נשאר כמו שבוע שעבר, אין צורך בשינוי.  
+*לחץ כאן לבקשת שינוי בלוח הזמנים שלך* :request_change_schedule
+
+בברכה,  
+צוות ברום סרוויס",
+                'message_spa' => 'Hola :worker_name, ¿cómo estás?
+
+¿Necesitas algún día o medio día libre la próxima semana?
+Necesitamos finalizar el cronograma de la próxima semana hoy, así que avísanos lo antes posible si tienes algún requisito específico.
+
+Si tu cronograma es el mismo que el de la semana pasada, no es necesario realizar cambios.
+*Haz clic aquí para solicitar un cambio en tu cronograma* :request_change_schedule
+
+Saludos cordiales,
+Equipo de servicio de escobas',
+                'message_rus' => 'Привет, :worker_name  ,
+
+Вам нужен полный или половина выходного дня на следующей неделе?  
+Сегодня мы завершаем планирование графика на следующую неделю, поэтому, пожалуйста, сообщите нам как можно скорее, если у вас есть особые пожелания.
+
+Если ваш график остается таким же, как на прошлой неделе, изменений не требуется.  
+*Нажмите здесь, чтобы запросить изменение в вашем графике* :request_change_schedule
+
+С уважением,  
+Команда Broom Service',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE,
+                'description' => 'Every Monday, send a notification to all clients and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule. Also, notify them if there is any holiday during that week.',
+                'message_en' => '',
+                'message_heb' => "שלום צוות,
+
+התקבלה בקשת שינוי מסידור העבודה מצד הלקוח הבא:
+
+- *שם הלקוח:* :client_name
+- *מספר טלפון:* :client_phone_number
+- *פרטי הבקשה:* :request_details
+  
+אנא בדקו את הבקשה ובצעו את השינויים הנדרשים בהתאם.
+במידה ויש שאלות או צורך בפעולה נוספת, ניתן ליצור קשר עם הלקוח ישירות.
+
+בברכה,  
+צוות ברום סרוויס",
+                'message_spa' => '',
+                'message_rus' => '',
             ]
         ];
 

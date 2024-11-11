@@ -765,4 +765,51 @@ class JobController extends Controller
     //     }
     // }
 
+    public function requestToChange(Request $request)
+    {
+        // Validate the request inputs
+        $request->validate([
+            'text' => 'required|string',
+            'client_id' => 'required|exists:clients,id',
+            'type' => 'required|string'
+        ]);
+    
+        $type = $request->type;
+        $notificationData = [
+            'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE,
+            'notificationData' => [
+                'request_details' => $request->text,
+            ],
+        ];
+    
+        if ($type === "client") {
+            $client = Client::find($request->client_id);
+            if (!$client) {
+                return response()->json([
+                    'message' => 'Client not found'
+                ], 404);
+            }
+            // Add client data to notificationData
+            $notificationData['notificationData']['client'] = $client->toArray();
+        } else {
+            $worker = User::find($request->client_id);
+            if (!$worker) {
+                return response()->json([
+                    'message' => 'Worker not found'
+                ], 404);
+            }
+            // Add worker data to notificationData
+            $notificationData['notificationData']['worker'] = $worker->toArray();
+        }
+    
+        // Send the notification via WhatsApp
+        event(new WhatsappNotificationEvent($notificationData));
+    
+        return response()->json([
+            'message' => 'Request sent successfully via WhatsApp'
+        ], 200);
+    }
+    
+    
+
 }

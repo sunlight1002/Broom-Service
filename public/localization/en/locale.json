@@ -922,6 +922,10 @@
             "default": "default",
             "markAsDefault": "Mark as Default",
             "NoCardAdded": "No card added"
+        },
+        "other": {
+            "change_or_request": "Send a message regarding a change or request:",
+            "message": "Message"
         }
     },
     "admin": {
