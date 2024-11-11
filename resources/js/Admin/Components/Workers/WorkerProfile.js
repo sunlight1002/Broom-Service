@@ -68,7 +68,7 @@ export default function WorkerProfile({ worker }) {
                                         <label className="control-label">
                                             {t("worker.settings.renewal_visa")}
                                         </label>
-                                        <p>{worker.renewal_date}</p>
+                                        <p>{worker.renewal_visa}</p>
                                     </div>
                                 </div>
                             )}

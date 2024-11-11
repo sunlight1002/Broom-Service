@@ -2994,6 +2994,63 @@ office@broomservice.co.il
                 'message_ru' => "",
             ],
 
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL,
+                'description' => 'Reminder to Team one week before worker visa renewal',
+                'message_en' => '',
+                'message_heb' => "*שלום צוות*,
+
+זוהי תזכורת שהעובד :worker_name צריך לחדש את הוויזה שלו בתאריך :visa_renewal_date. נא לדאוג לבצע את כל ההתאמות הנדרשות בלוח הזמנים, מכיוון שסביר להניח שהעובד לא יוכל לעבוד ביום זה.
+
+נא לוודא שכל השינויים מתבצעים בהתאם ולהיות במעקב עד לקבלת הוויזה החדשה.
+
+:worker_detail_url
+
+תודה על שיתוף הפעולה!
+
+בברכה,
+צוות ברום סרוויס",
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL,
+                'description' => '5 PM Daily Reminder to Worker to Confirm Address',
+                'message_en' => 'Hi, *:worker_name*,
+
+This is a reminder that your visa is up for renewal on :visa_renewal_date. Please make sure you are prepared to renew your visa on time.
+
+Best of luck!
+
+Best Regards,
+Broom Service Team',
+                'message_heb' => 'שלום, *:worker_name*,
+
+זוהי תזכורת שהוויזה שלך מתחדשת בתאריך :visa_renewal_date. נא לוודא שאתה מוכן לחידוש הוויזה בזמן.
+
+בהצלחה!
+
+בברכה,
+צוות ברום סרוויס  ',
+                'message_spa' => 'Hola, *:worker_name*,
+
+Este es un recordatorio de que tu visa necesita ser renovada el :visa_renewal_date. Asegúrate de estar preparado para la renovación a tiempo.
+
+¡Buena suerte!
+
+Saludos cordiales,
+Equipo de Broom Service',
+                'message_ru' => 'Здравствуйте, *:worker_name*,
+
+Это напоминание о том, что ваша виза требует продления :visa_renewal_date. Пожалуйста, убедитесь, что вы готовы продлить визу вовремя.
+
+Удачи!
+
+С уважением,
+Команда Broom Service',
+            ],
+
         ];
 
         foreach ($templates as $key => $template) {

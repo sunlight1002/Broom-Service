@@ -32,6 +32,9 @@ if (!function_exists('sendInvoicePayToClient')) {
 if (!function_exists('sendWhatsappMessage')) {
     function sendWhatsappMessage($number, $data = array(), $lang = 'he', $replyId = null)
     {
+        if (isset($data['disable_notification']) && $data['disable_notification'] == 1) {
+            return;
+        }
         // Normalize the phone number
         $mobile_no = str_replace("-", "", $number);
 

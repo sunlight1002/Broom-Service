@@ -58,6 +58,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('remind:next-week-services')->weeklyOn(3, '9:00');
 
         $schedule->command('notifyTeamAndClientTommorowMeeting')->dailyAt('19:00');
+
+        $schedule->command('notify:team-and-worker-for-visa-renewal')->weeklyOn(1, '8:00'); // Every Monday at 8:00 AM
+
     }
 
     /**

@@ -151,5 +151,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const STOP = "stop";
     public const NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS = "notify-team-for-tommorow-meetings";
     public const NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS = "notify-client-for-tommorow-meetings";
+    public const NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL = "notify-team-one-week-before-worker-visa-renewal";
+    public const NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL = "notify-worker-one-week-before-his-visa-renewal";
     
 }
