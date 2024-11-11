@@ -59,9 +59,10 @@ class WhatsappNotification
                 ':inquiry_date' => Carbon::now()->format('M d Y'),
                 ':client_create_date' => isset($clientData['created_at']) ? Carbon::parse($clientData['created_at'])->format('M d Y H:i') : '',
                 ':lead_detail_url' => url("admin/leads/view/" . $clientData['id'] ?? ''),
+                ':client_detail_url' => url("admin/clients/view/" . $clientData['id'] ?? ''),
                 ':request_change_schedule' => url("/request-to-change/" .  base64_encode($clientData['id']). "?type=client" ?? ''),
                 ':request_details' => isset($eventData['request_details']) ? $eventData['request_details'] : '',
-
+                ':new_status' => $eventData['new_status'] ?? ''
             ];
 
         }
@@ -75,8 +76,11 @@ class WhatsappNotification
             $placeholders = [
                 ':worker_name' => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                 ':worker_phone_number' => '+' . ($workerData['phone'] ?? ''),
-                ':request_change_schedule' => url("/request-to-change/" .  base64_encode($workerData['id']) . "?type=worker" ?? ''),
+                ':request_change_schedule' => url("/request-to-change/" .  (base64_encode($workerData['id']) . "?type=worker") ?? ''),
                 ':request_details' => isset($eventData['request_details']) ? $eventData['request_details'] : '',
+                ':last_work_date' => $workerData['last_work_date'] ?? '',
+                ':date' => isset($eventData['date']) ? Carbon::parse($eventData['date'])->format('M d Y') : '',
+                ':check_form' => url("worker-forms/" . base64_encode($workerData['id'])) ?? ''
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -112,6 +116,8 @@ class WhatsappNotification
                 ':worker_job_link' => url("worker/jobs/view/" . $jobData['id']),
                 ':client_view_job_link' => url("client/jobs/" . base64_encode($jobData['id'])),
                 ':team_job_action_link' => url("admin/jobs/" . $jobData['id'] . "/change-worker"),
+                ':status' => ucfirst($jobData['status']) ?? '',
+                ':client_job_review' => url("client/jobs/" . base64_encode($jobData['id']) . "/review") ?? '',
             ];
 
         }
@@ -162,20 +168,22 @@ class WhatsappNotification
     private function replaceOfferFields($text, $offerData)
     {
         $serviceNames = [];
-
-        if(isset($offerData['services'])) {
+    
+        // Check if 'services' exists and is an array or object
+        if (isset($offerData['services']) && (is_array($offerData['services']) || is_object($offerData['services']))) {
             foreach ($offerData['services'] as $service) {
                 if (isset($service->name)) {
                     $serviceNames[] = $service->name;
                 }
             }
         }
-
+    
         $serviceNamesString = implode(", ", $serviceNames);
+    
         $placeholders = [];
-        if($offerData) {
+        if ($offerData) {
             $placeholders = [
-                ':offer_service_names' => isset($offerData['service_names']) ? $offerData['service_names'] : '',
+                ':offer_service_names' => $offerData['service_names'] ?? '',
                 ':offer_pending_since' => $offerData['offer_pending_since'] ?? '',
                 ':offer_detail_url' => url("admin/offered-price/edit/" . ($offerData['id'] ?? '')),
                 ':client_price_offer_link' => url("price-offer/" . base64_encode($offerData['id'])),
@@ -183,8 +191,10 @@ class WhatsappNotification
                 ':offer_sent_date' => isset($offerData['created_at']) ? Carbon::parse($offerData['created_at'])->format('M d Y H:i') : '',
             ];
         }
+    
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
+    
 
     private function replaceContractFields($text, $contractData)
     {
@@ -194,6 +204,22 @@ class WhatsappNotification
                 ':client_contract_link' => url("work-contract/" . $contractData['unique_hash']),
                 ':team_contract_link' => url("admin/view-contract/" . $contractData['id'] ?? ''),
                 ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at'])->format('M d Y H:i') : '',
+            ];
+        }
+        return str_replace(array_keys($placeholders), array_values($placeholders), $text);
+    }
+
+    private function replaceOrderFields($text, $eventData)
+    {
+        $placeholders = [];
+        if($eventData) {
+            $placeholders = [
+                ':order_id' => $eventData['order_id'] ?? '',
+                ':discount' => $eventData['discount'] ?? '',
+                ':total' => $eventData['total_amount'] ?? '',
+                ':extra' => $eventData['extra'] ?? '',
+                ':invoice_id' => $eventData['invoice']['invoice_id'] ?? '',
+                ':card_number' => $eventData['card']['card_number'] ?? ''
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -239,8 +265,9 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY:
                     case WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER:
                     case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE:
+                    case WhatsappMessageTemplateEnum::WORKER_FORMS:
                         $receiverNumber = $workerData['phone'];
-                        $lng = $workerData['lng'] ?? 'heb';
+                        $lng = 'en';
                         break;
 
                     case WhatsappMessageTemplateEnum::TEAM_JOB_NOT_APPROVE_REMINDER_AT_6_PM:
@@ -253,8 +280,23 @@ class WhatsappNotification
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_SKIPPED_COMMENTS:
+                    case WhatsappMessageTemplateEnum::WORKER_LEAVES_JOB:
+                    case WhatsappMessageTemplateEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB:
+                    case WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION:
                         $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
                         $lng = 'heb';
+                        break;
+
+                    case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_DISCOUNT:
+                    case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_EXTRA:
+                    case WhatsappMessageTemplateEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT:
+                    case WhatsappMessageTemplateEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY:
+                    case WhatsappMessageTemplateEnum::PAYMENT_PAID:
+                    case WhatsappMessageTemplateEnum::PAYMENT_PARTIAL_PAID:
+                    case WhatsappMessageTemplateEnum::ORDER_CANCELLED:
+                    case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED:
+                        $receiverNumber = config('services.whatsapp_groups.payment_status');
+                        App::setLocale('heb');
                         break;
 
                     case WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION:
@@ -266,15 +308,40 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED:
                     case WhatsappMessageTemplateEnum::OFF_SITE_MEETING_REMINDER_TO_CLIENT:
                     case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE:
+                    case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
+                    case WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS:
+                    case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
                         $receiverNumber = $clientData['phone'];
-                        $lng =  'heb';
+                        $lng =  'en';
                         break;
 
                     case WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES:
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED:
                     case WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED:
                     case WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT:
-                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE:
+                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_CLIENT:
+                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_WORKER:
+                    case WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER:
+                    case WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER:
+                    case WhatsappMessageTemplateEnum::LEAD_DECLINED_CONTRACT:
+                    case WhatsappMessageTemplateEnum::CLIENT_LEAD_STATUS_CHANGED:
+                    case WhatsappMessageTemplateEnum::PENDING:
+                    case WhatsappMessageTemplateEnum::POTENTIAL:
+                    case WhatsappMessageTemplateEnum::IRRELEVANT:
+                    case WhatsappMessageTemplateEnum::UNINTERESTED:
+                    case WhatsappMessageTemplateEnum::UNANSWERED:
+                    case WhatsappMessageTemplateEnum::POTENTIAL_CLIENT:
+                    case WhatsappMessageTemplateEnum::PENDING_CLIENT:
+                    case WhatsappMessageTemplateEnum::WAITING:
+                    case WhatsappMessageTemplateEnum::ACTIVE_CLIENT:
+                    case WhatsappMessageTemplateEnum::FREEZE_CLIENT:
+                    case WhatsappMessageTemplateEnum::UNHAPPY:
+                    case WhatsappMessageTemplateEnum::PRICE_ISSUE:
+                    case WhatsappMessageTemplateEnum::MOVED:
+                    case WhatsappMessageTemplateEnum::ONETIME:
+                    case WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK:
+                    case WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE:
+                    case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';
                         break;
@@ -287,6 +354,7 @@ class WhatsappNotification
                 $text = $this->replaceMeetingFields($text, $eventData);
                 $text = $this->replaceOfferFields($text, $offerData);
                 $text = $this->replaceContractFields($text, $contractData);
+                $text = $this->replaceOrderFields($text, $eventData);
 
             } else {
                 switch ($eventType) {
@@ -715,102 +783,104 @@ class WhatsappNotification
 
                     //     break;
 
-                    case WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION:
-                        $comment = $eventData['comment'];
-                        $jobData = $eventData['job'];
+                    // case WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION:
+                    //     $comment = $eventData['comment'];
+                    //     $jobData = $eventData['job'];
 
-                        $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.worker_job_status_notification.header');
+                    //     $text = __('mail.wa-message.worker_job_status_notification.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.worker_job_status_notification.content', [
-                            'status' => ucfirst($jobData['status']),
-                            'date' => Carbon::parse($jobData['start_date'])->format('M d Y') . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
-                            'worker_name' => ($jobData['worker'] ? ($jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']) : "NA"),
-                            'client_name' => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA"),
-                            'service_name' => $jobData['jobservice']['name'],
-                            'status' => ucfirst($jobData['status'])
-                        ]);
+                    //     $text .= __('mail.wa-message.worker_job_status_notification.content', [
+                    //         'status' => ucfirst($jobData['status']),
+                    //         'date' => Carbon::parse($jobData['start_date'])->format('M d Y') . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
+                    //         'worker_name' => ($jobData['worker'] ? ($jobData['worker']['firstname'] . " " . $jobData['worker']['lastname']) : "NA"),
+                    //         'client_name' => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA"),
+                    //         'service_name' => $jobData['jobservice']['name'],
+                    //         'status' => ucfirst($jobData['status'])
+                    //     ]);
 
-                        $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/jobs/view/" . $jobData["id"]);
+                    //     $text .= "\n\n" . __('mail.wa-message.button-label.view_job') . ": " . url("worker/jobs/view/" . $jobData["id"]);
 
-                        break;
+                    //     break;
 
 
-                    case WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE:
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    // case WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE:
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.lead_need_human_representative.header');
+                    //     $text = __('mail.wa-message.lead_need_human_representative.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.lead_need_human_representative.content', [
-                            'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
-                        ]);
+                    //     $text .= __('mail.wa-message.lead_need_human_representative.content', [
+                    //         'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
+                    //     ]);
 
-                        $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/clients/view/" . $eventData['client']['id']);
+                    //     $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/clients/view/" . $eventData['client']['id']);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK:
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    // case WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK:
+                    //     $clientData = $eventData['client'];
 
-                        $text = __('mail.wa-message.no_slot_avail_callback.header');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= "\n\n";
+                    //     $text = __('mail.wa-message.no_slot_avail_callback.header');
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= "\n\n";
 
-                        $text .= "\n\n";
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= __('mail.wa-message.no_slot_avail_callback.content', [
-                            'client_name' => $eventData['client']['firstname'] . ' ' . $eventData['client']['lastname'],
-                        ]);
+                    //     $text .= "\n\n";
 
-                        $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/clients/view/" . $eventData['client']['id']);
+                    //     $text .= __('mail.wa-message.no_slot_avail_callback.content', [
+                    //         'client_name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    //     ]);
 
-                        break;
+                    //     $text .= "\n\n" . __('mail.wa-message.button-label.view_client') . ": " . url("admin/clients/view/" . $eventData['client']['id']);
 
-                    case WhatsappMessageTemplateEnum::WORKER_FORMS:
-                        $workerData = $eventData;
+                    //     break;
 
-                        $receiverNumber = $workerData['phone'];
-                        App::setLocale($workerData['lng']);
+                    // case WhatsappMessageTemplateEnum::WORKER_FORMS:
+                    //     $workerData = $eventData['worker'];
 
-                        $text = __('mail.wa-message.worker_forms.header');
+                    //     $receiverNumber = $workerData['phone'];
+                    //     App::setLocale($workerData['lng']);
 
-                        $text .= "\n\n";
+                    //     $text = __('mail.wa-message.worker_forms.header');
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => $workerData['firstname'] . ' ' . $workerData['lastname']
-                        ]);
+                    //     $text .= "\n\n";
 
-                        $text .= "\n\n";
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => $workerData['firstname'] . ' ' . $workerData['lastname']
+                    //     ]);
 
-                        $text .= __('mail.wa-message.worker_forms.content');
+                    //     $text .= "\n\n";
 
-                        $text .= "\n\n" . __('mail.wa-message.button-label.check_form') . ": " . url("worker-forms/" . base64_encode($workerData['id']));
+                    //     $text .= __('mail.wa-message.worker_forms.content');
 
-                        break;
+                    //     $text .= "\n\n" . __('mail.wa-message.button-label.check_form') . ": " . url("worker-forms/" . base64_encode($workerData['id']));
+
+                    //     break;
 
                     case WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION:
                         $by = $eventData['by'];
@@ -842,215 +912,215 @@ class WhatsappNotification
 
                         break;
 
-                    case WhatsappMessageTemplateEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB:
-                        $workerData = $eventData['worker'];
+                    // case WhatsappMessageTemplateEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB:
+                    //     $workerData = $eventData['worker'];
 
-                        $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.worker_changed_availability_affect_job.header');
+                    //     $text = __('mail.wa-message.worker_changed_availability_affect_job.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.worker_changed_availability_affect_job.content', [
-                            'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
-                            'date' => Carbon::parse($eventData['date'])->format('M d Y'),
-                        ]);
+                    //     $text .= __('mail.wa-message.worker_changed_availability_affect_job.content', [
+                    //         'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                    //         'date' => Carbon::parse($eventData['date'])->format('M d Y'),
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::WORKER_LEAVES_JOB:
-                        $workerData = $eventData['worker'];
+                    // case WhatsappMessageTemplateEnum::WORKER_LEAVES_JOB:
+                    //     $workerData = $eventData['worker'];
 
-                        $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.changes_cancellation');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.worker_leaves_job.header');
+                    //     $text = __('mail.wa-message.worker_leaves_job.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.worker_leaves_job.content', [
-                            'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
-                            'date' => $workerData['date'],
-                        ]);
+                    //     $text .= __('mail.wa-message.worker_leaves_job.content', [
+                    //         'name' => $workerData['firstname'] . ' ' . $workerData['lastname'],
+                    //         'date' => $workerData['last_work_date'],
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED:
-                        $clientData = $eventData['client'];
-                        $cardData = $eventData['card'];
+                    // case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED:
+                    //     $clientData = $eventData['client'];
+                    //     $cardData = $eventData['card'];
 
-                        $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.client_payment_failed.header');
-                        $text .= "\n\n";
-                        $text .= __('mail.wa-message.common.salutation', ['name' => 'צוות']);
-                        $text .= "\n\n";
-                        $text .= __('mail.wa-message.client_payment_failed.content', [
-                            'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                            'card_number' => $cardData['card_number']
-                        ]);
+                    //     $text = __('mail.wa-message.client_payment_failed.header');
+                    //     $text .= "\n\n";
+                    //     $text .= __('mail.wa-message.common.salutation', ['name' => 'צוות']);
+                    //     $text .= "\n\n";
+                    //     $text .= __('mail.wa-message.client_payment_failed.content', [
+                    //         'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //         'card_number' => $cardData['card_number']
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::ORDER_CANCELLED:
-                        $clientData = $eventData['client'];
-                        $orderData = $eventData['order'];
+                    // case WhatsappMessageTemplateEnum::ORDER_CANCELLED:
+                    //     $clientData = $eventData['client'];
+                    //     $orderData = $eventData['order'];
 
-                        $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.order_cancelled.header');
+                    //     $text = __('mail.wa-message.order_cancelled.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.order_cancelled.content', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                            'order_id' => $orderData['order_id']
-                        ]);
+                    //     $text .= __('mail.wa-message.order_cancelled.content', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //         'order_id' => $orderData['order_id']
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::PAYMENT_PAID:
-                    case WhatsappMessageTemplateEnum::PAYMENT_PARTIAL_PAID:
-                        $clientData = $eventData['client'];
-                        // $amountData = $eventData['amount'];
+                    // case WhatsappMessageTemplateEnum::PAYMENT_PAID:
+                    // case WhatsappMessageTemplateEnum::PAYMENT_PARTIAL_PAID:
+                    //     $clientData = $eventData['client'];
+                    //     // $amountData = $eventData['amount'];
 
-                        $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.payment_paid.header');
+                    //     $text = __('mail.wa-message.payment_paid.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.payment_paid.content', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                        ]);
+                    //     $text .= __('mail.wa-message.payment_paid.content', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY:
-                        $clientData = $eventData['client'];
-                        $invoiceData = $eventData['invoice'];
+                    // case WhatsappMessageTemplateEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY:
+                    //     $clientData = $eventData['client'];
+                    //     $invoiceData = $eventData['invoice'];
 
-                        $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.client_invoice_created_and_sent_to_pay.header');
+                    //     $text = __('mail.wa-message.client_invoice_created_and_sent_to_pay.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.client_invoice_created_and_sent_to_pay.content', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                            'invoice_id' => $invoiceData['invoice_id']
-                        ]);
+                    //     $text .= __('mail.wa-message.client_invoice_created_and_sent_to_pay.content', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //         'invoice_id' => $invoiceData['invoice_id']
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT:
-                        $clientData = $eventData['client'];
-                        $invoiceData = $eventData['invoice'];
+                    // case WhatsappMessageTemplateEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT:
+                    //     $clientData = $eventData['client'];
+                    //     $invoiceData = $eventData['invoice'];
 
-                        $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.client_invoice_paid_created_receipt.header');
+                    //     $text = __('mail.wa-message.client_invoice_paid_created_receipt.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.client_invoice_paid_created_receipt.content', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                            'invoice_id' => $invoiceData['invoice_id']
-                        ]);
+                    //     $text .= __('mail.wa-message.client_invoice_paid_created_receipt.content', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //         'invoice_id' => $invoiceData['invoice_id']
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_EXTRA:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_EXTRA:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.order_created_with_extra.header');
+                    //     $text = __('mail.wa-message.order_created_with_extra.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.order_created_with_extra.content', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                            'order_id' => $eventData['order_id'],
-                            'extra' => $eventData['extra'],
-                            'total' => $eventData['total_amount'],
-                        ]);
+                    //     $text .= __('mail.wa-message.order_created_with_extra.content', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //         'order_id' => $eventData['order_id'],
+                    //         'extra' => $eventData['extra'],
+                    //         'total' => $eventData['total_amount'],
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_DISCOUNT:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_DISCOUNT:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.payment_status');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.payment_status');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.order_created_with_discount.header');
+                    //     $text = __('mail.wa-message.order_created_with_discount.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.order_created_with_discount.content', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                            'order_id' => $eventData['order_id'],
-                            'discount' => $eventData['discount'],
-                            'total' => $eventData['total_amount'],
-                        ]);
+                    //     $text .= __('mail.wa-message.order_created_with_discount.content', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //         'order_id' => $eventData['order_id'],
+                    //         'discount' => $eventData['discount'],
+                    //         'total' => $eventData['total_amount'],
+                    //     ]);
 
-                        break;
+                    //     break;
 
                     case WhatsappMessageTemplateEnum::CLIENT_REVIEWED:
                         $clientData = $eventData['client'];
@@ -1245,201 +1315,201 @@ class WhatsappNotification
 
                         break;
 
-                    case WhatsappMessageTemplateEnum::PENDING:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::PENDING:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.pending.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $text .= __('mail.wa-message.pending.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::POTENTIAL:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::POTENTIAL:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.potential.content',[
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
-                        break;
+                    //     $text .= __('mail.wa-message.potential.content',[
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::IRRELEVANT:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::IRRELEVANT:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.irrelevant.content',[
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $text .= __('mail.wa-message.irrelevant.content',[
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::UNINTERESTED:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::UNINTERESTED:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.uninterested.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $text .= __('mail.wa-message.uninterested.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::UNANSWERED:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::UNANSWERED:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.unanswered.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $text .= __('mail.wa-message.unanswered.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::POTENTIAL_CLIENT:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::POTENTIAL_CLIENT:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.potential_client.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
-                        break;
+                    //     $text .= __('mail.wa-message.potential_client.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::PENDING_CLIENT:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::PENDING_CLIENT:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.pending_client.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
-
-                        break;
-
-                    case WhatsappMessageTemplateEnum::WAITING:
-                        $clientData = $eventData['client'];
-
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
-
-                        $text .= __('mail.wa-message.waiting.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $text .= __('mail.wa-message.pending_client.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
                         break;
 
-                    case WhatsappMessageTemplateEnum::ACTIVE_CLIENT:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::WAITING:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.active_client.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
-
-                        \Log::info("Text",["text" => $text]);
+                    //     $text .= __('mail.wa-message.waiting.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
                         break;
 
-                    case WhatsappMessageTemplateEnum::FREEZE_CLIENT:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::ACTIVE_CLIENT:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.freeze_client_team.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $text .= __('mail.wa-message.active_client.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
-                        break;
+                    //     \Log::info("Text",["text" => $text]);
 
-                    case WhatsappMessageTemplateEnum::UNHAPPY:
-                        $clientData = $eventData['client'];
+                    //     break;
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    // case WhatsappMessageTemplateEnum::FREEZE_CLIENT:
+                    //     $clientData = $eventData['client'];
 
-                        $text .= __('mail.wa-message.unhappy.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        break;
+                    //     $text .= __('mail.wa-message.freeze_client_team.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
-                    case WhatsappMessageTemplateEnum::PRICE_ISSUE:
-                        $clientData = $eventData['client'];
+                    //     break;
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    // case WhatsappMessageTemplateEnum::UNHAPPY:
+                    //     $clientData = $eventData['client'];
 
-                        $text .= __('mail.wa-message.price_issue.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        break;
+                    //     $text .= __('mail.wa-message.unhappy.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
-                    case WhatsappMessageTemplateEnum::MOVED:
-                        $clientData = $eventData['client'];
+                    //     break;
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    // case WhatsappMessageTemplateEnum::PRICE_ISSUE:
+                    //     $clientData = $eventData['client'];
 
-                        $text .= __('mail.wa-message.moved.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        break;
+                    //     $text .= __('mail.wa-message.price_issue.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
 
-                    case WhatsappMessageTemplateEnum::ONETIME:
-                        $clientData = $eventData['client'];
+                    //     break;
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    // case WhatsappMessageTemplateEnum::MOVED:
+                    //     $clientData = $eventData['client'];
 
-                        $text .= __('mail.wa-message.onetime.content', [
-                            'name' => $clientData['firstname'] ." ".$clientData['lastname'],
-                            'phone' => $clientData['phone'],
-                            'url' => url("admin/clients/view/" . $clientData['id'])
-                        ]);
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        break;
+                    //     $text .= __('mail.wa-message.moved.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
+
+                    //     break;
+
+                    // case WhatsappMessageTemplateEnum::ONETIME:
+                    //     $clientData = $eventData['client'];
+
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
+
+                    //     $text .= __('mail.wa-message.onetime.content', [
+                    //         'name' => $clientData['firstname'] ." ".$clientData['lastname'],
+                    //         'phone' => $clientData['phone'],
+                    //         'url' => url("admin/clients/view/" . $clientData['id'])
+                    //     ]);
+
+                    //     break;
 
                     case WhatsappMessageTemplateEnum::PAST:
                         $clientData = $eventData['client'];
@@ -1474,64 +1544,64 @@ class WhatsappNotification
                         break;
 
 
-                    case WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER:
-                        $clientData = $eventData['client'];
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    // case WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER:
+                    //     $clientData = $eventData['client'];
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        // Create the message
-                        $text = __('mail.wa-message.lead_accepted_price_offer.header', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                        ]);
+                    //     // Create the message
+                    //     $text = __('mail.wa-message.lead_accepted_price_offer.header', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.lead_accepted_price_offer.content', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                        ]);
+                    //     $text .= __('mail.wa-message.lead_accepted_price_offer.content', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //     ]);
 
-                        $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
+                    //     $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        // Create the message
-                        $text = __('mail.wa-message.lead_declined_price_offer.header');
+                    //     // Create the message
+                    //     $text = __('mail.wa-message.lead_declined_price_offer.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות',
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות',
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.lead_declined_price_offer.content');
+                    //     $text .= __('mail.wa-message.lead_declined_price_offer.content');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.lead_declined_price_offer.details', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                            'reason' => $clientData['reason'] ?? __('mail.wa-message.lead_declined_price_offer.no_reason_provided'),
-                        ]);
-                        $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
+                    //     $text .= __('mail.wa-message.lead_declined_price_offer.details', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //         'reason' => $clientData['reason'] ?? __('mail.wa-message.lead_declined_price_offer.no_reason_provided'),
+                    //     ]);
+                    //     $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.lead_declined_price_offer.assistance');
+                    //     $text .= __('mail.wa-message.lead_declined_price_offer.assistance');
 
-                        $text .= __('mail.common.regards');
+                    //     $text .= __('mail.common.regards');
 
-                        $text .= "\n";
+                    //     $text .= "\n";
 
-                        $text .= __('mail.common.company');
+                    //     $text .= __('mail.common.company');
 
-                        break;
+                    //     break;
 
 
                     case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
@@ -1567,105 +1637,105 @@ class WhatsappNotification
                         break;
 
 
-                    case WhatsappMessageTemplateEnum::LEAD_DECLINED_CONTRACT:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::LEAD_DECLINED_CONTRACT:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        // Create the message
-                        $text = __('mail.wa-message.lead_declined_contract.header');
+                    //     // Create the message
+                    //     $text = __('mail.wa-message.lead_declined_contract.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות',
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות',
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.lead_declined_contract.content');
+                    //     $text .= __('mail.wa-message.lead_declined_contract.content');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.lead_declined_contract.details', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                            'reason' => $clientData['reason'] ?? __('mail.wa-message.lead_declined_contract.no_reason_provided'),
-                        ]);
+                    //     $text .= __('mail.wa-message.lead_declined_contract.details', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //         'reason' => $clientData['reason'] ?? __('mail.wa-message.lead_declined_contract.no_reason_provided'),
+                    //     ]);
 
-                        $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
+                    //     $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/" . $clientData['id']);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.lead_declined_contract.assistance');
+                    //     $text .= __('mail.wa-message.lead_declined_contract.assistance');
 
-                        $text .= __('mail.common.regards');
+                    //     $text .= __('mail.common.regards');
 
-                        $text .= "\n";
+                    //     $text .= "\n";
 
-                        $text .= __('mail.common.company');
+                    //     $text .= __('mail.common.company');
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = $clientData['phone'];
-                        App::setLocale($clientData['lng']??'en');
-
-
-                        // Create the message
-                        // $text = __('mail.wa-message.client_in_freeze_status.header');
-
-                        $text .= "\n\n";
-
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
-                        ]);
-
-                        $text .= __('mail.wa-message.client_in_freeze_status.thankyou');
-
-                        $text .= "\n\n";
-
-                        // $text .= __('mail.wa-message.client_in_freeze_status.content', [
-                        //     'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                        // ]);
-                        $text .= __('mail.wa-message.client_in_freeze_status.content');
-
-                        $text .= "\n\n";
-
-                        $text .= __('mail.wa-message.client_in_freeze_status.action_required');
-
-                        $text .= "\n\n";
-
-                        $text .= __('mail.wa-message.client_in_freeze_status.signature');
+                    //     $receiverNumber = $clientData['phone'];
+                    //     App::setLocale($clientData['lng']??'en');
 
 
-                        break;
+                    //     // Create the message
+                    //     // $text = __('mail.wa-message.client_in_freeze_status.header');
+
+                    //     $text .= "\n\n";
+
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
+                    //     ]);
+
+                    //     $text .= __('mail.wa-message.client_in_freeze_status.thankyou');
+
+                    //     $text .= "\n\n";
+
+                    //     // $text .= __('mail.wa-message.client_in_freeze_status.content', [
+                    //     //     'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //     // ]);
+                    //     $text .= __('mail.wa-message.client_in_freeze_status.content');
+
+                    //     $text .= "\n\n";
+
+                    //     $text .= __('mail.wa-message.client_in_freeze_status.action_required');
+
+                    //     $text .= "\n\n";
+
+                    //     $text .= __('mail.wa-message.client_in_freeze_status.signature');
 
 
-                    case WhatsappMessageTemplateEnum::CLIENT_LEAD_STATUS_CHANGED:
-                        $clientData = $eventData['client'];
+                    //     break;
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
 
-                        $text = __('mail.wa-message.client_lead_status_changed.header');
+                    // case WhatsappMessageTemplateEnum::CLIENT_LEAD_STATUS_CHANGED:
+                    //     $clientData = $eventData['client'];
 
-                        $text .= "\n\n";
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text .= __('mail.wa-message.common.salutation', [
-                            'name' => 'צוות'
-                        ]);
+                    //     $text = __('mail.wa-message.client_lead_status_changed.header');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.client_lead_status_changed.content', [
-                            'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                            'new_status' => $eventData['new_status']
-                        ]);
+                    //     $text .= __('mail.wa-message.common.salutation', [
+                    //         'name' => 'צוות'
+                    //     ]);
 
-                        break;
+                    //     $text .= "\n\n";
+
+                    //     $text .= __('mail.wa-message.client_lead_status_changed.content', [
+                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                    //         'new_status' => $eventData['new_status']
+                    //     ]);
+
+                    //     break;
 
                     case WhatsappMessageTemplateEnum::SICK_LEAVE_NOTIFICATION:
                         $userData = $eventData['user'];
@@ -1772,25 +1842,25 @@ class WhatsappNotification
                         }
                         break;
 
-                        case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
-                        $clientData = $eventData['client'];
+                        // case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
+                        // $clientData = $eventData['client'];
 
-                        $receiverNumber = $clientData['phone'];
-                        App::setLocale($clientData['lng']??'en');
+                        // $receiverNumber = $clientData['phone'];
+                        // App::setLocale($clientData['lng']??'en');
 
-                        $text = __('mail.wa-message.contract_verify.subject');
+                        // $text = __('mail.wa-message.contract_verify.subject');
 
-                        $text .= "\n\n";
+                        // $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.contract_verify.info',[
-                            'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                        ]);
+                        // $text .= __('mail.wa-message.contract_verify.info',[
+                        //     'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
+                        // ]);
 
-                        $text .= "\n\n";
+                        // $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.contract_verify.content');
+                        // $text .= __('mail.wa-message.contract_verify.content');
 
-                        break;
+                        // break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
                         $clientData = $eventData['client'];
@@ -1843,62 +1913,62 @@ class WhatsappNotification
                         break;
 
 
-                    case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = $clientData["phone"];
-                        App::setLocale($clientData['lng']??'en');
+                    //     $receiverNumber = $clientData["phone"];
+                    //     App::setLocale($clientData['lng']??'en');
 
-                        $text = '';
+                    //     $text = '';
 
-                        $text .=  __('mail.wa-message.worker_webhook_irrelevant.message');
+                    //     $text .=  __('mail.wa-message.worker_webhook_irrelevant.message');
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
-                        $clientData = $eventData['client'];
+                    // case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
+                    //     $clientData = $eventData['client'];
 
-                        $receiverNumber = $clientData['phone'];
-                        App::setLocale($clientData['lng']??'en');
+                    //     $receiverNumber = $clientData['phone'];
+                    //     App::setLocale($clientData['lng']??'en');
 
-                        $text = __('mail.wa-message.contract_verify.subject');
+                    //     $text = __('mail.wa-message.contract_verify.subject');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.contract_verify.info',[
-                            'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
-                        ]);
+                    //     $text .= __('mail.wa-message.contract_verify.info',[
+                    //         'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.contract_verify.content');
+                    //     $text .= __('mail.wa-message.contract_verify.content');
 
-                        break;
+                    //     break;
 
-                    case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
-                        $clientData = $eventData['client'];
-                        $jobData = $eventData['job'];
+                    // case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
+                    //     $clientData = $eventData['client'];
+                    //     $jobData = $eventData['job'];
 
-                        $receiverNumber = config('services.whatsapp_groups.lead_client');
-                        App::setLocale('heb');
+                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
+                    //     App::setLocale('heb');
 
-                        $text = __('mail.wa-message.contract_verify_team.subject');
+                    //     $text = __('mail.wa-message.contract_verify_team.subject');
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.contract_verify_team.info',[
-                            'name' => "צוות",
-                        ]);
+                    //     $text .= __('mail.wa-message.contract_verify_team.info',[
+                    //         'name' => "צוות",
+                    //     ]);
 
-                        $text .= "\n\n";
+                    //     $text .= "\n\n";
 
-                        $text .= __('mail.wa-message.contract_verify_team.content',[
-                            'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
-                        ]);
+                    //     $text .= __('mail.wa-message.contract_verify_team.content',[
+                    //         'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
+                    //     ]);
 
-                        $text .= "\n\n" . __('mail.wa-message.button-label.review') . ": " . url("client/jobs/" . base64_encode($jobData['id']) . "/review");
+                    //     $text .= "\n\n" . __('mail.wa-message.button-label.review') . ": " . url("client/jobs/" . base64_encode($jobData['id']) . "/review");
 
-                        break;
+                    //     break;
 
 
                 }

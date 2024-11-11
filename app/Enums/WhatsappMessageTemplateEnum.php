@@ -142,5 +142,6 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_NEED_EXTRA_TIME = "worker-need-extra-time";
     public const WORKER_START_THE_JOB = "worker-start-the-job";
     public const UPDATE_ON_COMMENT_RESOLUTION = "update-on-comment-resolution";
-    public const NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE = "notify-team-request-to-change-schedule";
+    public const NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_WORKER = "notify-team-request-to-change-schedule-worker";
+    public const NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_CLIENT = "notify-team-request-to-change-schedule-client";
 }

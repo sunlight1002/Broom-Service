@@ -909,9 +909,9 @@ For any questions or requests, we’re here to assist you.
 
 *Click here to send a message regarding a change or request* :request_change_schedule
 
-Wishing you a wonderful day! 🌸
-Broom Service
-📞 03-525-70-60
+Wishing you a wonderful day! 🌸  
+Broom Service Team
+📞 03-525-70-60  
 🌐 http://www.broomservice.co.il',
                 'message_heb' => "לקוחות יקרים, בוקר טוב,
 
@@ -975,8 +975,8 @@ Equipo de servicio de escobas',
             ],
 
             [
-                'key' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE,
-                'description' => 'Every Monday, send a notification to all clients and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule. Also, notify them if there is any holiday during that week.',
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_CLIENT,
+                'description' => 'notify team, client requested to change schedule',
                 'message_en' => '',
                 'message_heb' => "שלום צוות,
 
@@ -992,8 +992,876 @@ Equipo de servicio de escobas',
 בברכה,
 צוות ברום סרוויס",
                 'message_spa' => '',
-                'message_ru' => '',
-            ]
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_WORKER,
+                'description' => 'notify team, worker requested to change schedule',
+                'message_en' => '',
+                'message_heb' => "שלום צוות,
+
+התקבלה בקשת שינוי מסידור העבודה מצד הלקוח הבא:
+
+- *שם הלקוח:* :worker_name
+- *מספר טלפון:* :worker_phone_number
+- *פרטי הבקשה:* :request_details
+  
+אנא בדקו את הבקשה ובצעו את השינויים הנדרשים בהתאם.
+במידה ויש שאלות או צורך בפעולה נוספת, ניתן ליצור קשר עם הלקוח ישירות.
+
+בברכה,  
+צוות ברום סרוויס",
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+
+
+
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT,
+                'description' => 'notification send when worker lead webhook status is irrelevant',
+                'message_en' => "Hello :client_name
+
+🌟 Thank you for contacting us at Job4Service.
+
+We offer the best jobs in the house cleaning industry in Israel.
+We hire only people with suitable visas for work in Israel.
+We offer house cleaning jobs only in the Tel Aviv area, and only during weekday mornings. We do not work on weekends or in the evenings.
+We are a professional cleaning team, so we hire only people with experience in house cleaning.
+If this may suit you or your friends now or in the future, you are more than welcome to contact us again. 😀
+👫 Know someone who'd be a great fit for our team? Invite them to join this group and explore the opportunities with us! Just send them this link:
+
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT
+https://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr
+
+Have a wonderful day!🌟",
+                'message_heb' => "שלום :client_name,
+
+🌟 תודה שפנית אלינו ב-Job4Service.
+
+אנחנו מציעים את המשרות הטובות ביותר בענף ניקיון בתים בישראל.
+אנחנו שוכרים רק אנשים עם אשרות מתאימות לעבודה בישראל.
+אנחנו מציעים עבודות ניקיון בתים רק באזור תל אביב, ורק בשעות הבוקר של ימי חול אנו לא עובדים בסופי שבוע או בערבים.
+אנחנו צוות ניקיון מקצועי, ולכן אנחנו שוכרים רק אנשים עם ניסיון בניקיון בתים.
+אם זה יכול להתאים לכם או. החברים שלכם עכשיו או בעתיד, אתם יותר ממוזמנים לפנות אלינו שוב 😀
+👫 מכירים מישהו שיתאים מאוד לצוות שלנו. פשוט שלח להם את הקישור הזה:
+
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT
+https://t.me/+m84PexCmLjs0MmZk
+https://www.facebook.com/JobinIsraelforubr
+
+שיהיה לך יום נפלא !🌟",
+                'message_spa' => "Hola :client_name
+                
+🌟 Gracias por contactarnos en Job4Service.
+
+Ofrecemos los mejores trabajos en la industria de limpieza de casas en Israel.
+Solo contratamos personas con visas adecuadas para trabajar en Israel.
+Ofrecemos trabajos de limpieza de casas solo en el área de Tel Aviv, y solo durante las mañanas de lunes a viernes. No trabajamos los fines de semana ni por las noches.
+Somos un equipo de limpieza profesional, por lo que solo contratamos personas con experiencia en limpieza de casas.
+Si esto le conviene. tus amigos ahora o en el futuro, eres más que bienvenido a contactarnos nuevamente 😀
+
+👫 ¿Conoces a alguien que encajaría perfectamente en nuestro equipo? Invítalo a unirse a este grupo y explorar las oportunidades con nosotros. Solo envíales este enlace:
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT
+https://t.me/+m84PexCmLjs0MmZk
+https://www.facebook.com/JobinIsraelforubr
+
+Que tengas un día maravilloso !🌟",
+                'message_rus' => "Привет :client_name,
+                
+🌟 Спасибо, что связались с нами в Job4Service
+
+Мы предлагаем лучшие вакансии в сфере уборки домов в Израиле.
+Мы нанимаем только людей с подходящими визами для работы в Израиле.
+Мы предлагаем работу по уборке домов только в районе Тель-Авива, и только по утрам в будние дни. Мы не работаем по выходным или вечерам.
+Мы профессиональная команда по уборке, поэтому нанимаем только людей с опытом работы в этой сфере.
+Если это может подойти вам или вашим друзьям сейчас или в будущем, вы всегда можете связаться с нами снова. 😀
+
+👫 Знаете кого-то, кто идеально подойдет для нашей команды? Пригласите их присоединиться к этой группе и исследовать возможности с нами! Просто отправьте им эту ссылку:
+
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT
+https://t.me/+m84PexCmLjs0MmZk
+https://www.facebook.com/JobinIsraelforubr
+
+Для получения дополнительной информации, не стесняйтесь обращаться к нам.
+
+Хорошего дня! 🌟",
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER,
+                'description' => 'notify team, Lead accepted price offer',
+                'message_en' => "Hello Team,
+                
+:client_name has accepted the price offer. Please ensure that the contract is signed and all necessary details are confirmed so we can proceed with scheduling the service.
+
+View details :lead_detail_url
+
+Thank you,
+Broom Service Team",
+                'message_heb' => "שלום צוות,
+                
+:client_name קיבל את ההצעת מחיר. אנא ודאו שהחוזה נחתם וכל הפרטים הנדרשים מאושרים כדי שנוכל להתקדם בתכנון השירות.
+
+הצג פרטים :lead_detail_url
+
+תודה,
+שירות ברום",
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER,
+                'description' => 'notify team, Lead declined price offer',
+                'message_en' => "Hello Team,
+                
+The following client has declined the price offer for the service:
+
+Client Details:
+- Name: :client_name
+- Reason for Decline: :reason
+
+View details :lead_detail_url
+
+Please review the details and update the status accordingly.
+
+Thank you,
+Broom Service Team",
+                'message_heb' => "שלום צוות,
+                
+הלקוח הבא סירב לחתום על החוזה לשירות:
+
+פרטי הלקוח:
+- שם: :client_name
+- סיבת הסירוב: :reason
+
+הצג פרטים :lead_detail_url
+
+אנא בדקו את הפרטים ועדכנו את הסטטוס בהתאם.
+
+תודה, 
+צוות שירות ברום",
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::LEAD_DECLINED_CONTRACT,
+                'description' => 'notify team, Lead declined contract',
+                'message_en' => "Hello Team,
+                
+Thank you,
+Broom Service Team",
+                'message_heb' => "שלום צוות,
+                
+הלקוח הבא סירב לחתום על החוזה לשירות:
+
+פרטי הלקוח:
+- שם: :client_name
+- סיבת הסירוב: :reason
+
+הצג פרטים :lead_detail_url
+
+אנא בדקו את הפרטים ועדכנו את הסטטוס בהתאם.
+
+תודה, 
+צוות שירות ברום",
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
+                'description' => 'notify team, Client is in freeze status',
+                'message_en' => "Hello :client_name,
+
+At Broom Service, we understand that sometimes there’s a need to take a break, and we want to thank you for the trust you have placed in us so far.
+We wanted to remind you that we are here for you and ready to resume services whenever you decide. We continue to improve and expand our service offerings to ensure that you always receive the best.
+
+If your needs have changed or if you would like to discuss new options, we are here at your service. Feel free to reach out anytime.
+                
+Best regards, 
+Broom Service Team
+Phone: 03-525-70-60 
+🌐 Website: www.broomservice.co.il",
+                'message_heb' => "שלום צוות,
+                
+אנו בברום סרוויס מבינים שלפעמים יש צורך לעשות הפסקה, ואנו רוצים להודות לכם על האמון שהענקתם לנו עד כה.
+רצינו להזכיר לכם שאנו כאן בשבילכם ומוכנים לחדש את השירות בכל עת שתחליטו. אנו ממשיכים לשפר ולהרחיב את מגוון השירותים שלנו כדי להבטיח שתמיד תקבלו את הטוב ביותר.
+
+אם יש שינוי בצרכים שלכם או שאתם מעוניינים לדון באפשרויות חדשות, אנו כאן לשירותכם. אל תהססו ליצור קשר בכל עת.
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il",
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_LEAD_STATUS_CHANGED,
+                'description' => 'notify team, when Lead status changed',
+                'message_en' => "Hello Team,
+                
+Best regards, 
+Broom Service Team
+Phone: 03-525-70-60 
+🌐 Website: www.broomservice.co.il",
+                'message_heb' => "שלום צוות,
+                
+הסטטוס של :client_name שונה ל- :new_status.
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il",
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::PENDING,
+                'description' => 'Send message to team when lead is pending',
+                'message_en' => 'Hi, *Team*,
+
+New lead alert! A potential client, :client_name, has been added to the system and is awaiting initial contact.
+
+Phone: :client_phone_number. 
+Click here to take action: :lead_detail_url',
+
+                'message_heb' => 'שלום, *צוות*
+
+"הלקוח :client_name קיבל את הצעת המחיר ואת החוזה.
+נא להמשיך בשלבים הבאים.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::POTENTIAL,
+                'description' => 'Send message to team when lead is potential',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+עדכון: פגישה נקבעה או סרטון הוזמן מ:client_name. נא להיערך בהתאם.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::IRRELEVANT,
+                'description' => 'Send message to team when lead is irrelevant',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+עדכון סטטוס: הליד :client_name סומן כלא רלוונטי בשל חוסר התאמה לשירות או מגבלת מיקום.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::UNINTERESTED,
+                'description' => 'Send message to team when lead is unintrested',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח הפוטנציאלי :client_name הביע חוסר עניין בהמשך.
+נא לסמן כהושלם או לסגור את הליד.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::UNANSWERED,
+                'description' => 'Send message to team when lead is unanswered',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הודעה: הלקוח הפוטנציאלי :client_name לא השיב לאחר ניסיונות יצירת קשר מרובים. 
+נא לבדוק ולבצע מעקב בהתאם לצורך.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::POTENTIAL_CLIENT,
+                'description' => 'Send message to team when lead is potential client',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח הפוטנציאלי :client_name קיבל הצעת מחיר ושוקל אותה.
+ממתינים להחלטתו.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::PENDING_CLIENT,
+                'description' => 'Send message to team when lead is pending_client',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח :name קיבל את הצעת המחיר ואת החוזה.
+נא להמשיך בשלבים הבאים.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WAITING,
+                'description' => 'Send message to team when lead is waiting',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח :client_name חתם על החוזה וממתין להזמנה הראשונה.
+נא לתאם את השירות בהקדם האפשרי.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::ACTIVE_CLIENT,
+                'description' => 'Send message to team when lead is active_client',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+עדכון: הלקוח :client_name פעיל כעת ומקבל שירותים.
+יש לעדכן את הצוות ולהתכונן למפגשים הקרובים.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::FREEZE_CLIENT,
+                'description' => 'Send message to team when lead is freeze_client',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+התראה: הלקוח :client_name סומן כ’בהקפאה’ מכיוון שעברו 7 ימים ללא קבלת שירות.
+נא לבדוק עם הלקוח ולפתור כל בעיה קיימת.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::UNHAPPY,
+                'description' => 'Send message to team when lead is unhappy',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח :client_name סומן כ’לא מרוצה’ בשל חוסר שביעות רצון מאיכות השירות.
+נא לבדוק אם נדרשת פעולה מתקנת.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::PRICE_ISSUE,
+                'description' => 'Send message to team when lead is price_issue',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח :client_name סומן כ’בעיית מחיר’ בשל דאגות הנוגעות למחיר.
+שקלו לבחון מחדש את אסטרטגיית התמחור במידת הצורך.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::MOVED,
+                'description' => 'Send message to team when lead is moved',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח :client_name סומן כ’עבר דירה’ מכיוון שעבר לאזור שאינו בתחום השירות.
+אין צורך בפעולה נוספת אלא אם כן יחזור.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::ONETIME,
+                'description' => 'Send message to team when lead is onetime',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח :client_name סומן כ’חד-פעמי’ מכיוון שהשתמש בשירות רק פעם אחת.
+אנא קחו זאת בחשבון למעקב עתידי או מבצעים.
+
+טלפון: :client_phone_number.
+לחץ כאן כדי לפעול: :lead_detail_url"',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_DISCOUNT,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הזמנה (:order_id) נוצרה עבור :client_name עם הנחה של ₪:discount ובסך הכל ₪:total לאחר ההנחה.
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_EXTRA,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הזמנה (:order_id) נוצרה עבור :client_name עם הנחה של ₪:discount ובסך הכל ₪:total לאחר ההנחה.
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+קבלה לחשבונית (:invoice_id) נוצרה עבור :client_name,
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+חשבונית (:invoice_id) נוצרה ונשלחה ל- :client_name.
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::PAYMENT_PAID,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח :client_name ביצע תשלום.
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::PAYMENT_PARTIAL_PAID,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+הלקוח :client_name ביצע תשלום.
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::ORDER_CANCELLED,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+ההזמנה של הלקוח :client_name (:order_id) בוטלה.
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+
+התשלום של :client_name עם הכרטיס [**** **** **** :card_number] נכשל.
+
+בברכה, 
+ברום סרוויס צוות
+📞 טלפון: 03-525-70-60 
+🌐 www.broomservice.co.il',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WORKER_LEAVES_JOB,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => "Hello, *Team*,
+
+Worker :worker_name's leave job date is set to :date
+
+Best regards,
+Broom Service Team
+📞 03-525-70-60 
+🌐 www.broomservice.co.il",
+
+                'message_heb' => "שלום, *צוות*
+
+העובד :worker_name קבע תאריך לעזיבת עבודה ל-:last_work_date.
+
+בברכה, 
+ברום סרוויס צוות
+📞 03-525-70-60 
+🌐 www.broomservice.co.il",
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WORKER_CHANGED_AVAILABILITY_AFFECT_JOB,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => "Hello, *Team*,
+
+
+Best regards,
+Broom Service Team
+📞 03-525-70-60 
+🌐 www.broomservice.co.il",
+
+                'message_heb' => "שלום, *צוות*
+
+:worker_name שינה זמינות שמשפיעה על עבודה ב-:date.
+
+בברכה, 
+ברום סרוויס צוות
+📞 03-525-70-60 
+🌐 www.broomservice.co.il",
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WORKER_FORMS,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => "Hello, *:worker_name*,
+
+You have successfully registered on our portal. Please sign the below forms to start working.
+Click the below button to fill forms.
+
+Check Forms :check_form
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *:worker_name*
+
+נרשמת בהצלחה לפורטל שלנו. אנא חתום על הטפסים למטה כדי להתחיל לעבוד בעבודה.
+לחץ על הכפתור למטה כדי למלא את הטפסים.
+
+בדוק טפסים :check_form
+
+בברכה, 
+ברום סרוויס צוות",
+
+                'message_spa' => "Hola, *:worker_name*
+
+Te has registrado exitosamente en nuestro portal. Por favor, firma los siguientes formularios para comenzar a trabajar.
+Haz clic en el botón de abajo para completar los formularios.
+
+Consultar formularios :check_form
+
+Saludos cordiales,
+Equipo de Broom Service",
+                'message_rus' => "Привет, *:worker_name*
+
+Вы успешно зарегистрировались на нашем портале. Пожалуйста, подпишите приведенные ниже формы, чтобы начать работу.
+Нажмите кнопку ниже, чтобы заполнить формы.
+
+Проверить формы :check_form
+
+С уважением,  
+Команда Broom Service'",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK,
+                'description' => 'Send message to team to arrange a callbac',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+                
+אין פגישות זמינות. אנא תאם שיחה חוזרת עבור :client_name.
+
+צפה בלקוח: :client_detail_url
+
+בברכה, 
+ברום סרוויס צוות',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE,
+                'description' => 'Send message to team when lead need human representative',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => 'שלום, *צוות*
+                
+:client_name רוצה לדבר עם נציג אנושי.
+
+צפה בלקוח: :client_detail_url
+
+בברכה, 
+ברום סרוויס צוות',
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
+                'description' => 'Send message to team when lead need human representative',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => "שלום, *צוות*
+                
+עובד שינה את סטטוס העבודה ל-:status. אנא בדוק את הפרטים למטה.
+
+תאריך/שעה: :job_start_date_time
+עובד: :worker_name
+לקוח: :client_name
+שירות: :job_service_name
+סטטוס: :status
+
+צפה בעבודה :worker_job_link
+
+בברכה, 
+ברום סרוויס צוות",
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT,
+                'description' => 'Send message to client when status is not updated from 24 hours',
+                'message_en' => "our agreement has been confirmed,
+
+Hello *:name*
+
+Your agreement has been successfully confirmed. We will contact you soon to schedule your service.
+
+Best regards,
+Broom Service Team,
+📞 03-525-70-60
+🌐 http://www.broomservice.co.il",
+
+                'message_heb' => "נושא: אישור ההסכם שלך
+
+'שלום *:client_name*',
+
+הלקוח :client_name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.
+
+בברכה, 
+ברום סרוויס צוות,
+📞 03-525-70-60
+🌐 http://www.broomservice.co.il",
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM,
+                'description' => 'Send message to team when status is not updated from 24 hours',
+                'message_en' => 'Hi, *Team*,
+
+               ',
+
+                'message_heb' => "שלום, *צוות*
+                
+הלקוח :client_name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.
+
+סְקִירָה :client_job_review
+
+בברכה, 
+ברום סרוויס צוות",
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
         ];
 
         foreach ($templates as $key => $template) {

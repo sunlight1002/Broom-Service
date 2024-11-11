@@ -770,17 +770,12 @@ class JobController extends Controller
         // Validate the request inputs
         $request->validate([
             'text' => 'required|string',
-            'client_id' => 'required|exists:clients,id',
-            'type' => 'required|string'
+            'client_id' => 'required',
         ]);
     
-        $type = $request->type;
-        $notificationData = [
-            'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE,
-            'notificationData' => [
-                'request_details' => $request->text,
-            ],
-        ];
+        $type = $request->input('type');
+
+        $clientData = [];
     
         if ($type === "client") {
             $client = Client::find($request->client_id);
@@ -789,8 +784,15 @@ class JobController extends Controller
                     'message' => 'Client not found'
                 ], 404);
             }
-            // Add client data to notificationData
-            $notificationData['notificationData']['client'] = $client->toArray();
+            $clientData = [
+                'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_CLIENT,
+                'notificationData' => [
+                    // 'job' => $job,
+                    'client' => $client->toArray(),
+                    'request_details' => $request->text,
+                ],
+            ];
+
         } else {
             $worker = User::find($request->client_id);
             if (!$worker) {
@@ -798,12 +800,19 @@ class JobController extends Controller
                     'message' => 'Worker not found'
                 ], 404);
             }
-            // Add worker data to notificationData
-            $notificationData['notificationData']['worker'] = $worker->toArray();
+            $clientData = [
+                'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_WORKER,
+                'notificationData' => [
+                    // 'job' => $job,
+                    'worker' => $worker->toArray(),
+                    'request_details' => $request->text,
+                ],
+            ];
         }
-    
-        // Send the notification via WhatsApp
-        event(new WhatsappNotificationEvent($notificationData));
+
+
+       $res =  event(new WhatsappNotificationEvent($clientData));
+       \Log::info($res);
     
         return response()->json([
             'message' => 'Request sent successfully via WhatsApp'
