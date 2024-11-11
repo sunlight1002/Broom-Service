@@ -143,14 +143,10 @@ class ScheduleController extends Controller
         if (!$schedule->start_date) {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
-            // $this->sendMeetingMail($schedule);
-            SendMeetingMailJob::dispatch($schedule);
             if ($input['meet_via'] == 'off-site') {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
+                    "notificationData" => $schedule->toArray()
                 ]));
             }
 
@@ -159,40 +155,34 @@ class ScheduleController extends Controller
                 'message' => 'Meeting scheduled successfully',
             ]);
         }
+        $schedule->load(['client', 'team', 'propertyAddress']);
 
-        $googleAccessToken = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
-            ->value('value');
+        $this->saveGoogleCalendarEvent($schedule);
+        Notification::create([
+            'user_id' => $schedule->client_id,
+            'user_type' => Client::class,
+            'type' => NotificationTypeEnum::SENT_MEETING,
+            'meet_id' => $schedule->id,
+            'status' => $schedule->booking_status
+        ]);
 
-            $schedule->load(['client', 'team', 'propertyAddress']);
+        // $this->sendMeetingMail($schedule);
+        SendMeetingMailJob::dispatch($schedule);
 
-            $this->saveGoogleCalendarEvent($schedule);
+        if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
             Notification::create([
                 'user_id' => $schedule->client_id,
-                'user_type' => Client::class,
+                'user_type' => get_class($client),
                 'type' => NotificationTypeEnum::SENT_MEETING,
                 'meet_id' => $schedule->id,
                 'status' => $schedule->booking_status
             ]);
+        }
 
-            // $this->sendMeetingMail($schedule);
-            SendMeetingMailJob::dispatch($schedule);
-
-            if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
-                Notification::create([
-                    'user_id' => $schedule->client_id,
-                    'user_type' => get_class($client),
-                    'type' => NotificationTypeEnum::SENT_MEETING,
-                    'meet_id' => $schedule->id,
-                    'status' => $schedule->booking_status
-                ]);
-            }
-
-            return response()->json([
-                'data' => $schedule,
-                'message' => 'Meeting scheduled successfully',
-            ]);
-        // }
+        return response()->json([
+            'data' => $schedule,
+            'message' => 'Meeting scheduled successfully',
+        ]);
     }
 
     public function createScheduleCalendarEvent($scheduleID)
@@ -397,7 +387,7 @@ class ScheduleController extends Controller
      */
     public function destroy($id)
     {
-        $schedule = Schedule::with('client')->find($id);
+        $schedule = Schedule::with(['client', 'team'])->find($id);
 
         if (!$schedule) {
             return response()->json([

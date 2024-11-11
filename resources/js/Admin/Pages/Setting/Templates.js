@@ -18,7 +18,7 @@ export default function Templates() {
         message_heb: "",
         message_en: "",
         message_spa: "",
-        message_rus: "",
+        message_ru: "",
     });
 
     useEffect(() => {
@@ -44,7 +44,7 @@ export default function Templates() {
                 message_heb: res.message_heb,
                 message_en: res.message_en,
                 message_spa: res.message_spa,
-                message_rus: res.message_rus,
+                message_ru: res.message_ru,
             })
         } catch (error) {
             console.log(error.response ? error.response.data : error.message);
@@ -104,7 +104,7 @@ export default function Templates() {
                 </div>
                 <div className="dashBox" style={{ backgroundColor: "inherit", border: "none" }}>
                     <form onSubmit={handleSubmit} className={`d-flex ${show?'flex-wrap-reverse':'nowrap'}`}>
-                        <div className="flex-grow-1 me-4  w-100 mr-3 mt-3">
+                        <div className="mt-3 mr-3 flex-grow-1 me-4 w-100">
                             <div className="form-group">
                                 <label htmlFor="hebrew">Hebrew</label>
                                 <textarea
@@ -141,15 +141,15 @@ export default function Templates() {
                             <div className="form-group">
                                 <label htmlFor="russian">Russian</label>
                                 <textarea
-                                    id="message_rus"
+                                    id="message_ru"
                                     className="form-control"
                                     maxLength={1000}
                                     rows="5"
-                                    value={templates.message_rus}
-                                    onChange={handleChange('message_rus')}
+                                    value={templates.message_ru}
+                                    onChange={handleChange('message_ru')}
                                 />
                             </div>
-                            <button type="submit" className="btn btn-primary mt-3">Save Templates</button>
+                            <button type="submit" className="mt-3 btn btn-primary">Save Templates</button>
                         </div>
                         <div className="suggestions-box" >
                             <h5 className="mb-3">Suggestions</h5>

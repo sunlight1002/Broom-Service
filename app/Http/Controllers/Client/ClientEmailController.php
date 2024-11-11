@@ -390,8 +390,6 @@ class ClientEmailController extends Controller
                     [],
                     ['lead_status' => $newLeadStatus]
                 );
-
-                event(new ClientLeadStatusChanged($client, $newLeadStatus));
             }
 
             event(new WhatsappNotificationEvent([

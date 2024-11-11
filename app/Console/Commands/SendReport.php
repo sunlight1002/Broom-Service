@@ -15,7 +15,7 @@ use Illuminate\Mail\Mailable;
 class SendReport extends Command
 {
     // The name and signature of the console command.
-    protected $signature = 'report';
+    protected $signature = 'admin:send-worker-invitation-report';
 
     // The console command description.
     protected $description = 'Display and export all user data';
@@ -34,14 +34,14 @@ class SendReport extends Command
             $user = User::orWhere('email', $invitation->email ?? '')
                         ->orWhere('phone', $invitation->phone ?? '')
                         ->first();
-                             
+
 
             $user_created = $user ? true : false;
-            
+
             $is_submitted = $user && Form::where('user_id', $user->id)
                                         ->whereNotNull('submitted_at')
                                         ->exists() ? true : false;
-          
+
             $manpower_company = $invitation->manpower_company_name;
             if ($user_created) {
 
@@ -67,9 +67,9 @@ class SendReport extends Command
             $safety_and_gear = false;
             $profile_completed = false;
         }
-        
 
-     
+
+
             $matchingUsers->push([
                 'id' => $invitation->id,
                 'first_name' => $invitation->first_name,

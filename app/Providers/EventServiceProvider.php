@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Events\AdminCommented;
 use App\Events\AdminLeadFilesNotificationJob;
-use App\Events\AdminReScheduleMeetingJob;
 use App\Events\ClientCommented;
 use App\Events\ClientInvoiceCreated;
 use App\Events\ClientInvRecCreated;
@@ -25,10 +24,8 @@ use App\Events\JobWorkerChanged;
 use App\Events\ReScheduleMeetingJob;
 use App\Events\SafetyAndGearFormSigned;
 use App\Events\SendClientLogin;
-use App\Events\WorkerApprovedJob;
 use App\Events\WorkerCreated;
 use App\Events\SendWorkerLogin;
-use App\Events\WorkerNotApprovedJob;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToWorker;
@@ -38,7 +35,6 @@ use App\Events\NewLeadArrived;
 use App\Events\OfferAccepted;
 use App\Events\OfferSaved;
 use App\Events\WorkerChangeAffectedAvailability;
-use App\Events\WorkerCommented;
 use App\Events\WorkerForm101Requested;
 use App\Events\WorkerLeaveJob;
 use App\Listeners\AdminLeadFilesNotification;
@@ -49,8 +45,6 @@ use App\Listeners\NotifyForForm101Signed;
 use App\Listeners\NotifyForInsuranceFormSigned;
 use App\Listeners\NotifyForSafetyAndGearFormSigned;
 use App\Listeners\ReScheduleMeetingNotification;
-use App\Listeners\SendJobApprovedNotification;
-use App\Listeners\SendJobNotApprovedNotification;
 use App\Listeners\SendJobReviewRequestNotification;
 use App\Listeners\SendShiftChangedNotification;
 use App\Listeners\SendWorkerChangedNotification;
@@ -75,7 +69,6 @@ use App\Listeners\NotifyForLeadStatusChanged;
 use App\Listeners\NotifyForNewLead;
 use App\Listeners\NotifyForOffer;
 use App\Listeners\NotifyForOrderCancelled;
-use App\Listeners\NotifyForWorkerCommented;
 use App\Listeners\NotifyForWorkerLeave;
 use App\Listeners\SendClientCredentials;
 use App\Listeners\SendWorkerChangedAffectedAvailability;
@@ -104,12 +97,6 @@ class EventServiceProvider extends ServiceProvider
         JobWorkerChanged::class => [
             SendWorkerChangedNotification::class,
         ],
-        WorkerApprovedJob::class => [
-            SendJobApprovedNotification::class,
-        ],
-        WorkerNotApprovedJob::class => [
-            SendJobNotApprovedNotification::class,
-        ],
         WorkerUpdatedJobStatus::class => [
             SendWorkerUpdatedJobStatusNotification::class
         ],
@@ -127,9 +114,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         ReScheduleMeetingJob::class => [
             ReScheduleMeetingNotification::class,
-        ],
-        AdminReScheduleMeetingJob::class => [
-            AdminReScheduleMeetingNotification::class,
         ],
         AdminLeadFilesNotificationJob::class => [
             AdminLeadFilesNotification::class,
@@ -184,9 +168,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         AdminCommented::class => [
             NotifyForAdminCommented::class
-        ],
-        WorkerCommented::class => [
-            NotifyForWorkerCommented::class
         ],
         NewLeadArrived::class => [
             NotifyForNewLead::class

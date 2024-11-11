@@ -198,7 +198,7 @@ class JobController extends Controller
             } else{
                 $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
             }
-                  
+
              $feeAmount = ($feePercentage / 100) * $job->total_amount;
 
             \Log::info("JobCancellationFee Save for Job : ". $job->id);
@@ -274,16 +274,6 @@ class JobController extends Controller
             $emailSubject = ($data['by'] == 'admin') ?
                 ('Job has been cancelled') . " #" . $job->id :
                 __('mail.client_job_status.subject') . " #" . $job->id;
-
-            $adminEmailData = [
-                'emailData' => [
-                    'job' => $job->toArray(),
-                ],
-                'emailSubject'  => $emailSubject,
-                'emailTitle'    => 'Job Status',
-                'emailContent'  => $emailContent
-            ];
-            event(new JobNotificationToAdmin($adminEmailData));
 
             //send notification to worker
             $job = $job->toArray();
@@ -464,7 +454,7 @@ class JobController extends Controller
             'shifts'        => $slotsInString,
             'status'        => $status,
         ];
-        
+
         if ($data['repeatancy'] == 'one_time') {
             $jobData['start_date'] = $job_date;  // Ensure start_date is set
             $jobData['next_start_date'] = $next_job_date;
@@ -473,7 +463,7 @@ class JobController extends Controller
             $jobData['previous_shifts'] = $job->shifts;
             $jobData['previous_shifts_after'] = NULL;
             $job->update($jobData);
-        
+
         } else if ($data['repeatancy'] == 'until_date') {
             $jobData['previous_worker_id'] = $job->worker_id;
             $jobData['previous_worker_after'] = $data['until_date'];
@@ -481,13 +471,13 @@ class JobController extends Controller
             $jobData['previous_shifts_after'] = $data['until_date'];
 
 
-        
+
             // $jobsToUpdate = Job::where('parent_job_id', $job->parent_job_id)
             //     ->whereDate('start_date', '<=', $data['until_date'])
             //     ->where('id', '!=', $job->id)
             //     ->orderBy('start_date', 'asc')
             //     ->get();
-        
+
             // if ($old_job_data['start_date'] == $job_date) {
             //     foreach ($jobsToUpdate as $jobToUpdate) {
             //         $jobToUpdate->update($jobData);
@@ -497,35 +487,35 @@ class JobController extends Controller
 
                 AdjustNextJobSchedule::dispatch($data, $jobData, $job_date, $preferredWeekDay, $workingWeekDays, $repeat_value, $job, $old_job_data, 'until_date');
 
-        
+
                 // foreach ($jobsToUpdate as $jobToUpdate) {
                 //     $nextJobDate = $this->scheduleNextJobDate($date, $repeat_value, $preferredWeekDay, $workingWeekDays);
-        
+
                 //     $jobToUpdate->update(array_merge($jobData, [
                 //         'start_date' => $date,
                 //         'next_start_date' => $nextJobDate
                 //     ]));
-        
+
                 //     $date = $nextJobDate;
-        
+
                 //     if ($date > $data['until_date']) {
                 //         break;
                 //     }
                 // }
             // }
-        
+
         } else if ($data['repeatancy'] == 'forever') {
             $jobData['previous_worker_id'] = NULL;
             $jobData['previous_worker_after'] = NULL;
             $jobData['previous_shifts'] = NULL;
             $jobData['previous_shifts_after'] = NULL;
-        
+
             // $jobsToUpdate = Job::where('parent_job_id', $job->parent_job_id)
             //     ->where('id', '!=', $job->id)
             //     ->where('start_date', '>=', $job->start_date)
             //     ->orderBy('start_date', 'asc')
             //     ->get();
-        
+
             // if ($old_job_data['start_date'] == $job_date) {
             //     foreach ($jobsToUpdate as $jobToUpdate) {
             //         $jobToUpdate->update($jobData);
@@ -534,21 +524,21 @@ class JobController extends Controller
                 // $date = $job_date;
 
                 AdjustNextJobSchedule::dispatch($data, $jobData, $job_date, $preferredWeekDay, $workingWeekDays, $repeat_value, $job, $old_job_data, 'forever');
-        
+
                 // foreach ($jobsToUpdate as $jobToUpdate) {
                 //     $nextJobDate = $this->scheduleNextJobDate($date, $repeat_value, $preferredWeekDay, $workingWeekDays);
-        
+
                 //     $jobToUpdate->update(array_merge($jobData, [
                 //         'start_date' => $date,
                 //         'next_start_date' => $nextJobDate
                 //     ]));
-        
+
                 //     $date = $nextJobDate;
                 // }
             // }
         }
-        
-        
+
+
         // $job->update($jobData);
 
         $job->jobservice()->update([
@@ -689,47 +679,49 @@ class JobController extends Controller
         $validated = $request->validate([
             'problem' => 'required|string|max:1000',
         ]);
-    
-        $client = Client::with('property_addresses')->find($request->input('client_id'));
-        $worker = User::find($request->input('worker_id'));
-    
+
         $problem = new Problems();
-        $problem->client_id = $client->id;
+        $problem->client_id = $request->input('client_id');
         $problem->job_id = $request->input('job_id');
         $problem->worker_id = $request->input('worker_id');
         $problem->problem = $validated['problem'];
         $problem->save();
-    
+
+        $job = Job::find($problem->job_id);
+
+        $job->load(['worker', 'client', 'propertyAddress']);
+
         // Dispatch the WhatsApp notification event
         event(new WhatsappNotificationEvent([
             'type' => WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER,
             'notificationData' => [
-                'client' => $client,
-                'worker' => $worker
+                'job' => $job->toArray(),
+                'client' => $job->client->toArray(),
+                'worker' => $job->worker->toArray(),
             ]
         ]));
-    
+
         // Return success response
         return response()->json(['message' => 'Problem saved successfully'], 201);
-    }    
-    
+    }
+
     public function getProblems(Request $request)
     {
         // Query the Problems table with related client and worker details
         $query = Problems::with(['client', 'client.property_addresses', 'worker']); // Assuming 'worker' is the relationship name
-        
+
         // Apply filters if present
         if (!empty($request->input('client_id'))) {
             $query->where('client_id', $request->input('client_id'));
         }
-        
+
         if (!empty($request->input('job_id'))) {
             $query->where('job_id', $request->input('job_id'));
         }
-        
+
         // Execute the query and retrieve the results
         $problems = $query->get();
-        
+
         // Transform the result if needed
         $problems = $problems->map(function ($problem) {
             return [
@@ -749,21 +741,21 @@ class JobController extends Controller
                 'job_id' => $problem->job_id,
             ];
         });
-        
+
         return response()->json(['problems' => $problems], 200);
     }
 
     // public function deleteProblem($id)
     // {
     //     \Log::info($id); // Log the id
-    
+
     //     // Find the problem entry
     //     $problem = Problems::find($id);
-    
+
     //     if (!$problem) {
     //         return response()->json(['error' => 'Problem not found'], 404);
     //     }
-    
+
     //     // Delete the problem entry
     //     try {
     //         $problem->delete();
@@ -772,5 +764,5 @@ class JobController extends Controller
     //         return response()->json(['error' => 'Failed to delete problem'], 500);
     //     }
     // }
-    
+
 }

@@ -43,26 +43,23 @@ class SkippedCommentController extends Controller
         $comment->save();
 
         // Create a record in the skipped_comments table
-        $skipcomment = SkippedComment::create([
+        SkippedComment::create([
             'comment_id' => $comment->id,
             'request_text' => $validatedData['request_text'],
             'status' => 'pending',
         ]);
 
-        $data = [
-            'comment_id' => $comment->job->id,
-            'comment' => $comment->comment,
-            // 'request' => $skipcomment->request_text,
-            'skipcomment' => $skipcomment,               // The comment itself
-            'worker' => $comment->job->worker,   // The worker assigned to the job
-            'client' => $comment->job->client,   // The client for the job
-            'property_address' => $comment->job->propertyAddress,
-        ];
+        $job = $comment->job;
+        $job->load(['jobservice', 'propertyAddress']);
+
         // Fire the event with the correct data
         event(new WhatsappNotificationEvent([
             'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_SKIPPED_COMMENTS,
             'notificationData' => [
-                'job' => $data, // Send the comment, worker, and client
+                'job' => $job->toArray(), // Send the comment, worker, and client
+                'worker' => $comment->job->worker->toArray(),
+                'client' => $comment->job->client->toArray(),
+                'comment' => $comment->toArray(),
             ],
         ]));
         // Return a successful response
@@ -117,16 +114,36 @@ class SkippedCommentController extends Controller
             }
         }
 
-        $data = [
-            'service_name' => $jobComment->job->jobservice->name,
-            'job' => $jobComment->job,
-            'worker' => $jobComment->job->worker
-        ];
- 
+        $pending_comments = JobComments::where('job_id', $jobComment->job_id)
+            ->where(function ($query) {
+                $query->whereNotIn('status', ['complete'])
+                    ->orWhereNull('status');
+            })
+            ->whereDoesntHave('skipComment', function ($q) {
+                $q->where(function ($query) {
+                    $query->where('status', '!=', 'approved')
+                        ->orWhereNull('status');
+                });
+            })
+            ->count();
+
+        if ($pending_comments < 1) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_ALL_COMMENTS_COMPLETED,
+                "notificationData" => [
+                    'job' => $jobComment->job->toArray(),
+                    'worker' => $jobComment->job->worker->toArray(),
+                    'client' => $jobComment->job->client->toArray(),
+                ]
+            ]));
+        }
+
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION,
             "notificationData" => [
-                'job' => $data,
+                'job' => $jobComment->job->toArray(),
+                'worker' => $jobComment->job->worker->toArray(),
+                'client' => $jobComment->job->client->toArray(),
             ]
         ]));
 

@@ -16,42 +16,49 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('worker:default-availability')->weekly();
-        $schedule->command('worker:notify-next-day-job')->dailyAt('17:00');
-        $schedule->command('client:review-job-request')->dailyAt('08:00');
-        $schedule->command('worker:failed-to-approve-job')->dailyAt('18:00');
-        $schedule->command('reminder:job-not-approve-or-leave')->hourlyAt(45);
-        $schedule->command('reminder:job-not-started')->hourlyAt(1);
-        $schedule->command('notification:job-not-finished-on-time')->hourlyAt(5);
-        $schedule->command('notification:job-time-exceed')->hourlyAt(1);
-        $schedule->command('invoice:check-once-in-month')->dailyAt('17:30');
-        $schedule->command('regular-invoice:generate')->dailyAt('12:00');
-        $schedule->command('worker:notify-yearly-insurance-form')->yearlyOn(1, 1, '09:00');
-        $schedule->command('meeting:reminder')->hourly();
-        $schedule->command('client:update-lead-status')->hourly();
-        $schedule->command('worker:send_invitation')->dailyAt('09:00');
-        $schedule->command('report')->twiceDailyAt(8, 18);
         $schedule->command('telescope:prune --hours=336')->daily();
 
         // Backup schedule
         $schedule->command('backup:clean')->daily()->at('01:00');
         $schedule->command('backup:run')->daily()->at('01:30');
 
-        $schedule->command('update24')->daily();
-        $schedule->command('StatusNotUpdated24')->daily();
-        $schedule->command('updateteam24')->daily();
-        $schedule->command('leadupdate24team')->daily();
-        $schedule->command('notifyoffsite24')->daily();
+        // Invoices
+        $schedule->command('regular-invoice:generate')->dailyAt('12:00');
+        $schedule->command('invoice:check-once-in-month')->dailyAt('17:30');
+
+        // Worker reminder
+        // $schedule->command('worker:send_invitation')->dailyAt('09:00');
+        $schedule->command('worker:notify-next-day-job-at-5-pm')->dailyAt('17:00');
+        $schedule->command('worker:notify-next-day-job-at-6-pm')->dailyAt('18:00');
+        $schedule->command('worker:notify-worker-confirm-on-your-way-before-1-hour')->everyMinute();
+        $schedule->command('worker:job-not-finished-on-time')->everyMinute();
+
+        // Team reminder
+        $schedule->command('team:notify-team-if-worker-not-confirm-before-30-mins')->everyMinute();
+        $schedule->command('team:notify-team-if-worker-not-confirm-after-30-mins')->everyMinute();
+        $schedule->command('team:lead-status-pending-from-24-hours')->daily();
+        $schedule->command('team:price-offer-reminder-to-team')->daily();
+        $schedule->command('team:contract-reminder')->hourly();
+        $schedule->command('team:offsite-meeting-reminder')->daily();
+
+        // Admin reminder
+        // $schedule->command('admin:send-worker-invitation-report')->twiceDailyAt(8, 18);
+
+        // Facebook Leads
+        $schedule->command('facebook:fetch-yesterday-leads')->everyFiveMinutes();
+
+
+        $schedule->command('client:review-job-request')->dailyAt('08:00');
+
+        // $schedule->command('worker:notify-yearly-insurance-form')->yearlyOn(1, 1, '09:00');
+        // $schedule->command('meeting:reminder')->hourly();
+        $schedule->command('client:update-lead-status')->hourly();
+
+
 
         $schedule->command('notifyclientforcontract')->hourly();
-        $schedule->command('job:remind-workers-to-confirm')->twiceDaily(17, 18);
         $schedule->command('mondayNotify')->weeklyOn(1, '08:00'); // 1 = Monday
         $schedule->command('remind:next-week-services')->weeklyOn(3, '9:00');
-        $schedule->command('notifyBeforeJob')->everyMinute();
-        $schedule->command('notifyteamoffer12')->hourly();
-        // $schedule->command('notifyteamcontract12')->hourly();
-        $schedule->command('notifyStartOfJob')->everyThirtyMinutes();
-        $schedule->command('notifyWorkerBeforeJobTime')->everyMinute();
-        $schedule->command('facebook:fetch-yesterday-leads')->dailyAt('01:00');
     }
 
     /**

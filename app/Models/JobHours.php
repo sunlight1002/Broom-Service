@@ -22,6 +22,7 @@ class JobHours extends Model
             $model->load(['job', 'job.client', 'job.worker', 'job.jobservice', 'job.propertyAddress', 'job.comments']);
             $job = $model->job->toArray();
             $worker = $job['worker'];
+            $client = $job['client'];
             $job['start_time'] = $model->start_time;
             if (auth()->user()->email == $worker['email']) {
                 if ($model->isDirty('start_time')) {
@@ -29,9 +30,10 @@ class JobHours extends Model
                         "type" => WhatsappMessageTemplateEnum::WORKER_START_THE_JOB,
                         "notificationData" => [
                             'job' => $job,
+                            'worker' => $worker,
+                            'client' => $client,
                         ]
                     ]));
-                    
                 } elseif ($model->isDirty('end_time')) {
                     $emailData = [
                         'emailSubject'  => __('mail.job_nxt_step.end_time_nxt_step_email_subject'),

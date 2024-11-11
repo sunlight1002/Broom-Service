@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Enums\JobStatusEnum;
-use App\Events\ClientLeadStatusChanged;
 use App\Models\Job;
 use App\Models\ManageTime;
 use App\Models\Notification;
@@ -43,7 +42,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
     public function __construct($jobID, $startDate)
     {
         $this->jobID = $jobID;
-        $this->startDate = $startDate; 
+        $this->startDate = $startDate;
     }
 
     /**
@@ -69,7 +68,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
                     ->orWhere('cancelled_for', '!=', 'forever');
             })
             ->find($this->jobID);
-    
+
         $manageTime = ManageTime::first();
         $workingWeekDays = json_decode($manageTime->days);
 
@@ -78,38 +77,38 @@ class ScheduleNextJobOccurring implements ShouldQueue
         try {
             if ($job) {
                 $client = $job->client;
-        
+
                 $offerServices = $this->formatServices($job->offer, false);
-        
+
                 $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
                     return $value['service'] == $job->schedule_id;
                 });
-        
+
                 $selectedService = head($filtered);
-        
-        
+
+
                 $preferredWeekDay = $job->jobservice->config['preferred_weekday'];
-        
+
                 $sixMonthsFromNow = Carbon::now()->addMonths(6);  // Calculate date 6 months from now
-                
+
                 // Check if startDate is provided
                 if ($this->startDate) {
                     $job_start_date = Carbon::parse($this->startDate);
-    
+
                     // Run scheduleNextJob only once with startDate
                     $nextJobDate =  $this->scheduleNextJob($job_start_date, $selectedService, $client, $job, $preferredWeekDay, $workingWeekDays);
-    
+
                 } else {
                      $job_start_date = Carbon::parse($job->start_date);
-    
+
                     do {
                         $nextJobDate = $this->scheduleNextJob($job_start_date, $selectedService, $client, $job, $preferredWeekDay, $workingWeekDays);
-                        
+
                         // If the next job date is after 6 months, stop the scheduling
                         if (Carbon::parse($nextJobDate)->gt($sixMonthsFromNow)) {
                             break;
                         }
-    
+
                         // Update job start date for the next iteration
                         $job_start_date = Carbon::parse($nextJobDate);
                     } while (true);
@@ -121,7 +120,7 @@ class ScheduleNextJobOccurring implements ShouldQueue
             \Log::error("Error occurred in ScheduleNextJobOccurring: " . $e->getMessage());
         }
 
-       
+
     }
 
 
@@ -307,7 +306,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
                     [],
                     ['lead_status' => $newLeadStatus]
                 );
-                event(new ClientLeadStatusChanged($client, $newLeadStatus));
             }
 
             return $next_job_date;

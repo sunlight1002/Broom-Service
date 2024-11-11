@@ -38,4 +38,9 @@ class Schedule extends Model
     {
         return $this->belongsTo(ClientPropertyAddress::class, 'address_id');
     }
+
+    public function files()
+    {
+        return $this->hasMany(Files::class, 'meeting');
+    }
 }

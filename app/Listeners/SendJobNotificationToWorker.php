@@ -53,6 +53,6 @@ class SendJobNotificationToWorker implements ShouldQueue
                 'worker' => $worker
             ]
         ]));
-        
+
     }
 }

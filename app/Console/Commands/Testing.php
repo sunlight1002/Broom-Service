@@ -39,7 +39,23 @@ class Testing extends Command
     public function handle()
     {
 
+        App::setLocale('en');
 
+        $text = __('mail.wa-message.admin_lead_files.header');
+
+        $text .= "\n\n";
+
+        $text .= __('mail.wa-message.common.salutation', [
+            'name' => 'צוות'
+        ]);
+
+        $text .= "\n\n";
+
+        $text .= __('mail.wa-message.admin_lead_files.content');
+
+        $text .= "\n\n" . __('mail.wa-message.button-label.check_file') . ": " . url("storage/uploads/ClientFiles/" );
+
+        echo $text;exit();
         App::setLocale('en');
 
         $text = "";
@@ -259,7 +275,7 @@ class Testing extends Command
 
         // echo "\n\n\n ### TEAM_NOTIFY_WORKER_AFTER_ON_MY_WAY\n\n";
 
-       
+
         // $text .= __('mail.wa-message.team_worker_on_my_way.subject');
 
         // $text .= __('mail.wa-message.common.salutation');
@@ -273,7 +289,7 @@ class Testing extends Command
         // echo $text;
         // $text = "";
 
-        
+
 
 
         echo "\n\n\n ### WORKER_NOTIFY_BEFORE_ON_MY_WAY\n\n";
@@ -536,7 +552,7 @@ class Testing extends Command
         echo $text;
         $text = "";
 
-                    
+
 
 
 
@@ -575,7 +591,7 @@ class Testing extends Command
         // $text = "";
 
 
-                    
+
 
 
 
@@ -698,7 +714,7 @@ class Testing extends Command
         $text .= "\n";
 
         $text .= __('mail.wa-message.notify_monday_client.request');
-        
+
         $text .= "\n\n";
 
         $text .= __('mail.wa-message.notify_monday_client.link');
@@ -1094,7 +1110,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### CLIENT_COMMENTED\n\n";
-        
+
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות'
         // ]);
@@ -1110,7 +1126,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### ADMIN_COMMENTED\n\n";
-        
+
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות'
         // ]);
@@ -1126,7 +1142,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### WORKER_COMMENTED\n\n";
-        
+
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות'
         // ]);
@@ -1144,7 +1160,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### NEW_LEAD_ARRIVED\n\n";
-        
+
 
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות'
@@ -1169,7 +1185,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### USER_STATUS_CHANGED\n\n";
-        
+
 
         // // Build the WhatsApp message content
         // $text .= __('mail.wa-message.common.salutation', ['name' => "צוות"]);
@@ -1185,16 +1201,16 @@ class Testing extends Command
 
 
         echo "\n\n\n ### UNANSWERED_LEAD\n\n";
-        
+
         $text .= __('mail.wa-message.common.salutation');
         $text .= "\n\n";
         $text .= __('mail.wa-message.tried_to_contact_you.content');
         $text .= "\n\n";
 
         $text .= __('mail.wa-message.tried_to_contact_you.contact_details');
-        
+
         $text .= "\n\n";
-        
+
         $text .= __('mail.wa-message.tried_to_contact_you.availability');
 
         $text .= "\n\n";
@@ -1212,7 +1228,7 @@ class Testing extends Command
 
 
         echo "\n\n\n ### INQUIRY_RESPONSE\n\n";
-        
+
 
         $text .= __('mail.wa-message.common.salutation');
         $text .= "\n\n";
@@ -1230,7 +1246,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### PENDING\n\n";
-        
+
         // $text .= __('mail.wa-message.pending.content');
 
         // echo $text;
@@ -1239,7 +1255,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### POTENTIAL\n\n";
-        
+
         // $text .= __('mail.wa-message.potential.content');
 
         // echo $text;
@@ -1248,7 +1264,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### IRRELEVANT\n\n";
-        
+
         // $text .= __('mail.wa-message.irrelevant.content');
 
         // echo $text;
@@ -1257,7 +1273,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### UNINTERESTED\n\n";
-        
+
         // $text .= __('mail.wa-message.uninterested.content');
 
         // echo $text;
@@ -1266,7 +1282,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### UNANSWERED\n\n";
-        
+
         // $text .= __('mail.wa-message.unanswered.content');
 
         // echo $text;
@@ -1276,7 +1292,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### POTENTIAL_CLIENT\n\n";
-        
+
         // $text .= __('mail.wa-message.potential_client.content');
 
         // echo $text;
@@ -1285,7 +1301,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### PENDING_CLIENT\n\n";
-        
+
         // $text .= __('mail.wa-message.pending_client.content');
 
         // echo $text;
@@ -1294,7 +1310,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### WAITING\n\n";
-        
+
         // $text .= __('mail.wa-message.waiting.content');
 
         // echo $text;
@@ -1303,7 +1319,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### ACTIVE_CLIENT\n\n";
-        
+
         // $text .= __('mail.wa-message.active_client.content');
 
         // echo $text;
@@ -1312,10 +1328,10 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### WORKER_CONTACT_TO_MANAGER\n\n";
-        
+
         // $text .= "\n\nשלום, צוות\n\n";
         // $text .= 'העובד צריך ליצור קשר עם המנהל.' . "\n\n";
-       
+
         // $text .= "תאריך/שעה: \nלקוח: \nעובד: \nנכס: ";
 
         // echo $text;
@@ -1325,7 +1341,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### FREEZE_CLIENT\n\n";
-        
+
         // $text .= __('mail.wa-message.freeze_client_team.content');
 
         // echo $text;
@@ -1334,7 +1350,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### UNHAPPY\n\n";
-        
+
         // $text .= __('mail.wa-message.unhappy.content');
 
         // echo $text;
@@ -1343,7 +1359,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### PRICE_ISSUE\n\n";
-        
+
         // $text .= __('mail.wa-message.price_issue.content');
 
         // echo $text;
@@ -1352,7 +1368,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### MOVED\n\n";
-        
+
         // $text .= __('mail.wa-message.moved.content');
 
         // echo $text;
@@ -1362,16 +1378,16 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### ONETIME\n\n";
-        
+
         // $text .= __('mail.wa-message.onetime.content');
 
         // echo $text;
         // $text = "";
 
-                
+
 
         echo "\n\n\n ### PAST\n\n";
-        
+
         $text .= __('mail.wa-message.common.salutation');
 
         $text .= __('mail.wa-message.past.thankyou');
@@ -1395,7 +1411,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### FOLLOW_UP_REQUIRED\n\n";
-        
+
         // $text .= __('mail.wa-message.follow_up_required.salutation');
         // $text .= "\n\n";
 
@@ -1407,11 +1423,11 @@ class Testing extends Command
         // echo $text;
         // $text = "";
 
-                
+
 
 
         // echo "\n\n\n ### FOLLOW_UP_PRICE_OFFER\n\n";
-        
+
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות',
         // ]);
@@ -1427,7 +1443,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### FINAL_FOLLOW_UP_PRICE_OFFER\n\n";
-        
+
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות',
         // ]);
@@ -1443,9 +1459,9 @@ class Testing extends Command
 
 
         echo "\n\n\n ### FOLLOW_UP_PRICE_OFFER_SENT_CLIENT\n\n";
-        
+
         $text .= __('mail.wa-message.price_offer_reminder_sent.salutation') . "\n\n";
-                    
+
         $text .= __('mail.wa-message.price_offer_reminder_sent.content');
 
         echo $text;
@@ -1454,7 +1470,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### LEAD_ACCEPTED_PRICE_OFFER\n\n";
-        
+
         // $text .= __('mail.wa-message.lead_accepted_price_offer.content');
 
         // $text .= "\n\n" . __('mail.wa-message.button-label.view_lead') . ": " . url("admin/leads/view/");
@@ -1466,7 +1482,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### BOOK_CLIENT_AFTER_SIGNED_CONTRACT\n\n";
-        
+
 
         // $text .= __('mail.wa-message.book_client_after_signed_contract.salutation');
 
@@ -1486,7 +1502,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### LEAD_DECLINED_PRICE_OFFER\n\n";
-        
+
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות',
         // ]);
@@ -1517,7 +1533,7 @@ class Testing extends Command
 
 
         echo "\n\n\n ### FILE_SUBMISSION_REQUEST\n\n";
-        
+
         $text .= __('mail.wa-message.common.salutation');
 
         $text .= "\n\n";
@@ -1542,7 +1558,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### FILE_SUBMISSION_REQUEST_TEAM\n\n";
-        
+
         // $text .= __('mail.wa-message.common.salutation');
 
         // $text .= "\n\n";
@@ -1562,7 +1578,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### LEAD_DECLINED_CONTRACT\n\n";
-        
+
 
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות',
@@ -1596,7 +1612,7 @@ class Testing extends Command
 
 
         echo "\n\n\n ### CLIENT_IN_FREEZE_STATUS\n\n";
-        
+
         $text .= __('mail.wa-message.common.salutation');
 
         $text .= __('mail.wa-message.client_in_freeze_status.thankyou');
@@ -1619,7 +1635,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### STATUS_NOT_UPDATED\n\n";
-        
+
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות',
         // ]);
@@ -1635,7 +1651,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### CLIENT_LEAD_STATUS_CHANGED\n\n";
-        
+
         // $text .= __('mail.wa-message.common.salutation', [
         //     'name' => 'צוות'
         // ]);
@@ -1651,7 +1667,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### SICK_LEAVE_NOTIFICATION\n\n";
-        
+
         // $text = __('mail.wa-message.follow_up.subject');
         // $text .= "\n\n";
         // $text .= __('mail.wa-message.follow_up.salutation');
@@ -1845,7 +1861,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### PRICE_OFFER_REMINDER_12_HOURS\n\n";
-        
+
         // $text = __('mail.wa-message.price_offer_reminder12.subject');
 
         // $text .= "\n\n";
@@ -1875,7 +1891,7 @@ class Testing extends Command
 
 
         echo "\n\n\n ### WORKER_LEAD_WEBHOOK_IRRELEVANT\n\n";
-        
+
         $text = '';
 
         $text .=  __('mail.wa-message.worker_webhook_irrelevant.message');
@@ -1886,7 +1902,7 @@ class Testing extends Command
 
 
         echo "\n\n\n ### NOTIFY_CONTRACT_VERIFY_TO_CLIENT\n\n";
-        
+
         $text = __('mail.wa-message.contract_verify.subject');
 
         $text .= "\n\n";
@@ -1904,7 +1920,7 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### NOTIFY_CONTRACT_VERIFY_TO_TEAM\n\n";
-        
+
         // $text = __('mail.wa-message.contract_verify_team.subject');
 
         // $text .= "\n\n";
@@ -1925,9 +1941,9 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### CONTRACT_REMINDER_TO_CLIENT_AFTER_3DAY\n\n";
-        
+
         // $text .= __('mail.wa-message.contract_reminder.salutation');
-    
+
         // $text .= "\n\n";
 
         // $text .= __('mail.wa-message.contract_reminder.content');
@@ -1941,9 +1957,9 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR\n\n";
-        
+
         // $text .= __('mail.wa-message.contract_reminder.salutation');
-    
+
         // $text .= "\n\n";
 
         // $text .= __('mail.wa-message.contract_reminder.content');
@@ -1957,9 +1973,9 @@ class Testing extends Command
 
 
         // echo "\n\n\n ### CONTRACT_REMINDER_TO_CLIENT_AFTER_7DAY\n\n";
-        
+
         // $text .= __('mail.wa-message.contract_reminder.salutation');
-    
+
         // $text .= "\n\n";
 
         // $text .= __('mail.wa-message.contract_reminder.content');

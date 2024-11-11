@@ -30,7 +30,12 @@ class JobComments extends Model
     public function job()
     {
         return $this->belongsTo(Job::class, 'job_id');
-    }    
+    }
+
+    public function skipComment()
+    {
+        return $this->hasMany(SkippedComment::class, 'comment_id');
+    }
 
     public function commenter()
     {

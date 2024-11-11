@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
-use App\Events\ClientLeadStatusChanged;
 use App\Models\Fblead;
 use App\Models\Client;
 use App\Models\LeadComment;
@@ -126,7 +125,7 @@ class LeadController extends Controller
         }
 
         $iCountData = $iCountResponse->json();
-        
+
         // Update client with iCount client_id
         if (isset($iCountData['client_id'])) {
             $client->update(['icount_client_id' => $iCountData['client_id']]);
@@ -146,8 +145,6 @@ class LeadController extends Controller
             [],
             ['lead_status' => LeadStatusEnum::PENDING]
         );
-
-        // event(new ClientLeadStatusChanged($client, LeadStatusEnum::PENDING));
 
         // Create a notification
         Notification::create([
@@ -263,19 +260,19 @@ class LeadController extends Controller
 
         // Create user in iCount
         $iCountResponse = $this->createOrUpdateUser($request);
-    
+
         // Handle iCount response
         if ($iCountResponse->status() != 200) {
             return response()->json(['error' => 'Failed to create user in iCount'], 500);
         }
-    
+
         $iCountData = $iCountResponse->json();
-        
+
         // Extract Client_id from iCount response and update the Client model
         if (isset($iCountData['client_id'])) {
             $client->update(['icount_client_id' => $iCountData['client_id']]);
         }
-    
+
 
         $client->update($input);
         return response()->json([

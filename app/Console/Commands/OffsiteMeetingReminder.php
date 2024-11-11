@@ -12,15 +12,16 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\ClientMetaEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App;
+use Illuminate\Support\Facades\DB;
 
-class NotifyClientOffsite24 extends Command
+class OffsiteMeetingReminder extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'notifyoffsite24';
+    protected $signature = 'team:offsite-meeting-reminder';
 
     /**
      * The console command description.
@@ -46,6 +47,30 @@ class NotifyClientOffsite24 extends Command
      */
     public function handle()
     {
+
+        $dates = [
+            Carbon::now()->subDay(1)->toDateString(),
+            Carbon::now()->subDays(3)->toDateString(),
+            Carbon::now()->subDays(7)->toDateString(),
+        ];
+
+        $meetings = Schedule::with('client')
+            ->where('meet_via', 'off-site')
+            ->whereDate('created_at', '>=', '2024-10-19')
+            ->whereDoesntHave('files')
+            ->whereIn(DB::raw('DATE(created_at)'), $dates)
+            ->get();
+
+        foreach ($meetings as $key => $meeting) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::OFF_SITE_MEETING_REMINDER_TO_CLIENT,
+                "notificationData" => [
+                    'client' => $meeting->toArray(),
+                ]
+            ]));
+        }
+
+
         $staticDate = "2024-10-19"; // Static date to start notifications from
         $currentDateTime = Carbon::now();
 
@@ -62,6 +87,8 @@ class NotifyClientOffsite24 extends Command
                 $q->whereDate('created_at', '>=', $staticDate);
             })
             ->get();
+
+
 
         \Log::info("Command execution started.");
         \Log::info($leadActivities);
@@ -89,7 +116,7 @@ class NotifyClientOffsite24 extends Command
                     if ($leadActivity->status_changed_date <= $sevenDaysAgoDateTime) {
                         // 7-Day Notification
                         $this->sendNotification(
-                            $client, 
+                            $client,
                             ClientMetaEnum::NOTIFICATION_SENT_OFFSITE_7DAYS,
                             WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
                             "7-day notification sent for client: "
@@ -97,7 +124,7 @@ class NotifyClientOffsite24 extends Command
                     } elseif ($leadActivity->status_changed_date <= $threeDaysAgoDateTime) {
                         // 3-Day Notification
                         $this->sendNotification(
-                            $client, 
+                            $client,
                             ClientMetaEnum::NOTIFICATION_SENT_OFFSITE_3DAYS,
                             WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
                             "3-day notification sent for client: "
@@ -105,7 +132,7 @@ class NotifyClientOffsite24 extends Command
                     } elseif ($leadActivity->status_changed_date <= $yesterdayDateTime) {
                         // 24-Hour Notification
                         $this->sendNotification(
-                            $client, 
+                            $client,
                             ClientMetaEnum::NOTIFICATION_SENT_OFFSITE_24HOURS,
                             WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
                             "24-hour notification sent for client: "

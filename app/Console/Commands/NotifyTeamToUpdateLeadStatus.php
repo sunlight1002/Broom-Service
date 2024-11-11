@@ -20,7 +20,7 @@ class NotifyTeamToUpdateLeadStatus extends Command
      *
      * @var string
      */
-    protected $signature = 'update24';
+    protected $signature = 'team:lead-status-pending-from-24-hours';
 
     /**
      * The console command description.
@@ -38,58 +38,23 @@ class NotifyTeamToUpdateLeadStatus extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->whapiApiEndpoint = config('services.whapi.url');
-        $this->whapiApiToken = config('services.whapi.token');
     }
 
     public function handle()
     {
-        $todayDate = Carbon::now()->format('Y-m-d');
-        // Get LeadStatus records where lead_status is 'pending' and were created more than 24 hours ago
-        $leadStatuses = LeadStatus::with('client')
-        ->whereIn('lead_status', ['unanswered','pending'])
-        ->whereHas('client', function ($q) use ($todayDate) {
-            $q->whereDate('created_at', '>=', "2024-10-19"); // Limit to leads created on or after 2024-09-19
-        })
-        ->where('created_at', '<=', Carbon::now()->subHours(24))  // Created more than 24 hours ago
-        ->get();
+        $clients = Client::where('created_at', '<=', Carbon::now()->subHours(24))->whereHas('lead_status', function ($q) {
+            $q->whereIn('lead_status', ['pending']);
+        })->whereDate('created_at', '>=', "2024-10-19")->get();
 
-        foreach ($leadStatuses as $leadStatus) {
-            // \Log::info($leadStatus);
-            $client = $leadStatus->client;
-
-            if ($client) {
-                $this->info("Sending notification to team for client: " . $client->firstname);
-                $this->sendNotification($client, $leadStatus);
-            } else {
-                $this->info("Client not found for Lead Status ID: {$leadStatus->id}");
-            }
+        foreach ($clients as $client) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                ]
+            ]));
         }
 
         return 0;
-    }
-
-    /**
-     * Send a notification to the team
-     *
-     * @param  \App\Models\Client
-     * @param  \App\Models\LeadStatus
-     * @return void
-     */
-    protected function sendNotification($client, $leadStatus)
-    {
-         // Trigger WhatsApp Notification Only
-         $response = event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_REQUIRED,
-            "notificationData" => [
-                'client' => $client->toArray(),
-            ]
-        ]));
-
-        if ($response) {
-            $this->info("Notification sent for Lead Status ID: {$leadStatus->id}");
-        } else {
-            $this->error("Failed to send notification for Lead Status ID: {$leadStatus->id}");
-        }
     }
 }

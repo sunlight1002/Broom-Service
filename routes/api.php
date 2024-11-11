@@ -130,6 +130,6 @@ Route::post('/twilio/handle-call', [LeadTwilioController::class, 'handleCall'])-
 Route::post('/twilio/handle-language', [LeadTwilioController::class, 'handleLanguage'])->name('twilio.handleLanguage');
 Route::post('/twilio/handle-call-flow', [LeadTwilioController::class, 'handleCallFlow'])->name('twilio.handleCallFlow');
 Route::post('/twilio/handle-response', [LeadTwilioController::class, 'handleResponse'])->name('twilio.handleResponse');
-Route::post('/twilio/main-menu', [LeadTwilioControllerr::class, 'handleResponse'])->name('twilio.mainMenu');
+Route::post('/twilio/main-menu', [LeadTwilioController::class, 'handleResponse'])->name('twilio.mainMenu');
 
 

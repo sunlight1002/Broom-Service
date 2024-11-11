@@ -87,7 +87,7 @@ class NotifyClientContract extends Command
             ->whereDate('created_at', '>=', $staticDate) // Start from static date
             ->where('created_at', '<=', $timeLimit3Days) // Older than 3 days
             ->get();
-            
+
 
         // Notify for contracts "not-signed" older than 3 days
         foreach ($contracts3Days as $contract) {

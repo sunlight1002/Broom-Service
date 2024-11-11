@@ -17,7 +17,9 @@ body {
 a:hover {
   text-decoration: none !important;
 }
-
+.dt-scroll-body {
+    overflow: visible !important;
+}
 
 #container {
   min-height: 100%;

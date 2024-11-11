@@ -45,25 +45,5 @@ class ProcessFileAndNotify implements ShouldQueue
         ]);
 
         event(new AdminLeadFilesNotificationJob($this->schedule, $files));
-
-        $clientNotificationType = $this->client->notification_type;
-        if ($clientNotificationType == 'both' || $clientNotificationType == 'whatsapp') {
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
-                "notificationData" => [
-                    'client' => $this->client->toArray(),
-                ]
-            ]));
-        }
-
-        if ($clientNotificationType == 'both' || $clientNotificationType == 'email') {
-            $leadArray = $this->client->toArray();
-            // Uncomment the following to send email notifications
-            // App::setLocale($this->client['lng']);
-            // Mail::send('Mails.FileSubmissionRequest', ['client' => $leadArray], function ($message) use ($this->client) {
-            //     $message->to($this->client->email);
-            //     $message->subject(__('mail.file_submission_request.header'));
-            // });
-        }
     }
 }

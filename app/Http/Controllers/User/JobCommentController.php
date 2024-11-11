@@ -7,7 +7,6 @@ use App\Events\JobNotificationToWorker;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobReviewRequest;
-use App\Events\WorkerCommented;
 use App\Events\WorkerUpdatedJobStatus;
 use App\Models\Job;
 use App\Models\Admin;
@@ -99,7 +98,7 @@ class JobCommentController extends Controller
             'comments' => $comments
         ]);
     }
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -111,30 +110,30 @@ class JobCommentController extends Controller
         $job = Job::with(['client', 'worker', 'jobservice', 'propertyAddress'])
             ->where('worker_id', Auth::id())
             ->find($request->job_id);
-    
+
         if (!$job) {
             return response()->json([
                 'message' => 'Job not found',
             ], 404);
         }
-    
+
         $validator = Validator::make($request->all(), [
             'name' => ['required'],
             'job_id' => ['required'],
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()]);
         }
-    
+
         $commentIds = $request->input('comment_ids', []);
-    
+
         if (!is_array($commentIds)) {
             $commentIds = [$commentIds];
         }
-    
+
         JobComments::whereIn('id', $commentIds)->update(['status' => 'complete']);
-    
+
         $comment = '';
         $filesArr = $request->file('files');
         $isFiles = ($request->hasFile('files') && count($filesArr) > 0);
@@ -163,53 +162,38 @@ class JobCommentController extends Controller
                 $comment->attachments()->createMany($resultArr);
             }
         }
-    
+
         if (isset($request->status) && $request->status != '') {
             $jobData = ['status' => $request->status];
-    
+
             if ($request->status == JobStatusEnum::COMPLETED) {
                 $end_time = $job->start_date . " " . $job->end_time;
-    
+
                 $jobData['completed_at'] = now()->toDateTimeString();
-    
-                if (($end_time < now()->toDateTimeString()) && ($job->is_extended == 0)) {
-                    event(new WhatsappNotificationEvent([
-                        "type" => WhatsappMessageTemplateEnum::WORKER_NEED_EXTRA_TIME,
-                        "notificationData" => [
-                            'job' => $job->toArray(),
-                        ]
-                    ]));
-                }
-    
-                if ($request->status == JobStatusEnum::COMPLETED) {
-                    $jobArray = $job->load(['propertyAddress'])->toArray();
-                    $worker = $jobArray['worker'];
-    
-                    $emailData = [
-                        'emailSubject' => __('mail.job_nxt_step.completed_nxt_step_email_subject'),
-                        'emailTitle' => __('mail.job_nxt_step.completed_nxt_step_email_title'),
-                        'emailContent' => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " <b>" . $jobArray['id'] . "</b>"]),
-                        'emailContentWa' => __('mail.job_nxt_step.completed_nxt_step_email_content', ['jobId' => " *" . $jobArray['id'] . "*"]),
-                    ];
-    
-                    event(new JobNotificationToWorker($worker, $jobArray, $emailData));
-                }
+
+                // if (($end_time < now()->toDateTimeString()) && ($job->is_extended == 0)) {
+                //     event(new WhatsappNotificationEvent([
+                //         "type" => WhatsappMessageTemplateEnum::WORKER_NEED_EXTRA_TIME,
+                //         "notificationData" => [
+                //             'job' => $job->toArray(),
+                //         ]
+                //     ]));
+                // }
             }
-    
+
             $job->update($jobData);
-    
-            event(new WorkerUpdatedJobStatus($job, $comment));
-    
+
+
             if ($job->status == JobStatusEnum::COMPLETED) {
                 $this->updateJobWorkerMinutes($job->id);
                 $this->updateJobAmount($job->id);
-    
+
                 // Get values from the updated job
                 $clientId = $job->client_id;
                 $addressId = $job->address_id;
                 $contractId = $job->contract_id;
                 $offerId = $job->offer_id;
-    
+
                 // Find the last job based on the values obtained
                 $lastJob = Job::where('client_id', $clientId)
                     ->where('address_id', $addressId)
@@ -217,29 +201,49 @@ class JobCommentController extends Controller
                     ->where('offer_id', $offerId)
                     ->orderBy('start_date', 'desc')
                     ->first();
-    
+
                 // Check if a last job exists
                 if ($lastJob) {
                     // If a last job exists, pass the required values to the queue
                     ScheduleNextJobOccurring::dispatch($job->id, $lastJob->start_date); // Assuming you still want to dispatch this
                 }
-    
+
+                $todayNextJob = Job::where('worker_id', $job->worker_id)
+                    ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+                    ->whereDate('start_date', now())
+                    ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                    ->whereRaw("STR_TO_DATE(start_time, '%H:%i:%s') > ?", [now()->format('H:i:s')])
+                    ->first();
+
+                if($todayNextJob) {
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB,
+                        "notificationData" => [
+                            'job' => $todayNextJob->toArray(),
+                            'client' => $todayNextJob->client->toArray(),
+                            'worker' => $todayNextJob->worker->toArray(),
+                        ]
+                    ]));
+                } else {
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY,
+                        "notificationData" => [
+                            'job' => $job->toArray(),
+                            'client' => $job->client->toArray(),
+                            'worker' => $job->worker->toArray(),
+                        ]
+                    ]));
+                }
+
                 CreateJobOrder::dispatch($job->id);
             }
-    
-    
-            if (now()->hour >= 17 && now()->minute >= 1) {
-                event(new JobReviewRequest($job));
-            }
         }
-    
-        event(new WorkerCommented(Auth::user()->toArray(), $job->toArray()));
-    
+
         return response()->json([
             'message' => 'Comment has been created successfully'
         ]);
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -307,6 +311,28 @@ class JobCommentController extends Controller
 
         $comment->save();
 
+        $pending_comments = JobComments::where('job_id', $comment->job_id)
+            ->where(function ($query) {
+                $query->whereNotIn('status', ['complete'])
+                    ->orWhereNull('status');
+            })
+            ->whereDoesntHave('skipComment', function ($q) {
+                $q->where(function ($query) {
+                    $query->where('status', '!=', 'approved')
+                        ->orWhereNull('status');
+                });
+            })
+            ->count();
+        if ($pending_comments < 1) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_ALL_COMMENTS_COMPLETED,
+                "notificationData" => [
+                    'job' => $comment->job->toArray(),
+                    'worker' => $comment->job->worker->toArray(),
+                    'client' => $comment->job->client->toArray(),
+                ]
+            ]));
+        }
         return response()->json([
             'success' => true,
             'message' => 'Comment status toggled successfully!',
