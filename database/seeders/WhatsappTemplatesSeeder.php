@@ -2093,7 +2093,7 @@ Just a friendly reminder that you have an upcoming appointment on *:meeting_date
 
 Accept/Reject: :meeting_reschedule_link
 
-Upload file: :client_meeting_file_upload_link
+Upload file: :meeting_file_upload_link
 
 Best regards,
 Broom Service Team 🌹
