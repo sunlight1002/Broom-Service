@@ -55,7 +55,7 @@ Por favor confirma que has visto la dirección para el trabajo de mañana:
 
 Saludos cordiales,
 Equipo de Broom Service',
-                'message_rus' => 'Здравствуйте, *:worker_name*,
+                'message_ru' => 'Здравствуйте, *:worker_name*,
 
 Пожалуйста, подтвердите, что вы видели адрес для завтрашней работы:
 
@@ -110,7 +110,7 @@ Este es un recordatorio para confirmar la dirección para el trabajo de mañana 
 Saludos cordiales,
 Equipo de Broom Service
 ',
-    'message_rus' => 'Здравствуйте, *:worker_name*,
+    'message_ru' => 'Здравствуйте, *:worker_name*,
 
 Это напоминание подтвердить адрес для завтрашней работы как можно скорее:
 
@@ -144,7 +144,7 @@ Equipo de Broom Service
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -186,7 +186,7 @@ Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 
 Saludos cordiales,
 Equipo de Broom Service',
-                'message_rus' => 'Здравствуйте, *:worker_name*,
+                'message_ru' => 'Здравствуйте, *:worker_name*,
 
 У вас назначена работа на *:job_start_time* по следующему адресу:
 
@@ -220,7 +220,7 @@ Equipo de Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -253,7 +253,7 @@ Una vez que llegue al lugar de trabajo, por favor confirme haciendo clic en el b
 
 Atentamente,
 Equipo de Broom Service',
-                'message_rus' => 'Здравствуйте, *:worker_name*,
+                'message_ru' => 'Здравствуйте, *:worker_name*,
 
 По прибытии на место работы, пожалуйста, подтвердите это, нажав на кнопку ниже.
 
@@ -285,7 +285,7 @@ Equipo de Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -333,7 +333,7 @@ Cuando haya terminado, por favor confirme:
 
 Atentamente,
 Equipo de Broom Service',
-                'message_rus' => 'Здравствуйте, *:worker_name*,
+                'message_ru' => 'Здравствуйте, *:worker_name*,
 
 Ваша работа по адресу *:job_full_address* началась. У вас есть *:job_remaining_hours часа* для завершения работы, и она должна быть завершена к *:job_end_time*.
 
@@ -367,7 +367,7 @@ Equipo de Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -401,7 +401,7 @@ office@broomservice.co.il
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -432,7 +432,7 @@ Todas las tareas han sido marcadas como completadas. Ahora puedes finalizar tu t
 
 Saludos cordiales,
 Equipo de Broom Service',
-                'message_rus' => 'Здравствуйте, *:worker_name*,
+                'message_ru' => 'Здравствуйте, *:worker_name*,
 
 Все задачи отмечены как выполненные. Теперь вы можете завершить смену.
 
@@ -479,7 +479,7 @@ Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 
 Saludos cordiales,
 Equipo Broom Service',
-                'message_rus' => 'Спасибо, *:worker_name*!
+                'message_ru' => 'Спасибо, *:worker_name*!
 
 У вас назначена работа на *:job_start_time* по следующему адресу:
 
@@ -508,7 +508,7 @@ Broom Service Team',
 
 Saludos cordiales,
 Equipo Broom Service',
-                'message_rus' => 'Спасибо, :worker_name! Приятного вам дня.
+                'message_ru' => 'Спасибо, :worker_name! Приятного вам дня.
 
 С уважением,
 Команда Broom Service',
@@ -531,7 +531,7 @@ Equipo Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -561,7 +561,7 @@ El trabajo en :job_full_address estaba programado para completarse a las :job_en
 
 Saludos cordiales,
 Equipo Broom Service',
-                'message_rus' => 'Привет, :worker_name,
+                'message_ru' => 'Привет, :worker_name,
 Работа по адресу :job_full_address должна была завершиться к :job_end_time. Пожалуйста, завершите работу, если все задачи выполнены, или свяжитесь с менеджером, если нужна помощь.
 *Варианты:*
 - Завершить работу :worker_job_link
@@ -587,7 +587,7 @@ Equipo Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -624,7 +624,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
 
@@ -666,7 +666,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -681,7 +681,7 @@ office@broomservice.co.il
 
 בדוק קובץ: :meeting_uploaded_file_url',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -710,7 +710,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -745,7 +745,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
 
@@ -768,7 +768,7 @@ office@broomservice.co.il
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -790,7 +790,7 @@ office@broomservice.co.il
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -831,7 +831,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -872,7 +872,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -893,7 +893,7 @@ office@broomservice.co.il
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -914,7 +914,7 @@ office@broomservice.co.il
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -955,7 +955,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -974,7 +974,7 @@ office@broomservice.co.il
 בברכה,
 צוות ברום סרוויס",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -988,7 +988,7 @@ For any questions or requests, we’re here to assist you.
 
 *Click here to send a message regarding a change or request* :request_change_schedule
 
-Wishing you a wonderful day! 🌸  
+Wishing you a wonderful day! 🌸
 Broom Service Team 🌹
 www.broomservice.co.il
 Telephone: 03-525-70-60
@@ -1011,7 +1011,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1047,7 +1047,7 @@ Si tu cronograma es el mismo que el de la semana pasada, no es necesario realiza
 
 Saludos cordiales,
 Equipo de servicio de escobas',
-                'message_rus' => 'Привет, :worker_name  ,
+                'message_ru' => 'Привет, :worker_name  ,
 
 Вам нужен полный или половина выходного дня на следующей неделе?
 Сегодня мы завершаем планирование графика на следующую неделю, поэтому, пожалуйста, сообщите нам как можно скорее, если у вас есть особые пожелания.
@@ -1077,7 +1077,7 @@ Equipo de servicio de escobas',
 בברכה,
 צוות ברום סרוויס",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1091,14 +1091,14 @@ Equipo de servicio de escobas',
 - *שם הלקוח:* :worker_name
 - *מספר טלפון:* :worker_phone_number
 - *פרטי הבקשה:* :request_details
-  
+
 אנא בדקו את הבקשה ובצעו את השינויים הנדרשים בהתאם.
 במידה ויש שאלות או צורך בפעולה נוספת, ניתן ליצור קשר עם הלקוח ישירות.
 
-בברכה,  
+בברכה,
 צוות ברום סרוויס",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
 
@@ -1141,7 +1141,7 @@ https://www.facebook.com/JobinIsraelforubr
 
 שיהיה לך יום נפלא !🌟",
                 'message_spa' => "Hola :client_name
-                
+
 🌟 Gracias por contactarnos en Job4Service.
 
 Ofrecemos los mejores trabajos en la industria de limpieza de casas en Israel.
@@ -1156,8 +1156,8 @@ https://t.me/+m84PexCmLjs0MmZk
 https://www.facebook.com/JobinIsraelforubr
 
 Que tengas un día maravilloso !🌟",
-                'message_rus' => "Привет :client_name,
-                
+                'message_ru' => "Привет :client_name,
+
 🌟 Спасибо, что связались с нами в Job4Service
 
 Мы предлагаем лучшие вакансии в сфере уборки домов в Израиле.
@@ -1182,7 +1182,7 @@ https://www.facebook.com/JobinIsraelforubr
                 'key' => WhatsappMessageTemplateEnum::LEAD_ACCEPTED_PRICE_OFFER,
                 'description' => 'notify team, Lead accepted price offer',
                 'message_en' => "Hello Team,
-                
+
 :client_name has accepted the price offer. Please ensure that the contract is signed and all necessary details are confirmed so we can proceed with scheduling the service.
 
 View details :lead_detail_url
@@ -1190,7 +1190,7 @@ View details :lead_detail_url
 Thank you,
 Broom Service Team",
                 'message_heb' => "שלום צוות,
-                
+
 :client_name קיבל את ההצעת מחיר. אנא ודאו שהחוזה נחתם וכל הפרטים הנדרשים מאושרים כדי שנוכל להתקדם בתכנון השירות.
 
 הצג פרטים :lead_detail_url
@@ -1198,14 +1198,14 @@ Broom Service Team",
 תודה,
 שירות ברום",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER,
                 'description' => 'notify team, Lead declined price offer',
                 'message_en' => "Hello Team,
-                
+
 The following client has declined the price offer for the service:
 
 Client Details:
@@ -1219,7 +1219,7 @@ Please review the details and update the status accordingly.
 Thank you,
 Broom Service Team",
                 'message_heb' => "שלום צוות,
-                
+
 הלקוח הבא סירב לחתום על החוזה לשירות:
 
 פרטי הלקוח:
@@ -1230,21 +1230,21 @@ Broom Service Team",
 
 אנא בדקו את הפרטים ועדכנו את הסטטוס בהתאם.
 
-תודה, 
+תודה,
 צוות שירות ברום",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::LEAD_DECLINED_CONTRACT,
                 'description' => 'notify team, Lead declined contract',
                 'message_en' => "Hello Team,
-                
+
 Thank you,
 Broom Service Team",
                 'message_heb' => "שלום צוות,
-                
+
 הלקוח הבא סירב לחתום על החוזה לשירות:
 
 פרטי הלקוח:
@@ -1255,10 +1255,10 @@ Broom Service Team",
 
 אנא בדקו את הפרטים ועדכנו את הסטטוס בהתאם.
 
-תודה, 
+תודה,
 צוות שירות ברום",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1270,8 +1270,8 @@ At Broom Service, we understand that sometimes there’s a need to take a break,
 We wanted to remind you that we are here for you and ready to resume services whenever you decide. We continue to improve and expand our service offerings to ensure that you always receive the best.
 
 If your needs have changed or if you would like to discuss new options, we are here at your service. Feel free to reach out anytime.
-                
-Best regards, 
+
+Best regards,
 Broom Service Team 🌹
 www.broomservice.co.il
 Telephone: 03-525-70-60
@@ -1279,13 +1279,13 @@ office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום צוות,
-                
+
 אנו בברום סרוויס מבינים שלפעמים יש צורך לעשות הפסקה, ואנו רוצים להודות לכם על האמון שהענקתם לנו עד כה.
 רצינו להזכיר לכם שאנו כאן בשבילכם ומוכנים לחדש את השירות בכל עת שתחליטו. אנו ממשיכים לשפר ולהרחיב את מגוון השירותים שלנו כדי להבטיח שתמיד תקבלו את הטוב ביותר.
 
 אם יש שינוי בצרכים שלכם או שאתם מעוניינים לדון באפשרויות חדשות, אנו כאן לשירותכם. אל תהססו ליצור קשר בכל עת.
 
-בברכה, 
+בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
@@ -1294,31 +1294,31 @@ office@broomservice.co.il
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_LEAD_STATUS_CHANGED,
                 'description' => 'notify team, when Lead status changed',
                 'message_en' => "Hello Team,
-                
-Best regards, 
+
+Best regards,
 Broom Service Team 🌹
 www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il",
                 'message_heb' => "שלום צוות,
-                
+
 הסטטוס של :client_name שונה ל- :new_status.
 
-בברכה, 
+בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1328,7 +1328,7 @@ office@broomservice.co.il",
 
 New lead alert! A potential client, :client_name, has been added to the system and is awaiting initial contact.
 
-Phone: :client_phone_number. 
+Phone: :client_phone_number.
 Click here to take action: :lead_detail_url',
 
                 'message_heb' => 'שלום, *צוות*
@@ -1340,7 +1340,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1358,7 +1358,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1376,7 +1376,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1395,7 +1395,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1407,14 +1407,14 @@ Click here to take action: :lead_detail_url',
 
                 'message_heb' => 'שלום, *צוות*
 
-הודעה: הלקוח הפוטנציאלי :client_name לא השיב לאחר ניסיונות יצירת קשר מרובים. 
+הודעה: הלקוח הפוטנציאלי :client_name לא השיב לאחר ניסיונות יצירת קשר מרובים.
 נא לבדוק ולבצע מעקב בהתאם לצורך.
 
 טלפון: :client_phone_number.
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1433,7 +1433,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1452,7 +1452,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1471,7 +1471,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1490,7 +1490,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1509,7 +1509,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1528,7 +1528,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1547,7 +1547,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1566,7 +1566,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1585,7 +1585,7 @@ Click here to take action: :lead_detail_url',
 לחץ כאן כדי לפעול: :lead_detail_url"',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1599,13 +1599,13 @@ Click here to take action: :lead_detail_url',
 
 הזמנה (:order_id) נוצרה עבור :client_name עם הנחה של ₪:discount ובסך הכל ₪:total לאחר ההנחה.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
+📞 טלפון: 03-525-70-60
 🌐 www.broomservice.co.il',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
 
@@ -1620,13 +1620,13 @@ Click here to take action: :lead_detail_url',
 
 הזמנה (:order_id) נוצרה עבור :client_name עם הנחה של ₪:discount ובסך הכל ₪:total לאחר ההנחה.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
+📞 טלפון: 03-525-70-60
 🌐 www.broomservice.co.il',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1640,13 +1640,13 @@ Click here to take action: :lead_detail_url',
 
 קבלה לחשבונית (:invoice_id) נוצרה עבור :client_name,
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
+📞 טלפון: 03-525-70-60
 🌐 www.broomservice.co.il',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
 
@@ -1661,13 +1661,13 @@ Click here to take action: :lead_detail_url',
 
 חשבונית (:invoice_id) נוצרה ונשלחה ל- :client_name.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
+📞 טלפון: 03-525-70-60
 🌐 www.broomservice.co.il',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1681,13 +1681,13 @@ Click here to take action: :lead_detail_url',
 
 הלקוח :client_name ביצע תשלום.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
+📞 טלפון: 03-525-70-60
 🌐 www.broomservice.co.il',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1701,13 +1701,13 @@ Click here to take action: :lead_detail_url',
 
 הלקוח :client_name ביצע תשלום.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
+📞 טלפון: 03-525-70-60
 🌐 www.broomservice.co.il',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1721,13 +1721,13 @@ Click here to take action: :lead_detail_url',
 
 ההזמנה של הלקוח :client_name (:order_id) בוטלה.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
+📞 טלפון: 03-525-70-60
 🌐 www.broomservice.co.il',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1741,13 +1741,13 @@ Click here to take action: :lead_detail_url',
 
 התשלום של :client_name עם הכרטיס [**** **** **** :card_number] נכשל.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
+📞 טלפון: 03-525-70-60
 🌐 www.broomservice.co.il',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1759,20 +1759,20 @@ Worker :worker_name's leave job date is set to :date
 
 Best regards,
 Broom Service Team
-📞 03-525-70-60 
+📞 03-525-70-60
 🌐 www.broomservice.co.il",
 
                 'message_heb' => "שלום, *צוות*
 
 העובד :worker_name קבע תאריך לעזיבת עבודה ל-:last_work_date.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 03-525-70-60 
+📞 03-525-70-60
 🌐 www.broomservice.co.il",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1783,20 +1783,20 @@ Broom Service Team
 
 Best regards,
 Broom Service Team
-📞 03-525-70-60 
+📞 03-525-70-60
 🌐 www.broomservice.co.il",
 
                 'message_heb' => "שלום, *צוות*
 
 :worker_name שינה זמינות שמשפיעה על עבודה ב-:date.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות
-📞 03-525-70-60 
+📞 03-525-70-60
 🌐 www.broomservice.co.il",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1819,7 +1819,7 @@ Broom Service Team",
 
 בדוק טפסים :check_form
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
 
                 'message_spa' => "Hola, *:worker_name*
@@ -1831,14 +1831,14 @@ Consultar formularios :check_form
 
 Saludos cordiales,
 Equipo de Broom Service",
-                'message_rus' => "Привет, *:worker_name*
+                'message_ru' => "Привет, *:worker_name*
 
 Вы успешно зарегистрировались на нашем портале. Пожалуйста, подпишите приведенные ниже формы, чтобы начать работу.
 Нажмите кнопку ниже, чтобы заполнить формы.
 
 Проверить формы :check_form
 
-С уважением,  
+С уважением,
 Команда Broom Service",
             ],
 
@@ -1850,16 +1850,16 @@ Equipo de Broom Service",
                ',
 
                 'message_heb' => 'שלום, *צוות*
-                
+
 אין פגישות זמינות. אנא תאם שיחה חוזרת עבור :client_name.
 
 צפה בלקוח: :client_detail_url
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
 
@@ -1871,16 +1871,16 @@ Equipo de Broom Service",
                ',
 
                 'message_heb' => 'שלום, *צוות*
-                
+
 :client_name רוצה לדבר עם נציג אנושי.
 
 צפה בלקוח: :client_detail_url
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות',
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1891,7 +1891,7 @@ Equipo de Broom Service",
                ',
 
                 'message_heb' => "שלום, *צוות*
-                
+
 עובד שינה את סטטוס העבודה ל-:job_status. אנא בדוק את הפרטים למטה.
 
 תאריך/שעה: :job_start_date_time
@@ -1902,11 +1902,11 @@ Equipo de Broom Service",
 
 צפה בעבודה :worker_job_link
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1932,7 +1932,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 הלקוח :client_name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.
 
-בברכה, 
+בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
@@ -1941,7 +1941,7 @@ office@broomservice.co.il
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1952,14 +1952,14 @@ office@broomservice.co.il
                ',
 
                 'message_heb' => "שלום, *צוות*
-                
+
 הלקוח :client_name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -1967,9 +1967,9 @@ office@broomservice.co.il
                 'description' => 'Send message to team when status is not updated from 24 hours',
                 'message_en' => "Hello :client_name
 
-Greetings from Broom Service. 
+Greetings from Broom Service.
 
-A work agreement for digital signature is attached. Please fill in the necessary details and sign on the last page for payment details you must fill in the details of each ID number and the signature of the card holder without the CVV details which you will give us over the phone in order to save and secure your payment details and with your signature below for any questions please  
+A work agreement for digital signature is attached. Please fill in the necessary details and sign on the last page for payment details you must fill in the details of each ID number and the signature of the card holder without the CVV details which you will give us over the phone in order to save and secure your payment details and with your signature below for any questions please
 
 Check Contract :client_contract_link
 
@@ -1986,10 +1986,10 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
                 'message_heb' => "שלום, *:client_name*
 
 מצורף בזאת הסכם התקשרות לחתימה דיגיטלית. יש להוסיף את כרטיס האשראי לתשלום, בצירוף חתימת בעל הכרטיס המאשר לחייבו במועד החיוב. הכרטיס יחויב בסכום של 1 ש\"ח ולאחר מכן יזוכה, זאת כדי לוודא את תקינותו. הפרטים יישמרו במערכת מאובטחת. בנוסף, יש לחתום בעמוד האחרון ולאשר את ההסכם.
-         
+
 בדוק חוזה :client_contract_link
 
-בברכה, 
+בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
@@ -1998,7 +1998,7 @@ office@broomservice.co.il
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -2006,7 +2006,7 @@ office@broomservice.co.il
                 'description' => 'Send message to team when status is not updated from 24 hours',
                 'message_en' => "Hello :client_name
 
-A service has been scheduled for you: *:job_service_name* on *:job_start_date* at *:job_start_time* 
+A service has been scheduled for you: *:job_service_name* on *:job_start_date* at *:job_start_time*
 Please note that the estimated arrival time of our team can be up to an hour and a half from the scheduled start time.
 
 For any questions or requests, feel free to contact us.
@@ -2024,10 +2024,10 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
                 'message_heb' => "שלום, *:client_name*
 
 נקבע עבורך שירות *:service_name* בשעה *:job_start_date* בתאריך *:job_start_time*.ר את ההסכם.
-         
+
 צפה בעבודה :client_view_job_link
 
-בברכה, 
+בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
@@ -2036,7 +2036,7 @@ office@broomservice.co.il
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -2071,7 +2071,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 סקירה: :client_job_review
 
-בברכה, 
+בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
@@ -2079,7 +2079,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => '',
+                'message_ru' => '',
             ],
 
             [
@@ -2108,7 +2108,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 העלה קובץ: :meeting_file_upload_link
 
-בברכה, 
+בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
@@ -2116,7 +2116,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
             [
@@ -2141,7 +2141,7 @@ Broom Service Team",
 
 טופס 101: :form_101_link
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
                 'message_spa' => "Hola, *:worker_name*
 
@@ -2151,13 +2151,13 @@ Haz clic en el botón de abajo para completar el Formulario 101.
 
 Saludos cordiales,
 Equipo de Broom Service",
-                'message_rus' => "Привет, *:worker_name*
+                'message_ru' => "Привет, *:worker_name*
 
 Вы успешно зарегистрировались на нашем портале. Пожалуйста, подпишите форму 101, чтобы начать работу.
 
 Нажмите кнопку ниже, чтобы заполнить форму 101.
 
-С уважением,  
+С уважением,
 Команда Broom Service",
             ],
 
@@ -2191,7 +2191,7 @@ Broom Service Team",
 
 הצג עבודה: :worker_job_link
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
 
                 'message_spa' => "Hola, *:worker_name*
@@ -2209,7 +2209,7 @@ Ver Trabajo: :worker_job_link
 Saludos cordiales,
 Equipo de Broom Service",
 
-                'message_rus' => "Привет, *:worker_name*
+                'message_ru' => "Привет, *:worker_name*
 
 :job_content_txt Пожалуйста, проверьте детали.
 
@@ -2221,7 +2221,7 @@ Equipo de Broom Service",
 
 Просмотреть работу: :worker_job_link
 
-С уважением,  
+С уважением,
 Команда Broom Service",
             ],
 
@@ -2243,7 +2243,7 @@ Broom Service Team",
 
 קבל/דחה :שמוע_עובד
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
 
                 'message_spa' => "Hola, *:worker_name*
@@ -2255,13 +2255,13 @@ Aceptar/Rechazar :worker_hearing
 Saludos cordiales,
 Equipo de Broom Service",
 
-                'message_rus' => "Привет, *:worker_name*
+                'message_ru' => "Привет, *:worker_name*
 
 Просто дружеское напоминание, что ваша встреча *:team_name* на *:date* между *:start_time* и *:end_time* запланирована.
 
 Принять/Отклонить :worker_hearing
 
-С уважением,  
+С уважением,
 Команда Broom Service",
             ],
 
@@ -2289,7 +2289,7 @@ Broom Service Team",
 שירות: :old_worker_service_name
 זמן התחלה: :old_job_start_time
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
 
                 'message_spa' => "Hola, *:old_worker_name*
@@ -2304,7 +2304,7 @@ Hora de Inicio: :old_job_start_time
 Saludos cordiales,
 Equipo de Broom Service",
 
-                'message_rus' => "Привет, *:old_worker_name*
+                'message_ru' => "Привет, *:old_worker_name*
 
 Ваша работа была отменена. Пожалуйста, проверьте детали.
 
@@ -2313,7 +2313,7 @@ Equipo de Broom Service",
 Услуга: :old_worker_service_name
 Время начала: :old_job_start_time
 
-С уважением,  
+С уважением,
 Команда Broom Service",
             ],
 
@@ -2350,7 +2350,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 צפה בעבודה :client_view_job_link
 
-בברכה, 
+בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
@@ -2358,7 +2358,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
 
@@ -2384,10 +2384,10 @@ Broom Service Team",
 
 צפה בעבודה :team_job_link
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
 
@@ -2406,10 +2406,10 @@ Broom Service Team",
 
 -: :review
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
             [
@@ -2425,10 +2425,10 @@ Broom Service Team",
 
 הלקוח :client_name שינה את לוח הזמנים לעבודה בתאריך :job_start_date_time.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
 
@@ -2446,10 +2446,10 @@ Broom Service Team",
 
 הלקוח :client_name השאיר תגובה לעבודה בתאריך :job_start_date_time.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
             [
@@ -2465,10 +2465,10 @@ Broom Service Team",
 
 :admin_name השאיר תגובה עבור עבודה בתאריך :job_start_date_time.
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
             [
@@ -2485,7 +2485,7 @@ Broom Service Team",
 ליד חדש התקבל עם הפרטים הבאים:
 שם: :client_name
 איש קשר: :client_phone_number
-שירות שהתבקש: 
+שירות שהתבקש:
 דוא'ל: :client_email
 כתובת: :client_address
 הגיע מ: :came_from
@@ -2495,10 +2495,10 @@ Broom Service Team",
 צפה בפרטי הליד: :lead_detail_url
 התקשר לליד כעת: :client_phone_number
 
-בברכה, 
+בברכה,
 ברום סרוויס צוות",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
 
@@ -2526,7 +2526,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 לחלופין, נשמח לדעת מתי יהיה נוח לך שנתקשר אליך במהלך שעות הפעילות שלנו.
 
 נשמח לעמוד לשירותך.
-             
+
 בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
@@ -2535,9 +2535,9 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
-            
+
             [
                 'key' => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
                 'description' => 'Client meeting schedule reminder message template',
@@ -2591,7 +2591,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
             [
@@ -2601,7 +2601,7 @@ office@broomservice.co.il
 
 At Broom Service, we want to thank you for the trust you placed in us in the past and remind you that we are always here for you.
 
-If you would like to reconnect and enjoy our professional and high-quality cleaning services, we are at your service. We would be happy to talk with you and tailor our services to your unique needs. 
+If you would like to reconnect and enjoy our professional and high-quality cleaning services, we are at your service. We would be happy to talk with you and tailor our services to your unique needs.
 Additionally, we would like to offer you a 20% discount on your next visit.
 
 Feel free to contact us anytime.
@@ -2631,7 +2631,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
             [
@@ -2665,7 +2665,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
             [
@@ -2675,7 +2675,7 @@ office@broomservice.co.il
 
 First of all, thank you for reaching out to us. It was a pleasure to meet and talk with you.
 
-Following our conversation, I am attaching for your review some testimonials from our existing clients, so you can get an idea of the excellent service we provide:  
+Following our conversation, I am attaching for your review some testimonials from our existing clients, so you can get an idea of the excellent service we provide:
 Client Testimonials :testimonials_link
 
 Additionally, I am attaching our Service Brochure for you to review the services we offer.
@@ -2683,7 +2683,7 @@ Additionally, I am attaching our Service Brochure for you to review the services
 
 At Broom Service, we are committed to quality, professionalism, and personalized service.
 
-I am here to help and answer any further questions you may have,  
+I am here to help and answer any further questions you may have,
 I am always at your service.
 
 Best Regards,
@@ -2698,7 +2698,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 ראשית, תודה שפנית אלינו. שמחתי מאוד להכיר ולשוחח איתך.
 
-בהמשך לשיחתנו, מצרפת לעיונך המלצות מלקוחות קיימים שלנו, למען התרשמותך מהשירות המעולה שלנו:  
+בהמשך לשיחתנו, מצרפת לעיונך המלצות מלקוחות קיימים שלנו, למען התרשמותך מהשירות המעולה שלנו:
 :testimonials_link
 המלצות מלקוחות קיימים
 
@@ -2707,7 +2707,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 בברום סרוויס, אנו מתחייבים לאיכות, מקצועיות ושירות אישי.
 
-אני כאן כדי לעזור ולענות על כל שאלה נוספת,  
+אני כאן כדי לעזור ולענות על כל שאלה נוספת,
 אשמח לעמוד לשירותך תמיד בכל עת.
 
 בברכה,
@@ -2718,7 +2718,7 @@ office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
             [
@@ -2742,7 +2742,7 @@ Broom Service Team 🌹",
 בברכה,
 צוות ברום סרוויס🌹",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
             [
@@ -2770,7 +2770,7 @@ Broom Service Team 🌹",
 בברכה,
 צוות ברום סרוויס🌹",
                 'message_spa' => '',
-                'message_rus' => "",
+                'message_ru' => "",
             ],
 
 //             [
@@ -2792,7 +2792,7 @@ Broom Service Team 🌹",
 // טלפון: 03-525-70-60
 // office@broomservice.co.il",
 //                 'message_spa' => '',
-//                 'message_rus' => "",
+//                 'message_ru' => "",
 //             ],
 
 //             [
@@ -2814,10 +2814,10 @@ Broom Service Team 🌹",
 //   • שם:  :client_name
 //   • טלפון:  :client_contact
 
-// בברכה, 
+// בברכה,
 // ברום סרוויס צוות",
 //                 'message_spa' => '',
-//                 'message_rus' => "",
+//                 'message_ru' => "",
 //             ],
 
         ];

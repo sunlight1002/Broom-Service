@@ -85,8 +85,8 @@ class WhatsappNotification
                 ':last_work_date' => $workerData['last_work_date'] ?? '',
                 ':date' => isset($eventData['date']) ? Carbon::parse($eventData['date'])->format('M d Y') : '',
                 ':check_form' => url("worker-forms/" . base64_encode($workerData['id'])) ?? '',
-                ':form_101_link' => isset($workerData['id'], $workerData['formId']) 
-                    ? url("form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId'])) 
+                ':form_101_link' => isset($workerData['id'], $workerData['formId'])
+                    ? url("form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId']))
                     : '',
                 ':refund_rejection_comment' => $eventData['refundclaim']['rejection_comment'] ?? "",
                 ':refund_status' => $eventData['refundclaim']['status'] ?? ""
@@ -181,7 +181,7 @@ class WhatsappNotification
     private function replaceOfferFields($text, $offerData)
     {
         $serviceNames = [];
-    
+
         // Check if 'services' exists and is an array or object
         if (isset($offerData['services']) && (is_array($offerData['services']) || is_object($offerData['services']))) {
             foreach ($offerData['services'] as $service) {
@@ -190,9 +190,9 @@ class WhatsappNotification
                 }
             }
         }
-    
+
         $serviceNamesString = implode(", ", $serviceNames);
-    
+
         $placeholders = [];
         if ($offerData) {
             $placeholders = [
@@ -204,10 +204,10 @@ class WhatsappNotification
                 ':offer_sent_date' => isset($offerData['created_at']) ? Carbon::parse($offerData['created_at'])->format('M d Y H:i') : '',
             ];
         }
-    
+
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
-    
+
 
     private function replaceContractFields($text, $contractData, $eventData)
     {
@@ -259,8 +259,8 @@ class WhatsappNotification
                     : (($eventData['job']['jobservice']['name'] ?? '') . ', '),
                 ':old_job_start_time' => Carbon::parse($eventData['old_job']['start_time'] ?? "00:00")->format('H:i'),
                 ':comment' => $by == 'client'
-                    ? ("Client changed the Job status to " . ucfirst($jobData['status'] ?? "") . "." 
-                    . (isset($jobData['cancellation_fee_amount']) ? 
+                    ? ("Client changed the Job status to " . ucfirst($jobData['status'] ?? "") . "."
+                    . (isset($jobData['cancellation_fee_amount']) ?
                         (" With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " "))
                     : ("Job is marked as " . ucfirst($jobData['status'] ?? "")),
                 ':admin_name' => $eventData['admin']['name'] ?? '',
@@ -282,7 +282,6 @@ class WhatsappNotification
             $eventData = $event;
             $eventType = $eventData->type;
             $eventData = $eventData->notificationData;
-            \Log::info($eventType);
 
             $headers = array();
             $url = "https://graph.facebook.com/v18.0/" . config('services.whatsapp_api.from_id') . "/messages";
@@ -716,7 +715,7 @@ class WhatsappNotification
                         $text .= "\n\n" . __('mail.job_common.check_job_details') . ": " . url("worker/jobs/view/" . $jobData['id']) . "\n\n";
                         $text .= __('mail.job_common.reply_txt') . "\n\n";
                         $text .= __('mail.wa-message.common.signature');
-            
+
                         break;
 
                     // case WhatsappMessageTemplateEnum::WORKER_UNASSIGNED:
@@ -768,10 +767,10 @@ class WhatsappNotification
                     //         'date' => Carbon::parse($jobData['start_date'])->format('M d Y')  . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
                     //         'client_name' => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA"),
                     //         'service_name' => $jobData['jobservice']['name'],
-                    //         'comment' => ($by == 'client' ? 
-                    //                     ("Client changed the Job status to " . ucfirst($jobData['status']) . "." 
-                    //                     . ($jobData['cancellation_fee_amount']) ? 
-                    //                     ("With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " ") : 
+                    //         'comment' => ($by == 'client' ?
+                    //                     ("Client changed the Job status to " . ucfirst($jobData['status']) . "."
+                    //                     . ($jobData['cancellation_fee_amount']) ?
+                    //                     ("With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " ") :
                     //                     ("Job is marked as " . ucfirst($jobData['status'])))
                     //     ]);
 
@@ -979,10 +978,10 @@ class WhatsappNotification
                     //         'client_name' => ($jobData['client'] ? ($jobData['client']['firstname'] . " " . $jobData['client']['lastname']) : "NA"),
                     //         'service_name' => $jobData['jobservice']['name'],
                     //         'status' => ucfirst($jobData['status']),
-                    //         'comment' => ($by == 'client' ? 
-                    //         ("Client changed the Job status to " . ucfirst($jobData['status']) . "." . 
-                    //         ($jobData['cancellation_fee_amount']) ? 
-                    //         ("With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " ") : 
+                    //         'comment' => ($by == 'client' ?
+                    //         ("Client changed the Job status to " . ucfirst($jobData['status']) . "." .
+                    //         ($jobData['cancellation_fee_amount']) ?
+                    //         ("With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " ") :
                     //         ("Job is marked as " . ucfirst($jobData['status'])))
                     //     ]);
 
@@ -2054,7 +2053,7 @@ class WhatsappNotification
                 }
             }
 
-            $receiverNumber = '918469138538';
+            // $receiverNumber = '918469138538';
             // $receiverNumber = config('services.whatsapp_groups.notification_test');
             if ($receiverNumber && $text) {
                 // \Log::info($text);
