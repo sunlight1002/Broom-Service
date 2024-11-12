@@ -90,8 +90,6 @@ class Client extends Authenticatable
                     'lead_status' => LeadStatusEnum::PENDING
                 ]
             );
-// 
-            // event(new NewLeadArrived($model));
         });
         static::deleting(function ($model) {
             Schedule::where('client_id', $model->id)->delete();

@@ -55,7 +55,7 @@ Por favor confirma que has visto la dirección para el trabajo de mañana:
 
 Saludos cordiales,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 Пожалуйста, подтвердите, что вы видели адрес для завтрашней работы:
 
@@ -110,7 +110,7 @@ Este es un recordatorio para confirmar la dirección para el trabajo de mañana 
 Saludos cordiales,
 Equipo de Broom Service
 ',
-    'message_ru' => 'Здравствуйте, *:worker_name*,
+    'message_rus' => 'Здравствуйте, *:worker_name*,
 
 Это напоминание подтвердить адрес для завтрашней работы как можно скорее:
 
@@ -144,7 +144,7 @@ Equipo de Broom Service
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -186,7 +186,7 @@ Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 
 Saludos cordiales,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 У вас назначена работа на *:job_start_time* по следующему адресу:
 
@@ -220,7 +220,7 @@ Equipo de Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -253,7 +253,7 @@ Una vez que llegue al lugar de trabajo, por favor confirme haciendo clic en el b
 
 Atentamente,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 По прибытии на место работы, пожалуйста, подтвердите это, нажав на кнопку ниже.
 
@@ -285,7 +285,7 @@ Equipo de Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -333,7 +333,7 @@ Cuando haya terminado, por favor confirme:
 
 Atentamente,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 Ваша работа по адресу *:job_full_address* началась. У вас есть *:job_remaining_hours часа* для завершения работы, и она должна быть завершена к *:job_end_time*.
 
@@ -367,30 +367,41 @@ Equipo de Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION,
                 'description' => 'Notification to Client - Update on Comment Resolution',
-                'message_en' => 'Hi, *:client_name*,
+                'message_en' => "Hello, *:client_name*,
 
 We’ve added updates to the tasks on your job for *:job_service_name* scheduled for *:job_start_date_time*. Please review the latest updates and our responses to each task.
 
 - *View Comments and Updates* :client_view_job_link
 
-Best regards,
-Broom Service Team',
-                'message_heb' => 'שלום, *:client_name*,
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום, *:client_name*,
 
 הוספנו עדכונים לביצוע המשימות בעבודה שלך לשירות *:job_service_name*, שנקבעה ל-*:job_start_date_time*. אנא עיין בעדכונים האחרונים ובתגובות שלנו לכל משימה.
 
 - *צפה במשימות ובתשובות* :client_view_job_link
 
 בברכה,
-צוות ברום סרוויס',
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -421,7 +432,7 @@ Todas las tareas han sido marcadas como completadas. Ahora puedes finalizar tu t
 
 Saludos cordiales,
 Equipo de Broom Service',
-                'message_ru' => 'Здравствуйте, *:worker_name*,
+                'message_rus' => 'Здравствуйте, *:worker_name*,
 
 Все задачи отмечены как выполненные. Теперь вы можете завершить смену.
 
@@ -468,7 +479,7 @@ Tienes un trabajo programado a las *:job_start_time* en la siguiente ubicación:
 
 Saludos cordiales,
 Equipo Broom Service',
-                'message_ru' => 'Спасибо, *:worker_name*!
+                'message_rus' => 'Спасибо, *:worker_name*!
 
 У вас назначена работа на *:job_start_time* по следующему адресу:
 
@@ -497,7 +508,7 @@ Broom Service Team',
 
 Saludos cordiales,
 Equipo Broom Service',
-                'message_ru' => 'Спасибо, :worker_name! Приятного вам дня.
+                'message_rus' => 'Спасибо, :worker_name! Приятного вам дня.
 
 С уважением,
 Команда Broom Service',
@@ -520,7 +531,7 @@ Equipo Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -550,7 +561,7 @@ El trabajo en :job_full_address estaba programado para completarse a las :job_en
 
 Saludos cordiales,
 Equipo Broom Service',
-                'message_ru' => 'Привет, :worker_name,
+                'message_rus' => 'Привет, :worker_name,
 Работа по адресу :job_full_address должна была завершиться к :job_end_time. Пожалуйста, завершите работу, если все задачи выполнены, или свяжитесь с менеджером, если нужна помощь.
 *Варианты:*
 - Завершить работу :worker_job_link
@@ -576,35 +587,51 @@ Equipo Broom Service',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
                 'description' => 'Client meeting schedule message template',
-                'message_en' => 'Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 Just a friendly reminder that you have an upcoming appointment on *:meeting_date* between *:meeting_start_time* to *:meeting_end_time* at *:meeting_address* for *:meeting_purpose*. Click the *Accept/Reject* or *Upload file* button for Accept, Reject, Reschedule, and Upload Files.
 
 Accept/Reject: :meeting_reschedule_link
 
-Upload file: :meeting_file_upload_link',
-                'message_heb' => 'שלום, *:client_name*
+Upload file: :meeting_file_upload_link
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום, *:client_name*
 
 רק תזכורת ידידותית שיש לך פגישה קרובה ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בכתובת *:meeting_address* עבור *:meeting_purpose*. לחץ על הלחצן *קבל/דחה* או *העלה קובץ* כדי לקבל, לדחות, לתאם מחדש ולהעלות קבצים.
 
 קבל/דחה: :meeting_reschedule_link
 
-העלה קובץ: :meeting_file_upload_link',
+העלה קובץ: :meeting_file_upload_link
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
 
             [
                 'key' => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
                 'description' => 'Send message to client for upload files (off site meeting)',
-                'message_en' => 'Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.
 
@@ -615,11 +642,13 @@ Please click on blow link and upload the requested files at your earliest conven
 If you have any questions or need assistance, feel free to reach out to us.
 
 Best Regards,
-Broom Service Team
+Broom Service Team 🌹
 www.broomservice.co.il
 Telephone: 03-525-70-60
-office@broomservice.co.il',
-                'message_heb' => 'שלום, :client_name
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום, :client_name
 
 כדי לספק לך הצעת מחיר מדויקת לשירותים המבוקשים, נשמח אם תוכל לשלוח לנו כמה תמונות או סרטון של האזור שזקוק לניקיון. כך נוכל להבין טוב יותר את הצרכים שלך ולהכין הצעת מחיר מפורטת עבורך.
 
@@ -630,12 +659,14 @@ office@broomservice.co.il',
 אם יש לך שאלות או שאתה זקוק לעזרה, אנא אל תהסס לפנות אלינו.
 
 בברכה,
-צוות ברום סרוויס
+צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
-office@broomservice.co.il',
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -650,40 +681,71 @@ office@broomservice.co.il',
 
 בדוק קובץ: :meeting_uploaded_file_url',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::DELETE_MEETING,
                 'description' => 'Send message to client on meeting cancelled',
-                'message_en' => '
-Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
-Just a friendly reminder that your meeting *:meeting_team_member_name* on *:meeting_date* between *:meeting_start_time* to *:meeting_end_time* has been cancelled.',
-                'message_heb' => 'שלום, *:client_name*
+Just a friendly reminder that your meeting *:meeting_team_member_name* on *:meeting_date* between *:meeting_start_time* to *:meeting_end_time* has been cancelled.
 
-זוהי תזכורת לכך שהפגישה שלך *:meeting_team_member_name* ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בוטלה כעת.',
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום, *:client_name*
+
+זוהי תזכורת לכך שהפגישה שלך *:meeting_team_member_name* ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בוטלה כעת.
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::OFFER_PRICE,
                 'description' => 'Client new price offer message template',
-                'message_en' => 'Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 Please check the price offer for the *:offer_service_names*. After your approval, an engagement agreement will be sent to you which you will need to fill out and sign below then we will be ready to start the work.
 Click the below button to see the price offer.
 
-Price Offer: :client_price_offer_link',
-                'message_heb' => 'שלום, *:client_name*
+Price Offer: :client_price_offer_link
 
-מצ"ב הצעת מחיר עבור *:offer_service_names*. לאחר אישורכם, יישלח אליכם הסכם התקשרות אותו תצטרכו למלא ולחתום למטה ואז נהיה מוכנים להתחיל בעבודה.
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום, *:client_name*
+
+מצ'ב הצעת מחיר עבור *:offer_service_names*. לאחר אישורכם, יישלח אליכם הסכם התקשרות אותו תצטרכו למלא ולחתום למטה ואז נהיה מוכנים להתחיל בעבודה.
 לחץ על הכפתור למטה כדי לראות את הצעת המחיר.
 
-הצעת מחיר: :client_price_offer_link',
+הצעת מחיר: :client_price_offer_link
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
 
@@ -706,7 +768,7 @@ Price Offer: :client_price_offer_link',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -728,13 +790,13 @@ Price Offer: :client_price_offer_link',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT,
                 'description' => 'Reminder to Client - Price Offer Sent (24 Hours, 3 Days, 7 Days)',
-                'message_en' => 'Hello :client_name,
+                'message_en' => "Hello :client_name,
 
 Just a reminder that you received a price offer from us on :offer_sent_date.
 Please find attached the price offer again for :price_offer_services. Once you confirm, we will send you an engagement agreement to complete and sign.
@@ -744,14 +806,17 @@ If you have any questions or need any assistance, we are here to help.
 
 Click here to view your price offer :client_price_offer_link
 
-Best regards,
-Broom Service
-📞 03-525-70-60
-🌐 www.broomservice.co.il',
-                'message_heb' => 'שלום :client_name,
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום :client_name,
 
 רק תזכורת לכך שקיבלת מאיתנו הצעת מחיר בתאריך :offer_sent_date.
-מצ"ב שוב הצעת המחיר לשירות :price_offer_services. לאחר אישורכם, יישלח אליכם הסכם התקשרות למילוי וחתימה.
+מצ'ב שוב הצעת המחיר לשירות :price_offer_services. לאחר אישורכם, יישלח אליכם הסכם התקשרות למילוי וחתימה.
 
 לחץ על הכפתור למטה כדי לצפות בהצעת המחיר.
 אם יש לך שאלות, או לכל עניין אחר, אנו פה לשירותכם.
@@ -759,17 +824,20 @@ Broom Service
 לחץ כאן לצפייה בהצעת המחיר שלך :client_price_offer_link
 
 בברכה,
-ברום סרוויס
-📞 03-525-70-60
-🌐 www.broomservice.co.il',
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED,
                 'description' => 'Reminder to Client - Agreement Signature (After 24 Hours, 3 Days, and 7 Days)',
-                'message_en' => 'Hello :client_name,
+                'message_en' => "Hello :client_name,
 
 Just a reminder that an engagement agreement was sent to you on :contract_sent_date.
 Please find the agreement attached again. Kindly complete all details and sign where required.
@@ -779,14 +847,17 @@ If you have any questions or need assistance, we are here to help.
 
 Click here to view your agreement :client_contract_link
 
-Best regards,
-Broom Service
-📞 03-525-70-60
-🌐 www.broomservice.co.il',
-                'message_heb' => 'שלום :client_name,
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום :client_name,
 
 רק תזכורת לכך שנשלח אליכם הסכם התקשרות בתאריך :contract_sent_date.
-מצ"ב שוב הסכם ההתקשרות. נא מלאו את כל הפרטים וחתמו במקומות הנדרשים.
+מצ'ב שוב הסכם ההתקשרות. נא מלאו את כל הפרטים וחתמו במקומות הנדרשים.
 
 לחץ על הכפתור למטה לצפייה בהסכם.
 אם יש לך שאלות, או לכל עניין אחר, אנו פה לשירותכם.
@@ -794,11 +865,14 @@ Broom Service
 לחץ כאן לצפייה בהסכם שלך :client_contract_link
 
 בברכה,
-ברום סרוויס
-📞 03-525-70-60
-🌐 www.broomservice.co.il',
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -819,7 +893,7 @@ Broom Service
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -840,13 +914,13 @@ Broom Service
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::OFF_SITE_MEETING_REMINDER_TO_CLIENT,
                 'description' => 'Notification to Client - Reminder for Pending Client Files (Sent after 24 hours, 3 days, and 7 days)',
-                'message_en' => 'Hi, :client_name,
+                'message_en' => "Hello, :client_name,
 
 Just a friendly reminder that we have not yet received the requested photos or video of the area needing cleaning, which are essential to prepare your quote.
 
@@ -856,11 +930,14 @@ If you have any questions or requests, we’re here to assist you.
 
 Click here to upload your photos/video :meeting_file_upload_link
 
-Best regards,
-Broom Service
-📞 03-525-70-60
-🌐 http://www.broomservice.co.il',
-                'message_heb' => 'שלום, :client_name,
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום, :client_name,
 
 רק תזכורת לכך שעדיין לא קיבלנו ממך תמונות או סרטון לצורך הצעת המחיר.
 
@@ -871,12 +948,14 @@ Broom Service
 לחץ כאן לשליחת התמונות/סרטון :meeting_file_upload_link
 
 בברכה,
-ברום סרוויס
-📞 03-525-70-60
-🌐 http://www.broomservice.co.il
-',
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -895,13 +974,13 @@ Broom Service
 בברכה,
 צוות ברום סרוויס",
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
                 'description' => 'Every Monday, send a notification to all clients and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule. Also, notify them if there is any holiday during that week.',
-                'message_en' => 'Dear Clients, good morning,
+                'message_en' => "Dear Clients, good morning,
 
 Today is Monday, and we’re finalizing the work schedule for next week. If you have any constraints, changes, or special requests, please send them to us by the end of the day.
 
@@ -910,9 +989,12 @@ For any questions or requests, we’re here to assist you.
 *Click here to send a message regarding a change or request* :request_change_schedule
 
 Wishing you a wonderful day! 🌸  
-Broom Service Team
-📞 03-525-70-60  
-🌐 http://www.broomservice.co.il',
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "לקוחות יקרים, בוקר טוב,
 
 היום יום שני, ואנו סוגרים סידור עבודה לשבוע הבא. במידה ויש לכם אילוצים, שינויים או בקשות מיוחדות, נבקש להעבירם עוד היום.
@@ -922,11 +1004,14 @@ Broom Service Team
 *לחץ כאן לשליחת הודעה על שינוי או בקשה* :request_change_schedule
 
 המשך יום נהדר! 🌸
-ברום סרוויס
-📞 03-525-70-60
-🌐 http://www.broomservice.co.il",
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
-                'message_ru' => '',
+                'message_rus' => '',
             ],
 
             [
@@ -962,7 +1047,7 @@ Si tu cronograma es el mismo que el de la semana pasada, no es necesario realiza
 
 Saludos cordiales,
 Equipo de servicio de escobas',
-                'message_ru' => 'Привет, :worker_name  ,
+                'message_rus' => 'Привет, :worker_name  ,
 
 Вам нужен полный или половина выходного дня на следующей неделе?
 Сегодня мы завершаем планирование графика на следующую неделю, поэтому, пожалуйста, сообщите нам как можно скорее, если у вас есть особые пожелания.
@@ -1187,9 +1272,12 @@ We wanted to remind you that we are here for you and ready to resume services wh
 If your needs have changed or if you would like to discuss new options, we are here at your service. Feel free to reach out anytime.
                 
 Best regards, 
-Broom Service Team
-Phone: 03-525-70-60 
-🌐 Website: www.broomservice.co.il",
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום צוות,
                 
 אנו בברום סרוויס מבינים שלפעמים יש צורך לעשות הפסקה, ואנו רוצים להודות לכם על האמון שהענקתם לנו עד כה.
@@ -1198,9 +1286,13 @@ Phone: 03-525-70-60
 אם יש שינוי בצרכים שלכם או שאתם מעוניינים לדון באפשרויות חדשות, אנו כאן לשירותכם. אל תהססו ליצור קשר בכל עת.
 
 בברכה, 
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
-🌐 www.broomservice.co.il",
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+
                 'message_spa' => '',
                 'message_rus' => '',
             ],
@@ -1211,17 +1303,20 @@ Phone: 03-525-70-60
                 'message_en' => "Hello Team,
                 
 Best regards, 
-Broom Service Team
-Phone: 03-525-70-60 
-🌐 Website: www.broomservice.co.il",
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il",
                 'message_heb' => "שלום צוות,
                 
 הסטטוס של :client_name שונה ל- :new_status.
 
 בברכה, 
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60 
-🌐 www.broomservice.co.il",
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il",
+
                 'message_spa' => '',
                 'message_rus' => '',
             ],
@@ -1744,7 +1839,7 @@ Equipo de Broom Service",
 Проверить формы :check_form
 
 С уважением,  
-Команда Broom Service'",
+Команда Broom Service",
             ],
 
             [
@@ -1797,13 +1892,13 @@ Equipo de Broom Service",
 
                 'message_heb' => "שלום, *צוות*
                 
-עובד שינה את סטטוס העבודה ל-:status. אנא בדוק את הפרטים למטה.
+עובד שינה את סטטוס העבודה ל-:job_status. אנא בדוק את הפרטים למטה.
 
 תאריך/שעה: :job_start_date_time
 עובד: :worker_name
 לקוח: :client_name
 שירות: :job_service_name
-סטטוס: :status
+סטטוס: :job_status
 
 צפה בעבודה :worker_job_link
 
@@ -1819,14 +1914,17 @@ Equipo de Broom Service",
                 'description' => 'Send message to client when status is not updated from 24 hours',
                 'message_en' => "our agreement has been confirmed,
 
-Hello *:name*
+Hello *:client_name*
 
 Your agreement has been successfully confirmed. We will contact you soon to schedule your service.
 
 Best regards,
-Broom Service Team,
-📞 03-525-70-60
-🌐 http://www.broomservice.co.il",
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "נושא: אישור ההסכם שלך
 
@@ -1835,9 +1933,12 @@ Broom Service Team,
 הלקוח :client_name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.
 
 בברכה, 
-ברום סרוויס צוות,
-📞 03-525-70-60
-🌐 http://www.broomservice.co.il",
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
                 'message_rus' => '',
@@ -1854,14 +1955,871 @@ Broom Service Team,
                 
 הלקוח :client_name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.
 
-סְקִירָה :client_job_review
-
 בברכה, 
 ברום סרוויס צוות",
 
                 'message_spa' => '',
                 'message_rus' => '',
             ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CONTRACT,
+                'description' => 'Send message to team when status is not updated from 24 hours',
+                'message_en' => "Hello :client_name
+
+Greetings from Broom Service. 
+
+A work agreement for digital signature is attached. Please fill in the necessary details and sign on the last page for payment details you must fill in the details of each ID number and the signature of the card holder without the CVV details which you will give us over the phone in order to save and secure your payment details and with your signature below for any questions please  
+
+Check Contract :client_contract_link
+
+contact us: 03-525-70-60 or reply to this email.
+
+Best regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+מצורף בזאת הסכם התקשרות לחתימה דיגיטלית. יש להוסיף את כרטיס האשראי לתשלום, בצירוף חתימת בעל הכרטיס המאשר לחייבו במועד החיוב. הכרטיס יחויב בסכום של 1 ש\"ח ולאחר מכן יזוכה, זאת כדי לוודא את תקינותו. הפרטים יישמרו במערכת מאובטחת. בנוסף, יש לחתום בעמוד האחרון ולאשר את ההסכם.
+         
+בדוק חוזה :client_contract_link
+
+בברכה, 
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CREATE_JOB,
+                'description' => 'Send message to team when status is not updated from 24 hours',
+                'message_en' => "Hello :client_name
+
+A service has been scheduled for you: *:job_service_name* on *:job_start_date* at *:job_start_time* 
+Please note that the estimated arrival time of our team can be up to an hour and a half from the scheduled start time.
+
+For any questions or requests, feel free to contact us.
+
+View Job :client_view_job_link
+
+Best regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+נקבע עבורך שירות *:service_name* בשעה *:job_start_date* בתאריך *:job_start_time*.ר את ההסכם.
+         
+צפה בעבודה :client_view_job_link
+
+בברכה, 
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED,
+                'description' => 'Review message for client after job completion',
+                'message_en' => "Hello, *:client_name*
+
+Your service has been completed.
+
+Date: :job_start_date
+Service: :job_service_name
+
+Please, rate us and send your review.
+
+Review: :client_job_review
+
+Best regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום, *:client_name*
+
+העבודה אצלך הסתיימה.
+
+תאריך: :job_start_date
+שירות: :job_service_name
+
+אנא, דרג את השירות ושלח את הביקורת שלך.
+
+סקירה: :client_job_review
+
+בברכה, 
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_rus' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *:client_name*
+
+Just a friendly reminder that you have an upcoming appointment on *:meeting_date* between *:meeting_start_time* to *:meeting_end_time* at *:meeting_address* for *:meeting_purpose*. Click the *Accept/Reject* or *Upload file* button for Accept, Reject, Reschedule, and Upload Files.
+
+Accept/Reject: :meeting_reschedule_link
+
+Upload file: :client_meeting_file_upload_link
+
+Best regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום, *:client_name*
+
+רק תזכורת ידידותית שיש לך פגישה קרובה ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בכתובת *:meeting_address* עבור *:meeting_purpose*. לחץ על הלחצן *קבל/דחה* או *העלה קובץ* כדי לקבל, לדחות, לתאם מחדש ולהעלות קבצים.
+
+קבל/דחה: :meeting_reschedule_link
+
+העלה קובץ: :meeting_file_upload_link
+
+בברכה, 
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::FORM101,
+                'description' => 'Send message to worker for send form 101 request',
+                'message_en' => "Hi, *:worker_name*
+
+You have successfully registered on our portal. Please sign the Form 101 to start working on the job.
+
+Click the below button to fill Form101.
+
+Form 101: :form_101_link
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *:worker_name*
+
+נרשמת בהצלחה בפורטל שלנו. נא לחתום על טופס 101 כדי להתחיל לעבוד.
+
+לחץ על הלחצן למטה כדי למלא טופס 101.
+
+טופס 101: :form_101_link
+
+בברכה, 
+ברום סרוויס צוות",
+                'message_spa' => "Hola, *:worker_name*
+
+Te has registrado exitosamente en nuestro portal. Por favor, firma el Formulario 101 para comenzar a trabajar en el trabajo.
+
+Haz clic en el botón de abajo para completar el Formulario 101.
+
+Saludos cordiales,
+Equipo de Broom Service",
+                'message_rus' => "Привет, *:worker_name*
+
+Вы успешно зарегистрировались на нашем портале. Пожалуйста, подпишите форму 101, чтобы начать работу.
+
+Нажмите кнопку ниже, чтобы заполнить форму 101.
+
+С уважением,  
+Команда Broom Service",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NEW_JOB,
+                'description' => 'Send job reminder to worker on new job assign',
+                'message_en' => "Hi, *:worker_name*
+
+:job_content_txt Please check the details.
+
+Date/Time: :job_start_date_time
+Client: :client_name
+Service: :job_service_name
+Property: :job_full_address
+Status: :job_status
+
+View Job: :worker_job_detail_link
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *:worker_name*
+
+:job_content_txt אנא בדוק את הפרטים.
+
+תאריך/שעה: :job_start_date_time
+לקוח: :client_name
+שירות: :job_service_name
+נכס: :job_full_address
+סטטוס: :job_status
+
+הצג עבודה: :worker_job_link
+
+בברכה, 
+ברום סרוויס צוות",
+
+                'message_spa' => "Hola, *:worker_name*
+
+:job_content_txt Por favor, revisa los detalles.
+
+Fecha/Hora: :job_start_date_time
+Cliente: :client_name
+Servicio: :job_service_name
+Propiedad: :job_full_address
+Estado: :job_status
+
+Ver Trabajo: :worker_job_link
+
+Saludos cordiales,
+Equipo de Broom Service",
+
+                'message_rus' => "Привет, *:worker_name*
+
+:job_content_txt Пожалуйста, проверьте детали.
+
+Дата/Время: :job_start_date_time
+Клиент: :client_name
+Услуга: :job_service_name
+Собственность: :job_full_address
+Статус: :job_status
+
+Просмотреть работу: :worker_job_link
+
+С уважением,  
+Команда Broom Service",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE,
+                'description' => 'Send job reminder to worker on new job assign',
+                'message_en' => "Hi, *:worker_name*
+
+Just a friendly reminder that your meeting *:team_name* on *:date* between *:start_time* to *:end_time* has been scheduled.
+
+Accept/Reject :worker_hearing
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *:worker_name*
+
+רק תזכורת ידידותית לכך שהפגישה שלך *:team_name* ב-*:date* בין *:start_time* עד *:end_time* נקבעה.
+
+קבל/דחה :שמוע_עובד
+
+בברכה, 
+ברום סרוויס צוות",
+
+                'message_spa' => "Hola, *:worker_name*
+
+Solo un recordatorio amistoso de que su reunión *:team_name* para el *:date* entre *:start_time* y *:end_time* ha sido programada.
+
+Aceptar/Rechazar :worker_hearing
+
+Saludos cordiales,
+Equipo de Broom Service",
+
+                'message_rus' => "Привет, *:worker_name*
+
+Просто дружеское напоминание, что ваша встреча *:team_name* на *:date* между *:start_time* и *:end_time* запланирована.
+
+Принять/Отклонить :worker_hearing
+
+С уважением,  
+Команда Broom Service",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WORKER_UNASSIGNED,
+                'description' => 'Send job reminder to worker on new job assign',
+                'message_en' => "Hi, *:old_worker_name*
+
+You have been unassigned from a job. Please check the details.
+
+Date: :old_job_start_date
+Client: :client_name
+Service: :old_worker_service_name
+Start Time: :old_job_start_time
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *:old_worker_name*
+
+הוסרת ממשימה. אנא בדוק את הפרטים.
+
+תאריך: :old_job_start_date
+לקוח: :client_name
+שירות: :old_worker_service_name
+זמן התחלה: :old_job_start_time
+
+בברכה, 
+ברום סרוויס צוות",
+
+                'message_spa' => "Hola, *:old_worker_name*
+
+Tu trabajo ha sido cancelado. Por favor, revisa los detalles.
+
+Fecha: :old_job_start_date
+Cliente: :client_name
+Servicio: :old_worker_service_name
+Hora de Inicio: :old_job_start_time
+
+Saludos cordiales,
+Equipo de Broom Service",
+
+                'message_rus' => "Привет, *:old_worker_name*
+
+Ваша работа была отменена. Пожалуйста, проверьте детали.
+
+Дата: :old_job_start_date
+Клиент: :client_name
+Услуга: :old_worker_service_name
+Время начала: :old_job_start_time
+
+С уважением,  
+Команда Broom Service",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *:client_name*
+
+The service has been canceled. Please check the details.
+
+Date/Time: :job_start_date_time
+Client: :client_name
+Service: :job_service_name
+Comment: :comment
+
+View Job :client_view_job_link
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+השירות בוטל. אנא בדוק את הפרטים.
+
+תאריך/שעה: :job_start_date_time
+לקוח: :client_name
+שירות: :job_service_name
+הערה: :comment
+
+צפה בעבודה :client_view_job_link
+
+בברכה, 
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *Team*
+
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *:client_name*
+
+העבודה בוטלה. אנא בדוק את הפרטים.
+
+תאריך/שעה: :job_start_date_time
+לקוח: :client_name
+עובד: :worker_name
+שירות: :job_service_name
+סטטוס: :job_status
+הערה: :comment
+
+צפה בעבודה :team_job_link
+
+בברכה, 
+ברום סרוויס צוות",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_REVIEWED,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *Team*
+
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *צוות*
+
+:client_name נתן דירוג של :rating עבור עבודה בתאריך :job_start_date_time.
+
+-: :review
+
+בברכה, 
+ברום סרוויס צוות",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_CHANGED_JOB_SCHEDULE,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *Team*
+
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *צוות*
+
+הלקוח :client_name שינה את לוח הזמנים לעבודה בתאריך :job_start_date_time.
+
+בברכה, 
+ברום סרוויס צוות",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_COMMENTED,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *Team*
+
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *צוות*
+
+הלקוח :client_name השאיר תגובה לעבודה בתאריך :job_start_date_time.
+
+בברכה, 
+ברום סרוויס צוות",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::ADMIN_COMMENTED,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *Team*
+
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *צוות*
+
+:admin_name השאיר תגובה עבור עבודה בתאריך :job_start_date_time.
+
+בברכה, 
+ברום סרוויס צוות",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *Team*
+
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *צוות*
+
+ליד חדש התקבל עם הפרטים הבאים:
+שם: :client_name
+איש קשר: :client_phone_number
+שירות שהתבקש: 
+דוא'ל: :client_email
+כתובת: :client_address
+הגיע מ: :came_from
+
+אנא פנו בהקדם האפשרי.
+
+צפה בפרטי הליד: :lead_detail_url
+התקשר לליד כעת: :client_phone_number
+
+בברכה, 
+ברום סרוויס צוות",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *:client_name*
+
+Thank you for reaching out to us at Broom Service. We wanted to let you know that we tried to contact you but were unable to reach you. We are here and available to assist you from Sunday to Thursday, between 8:00 AM and 4:00 PM.
+Alternatively, we would be happy to know when it would be convenient for you to have us call you during our business hours.
+
+We look forward to assisting you.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+בהמשך לפנייתך אלינו בברום סרוויס, רצינו ליידע אותך שניסינו ליצור איתך קשר ולא הצלחנו להשיג אותך. אנו כאן וזמינים לעמוד לשירותך בימים א'-ה' בין השעות 8:00 ל-16:00.
+לחלופין, נשמח לדעת מתי יהיה נוח לך שנתקשר אליך במהלך שעות הפעילות שלנו.
+
+נשמח לעמוד לשירותך.
+             
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+            
+            [
+                'key' => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *:client_name*
+
+Thank you for your interest in Broom Service. We have reviewed your inquiry, and unfortunately, we do not provide services in your area or offer the specific service you are looking for.
+
+Our service areas include:
+- Tel Aviv
+- Ramat Gan
+- Givatayim
+- Kiryat Ono
+- Ganei Tikva
+- Ramat Hasharon
+- Kfar Shmaryahu
+- Rishpon
+- Herzliya
+
+If you need our services in the future or if you are in one of these areas, we would be happy to assist you.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+תודה על התעניינותך בשירותי ברום סרוויס. בדקנו את פנייתך, ולצערנו, אנו לא מספקים שירותים באזור מגוריך או את השירות המסוים שאתה מחפש.
+
+אזורי השירות שלנו כוללים:
+- תל אביב
+- רמת גן
+- גבעתיים
+- קריית אונו
+- גני תקווה
+- רמת השרון
+- כפר שמריהו
+- רשפון
+- הרצליה
+
+אם בעתיד תצטרך את שירותינו או אם אתה נמצא באחד מהאזורים הללו, נשמח לעמוד לשירותך.
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::PAST,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *:client_name*
+
+At Broom Service, we want to thank you for the trust you placed in us in the past and remind you that we are always here for you.
+
+If you would like to reconnect and enjoy our professional and high-quality cleaning services, we are at your service. We would be happy to talk with you and tailor our services to your unique needs. 
+Additionally, we would like to offer you a 20% discount on your next visit.
+
+Feel free to contact us anytime.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+אנו בברום סרוויס רוצים להודות לכם על האמון שהענקתם לנו בעבר ולהזכיר לכם שאנו תמיד כאן בשבילכם.
+
+אם ברצונכם לחדש את הקשר וליהנות משירותי ניקיון מקצועיים ואיכותיים, אנו כאן לשירותכם. נשמח לשוחח איתכם ולהתאים את השירות לצרכים הייחודיים שלכם.
+בנוסף, נשמח להציע לכם הנחה של 20% על הביקור הבא שתזמינו.
+
+אל תהססו ליצור קשר איתנו בכל עת.
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *:client_name*
+
+Just a friendly reminder that your scheduled service with Broom Service will take place next week. If you need to make any changes or cancellations, please do so by Wednesday. After Wednesday, any cancellation may incur fees according to our policy.
+
+Change Service Date :client_jobs
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+רק תזכורת ידידותית לכך שהשירות המתוכנן שלך עם ברום סרוויס יתקיים בשבוע הבא. אם יש צורך לבצע שינויים או ביטולים, אנא עשו זאת עד יום רביעי. לאחר יום רביעי, ביטולים עלולים לגרור חיובים בהתאם למדיניות שלנו.
+
+שנה תאריך שירות :client_jobs
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hello, *:client_name*,
+
+First of all, thank you for reaching out to us. It was a pleasure to meet and talk with you.
+
+Following our conversation, I am attaching for your review some testimonials from our existing clients, so you can get an idea of the excellent service we provide:  
+Client Testimonials :testimonials_link
+
+Additionally, I am attaching our Service Brochure for you to review the services we offer.
+:broom_brochure
+
+At Broom Service, we are committed to quality, professionalism, and personalized service.
+
+I am here to help and answer any further questions you may have,  
+I am always at your service.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+ראשית, תודה שפנית אלינו. שמחתי מאוד להכיר ולשוחח איתך.
+
+בהמשך לשיחתנו, מצרפת לעיונך המלצות מלקוחות קיימים שלנו, למען התרשמותך מהשירות המעולה שלנו:  
+:testimonials_link
+המלצות מלקוחות קיימים
+
+כמו כן, מצורף לעיונך ספרון השירותים שלנו כדי להתרשם מהשירותים שאנו מציעים.
+:broom_brochure
+
+בברום סרוויס, אנו מתחייבים לאיכות, מקצועיות ושירות אישי.
+
+אני כאן כדי לעזור ולענות על כל שאלה נוספת,  
+אשמח לעמוד לשירותך תמיד בכל עת.
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hello, *:worker_name*,
+
+Refund Claim Status
+
+Your Refund request has been :refund_status.
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "שלום, *:worker_name*
+
+סטטוס תביעת החזר
+
+בקשת ההחזר שלך הייתה :refund_status.
+
+בברכה,
+צוות ברום סרוויס🌹",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hello, *:worker_name*,
+
+Refund Claim Status
+
+Your Refund request has been :refund_status.
+
+Reason for reject: :refund_rejection_comment.
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "שלום, *:worker_name*
+
+סטטוס תביעת החזר
+
+בקשת ההחזר שלך הייתה :refund_status.
+
+סיבה לדחייה: :refund_rejection_comment.
+
+בברכה,
+צוות ברום סרוויס🌹",
+                'message_spa' => '',
+                'message_rus' => "",
+            ],
+
+//             [
+//                 'key' => WhatsappMessageTemplateEnum::SICK_LEAVE_NOTIFICATION,
+//                 'description' => 'Client meeting schedule reminder message template',
+//                 'message_en' => "Hello, *:worker_name*,
+
+
+
+// Best Regards,
+// Broom Service Team 🌹",
+
+//                 'message_heb' => "שלום, *:worker_name*
+
+
+// בברכה,
+// צוות ברום סרוויס🌹
+// www.broomservice.co.il
+// טלפון: 03-525-70-60
+// office@broomservice.co.il",
+//                 'message_spa' => '',
+//                 'message_rus' => "",
+//             ],
+
+//             [
+//                 'key' => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM,
+//                 'description' => 'Client meeting schedule reminder message template',
+//                 'message_en' => "Hi, *Team*
+
+
+// Best regards,
+// Broom Service Team",
+
+//                 'message_heb' => "שלום, *צוות*
+
+// הלקוח :client_name עדיין לא שלח תמונות או סרטון של האזור הנדרש לניקוי.
+
+// אנא עקבו אחר הלקוח לבדיקת סטטוס והשלמת הפרטים לצורך מתן הצעת המחיר.
+
+// פרטי הלקוח:
+//   • שם:  :client_name
+//   • טלפון:  :client_contact
+
+// בברכה, 
+// ברום סרוויס צוות",
+//                 'message_spa' => '',
+//                 'message_rus' => "",
+//             ],
+
         ];
 
         foreach ($templates as $key => $template) {

@@ -18,7 +18,7 @@ export default function Templates() {
         message_heb: "",
         message_en: "",
         message_spa: "",
-        message_ru: "",
+        message_rus: "",
     });
 
     useEffect(() => {
@@ -44,7 +44,7 @@ export default function Templates() {
                 message_heb: res.message_heb,
                 message_en: res.message_en,
                 message_spa: res.message_spa,
-                message_ru: res.message_ru,
+                message_rus: res.message_rus,
             })
         } catch (error) {
             console.log(error.response ? error.response.data : error.message);
@@ -145,8 +145,8 @@ export default function Templates() {
                                     className="form-control"
                                     maxLength={1000}
                                     rows="5"
-                                    value={templates.message_ru}
-                                    onChange={handleChange('message_ru')}
+                                    value={templates.message_rus}
+                                    onChange={handleChange('message_rus')}
                                 />
                             </div>
                             <button type="submit" className="mt-3 btn btn-primary">Save Templates</button>

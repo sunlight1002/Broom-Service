@@ -244,7 +244,8 @@ class FetchFacebookLeads extends Command
                                     event(new WhatsappNotificationEvent([
                                         "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
                                         "notificationData" => [
-                                            'client' => $client->toArray()
+                                            'client' => $client->toArray(),
+                                            'type' => "meta"
                                         ]
                                     ]));
                                 } catch (\Throwable $th) {

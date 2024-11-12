@@ -119,7 +119,8 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WEEKLY_CLIENT_SCHEDULED_NOTIFICATION = "weekly-client-scheduled-notification";
     public const TO_TEAM_WORKER_NOT_CONFIRM_JOB = "to-team-worker-not-confirm-job";
     public const REMIND_WORKER_TO_JOB_CONFIRM = "remind-worker-to-job-confirm";
-    public const REFUND_CLAIM_MESSAGE = "refund-claim-message";
+    public const REFUND_CLAIM_MESSAGE_APPROVED = "refund-claim-message-approved";
+    public const REFUND_CLAIM_MESSAGE_REJECTED = "refund-claim-message-rejected";
     public const WORKER_LEAD_WEBHOOK_IRRELEVANT = "worker-lead-webhook-irrelevant";
     public const WORKER_LEAD_WEBHOOK_UNANSWERED = "worker-lead-webhook-unanswered";
     public const PENDING = "pending";

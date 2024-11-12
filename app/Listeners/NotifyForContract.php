@@ -39,7 +39,13 @@ class NotifyForContract implements ShouldQueue
             if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CONTRACT,
-                    "notificationData" => $ofr
+                    "notificationData" => [
+                        'offer' => $ofr,
+                        'client' => $ofr['client'],
+                        'contract' => [
+                            'contract_id' => $ofr['contract_id'],
+                        ]
+                    ]
                 ]));
             }
 
@@ -63,7 +69,13 @@ class NotifyForContract implements ShouldQueue
             if (isset($ofr['client']) && !empty($ofr['client']['phone'])) {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CONTRACT,
-                    "notificationData" => $ofr
+                    "notificationData" => [
+                        'offer' => $ofr,
+                        'client' => $ofr['client'],
+                        'contract' => [
+                            'contract_id' => $ofr['contract_id']
+                        ]
+                    ]
                 ]));
             }
         }

@@ -19,28 +19,40 @@ trait NotifyRefundClaim
             'id' => $refundClaimArr['id']
         ]);
         
-        Mail::send('/Mails/worker/RefundClaim', [
-            'lng' =>$user->lng, 
-            'name'=>$user->firstname,
-            'sickLeave' => $refundClaimArr,
-            'status' => $refundClaim->status,
-            'reason' => $refundClaim->rejection_comment,
-        ], function ($message) use ($user, $emailSubject) {
-            $message->to($user->email);
-            $message->subject($emailSubject);
-        });
+        // Mail::send('/Mails/worker/RefundClaim', [
+        //     'lng' =>$user->lng, 
+        //     'name'=>$user->firstname,
+        //     'sickLeave' => $refundClaimArr,
+        //     'status' => $refundClaim->status,
+        //     'reason' => $refundClaim->rejection_comment,
+        // ], function ($message) use ($user, $emailSubject) {
+        //     $message->to($user->email);
+        //     $message->subject($emailSubject);
+        // });
 
         // Send WhatsApp notification
         if (!empty($user->phone)) {
             $phoneNumber = intval($user->phone);
-            $results = event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE,
-                "notificationData" => [
-                    'user' => $refundClaimArr['user'], // Pass the user data
-                    'refundclaim' => $refundClaimArr
-                ],
-                "phone" => $phoneNumber
-            ]));
+            $status = $refundClaimArr['status'];
+            if($status == "approved"){
+                $results = event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED,
+                    "notificationData" => [
+                        'worker' => $refundClaimArr['user'], // Pass the user data
+                        'refundclaim' => $refundClaimArr
+                    ],
+                    "phone" => $phoneNumber
+                ]));
+            }else{
+                $results = event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED,
+                    "notificationData" => [
+                        'worker' => $refundClaimArr['user'], // Pass the user data
+                        'refundclaim' => $refundClaimArr
+                    ],
+                    "phone" => $phoneNumber
+                ]));
+            }
           foreach ($results as $result) {
                 if ($result) {
                     return $result;
