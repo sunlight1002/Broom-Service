@@ -2044,14 +2044,15 @@ office@broomservice.co.il
                 'description' => 'Review message for client after job completion',
                 'message_en' => "Hello, *:client_name*
 
-Your service has been completed.
+We hope you enjoyed the service provided by our team.
 
-Date: :job_start_date
-Service: :job_service_name
+We value your feedback and would love to hear about your experience. Your review helps us maintain our high standards and ensure every visit meets your expectations.
 
-Please, rate us and send your review.
+Please take a moment to rate us and share your thoughts.
 
-Review: :client_job_review
+*Click here to leave a review* :client_job_review
+
+Thank you for choosing Broom Service!
 
 Best regards,
 Broom Service Team 🌹
@@ -2062,14 +2063,15 @@ office@broomservice.co.il
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, *:client_name*
 
-העבודה אצלך הסתיימה.
+אנו מקווים שנהניתם מהשירות שניתן על ידי הצוות שלנו.
 
-תאריך: :job_start_date
-שירות: :job_service_name
+נשמח לשמוע את דעתכם ועל החוויה שלכם. המשוב שלכם חשוב לנו כדי לשמור על הסטנדרטים הגבוהים שלנו ולוודא שכל ביקור יעמוד בציפיותיכם.
 
-אנא, דרג את השירות ושלח את הביקורת שלך.
+נשמח אם תקדישו רגע לדרג את השירות ולשתף את מחשבותיכם.
 
-סקירה: :client_job_review
+*לחצו כאן להשארת חוות דעת* :client_job_review
+
+תודה שבחרתם בברום סרוויס!
 
 בברכה,
 צוות ברום סרוויס🌹
