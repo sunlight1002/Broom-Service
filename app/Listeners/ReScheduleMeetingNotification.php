@@ -35,11 +35,12 @@ class ReScheduleMeetingNotification implements ShouldQueue
     public function handle(ReScheduleMeetingJob $event)
     {
         $schedules = $event->schedules;
+        
         $scheduleArr = $schedules->toArray();
         App::setLocale($scheduleArr['client']['lng']);
 
         event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
+            "type" => WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING,
             "notificationData" => $scheduleArr
         ]));
         if (!empty($schedules->start_time) && !empty($schedules->end_time)) {

@@ -30,17 +30,20 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_JOB_OPENING_NOTIFICATION = 'worker_job_opening_notification';
     public const WORKER_JOB_STATUS_NOTIFICATION = 'worker_job_status_notification';
 
-    public const WORKER_SAFE_GEAR = 'worker_safe_gear';
     public const ADMIN_RESCHEDULE_MEETING = 'admin_reschedule_meeting';
     public const CLIENT_RESCHEDULE_MEETING = 'client_reschedule_meeting';
+    
     public const ADMIN_LEAD_FILES = 'admin_lead_files';
     public const CLIENT_MEETING_REMINDER = 'client_meeting_reminder';
     public const SICK_LEAVE_NOTIFICATION = 'sick_leave_notification';
+
+    public const WORKER_SAFE_GEAR = 'worker_safe_gear';
     public const WORKER_FORMS = "worker_forms";
     public const WORKER_FORM101_SIGNED = "worker_form101_signed";
     public const WORKER_CONTRACT_SIGNED = "worker_contract_signed";
     public const WORKER_INSURANCE_SIGNED = "worker_insurance_signed";
     public const WORKER_SAFETY_GEAR_SIGNED = "worker_safety_gear_signed";
+
     public const CLIENT_PAYMENT_FAILED = "client_payment_failed";
     public const PAYMENT_PAID = 'payment_paid';
     public const PAYMENT_PARTIAL_PAID = 'payment_partial_paid';
@@ -146,4 +149,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_WORKER = "notify-team-request-to-change-schedule-worker";
     public const NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_CLIENT = "notify-team-request-to-change-schedule-client";
     public const STOP = "stop";
+    public const NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS = "notify-team-for-tommorow-meetings";
+    public const NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS = "notify-client-for-tommorow-meetings";
+    
 }

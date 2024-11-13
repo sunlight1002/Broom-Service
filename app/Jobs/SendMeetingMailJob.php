@@ -40,7 +40,7 @@ class SendMeetingMailJob implements ShouldQueue
     public function handle()
     {
         $scheduleArr = $this->schedule->toArray();
-        \Log::info($scheduleArr['meet_via']);
+        \Log::info($scheduleArr);
         App::setLocale($scheduleArr['client']['lng']);
 
         $notificationType = $this->schedule->client->notification_type;
@@ -50,12 +50,35 @@ class SendMeetingMailJob implements ShouldQueue
 
             if ($scheduleArr['meet_via'] == "on-site") {
 
-                Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+                $Data = [
+                    'id' => $scheduleArr['id'],
+                    'client' => ['email' => $scheduleArr['client']['email']],
+                    'title' => 'Meeting with Broom Service Team',
+                    'description' => $scheduleArr['purpose'],
+                    'location' => $scheduleArr['meet_link'],
+                    'start_date' => $scheduleArr['start_date'],
+                    'start_time' => $scheduleArr['start_time'],
+                    'end_time' => $scheduleArr['end_time'],   
+                ];
+                
+                $icsContent = createIcsFileContent($Data, $scheduleArr['client']['lng']);
+                $icsFilePath = tempnam(sys_get_temp_dir(), 'meeting_invite') . '.ics';
+                file_put_contents($icsFilePath, $icsContent);
+                
+                Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $icsFilePath) {
                     $messages->to($scheduleArr['client']['email']);
                     $messages->subject(__('mail.meeting.subject', [
                         'id' => $scheduleArr['id']
                     ]));
+                    $messages->attach($icsFilePath, [
+                        'as' => 'meeting_invite.ics',
+                        'mime' => 'text/calendar',
+                    ]);
                 });
+                
+                // Delete the temporary file after sending the email
+                unlink($icsFilePath);
+                
 
             }else{
                 Mail::send('/Mails/OffsiteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {

@@ -775,6 +775,7 @@ export default function AddLead() {
                                 setErrors={setErrors}
                                 addresses={addresses}
                                 setAddresses={setAddresses}
+                                language={formValues.lng}
                             />
                         </div>
                     </form>

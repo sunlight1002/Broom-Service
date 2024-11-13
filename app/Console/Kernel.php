@@ -47,18 +47,17 @@ class Kernel extends ConsoleKernel
         // Facebook Leads
         $schedule->command('facebook:fetch-yesterday-leads')->everyFiveMinutes();
 
-
         $schedule->command('client:review-job-request')->dailyAt('08:00');
 
         // $schedule->command('worker:notify-yearly-insurance-form')->yearlyOn(1, 1, '09:00');
         // $schedule->command('meeting:reminder')->hourly();
         $schedule->command('client:update-lead-status')->hourly();
 
-
-
         // $schedule->command('notifyclientforcontract')->hourly();
         $schedule->command('mondayNotify')->weeklyOn(1, '08:00'); // 1 = Monday
         $schedule->command('remind:next-week-services')->weeklyOn(3, '9:00');
+
+        $schedule->command('notifyTeamAndClientTommorowMeeting')->dailyAt('19:00');
     }
 
     /**

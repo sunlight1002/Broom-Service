@@ -629,6 +629,72 @@ office@broomservice.co.il
 
 
             [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING,
+                'description' => 'Reminder to Team - Client Reschedule meeting',
+                'message_en' => '',
+                'message_heb' => 'שלום צוות,
+
+לקוח בשם :client_name ביצע שינוי בפגישה שתוכננה ל :today_tommarow_or_date.
+
+- *פעולה שבוצעה*: תואמה מחדש  
+- *תאריך ושעה חדשה*: :meeting_date_time
+- *מיקום*: :meet_link
+- *לינק להודעה ב-CRM*: :client_detail_url
+
+אנא ודאו שהשינויים מעודכנים ביומנים שלכם והיו ערוכים בהתאם.
+
+בברכה,
+צוות ברום סרוויס',
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
+                'description' => 'Reminder to Client - Admin Reschedule meeting',
+                'message_en' => "Hello, *:client_name*
+
+Hello :client_name,
+
+We would like to inform you that your scheduled meeting has been rescheduled to a new date.
+
+The updated meeting is set for :meeting_date, between :meeting_start_time and :meeting_end_time at the address: :meeting_address, for a quote discussion. 
+
+Please use the links below to confirm, decline, or reschedule the meeting, or to upload any necessary files:
+- *Accept/Decline*: :meeting_reschedule_link
+- *Upload Files*: :meeting_file_upload_link
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום, :client_name
+
+ברצוננו להודיעך כי הפגישה שנקבעה עבורך שונתה למועד חדש. 
+
+הפגישה המתואמת שלך תתקיים בתאריך :meeting_date בין השעות :meeting_start_time ל-:meeting_end_time בכתובת :meeting_address עבור הצעת מחיר. 
+אנא לחץ על הלחצנים הבאים כדי לאשר, לדחות או לתאם מחדש את הפגישה, או להעלות קבצים במידת הצורך:
+
+- *קבל/דחה*: :meeting_reschedule_link
+- *העלה קובץ*: :meeting_file_upload_link
+                
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
+
+            [
                 'key' => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
                 'description' => 'Send message to client for upload files (off site meeting)',
                 'message_en' => "Hello, *:client_name*
@@ -2089,7 +2155,8 @@ office@broomservice.co.il
                 'description' => 'Client meeting schedule reminder message template',
                 'message_en' => "Hi, *:client_name*
 
-Just a friendly reminder that you have an upcoming appointment on *:meeting_date* between *:meeting_start_time* to *:meeting_end_time* at *:meeting_address* for *:meeting_purpose*. Click the *Accept/Reject* or *Upload file* button for Accept, Reject, Reschedule, and Upload Files.
+Just a friendly reminder that you have an upcoming appointment on *:meeting_date* between *:meeting_start_time* to *:meeting_end_time* at *:meeting_address* for *:meeting_purpose*. 
+Click the *Accept/Reject* or *Upload file* button for Accept, Reject, Reschedule, and Upload Files.
 
 Accept/Reject: :meeting_reschedule_link
 
@@ -2104,7 +2171,8 @@ office@broomservice.co.il
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, *:client_name*
 
-רק תזכורת ידידותית שיש לך פגישה קרובה ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בכתובת *:meeting_address* עבור *:meeting_purpose*. לחץ על הלחצן *קבל/דחה* או *העלה קובץ* כדי לקבל, לדחות, לתאם מחדש ולהעלות קבצים.
+רק תזכורת ידידותית שיש לך פגישה קרובה ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בכתובת *:meeting_address* עבור *:meeting_purpose*. 
+לחץ על הלחצן *קבל/דחה* או *העלה קובץ* כדי לקבל, לדחות, לתאם מחדש ולהעלות קבצים.
 
 קבל/דחה: :meeting_reschedule_link
 
@@ -2849,6 +2917,79 @@ Broom Service Team",
 
 בברכה,
 ברום סרוויס צוות",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS,
+                'description' => 'Reminder to Team for Tommorow meetings',
+                'message_en' => '',
+                'message_heb' => "*שלום צוות*,
+
+מחר יש לנו מספר פגישות חשובות עם לקוחות. להלן כל הפרטים:
+
+:all_team_meetings
+---
+
+*הערות נוספות*:
+- במידה ויש שינויים בלוח הזמנים, יש לעדכן את כולם בהקדם.
+- אפשר לכלול קישורים להוספת הפגישות ליומן או קישורים ישירים לפגישות בזום.
+
+בהצלחה לכולם מחר! 📞👥
+
+בברכה,
+צוות ברום סרוויס",
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS,
+                'description' => 'Reminder to Client for Tommorow meeting',
+                'message_en' => "Hello, *:client_name*,
+
+This is a friendly reminder about your scheduled meeting with us tomorrow. Here are the details:
+
+- *Date & Time*: :meeting_date_time 
+- *Location*: :meet_link  
+
+Please let us know if you need to make any changes by clicking on one of the options below:  
+
+*Accept/Decline*: :meeting_reschedule_link
+*Upload Files*: :meeting_file_upload_link
+
+We appreciate your response to ensure everything is set up for your convenience.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+זוהי תזכורת לפגישה שנקבעה איתך למחר. להלן הפרטים:
+
+- *תאריך ושעה*: :meeting_date_time  
+- *מיקום*: :meet_link
+
+אנא עדכן אותנו אם יש צורך לבצע שינויים על ידי לחיצה על אחת מהאפשרויות הבאות:  
+
+קבל/דחה: :meeting_reschedule_link
+העלה קובץ: :meeting_file_upload_link
+
+נשמח לקבל את תשובתך כדי שנוכל להיערך בהתאם.       
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => "",
             ],

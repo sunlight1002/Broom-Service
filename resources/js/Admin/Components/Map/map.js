@@ -23,7 +23,10 @@ const Map = memo(function Map({
     setLongitude,
     libraries,
     place,
+    language,
 }) {
+    console.log(language);
+    
     let addressSearchRef = useRef();
     const { t } = useTranslation();
     Geocode.setApiKey("AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk");

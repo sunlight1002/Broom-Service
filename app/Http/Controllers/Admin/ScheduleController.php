@@ -368,6 +368,11 @@ class ScheduleController extends Controller
             }
         }
 
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
+            "notificationData" => $schedule->toArray()
+        ]));
+
         return response()->json([
             'message' => "Schedule has been updated",
         ]);

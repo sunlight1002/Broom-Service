@@ -26,6 +26,7 @@ const PropertyAddress = memo(function PropertyAddress({
     addresses,
     setAddresses,
     setErrors,
+    language
 }) {
     const params = useParams();
     const { t } = useTranslation();
@@ -405,6 +406,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                         setLongitude={setLongitude}
                                         libraries={libraries}
                                         place={place}
+                                        language={language}
                                     />
                                 </div>
                             </div>

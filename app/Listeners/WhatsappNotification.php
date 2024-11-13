@@ -143,7 +143,7 @@ class WhatsappNotification
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
 
-    private function replaceMeetingFields($text, $eventData)
+    private function replaceMeetingFields($text, $eventData, $lng)
     {
         $propertyAddress = $eventData['property_address'] ?? null;
         $purpose = '';
@@ -159,19 +159,40 @@ class WhatsappNotification
 
         $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
 
+           // Calculate 'today_tommarow_or_date' field
+        $startDate = isset($eventData['start_date']) ? Carbon::parse($eventData['start_date']) : null;
+        $todayTomorrowOrDate = '';
+        if ($startDate) {
+            if ($startDate->isToday()) {
+                $todayTomorrowOrDate = $lng === "heb" ? "'היום'" : 'Today';
+            } elseif ($startDate->isTomorrow()) {
+                $todayTomorrowOrDate = $lng === "heb" ? "'מחר'" : 'Tomorrow';
+            } else {
+                $todayTomorrowOrDate = $startDate->format('d-m-Y');
+            }
+        }
+
+        \Log::info(Carbon::parse($eventData['start_date'] ?? "00-00-0000")->format('M d Y') . " " . ($eventData['start_time'] ?? ''));
+
         $placeholders = [
             ':meeting_team_member_name' => isset($eventData['team']) && !empty($eventData['team']['name'])
                 ? $eventData['team']['name']
                 : ' ',
-            ':meeting_date' => isset($eventData['start_date']) ? Carbon::parse($eventData['start_date'])->format('d-m-Y') : '',
+            ':meeting_date_time' => Carbon::parse($eventData['start_date'] ?? "00-00-0000")->format('M d Y') . " " .  ($eventData['start_time'] ?? ''),
             ':meeting_start_time' => isset($eventData['start_time']) ? date("H:i", strtotime($eventData['start_time'])) : '',
             ':meeting_end_time' => isset($eventData['end_time']) ? date("H:i", strtotime($eventData['end_time'])) : '',
             ':meeting_address' => $address ?? '',
             ':meeting_purpose' => $purpose ? $purpose : "",
             ':meeting_reschedule_link' => isset($eventData['id']) ? url("meeting-schedule/" . base64_encode($eventData['id'])) : '',
+            ':meeting_date' => isset($eventData['start_date']) ? Carbon::parse($eventData['start_date'])->format('d-m-Y') : '',
             ':meeting_file_upload_link' => isset($eventData['id']) ? url("meeting-files/" . base64_encode($eventData['id'])) : '',
             ':meeting_uploaded_file_url' => isset($eventData["file_name"]) ? url("storage/uploads/ClientFiles/" . $eventData["file_name"]) : '',
             ':file_upload_date' => $eventData["file_upload_date"] ?? '',
+            ':meet_link' => $eventData["meet_link"] ?? "",
+            ':today_tommarow_or_date' => $todayTomorrowOrDate,
+            ':meeting_accept' => isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/accept") : "",
+            ':meeting_reject' => isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/reject") : "",
+            ':all_team_meetings' => $eventData['all_meetings'] ?? "",
         ];
 
         // Replace placeholders with actual values
@@ -379,6 +400,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::PAST:
                     case WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION:
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
+                    case WhatsappMessageTemplateEnum::NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS:
                         $receiverNumber = $clientData['phone'];
                         $lng = $clientData['lng'] ?? 'heb';
                         break;
@@ -411,6 +433,9 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE:
                     case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
                     case WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED:
+                    case WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING:
+                    case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
+                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS:
                     // case WhatsappMessageTemplateEnum::STOP:
                     // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
@@ -422,7 +447,7 @@ class WhatsappNotification
                 $text = $this->replaceClientFields($text, $clientData, $eventData);
                 $text = $this->replaceWorkerFields($text, $workerData, $eventData);
                 $text = $this->replaceJobFields($text, $jobData, $workerData, $commentData);
-                $text = $this->replaceMeetingFields($text, $eventData);
+                $text = $this->replaceMeetingFields($text, $eventData, $lng);
                 $text = $this->replaceOfferFields($text, $offerData);
                 $text = $this->replaceContractFields($text, $contractData, $eventData);
                 $text = $this->replaceOrderFields($text, $eventData);
@@ -2057,7 +2082,6 @@ class WhatsappNotification
             // $receiverNumber = '918469138538';
             // $receiverNumber = config('services.whatsapp_groups.notification_test');
             if ($receiverNumber && $text) {
-                // \Log::info($text);
                 Log::info('SENDING WA to ' . $receiverNumber);
                 Log::info($text);
                 $response = Http::withToken($this->whapiApiToken)
@@ -2066,13 +2090,13 @@ class WhatsappNotification
                         'body' => $text
                     ]);
 
-                Log::info($response->json());
+                // Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
             Log::alert('WA NOTIFICATION ERROR');
-            Log::alert($th);
+            // Log::alert($th);
         }
     }
 }
