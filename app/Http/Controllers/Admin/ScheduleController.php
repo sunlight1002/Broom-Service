@@ -104,7 +104,6 @@ class ScheduleController extends Controller
 
         $input = $request->input();
 
-        \Log::info($input['meet_via']);
         if ($input['start_time']) {
             $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
             $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->toTimeString();
@@ -143,12 +142,7 @@ class ScheduleController extends Controller
         if (!$schedule->start_date) {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
-            if ($input['meet_via'] == 'off-site') {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
-                    "notificationData" => $schedule->toArray()
-                ]));
-            }
+            SendMeetingMailJob::dispatch($schedule);
 
             return response()->json([
                 'data' => $schedule,

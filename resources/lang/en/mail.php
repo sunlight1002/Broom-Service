@@ -24,6 +24,8 @@ return [
         'choose_slot' => 'Choose slot',
         'content_with_date_time'     => 'Just a friendly reminder that you have an upcoming appointment with :team_name on :date between :start_time to :end_time at Address :address for a :purpose.',
         'content_without_date_time'     => 'Just a friendly reminder that you have an upcoming appointment with :team_name at Address :address for a :purpose.',
+        'content_for_off_site' =>  "To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.",
+        'upload_offsite' => "Please click on blow link and upload the requested files at your earliest convenience."
     ],
     'cancel_meeting' => [
         'subject'     => 'Meeting Cancelled from Broom Service #:id',
