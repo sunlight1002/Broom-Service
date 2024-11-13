@@ -411,6 +411,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE:
                     case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
                     case WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED:
+                    // case WhatsappMessageTemplateEnum::STOP:
                     // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';

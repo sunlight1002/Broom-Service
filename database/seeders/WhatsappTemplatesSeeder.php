@@ -2797,6 +2797,8 @@ Broom Service Team 🌹",
 //                 'message_ru' => "",
 //             ],
 
+
+
 //             [
 //                 'key' => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM,
 //                 'description' => 'Client meeting schedule reminder message template',
@@ -2821,6 +2823,35 @@ Broom Service Team 🌹",
 //                 'message_spa' => '',
 //                 'message_ru' => "",
 //             ],
+
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::STOP,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *Team*
+
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *צוות*
+
+לקוח בשם :client_name ביקש להפסיק לקבל מאיתנו הודעות.
+יש לעדכן את המערכת ולהסיר את הלקוח מרשימת התפוצה לאלתר כדי למנוע שליחת הודעות נוספות.
+
+פרטי לקוח:
+
+מספר טלפון: :client_phone_number
+דוא'ל: :client_email
+קישור להודעה ב-CRM: :client_detail_url
+אנא ודא שהבקשה תעובד בהקדם האפשרי ותעודכן לאחר השלמתה.
+
+בברכה,
+ברום סרוויס צוות",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
 
         ];
 

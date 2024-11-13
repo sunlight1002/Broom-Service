@@ -62,6 +62,8 @@ export default function Document({ worker, getWorkerDetails }) {
     const getDocumentTypes = () => {
         axios.get(`/api/admin/get-doc-types`, { headers }).then((res) => {
             if (res.data && res.data.documentTypes.length > 0) {
+                console.log(res.data.documentTypes);
+                
                 setAllDocumentTypes(res.data.documentTypes);
             }
         });
@@ -70,16 +72,16 @@ export default function Document({ worker, getWorkerDetails }) {
 
 
     const handleAddDocument = () => {
-        if (
-            worker.country !== "Israel" &&
-            (!worker.visa ||
-                !worker.passport ||
-                worker.visa === "" ||
-                worker.passport === "")
-        ) {
-            alert.error("Please add required document : visa & passport");
-            return;
-        }
+        // if (
+        //     worker.country !== "Israel" &&
+        //     (!worker.visa ||
+        //         !worker.passport ||
+        //         worker.visa === "" ||
+        //         worker.passport === "")
+        // ) {
+        //     alert.error("Please add required document : visa & passport");
+        //     return;
+        // }
 
         setIsOpenDocumentModal(true);
     };
@@ -125,12 +127,16 @@ export default function Document({ worker, getWorkerDetails }) {
     const documentTypes = useMemo(() => {
         if (worker.company_type === "my-company") {
             if (worker.country === "Israel") {
-                return alldocumentTypes.filter((i) => i.slug !== "israeli-id" && i.slug !== "insurance-form");
+                return alldocumentTypes.filter((i) =>
+                    ["israeli-id", "pension-form", "study-form" , "training-fund-form", "payslip"].includes(i.slug)
+                );
             } else {
-                return alldocumentTypes.filter((i) => i.slug === "payslip" || i.slug === "insurance-form");
+                return alldocumentTypes.filter((i) =>
+                    ["pension-form", "training-fund-form","study-form", "payslip" , "insurance-form"].includes(i.slug)
+                );
             }
         }
-
+        // If not "my-company", return all documents
         return alldocumentTypes;
     }, [worker, alldocumentTypes]);
 
