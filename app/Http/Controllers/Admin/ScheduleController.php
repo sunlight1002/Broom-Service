@@ -104,7 +104,6 @@ class ScheduleController extends Controller
 
         $input = $request->input();
 
-        \Log::info($input['meet_via']);
         if ($input['start_time']) {
             $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
             $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->toTimeString();
@@ -143,58 +142,41 @@ class ScheduleController extends Controller
         if (!$schedule->start_date) {
             $schedule->load(['client', 'team', 'propertyAddress']);
 
-            // $this->sendMeetingMail($schedule);
             SendMeetingMailJob::dispatch($schedule);
-            if ($input['meet_via'] == 'off-site') {
-                event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
-                    "notificationData" => [
-                        'client' => $client->toArray(),
-                    ]
-                ]));
-            }
 
             return response()->json([
                 'data' => $schedule,
                 'message' => 'Meeting scheduled successfully',
             ]);
         }
+        $schedule->load(['client', 'team', 'propertyAddress']);
 
-        
+        $this->saveGoogleCalendarEvent($schedule);
+        Notification::create([
+            'user_id' => $schedule->client_id,
+            'user_type' => Client::class,
+            'type' => NotificationTypeEnum::SENT_MEETING,
+            'meet_id' => $schedule->id,
+            'status' => $schedule->booking_status
+        ]);
 
-        $googleAccessToken = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
-            ->value('value');
+        // $this->sendMeetingMail($schedule);
+        SendMeetingMailJob::dispatch($schedule);
 
-            $schedule->load(['client', 'team', 'propertyAddress']);
-
-            $this->saveGoogleCalendarEvent($schedule);
+        if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
             Notification::create([
                 'user_id' => $schedule->client_id,
-                'user_type' => Client::class,
+                'user_type' => get_class($client),
                 'type' => NotificationTypeEnum::SENT_MEETING,
                 'meet_id' => $schedule->id,
                 'status' => $schedule->booking_status
             ]);
+        }
 
-            // $this->sendMeetingMail($schedule);
-            SendMeetingMailJob::dispatch($schedule);
-
-            if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
-                Notification::create([
-                    'user_id' => $schedule->client_id,
-                    'user_type' => get_class($client),
-                    'type' => NotificationTypeEnum::SENT_MEETING,
-                    'meet_id' => $schedule->id,
-                    'status' => $schedule->booking_status
-                ]);
-            }
-
-            return response()->json([
-                'data' => $schedule,
-                'message' => 'Meeting scheduled successfully',
-            ]);
-        // }
+        return response()->json([
+            'data' => $schedule,
+            'message' => 'Meeting scheduled successfully',
+        ]);
     }
 
     public function createScheduleCalendarEvent($scheduleID)
@@ -386,6 +368,11 @@ class ScheduleController extends Controller
             }
         }
 
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
+            "notificationData" => $schedule->toArray()
+        ]));
+
         return response()->json([
             'message' => "Schedule has been updated",
         ]);
@@ -399,7 +386,7 @@ class ScheduleController extends Controller
      */
     public function destroy($id)
     {
-        $schedule = Schedule::with('client')->find($id);
+        $schedule = Schedule::with(['client', 'team'])->find($id);
 
         if (!$schedule) {
             return response()->json([

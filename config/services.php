@@ -84,6 +84,7 @@ return [
         'workers_availability' => env('WORKERS_AVAILABILITY_WA_GROUP_ID'),
         'reviews_of_clients' => env('REVIEWS_OF_CLIENTS_WA_GROUP_ID'),
         'problem_with_workers' => env('PROBLEM_WITH_WORKERS_WA_GROUP_ID'),
+        'notification_test' => env('NOTIFICATION_TEST_GROUP'),
     ],
 
     'twilio' => [

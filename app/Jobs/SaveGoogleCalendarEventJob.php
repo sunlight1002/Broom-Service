@@ -156,7 +156,7 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
 
         if (!$googleCalendarID) {
             Log::error('No Google Calendar ID found.');
-            throw new Exception('No Google Calendar ID found.');
+            // throw new Exception('No Google Calendar ID found.');
         }
         if ($schedule->is_calendar_event_created) {
             Log::info("Updating event in Google Calendar");
@@ -182,10 +182,10 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
 
         if ($http_code != 200) {
             Log::error('Failed to save calendar event', ['http_code' => $http_code, 'response' => $data]);
-            throw new Exception('Error: Failed to save calendar event');
+            // throw new Exception('Error: Failed to save calendar event');
         }
 
-        if (!$schedule->is_calendar_event_created) {
+        if (!$schedule->is_calendar_event_created && isset($data['id'])) {
             $schedule->update([
                 'is_calendar_event_created' => true,
                 'google_calendar_event_id' => $data['id']

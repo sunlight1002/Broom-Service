@@ -93,20 +93,9 @@
 			text-align: center;
 		}
 
-		/* Hebrew support */
-		@if($client['lng'] == 'heb')
-			body {
-				font-family: 'Noto Sans Hebrew', sans-serif;
-				direction: rtl;
-			}
-		@else
-			body {
-				font-family: 'Open Sans', sans-serif;
-			}
-		@endif
 	</style>
 </head>
-<body>
+<body dir="{{ $client['lng'] == 'heb' ? 'rtl' : 'ltr' }}" style="direction: {{ $client['lng'] == 'heb' ? 'rtl' : 'ltr' }}; text-align: {{ $client['lng'] == 'heb' ? 'right' : 'left' }}; font-family: {{ $client['lng'] == 'heb' ? '\'Noto Sans Hebrew\', sans-serif' : '\'Open Sans\', sans-serif' }};">
 
 	<div class="container">
 		<table cellpadding="0" cellspacing="0" width="100%" >

@@ -19,16 +19,16 @@ trait NotifySickLeave
             'id' => $sickLeaveArr['id']
         ]);
         
-        Mail::send('/Mails/worker/SickLeaveNotification', [
-            'lng' =>$user->lng, 
-            'name'=>$user->firstname,
-            'sickLeave' => $sickLeaveArr,
-            'status' => $sickLeave->status,
-            'reason' => $sickLeave->rejection_comment,
-        ], function ($message) use ($user, $emailSubject) {
-            $message->to($user->email);
-            $message->subject($emailSubject);
-        });
+        // Mail::send('/Mails/worker/SickLeaveNotification', [
+        //     'lng' =>$user->lng, 
+        //     'name'=>$user->firstname,
+        //     'sickLeave' => $sickLeaveArr,
+        //     'status' => $sickLeave->status,
+        //     'reason' => $sickLeave->rejection_comment,
+        // ], function ($message) use ($user, $emailSubject) {
+        //     $message->to($user->email);
+        //     $message->subject($emailSubject);
+        // });
 
         // Send WhatsApp notification
         if (!empty($user->phone)) {

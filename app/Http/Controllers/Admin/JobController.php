@@ -6,7 +6,6 @@ use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
-use App\Events\WorkerApprovedJob;
 use App\Events\ClientLeadStatusChanged;
 use App\Events\JobShiftChanged;
 use App\Events\JobWorkerChanged;
@@ -14,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Problems;
 use App\Models\Job;
+use App\Models\ParentJobs;
 use App\Models\User;
 use App\Models\Contract;
 use App\Models\Services;
@@ -344,8 +344,6 @@ class JobController extends Controller
             'worker_approved_at' => Carbon::now()->toDateTimeString()
         ]);
 
-        event(new WorkerApprovedJob($job));
-
         return response()->json([
             'data' => 'Job approved successfully'
         ]);
@@ -594,6 +592,23 @@ class JobController extends Controller
                     'original_shifts'        => $slotsInString,
                 ]);
 
+                // Create entry in ParentJobs
+                $parentJob = ParentJobs::create([
+                    'job_id' => $job->id,
+                    'client_id' => $contract->client_id,
+                    'worker_id' => $workerDate['worker_id'],
+                    'offer_id' => $contract->offer_id,
+                    'contract_id' => $contract->id,
+                    'schedule'      => $repeat_value,
+                    'schedule_id'   => $s_id,
+                    'start_date' => $job_date,
+                    'next_start_date'   => $next_job_date,
+                    'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
+                    'status' => $status, // You can set this according to your needs
+                ]);
+
+
+
                 $jobser = JobService::create([
                     'job_id'            => $job->id,
                     'service_id'        => $s_id,
@@ -615,7 +630,8 @@ class JobController extends Controller
 
                 $job->update([
                     'origin_job_id' => $job->id,
-                    'job_group_id' => $jobGroupID
+                    'job_group_id' => $jobGroupID,
+                    'parent_job_id' => $parentJob->id
                 ]);
 
                 foreach ($mergedContinuousTime as $key => $shift) {
@@ -625,17 +641,6 @@ class JobController extends Controller
                 $this->copyDefaultCommentsToJob($job);
 
                 $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-                if ($workerIndex == 0) {
-                    $adminEmailData = [
-                        'emailData'   => [
-                            'job'   =>  $job->toArray(),
-                        ],
-                        'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
-                        'emailTitle'  => 'New Job',
-                        'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
-                    ];
-                    event(new JobNotificationToAdmin($adminEmailData));
-                }
 
                 // Send notification to client
                 $jobData = $job->toArray();
@@ -647,8 +652,13 @@ class JobController extends Controller
                     'emailContent'  => __('mail.worker_new_job.new_job_assigned')
                 ];
                 event(new JobNotificationToClient($workerData, $clientData, $jobData, $emailData));
+            ScheduleNextJobOccurring::dispatch($job->id, null);
+
             }
         }
+
+        // if ($job->status == JobStatusEnum::SCHEDULED) {
+        // }
 
         $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
 
@@ -1441,7 +1451,7 @@ class JobController extends Controller
             ]);
 
             CreateJobOrder::dispatch($job->id);
-            ScheduleNextJobOccurring::dispatch($job->id);
+            ScheduleNextJobOccurring::dispatch($job->id,null);
 
             App::setLocale('en');
             $data = array(
@@ -1485,16 +1495,6 @@ class JobController extends Controller
                 (($ln == 'en') ? ('Job has been cancelled') . " #" . $job->id :
                     $job->id . "# " . ('העבודה בוטלה'))
                 : __('mail.client_job_status.subject') . " #" . $job->id;
-
-            $adminEmailData = [
-                'emailData'   => [
-                    'job'   =>  $job->toArray(),
-                ],
-                'emailSubject'  => $emailSubject,
-                'emailTitle'  => 'Job Status',
-                'emailContent'  => $emailContent
-            ];
-            event(new JobNotificationToAdmin($adminEmailData));
 
             //send notification to worker
             $job = $job->toArray();
@@ -1761,23 +1761,7 @@ class JobController extends Controller
                 'content_data'  => __('mail.worker_new_job.change_in_job'),
             );
             sendJobWANotification($emailData);
-            // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-            //     $messages->to($emailData['email']);
-            //     $sub = __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company');
-            //     $messages->subject($sub);
-            // });
         }
-
-        //send notification to admin
-        $adminEmailData = [
-            'emailData'   => [
-                'job'   =>  $jobArray,
-            ],
-            'emailSubject'  => 'Request to switch Worker | Broom Service',
-            'emailTitle'  => 'Worker switch by admin',
-            'emailContent'  => 'Admin has been switch worker to ' . $jobArray['worker']['firstname'] . ' ' . $jobArray['worker']['lastname'] . ' from ' . $otherJobArray['worker']['firstname'] . ' ' . $otherJobArray['worker']['lastname'] . '.'
-        ];
-        event(new JobNotificationToAdmin($adminEmailData));
 
         //send notification to client
         $client = $jobArray['client'];
@@ -1823,7 +1807,34 @@ class JobController extends Controller
         ]);
 
         if ($job->is_job_done) {
+            $job->status = JobStatusEnum::COMPLETED;
             $this->updateJobAmount($job->id);
+            $todayNextJob = Job::where('worker_id', $job->worker_id)
+                ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
+                ->whereDate('start_date', now())
+                ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                ->whereRaw("STR_TO_DATE(start_time, '%H:%i:%s') > ?", [now()->format('H:i:s')])
+                ->first();
+
+            if($todayNextJob) {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB,
+                    "notificationData" => [
+                        'job' => $todayNextJob->toArray(),
+                        'client' => $todayNextJob->client->toArray(),
+                        'worker' => $todayNextJob->worker->toArray(),
+                    ]
+                ]));
+            } else {
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY,
+                    "notificationData" => [
+                        'job' => $job->toArray(),
+                        'client' => $job->client->toArray(),
+                        'worker' => $job->worker->toArray(),
+                    ]
+                ]));
+            }
 
             CreateJobOrder::dispatch($job->id);
         } else {
@@ -2032,62 +2043,15 @@ class JobController extends Controller
 
             App::setLocale('en');
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray();
-            //send notification to admin
-            // $adminEmailData = [
-            //     'emailData'   => [
-            //         'job'   =>  $job,
-            //     ],
-            //     'emailSubject'  => __('mail.job_status.subject'),
-            //     'emailTitle'  => 'Job Status',
-            //     'emailContent'  => 'Below is the Job Details. Please check it.',
-            //     'isJobOpen' => true
-            // ];
-            // event(new JobNotificationToAdmin($adminEmailData));
-
-            //send notification to worker
-            $worker = $job['worker'];
-            // App::setLocale($worker['lng']);
-
-            // $emailData = [
-            //     'emailSubject'  => __('mail.job_status.subject'),
-            //     'emailTitle'  => __('mail.job_common.job_status'),
-            //     'emailContent'  => '',
-            //     'isJobOpen' => true
-            // ];
-            // event(new JobNotificationToWorker($worker, $job, $emailData));
-
-            // event(new WhatsappNotificationEvent([
-            //     "type" => WhatsappMessageTemplateEnum::WORKER_ARRIVE_NOTIFY,
-            //     "notificationData" => [
-            //         'job' => $job,
-            //         // 'client' => $client,
-            //         // 'worker' => $worker,
-            //     ]
-            // ]));
-
-            //old
-            // App::setLocale('en');
-            // $admin = Admin::where('role', 'admin')->first();
-            // $data = array(
-            //     'email'      => $admin->email,
-            //     'admin'      => $admin->toArray(),
-            //     'worker'     => $job->worker,
-            //     'job'        => $job->toArray(),
-            // );
 
             event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
+                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_CONFIRMING_ON_MY_WAY,
                 "notificationData" => array(
-                    'worker'     => $job->worker,
+                    'worker'     => $job->worker->toArray(),
+                    'client'     => $job->client->toArray(),
                     'job'        => $job->toArray(),
                 )
             ]));
-
-            // Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
-            //     $messages->to($data['email']);
-            //     $sub = __('mail.job_status.subject');
-            //     $messages->subject($sub);
-            // });
             return response()->json([
                 'message' => 'Job opening time has been updated!'
             ]);

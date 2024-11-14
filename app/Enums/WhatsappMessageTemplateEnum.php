@@ -16,6 +16,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const NEW_JOB = 'new_job';
     public const WORKER_CONTRACT = 'worker_contract';
     public const WORKER_JOB_APPROVAL = 'worker_job_approval';
+    public const WORKER_HEARING_SCHEDULE ='worker_hearing_schedule';
     public const WORKER_NOT_APPROVED_JOB = 'worker_not_approved_job';
     public const WORKER_NOT_LEFT_FOR_JOB = 'worker_not_left_for_job';
     public const WORKER_NOT_STARTED_JOB = 'worker_not_started_job';
@@ -29,17 +30,20 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_JOB_OPENING_NOTIFICATION = 'worker_job_opening_notification';
     public const WORKER_JOB_STATUS_NOTIFICATION = 'worker_job_status_notification';
 
-    public const WORKER_SAFE_GEAR = 'worker_safe_gear';
     public const ADMIN_RESCHEDULE_MEETING = 'admin_reschedule_meeting';
     public const CLIENT_RESCHEDULE_MEETING = 'client_reschedule_meeting';
+    
     public const ADMIN_LEAD_FILES = 'admin_lead_files';
     public const CLIENT_MEETING_REMINDER = 'client_meeting_reminder';
     public const SICK_LEAVE_NOTIFICATION = 'sick_leave_notification';
+
+    public const WORKER_SAFE_GEAR = 'worker_safe_gear';
     public const WORKER_FORMS = "worker_forms";
     public const WORKER_FORM101_SIGNED = "worker_form101_signed";
     public const WORKER_CONTRACT_SIGNED = "worker_contract_signed";
     public const WORKER_INSURANCE_SIGNED = "worker_insurance_signed";
     public const WORKER_SAFETY_GEAR_SIGNED = "worker_safety_gear_signed";
+
     public const CLIENT_PAYMENT_FAILED = "client_payment_failed";
     public const PAYMENT_PAID = 'payment_paid';
     public const PAYMENT_PARTIAL_PAID = 'payment_partial_paid';
@@ -48,6 +52,21 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const WORKER_COMMENTED = "worker_commented";
     public const ADMIN_COMMENTED = "admin_commented";
     public const NEW_LEAD_ARRIVED = "new_lead_arrived";
+    public const WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM = "worker_next_day_job_reminder_at_5_pm";
+    public const WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM = "worker_next_day_job_reminder_at_6_pm";
+    public const TEAM_JOB_NOT_APPROVE_REMINDER_AT_6_PM = "team_job_not_approve_reminder_at_6_pm";
+    public const REMINDER_TO_WORKER_1_HOUR_BEFORE_JOB_START = "reminder_to_worker_1_hour_before_job_start";
+    public const TEAM_JOB_NOT_CONFIRM_BEFORE_30_MINS = "team_job_not_confirm_before_30_mins";
+    public const TEAM_JOB_NOT_CONFIRM_AFTER_30_MINS = "team_job_not_confirm_after_30_mins";
+    public const WORKER_NOTIFY_AFTER_CONFIRMING_ON_MY_WAY = "worker_notify_after_confirming_on_my_way";
+    public const WORKER_NOTIFY_AFTER_ALL_COMMENTS_COMPLETED = "worker_notify_after_all_comments_completed";
+    public const WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB = "worker_notify_for_next_job_on_complete_job";
+    public const WORKER_NOTIFY_FINAL_NOTIFICATION_OF_DAY = "worker_notify_final_notification_of_day";
+    public const WORKER_NOTIFY_ON_JOB_TIME_OVER = "worker_notify_on_job_time_over";
+    public const NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED = "notify_to_client_contract_not_signed";
+    public const NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED = "notify_to_team_contract_not_signed";
+    public const OFF_SITE_MEETING_REMINDER_TO_CLIENT = "off_site_meeting_reminder_to_client";
+    public const OFF_SITE_MEETING_REMINDER_TO_TEAM = "off_site_meeting_reminder_to_team";
     public const CLIENT_LEAD_STATUS_CHANGED = "client_lead_status_changed";
     public const CLIENT_CHANGED_JOB_SCHEDULE = "client_changed_job_schedule";
     public const WORKER_CHANGED_AVAILABILITY_AFFECT_JOB = "worker_changed_availability_affect_job";
@@ -72,12 +91,16 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const INQUIRY_RESPONSE = "inquiry-response";
     public const FOLLOW_UP_REQUIRED = "follow-up-required";
     public const FILE_SUBMISSION_REQUEST = "file-submission-request";
-    public const FOLLOW_UP_ON_OUR_CONVERSATION = "follow-up-on-our-conversation";
+    public const FILE_SUBMISSION_SUCCESS = "file-submission-success";
+    public const FILE_SUBMISSION_REQUEST_TEAM = "file-submission-request-team";
     public const JOB_APPROVED_NOTIFICATION_TO_WORKER = "job-approved-notification-to-worker";
     public const NOTIFY_CONTRACT_VERIFY_TO_CLIENT = "notify-contract-verify-to-client";
     public const NOTIFY_CONTRACT_VERIFY_TO_TEAM = "notify-contract-verify-to-team";
+    public const CONTRACT_REMINDER_TO_CLIENT_AFTER_7DAY = "contract-reminder-to-client-after-7day";
     public const CONTRACT_REMINDER_TO_CLIENT_AFTER_3DAY = "contract-reminder-to-client-after-3day";
     public const CONTRACT_REMINDER_TO_CLIENT_AFTER_24HOUR = "contract-reminder-to-client-after-24hour";
+    public const CONTRACT_REMINDER_TO_TEAM_AFTER_24HOUR_3_AND_7DAYS = "contract-reminder-to-team-after-24hour-3-and-7days";
+    public const FOLLOW_UP_ON_OUR_CONVERSATION = "follow-up-on-our-conversation";
     public const PRICE_OFFER_REMINDER_12_HOURS = "price-offer-reminder-12-hours";
     public const CONTRACT_NOT_SIGNED_12_HOURS = "contract-not-signed-12-hours";
     public const JOB_APPROVED_NOTIFICATION_TO_TEAM = "job-approved-notification-to-team";
@@ -92,11 +115,15 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const NOTIFY_TEAM_FOR_SKIPPED_COMMENTS = "notify-team-for-skipped-comments";
     public const TEAM_ADJUST_WORKER_JOB_COMPLETED_TIME = "team-adjust-worker-job-completed-time";
     public const NOTIFY_CLIENT_FOR_REVIEWED = "notify-client-for-reviewed";
-    public const NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE = "notify-monday-client-and-worker-for-schedule";
+    // public const NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE = "notify-monday-client-and-worker-for-schedule";
+    public const NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE = "notify-monday-client-for-schedule";
+    public const NOTIFY_MONDAY_WORKER_FOR_SCHEDULE = "notify-monday-worker-for-schedule";
+    public const FOLLOW_UP_PRICE_OFFER_SENT_CLIENT = "follow-up-price-offer-sent-client";
     public const WEEKLY_CLIENT_SCHEDULED_NOTIFICATION = "weekly-client-scheduled-notification";
     public const TO_TEAM_WORKER_NOT_CONFIRM_JOB = "to-team-worker-not-confirm-job";
     public const REMIND_WORKER_TO_JOB_CONFIRM = "remind-worker-to-job-confirm";
-    public const REFUND_CLAIM_MESSAGE = "refund-claim-message";
+    public const REFUND_CLAIM_MESSAGE_APPROVED = "refund-claim-message-approved";
+    public const REFUND_CLAIM_MESSAGE_REJECTED = "refund-claim-message-rejected";
     public const WORKER_LEAD_WEBHOOK_IRRELEVANT = "worker-lead-webhook-irrelevant";
     public const WORKER_LEAD_WEBHOOK_UNANSWERED = "worker-lead-webhook-unanswered";
     public const PENDING = "pending";
@@ -108,6 +135,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const PENDING_CLIENT = "pending-client";
     public const WAITING = "waiting";
     public const ACTIVE_CLIENT = "active-client";
+    public const WORKER_CONTACT_TO_MANAGER = "worker-contact-to-manager";
     public const FREEZE_CLIENT = "freeze-client";
     public const UNHAPPY = "unhappy";
     public const PRICE_ISSUE = "price-issue";
@@ -116,4 +144,12 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const PAST = "past";
     public const NOTIFY_WORKER_BEFORE_30MIN_JOB_END_TIME = "notify-worker-before-30min-job-end-time";
     public const WORKER_NEED_EXTRA_TIME = "worker-need-extra-time";
+    public const WORKER_START_THE_JOB = "worker-start-the-job";
+    public const UPDATE_ON_COMMENT_RESOLUTION = "update-on-comment-resolution";
+    public const NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_WORKER = "notify-team-request-to-change-schedule-worker";
+    public const NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_CLIENT = "notify-team-request-to-change-schedule-client";
+    public const STOP = "stop";
+    public const NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS = "notify-team-for-tommorow-meetings";
+    public const NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS = "notify-client-for-tommorow-meetings";
+    
 }

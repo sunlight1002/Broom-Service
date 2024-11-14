@@ -43,6 +43,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('jobs/{id}/change-worker', [JobController::class, 'changeWorker']);
     Route::post('jobs/{id}/review', [JobController::class, 'saveReview']);
     Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
+    Route::post('jobs/request-to-change', [JobController::class, 'requestToChange']);
     Route::resource('jobs/{id}/comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
 
     Route::get('jobs/{id}/comments', [JobCommentController::class, 'language']);

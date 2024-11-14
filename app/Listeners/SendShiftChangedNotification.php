@@ -45,24 +45,9 @@ class SendShiftChangedNotification implements ShouldQueue
                 'content_data' => __('mail.worker_job.shift_changed'),
             );
             sendJobWANotification($emailData);
-            // Mail::send('/Mails/NewJobMail', $emailData, function ($messages) use ($emailData) {
-            //     $messages->to($emailData['email']);
-            //     $sub = __('mail.worker_job.shift_changed_subject');
-            //     $messages->subject($sub);
-            // });
         }
 
         App::setLocale('en');
-        //send notification to admin
-        $adminEmailData = [
-            'emailData'   => [
-                'job'   =>  $event->job->toArray(),
-            ],
-            'emailSubject'  => __('mail.worker_job.shift_changed_subject'),
-            'emailTitle'  => 'New Job',
-            'emailContent'  => __('mail.worker_job.shift_changed') . " " . __('mail.worker_new_job.please_check')
-        ];
-        event(new JobNotificationToAdmin($adminEmailData));
 
         //send notification to client
         $jobData = $event->job->toArray();

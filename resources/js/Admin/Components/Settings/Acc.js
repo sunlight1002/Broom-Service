@@ -80,9 +80,9 @@ export default function Acc() {
         formData.append("lng", lng === "0" ? "heb" : lng);
         i18next.changeLanguage(lng);
 
-        for (const [key, value] of formData.entries()) {
-            console.log(`${key}: ${value}`);
-        }
+        // for (const [key, value] of formData.entries()) {
+        //     console.log(`${key}: ${value}`);
+        // }
 
         try {
             const response = await axios.post(`/api/admin/my-account`, formData, { headers });

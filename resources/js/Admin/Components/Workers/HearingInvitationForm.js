@@ -12,12 +12,13 @@ import Swal from "sweetalert2";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
 import moment from "moment";
+import { useLocation } from "react-router-dom";
 
 import Sidebar from "../../Layouts/Sidebar";
 import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 
-const HearingInvitation = ({ worker, getWorkerDetails }) => {
+const HearingInvitation = () => {
     const [workerState, setWorker] = useState([]);
     const [totalTeam, setTotalTeam] = useState([]);
     const [team, setTeam] = useState("");
@@ -39,6 +40,9 @@ const HearingInvitation = ({ worker, getWorkerDetails }) => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     const [formattedSelectedDate, setFormattedSelectedDate] = useState('');
+
+    const location = useLocation();
+    const { worker, getWorkerDetails } = location.state || {};
 
     const params = useParams();
     const alert = useAlert();
@@ -142,14 +146,13 @@ const HearingInvitation = ({ worker, getWorkerDetails }) => {
             meet_link: meetLink,
             purpose: purps,
             booking_status: st,
-            address_id: address,
         };
 
         setIsLoading(true);
 
         if (sid) {
             await axios
-                .put(`/api/admin/hearing-invitations/${sid}`, data, { headers }) // Updated endpoint for PUT request
+                .put(`/api/admin/hearing-invitations/${sid}`, data, { headers })
                 .then((res) => {
                     setIsLoading(false);
 
@@ -172,7 +175,7 @@ const HearingInvitation = ({ worker, getWorkerDetails }) => {
                 });
         } else {
             await axios
-                .post(`/api/admin/hearing-invitations/create`, data, { headers }) // Updated endpoint for POST request
+                .post(`/api/admin/hearing-invitations/create`, data, { headers })
                 .then((res) => {
                     setIsLoading(false);
 
@@ -181,8 +184,9 @@ const HearingInvitation = ({ worker, getWorkerDetails }) => {
                             alert.error(res.data.errors[e]);
                         }
                     } else {
+                        const workerId = worker.id; 
                         if (res.data.action === "redirect") {
-                            window.location = navigate("/admin/workers-hearing");
+                            window.location = navigate(`/admin/workers/view/${workerId}`);
                         } else {
                             alert.success(res.data.message);
                             createAndSendMeeting(res.data.data.id);
@@ -214,8 +218,9 @@ const HearingInvitation = ({ worker, getWorkerDetails }) => {
                         alert.error(res.data.errors[e]);
                     }
                 } else {
+                    const workerId = worker.id; 
                     setTimeout(() => {
-                        navigate("/admin/workers-hearing"); // Updated navigation path
+                        navigate(`/admin/workers/view/${workerId}`);
                     }, 1000);
                 }
             })
@@ -233,11 +238,10 @@ const HearingInvitation = ({ worker, getWorkerDetails }) => {
 
     const getWorker = () => {
         axios
-            .get(`/api/admin/workers/${params.id}`, { headers }) // Updated endpoint for getting worker details
+            .get(`/api/admin/workers/${params.id}`, { headers })
             .then((res) => {
                 const { worker } = res.data;
                 setWorker(worker);
-                setAddresses(worker.property_addresses ? worker.property_addresses : []);
             });
     };
 
@@ -272,7 +276,6 @@ const HearingInvitation = ({ worker, getWorkerDetails }) => {
                 setMeetVia(d.meet_via);
                 setMeetLink(d.meet_link ?? "");
                 setPurpose(d.purpose);
-                setAddress(d.address_id);
             })
             .catch((e) => {
                 setIsLoading(false);
@@ -360,13 +363,14 @@ const HearingInvitation = ({ worker, getWorkerDetails }) => {
         <div id="container">
             <Sidebar />
             <div id="content">
+                <div className="col-sm-8 mt-4">
+                    <h4>
+                        {t("worker.settings.invitation_for_hearing")}
+                    </h4>
+                    <hr/>
+                </div>
                 <div className="dashBox maxWidthControl p-4 sch-meet">
                     <div className="row">
-                        <div className="col-sm-8">
-                            <h1>
-                                {worker.firstname + " " + (worker.lastname ? worker.lastname : "")}
-                            </h1>
-                        </div>
                     </div>
                     <div className="row mt-4">
                         <div className="col-sm-6">

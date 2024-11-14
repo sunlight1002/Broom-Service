@@ -37,7 +37,7 @@ class NotifyForWorkerLeave implements ShouldQueue
             'type' => NotificationTypeEnum::WORKER_LEAVES_JOB,
             'status' => 'change',
             'data' => [
-                'date' => $event->worker->last_work_date
+                'last_work_date' => $event->worker->last_work_date
             ]
         ]);
 

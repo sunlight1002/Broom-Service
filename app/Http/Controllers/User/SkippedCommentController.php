@@ -33,7 +33,7 @@ class SkippedCommentController extends Controller
         ]);
 
         // Find the comment and load related job, client, and worker
-        $comment = JobComments::with(['job.client', 'job.worker'])->find($validatedData['comment_id']);
+        $comment = JobComments::with(['job.client', 'job.worker', 'job.propertyAddress'])->find($validatedData['comment_id']);
 
         // Prepare the data for the event, correcting the client and worker mapping
 
@@ -43,25 +43,23 @@ class SkippedCommentController extends Controller
         $comment->save();
 
         // Create a record in the skipped_comments table
-        $skipcomment = SkippedComment::create([
+        SkippedComment::create([
             'comment_id' => $comment->id,
             'request_text' => $validatedData['request_text'],
             'status' => 'pending',
         ]);
 
-        $data = [
-            'comment_id' => $comment->job->id,
-            'comment' => $comment->comment,
-            // 'request' => $skipcomment->request_text,
-            'skipcomment' => $skipcomment,               // The comment itself
-            'worker' => $comment->job->worker,   // The worker assigned to the job
-            'client' => $comment->job->client,   // The client for the job
-        ];
+        $job = $comment->job;
+        $job->load(['jobservice', 'propertyAddress']);
+
         // Fire the event with the correct data
         event(new WhatsappNotificationEvent([
             'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_SKIPPED_COMMENTS,
             'notificationData' => [
-                'job' => $data, // Send the comment, worker, and client
+                'job' => $job->toArray(), // Send the comment, worker, and client
+                'worker' => $comment->job->worker->toArray(),
+                'client' => $comment->job->client->toArray(),
+                'comment' => $comment->toArray(),
             ],
         ]));
         // Return a successful response
@@ -102,10 +100,13 @@ class SkippedCommentController extends Controller
         }
 
         $skippedComment->save();
+
+        $jobComment = JobComments::with(["job.jobservice","job.worker"])
+                    ->where('id', $skippedComment->comment_id)->first();
+
         // Update the corresponding JobComments status if skipped comment is 'approved'
         if ($skippedComment->status === 'approved') {
             // Find the JobComment by the same comment_id
-            $jobComment = JobComments::where('id', $skippedComment->comment_id)->first();
             if ($jobComment) {
                 // Update the JobComment status to 'approved'
                 $jobComment->status = 'approved';
@@ -113,8 +114,38 @@ class SkippedCommentController extends Controller
             }
         }
 
-        // Optionally, fire an event if a notification is needed
-        // event(new SkippedCommentStatusUpdated($skippedComment)); // Example event
+        $pending_comments = JobComments::where('job_id', $jobComment->job_id)
+            ->where(function ($query) {
+                $query->whereNotIn('status', ['complete'])
+                    ->orWhereNull('status');
+            })
+            ->whereDoesntHave('skipComment', function ($q) {
+                $q->where(function ($query) {
+                    $query->where('status', '!=', 'approved')
+                        ->orWhereNull('status');
+                });
+            })
+            ->count();
+
+        if ($pending_comments < 1) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_ALL_COMMENTS_COMPLETED,
+                "notificationData" => [
+                    'job' => $jobComment->job->toArray(),
+                    'worker' => $jobComment->job->worker->toArray(),
+                    'client' => $jobComment->job->client->toArray(),
+                ]
+            ]));
+        }
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION,
+            "notificationData" => [
+                'job' => $jobComment->job->toArray(),
+                'worker' => $jobComment->job->worker->toArray(),
+                'client' => $jobComment->job->client->toArray(),
+            ]
+        ]));
 
         return response()->json([
             'success' => true,

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { getShiftsDetails } from "../../../Utils/common.utils";
+// import { getShiftsDetails } from "../../../Utils/common.utils";
 import { useTranslation } from "react-i18next";
 import JobDiscountModal from "../Modals/JobDiscountModal";
 import JobExtraModal from "../Modals/JobExtraModal";
@@ -9,9 +9,6 @@ import JobExtraModal from "../Modals/JobExtraModal";
 export default function Services({ job, updateJob }) {
     const [isOpenDiscountModal, setIsOpenDiscountModal] = useState(false);
     const [isOpenExtraModal, setIsOpenExtraModal] = useState(false);
-    const { durationInHours, startTime, endTime } = getShiftsDetails(job);
-
-
     const { t } = useTranslation();
     const service = job.jobservice;
 
@@ -74,7 +71,7 @@ export default function Services({ job, updateJob }) {
                                     </label>
 
                                     <p>
-                                        {durationInHours}{" "}
+                                        {job?.jobservice?.duration_minutes / 60}{" "}
                                             {t(
                                             "admin.schedule.jobs.serviceDetails.hours"
                                         )}
@@ -88,7 +85,7 @@ export default function Services({ job, updateJob }) {
                                             "admin.schedule.jobs.serviceDetails.Shift"
                                         )}
                                     </label>
-                                    <p>{startTime + "-" + endTime}</p>
+                                    <p>{job?.shifts}</p>
                                 </div>
                             </div>
                             <div className="col-lg-2 col-6">

@@ -9,22 +9,23 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use Carbon\Carbon;
 use App;
+use Illuminate\Support\Facades\DB;
 
-class NotifyTeamContract12 extends Command
+class ContractReminder extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'notifyteamcontract12';
+    protected $signature = 'team:contract-reminder';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Notify the team if a contract is not signed after 12 hours from when it was sent to the client';
+    protected $description = 'Reminder to Client and team - Agreement Signature (After 24 Hours, 3 Days, and 7 Days)';
 
     /**
      * Create a new command instance.
@@ -43,35 +44,40 @@ class NotifyTeamContract12 extends Command
      */
     public function handle()
     {
-        $staticDate = "2024-10-19"; // Static date to start notifications from
-        $timeLimit12Hours = Carbon::now()->subHours(12); // Define the 12-hour time limit
+        $staticDate = "2024-01-01"; // Static date to start notifications from
+        $dates = [
+            Carbon::now()->subDay(1)->toDateString(),
+            Carbon::now()->subDays(3)->toDateString(),
+            Carbon::now()->subDays(7)->toDateString(),
+        ];
 
-        // Fetch contracts that are "not-signed" and were created (sent) more than 12 hours ago
+        // Fetch contracts "not-signed" that were created more than 24 hours ago, but within the last 3 days
         $contracts = Contract::with('client')
             ->where('status', 'not-signed')
-            ->whereDate('created_at', '>=', $staticDate) // Filter contracts created after the static date
-            ->where('created_at', '<=', $timeLimit12Hours) // Check if they were created more than 12 hours ago
+            ->whereDate('created_at', '>=', $staticDate)
+            ->whereIn(DB::raw('DATE(created_at)'), $dates) // Older than 24 hours but not older than 3 days
             ->get();
-
         // Notify the team for each contract that is "not-signed"
         foreach ($contracts as $contract) {
             $client = $contract->client;
 
             if ($client) {
-                // Set locale based on the client's language preference
-
                 // Trigger the team notification event
+                // event(new WhatsappNotificationEvent([
+                //     "type" => WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED,
+                //     "notificationData" => [
+                //         'client' => $client->toArray(),
+                //         'contract' => $contract->toArray(),
+                //     ]
+                // ]));
+
                 event(new WhatsappNotificationEvent([
-                    "type" => WhatsappMessageTemplateEnum::CONTRACT_NOT_SIGNED_12_HOURS,
+                    "type" => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,
                     "notificationData" => [
                         'client' => $client->toArray(),
                         'contract' => $contract->toArray(),
-                        'contract_sent_date' => $contract->created_at
                     ]
                 ]));
-
-                // Log the notification for tracking
-                $this->info("12-hour notification sent for client: " . $client->firstname . " to the team.");
             }
         }
 

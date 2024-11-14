@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
 use App\Http\Controllers\Controller;
-use App\Events\ClientLeadStatusChanged;
 use App\Models\Fblead;
 use App\Models\Client;
 use App\Models\LeadComment;
@@ -126,7 +125,7 @@ class LeadController extends Controller
         }
 
         $iCountData = $iCountResponse->json();
-        
+
         // Update client with iCount client_id
         if (isset($iCountData['client_id'])) {
             $client->update(['icount_client_id' => $iCountData['client_id']]);
@@ -147,8 +146,6 @@ class LeadController extends Controller
             ['lead_status' => LeadStatusEnum::PENDING]
         );
 
-        event(new ClientLeadStatusChanged($client, LeadStatusEnum::PENDING));
-
         // Create a notification
         Notification::create([
             'user_id' => $client->id,
@@ -162,7 +159,8 @@ class LeadController extends Controller
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
             "notificationData" => [
-                'client' => $client->toArray()
+                'client' => $client->toArray(),
+                // 'type' => "website"
             ]
         ]));
 
@@ -263,19 +261,19 @@ class LeadController extends Controller
 
         // Create user in iCount
         $iCountResponse = $this->createOrUpdateUser($request);
-    
+
         // Handle iCount response
         if ($iCountResponse->status() != 200) {
             return response()->json(['error' => 'Failed to create user in iCount'], 500);
         }
-    
+
         $iCountData = $iCountResponse->json();
-        
+
         // Extract Client_id from iCount response and update the Client model
         if (isset($iCountData['client_id'])) {
             $client->update(['icount_client_id' => $iCountData['client_id']]);
         }
-    
+
 
         $client->update($input);
         return response()->json([
@@ -602,6 +600,14 @@ class LeadController extends Controller
 
     public function getLeadData($leadgen_id, $pageAccessToken)
     {
+        Log::info("Received leadgen_id:", ['leadgen_id' => $leadgen_id]);
+
+        if (is_array($leadgen_id)) {
+            Log::info("leadgen_id is an array containing multiple IDs.", ['leadgen_ids' => $leadgen_id]);
+        } else {
+            Log::info("leadgen_id is a single ID.", ['leadgen_id' => $leadgen_id]);
+        }
+
         $url = "https://graph.facebook.com/v20.0/" . $leadgen_id . "/";
         $lead_response = Http::get($url, [
             'access_token' => $pageAccessToken,

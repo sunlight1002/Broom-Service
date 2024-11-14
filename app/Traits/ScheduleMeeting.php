@@ -28,7 +28,11 @@ trait ScheduleMeeting
 
     private function saveGoogleCalendarEvent($schedule)
     {
-        SaveGoogleCalendarEventJob::dispatch($schedule);
+        try {
+            SaveGoogleCalendarEventJob::dispatch($schedule);
+        } catch (\Throwable $th) {
+            Log::error($th);
+        }
     }
 
     // private function userCalendarTimezone($access_token)

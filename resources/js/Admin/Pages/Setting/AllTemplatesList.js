@@ -38,13 +38,14 @@ function AllTemplatesList() {
                     </div>
                 </div>
 
-                <div className="dashBox border-0" style={{ background: "inherit" }}>
+                <div className="border-0 dashBox" style={{ background: "inherit" }}>
                     <div className="table-responsive">
                         <table className="table table-bordered">
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Template Name</th>
+                                    <th scope="col">Description</th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
@@ -54,6 +55,7 @@ function AllTemplatesList() {
                                         <tr key={template.id}>
                                             <td>{index + 1}</td>
                                             <td>{template.key}</td>
+                                            <td>{template.description}</td>
                                             <td>
                                                 <Link
                                                     to={`edit/template/${Base64.encode(String(template.id))}`}

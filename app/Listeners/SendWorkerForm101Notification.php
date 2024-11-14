@@ -45,7 +45,9 @@ class SendWorkerForm101Notification implements ShouldQueue
             if (!empty($workerArr['phone'])) {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::FORM101,
-                    "notificationData" => $workerArr
+                    "notificationData" => [
+                        'worker' => $workerArr
+                    ]
                 ]));
             }
         }

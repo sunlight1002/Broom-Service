@@ -14,7 +14,7 @@ class AddOtpFieldsToClientsTable extends Migration
     public function up()
     {
         Schema::table('clients', function (Blueprint $table) {
-            $table->boolean('two_factor_enabled')->default(false);
+            $table->boolean('two_factor_enabled')->default(true);
             $table->string('otp')->nullable();
             $table->timestamp('otp_expiry')->nullable();
         });

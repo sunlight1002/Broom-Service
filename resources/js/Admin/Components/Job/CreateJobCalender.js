@@ -1,13 +1,12 @@
 import "flatpickr/dist/flatpickr.css";
 import moment from "moment-timezone";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAlert } from "react-alert";
 import Flatpickr from "react-flatpickr";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import WorkerAvailabilityTable from "./WorkerAvailabilityTable";
 
-import FullPageLoader from "../../../Components/common/FullPageLoader";
 import Loader from "../../../Components/common/Loader";
 import {
     convertShiftsFormat,
@@ -15,7 +14,6 @@ import {
     getWorkerAvailabilities,
     getWorkersData,
 } from "../../../Utils/job.utils";
-import { getShiftsDetails } from "../../../Utils/common.utils";
 
 export default function CreateJobCalender({
     services: clientServices,
@@ -34,7 +32,7 @@ export default function CreateJobCalender({
     const [days, setDays] = useState([]);
     const [currentFilter, setcurrentFilter] = useState("Current Week");
     const headers = {
-        Accept: "application/json, text/plain, */*",
+        Accept: "application/json, text/plain, /",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
@@ -43,10 +41,8 @@ export default function CreateJobCalender({
     const [customDateRange, setCustomDateRange] = useState([]);
     const [searchVal, setSearchVal] = useState("");
     const [loading, setLoading] = useState(false);
+    const [prevWorker, setPrevWorker] = useState(true)
     const [serviceIndex, setServiceIndex] = useState(null)
-
-    let uniqueShifts = new Set(); // To track unique shifts
-
 
     useEffect(() => {
         setServices(clientServices);
@@ -95,97 +91,85 @@ export default function CreateJobCalender({
         setLoading(false)
     };
 
-
-
-    const getWorkers = (_service) => {
-        setLoading(true);
-
-        axios
-            .get(`/api/admin/all-workers`, {
+    const getWorkers = useCallback(async (_service) => {
+        try {
+            setLoading(true);
+            const res = await axios.get(`/api/admin/all-workers`, {
                 headers,
                 params: {
                     filter: true,
-                    distance: distance,
+                    distance,
                     service_id: _service.service,
                     has_cat: _service.address.is_cat_avail,
                     has_dog: _service.address.is_dog_avail,
                     prefer_type: _service.address.prefer_type,
                     ignore_worker_ids: _service.address.not_allowed_worker_ids,
-                    client_property_id: _service.address.id
+                    client_property_id: _service.address.id,
                 },
-            })
-            .then((res) => {
-                setAllWorkers(res.data.workers);
-
-                const workerAvailityData = getWorkerAvailabilities(res?.data?.workers);
-
-                setWorkerAvailabilities(workerAvailityData);
-
-                setLoading(false);
-            })
-            .catch((err) => {
-                setLoading(false);
             });
-    };
+            const workers = res.data.workers;
+            
+            setAllWorkers(workers);
+            console.time('get');
+            let WorkerAvailability = getWorkerAvailabilities(workers)
+            
+            console.timeEnd('get');
+            setWorkerAvailabilities(WorkerAvailability);
+        } catch (err) {
+            alert.error("Failed to fetch workers");
+        } finally {
+            setLoading(false);
+        }
+    }, [distance, headers, alert]);
 
     useEffect(() => {
         handleServices(serviceIndex);
     }, [serviceIndex, distance])
 
 
-    const submitForm = (_data) => {
-        setLoading(true)
-        let viewbtn = document.querySelectorAll(".viewBtn");
-        let formdata = {
-            workers: _data,
-            service_id: selectedService.service,
-            contract_id: selectedService.contract_id,
-            prevWorker: isPrevWorker.current.checked,
-            updatedJobs: updatedJobs,
-        };
 
-        viewbtn[0].setAttribute("disabled", true);
-        viewbtn[0].value = "please wait ...";
-
-        axios
-            .post(`/api/admin/create-job`, formdata, {
-                headers,
-            })
-            .then((res) => {
-                setLoading(false)
-                alert.success(res.data.message);
-                setTimeout(() => {
-                    navigate("/admin/jobs");
-                }, 1000);
-            })
-            .catch((e) => {
-                setLoading(false)
-                Swal.fire({
-                    title: "Error!",
-                    text: e.response?.data?.message,
-                    icon: "error",
-                });
+    const submitForm = useCallback(
+        async (_data) => {
+          try {
+            setLoading(true);
+            let viewbtn = document.querySelectorAll(".viewBtn");
+            const formdata = {
+              workers: _data,
+              service_id: selectedService.service,
+              contract_id: selectedService.contract_id,
+              prevWorker: prevWorker,
+              updatedJobs: updatedJobs,
+            };
+            viewbtn[0].setAttribute("disabled", true);
+            viewbtn[0].value = "please wait ...";
+            await axios.post(`/api/admin/create-job`, formdata, { headers });
+            alert.success("Job created successfully");
+            setTimeout(() => navigate("/admin/jobs"), 1000);
+          } catch (error) {
+            Swal.fire({
+              title: "Error!",
+              text: error.response?.data?.message,
+              icon: "error",
             });
-    };
+          } finally {
+            setLoading(false);
+          }
+        },
+        [selectedService, updatedJobs, headers, alert, navigate]
+      );
 
     const handleSubmit = () => {
         if (selectedHours) {
-            // const unfilled = selectedHours.find((worker) => {
-            //     return worker.slots == null;
-            // });
-
-            // if (unfilled) {
-            //     alert.error("Please select all workers.");
-            //     return false;
-            // }
-
             const data = [];
+    
             selectedHours.forEach((worker, index) => {
+                // Loop through the worker's formatted slots
                 worker?.formattedSlots?.forEach((slots) => {
                     data.push(slots);
                 });
             });
-
+    
+            // You can now use the 'data' array which contains the updated shift information
             if (data.length > 0) {
                 const _getWorkersData = getWorkersData(selectedHours);
 
@@ -254,7 +238,6 @@ export default function CreateJobCalender({
 
                 // Add current slot times to the set
                 filteredSlots.forEach(slot => selectedSlotTimes.add(slot.time.time));
-
                 return {
                     jobHours: worker.jobHours,
                     slots: filteredSlots.length > 0 ? filteredSlots : null,
@@ -330,12 +313,13 @@ export default function CreateJobCalender({
         return false;
     };
 
+
     return (
         <>
             <div className="row mb-3">
                 <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
                     <div className="d-flex align-items-center flex-wrap justify-content-between">
-                        <div className="d-flex align-items-center flex-wrap ">
+                        <div className="d-flex align-items-center flex-wrap mt-2 ">
                             <div className="mr-3" style={{ fontWeight: "bold" }}>
                                 Worker Availability
                             </div>
@@ -393,9 +377,11 @@ export default function CreateJobCalender({
                 <div className="col-sm-12 mt-2">
                     <div className="form-check">
                         <label className="form-check-label">
-                            <input
-                                ref={isPrevWorker}
+                        <input
+                                // ref={isPrevWorker}
                                 type="checkbox"
+                                defaultChecked={prevWorker}
+                                onChange={(prev) => setPrevWorker(!prev)}
                                 className="form-check-input"
                                 name={"is_keep_prev_worker"}
                             />
@@ -732,7 +718,7 @@ export default function CreateJobCalender({
                                     </table>
                                 </div>
                                 <div className="table-responsive">
-                                    {getWorkersData(selectedHours).length >
+                                    {selectedHours.length >
                                         0 ? (
                                         <table className="table table-bordered">
                                             <thead>
@@ -743,40 +729,19 @@ export default function CreateJobCalender({
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            {getWorkersData(selectedHours) &&
-                getWorkersData(selectedHours).map((s, idx) => {
-                    return (
-                        selectedHours.map((d, i) => {
-                            return (
-                                d?.formattedSlots?.flatMap((slots, j) => {
-                                    const job = { shifts: slots.shifts };
-                                    const { startTime, endTime } = getShiftsDetails(job);
-
-                                    // Create a unique identifier for each shift
-                                    const shiftKey = `${s.worker_name}-${s.date}-${startTime}-${endTime}`;
-
-                                    // Check if this shift has already been added
-                                    if (!uniqueShifts.has(shiftKey)) {
-                                        uniqueShifts.add(shiftKey); // Add the shift to the Set
-
-                                        return (
-                                            <tr key={shiftKey}>
-                                                <td>{s.worker_name}</td>
-                                                <td>{s.date}</td>
-                                                <td>{startTime} - {endTime}</td>
-                                            </tr>
-                                        );
-                                    }
-
-                                    return null; // Skip rendering if already rendered
-                                })
-                            );
-                        })
-                    );
-                })
-            }
-
-                                            </tbody>
+                                            {selectedHours && selectedHours?.map((d, i) => (
+                                                d?.formattedSlots?.map((slot, j) => {
+                                                    return (
+                                                        <tr key={j}>
+                                                        <td>{slot.worker_name}</td>
+                                                        <td>{slot.date}</td>
+                                                        <td>{slot.shifts}</td>
+                                                    </tr>
+                                                    )
+                                                })
+                                            ))}
+                                        </tbody>
+                                        
                                         </table>
                                     ) : (
                                         ""

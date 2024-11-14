@@ -98,6 +98,10 @@ class SettingController extends Controller
 
         $input = $request->all();
 
+        if (!isset($input['two_factor_enabled'])) {
+            $input['two_factor_enabled'] = true; // or 1
+        }
+
         $admin = Admin::find(Auth::user()->id);
         if ($request->hasfile('avatar')) {
             if ($admin->avatar) {

@@ -36,7 +36,7 @@ class SendJobReviewRequestNotification implements ShouldQueue
 
             // Mail::to($event->job->client->email)->send(new JobReviewRequestMail($event->job));
             event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::NOTIFY_CLIENT_FOR_REVIEWED,
+                "type" => WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED,
                 "notificationData" => [
                     'job' => $event->job->toArray(),
                 ]

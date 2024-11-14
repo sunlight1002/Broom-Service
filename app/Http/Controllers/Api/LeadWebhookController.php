@@ -1926,5 +1926,13 @@ class LeadWebhookController extends Controller
             'read'          => 1,
             'flex'          => 'A',
         ]);
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
+            "notificationData" => [
+                'client' => $lead->toArray(),
+                'type' => "website"
+            ]
+        ]));
     }
 }

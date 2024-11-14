@@ -120,23 +120,6 @@ export default function ReviewJob() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="col-sm-3 col-lg-2">
-                                            <div className="form-group">
-                                                <label className="control-label">
-                                                    {t(
-                                                        "client.jobs.review.timeToComplete"
-                                                    )}
-                                                </label>
-                                                <p>
-                                                    {convertMinsToDecimalHrs(
-                                                        job.actual_time_taken_minutes
-                                                    )}{" "}
-                                                    {t(
-                                                        "client.jobs.review.hours"
-                                                    )}
-                                                </p>
-                                            </div>
-                                        </div>
                                         <div className="col-sm-3 col-lg-4">
                                             <div className="form-group">
                                                 <label className="control-label">
@@ -149,29 +132,6 @@ export default function ReviewJob() {
                                                         job.property_address
                                                             .address_name
                                                     }
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-4">
-                                            <div className="form-group">
-                                                <label className="control-label">
-                                                    {t(
-                                                        "client.jobs.review.PetAnimals"
-                                                    )}
-                                                </label>
-                                                <p>
-                                                    {job.property_address
-                                                        .is_cat_avail
-                                                        ? "Cat ,"
-                                                        : job.property_address
-                                                              .is_dog_avail
-                                                        ? "Dog"
-                                                        : !job.property_address
-                                                              .is_cat_avail &&
-                                                          !job.property_address
-                                                              .is_dog_avail
-                                                        ? "NA"
-                                                        : ""}
                                                 </p>
                                             </div>
                                         </div>

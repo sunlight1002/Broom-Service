@@ -40,6 +40,7 @@ class SendMeetingMailJob implements ShouldQueue
     public function handle()
     {
         $scheduleArr = $this->schedule->toArray();
+        \Log::info($scheduleArr);
         App::setLocale($scheduleArr['client']['lng']);
 
         $notificationType = $this->schedule->client->notification_type;
@@ -47,38 +48,93 @@ class SendMeetingMailJob implements ShouldQueue
         // Handle both email and WhatsApp notifications
         if ($notificationType === 'both') {
 
-            // Uncomment the following lines if you want to send an email
-            Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
-                $messages->to($scheduleArr['client']['email']);
-                $messages->subject(__('mail.meeting.subject', [
-                    'id' => $scheduleArr['id']
-                ]));
-            });
+            if ($scheduleArr['meet_via'] == "on-site") {
+
+                $Data = [
+                    'id' => $scheduleArr['id'],
+                    'client' => ['email' => $scheduleArr['client']['email']],
+                    'title' => __('mail.label.company_meeting'),
+                    'description' => $scheduleArr['purpose'],
+                    'location' => $scheduleArr['meet_link'],
+                    'start_date' => $scheduleArr['start_date'],
+                    'start_time' => $scheduleArr['start_time'],
+                    'end_time' => $scheduleArr['end_time'],   
+                ];
+                
+                $icsContent = createIcsFileContent($Data, $scheduleArr['client']['lng']);
+                $icsFilePath = tempnam(sys_get_temp_dir(), 'meeting_invite') . '.ics';
+                file_put_contents($icsFilePath, $icsContent);
+                
+                Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr, $icsFilePath) {
+                    $messages->to($scheduleArr['client']['email']);
+                    $messages->subject(__('mail.meeting.subject', [
+                        'id' => $scheduleArr['id']
+                    ]));
+                    $messages->attach($icsFilePath, [
+                        'as' => 'meeting_invite.ics',
+                        'mime' => 'text/calendar',
+                    ]);
+                });
+                
+                // Delete the temporary file after sending the email
+                unlink($icsFilePath);
+                
+
+            }else{
+                Mail::send('/Mails/OffsiteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+                    $messages->to($scheduleArr['client']['email']);
+                    $messages->subject(__('mail.meeting.subject', [
+                        'id' => $scheduleArr['id']
+                    ]));
+                });
+            }
+           
 
             // Send WhatsApp Notification
-            if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
+            if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone']) && $scheduleArr['meet_via'] == "on-site") {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
                     "notificationData" => $scheduleArr
                 ]));
+            }else{
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
+                    "notificationData" => $scheduleArr
+                ]));
             }
-
+          
            
 
         } elseif ($notificationType === 'email') {
             // Send Email
-            Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
-                $messages->to($scheduleArr['client']['email']);
-                $messages->subject(__('mail.meeting.subject', [
-                    'id' => $scheduleArr['id']
-                ]));
-            });
+            if ($scheduleArr['meet_via'] == "on-site") {
+
+                Mail::send('/Mails/MeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+                    $messages->to($scheduleArr['client']['email']);
+                    $messages->subject(__('mail.meeting.subject', [
+                        'id' => $scheduleArr['id']
+                    ]));
+                });
+
+            }else{
+                Mail::send('/Mails/OffsiteMeetingMail', $scheduleArr, function ($messages) use ($scheduleArr) {
+                    $messages->to($scheduleArr['client']['email']);
+                    $messages->subject(__('mail.meeting.subject', [
+                        'id' => $scheduleArr['id']
+                    ]));
+                });
+            }
 
         } elseif ($notificationType === 'whatsapp') {
             // Send WhatsApp Notification
-            if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone'])) {
+            if (isset($scheduleArr['client']) && !empty($scheduleArr['client']['phone']) && $scheduleArr['meet_via'] == "on-site") {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
+                    "notificationData" => $scheduleArr
+                ]));
+            }else{
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST,
                     "notificationData" => $scheduleArr
                 ]));
             }

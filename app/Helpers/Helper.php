@@ -8,6 +8,7 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 if (!function_exists('sendInvoicePayToClient')) {
     function sendInvoicePayToClient($id, $docurl, $docnum, $inv_id)
@@ -451,6 +452,34 @@ if (!function_exists('sendJobWANotification')) {
             ]));
         }
     }
+}
+
+if (!function_exists('createIcsFileContent')) {
+    function createIcsFileContent($scheduleArr, $language)
+    {
+        // Define event start and end times in UTC format
+        $startDateTime = Carbon::parse($scheduleArr['start_date'] . ' ' . $scheduleArr['start_time'])->format('Ymd\THis\Z');
+        $endDateTime = Carbon::parse($scheduleArr['start_date'] . ' ' . $scheduleArr['end_time'])->format('Ymd\THis\Z');
+        $lng = $language == "heb" ? "HE" : "EN";
+        App::setLocale($language ?? 'heb');
+        // Set content for the ICS file
+        $icsContent = "BEGIN:VCALENDAR\r\n";
+        $icsContent .= "VERSION:2.0\r\n";
+        $icsContent .= "PRODID:-//". __('mail.label.company')."//". __('mail.label.company_team')."//$lng\r\n";
+        $icsContent .= "BEGIN:VEVENT\r\n";
+        $icsContent .= "UID:" . uniqid() . "\r\n";
+        $icsContent .= "DTSTAMP:" . now()->format('Ymd\THis\Z') . "\r\n";
+        $icsContent .= "DTSTART:" . $startDateTime . "\r\n";
+        $icsContent .= "DTEND:" . $endDateTime . "\r\n";
+        $icsContent .= "SUMMARY:" . $scheduleArr['title'] . "\r\n";
+        $icsContent .= "DESCRIPTION:" . $scheduleArr['description'] . "\r\n";
+        $icsContent .= "LOCATION:" . $scheduleArr['location'] . "\r\n";
+        $icsContent .= "END:VEVENT\r\n";
+        $icsContent .= "END:VCALENDAR\r\n";
+    
+        return $icsContent;
+    }
+    
 }
 
 if (!function_exists('get_setting')) {

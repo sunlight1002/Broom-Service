@@ -1,7 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { getShiftsDetails } from "../../../Utils/common.utils";
 import { Link } from "react-router-dom";
 export default function Services({ job }) {
     const { t, i18n } = useTranslation();
@@ -29,9 +28,7 @@ export default function Services({ job }) {
         status = t("j_status.cancel");
     }
 
-    const service = job.jobservice;
-
-    const { durationInHours, startTime, endTime } = getShiftsDetails(job);
+    const service = job.jobservice;    
 
     return (
         <>
@@ -59,7 +56,7 @@ export default function Services({ job }) {
                                     </label>
                                     <p>
                                         {service.duration_minutes
-                                            ? durationInHours
+                                            ? service.duration_minutes / 60
                                             : "NA"}{" "}
                                         {t("client.jobs.view.hour_s")}
                                     </p>
@@ -70,7 +67,7 @@ export default function Services({ job }) {
                                     <label className="control-label">
                                         {t("client.jobs.view.shift")}
                                     </label>
-                                    <p>{startTime}</p>
+                                    <p>{job.shifts.split("-")[0]}</p>
                                 </div>
                             </div>
                             <div className="col-sm-3">

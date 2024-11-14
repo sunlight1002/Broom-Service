@@ -83,7 +83,6 @@ export default function ContractEng() {
         getContract();
     }, []);
 
-
     return (
         <>
             <div className="rhs-work">

@@ -27,8 +27,6 @@ export default function WorkerNotAvailabilty() {
 
     const handleDate = (e) => {
         e.preventDefault();
-        console.log("startTime: ",startTime);
-        console.log("endTime: ",endTime);
         
         if ((startTime && !endTime) || (!startTime && endTime)) {
             alert.error("Please select both Start Time and End Time, or leave both empty.");

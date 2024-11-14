@@ -380,7 +380,7 @@ export default function WorkerViewJob() {
 
                                         {job.job_opening_timestamp === null &&
                                             job.worker_approved_at === null ? (
-                                            <div className="d-flex" style={{ gap: "10px" }}>
+                                            <div className="col-sm-3 col-xl-2 col-6 text-lg-right">
                                                 <button
                                                     type="button"
                                                     onClick={handleApproveJob}

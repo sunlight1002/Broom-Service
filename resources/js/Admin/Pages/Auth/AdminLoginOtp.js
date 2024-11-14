@@ -102,10 +102,8 @@ export default function AdminLoginOtp() {
 
         try {
             const result = await axios.post(`/api/admin/verifyOtp`, data);
-            console.log(result);
             if (result.data.errors) {
                 setErrors(result.data.errors.otp);
-                console.log(errors);
             } else {
 
                 localStorage.setItem("admin-token", result.data.admin.token);

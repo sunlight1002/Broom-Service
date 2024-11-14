@@ -39,6 +39,8 @@ import RefundClaim from "./Worker/Pages/MyAccount/RefundClaim";
 import WorkerDashboard from "./Worker/WorkerDashboard";
 import WorkerTotalJobs from "./Worker/Pages/Job/WorkerTotalJobs";
 import WorkerViewJob from "./Worker/Pages/Job/WorkerViewJob";
+import HearingInvitation from "./Admin/Components/Workers/HearingInvitationForm";
+import Hearing from "./Worker/Pages/Hearing/Hearing";
 import Availability from "./Worker/Pages/Availability/Availability";
 import NotAvailability from "./Worker/Pages/Availability/NotAvailability";
 import SickLeaves from "./Worker/Pages/MyAccount/SickLeaves";
@@ -69,7 +71,10 @@ import AddWorker from "./Admin/Pages/Workers/AddWorker";
 import EditWorker from "./Admin/Pages/Workers/EditWorker";
 import WorkersLeave from "./Admin/Pages/Workers/WorkersLeave";
 import WorkersRefund from "./Admin/Pages/Workers/WorkersRefund";
-import WorkersHearing from "./Admin/Pages/Workers/WorkersHearing";
+import WorkerTermination from "./Admin/Components/Workers/WorkerTermination";
+import WorkersHearing from "./Admin/Components/Workers/WorkersHearing";
+import ViewHearing from "./Admin/Pages/Hearing/ViewHearing";
+import HearingProtocol from "./Admin/Components/Workers/HearingProtocol";
 import ViewWorker from "./Admin/Pages/Workers/ViewWorker";
 import ViewWorkerContract from "./Admin/Pages/Workers/WorkerContract";
 import AdminLogin from "./Admin/Pages/Auth/AdminLogin";
@@ -106,6 +111,7 @@ import MeetingStatus from "./Pages/MeetingStatus";
 import WorkerJobDetails from "./Pages/WorkerJobDetails";
 import CalendarTeam from "./Pages/CalendarTeam";
 import Thankyou from "./Pages/Thankyou";
+import ThankYouHearingSchedule from "./Pages/ThankYouHearingSchedule";
 import ManageTime from "./Admin/Pages/Setting/Time/ManageTime";
 import AddTime from "./Admin/Pages/Setting/Time/AddTime";
 import EditTime from "./Admin/Pages/Setting/Time/EditTime";
@@ -157,7 +163,7 @@ import Board from "./Admin/Pages/TaskManagement/Board";
 import Tasks from "./Worker/Pages/MyAccount/Tasks";
 import TeamButtons from "./Pages/TeamButtons";
 import TeamBtnsAfter7days from "./Pages/TeamBtnsAfter7days";
-import {ExtraLinks} from "./Pages/ExtraLinks";
+import { ExtraLinks } from "./Pages/ExtraLinks";
 import TeamSkippedComments from "./Pages/TeamSkippedComments";
 import { TimeManage } from "./Pages/TimeManage";
 import Templates from "./Admin/Pages/Setting/Templates";
@@ -167,6 +173,7 @@ import AddHoliday from "./Admin/Pages/Setting/AddHoliday";
 import EditHoliday from "./Admin/Pages/Setting/EditHoliday";
 import WorkerLead from "./Admin/Pages/Workers/WorkerLead";
 import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
+import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -207,35 +214,15 @@ export default function MyRoutes() {
                         path="meeting-files/:id"
                         element={<MeetingFiles />}
                     />
-                     <Route
-                        exact
-                        path="team-btn/:id"
-                        element={<TeamButtons/>}
-                    />
-                      <Route
-                        exact
-                        path="team-btn7days/:id"
-                        element={<TeamBtnsAfter7days/>}
-                    />
-                      <Route
-                        exact
-                        path="time-manage/:id"
-                        element={<TimeManage/>}
-                    />
-                     <Route
-                        exact
-                        path="action-comment/:id"
-                        element={<TeamSkippedComments/>}
-                    />
-                     <Route
-                        exact
-                        path="confirmation/:id"
-                        element={<ExtraLinks/>}
-                    />
                     <Route
                         exact
                         path="team-btn/:id"
                         element={<TeamButtons />}
+                    />
+                    <Route
+                        exact
+                        path="team-btn7days/:id"
+                        element={<TeamBtnsAfter7days />}
                     />
                     <Route
                         exact
@@ -247,6 +234,27 @@ export default function MyRoutes() {
                         path="action-comment/:id"
                         element={<TeamSkippedComments />}
                     />
+
+                    <Route
+                        exact
+                        path="confirmation/:id"
+                        element={<ExtraLinks />}
+                    />
+                    <Route
+                        exact
+                        path="team-btn/:id"
+                        element={<TeamButtons />}
+                    />
+                    <Route
+                        exact
+                        path="time-manage/:id"
+                        element={<TimeManage />}
+                    />
+                    {/* <Route
+                        exact
+                        path="action-comment/:id"
+                        element={<TeamSkippedComments />}
+                    /> */}
                     {/* <Route
                         exact
                         path="contact-manager/:id"
@@ -311,6 +319,11 @@ export default function MyRoutes() {
                     />
                     <Route
                         exact
+                        path="/hearing-schedule/:id"
+                        element={<ThankYouHearingSchedule />}
+                    />
+                    <Route
+                        exact
                         path="schedule-meet/:id"
                         element={<ScheduleMeet />}
                     />
@@ -329,6 +342,12 @@ export default function MyRoutes() {
                         exact
                         path="worker-invitation-form/:id"
                         element={<WorkerInvitationForm />}
+                    />
+
+                    <Route
+                        exact
+                        path="/request-to-change/:id"
+                        element={<RequestToChangeScheduled />}
                     />
 
                     {/* Client Routes Start  */}
@@ -436,6 +455,11 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
+                                path="hearing"
+                                element={<Hearing />}
+                            />
+                            <Route
+                                exact
                                 path="leaves"
                                 element={<SickLeaves />}
                             />
@@ -489,7 +513,7 @@ export default function MyRoutes() {
                                 path="advance-loan"
                                 element={<AdvanceLoan />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="tasks"
                                 element={<Tasks />}
@@ -624,6 +648,16 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
+                                path="workers/view/:id/hearing-invitation"
+                                element={<HearingInvitation />}
+                            />
+                            <Route
+                                exact
+                                path="workers/view/:id/upload-claim"
+                                element={<HearingProtocol />}
+                            />
+                            <Route
+                                exact
                                 path="worker-contract/:id"
                                 element={<ViewWorkerContract />}
                             />
@@ -642,10 +676,10 @@ export default function MyRoutes() {
                                 path="manage-team"
                                 element={<ManageTeam />}
                             />
-                              <Route
+                            <Route
                                 exact
                                 path="templates"
-                                element={<AllTemplatesList/>}
+                                element={<AllTemplatesList />}
                             />
                             <Route
                                 exact
@@ -692,7 +726,7 @@ export default function MyRoutes() {
                                 path="manpower-companies"
                                 element={<ManpowerCompanies />}
                             />
-                           <Route
+                            <Route
                                 exact
                                 path="holidays"
                                 element={<Holidays />}
@@ -723,26 +757,36 @@ export default function MyRoutes() {
                                 element={<WorkersLeave />}
                             />
                             <Route
-                                exact
+
                                 path="workers-refund"
                                 element={<WorkersRefund />}
                             />
-                             <Route
+                            <Route
                                 exact
-                                path="workers-hearing"
+                                path="workers/view/:workerId"
+                                element={<WorkerTermination />}
+                            />
+                            <Route
+                                exact
+                                path="workers/view/:workerId/hearing-invitation"
                                 element={<WorkersHearing />}
+                            />
+                            <Route
+                                exact
+                                path="workers/view/:workerId/hearing-invitation/:hid"
+                                element={<ViewHearing />}
                             />
                             <Route
                                 exact
                                 path="holidays"
                                 element={<Holiday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/create"
                                 element={<AddHoliday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/:id/edit"
                                 element={<EditHoliday />}
@@ -752,12 +796,12 @@ export default function MyRoutes() {
                                 path="holidays"
                                 element={<Holiday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/create"
                                 element={<AddHoliday />}
                             />
-                             <Route
+                            <Route
                                 exact
                                 path="holidays/:id/edit"
                                 element={<EditHoliday />}

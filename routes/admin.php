@@ -40,6 +40,9 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\HearingInvitationController;
+use App\Http\Controllers\User\WorkerHearingController;
+use App\Http\Controllers\HearingProtocolController;
+
 /*
 |--------------------------------------------------------------------------
 | Admin API Routes
@@ -347,6 +350,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::delete('document/remove/{id}/{user_id}', [DocumentController::class, 'remove']);
     Route::post('document/save', [DocumentController::class, 'save']);
     Route::get('get-doc-types', [DocumentController::class, 'getDocumentTypes']);
+    Route::post('document/reset/{form_id}', [DocumentController::class, 'resetForm']);
 
     Route::get('worker-affected-availability/{id}', [WorkerAffectedAvailabilitiesController::class, 'show']);
     Route::post('worker-affected-availability/{id}/approve', [WorkerAffectedAvailabilitiesController::class, 'approve']);
@@ -354,10 +358,16 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     //termination api -- schedule hearing 
     Route::get('hearing-invitations', [HearingInvitationController::class, 'index']);
-    Route::get('/hearing-invitations/{id}', [HearingInvitationController::class, 'show']);
+    // Route::get('/hearing-invitations/{id}', [HearingInvitationController::class, 'show']);
     Route::post('/hearing-invitations/create', [HearingInvitationController::class, 'store']);
     Route::put('/hearing-invitations/{id}', [HearingInvitationController::class, 'update']);
     Route::post('/hearing-invitations/{id}/create-event', [HearingInvitationController::class, 'createEvent']);
+
+    Route::get('/scheduled-hearings/{id}', [HearingInvitationController::class, 'getScheduledHearings']);
+    Route::delete('/hearing/{id}', [HearingInvitationController::class, 'destroy']);
+
+    
+    Route::post('/hearing-protocol', [HearingProtocolController::class, 'store']);
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);
@@ -408,6 +418,12 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::delete('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'destroy']);
 
 });
+
+Route::post('/hearing', [WorkerHearingController::class, 'getHearingDetails']);
+Route::post('/accept-hearing', [WorkerHearingController::class, 'acceptHearing']);
+Route::post('/reject-hearing', [WorkerHearingController::class, 'rejectHearing']);
+Route::post('/hearing/{id}/reschedule', [WorkerHearingController::class, 'rescheduleHearing']);
+
 // Route::get('/lead-charts', [LeadChartsController::class, 'lineGraphData']);
 
 Route::get('/facebook/campaigns', [LeadChartsController::class, 'index']);

@@ -298,8 +298,6 @@ export default function PriceOffer() {
                                 || rg.includes(sid) && sid == 7
                                 && !rg.includes(sid) && sid == 10*/}
 
-
-
                             {allTemplates.includes("airbnb") && (
                                 <div className="shift-20">
                                     <h4>

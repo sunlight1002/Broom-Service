@@ -53,6 +53,8 @@ class Client extends Authenticatable
         'otp',
         'otp_expiry',
         'two_factor_enabled',
+        'first_login',
+        'disable_notification'
     ];
 
     /**
@@ -89,8 +91,6 @@ class Client extends Authenticatable
                     'lead_status' => LeadStatusEnum::PENDING
                 ]
             );
-// 
-            // event(new NewLeadArrived($model));
         });
         static::deleting(function ($model) {
             Schedule::where('client_id', $model->id)->delete();

@@ -24,6 +24,8 @@ return [
         'choose_slot' => 'Choose slot',
         'content_with_date_time'     => 'Just a friendly reminder that you have an upcoming appointment with :team_name on :date between :start_time to :end_time at Address :address for a :purpose.',
         'content_without_date_time'     => 'Just a friendly reminder that you have an upcoming appointment with :team_name at Address :address for a :purpose.',
+        'content_for_off_site' =>  "To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.",
+        'upload_offsite' => "Please click on blow link and upload the requested files at your earliest convenience."
     ],
     'cancel_meeting' => [
         'subject'     => 'Meeting Cancelled from Broom Service #:id',
@@ -321,6 +323,7 @@ return [
         'start_time_nxt_step_email_subject' => 'Job time started | Next step | Broom Service',
         'start_time_nxt_step_email_title' => 'Job time started',
         'start_time_nxt_step_email_content' => 'Job time has been started by you. Check the below link and click :label when you want to stop your job work time.',
+        'start_time_nxt_step_email_contentWa' => 'Job time has been started by you. Check the below link and click :label when you want to stop your job work time.',
         'end_time_nxt_step_email_subject' => 'Job time Ended | Next step | Broom Service',
         'end_time_nxt_step_email_title' => 'Job time ended',
         'end_time_nxt_step_email_content' => 'The job time has been stopped by you. Check the below link and click :l1 if you want to complete your job else click on :l2 to continue job.',
@@ -387,9 +390,9 @@ return [
     ],
     'wa-message' => [
         'common' => [
-            'salutation' => "Hi, *:name*",
+            'salutation' => "Hello, *:name*",
             'closing' => 'We look forward to assisting you.',
-            'signature' => "Best Regards,\nBroom Service 🌹\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il",
+            'signature' => "Best Regards,\nBroom Service Team 🌹\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il",
         ],
         'client_meeting_reminder' => [
             'header' => "*Meeting reminder*",
@@ -400,8 +403,7 @@ return [
         ],
         'offer_price' => [
             'header' => "*Offer received from Broom Service*",
-            'content' => "Please check the price offer for the *:service_names*. After your approval, an engagement agreement will be sent to you which you will need to fill out and sign below then we will be ready to start the work.
-            Click the below button to see the price offer.",
+            'content' => "Please check the price offer for the *:service_names*. After your approval, an engagement agreement will be sent to you which you will need to fill out and sign below then we will be ready to start the work.\nClick the below button to see the price offer.",
         ],
         'contract' => [
             'header' => "*Contract with Broom Service for Offer #:id*",
@@ -438,6 +440,10 @@ return [
             'content' => "Please check the details.\n\nDate/Time: :date_time\nClient: :client_name\nWorker: :worker_name\nService: :service_name\nStart time: :start_time\nProperty: :address",
             'start_info' => "Greetings from Broom Service. You have approved the job. Check the below link and click *I'm leaving for work now* when you will going to start your work.",
             'select_option' => 'Click and Select option'
+        ],
+        'worker_hearing_schedule' => [
+            'header' => "*Hearing scheduled | Broom Service*",
+            'content' => "Just a friendly reminder that your meeting *:team_name* on *:date* between *:start_time* to *:end_time* has been scheduled.",
         ],
         'contact_manager' => [
             'header' => "*Job Approved | Broom Service*",
@@ -507,6 +513,9 @@ return [
             'header' => "*Worker Changed Job Status | Broom Service*",
             'content' => ':client_name is now on their way to work.'
         ],
+        'worker_arrive' => [
+            'content' => 'When you arrive at the client, click here to start the job.'
+        ],
         'worker_job_status_notification' => [
             'header' => "*Worker Changed Job Status | Broom Service*",
             'content' => "A worker changed the Job status to :status. Please check the details below.\n\nDate/Time: :date\nWorker: :worker_name\nClient: :client_name\nService: :service_name\nStatus: :status",
@@ -567,7 +576,6 @@ return [
             'header' => "*New Lead Received | Broom Service*",
             'content' => "A new lead has arrived with the following details:\nName: :client_name\nContact: :contact\nService Requested: :Service_Requested\nEmail: :email\nAddress: :address",
             'follow_up' => "Please follow up as soon as possible."
-
         ],
         'client_lead_status_changed' => [
             'header' => "*Lead Status Changed | Broom Service*",
@@ -615,23 +623,33 @@ return [
         ],
         'follow_up_price_offer' => [
             'header' => 'Reminder: Follow-up on Price Offer for :client_name',
-            'content' => "Hi Team,\n\nPlease be reminded that it's been 3 days since :client_name received the price offer. Kindly follow up with the client to see if they are ready to proceed or if they need any further assistance.\n\nThank you,\nBroom Service",
+            'content' => "Hello Team,\n\nPlease be reminded that it's been 3 days since :client_name received the price offer. Kindly follow up with the client to see if they are ready to proceed or if they need any further assistance.\n\nThank you,\nBroom Service",
         ],
         'final_follow_up_price_offer' => [
             'header' => 'Final Reminder: Follow-up on Price Offer for :client_name',
-            'content' => "Hi Team,\n\nThis is a final reminder that it's been 7 days since :client_name received the price offer. Please follow up with the client to confirm their decision and update the status accordingly.\n\nThank you,\nBroom Service",
+            'content' => "Hello Team,\n\nThis is a final reminder that it's been 7 days since :client_name received the price offer. Please follow up with the client to confirm their decision and update the status accordingly.\n\nThank you,\nBroom Service",
+        ],
+        'price_offer_reminder_sent' => [
+            'header' => 'Price Offer Reminder from Broom Service',
+            'salutation' => "Hello :client_name,",
+            'content' => "Just a reminder that you received a price offer from us on :offer_date.\nPlease find attached the price offer again for :service_name. \nOnce you confirm, we will send you an engagement agreement to complete and sign.\n\nClick the button below to view the price offer.\nIf you have any questions or need any assistance, we are here to help.\n\nClick here to view your price offer :price_offer_link",
+	        'signature' => "\n\nBest regards,  \nBroom Service\n📞 03-525-70-60\n🌐 www.broomservice.co.il"
         ],
         'lead_accepted_price_offer' => [
             'header' => 'Action Required: Contract Signing for :client_name',
-            'content' => "Hi Team,\n\n:client_name has accepted the price offer. Please ensure that the contract is signed and all necessary details are confirmed so we can proceed with scheduling the service.\n\nThank you,\nBroom Service",
+            'content' => "Hello Team,\n\n:client_name has accepted the price offer. Please ensure that the contract is signed and all necessary details are confirmed so we can proceed with scheduling the service.\n\nThank you,\nBroom Service",
         ],
+        // 'book_client_after_signed_contract' => [
+        //     'header' => 'Lead Accept the Contract',
+        //     'content' => ":client_name has signed the contract. Please proceed to schedule the client's service.\n\nClient Details:\n- Name: :client_name\n- Contact Information: :client_contact_info\n\nPlease ensure the client is booked and the schedule is confirmed as soon as possible.",
+        // ],
         'book_client_after_signed_contract' => [
-            'header' => 'Lead Accept the Price Offer',
+            'header' => 'Lead Accept the Contract',
             'content' => ":client_name has signed the contract. Please proceed to schedule the client's service.\n\nClient Details:\n- Name: :client_name\n- Contact Information: :client_contact_info\n\nPlease ensure the client is booked and the schedule is confirmed as soon as possible.",
         ],
         'lead_declined_contract' => [
             'header' => 'Lead Declined Contract',
-            'greeting' => 'Hi Team,',
+            'greeting' => 'Hello Team,',
             'content' => "The following client has declined to sign the contract for the service:",
             'details' => "Client Details:\n- Name: :client_name\n- Reason for Decline: :reason",
             'no_reason_provided' => 'No reason provided.',
@@ -639,7 +657,7 @@ return [
         ],
         'lead_declined_price_offer' => [
             'header' => 'Lead Declined Price Offer',
-            'greeting' => 'Hi Team,',
+            'greeting' => 'Hello Team,',
             'content' => "The following client has declined the price offer for the service:",
             'details' => "Client Details:\n- Name: :client_name\n- Reason for Decline: :reason",
             'no_reason_provided' => 'No reason provided.',
@@ -665,17 +683,17 @@ return [
         'tried_to_contact_you' => [
             'header' => 'We Tried to Contact You | Broom Service',
             'content' => 'Thank you for reaching out to us at Broom Service. We wanted to let you know that we tried to contact you but were unable to reach you. We are here and available to assist you from Sunday to Thursday, between 8:00 AM and 4:00 PM.',
-            'availability' => 'Alternatively, we would be happy to know when it would be convenient for you to have us call you during our business hours.',
+            'availability' => "Alternatively, we would be happy to know when it would be convenient for you to have us call you during our business hours.\n\nWe look forward to assisting you.",
             'contact_details' => 'You can contact us at: 03-525-70-60.',
         ],
         'inquiry_response' => [
-            'header' => 'Regarding Your Inquiry | Broom Service',
+            'greeting' => 'Hello, :name,',
             'content' => 'Thank you for your interest in Broom Service. We have reviewed your inquiry, and unfortunately, we do not provide services in your area or offer the specific service you are looking for.',
-            'service_areas' => "Our service areas include:\n- Tel Aviv\n- Ramat Gan\n- Givatayim\n- Kiryat Ono\n- Ganei Tikva\n- Ramat HaSharon\n- Kfar Shmaryahu\n- Rishpon\n- Herzliya\n\nIf your needs change or if you are located within these areas, we would be delighted to assist you in the future.",
+            'service_areas' => "Our service areas include:\n- Tel Aviv\n- Ramat Gan\n- Givatayim\n- Kiryat Ono\n- Ganei Tikva\n- Ramat Hasharon\n- Kfar Shmaryahu\n- Rishpon\n- Herzliya\n\nIf you need our services in the future or if you are in one of these areas, we would be happy to assist you.",
         ],
         'follow_up_required' => [
             'header' => 'Follow-Up Required: Pending Lead | Broom Service',
-            'salutation' => 'Hi, Team',
+            'salutation' => 'Hello, Team',
             'content' => 'This is a reminder that the following lead has remained in the "Pending" status for over 24 hours. Please review the lead\'s details and update the status as needed.' .
                 "\n\n" .
                 '*Lead Name:*' .
@@ -689,11 +707,19 @@ return [
                 'signature' => "Best Regards,\nBroom Service\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il",
             ],
         ],
+        
+        // 'file_submission_request' => [
+        //     'header' => 'File Submission Request for Quote | Broom Service',
+        //     'content' => 'To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.',
+        //     'details' => 'Please reply to this email with the requested files at your earliest convenience.',
+        //     'assistance' => 'If you have any questions or need assistance, feel free to reach out to us.',
+        // ],
         'file_submission_request' => [
-            'header' => 'File Submission Request for Quote | Broom Service',
-            'content' => 'To provide you with an accurate quote for the requested services, we kindly ask that you send us a few photos or a video of the area that needs to be cleaned. This will help us better understand your needs and prepare a detailed quote for you.',
-            'details' => 'Please reply to this email with the requested files at your earliest convenience.',
-            'assistance' => 'If you have any questions or need assistance, feel free to reach out to us.',
+            'header' => 'Reminder to Submit Photos/Video for Your Quote',
+            'content' => 'Just a friendly reminder that we have not yet received the requested photos or video of the area needing cleaning, which are essential to prepare your quote.',
+            'details' => 'Please send the files at your earliest convenience to help us provide an accurate quote and proceed with the service.',
+            'assistance' => "If you have any questions or requests, we’re here to assist you.\n\nClick here to upload your photos/video :upload_file",
+            'signature' => "\n\nBest regards,  \nBroom Service  \n📞 03-525-70-60\n🌐 www.broomservice.co.il"
         ],
         'user_status_changed' => [
             'header' => "*Status Changed | Broom Service*",
@@ -703,15 +729,11 @@ return [
             'subject' => 'Follow-up on Our Conversation',
             'salutation' => 'Dear :client_name,',
             'introduction' => 'First of all, thank you for reaching out to us. It was a pleasure to meet and talk with you.',
-            'testimonials' => 'Following our conversation, I am attaching for your review some testimonials from our existing clients, so you can get an idea of the excellent service we provide:
-            [Client Testimonials](:testimonials_link)',
+            'testimonials' => "Following our conversation, I am attaching for your review some testimonials from our existing clients, so you can get an idea of the excellent service we provide:\nClient Testimonials: :testimonials_link",
             'brochure' => 'Additionally, I am attaching our Service Brochure for you to review the services we offer.',
             'commitment' => 'At Broom Service, we are committed to quality, professionalism, and personalized service.',
-            'help' => 'I am here to help and answer any further questions you may have, I am always at your service.',
-            'best_regards' => 'Best regards',
-            'service_name' => 'Broom Service',
-            'contact' => `📞 03-525-70-60`,
-            'service_website' => '🌐 :[www.broomservice.co.il](http://www.broomservice.co.il)',
+            'help' => "I am here to help and answer any further questions you may have, \nI am always at your service.",
+            'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 www.broomservice.co.il\nhttp://www.broomservice.co.il",
         ],
         'contract_verify' => [
             'header' => 'Contract Verification | Broom Service',
@@ -719,29 +741,35 @@ return [
             'info' => 'Hello *:name*',
             'content' => 'Your agreement has been successfully confirmed. We will contact you soon to schedule your service.'
         ],
+        // 'contract_reminder' => [
+        //     'subject' => 'Contract Reminder | Broom Service',
+        //     'subject2' => 'Contract Follow-Up | Broom Service',
+        //     'body' => 'Hello :client_name',
+        //     'content' => 'This is a friendly reminder regarding the contract we sent you on :contract_date. \nIf you have any questions or concerns, we’d be happy to assist you. We’re looking forward to working together!',
+        //     'content2' => 'We wanted to follow up with you to ensure that you received the contract we sent on :contract_date. \nPlease review it, and feel free to reach out if you have any questions. We’re here to assist you.'
+        // ],
         'contract_reminder' => [
-            'subject' => 'Contract Reminder | Broom Service',
-            'subject2' => 'Contract Follow-Up | Broom Service',
-            'body' => 'Hi :client_name',
-            'content' => 'This is a friendly reminder regarding the contract we sent you on :contract_sent_date. If you have any questions or concerns, we’d be happy to assist you. We’re looking forward to working together!',
-            'content2' => 'We wanted to follow up with you to ensure that you received the contract we sent on :contract_sent_date.. Please review it, and feel free to reach out if you have any questions. We’re here to assist you.'
+            'header' => 'Agreement Signature Reminder - Broom Service',
+            'salutation' => "Hello :client_name,",
+            'content' => "Just a reminder that an engagement agreement was sent to you on :contract_date.\nPlease find the agreement attached again. Kindly complete all details and sign where required.\n\nClick the button below to view the agreement.\nIf you have any questions or need assistance, we are here to help.\n\nClick here to view your agreement :contract_link",
+	        'signature' => "\n\nBest regards,  \nBroom Service  \n📞 03-525-70-60\n🌐 www.broomservice.co.il"
         ],
-        'contract_reminder_team' => [
-            'subject' => 'Follow-Up on Sent Contract | Broom Service',
-            'body_intro' => 'Hi Team,',
-            'body_instruction' => 'The contract was sent to :client_name 12 hours ago. Please follow up to confirm that the client has received and reviewed the contract. It’s important to keep the process moving smoothly.',
-            'client_contact' => 'You can contact the client at: :client_phone',
-            'client_link' => 'Client details are available here: :client_link',
-        ],
+        // 'contract_reminder_team' => [
+        //     'subject' => 'Follow-Up on Sent Contract | Broom Service',
+        //     'body_intro' => 'Hello Team,',
+        //     'body_instruction' => 'The contract was sent to :client_name 12 hours ago. Please follow up to confirm that the client has received and reviewed the contract. It’s important to keep the process moving smoothly.',
+        //     'client_contact' => 'You can contact the client at: :client_phone',
+        //     'client_link' => 'Client details are available here: :client_link',
+        // ],
         'price_offer_reminder12' => [
             'subject' => 'Price Offer Reminder | Broom Service',
-            'body_intro' => 'Hi Team',
+            'body_intro' => 'Hello Team',
             'body_instruction' => '12 hours have passed since the meeting with :client_name, and no price offer has been sent. Please send the offer as soon as possible or update the meeting status.',
             'client_contact' => 'You can contact the client at: :client_phone',
             'client_link' => 'Client details are available here: :client_link',
         ],
         'weekly_notification' => [
-            'body_intro' => 'Hi Team',
+            'body_intro' => 'Hello Team',
             'content' => 'Just a friendly reminder that your scheduled service with Broom Service will take place next week. If you need to make any changes or cancellations, please do so by Wednesday. After Wednesday, any cancellation may incur fees according to our policy.',
             'action_btn' => '*Action Buttons:*'
         ],
@@ -751,9 +779,13 @@ return [
             'content' => "You have started the job at :start_time.\nYou have :job_duration to complete it, and the job should be finished by :end_time.\n\n:all_commentsOnce you’ve completed all the tasks, *Click here to confirm all tasks are done* \n:view_job\nYou can also *Contact your manager* if there are any issues.\n:contact_manager \n\n*Click here when you finish the job.* \n:view_job \n\n",
             'beforeSubject' => "Please Confirm You’re On Your Way\n\n",
             // 'beforeContent' => "you have not yet confirmed that you are on your way for the job starting at :job_time with client :client_name. Please confirm your status or contact the manager if assistance is needed.",
-            'beforeContent' => "You are scheduled to start your job at :job_time at :address\n.Please confirm that you’re on your way.\n\n*Click here if you’re on your way*\n:view_job\nor *Contact your manager* if you’re running late.\n:contact_manager",
+            'beforeContent' => "You are scheduled to start your job at :job_time at :address\n.Please confirm that you’re on your way.\n\n*Click here if you’re on your way*\n:view_job\nor *Contact your manager* if you’re running late.\n:contact_manager\n\n",
             'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il",
             'all_comments' => "Don’t forget to complete the following tasks:\n:comments\n"
+        ],
+        'worker_start_the_job' => [
+            'content' => "Your job at :client_address has started. You have :job_duration to complete the service, and it should be finished by *:end_time*.\n\nPlease review and complete the following tasks:\n\n- *Service:* :service_name \n- *Special Instructions:* :comments \nWhen you’re finished, please confirm:\n\n- *Click Here to Confirm Comments are Done* :view_job \n- *Contact Manager* :contact_manager if you have any issues with the tasks.",
+            'signature' => "\n\nBest regards, \nBroom Service Team",
         ],
         'team_worker_on_my_way' => [
             'subject' => "Worker Did Not Finish the Job or Confirm Tasks\n\n",
@@ -764,12 +796,18 @@ return [
             'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
 
         ],
+        // 'remind_to_worker' => [
+        //     'content' => "Please don't forget to confirm the address for tomorrow's job by 6 PM today. If you have any issues or need help, please contact your manager.",
+        // ],
         'remind_to_worker' => [
-            'content' => "Please don't forget to confirm the address for tomorrow's job by 6 PM today. If you have any issues or need help, please contact your manager.",
+            'header' => "Agreement Signature Reminder - Broom Service\n\n",
+            'content' => "Please confirm that you have seen the address for tomorrow’s job:\n\n*Address:* :fullAddress\n*Date/Time:* :date_time\n\n*Accept Address* :view_job\n*Contact Manager* :contact_manager if you have any questions.",
+            'content2' => "This is a reminder to confirm the address for tomorrow’s job as soon as possible:\n\n*Address:* :fullAddress\n*Date/Time:* :date_time\n\n*Accept Address* :view_job\n*Contact Manager* :contact_manager if you have any questions.",
+            'signature' => "\n\nBest regards,  \nBroom Service Team"
         ],
         'not_confirm_job' => [
             'header' => "Worker Has Not Confirmed Tomorrow's Address",
-            'salutation' => "Hi Team,",
+            'salutation' => "Hello Team,",
             // 'content' => "Reminder: :worker_name hasn’t confirmed the address for tomorrow’s job yet. Please take action if no confirmation is received by 6 PM.",
             'content' => ":worker_name has not yet confirmed the address for tomorrow’s job.\nAddress: :address \nDate/Time: :date_time\n\nYou can:\n1.	Confirm the address for the worker\n2.	Change the shift\n3.	Change the worker\n:change_shift\n\nWorker’s Phone Number: :worker_phone\nClient’s Phone Number: :client_phone\n\n",
             'signature' => "Best regards, \nBroom Service Team\nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
@@ -835,15 +873,36 @@ return [
             'content' => "If you would like to reconnect and enjoy our professional and high-quality cleaning services, we are at your service. We would be happy to talk with you and tailor our services to your unique needs.
                             Additionally, we would like to offer you a 20% discount on your next visit.",
             'feelfree' => "Feel free to contact us anytime.",
-            'signature' => "Best regards, \n Broom Service \n\n Phone: 03-525-70-60 \n 🌐 Website: www.broomservice.co.il"
+            'signature' => "Best regards, \n Broom Service \nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
         ],
         'freeze_client' => [
             'header' => "Hello :name,",
             'thankyou' => "At Broom Service, we understand that sometimes there’s a need to take a break, and we want to thank you for the trust you have placed in us so far.",
             'content' => "We wanted to remind you that we are here for you and ready to resume services whenever you decide. We continue to improve and expand our service offerings to ensure that you always receive the best.",
             'feelfree' => "If your needs have changed or if you would like to discuss new options, we are here at your service. Feel free to reach out anytime.",
-            'signature' => "Best regards, \n Broom Service \n\n Phone: 03-525-70-60 \n 🌐 Website: www.broomservice.co.il"
+            'signature' => "Best regards, \n Broom Service \nPhone: 03-525-70-60 \n🌐Website: www.broomservice.co.il"
         ],
+        'notify_monday_client' => [
+            'subject' => "Schedule Reminder for Next Week’s Service",
+            'salutation' => "Dear Clients, good morning,",
+            'content' => "Today is Monday, and we’re finalizing the work schedule for next week. If you have any constraints, changes, or special requests, please send them to us by the end of the day.",
+            'request' => 'For any questions or requests, we’re here to assist you.',
+            'link' => 'Click here to send a message regarding a change or request :client_jobs',
+            'holiday' => "Please note the following holidays during this week: :holidays",
+            'signature' => "Wishing you a wonderful day! 🌸 \nBroom Service \nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
+        ],
+        'notify_monday_worker' => [
+            'subject' => "Schedule Adjustments for Next Week",
+            'salutation' => "Hello :worker_name, how are you?",
+            'content' => "Do you need any day or half-day off next week?\nWe need to finalize next week’s schedule today, so please let us know as soon as possible if you have any specific requirements.",
+            'link' => 'Click here to request a change in your schedule :worker_jobs',
+            'holiday' => "Please note the following holidays during this week: :holidays",
+            'signature' => "Best Regards,\nBroom Service Team \nPhone: 03-525-70-60 \n🌐 Website: www.broomservice.co.il"
+        ],
+        'update_on_comment_resolution' => [
+            'content' => "We’ve added updates to the tasks on your job for *:service_name* scheduled for *:date_time*. \nPlease review the latest updates and our responses to each task.\n\n*View Comments and Updates:* :view_worker_job",
+            'signature' => "\n\nBest regards,\nBroom Service Team"
+        ],    
         'button-label' => [
             'accept_reject' => 'Accept/Reject',
             'upload_file' => 'Upload file',
@@ -884,4 +943,9 @@ return [
         'body' => 'Your Refund request has been :status.',
         'reason' => 'Reason for reject: :reason.'
     ],
+    'label' => [
+        'company' => 'Broom Service',
+        'company_team' => 'Broom Service Team',
+        'company_meeting' => 'Meeting with Broom Service Team',
+    ]
 ];

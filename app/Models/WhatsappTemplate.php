@@ -11,9 +11,10 @@ class WhatsappTemplate extends Model
 
     protected $fillable = [
         'key',
+        'description',
         'message_en',
         'message_heb',
         'message_spa',
-        'message_rus',
+        'message_ru',
     ];
 }

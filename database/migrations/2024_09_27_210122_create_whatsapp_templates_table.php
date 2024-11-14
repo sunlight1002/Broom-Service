@@ -16,10 +16,10 @@ class CreateWhatsappTemplatesTable extends Migration
         Schema::create('whatsapp_templates', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique()->nullable(false);
-            $table->longText('message_en')->nullable(); 
-            $table->longText('message_heb')->nullable(); 
-            $table->longText('message_spa')->nullable(); 
-            $table->longText('message_rus')->nullable(); 
+            $table->longText('message_en')->nullable();
+            $table->longText('message_heb')->nullable();
+            $table->longText('message_spa')->nullable();
+            $table->longText('message_rus')->nullable();
             $table->timestamps();
         });
     }

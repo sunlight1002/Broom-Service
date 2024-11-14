@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
+use Yajra\DataTables\Facades\DataTables;
 use App\Models\ManageTime;
 use App\Models\WorkerNotAvailableDate;
 use Carbon\Carbon;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Models\HearingInvitation;
 
 class DashboardController extends Controller
 {
@@ -42,6 +44,49 @@ class DashboardController extends Controller
             'counts' => $counts,
             'approval_pending_job' => $approval_pending_job
         ]);
+    }
+
+    public function index(Request $request)
+    {
+        $query = HearingInvitation::query()
+            ->leftJoin('admins', 'hearing_invitations.team_id', '=', 'admins.id') // Assuming admin details are linked via `admin_id`
+            ->leftJoin('users', 'hearing_invitations.user_id', '=', 'users.id') // Join the User table for worker details
+            ->where('hearing_invitations.user_id', Auth::user()->id) // Use worker's ID from the `User` model
+            ->select(
+                'hearing_invitations.id', 
+                'hearing_invitations.booking_status', 
+                'admins.name as attender_name', 
+                'hearing_invitations.start_date', 
+                'hearing_invitations.start_time', 
+                'hearing_invitations.end_time', 
+                'hearing_invitations.purpose', 
+                'users.firstname as worker_name',
+                'users.address as address_name'
+            );
+
+        return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                if ($request->has('search')) {
+                    $keyword = $request->get('search')['value'];
+    
+                    if (!empty($keyword)) {
+                        $query->where(function ($sq) use ($keyword) {
+                            $sq->where('admins.name', 'like', "%" . $keyword . "%")
+                               ->orWhere('users.firstname', 'like', "%" . $keyword . "%"); // Allow search by worker name
+                        });
+                    }
+                }
+            })
+            ->orderColumn('start_date', function ($query, $order) {
+                $query->orderBy('start_date', $order)
+                    ->orderBy('start_time', $order); // Assuming start_time is already formatted
+            })
+            ->addColumn('action', function ($data) {
+                // Define actions (buttons or links) as needed, currently left empty
+                return '';
+            })
+            ->rawColumns(['action'])
+            ->toJson();
     }
 
     public function getTime()

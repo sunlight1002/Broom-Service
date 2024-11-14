@@ -21,7 +21,7 @@ class WhatsappTemplateController extends Controller
             'message_en' => 'string',
             'message_heb' => 'string',
             'message_spa' => 'string',
-            'message_rus' => 'string',
+            'message_ru' => 'string',
         ]);
 
         // Create the new template

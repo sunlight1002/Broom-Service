@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\CreateJobOrder;
 use App\Jobs\GenerateJobInvoice;
 use App\Jobs\ScheduleNextJobOccurring;
+use App\Jobs\AdjustNextJobSchedule;
 use App\Models\Admin;
 use App\Models\User;
 use App\Models\Problems;
@@ -64,7 +65,9 @@ class JobController extends Controller
             ->where('jobs.client_id', Auth::user()->id)
             ->select('jobs.id', 'jobs.start_date', 'jobs.shifts', 'jobs.status', 'jobs.total_amount', 'jobs.is_order_generated', 'jobs.job_group_id', 'client_property_addresses.address_name', 'client_property_addresses.latitude', 'client_property_addresses.longitude', 'jobs.start_time', 'client_property_addresses.geo_address')
             ->selectRaw("$service_column AS service_name")
-            ->groupBy('jobs.id');
+            ->groupBy('jobs.id')
+            ->orderBy('jobs.start_date', 'asc');
+
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -195,7 +198,7 @@ class JobController extends Controller
             } else{
                 $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
             }
-                  
+
              $feeAmount = ($feePercentage / 100) * $job->total_amount;
 
             \Log::info("JobCancellationFee Save for Job : ". $job->id);
@@ -224,13 +227,9 @@ class JobController extends Controller
             ]);
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
-            \Log::info("CreateJobOrder dispatch from cancel job");
-
             CreateJobOrder::dispatch($job->id);
 
-            \Log::info("CreateJobOrder dispatch from cancel job end here");
-
-            ScheduleNextJobOccurring::dispatch($job->id);
+            ScheduleNextJobOccurring::dispatch($job->id,null);
 
             Notification::create([
                 'user_id' => $job->client->id,
@@ -275,16 +274,6 @@ class JobController extends Controller
             $emailSubject = ($data['by'] == 'admin') ?
                 ('Job has been cancelled') . " #" . $job->id :
                 __('mail.client_job_status.subject') . " #" . $job->id;
-
-            $adminEmailData = [
-                'emailData' => [
-                    'job' => $job->toArray(),
-                ],
-                'emailSubject'  => $emailSubject,
-                'emailTitle'    => 'Job Status',
-                'emailContent'  => $emailContent
-            ];
-            event(new JobNotificationToAdmin($adminEmailData));
 
             //send notification to worker
             $job = $job->toArray();
@@ -395,12 +384,16 @@ class JobController extends Controller
         }
 
         $oldWorker = $job->worker;
+        // \Log::info(['oldWorker'=> $oldWorker]);
 
         $old_job_data = [
             'start_date' => $job->start_date,
             'start_time' => $job->start_time,
             'shifts' => $job->shifts,
         ];
+
+        // \Log::info(['old_job_data'=> $old_job_data]);
+
 
         $manageTime = ManageTime::first();
         $workingWeekDays = json_decode($manageTime->days);
@@ -456,32 +449,97 @@ class JobController extends Controller
 
         $jobData = [
             'worker_id'     => $data['worker']['worker_id'],
-            'start_date'    => $job_date,
             'start_time'    => $start_time,
             'end_time'      => $end_time,
             'shifts'        => $slotsInString,
             'status'        => $status,
-            'next_start_date'   => $next_job_date,
         ];
 
         if ($data['repeatancy'] == 'one_time') {
+            $jobData['start_date'] = $job_date;  // Ensure start_date is set
+            $jobData['next_start_date'] = $next_job_date;
             $jobData['previous_worker_id'] = $job->worker_id;
             $jobData['previous_worker_after'] = NULL;
             $jobData['previous_shifts'] = $job->shifts;
             $jobData['previous_shifts_after'] = NULL;
+            $job->update($jobData);
+
         } else if ($data['repeatancy'] == 'until_date') {
             $jobData['previous_worker_id'] = $job->worker_id;
             $jobData['previous_worker_after'] = $data['until_date'];
             $jobData['previous_shifts'] = $job->shifts;
             $jobData['previous_shifts_after'] = $data['until_date'];
+
+
+
+            // $jobsToUpdate = Job::where('parent_job_id', $job->parent_job_id)
+            //     ->whereDate('start_date', '<=', $data['until_date'])
+            //     ->where('id', '!=', $job->id)
+            //     ->orderBy('start_date', 'asc')
+            //     ->get();
+
+            // if ($old_job_data['start_date'] == $job_date) {
+            //     foreach ($jobsToUpdate as $jobToUpdate) {
+            //         $jobToUpdate->update($jobData);
+            //     }
+            // } else {
+                // $date = $job_date;
+
+                AdjustNextJobSchedule::dispatch($data, $jobData, $job_date, $preferredWeekDay, $workingWeekDays, $repeat_value, $job, $old_job_data, 'until_date');
+
+
+                // foreach ($jobsToUpdate as $jobToUpdate) {
+                //     $nextJobDate = $this->scheduleNextJobDate($date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+                //     $jobToUpdate->update(array_merge($jobData, [
+                //         'start_date' => $date,
+                //         'next_start_date' => $nextJobDate
+                //     ]));
+
+                //     $date = $nextJobDate;
+
+                //     if ($date > $data['until_date']) {
+                //         break;
+                //     }
+                // }
+            // }
+
         } else if ($data['repeatancy'] == 'forever') {
             $jobData['previous_worker_id'] = NULL;
             $jobData['previous_worker_after'] = NULL;
             $jobData['previous_shifts'] = NULL;
             $jobData['previous_shifts_after'] = NULL;
+
+            // $jobsToUpdate = Job::where('parent_job_id', $job->parent_job_id)
+            //     ->where('id', '!=', $job->id)
+            //     ->where('start_date', '>=', $job->start_date)
+            //     ->orderBy('start_date', 'asc')
+            //     ->get();
+
+            // if ($old_job_data['start_date'] == $job_date) {
+            //     foreach ($jobsToUpdate as $jobToUpdate) {
+            //         $jobToUpdate->update($jobData);
+            //     }
+            // } else {
+                // $date = $job_date;
+
+                AdjustNextJobSchedule::dispatch($data, $jobData, $job_date, $preferredWeekDay, $workingWeekDays, $repeat_value, $job, $old_job_data, 'forever');
+
+                // foreach ($jobsToUpdate as $jobToUpdate) {
+                //     $nextJobDate = $this->scheduleNextJobDate($date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+                //     $jobToUpdate->update(array_merge($jobData, [
+                //         'start_date' => $date,
+                //         'next_start_date' => $nextJobDate
+                //     ]));
+
+                //     $date = $nextJobDate;
+                // }
+            // }
         }
 
-        $job->update($jobData);
+
+        // $job->update($jobData);
 
         $job->jobservice()->update([
             'duration_minutes'  => $minutes,
@@ -618,72 +676,52 @@ class JobController extends Controller
 
     public function addProblems(Request $request)
     {
-
-        // \Log::info($request->all());
         $validated = $request->validate([
             'problem' => 'required|string|max:1000',
         ]);
-    
-        $client = Client::with('property_addresses')->find($request->input('client_id'));
-        $worker = User::find($request->input('worker_id'));
-        \Log::info($client);
-        \Log::info($worker);
-
 
         $problem = new Problems();
-        $problem->client_id = $client->id;
+        $problem->client_id = $request->input('client_id');
         $problem->job_id = $request->input('job_id');
         $problem->worker_id = $request->input('worker_id');
         $problem->problem = $validated['problem'];
         $problem->save();
-    
-        $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
-        $text = '*Worker Contact To Manager | Broom Service*';
-    
-        $text .= "\n\nHi, Team\n\n";
-        
-        $text .= 'The Worker Need to Contact with Manager.' . "\n\n";
-        
-        $text .= sprintf(
-            "Date/Time: %s\nClient: %s\nWorker: %s\nProperty: %s",
-            Carbon::now()->format('M d Y H:i'),
-            $client->firstname . ' ' . $client->lastname,
-            $worker->firstname . ' ' . $worker->lastname ?? 'NA',
-            $client->property_addresses->first()->address_name ?? 'NA'
-        );
 
-        \Log::info($text);
-    
-        $response = Http::withToken($this->whapiApiToken)
-            ->post($this->whapiApiEndpoint . 'messages/text', [
-                'to' => $receiverNumber,
-                'body' => $text  
-            ]);
-    
-        if ($response->successful()) {
-            return response()->json(['message' => 'Problem saved successfully'], 201);
-        } else {
-            return response()->json(['error' => 'Failed to send WhatsApp message'], $response->status());
-        }
+        $job = Job::find($problem->job_id);
+
+        $job->load(['worker', 'client', 'propertyAddress']);
+
+        // Dispatch the WhatsApp notification event
+        event(new WhatsappNotificationEvent([
+            'type' => WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER,
+            'notificationData' => [
+                'job' => $job->toArray(),
+                'client' => $job->client->toArray(),
+                'worker' => $job->worker->toArray(),
+            ]
+        ]));
+
+        // Return success response
+        return response()->json(['message' => 'Problem saved successfully'], 201);
     }
-    
+
     public function getProblems(Request $request)
     {
         // Query the Problems table with related client and worker details
         $query = Problems::with(['client', 'client.property_addresses', 'worker']); // Assuming 'worker' is the relationship name
-        
+
         // Apply filters if present
         if (!empty($request->input('client_id'))) {
             $query->where('client_id', $request->input('client_id'));
         }
-        
+
         if (!empty($request->input('job_id'))) {
             $query->where('job_id', $request->input('job_id'));
         }
-        
+
         // Execute the query and retrieve the results
         $problems = $query->get();
-        
+
         // Transform the result if needed
         $problems = $problems->map(function ($problem) {
             return [
@@ -703,21 +741,21 @@ class JobController extends Controller
                 'job_id' => $problem->job_id,
             ];
         });
-        
+
         return response()->json(['problems' => $problems], 200);
     }
 
     // public function deleteProblem($id)
     // {
     //     \Log::info($id); // Log the id
-    
+
     //     // Find the problem entry
     //     $problem = Problems::find($id);
-    
+
     //     if (!$problem) {
     //         return response()->json(['error' => 'Problem not found'], 404);
     //     }
-    
+
     //     // Delete the problem entry
     //     try {
     //         $problem->delete();
@@ -726,5 +764,61 @@ class JobController extends Controller
     //         return response()->json(['error' => 'Failed to delete problem'], 500);
     //     }
     // }
+
+    public function requestToChange(Request $request)
+    {
+        // Validate the request inputs
+        $request->validate([
+            'text' => 'required|string',
+            'client_id' => 'required',
+        ]);
     
+        $type = $request->input('type');
+
+        $clientData = [];
+    
+        if ($type === "client") {
+            $client = Client::find($request->client_id);
+            if (!$client) {
+                return response()->json([
+                    'message' => 'Client not found'
+                ], 404);
+            }
+            $clientData = [
+                'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_CLIENT,
+                'notificationData' => [
+                    // 'job' => $job,
+                    'client' => $client->toArray(),
+                    'request_details' => $request->text,
+                ],
+            ];
+
+        } else {
+            $worker = User::find($request->client_id);
+            if (!$worker) {
+                return response()->json([
+                    'message' => 'Worker not found'
+                ], 404);
+            }
+            $clientData = [
+                'type' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_REQUEST_TO_CHANGE_SCHEDULE_WORKER,
+                'notificationData' => [
+                    // 'job' => $job,
+                    'worker' => $worker->toArray(),
+                    'request_details' => $request->text,
+                ],
+            ];
+        }
+
+
+       $res =  event(new WhatsappNotificationEvent($clientData));
+       \Log::info($res);
+    
+        return response()->json([
+            'message' => 'Request sent successfully via WhatsApp'
+        ], 200);
+    }
+    
+    
+
 }

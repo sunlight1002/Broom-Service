@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Events\AdminLeadFilesNotificationJob;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\Offer;
@@ -177,60 +176,6 @@ class DashboardController extends Controller
         ]);
     }
 
-    // public function addfile(Request $request)
-    // {
-
-    //     $validator = Validator::make($request->all(), [
-    //         'role'   => 'required',
-    //         'user_id' => 'required'
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json(['error' => $validator->messages()]);
-    //     }
-
-    //     $schedule = Schedule::find($request->meeting);
-    //     $schedule->load(['client', 'team', 'propertyAddress']);
-
-    //     $file_nm = '';
-    //     if ($request->type == 'video') {
-
-    //         $video = $request->file('file');
-    //         $vname = $request->user_id . "_" . date('s') . "_" . $video->getClientOriginalName();
-    //         $path = storage_path() . '/app/public/uploads/ClientFiles';
-    //         $video->move($path, $vname);
-    //         $file_nm = $vname;
-    //     } else {
-    //         if ($request->hasfile('file')) {
-
-    //             $image = $request->file('file');
-    //             $name = $image->getClientOriginalName();
-    //             $img = Image::make($image)->resize(350, 227);
-    //             $destinationPath = storage_path() . '/app/public/uploads/ClientFiles/';
-    //             $fname = 'file_' . $request->user_id . '_' . date('s') . '_' . $name;
-    //             $path = storage_path() . '/app/public/uploads/ClientFiles/' . $fname;
-    //             File::exists($destinationPath) or File::makeDirectory($destinationPath, 0777, true, true);
-    //             $img->save($path, 90);
-    //             $file_nm  = $fname;
-    //         }
-    //     }
-
-    //     $files = Files::create([
-    //         'user_id'   => $request->user_id,
-    //         'meeting'   => $request->meeting,
-    //         'note'      => $request->note,
-    //         'role'      => 'client',
-    //         'type'      => $request->type,
-    //         'file'      => $file_nm
-    //     ]);
-    //     event(new AdminLeadFilesNotificationJob($schedule, $files));
-
-
-    //     return response()->json([
-    //         'message' => 'File uploaded',
-    //     ]);
-    // }
-
     public function addfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -349,6 +294,11 @@ class DashboardController extends Controller
         }
 
         $input = $request->all();
+
+        if (!isset($input['two_factor_enabled'])) {
+            $input['two_factor_enabled'] = true; // or 1
+        }
+
         if ($request->hasfile('avatar')) {
             $image = $request->file('avatar');
             $name = $image->getClientOriginalName();
@@ -357,9 +307,9 @@ class DashboardController extends Controller
             $input['avatar'] = $name;
         }
 
-        if ($request->has('twostepverification')) {
-            $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
-        }
+        // if ($request->has('twostepverification')) {
+        //     $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
+        // }
 
         $client = Client::find(Auth::user()->id);
 

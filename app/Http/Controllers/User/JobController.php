@@ -4,7 +4,6 @@ namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
 use App\Enums\NotificationTypeEnum;
-use App\Events\WorkerApprovedJob;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\Admin;
@@ -22,7 +21,6 @@ use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Enums\WorkerAffectedAvailabilityStatusEnum;
 use App\Events\JobNotificationToAdmin;
-use App\Events\JobNotificationToWorker;
 use App\Events\WorkerChangeAffectedAvailability;
 use App\Models\WorkerAffectedAvailability;
 
@@ -267,18 +265,6 @@ class JobController extends Controller
         if ($job->status != JobStatusEnum::PROGRESS) {
             $job->status = JobStatusEnum::PROGRESS;
             $job->save();
-            //send notification to worker
-            $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
-            $jobData = $job->toArray();
-            $worker = $jobData['worker'];
-
-            $emailData = [
-                'emailSubject'  => __('mail.job_status.subject'),
-                'emailTitle'  => __('mail.job_common.job_status'),
-                'emailContent'  => __('mail.job_common.worker_job_start_time_content'),
-            ];
-
-            event(new JobNotificationToWorker($worker, $jobData, $emailData));
         }
 
         JobHours::create([
@@ -377,62 +363,18 @@ class JobController extends Controller
 
             App::setLocale('en');
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress'])->toArray();
-            //send notification to admin
-            $adminEmailData = [
-                'emailData'   => [
-                    'job'   =>  $job,
-                ],
-                'emailSubject'  => __('mail.job_status.subject'),
-                'emailTitle'  => 'Job Status',
-                'emailContent'  => 'Below is the Job Details. Please check it.',
-                'isJobOpen' => true
-            ];
-            event(new JobNotificationToAdmin($adminEmailData));
-
             //send notification to worker
             $worker = $job['worker'];
             App::setLocale($worker['lng']);
 
-            $emailData = [
-                'emailSubject'  => __('mail.job_status.subject'),
-                'emailTitle'  => __('mail.job_common.job_status'),
-                'emailContent'  => '',
-                'isJobOpen' => true
-            ];
-            event(new JobNotificationToWorker($worker, $job, $emailData));
-
-            // event(new WhatsappNotificationEvent([
-            //     "type" => WhatsappMessageTemplateEnum::WORKER_ARRIVE_NOTIFY,
-            //     "notificationData" => [
-            //         'job' => $job,
-            //         // 'client' => $client,
-            //         // 'worker' => $worker,
-            //     ]
-            // ]));
-
-            //old
-            // App::setLocale('en');
-            // $admin = Admin::where('role', 'admin')->first();
-            // $data = array(
-            //     'email'      => $admin->email,
-            //     'admin'      => $admin->toArray(),
-            //     'worker'     => $job->worker,
-            //     'job'        => $job->toArray(),
-            // );
-
             event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::WORKER_JOB_OPENING_NOTIFICATION,
+                "type" => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_CONFIRMING_ON_MY_WAY,
                 "notificationData" => array(
-                    'worker'     => $job->worker,
+                    'worker'     => $job->worker->toArray(),
+                    'client'     => $job->client->toArray(),
                     'job'        => $job->toArray(),
                 )
             ]));
-
-            // Mail::send('/WorkerPanelMail/JobOpeningNotification', $data, function ($messages) use ($data) {
-            //     $messages->to($data['email']);
-            //     $sub = __('mail.job_status.subject');
-            //     $messages->subject($sub);
-            // });
             return response()->json([
                 'message' => 'Job opening time has been updated!'
             ]);
@@ -485,8 +427,6 @@ class JobController extends Controller
         $job->update([
             'worker_approved_at' => Carbon::now()->toDateTimeString()
         ]);
-
-        event(new WorkerApprovedJob($job));
 
         return response()->json([
             'data' => 'Job approved successfully'
@@ -549,14 +489,14 @@ class JobController extends Controller
     public function ContactManager($id)
     {
         \Log::info("dfefe");  // Log something for debugging purposes
-    
+
         // Fetch the job with its related worker and client data using the $id parameter
         $job = Job::with(['client', 'worker'])->findOrFail($id);
-    
+
         // Prepare necessary notification data
         $client = $job->client;
         $worker = $job->worker;
-    
+
         // Fire the WhatsappNotificationEvent with the needed data
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::TEAM_NOTIFY_CONTACT_MANAGER,
@@ -566,11 +506,11 @@ class JobController extends Controller
                 'worker' => $worker,
             ]
         ]));
-    
+
         // Return a response back to the frontend
         return response()->json(['message' => 'Notification sent successfully to Manger.'], 200);
     }
-    
+
     public function NeedExtraTime(Request $request)
     {
         $job_id = $request->job_id;
@@ -586,7 +526,7 @@ class JobController extends Controller
                 'job'        => $job->toArray(),
             )
         ]));
-     
+
         return response()->json(['message' => 'Notification sent successfully to Manger for extra time...'], 200);
     }
 

@@ -14,7 +14,7 @@ class AddWorkerNotifiedColumnToJob extends Migration
     public function up()
     {
         Schema::table('jobs', function (Blueprint $table) {
-            $table->boolean('worker_notified')->default(false); // Adding a default value
+            // $table->boolean('worker_notified')->default(false); // Adding a default value
         });
     }
 

@@ -29,10 +29,10 @@ export default function WorkerDetails({ worker }) {
                     </div>
                     <div className="col-sm-4">
                         <div className="form-group">
-                            <label className="control-label">
+                            <label className="control-label ml-5">
                                 {t("client.jobs.view.w_phone")}
                             </label>
-                            <p>{worker ? worker.phone : "NA"}</p>
+                            <p className="ml-5">{worker ? worker.phone : "NA"}</p>
                         </div>
                     </div>
                     <div className="col-sm-8">

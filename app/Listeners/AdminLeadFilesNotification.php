@@ -37,37 +37,10 @@ class AdminLeadFilesNotification implements ShouldQueue
         $scheduleArr = $schedules->toArray();
         App::setLocale($scheduleArr['client']['lng']);
 
-        $teamEmail = $schedules->team['email'];
-        $teamId = $schedules->team['id'];
-
-        $admins = Admin::query()
-            ->where('role', 'admin')
-            ->whereNotNull('email')
-            ->where("id", '!=', $teamId)
-            ->get(['name', 'email', 'id', 'phone']);
-
         $fileName = $event->files->file;
-        $filePath = asset('storage/uploads/ClientFiles') . "/" . $fileName;
-
-        //admin mail's
-        foreach ($admins as $key => $admin) {
-            $adminEmail = $admin->email;
-
-            $emailDataWithAdditional = array_merge($admin->toArray(), $scheduleArr);
-            $emailDataWithAdditional['file_name'] = $fileName;
-
-            // Mail::send('/Mails/AdminLeadFilesMail', $emailDataWithAdditional, function ($messages) use ($scheduleArr, $adminEmail, $filePath) {
-            //     $messages->to($adminEmail);
-
-            //     $messages->attach($filePath);
-
-            //     $messages->subject(__('mail.meeting.file_subject', [
-            //         'id' => $scheduleArr['id']
-            //     ]));
-            // });
-        }
 
         $scheduleArr['file_name'] = $fileName;
+        $scheduleArr['file_upload_date'] = $event->files->created_at->format('d-m-Y H:i');
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::ADMIN_LEAD_FILES,
             "notificationData" => $scheduleArr
@@ -81,15 +54,5 @@ class AdminLeadFilesNotification implements ShouldQueue
             'meet_id' => $schedules->id,
             'status' => $schedules->booking_status
         ]);
-
-        //team mail
-        // Mail::send('/Mails/TeamLeadFilesMail', $scheduleArr, function ($messages) use ($scheduleArr, $teamEmail, $filePath) {
-        //     $messages->to($teamEmail);
-
-        //     $messages->attach($filePath);
-        //     $messages->subject(__('mail.meeting.file_subject', [
-        //         'id' => $scheduleArr['id']
-        //     ]));
-        // });
     }
 }

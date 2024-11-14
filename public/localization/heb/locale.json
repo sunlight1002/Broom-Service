@@ -191,9 +191,9 @@
         "op_start": "בחר שעת התחלה",
         "op_end": "בחר שעת סיום",
         "btn": "קביעת פגישה",
-        "accept": "לְקַבֵּל",
-        "reject": "לִדחוֹת",
-        "reschedule": "מועד אחר",
+        "accept": "אשר",
+        "reject": "בטל",
+        "reschedule": "מועד אחר",
         "upload_job_description": "העלה תמונות וסרטונים",
         "choose_slot": "בחר משבצת"
     },
@@ -487,7 +487,7 @@
         "frequency_txt": "תדירות השירות ו/או  העבודה",
         "consideration_txt": "בתמורה ישלם השוכר לחברה, לרבות אמצעי התשלום ו/או מועד התשלום. המחירים אינם כוללים מע\"מ**",
         "vat": "מע'מ",
-        "ils": "ש'ח",
+        "ils": "ש\"ח",
         "for": "ל",
         "payment_method": "אמצעי תשלום:",
         "added_card": "נוסף כרטיס",
@@ -860,10 +860,8 @@
                 "title": "סקירה ודירוג משרה",
                 "Services": "שירותים",
                 "Frequency": "תדירות",
-                "timeToComplete": "זמן להשלמה",
                 "hours": "שעות",
                 "Property": "נכס",
-                "PetAnimals": "חיות מחמד",
                 "GenderPreference": "העדפת מגדר",
                 "Worker": "עובד",
                 "Date": "תאריך",
@@ -926,6 +924,10 @@
             "default": "ברירת מחדל",
             "markAsDefault": "סמן כברירת מחדל",
             "NoCardAdded": "לא נוסף כרטיס"
+        },
+        "other": {
+            "change_or_request": "שלח הודעה לגבי שינוי או בקשה:",
+            "message": "הוֹדָעָה"
         }
     },
     "admin": {
@@ -1145,6 +1147,7 @@
                 "InvoiceName": "שם חשבונית",
                 "PrimaryEmail": "אימייל ראשי",
                 "Password": "סיסמה",
+                "VatNumber": "",
                 "SendWPBotMessage": "שלח הודעה לבוט של WP",
                 "PrimaryPhone": "טלפון ראשי",
                 "AlternateEmail": "אימייל חלופי",
@@ -1177,8 +1180,9 @@
                     },
                     "Type": {
                         "title": "סוג",
-                        "Fixed": "קבוע",
-                        "Hourly": "שיעורי"
+                        "Fixed": "לביקור",
+                        "Hourly": "לשעה",
+                        "Squaremeter":"מ\"ר"
                     },
                     "addPayment": "הוסף תשלום",
                     "addInvoice": "הוסף חשבונית",
@@ -1577,6 +1581,128 @@
                 }
             }
         },
+        "hearing": {
+            "title": "שימועים",
+            "scheduleHearing": "תזמן שימוע",
+            "reSchedule": "תזמן מחדש את השימוע",
+            "schedule": "תזמן",
+            "sendOffer": "שלח הצעה",
+            "bookClient": "הזמן לקוח",
+            "joinedOn": "הצטרף בתאריך",
+            "offeredPrice": "מחיר מוצע",
+            "contract": "חוזים",
+            "Jobs": "עבודות",
+            "invoice": "חשבוניות",
+            "card": "כרטיסים",
+            "notSent": "לא נשלח",
+            "commenst": "הערות",
+            "noRecord": "לא נמצאו רשומות",
+            "hearingStatus": "סטטוס שימוע",
+            "hearingAttender": "נוכח שימוע",
+            "hearingPurpose": "מטרת השימוע",
+            "hearingTimeAndDate": "תאריך ושעת השימוע",
+            "startTime": "שעת התחלה",
+            "endTime": "שעת סיום",
+            "meetVia": "פגוש באמצעות",
+            "meetLink": "קישור לפגישה",
+            "selectAddress": "בחר כתובת",
+            "btnSend": "שלח שימוע",
+            "workerAvailability": "זמינות עובד",
+            "date": "תאריך",
+            "Property": "נכס",
+            "options": {
+                "pleaseSelect": "--- אנא בחר ---",
+                "hearingStatus": {
+                    "Pending": "ממתין",
+                    "Confirmed": "מאושר",
+                    "Declined": "נדחה",
+                    "Completed": "הושלם",
+                    "Rescheduled": "נקבע מחדש"
+                },
+                "hearingPurpose": {
+                    "priceOffer": "הצעת מחיר",
+                    "qualityCheck": "בדיקת איכות",
+                    "other": "אחר"
+                },
+                "startTime": {
+                    "defaultOpt": "--- בחר שעת התחלה ---"
+                },
+                "endTime": {
+                    "defaultOpt": "--- בחר שעת סיום ---"
+                },
+                "meetVia": {
+                    "onSite": "באתר",
+                    "offSite": "מחוץ לאתר"
+                }
+            },
+            "jobs": {
+                "Cancelled": "בוטל",
+                "Cancel": "בטל",
+                "Completed": "הושלם",
+                "Back": "חזרה",
+                "Name": "שם",
+                "Email": "אימייל",
+                "Phone": "טלפון",
+                "City": "עיר",
+                "Address": "כתובת",
+                "parking": "חניה",
+                "clientDetails": "פרטי לקוח",
+                "workerDetails": "פרטי עובד",
+                "serviceDetailslabel": "פרטי השירות",
+                "WorkTime": "זמן עבודה",
+                "serviceDetails": {
+                    "Service": "שירות",
+                    "Frequency": "תדירות",
+                    "CompleteTime": "זמן השלמה",
+                    "hours": "שעות",
+                    "Shift": "משמרת",
+                    "JobStatus": "סטטוס עבודה",
+                    "Order": "הזמנה",
+                    "Invoice": "חשבונית"
+                },
+                "workerTiming": {
+                    "ExportToCSV": "ייצא ל-CSV",
+                    "ExportReport": "ייצא דוח",
+                    "AddTiming": "הוסף זמן",
+                    "StartTime": "שעת התחלה",
+                    "EndTime": "שעת סיום",
+                    "Time": "זמן",
+                    "Action": "פעולה",
+                    "TotalTime": "זמן כולל",
+                    "AddWorkerTiming": "הוסף זמן עובד",
+                    "TimingStartsAt": "הזמן מתחיל בשעה",
+                    "TimingEndsAt": "הזמן מסתיים בשעה",
+                    "Close": "סגור",
+                    "SaveTiming": "שמור זמן",
+                    "EditWorkerTiming": "ערוך זמן עובד"
+                },
+                "comment": {
+                    "AddComment": "הוסף הערה",
+                    "ClientComment": "הערת לקוח",
+                    "WorkerComment": "הערת עובד",
+                    "CommentFor": "הערה עבור",
+                    "PleaseChooseCommentFor": "--- אנא בחר הערה עבור ---",
+                    "Client": "לקוח",
+                    "Worker": "עובד",
+                    "Comment": "הערה",
+                    "Close": "סגור",
+                    "SaveComment": "שמור הערה"
+                },
+                "CancelModal": {
+                    "CancellationFee": "דמי ביטול",
+                    "NoCharge": "ללא תשלום.",
+                    "Repeatancy": "חזרתיות",
+                    "options": {
+                        "PleaseSelect": "--- אנא בחר ---",
+                        "oneTime": "חד פעמי (עבור עבודה בודדת)",
+                        "Forever": "לנצח",
+                        "UntilDate": "עד תאריך"
+                    },
+                    "Close": "סגור",
+                    "Cancel": "בטל"
+                }
+            }
+        },
         "holidays":{
             "addNewHoliday":"הוסף חג חדש",
             "holidayName":"שם החג",
@@ -1601,6 +1727,7 @@
             "earnings": "הכנסות",
             "notification": "התראות",
             "workerLeave":"עובדים עוזבים",
+            "workerHearing": "שימועי עובדים",
             "settings": {
                 "title": "הגדרות",
                 "manage_team": "ניהול צוות",
@@ -1664,6 +1791,7 @@
         "sidebar": {
             "dashboard": "דף הבית",
             "jobs": "שירותים שהזמנתי",
+            "hearing": "שימוע",
             "schedule": "לוח זמנים",
             "not_available": "תאריכים לא זמינים",
             "workingHours": "שעה (ות",
@@ -1842,7 +1970,9 @@
             "loan":"לְהַלווֹת",
             "monthlyPayment":"תשלום חודשי",
             "loanStart":"תאריך תחילת ההלוואה",
-            "submit":"לְהַגִישׁ"        }
+            "submit":"לְהַגִישׁ",
+            "invitation_for_hearing": "לתאם שימוע"
+        }
     },
     "worker_contract": {
         "company": "ברום סרוויס ל.מ בע'מ ח.פ. 515184208",
@@ -2569,7 +2699,9 @@
         "Next": "הבא",
         "generalQesMwdical": "שאלות כלליות על המצב הרפואי",
         "Height": "גובה",
-        "andWidth": "ורוחב",
+        "andWidth": "ומשקל",
+        "height Req": "נדרש גובה",
+        "weight eq": "נדרש משקל",
         "Yes": "כן",
         "No": "לא",
         "isthereChangeInWeight": "האם חל שינוי במשקלך (5 ק\"ג ויותר) במהלך השנה האחרונה (לא כתוצאה מדיאטה)?",

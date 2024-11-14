@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\JobStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Events\JobNotificationToWorker;
 
 class Job extends Model
 {
@@ -17,6 +16,7 @@ class Job extends Model
         'offer_id',
         'contract_id',
         'schedule_id',
+        'parent_job_id',
         'schedule',
         'address_id',
         'start_date',
@@ -117,41 +117,6 @@ class Job extends Model
             }
         });
 
-        
-        //send notification to worker about next step
-        static::updating(function ($model) {
-            $isSend = false;
-            
-            if ($model->isDirty('worker_approved_at')) {
-                $isSend = true;
-                $emailData = [
-                    'emailSubject'  => __('mail.job_nxt_step.approved_nxt_step_email_subject'),
-                    'emailTitle'  => __('mail.job_nxt_step.approved_nxt_step_email_title'),
-                    'emailContent'  => __('mail.job_nxt_step.approved_nxt_step_email_content', ['label' => " <b>" . __('mail.job_nxt_step.leaving_for_work_link') . "</b>"]),
-                    'emailContentWa'  => __('mail.job_nxt_step.approved_nxt_step_email_content', ['label' => " *" . __('mail.job_nxt_step.leaving_for_work_link') . "*"]),
-
-                ];
-            } elseif ($model->isDirty('job_opening_timestamp')) {
-                $isSend = true;
-                $emailData = [
-                    'emailSubject'  => __('mail.job_nxt_step.opened_nxt_step_email_subject'),
-                    'emailTitle'  => __('mail.job_nxt_step.opened_nxt_step_email_title'),
-                    'emailContent'  => __('mail.job_nxt_step.opened_nxt_step_email_content', ['l1' => " <b>" . __('mail.job_common.start_time') . "</b>", 'l2' => " <b>" . __('mail.job_common.mark_as_complete') . "</b>"]),
-                    'emailContentWa' =>  __('mail.job_nxt_step.opened_nxt_step_email_content', ['l1' => " *" . __('mail.job_common.start_time') . "*", 'l2' => "*" . __('mail.job_common.mark_as_complete') . "*"]),
-
-                ];
-            }
-            
-            if ($isSend) {
-                $job = $model
-                ->load(['client', 'worker', 'jobservice', 'propertyAddress'])
-                ->toArray();
-                
-                $worker = $job['worker'];                
-                event(new JobNotificationToWorker($worker, $job, $emailData));
-            }
-        });
-
         static::deleting(function ($job) {
             JobService::where('job_id', $job->id)->delete();
             JobHours::where('job_id', $job->id)->delete();
@@ -217,5 +182,10 @@ class Job extends Model
     public function comments()
     {
         return $this->hasMany(JobComments::class, 'job_id');
+    }
+
+    public function workerMetas()
+    {
+        return $this->hasMany(WorkerMetas::class, 'job_id');
     }
 }

@@ -59,15 +59,6 @@ class SendWorkerChangedNotification implements ShouldQueue
 
         App::setLocale('en');
         //send notification to admin
-        $adminEmailData = [
-            'emailData'   => [
-                'job'   =>  $event->job->toArray(),
-            ],
-            'emailSubject'  => __('mail.worker_new_job.subject') . "  " . __('mail.worker_new_job.company'),
-            'emailTitle'  => __('mail.job_common.new_job_title'),
-            'emailContent'  => __('mail.worker_new_job.new_job_assigned') . " " . __('mail.worker_new_job.please_check')
-        ];
-        event(new JobNotificationToAdmin($adminEmailData));
 
         //send notification to client
         $jobData = $event->job->toArray();
@@ -114,16 +105,6 @@ class SendWorkerChangedNotification implements ShouldQueue
                 }
 
                 App::setLocale('en');
-                //send notification to admin
-                $adminEmailData = [
-                    'emailData'   => [
-                        'job'   =>  $event->job->toArray(),
-                    ],
-                    'emailSubject'  => __('mail.worker_unassigned.subject') . "  " . __('mail.worker_unassigned.company'),
-                    'emailTitle'  => 'Job Unassigned',
-                    'emailContent'  => 'Worker' . $event->oldWorker['firstname'] . ' ' . $event->oldWorker['lastname'] . ' unassigned from the job #' . $event->job['id'] . 'Below are the job details.'
-                ];
-                event(new JobNotificationToAdmin($adminEmailData));
             }
 
             //send notification to client

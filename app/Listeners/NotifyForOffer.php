@@ -58,17 +58,20 @@ class NotifyForOffer implements ShouldQueue
         App::setLocale($offer['client']['lng']);
 
         if ($notificationType === 'both') {
-        
+
             if (isset($offer['client']) && !empty($offer['client']['phone'])) {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::OFFER_PRICE,
-                    "notificationData" => $offer
+                    "notificationData" => [
+                        'offer' => $offer,
+                        'client' => $offer['client']
+                    ]
                 ]));
             }
-    
+
             Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
                 $messages->to($offer['client']['email']);
-    
+
                 $messages->subject(__('mail.offer.subject', [
                     'id' => $offer['id']
                 ]));
@@ -76,7 +79,7 @@ class NotifyForOffer implements ShouldQueue
         }elseif ($notificationType === 'email') {
             Mail::send('/Mails/OfferMail', $offer, function ($messages) use ($offer) {
                 $messages->to($offer['client']['email']);
-    
+
                 $messages->subject(__('mail.offer.subject', [
                     'id' => $offer['id']
                 ]));
@@ -85,7 +88,10 @@ class NotifyForOffer implements ShouldQueue
             if (isset($offer['client']) && !empty($offer['client']['phone'])) {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::OFFER_PRICE,
-                    "notificationData" => $offer
+                    "notificationData" => [
+                        'offer' => $offer,
+                        'client' => $offer['client']
+                    ]
                 ]));
             }
         }

@@ -75,7 +75,6 @@ export default function ChangeWorkerCalender({ job }) {
                 },
             })
             .then((res) => {
-                console.log(res.data);
                 
                 setAllWorkers(res.data.workers);
                 setWorkerAvailabilities(

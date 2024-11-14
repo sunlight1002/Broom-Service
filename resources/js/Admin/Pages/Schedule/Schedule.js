@@ -15,7 +15,6 @@ import Sidebar from "../../Layouts/Sidebar";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import FilterButtons from "../../../Components/common/FilterButton";
 
-
 export default function Schedule() {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
