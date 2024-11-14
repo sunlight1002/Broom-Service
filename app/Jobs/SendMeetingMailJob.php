@@ -53,7 +53,7 @@ class SendMeetingMailJob implements ShouldQueue
                 $Data = [
                     'id' => $scheduleArr['id'],
                     'client' => ['email' => $scheduleArr['client']['email']],
-                    'title' => 'Meeting with Broom Service Team',
+                    'title' => __('mail.label.company_meeting'),
                     'description' => $scheduleArr['purpose'],
                     'location' => $scheduleArr['meet_link'],
                     'start_date' => $scheduleArr['start_date'],

@@ -461,11 +461,11 @@ if (!function_exists('createIcsFileContent')) {
         $startDateTime = Carbon::parse($scheduleArr['start_date'] . ' ' . $scheduleArr['start_time'])->format('Ymd\THis\Z');
         $endDateTime = Carbon::parse($scheduleArr['start_date'] . ' ' . $scheduleArr['end_time'])->format('Ymd\THis\Z');
         $lng = $language == "heb" ? "HE" : "EN";
-
+        App::setLocale($language ?? 'heb');
         // Set content for the ICS file
         $icsContent = "BEGIN:VCALENDAR\r\n";
         $icsContent .= "VERSION:2.0\r\n";
-        $icsContent .= "PRODID:-//Broom Service//Broom Service Team//$lng\r\n";
+        $icsContent .= "PRODID:-//". __('mail.label.company')."//". __('mail.label.company_team')."//$lng\r\n";
         $icsContent .= "BEGIN:VEVENT\r\n";
         $icsContent .= "UID:" . uniqid() . "\r\n";
         $icsContent .= "DTSTAMP:" . now()->format('Ymd\THis\Z') . "\r\n";

@@ -943,4 +943,9 @@ return [
         'body' => 'Your Refund request has been :status.',
         'reason' => 'Reason for reject: :reason.'
     ],
+    'label' => [
+        'company' => 'Broom Service',
+        'company_team' => 'Broom Service Team',
+        'company_meeting' => 'Meeting with Broom Service Team',
+    ]
 ];

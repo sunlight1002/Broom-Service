@@ -436,7 +436,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING:
                     case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS:
-                    // case WhatsappMessageTemplateEnum::STOP:
+                    case WhatsappMessageTemplateEnum::STOP:
                     // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';
@@ -2090,13 +2090,13 @@ class WhatsappNotification
                         'body' => $text
                     ]);
 
-                // Log::info($response->json());
+                Log::info($response->json());
             }
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
             Log::alert('WA NOTIFICATION ERROR');
-            // Log::alert($th);
+            Log::alert($th);
         }
     }
 }

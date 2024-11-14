@@ -16,4 +16,5 @@ final class ClientMetaEnum extends AbstractEnum
     public const NOTIFICATION_SENT_CONTRACT24HOUR = 'notification_sent_contract24hour';
     public const NOTIFICATION_SENT_CONTRACT3DAY = 'notification_sent_contract3day';
     public const NOTIFICATION_SENT_CONTRACT7DAY = 'notification_sent_contract7day';
+    public const STOP_NOTIFICATION = 'stop_notification';
 }
