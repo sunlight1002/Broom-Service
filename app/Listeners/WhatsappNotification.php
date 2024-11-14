@@ -235,7 +235,7 @@ class WhatsappNotification
         $placeholders = [];
         if($contractData) {
             $placeholders = [
-                ':client_contract_link' => url("work-contract/" . $contractData['contract_id']),
+                ':client_contract_link' => url("work-contract/" . ($contractData['contract_id'] ?? "")),
                 ':team_contract_link' => isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '',
                 ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at'])->format('M d Y H:i') : '',
             ];

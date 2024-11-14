@@ -413,6 +413,7 @@ class ClientEmailController extends Controller
             "type" => WhatsappMessageTemplateEnum::BOOK_CLIENT_AFTER_SIGNED_CONTRACT,
             "notificationData" => [
                 'client' => $client->toArray(),
+                'contract' => $contract->toArray(),
             ]
         ]));
 
