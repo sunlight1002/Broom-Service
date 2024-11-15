@@ -80,7 +80,7 @@ class WeeklyNotifyClientWorker extends Command
                         // 'holidayMessage' => $holidayMessage,
                     ],
                 ];
-                // event(new WhatsappNotificationEvent($clientData));
+                event(new WhatsappNotificationEvent($clientData));
             }
             if ($job->worker) {
                 $workerData = [

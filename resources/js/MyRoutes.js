@@ -174,6 +174,7 @@ import EditHoliday from "./Admin/Pages/Setting/EditHoliday";
 import WorkerLead from "./Admin/Pages/Workers/WorkerLead";
 import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
 import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
+import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -533,6 +534,11 @@ export default function MyRoutes() {
                                 element={<AdminDashboard />}
                             />
                             <Route exact path="jobs" element={<TotalJobs />} />
+                            <Route
+                                exact
+                                path="schedule-requests"
+                                element={<ScheduleChange />}
+                            />
                             <Route
                                 exact
                                 path="create-job/:id"

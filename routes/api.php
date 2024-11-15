@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AdvanceLoanController;
 use App\Http\Controllers\User\SkippedCommentController;
 use App\Http\Controllers\RefundClaimController;
 use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\ScheduleChangeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -123,6 +124,11 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('/refund-claims/{id}', [RefundClaimController::class, 'show']);
     Route::post('/refund-claims/{id}', [RefundClaimController::class, 'update']);
     Route::delete('/refund-claims/{id}', [RefundClaimController::class, 'destroy']);
+
+    Route::post('jobs/request-to-change', [ScheduleChangeController::class, 'requestToChange']);
+    // Route::get('/schedule-changes', [ScheduleChangeController::class, 'getAllScheduleChanges']);
+    Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
+
 });
 
 Route::post('/twilio/initiate-call', [LeadTwilioController::class, 'initiateCall']);

@@ -58,9 +58,6 @@ export default function Clients() {
         };
 
 
-    console.log(filters);
-
-
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {

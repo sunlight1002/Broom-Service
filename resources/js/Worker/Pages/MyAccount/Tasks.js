@@ -53,6 +53,9 @@ function Tasks() {
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
 
+    console.log(headers);
+    
+
 
     const handleAddCard = async () => {
         if (!taskName || !status || !priority || !dueDate || !selectedPhaseId) {

@@ -457,23 +457,33 @@ if (!function_exists('sendJobWANotification')) {
     }
 }
 
+
+
+
 if (!function_exists('createIcsFileContent')) {
     function createIcsFileContent($scheduleArr, $language)
     {
-        // Define event start and end times in UTC format
-        $startDateTime = Carbon::parse($scheduleArr['start_date'] . ' ' . $scheduleArr['start_time'])->format('Ymd\THis\Z');
-        $endDateTime = Carbon::parse($scheduleArr['start_date'] . ' ' . $scheduleArr['end_time'])->format('Ymd\THis\Z');
+        // Define start and end times as Asia/Jerusalem without converting to UTC
+        $startDateTime = Carbon::createFromFormat('Y-m-d h:i A', $scheduleArr['start_date'] . ' ' . $scheduleArr['start_time'])
+                               ->format('Ymd\THis');
+        $endDateTime = Carbon::createFromFormat('Y-m-d h:i A', $scheduleArr['start_date'] . ' ' . $scheduleArr['end_time'])
+                             ->format('Ymd\THis');
+
+        \Log::info("Converted startDateTime: $startDateTime");
+        \Log::info("Converted endDateTime: $endDateTime");
+
         $lng = $language == "heb" ? "HE" : "EN";
         App::setLocale($language ?? 'heb');
-        // Set content for the ICS file
+
+        // ICS content setup with timezone specification
         $icsContent = "BEGIN:VCALENDAR\r\n";
         $icsContent .= "VERSION:2.0\r\n";
         $icsContent .= "PRODID:-//". __('mail.label.company')."//". __('mail.label.company_team')."//$lng\r\n";
         $icsContent .= "BEGIN:VEVENT\r\n";
         $icsContent .= "UID:" . uniqid() . "\r\n";
-        $icsContent .= "DTSTAMP:" . now()->format('Ymd\THis\Z') . "\r\n";
-        $icsContent .= "DTSTART:" . $startDateTime . "\r\n";
-        $icsContent .= "DTEND:" . $endDateTime . "\r\n";
+        $icsContent .= "DTSTAMP:" . now('UTC')->format('Ymd\THis\Z') . "\r\n";
+        $icsContent .= "DTSTART;TZID=Asia/Jerusalem:" . $startDateTime . "\r\n";
+        $icsContent .= "DTEND;TZID=Asia/Jerusalem:" . $endDateTime . "\r\n";
         $icsContent .= "SUMMARY:" . $scheduleArr['title'] . "\r\n";
         $icsContent .= "DESCRIPTION:" . $scheduleArr['description'] . "\r\n";
         $icsContent .= "LOCATION:" . $scheduleArr['location'] . "\r\n";
@@ -482,8 +492,10 @@ if (!function_exists('createIcsFileContent')) {
     
         return $icsContent;
     }
-    
 }
+
+
+
 
 if (!function_exists('get_setting')) {
     function get_setting($key)

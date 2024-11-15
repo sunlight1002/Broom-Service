@@ -259,6 +259,13 @@ export default function Sidebar() {
                     </NavLink>
                 </li>
                 <li className="list-group-item">
+                    <NavLink to="/admin/schedule-requests"
+                        className="d-flex align-items-center"
+                    >
+                        <i class="fa-solid fa-hand font-20"></i>Pending Request
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
                     <NavLink to="/admin/chat"
                         className="d-flex align-items-center"
                     >
