@@ -1,8 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Moment from "moment";
-import i18next from "i18next";
+import i18next, { use } from "i18next";
 import { Base64 } from "js-base64";
 import logo from "../Assets/image/sample.svg";
 import { useAlert } from "react-alert";
@@ -15,33 +15,55 @@ export const RequestToChangeScheduled = () => {
     const [text, setText] = useState("")
     const params = useParams()
     const alert = useAlert();
-    const {t} = useTranslation();
+    const { t } = useTranslation();
+    const navigate = useNavigate();
     const query = new URLSearchParams(location.search);
     const type = query.get("type");
     console.log(type);
-    
+
 
     // const ClientLng = localStorage.getItem("client-lng")
     // console.log(ClientLng);
 
-    const headers = {
-        Accept: "application/json, text/plain, /",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("client-token"),
-    };
+    useEffect(() => {
+        if (type == "worker") {
+            if (!localStorage.getItem("worker-token")) return navigate("/worker/login");
+        } else {
+            if (!localStorage.getItem("client-token")) return navigate("/client/login");
+        }
 
-    const handleSend = async() => {
+    })
+    let headers;
+
+    if (type == "worker") {
+
+        headers = {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ` + localStorage.getItem("worker-token"),
+        };
+    } else {
+
+        headers = {
+            Accept: "application/json, text/plain, /",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ` + localStorage.getItem("client-token"),
+        };
+    }
+
+    const handleSend = async () => {
+        let url = type == "worker" ? `/api/jobs/request-to-change` : `/api/client/jobs/request-to-change`;
         try {
-            const res = await axios.post(`/api/client/jobs/request-to-change`, {
+            const res = await axios.post(`${url}`, {
                 "text": text,
-                "client_id" : Base64.decode(params.id),
+                "client_id": Base64.decode(params.id),
                 "type": type
-            } , {headers});
+            }, { headers });
             alert.success(res?.data?.message)
             setText("")
         } catch (error) {
             console.log(error);
-            
+
         }
     }
     return (
@@ -61,7 +83,7 @@ export const RequestToChangeScheduled = () => {
                             <div className="row">
                                 <div className="col-sm-6">
                                     <h1 className="page-title">
-                                    {t("client.other.change_or_request")}
+                                        {t("client.other.change_or_request")}
                                     </h1>
                                 </div>
 
@@ -80,7 +102,7 @@ export const RequestToChangeScheduled = () => {
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                        {t("client.other.message")}
+                                            {t("client.other.message")}
                                         </label>
                                         <textarea
                                             type="text"

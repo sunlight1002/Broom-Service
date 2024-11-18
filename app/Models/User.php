@@ -121,6 +121,11 @@ class User extends Authenticatable
         });
     }
 
+    public function scheduleChanges()
+    {
+        return $this->morphMany(ScheduleChange::class, 'user');
+    }
+
     public function setSkillAttribute($value)
     {
         $this->attributes['skill'] = json_encode($value);

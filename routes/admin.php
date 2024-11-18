@@ -42,6 +42,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\HearingInvitationController;
 use App\Http\Controllers\User\WorkerHearingController;
 use App\Http\Controllers\HearingProtocolController;
+use App\Http\Controllers\ScheduleChangeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -416,6 +417,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('/whatsapp-templates', [WhatsappTemplateController::class, 'store']);
     Route::put('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'update']);
     Route::delete('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'destroy']);
+
+    Route::get('/schedule-changes', [ScheduleChangeController::class, 'index'])->name('schedule-changes.index');
+    // Route::get('/schedule-changes', [ScheduleChangeController::class, 'getAllScheduleChanges']);
+    Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
 
 });
 

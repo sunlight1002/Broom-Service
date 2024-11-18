@@ -89,7 +89,9 @@ class WhatsappNotification
                     ? url("form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId']))
                     : '',
                 ':refund_rejection_comment' => $eventData['refundclaim']['rejection_comment'] ?? "",
-                ':refund_status' => $eventData['refundclaim']['status'] ?? ""
+                ':refund_status' => $eventData['refundclaim']['status'] ?? "",
+                ':visa_renewal_date' => $workerData['renewal_visa'] ?? "",
+                ':worker_detail_url' => url("workers/view/" .($workerData['id'] ?? '')),
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -337,6 +339,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::WORKER_UNASSIGNED:
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED:
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED:
+                    case WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL:
                         $receiverNumber = $workerData['phone'];
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
@@ -401,6 +404,11 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION:
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
                     case WhatsappMessageTemplateEnum::NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS:
+                    case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
+                        if($clientData['disable_notification'] == 1){
+                            \Log::info("client disable notification");
+                            return;
+                        }
                         $receiverNumber = $clientData['phone'];
                         $lng = $clientData['lng'] ?? 'heb';
                         break;
@@ -434,9 +442,9 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
                     case WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED:
                     case WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING:
-                    case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS:
                     case WhatsappMessageTemplateEnum::STOP:
+                    case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
                     // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';

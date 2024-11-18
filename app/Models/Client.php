@@ -168,6 +168,11 @@ class Client extends Authenticatable
             ->where('clients.phone', '!=', NULL);
     }
 
+    public function scheduleChanges()
+    {
+        return $this->morphMany(ScheduleChange::class, 'user');
+    }
+
     public function cards()
     {
         return $this->hasMany(ClientCard::class, 'client_id');

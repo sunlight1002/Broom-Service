@@ -40,8 +40,8 @@ class LeadWebhookController extends Controller
 
     protected $botMessages = [
         'main-menu' => [
-            'en' => "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית",
-            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu'
+            'en' => "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time",
+            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu'."\n\n". "אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
         ]
     ];
 
@@ -134,8 +134,11 @@ class LeadWebhookController extends Controller
     public function fbWebhookCurrentLive(Request $request)
     {
         $get_data = $request->getContent();
-
+        $responseClientState = [];
         $data_returned = json_decode($get_data, true);
+        $message = null;
+        // Log::info(['whatsapp_webhook' => $request->all()]);
+
 
         if (
             isset($data_returned['messages']) &&
@@ -144,13 +147,13 @@ class LeadWebhookController extends Controller
         ) {
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
-            Log::info($from);
+            // Log::info($from);
 
             $response = WebhookResponse::create([
                 'status'        => 1,
                 'name'          => 'whatsapp',
                 'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                'message'       => $data_returned['messages'][0]['text']['body'],
+                'message'       => $data_returned['messages'][0]['text']['body'] ?? '',
                 'number'        => $from,
                 'read'          => 0,
                 'flex'          => 'C',
@@ -194,7 +197,7 @@ class LeadWebhookController extends Controller
                 $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
                 $lead->save();
 
-                WhatsAppBotClientState::updateOrCreate([
+               $responseClientState = WhatsAppBotClientState::updateOrCreate([
                     'client_id' => $lead->id,
                 ], [
                     'menu_option' => 'main_menu',
@@ -205,15 +208,58 @@ class LeadWebhookController extends Controller
             }
 
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
-                $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : $message_data[0]['button']['text'];
-                \Log::info($message);
+                $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : ($message_data[0]['button']['text'] ?? "");
+                // \Log::info($message);
                 $result = WhatsappLastReply::where('phone', $from)
                     ->where('updated_at', '>=', Carbon::now()->subMinutes(15))
                     ->first();
 
-                Log::info('Result details:', ['result' => $result]);
+                // Log::info('Result details:', ['result' => $result]);
 
                 $client_menus = WhatsAppBotClientState::where('client_id', $client->id)->first();
+
+                if($message === 'STOP'){
+                    $user = Client::find($client->id);
+                    if (!$user) {
+                        return response()->json([
+                        'message' => 'User not found'
+                        ]);
+                    };
+
+                    if ($user->disable_notification == 1) {
+                    sendWhatsappMessage($from, array('message' => "Your already STOPPED the notifications"));
+                        return response()->json([
+                        'message' => 'Notifications are already disabled'
+                        ]);
+                    }
+                    $user->disable_notification = 1;
+                    $user->save();
+
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::STOP,
+                        "notificationData" => [
+                            'client' => $user->toArray()
+                        ]
+                    ]));
+
+                    $msg = $client->lng == 'heb' ? "הבקשה שלך התקבלה. הסרנו אותך מהרשימה, ולא תקבל יותר הודעות מאיתנו. אם זה נעשה בטעות או אם תרצה להירשם שוב, אנא צור קשר\n\nבברכה,\nצוות ברום סרוויס🌹\nwww.broomservice.co.il\nטלפון: 03-525-70-\noffice@broomservice.co.il" 
+                    : "Your request has been processed. You have been unsubscribed, and you will no longer receive notifications from us. \nIf this was a mistake or you wish to resubscribe, please let us know.\n\nBest Regards,\nBroom Service Team 🌹\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il";
+
+                    
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'message'       => $msg,
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($get_data)
+                    ]);
+
+                    sendWhatsappMessage($from, array('message' => $msg));
+                    die("STOPPED");
+                }
 
                 // Send main menu is last menu state not found
                 if (!$client_menus || $message == '9') {
@@ -231,7 +277,7 @@ class LeadWebhookController extends Controller
                         'read'          => 1,
                         'flex'          => 'A',
                     ]);
-                    WhatsAppBotClientState::updateOrCreate([
+                    $responseClientState = WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
                     ], [
                         'menu_option' => 'main_menu',
@@ -243,8 +289,7 @@ class LeadWebhookController extends Controller
 
                 $menu_option = explode('->', $client_menus->menu_option);
                 $last_menu = end($menu_option);
-                \Log::info($last_menu);
-                \Log::info("lastmeny");
+                // \Log::info($last_menu);
 
                 $prev_step = null;
                 if (count($menu_option) >= 2) {
@@ -253,14 +298,8 @@ class LeadWebhookController extends Controller
 
                 // Need more help
                 if (
-                    (
-                        in_array($last_menu, ['need_more_help']) &&
-                        (str_contains(strtolower($message), 'yes') || str_contains($message, 'כן'))
-                    ) ||
-                    (
-                        ($prev_step == 'main_menu' || $prev_step == 'customer_service') &&
-                        $message == '0'
-                    )
+                    (in_array($last_menu, ['need_more_help']) && (str_contains(strtolower($message), 'yes') || str_contains($message, 'כן'))) ||
+                    (($prev_step == 'main_menu' || $prev_step == 'customer_service') && $message == '0')
                 ) {
                     $m = $this->botMessages['main-menu']['en'];
                     if ($client->lng == 'heb') {
@@ -276,7 +315,7 @@ class LeadWebhookController extends Controller
                         'read'          => 1,
                         'flex'          => 'A',
                     ]);
-                    WhatsAppBotClientState::updateOrCreate([
+                    $responseClientState = WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
                     ], [
                         'menu_option' => 'main_menu',
@@ -301,7 +340,7 @@ class LeadWebhookController extends Controller
                         'read'          => 1,
                         'data'          => json_encode($get_data)
                     ]);
-                    WhatsAppBotClientState::where('client_id', $client->id)->delete();
+                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
                     $result = sendWhatsappMessage($from, array('message' => $msg));
                     die("Final message");
                 }
@@ -325,7 +364,7 @@ class LeadWebhookController extends Controller
                         'read'          => 1,
                         'flex'          => 'A',
                     ]);
-                    WhatsAppBotClientState::updateOrCreate([
+                    $responseClientState =  WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
                     ], [
                         'menu_option' => 'main_menu',
@@ -353,7 +392,7 @@ class LeadWebhookController extends Controller
                         'read'          => 1,
                         'flex'          => 'A',
                     ]);
-                    WhatsAppBotClientState::updateOrCreate([
+                    $responseClientState =  WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
                     ], [
                         'menu_option' => 'main_menu',
@@ -370,54 +409,54 @@ class LeadWebhookController extends Controller
                             'title' => "About the Service",
                             'content' => [
                                 'en' => 'Broom Service - Room service for your 🏠.
-                                        Broom Service is a professional cleaning company that offers ✨ high-quality cleaning services for homes or apartments, on a regular or one-time basis, without any unnecessary 🤯 hassle.
-                                        We offer a variety of 🧹 customized cleaning packages, from regular cleaning packages to additional services such as post-construction cleaning or pre-move cleaning, window cleaning at any height, and more.
-                                        You can find all of our services and packages on our website at 🌐 www.broomservice.co.il.
-                                        Our prices are fixed per visit, based on the selected package, and they include all the necessary services, including ☕️ social benefits and travel.
-                                        We work with a permanent and skilled team of employees supervised by a work manager.
-                                        Payment is made by 💳 credit card at the end of the month or after the visit, depending on the route chosen.
-                                        To receive a quote, you must schedule an appointment at your property with one of our supervisors, at no cost or obligation on your part, during which we will help you choose a package and then we will send you a detailed quote according to the requested work.
-                                        Please note that office hours are 🕖 Monday-Thursday from 8:00 to 14:00.
-                                        To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
+Broom Service is a professional cleaning company that offers ✨ high-quality cleaning services for homes or apartments, on a regular or one-time basis, without any unnecessary 🤯 hassle.
+We offer a variety of 🧹 customized cleaning packages, from regular cleaning packages to additional services such as post-construction cleaning or pre-move cleaning, window cleaning at any height, and more.
+You can find all of our services and packages on our website at 🌐 www.broomservice.co.il.
+Our prices are fixed per visit, based on the selected package, and they include all the necessary services, including ☕️ social benefits and travel.
+We work with a permanent and skilled team of employees supervised by a work manager.
+Payment is made by 💳 credit card at the end of the month or after the visit, depending on the route chosen.
+To receive a quote, you must schedule an appointment at your property with one of our supervisors, at no cost or obligation on your part, during which we will help you choose a package and then we will send you a detailed quote according to the requested work.
+Please note that office hours are 🕖 Monday-Thursday from 8:00 to 14:00.
+To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
                                                                         'he' => 'ברום סרוויס - שירות חדרים לבית שלכם 🏠.
-                                        ברום סרוויס היא חברת ניקיון מקצועית המציעה שירותי ניקיון ברמה גבוהה לבית או לדירה, על בסיס קבוע או חד פעמי, ללא כל התעסקות מיותרת 🧹.
-                                        אנו מציעים מגוון חבילות ניקיון מותאמות אישית, החל מחבילות ניקיון על בסיס קבוע ועד לשירותים נוספים כגון, ניקיון לאחר שיפוץ או לפני מעבר דירה, ניקוי חלונות בכל גובה ועוד ✨
-                                        את כלל השירותים והחבילות שלנו תוכלו לראות באתר האינטרנט שלנו בכתובת 🌐 www.broomservice.co.il
-                                        המחירים שלנו קבועים לביקור, בהתאם לחבילה הנבחרת, והם כוללים את כל השירותים הנדרשים, לרבות תנאים סוציאליים ונסיעות 🍵.
-                                        אנו עובדים עם צוות עובדים קבוע ומיומן המפוקח על ידי מנהל עבודה 👨🏻‍💼.
-                                        התשלום מתבצע בכרטיס אשראי בסוף החודש או לאחר הביקור, בהתאם למסלול שנבחר 💳.
-                                        לקבלת הצעת מחיר, יש לתאם פגישה אצלכם בנכס עם אחד המפקחים שלנו, ללא כל עלות או התחייבות מצדכם שבמסגרתה נעזור לכם לבחור חבילה ולאחריה נשלח לכם הצעת מחיר מפורטת בהתאם לעבודה המבוקשת 📝.
-                                        נציין כי שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00 🕓.
-                                        לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
+ברום סרוויס היא חברת ניקיון מקצועית המציעה שירותי ניקיון ברמה גבוהה לבית או לדירה, על בסיס קבוע או חד פעמי, ללא כל התעסקות מיותרת 🧹.
+אנו מציעים מגוון חבילות ניקיון מותאמות אישית, החל מחבילות ניקיון על בסיס קבוע ועד לשירותים נוספים כגון, ניקיון לאחר שיפוץ או לפני מעבר דירה, ניקוי חלונות בכל גובה ועוד ✨
+את כלל השירותים והחבילות שלנו תוכלו לראות באתר האינטרנט שלנו בכתובת 🌐 www.broomservice.co.il
+המחירים שלנו קבועים לביקור, בהתאם לחבילה הנבחרת, והם כוללים את כל השירותים הנדרשים, לרבות תנאים סוציאליים ונסיעות 🍵.
+אנו עובדים עם צוות עובדים קבוע ומיומן המפוקח על ידי מנהל עבודה 👨🏻‍💼.
+התשלום מתבצע בכרטיס אשראי בסוף החודש או לאחר הביקור, בהתאם למסלול שנבחר 💳.
+לקבלת הצעת מחיר, יש לתאם פגישה אצלכם בנכס עם אחד המפקחים שלנו, ללא כל עלות או התחייבות מצדכם שבמסגרתה נעזור לכם לבחור חבילה ולאחריה נשלח לכם הצעת מחיר מפורטת בהתאם לעבודה המבוקשת 📝.
+נציין כי שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00 🕓.
+לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
                             ]
                         ],
                         '2' => [
                             'title' => "Service Areas",
                             'content' => [
                                 'en' => 'We provide service in the following areas: 🗺️
-                                        - Tel Aviv
-                                        - Ramat Gan
-                                        - Givatayim
-                                        - Kiryat Ono
-                                        - Ganei Tikva
-                                        - Ramat HaSharon
-                                        - Kfar Shmaryahu
-                                        - Rishpon
-                                        - Herzliya
+- Tel Aviv
+- Ramat Gan
+- Givatayim
+- Kiryat Ono
+- Ganei Tikva
+- Ramat HaSharon
+- Kfar Shmaryahu
+- Rishpon
+- Herzliya
 
-                                        To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
+To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
                                                                         'he' => 'אנו מספקים שירות באזור 🗺️:
-                                        - תל אביב
-                                        - רמת גן
-                                        - גבעתיים
-                                        - קריית אונו
-                                        - גני תקווה
-                                        - רמת השרון
-                                        - כפר שמריהו
-                                        - רשפון
-                                        - הרצליה
+- תל אביב
+- רמת גן
+- גבעתיים
+- קריית אונו
+- גני תקווה
+- רמת השרון
+- כפר שמריהו
+- רשפון
+- הרצליה
 
-                                        לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
+לקביעת פגישה להצעת מחיר הקש 3 לשיחה עם נציג הקש ☎️ 5.'
                             ]
                         ],
                         '3' => [
@@ -431,22 +470,22 @@ class LeadWebhookController extends Controller
                             'title' => "Schedule an appointment for a quote",
                             'content' => [
                                 'en' => 'Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.
-                                        You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
-                                        Enter your phone number or email address with which you registered for the service 📝',
+You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
+Enter your phone number or email address with which you registered for the service 📝',
                                                                         'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
-                                        תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
-                                        הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
+תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
+הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
                                                                     ]
                                                                 ],
                                                                 '5' => [
                                                                     'title' => "Switch to a Human Representative - During Business Hours",
                                                                     'content' => [
                                                                         'en' => 'Dear customers, office hours are Monday-Thursday from 8:00 to 14:00.
-                                        If you contact us outside of business hours, a representative from our team will get back to you as soon as possible on the next business day, during business hours.
-                                        If you would like to speak to a human representative, please send a message with the word "Human Representative". 🙋🏻',
+If you contact us outside of business hours, a representative from our team will get back to you as soon as possible on the next business day, during business hours.
+If you would like to speak to a human representative, please send a message with the word "Human Representative". 🙋🏻',
                                                                         'he' => 'לקוחות יקרים, שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00.
-                                        במידה ופניתם מעבר לשעות הפעילות נציג מטעמנו יחזור אליכם בהקדם ביום העסקים הבא, בשעות הפעילות.
-                                        אם אתם מעוניינים לדבר עם נציג אנושי, אנא שלחו הודעה עם המילה "נציג אנושי". 🙋🏻',
+במידה ופניתם מעבר לשעות הפעילות נציג מטעמנו יחזור אליכם בהקדם ביום העסקים הבא, בשעות הפעילות.
+אם אתם מעוניינים לדבר עם נציג אנושי, אנא שלחו הודעה עם המילה "נציג אנושי". 🙋🏻',
                             ]
                         ]
                     ]
@@ -465,7 +504,7 @@ class LeadWebhookController extends Controller
                         'read'          => 1,
                         'data'          => json_encode($get_data)
                     ]);
-                    WhatsAppBotClientState::where('client_id', $client->id)->delete();
+                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
                     $result = sendWhatsappMessage($from, array('message' => $msg));
                     die("Final message");
                 }
@@ -478,10 +517,8 @@ class LeadWebhookController extends Controller
                 if ($last_menu == 'human_representative') {
                     $msg = null;
 
-                    if (
-                        str_contains($message, 'Human Representative') ||
-                        str_contains($message, 'נציג אנושי')
-                    ) {
+                    if ( str_contains($message, 'Human Representative') || str_contains($message, 'נציג אנושי') ) {
+                        
                         event(new WhatsappNotificationEvent([
                             "type" => WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE,
                             "notificationData" => [
@@ -491,177 +528,48 @@ class LeadWebhookController extends Controller
 
                         if ($client->lng == 'heb') {
                             $msg = 'נציג מטעמנו יצור קשר בהקדם.
-                        האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
+                            האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
                         } else {
                             $msg = 'A representative from our team will contact you shortly. Is there anything else I can help you with today? (Yes or No) 👋';
                         }
-                        WebhookResponse::create([
-                            'status'        => 1,
-                            'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                            'message'       => $msg,
-                            'number'        => $from,
-                            'flex'          => 'A',
-                            'read'          => 1,
-                            'data'          => json_encode($get_data)
-                        ]);
-                        WhatsAppBotClientState::updateOrCreate([
-                            'client_id' => $client->id,
-                        ], [
-                            'menu_option' => 'main_menu->human_representative->need_more_help',
-                            'language' =>  $client->lng == 'heb' ? 'he' : 'en',
-                        ]);
+
+                        $state = "main_menu->human_representative->need_more_help";
+
                     } else {
                         if ($client->lng == 'heb') {
                             $msg = 'נראה שהזנת קלט שגוי. אנא בדוק ונסה שוב.';
                         } else {
                             $msg = 'It looks like you\'ve entered an incorrect input. Please check and try again.';
                         }
-                        WebhookResponse::create([
-                            'status'        => 1,
-                            'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                            'message'       => $msg,
-                            'number'        => $from,
-                            'flex'          => 'A',
-                            'read'          => 1,
-                            'data'          => json_encode($get_data)
-                        ]);
-                        WhatsAppBotClientState::updateOrCreate([
-                            'client_id' => $client->id,
-                        ], [
-                            'menu_option' => 'main_menu->human_representative',
-                            'language' =>  $client->lng == 'heb' ? 'he' : 'en',
-                        ]);
+
+                        $state = "main_menu->human_representative";
+                        
                     }
+                    
                     $result = sendWhatsappMessage($from, array('message' => $msg));
+
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'message'       => $msg,
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($get_data)
+                    ]);
+
+                    $responseClientState = WhatsAppBotClientState::updateOrCreate([
+                        'client_id' => $client->id,
+                    ], [
+                        'menu_option' => $state,
+                        'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                    ]);
+                    
+                    $message = null;
                     die("Human representative");
+                   
                 }
-
-
-                // if ($last_menu == 'authenticate') {
-
-                //     try {
-                //     // Generate OTP
-                //     $otp = rand(100000, 999999);  // Example OTP generation
-                //     $otp_expiry = now()->addMinutes(10);  // Set OTP expiration to 10 minutes from now
-
-                //     // Save OTP and expiration in the client's record
-                //     $client->otp = $otp;
-                //     $client->otp_expiry = $otp_expiry;
-                //     $client->save();
-
-                //     $emailSent = false;
-                //     $smsSent = false;
-                //     $emailError = null;
-                //     $smsError = null;
-
-                //         try {
-                //             // Send OTP via email
-                //             Mail::to($client->email)->send(new LoginOtpMail($otp, $client));
-                //             $emailSent = true;
-                //         } catch (\Exception $e) {
-                //             $emailError = $e->getMessage();
-                //         }
-
-
-                //         App::setLocale($client->lng);
-                //         $otpMessage = __('mail.otp.body', ['otp' => $otp]);
-
-                //         $twilioAccountSid = config('services.twilio.twilio_id');
-                //         $twilioAuthToken = config('services.twilio.twilio_token');
-                //         $twilioPhoneNumber = config('services.twilio.twilio_number');
-
-                //         $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-                //         $phone_number = '+'.$client->phone;
-
-                //         $twilioClient->messages->create(
-                //             $phone_number,
-                //             ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
-                //         );
-                //         $smsSent = true;
-
-                //     } catch (\Exception $e) {
-                //         $smsError = $e->getMessage();
-                //     }
-
-                //     // Inform user that the OTP has been sent
-                //     $msg = $client->lng == 'heb' ? 'קוד האימות נשלח למייל ול-SMS שלך' : 'The verification code has been sent to your email and SMS';
-                //     WebhookResponse::create([
-                //         'status'        => 1,
-                //         'name'          => 'whatsapp',
-                //         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //         'message'       => $msg,
-                //         'number'        => $from,
-                //         'flex'          => 'A',
-                //         'read'          => 1,
-                //         'data'          => json_encode($get_data)
-                //     ]);
-
-                //     $result = sendWhatsappMessage($from, array('message' => $msg));
-
-                //     // Update client state to prompt for OTP verification
-                //     WhatsAppBotClientState::updateOrCreate([
-                //         'client_id' => $client->id,
-                //     ], [
-                //         'menu_option' => 'main_menu->otp_verification',
-                //         'language' =>  $client->lng == 'heb' ? 'he' : 'en',
-                //     ]);
-
-                //     die("OTP sent and waiting for verification");
-                // }
-
-                // // OTP Verification
-                // if ($last_menu == 'otp_verification') {
-                //     // Check if OTP matches and is not expired
-                //     if ($client->otp == $message && $client->otp_expiry > now()) {
-                //         // OTP is correct and not expired
-                //         $msg = $client->lng == 'heb' ? 'קוד האימות נכון' : 'The verification code is correct';
-                //         WebhookResponse::create([
-                //             'status'        => 1,
-                //             'name'          => 'whatsapp',
-                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //             'message'       => $msg,
-                //             'number'        => $from,
-                //             'flex'          => 'A',
-                //             'read'          => 1,
-                //             'data'          => json_encode($get_data)
-                //         ]);
-
-                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-
-                //         // Update client state to go back to full_name workflow
-                //         WhatsAppBotClientState::updateOrCreate([
-                //             'client_id' => $client->id,
-                //         ], [
-                //             'menu_option' => 'main_menu->appointment->full_name',
-                //             'language' =>  $client->lng == 'heb' ? 'he' : 'en',
-                //         ]);
-
-                //         // Proceed with full_name condition
-                //         // Full name condition goes here as previously implemented
-
-                //     } else {
-                //         // OTP is wrong or expired
-                //         $msg = $client->lng == 'heb' ? 'קוד האימות שגוי או שפג תוקפו' : 'The verification code is incorrect or has expired';
-                //         WebhookResponse::create([
-                //             'status'        => 1,
-                //             'name'          => 'whatsapp',
-                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //             'message'       => $msg,
-                //             'number'        => $from,
-                //             'flex'          => 'A',
-                //             'read'          => 1,
-                //             'data'          => json_encode($get_data)
-                //         ]);
-
-                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-
-                //         // Keep the client in OTP verification state until they provide the correct OTP
-                //         die("OTP verification failed");
-                //     }
-                // }
-
 
                 // Store lead full name
                 if ($last_menu == 'full_name') {
@@ -693,7 +601,7 @@ class LeadWebhookController extends Controller
 
                     $result = sendWhatsappMessage($from, array('message' => $msg));
 
-                    WhatsAppBotClientState::updateOrCreate([
+                    $responseClientState = WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
                     ], [
                         'menu_option' => 'main_menu->appointment->full_address',
@@ -757,7 +665,7 @@ class LeadWebhookController extends Controller
                                 'read'          => 1,
                                 'data'          => json_encode($get_data)
                             ]);
-                            WhatsAppBotClientState::updateOrCreate([
+                            $responseClientState = WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
                                 'menu_option' => 'main_menu->appointment->full_address->verify_address',
@@ -832,7 +740,7 @@ class LeadWebhookController extends Controller
 
                         $result = sendWhatsappMessage($from, array('message' => $msg));
 
-                        WhatsAppBotClientState::updateOrCreate([
+                        $responseClientState = WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
                         ], [
                             'menu_option' => 'main_menu->appointment->full_address->floor',
@@ -865,7 +773,7 @@ class LeadWebhookController extends Controller
 
                         $result = sendWhatsappMessage($from, array('message' => $msg));
 
-                        WhatsAppBotClientState::updateOrCreate([
+                        $responseClientState = WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
                         ], [
                             'menu_option' => 'main_menu->appointment->full_address',
@@ -904,7 +812,7 @@ class LeadWebhookController extends Controller
                         $msg = "What is the apartment number of your address? (If none then type x)";
                     }
 
-                    WebhookResponse::create([
+                    $responseClientState = WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
                         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
@@ -917,7 +825,7 @@ class LeadWebhookController extends Controller
 
                     $result = sendWhatsappMessage($from, array('message' => $msg));
 
-                    WhatsAppBotClientState::updateOrCreate([
+                    $responseClientState = WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
                     ], [
                         'menu_option' => 'main_menu->appointment->full_address->apartment_number',
@@ -968,7 +876,7 @@ class LeadWebhookController extends Controller
 
                     $result = sendWhatsappMessage($from, array('message' => $msg));
 
-                    WhatsAppBotClientState::updateOrCreate([
+                    $responseClientState = WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
                     ], [
                         'menu_option' => 'main_menu->appointment->full_address->parking',
@@ -1015,7 +923,7 @@ class LeadWebhookController extends Controller
 
                         $result = sendWhatsappMessage($from, array('message' => $msg));
 
-                        WhatsAppBotClientState::updateOrCreate([
+                        $responseClientState = WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
                         ], [
                             'menu_option' => 'main_menu->appointment->full_address->email',
@@ -1048,7 +956,7 @@ class LeadWebhookController extends Controller
 
                         $result = sendWhatsappMessage($from, array('message' => $msg));
 
-                        WhatsAppBotClientState::updateOrCreate([
+                        $responseClientState = WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
                         ], [
                             'menu_option' => 'main_menu->appointment->full_address',
@@ -1147,7 +1055,7 @@ class LeadWebhookController extends Controller
                                 ]));
                             }
 
-                            WhatsAppBotClientState::updateOrCreate([
+                            $responseClientState =  WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
                                 'menu_option' => 'main_menu->appointment->need_more_help',
@@ -1176,299 +1084,6 @@ class LeadWebhookController extends Controller
                     die("Store email");
                 }
 
-
-                                // if ($last_menu == 'customer_menu' && $message == '1') {
-                                //     if (isset($client_menus->auth_id)) {
-                                //         $auth = Client::find($client_menus->auth_id);
-                                //         $msg = null;
-                                //         $link_data = [];
-                                //         $offers = Offer::where('client_id', $auth->id)->get();
-                                //         if (count($offers) > 0) {
-                                //             foreach ($offers as $offer) {
-                                //                 $link_data[] = base64_encode($offer->id);
-                                //             }
-                                //         }
-
-                                //         if (count($link_data) > 0) {
-                                //             $message = '';
-                                //             $prefix = url('/') . '/price-offer/';
-                                //             foreach ($link_data as $ld) {
-                                //                 $msg .= $prefix . $ld . "\n";
-                                //             }
-                                //         }
-                                //         $msg .= ($auth->lng == 'en' ? 'Is there anything else I can help you with today? 👋' : 'האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋');
-                                //         WebhookResponse::create([
-                                //             'status'        => 1,
-                                //             'name'          => 'whatsapp',
-                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                                //             'message'       => $msg,
-                                //             'number'        => $from,
-                                //             'flex'          => 'A',
-                                //             'read'          => 1,
-                                //             'data'          => json_encode($get_data)
-                                //         ]);
-                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                                //         WhatsAppBotClientState::updateOrCreate([
-                                //             'client_id' => $client->id,
-                                //         ], [
-                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                                //             'auth_id' => $auth->id,
-                                //         ]);
-                                //     }
-                                //     die("Send quotes link");
-                                // }
-
-                                // // Send contracts link
-                                // if ($last_menu == 'customer_menu' && $message == '2') {
-                                //     if (isset($client_menus->auth_id)) {
-                                //         $auth = Client::find($client_menus->auth_id);
-                                //         $msg = null;
-                                //         $link_data = [];
-
-                                //         $contracts = Contract::where('client_id', $client->id)->get();
-                                //         if (count($contracts) > 0) {
-                                //             foreach ($contracts as $contract) {
-                                //                 $link_data[] = ($contract->unique_hash);
-                                //             }
-                                //         }
-
-                                //         if (count($link_data) > 0) {
-                                //             $message = '';
-                                //             $prefix = url('/') . '/work-contract/';
-                                //             foreach ($link_data as $ld) {
-                                //                 $msg .= $prefix . $ld . "\n";
-                                //             }
-                                //         }
-                                //         $msg .= ($auth->lng == 'en' ? 'Is there anything else I can help you with today? 👋' : 'האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋');
-                                //         WebhookResponse::create([
-                                //             'status'        => 1,
-                                //             'name'          => 'whatsapp',
-                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                                //             'message'       => $msg,
-                                //             'number'        => $from,
-                                //             'flex'          => 'A',
-                                //             'read'          => 1,
-                                //             'data'          => json_encode($get_data)
-                                //         ]);
-                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                                //         WhatsAppBotClientState::updateOrCreate([
-                                //             'client_id' => $client->id,
-                                //         ], [
-                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                                //             'auth_id' => $auth->id,
-                                //         ]);
-                                //     }
-                                //     die("Send contracts link");
-                                // }
-
-                                // // Send next job detail
-                                // if ($last_menu == 'customer_menu' && $message == '3') {
-                                //     if (isset($client_menus->auth_id)) {
-                                //         $auth = Client::find($client_menus->auth_id);
-                                //         $msg = null;
-                                //         $job = Job::where('client_id', $client->id)->orderBy('start_date')->first();
-                                //         if ($job) {
-                                //             $msg .= "Your next job details is below: \n\n";
-                                //             $msg .= "Date: " . ($job->next_start_date->format('Y-m-d') ?? '') . "\n";
-                                //             $msg .= "Address: " . ($job->propertyAddress->address_name ?? '') . "\n";
-                                //             $msg .= "Service: " . ($job->service->name ?? '') . "\n";
-                                //             $msg .= "Worker: " . ($job->worker->firstname ?? '') . ' ' . ($job->worker->lastname ?? '')  . "\n";
-
-                                //             if ($auth->lan == 'heb') {
-                                //                 $msg .= "פרטי העבודה הבאה שלך מופיעים למטה: \n\n";
-                                //                 $msg .= "תאריך: " . ($job->next_start_date->format('Y-m-d') ?? '') . "\n";
-                                //                 $msg .= "כתובת: " . ($job->propertyAddress->address_name ?? '') . "\n";
-                                //                 $msg .= "שירות: " . ($job->service->name ?? '') . "\n";
-                                //                 $msg .= "עובד: " . ($job->worker->firstname ?? '') . ' ' . ($job->worker->lastname ?? '') . "\n";
-                                //             }
-                                //         }
-                                //         $msg .= ($auth->lng == 'en' ? 'Is there anything else I can help you with today? 👋' : 'האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋');
-
-                                //         WebhookResponse::create([
-                                //             'status'        => 1,
-                                //             'name'          => 'whatsapp',
-                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                                //             'message'       => $msg,
-                                //             'number'        => $from,
-                                //             'flex'          => 'A',
-                                //             'read'          => 1,
-                                //             'data'          => json_encode($get_data)
-                                //         ]);
-                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                                //         WhatsAppBotClientState::updateOrCreate([
-                                //             'client_id' => $client->id,
-                                //         ], [
-                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                                //             'auth_id' => $auth->id,
-                                //         ]);
-                                //     }
-                                //     die("Send next job detail");
-                                // }
-
-                                // // Cancel one time job
-                                // if ($last_menu == 'customer_menu' && $message == '4') {
-                                //     if (isset($client_menus->auth_id)) {
-                                //         $auth = Client::find($client_menus->auth_id);
-                                //         $msg = 'Dear customer, according to the terms of service, cancellation of the service may be subject to cancellation fees. Are you sure you want to cancel the service?';
-
-                                //         if ($auth->lng == 'heb') {
-                                //             $msg = 'לקוח יקר, בהתאם לתנאי השירות, על ביטול השירות עלולים לחול דמי ביטול. האם אתה בטוח שברצונך לבטל את השירות?';
-                                //         }
-
-                                //         WebhookResponse::create([
-                                //             'status'        => 1,
-                                //             'name'          => 'whatsapp',
-                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                                //             'message'       => $msg,
-                                //             'number'        => $from,
-                                //             'flex'          => 'A',
-                                //             'read'          => 1,
-                                //             'data'          => json_encode($get_data)
-                                //         ]);
-                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                                //         WhatsAppBotClientState::updateOrCreate([
-                                //             'client_id' => $client->id,
-                                //         ], [
-                                //             'menu_option' => 'main_menu->customer_service->customer_menu->cancel_one_time',
-                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                                //             'auth_id' => $auth->id,
-                                //         ]);
-                                //     }
-                                //     die("Cancel one time job");
-                                // }
-
-                                // // Terminate the agreement
-                                // if ($last_menu == 'customer_menu' && $message == '5') {
-                                //     if (isset($client_menus->auth_id)) {
-                                //         $auth = Client::find($client_menus->auth_id);
-                                //         $msg = "A representative from our team will contact you shortly. \nIs there anything else I can help you with today? 👋";
-
-                                //         if ($auth->lng == 'heb') {
-                                //             $msg = "נציג מהצוות שלנו ייצור איתך קשר בהקדם. \n האם יש משהו נוסף שאני יכול לעזור לך בו היום? 👋";
-                                //         }
-
-                                //         WebhookResponse::create([
-                                //             'status'        => 1,
-                                //             'name'          => 'whatsapp',
-                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                                //             'message'       => $msg,
-                                //             'number'        => $from,
-                                //             'flex'          => 'A',
-                                //             'read'          => 1,
-                                //             'data'          => json_encode($get_data)
-                                //         ]);
-                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                                //         WhatsAppBotClientState::updateOrCreate([
-                                //             'client_id' => $client->id,
-                                //         ], [
-                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                                //             'auth_id' => $auth->id,
-                                //         ]);
-                                //     }
-                                //     die("Terminate the agreement");
-                                // }
-
-                                // // Contact a representative
-                                // if ($last_menu == 'customer_menu' && $message == '6') {
-                                //     if (isset($client_menus->auth_id)) {
-                                //         $auth = Client::find($client_menus->auth_id);
-                                //         $msg = "Who would you like to speak to? \n 1. Office manager and scheduling \n 2. Customer service \n 3. Accounting and billing";
-
-                                //         if ($auth->lng == 'heb') {
-                                //             $msg = "עם מי תרצה לדבר? \n 1. מנהל משרד ותזמון \n 2. שירות לקוחות \n 3. הנהלת חשבונות וחיוב";
-                                //         }
-
-                                //         WebhookResponse::create([
-                                //             'status'        => 1,
-                                //             'name'          => 'whatsapp',
-                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                                //             'message'       => $msg,
-                                //             'number'        => $from,
-                                //             'flex'          => 'A',
-                                //             'read'          => 1,
-                                //             'data'          => json_encode($get_data)
-                                //         ]);
-                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                                //         WhatsAppBotClientState::updateOrCreate([
-                                //             'client_id' => $client->id,
-                                //         ], [
-                                //             'menu_option' => 'main_menu->customer_service->customer_menu->contact_a_representative',
-                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                                //             'auth_id' => $auth->id,
-                                //         ]);
-                                //     }
-                                //     die("Contact a representative");
-                                // }
-
-                                // // Contact a representative menu
-                                // if ($last_menu == 'contact_a_representative' && in_array($message, ['1', '2', '3'])) {
-                                //     if (isset($client_menus->auth_id)) {
-                                //         $auth = Client::find($client_menus->auth_id);
-                                //         $msg = null;
-                                //         if ($client->lng == 'heb') {
-                                //             $msg = 'נציג מטעמנו יצור עמכם קשר בהקדם כדי לתאם פגישה.
-                                //         האם יש משהו נוסף שאוכל לעזור לך בו היום? 👋';
-                                //         } else {
-                                //             $msg = 'A representative from our team will contact you shortly to schedule an appointment. Is there anything else I can help you with today? 👋';
-                                //         }
-
-                                //         WebhookResponse::create([
-                                //             'status'        => 1,
-                                //             'name'          => 'whatsapp',
-                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                                //             'message'       => $msg,
-                                //             'number'        => $from,
-                                //             'flex'          => 'A',
-                                //             'read'          => 1,
-                                //             'data'          => json_encode($get_data)
-                                //         ]);
-                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                                //         WhatsAppBotClientState::updateOrCreate([
-                                //             'client_id' => $client->id,
-                                //         ], [
-                                //             'menu_option' => 'main_menu->customer_service->customer_menu->need_more_help',
-                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                                //             'auth_id' => $auth->id,
-                                //         ]);
-                                //     }
-                                //     die("Contact a representative menu");
-                                // }
-
-                                // // Send customer service menu
-                                // if (($message == 0 && ($prev_step == 'customer_service' || $prev_step == 'customer_menu'))) {
-                                //     if (isset($client_menus->auth_id)) {
-                                //         $auth = Client::find($client_menus->auth_id);
-                                //         $msg = "1. View your quotes \n2. View your contracts \n3. When is my next service? \n4. Cancel a one-time service \n5. Terminate the agreement \n6. Contact a representative";
-                                //         if ($auth->lng == 'heb') {
-                                //             $msg = "1. הצג את הציטוטים שלך \n2. הצג את החוזים שלך \n3. מתי השירות הבא שלי? \n4. בטל שירות חד פעמי \n5. סיים את ההסכם \n6. פנה לנציג";
-                                //         }
-
-                                //         WhatsAppBotClientState::updateOrCreate([
-                                //             'client_id' => $client->id,
-                                //         ], [
-                                //             'menu_option' => 'main_menu->customer_service->customer_menu',
-                                //             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
-                                //             'auth_id' => $auth->id,
-                                //         ]);
-                                //         WebhookResponse::create([
-                                //             'status'        => 1,
-                                //             'name'          => 'whatsapp',
-                                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                                //             'message'       => $msg,
-                                //             'number'        => $from,
-                                //             'flex'          => 'A',
-                                //             'read'          => 1,
-                                //             'data'          => json_encode($get_data)
-                                //         ]);
-                                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                                //     }
-                                //     die("Send customer service menu");
-                                // }
-
                 // Send customer service menu
                 if ($last_menu == 'customer_service') {
                     $msg = null;
@@ -1479,19 +1094,14 @@ class LeadWebhookController extends Controller
                         $auth = Client::where('phone', 'like', '%' . $message . '%')->first();
                     }
                     if ($auth) {
-                        // $msg = "1. View your quotes \n2. View your contracts \n3. When is my next service? \n4. Cancel a one-time service \n5. Terminate the agreement \n6. Contact a representative";
-                        // if ($auth->lng == 'heb') {
-                        //     $msg = "1. הצג את הציטוטים שלך \n2. הצג את החוזים שלך \n3. מתי השירות הבא שלי? \n4. בטל שירות חד פעמי \n5. סיים את ההסכם \n6. פנה לנציג";
-                        // }
 
-                        event(new SendClientLogin($auth->toArray()));
+                        $msg = $auth->lng == 'heb' ? "היי! שמנו לב שהמספר שלך כבר רשום במערכת שלנו.\nאיך נוכל לעזור לך היום? נא לבחור אחת מהאפשרויות הבאות:\n\n1 - שלחו לי שוב את פרטי ההתחברות\n2 - אני מעוניין שיצרו איתי קשר לגבי שירות חדש או חידוש" 
+                        : "Hello! We noticed that your number is already registered in our system.\nHow can we assist you today? Please choose one of the following options:\n\n1 - Send me my login details again\n2 - I’d like to be contacted about a new service or renewal";
 
-                        $msg = "An email sent to the registered account with login details to our portal.";
-                        if ($auth->lng == 'heb') {
-                            $msg = "נשלחה הודעת דוא\"ל לחשבון הרשום עם פרטי הכניסה לפורטל שלנו.";
-                        }
+                        // $auth->makeVisible('passcode');
+                        // event(new SendClientLogin($auth->toArray()));
 
-                        WhatsAppBotClientState::updateOrCreate([
+                        $responseClientState =  WhatsAppBotClientState::updateOrCreate([
                             'client_id' => $client->id,
                         ], [
                             // 'menu_option' => 'main_menu->customer_service->customer_menu',
@@ -1499,6 +1109,7 @@ class LeadWebhookController extends Controller
                             'language' =>  $auth->lng == 'heb' ? 'he' : 'en',
                             'auth_id' => $auth->id,
                         ]);
+                        // \Log::info($last_menu);
                     } else {
                         $msg = "I couldn't find your details based on what you sent. Please try again.";
                         if ($client->lng == 'heb') {
@@ -1520,252 +1131,47 @@ class LeadWebhookController extends Controller
                         $result = sendWhatsappMessage($from, array('message' => $msg));
                     }
 
+                    // \Log::info(['message' => $message, 'last_menu' => $last_menu]);
+
                     die("Send service menu");
                 }
 
-                // if ($last_menu == 'customer_service') {
-                //     $msg = null;
-                //     $auth = null;
-                //     // Check if the message is an email or phone number
-                //     if (str_contains($message, '@')) {
-                //         $auth = Client::where('email', $message)->first();
-                //     } else if (is_numeric(str_replace('-', '', $message)) && strlen($message) > 5) {
-                //         $auth = Client::where('phone', 'like', '%' . $message . '%')->first();
-                //     }
+                if ($last_menu == 'need_more_help' && $message == '1') {
 
-                //     if ($auth) {
+                    $client->makeVisible('passcode');
+                    event(new SendClientLogin($client->toArray()));
 
-                //         // $msg = "1. View your quotes \n2. View your contracts \n3. When is my next service? \n4. Cancel a one-time service \n5. Terminate the agreement \n6. Contact a representative";
-                //         // if ($auth->lng == 'heb') {
-                //         //     $msg = "1. הצג את הציטוטים שלך \n2. הצג את החוזים שלך \n3. מתי השירות הבא שלי? \n4. בטל שירות חד פעמי \n5. סיים את ההסכם \n6. פנה לנציג";
-                //         // }
+                    $msg = "Thank you! We’re resending your login details to your registered email address now. Please check your inbox shortly. 📧\nIs there anything else I can help you with today? (Yes or No) 👋";
+                        if ($client->lng == 'heb') {
+                            $msg = "תודה! אנחנו שולחים כעת את פרטי ההתחברות שלך למייל הרשום אצלנו. נא לבדוק את תיבת הדואר שלך בקרוב. 📧\nהאם יש משהו נוסף שבו אוכל לעזור לך היום? (כן או לא) 👋";
+                        }
 
+                    if (!empty($msg)) {
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'message'       => $msg,
+                            'number'        => $from,
+                            'flex'          => 'A',
+                            'read'          => 1,
+                            'data'          => json_encode($get_data)
+                        ]);
+                        $result = sendWhatsappMessage($from, array('message' => $msg));
+                    }
 
-                //         // Generate a 6-digit OTP
-                //         $otp = rand(100000, 999999);
-                //         $auth->otp = $otp;
-                //         $auth->otp_expires_at = now()->addMinutes(5);  // OTP expires in 5 minutes
-                //         $auth->save();
+                    die("Send login details");
+                }elseif ($last_menu == 'need_more_help' && $message == '2') {
 
-                //         // Send OTP via email or WhatsApp
-                //         if (str_contains($message, '@')) {
-                //             // Send OTP via email
-                //             Mail::to($auth->email)->send(new OTPMail($otp)); // OTPMail should be a Mailable class
-                //             $msg = "An OTP has been sent to your email. Please enter the OTP to proceed.";
-                //         } else {
-                //             // Send OTP via WhatsApp
-                //              App::setLocale($client->lng);
-                                // $otpMessage = __('mail.otp.body', ['otp' => $otp]);
+                    $msg = $client->lng == 'heb' ? "הבנתי! אנחנו מעבירים אותך כעת לתפריט שירותים חדשים או חידוש\nשירותים. נא לבחור באפשרות המתאימה לך ביותר. 🛠️\nהאם יש משהו נוסף שבו אוכל לעזור לך היום? (כן או לא) 👋" 
+                    :"Got it! We will redirect you to the menu for new services or renewals.\nPlease select the option that best suits your needs. 🛠️\n\nIs there anything else I can help you with today? (Yes or No) 👋";
 
-                                // $twilioAccountSid = config('services.twilio.twilio_id');
-                                // $twilioAuthToken = config('services.twilio.twilio_token');
-                                // $twilioPhoneNumber = config('services.twilio.twilio_number');
+                    $result = sendWhatsappMessage($from, array('message' => $msg));
+                    
+                    die('main_menu');
+                }
 
-                                // $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-                                // $phone_number = '+'.$client->phone;
-
-                                // $twilioClient->messages->create(
-                                //     $phone_number,
-                                //     ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
-                                // );
-
-                //             $msg = "An OTP has been sent to your phone. Please enter the OTP to proceed.";
-                //         }
-
-                //         // Update bot state for OTP verification
-                //         WhatsAppBotClientState::updateOrCreate([
-                //             'client_id' => $client->id,
-                //         ], [
-                //             'menu_option' => 'main_menu->customer_service->otp_verification',
-                //             'language' => $auth->lng == 'heb' ? 'he' : 'en',
-                //             'auth_id' => $auth->id,
-                //         ]);
-
-                //     } else {
-                //         $msg = "I couldn't find your details based on what you sent. Please try again.";
-                //         if ($client->lng == 'heb') {
-                //             $msg = 'לא הצלחתי למצוא את הפרטים שלך על סמך מה ששלחת. בבקשה נסה שוב.';
-                //         }
-                //     }
-
-                //     // Send the message to the client
-                //     if (!empty($msg)) {
-                //         WebhookResponse::create([
-                //             'status'        => 1,
-                //             'name'          => 'whatsapp',
-                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //             'message'       => $msg,
-                //             'number'        => $from,
-                //             'flex'          => 'A',
-                //             'read'          => 1,
-                //             'data'          => json_encode($get_data)
-                //         ]);
-
-                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //     }
-
-                //     die("Send service menu");
-
-                // } else if ($last_menu == 'customer_service->otp_verification') {
-                //     // This block handles OTP verification
-                //     $auth = Client::where('id', $client->id)->first();
-
-                //     // Check if OTP matches and hasn't expired
-                //     if ($auth && $auth->otp == $message && now()->lessThan($auth->otp_expires_at)) {
-                //         // OTP is valid
-                //         $msg = "OTP verified successfully. You can now access your account details.";
-                //         if ($auth->lng == 'heb') {
-                //             $msg = "ה-OTP אומת בהצלחה. אתה יכול לגשת לפרטי החשבון שלך.";
-                //         }
-
-                //         // Update bot state to show the customer service menu
-                //         WhatsAppBotClientState::updateOrCreate([
-                //             'client_id' => $client->id,
-                //         ], [
-                //             'menu_option' => 'main_menu->customer_service->customer_menu',
-                //             'language' => $auth->lng == 'heb' ? 'he' : 'en',
-                //             'auth_id' => $auth->id,
-                //         ]);
-
-                //     } else {
-                //         // OTP is invalid or expired
-                //         $msg = "Invalid or expired OTP. Please try again.";
-                //         if ($auth->lng == 'heb') {
-                //             $msg = 'OTP שגוי או שפג תוקפו. בבקשה נסה שוב.';
-                //         }
-                //     }
-
-                //     // Send the message to the client
-                //     WebhookResponse::create([
-                //         'status'        => 1,
-                //         'name'          => 'whatsapp',
-                //         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //         'message'       => $msg,
-                //         'number'        => $from,
-                //         'flex'          => 'A',
-                //         'read'          => 1,
-                //         'data'          => json_encode($get_data)
-                //     ]);
-
-                //     $result = sendWhatsappMessage($from, array('message' => $msg));
-                //     die("Send OTP verification result");
-                // }
-
-                //         // $msg = "1. View your quotes \n2. View your contracts \n3. When is my next service? \n4. Cancel a one-time service \n5. Terminate the agreement \n6. Contact a representative";
-                //         // if ($auth->lng == 'heb') {
-                //         //     $msg = "1. הצג את הציטוטים שלך \n2. הצג את החוזים שלך \n3. מתי השירות הבא שלי? \n4. בטל שירות חד פעמי \n5. סיים את ההסכם \n6. פנה לנציג";
-                //         // }
-
-
-                //         // Generate a 6-digit OTP
-                //         $otp = rand(100000, 999999);  
-                //         $auth->otp = $otp;
-                //         $auth->otp_expires_at = now()->addMinutes(5);  // OTP expires in 5 minutes
-                //         $auth->save();
-                
-                //         // Send OTP via email or WhatsApp
-                //         if (str_contains($message, '@')) {
-                //             // Send OTP via email
-                //             Mail::to($auth->email)->send(new OTPMail($otp)); // OTPMail should be a Mailable class
-                //             $msg = "An OTP has been sent to your email. Please enter the OTP to proceed.";
-                //         } else {
-                //             // Send OTP via WhatsApp
-                //              App::setLocale($client->lng);
-                                // $otpMessage = __('mail.otp.body', ['otp' => $otp]);
-            
-                                // $twilioAccountSid = config('services.twilio.twilio_id');
-                                // $twilioAuthToken = config('services.twilio.twilio_token');
-                                // $twilioPhoneNumber = config('services.twilio.twilio_number');
-            
-                                // $twilioClient = new TwilioClient($twilioAccountSid, $twilioAuthToken);
-                                // $phone_number = '+'.$client->phone;
-                            
-                                // $twilioClient->messages->create(
-                                //     $phone_number,
-                                //     ['from' => $twilioPhoneNumber, 'body' => $otpMessage]
-                                // );
-
-                //             $msg = "An OTP has been sent to your phone. Please enter the OTP to proceed.";
-                //         }
-                
-                //         // Update bot state for OTP verification
-                //         WhatsAppBotClientState::updateOrCreate([
-                //             'client_id' => $client->id,
-                //         ], [
-                //             'menu_option' => 'main_menu->customer_service->otp_verification',
-                //             'language' => $auth->lng == 'heb' ? 'he' : 'en',
-                //             'auth_id' => $auth->id,
-                //         ]);
-                
-                //     } else {
-                //         $msg = "I couldn't find your details based on what you sent. Please try again.";
-                //         if ($client->lng == 'heb') {
-                //             $msg = 'לא הצלחתי למצוא את הפרטים שלך על סמך מה ששלחת. בבקשה נסה שוב.';
-                //         }
-                //     }
-                
-                //     // Send the message to the client
-                //     if (!empty($msg)) {
-                //         WebhookResponse::create([
-                //             'status'        => 1,
-                //             'name'          => 'whatsapp',
-                //             'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //             'message'       => $msg,
-                //             'number'        => $from,
-                //             'flex'          => 'A',
-                //             'read'          => 1,
-                //             'data'          => json_encode($get_data)
-                //         ]);
-                
-                //         $result = sendWhatsappMessage($from, array('message' => $msg));
-                //     }
-                
-                //     die("Send service menu");
-                
-                // } else if ($last_menu == 'customer_service->otp_verification') {
-                //     // This block handles OTP verification
-                //     $auth = Client::where('id', $client->id)->first();
-                
-                //     // Check if OTP matches and hasn't expired
-                //     if ($auth && $auth->otp == $message && now()->lessThan($auth->otp_expires_at)) {
-                //         // OTP is valid
-                //         $msg = "OTP verified successfully. You can now access your account details.";
-                //         if ($auth->lng == 'heb') {
-                //             $msg = "ה-OTP אומת בהצלחה. אתה יכול לגשת לפרטי החשבון שלך.";
-                //         }
-                
-                //         // Update bot state to show the customer service menu
-                //         WhatsAppBotClientState::updateOrCreate([
-                //             'client_id' => $client->id,
-                //         ], [
-                //             'menu_option' => 'main_menu->customer_service->customer_menu',
-                //             'language' => $auth->lng == 'heb' ? 'he' : 'en',
-                //             'auth_id' => $auth->id,
-                //         ]);
-                
-                //     } else {
-                //         // OTP is invalid or expired
-                //         $msg = "Invalid or expired OTP. Please try again.";
-                //         if ($auth->lng == 'heb') {
-                //             $msg = 'OTP שגוי או שפג תוקפו. בבקשה נסה שוב.';
-                //         }
-                //     }
-                
-                //     // Send the message to the client
-                //     WebhookResponse::create([
-                //         'status'        => 1,
-                //         'name'          => 'whatsapp',
-                //         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                //         'message'       => $msg,
-                //         'number'        => $from,
-                //         'flex'          => 'A',
-                //         'read'          => 1,
-                //         'data'          => json_encode($get_data)
-                //     ]);
-                
-                //     $result = sendWhatsappMessage($from, array('message' => $msg));
-                //     die("Send OTP verification result");
-                // }
+               
                 
                 // Send about service message
                 if ($last_menu == 'main_menu' && isset($menus[$last_menu][$message]['content'][$client->lng == 'heb' ? 'he' : 'en'])) {
@@ -1783,7 +1189,18 @@ class LeadWebhookController extends Controller
 
                     $result = sendWhatsappMessage($from, array('message' => $msg));
 
+                    // \Log::info($message);
+
                     switch ($message) {
+                        case '0':
+                            WhatsAppBotClientState::updateOrCreate([
+                                'client_id' => $client->id,
+                            ], [
+                                'menu_option' => $last_menu,
+                                'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                            ]);
+                            break;
+
                         case '1':
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
@@ -1828,36 +1245,30 @@ class LeadWebhookController extends Controller
                                 'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                             ]);
                             break;
+
                     }
                     // Log::info('Send message: ' . $menus[$last_menu][$message]['title']);
                     die("Language switched to english");
                 }
 
-               // Initial error message
-               $msg = " Oops! It seems like you've entered something that we don't recognize. Please make sure to choose an option from the menu.";
+                \Log::info(['message' => $message, 'last_menu' => $last_menu]);
 
-                // Follow-up message for returning to the menu, with translation based on the client's language
-                $follow_up_msg = "If you're unsure or need help, you can:"."\n"."Return to the main menu by replying with '9'"."\n"."Go back one step by replying with '0'"."\n"."We're here to assist you!";
-                if ($client->lng == 'heb') {
-                    $msg = "סליחה, לא תפסתי את זה. האם תוכל לבדוק שוב את התגובה שלך?";
-                    $follow_up_msg = "אם אתה זקוק לעזרה, תוכל תמיד לחזור לתפריט הראשי על ידי שליחת הספרה 9 או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.";
-                }
-
-                // Combine both messages
-                $full_msg = "$msg\n\n$follow_up_msg";
+                    // Follow-up message for returning to the menu, with translation based on the client's language
+                    $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת." 
+                    :"Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time";
 
                 WebhookResponse::create([
                     'status'        => 1,
                     'name'          => 'whatsapp',
                     'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                    'message'       => $msg,
+                    'message'       => $follow_up_msg,
                     'number'        => $from,
                     'flex'          => 'A',
                     'read'          => 1,
                     'data'          => json_encode($get_data)
                 ]);
 
-                $result = sendWhatsappMessage($from, array('message' => $full_msg));
+                $result = sendWhatsappMessage($from, array('message' => $follow_up_msg));
 
 
             }

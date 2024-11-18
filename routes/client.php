@@ -10,6 +10,7 @@ use App\Http\Controllers\Client\InvoiceController;
 use App\Http\Controllers\Client\JobCommentController;
 use App\Http\Controllers\Client\JobController;
 use App\Http\Controllers\Client\WorkerController;
+use App\Http\Controllers\ScheduleChangeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,8 +44,11 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::post('jobs/{id}/change-worker', [JobController::class, 'changeWorker']);
     Route::post('jobs/{id}/review', [JobController::class, 'saveReview']);
     Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
-    Route::post('jobs/request-to-change', [JobController::class, 'requestToChange']);
     Route::resource('jobs/{id}/comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
+
+    Route::post('jobs/request-to-change', [ScheduleChangeController::class, 'requestToChange']);
+    Route::get('/schedule-changes', [ScheduleChangeController::class, 'getAllScheduleChanges']);
+    Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
 
     Route::get('jobs/{id}/comments', [JobCommentController::class, 'language']);
 

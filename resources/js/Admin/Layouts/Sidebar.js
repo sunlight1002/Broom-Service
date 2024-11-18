@@ -32,6 +32,7 @@ export default function Sidebar() {
     };
 
     const toggleClientDropdown = () => {
+        navigate("/admin/clients?type=all");
         setClientDropdownOpen(!isClientDropdownOpen);
     };
 
@@ -144,10 +145,7 @@ export default function Sidebar() {
                             >
                                 <i className={`fa-solid fa-user-tie font-20 ${isClientDropdownOpen ? "text-white" : ""}`}></i> {t("admin.sidebar.clients")}{" "}
                                 <i className={`fa-solid fa-angle-down ${isClientDropdownOpen ? "text-white rotate-180" : ""}`}
-                                style={{
-                                    rotate: isClientDropdownOpen ? "180deg" : ""
-                                }}
-                                ></i>
+                                style={{ rotate: isClientDropdownOpen ? "180deg" : "" }}></i>
                             </a>
                         </div>
                         <div
@@ -157,11 +155,11 @@ export default function Sidebar() {
                         >
                             <div className="card-body">
                                 <ul className="list-group">
-                                    <li className={`list-group-item ${isActive(routes.clients) ? "active" : ""}`}>
+                                    {/* <li className={`list-group-item ${isActive(routes.clients) ? "active" : ""}`}>
                                         <Link to={routes.clients} onClick={(e) => e.stopPropagation()} style={isActive(routes.clients) ? { color: "white" } : { color: "#757589" }}>
                                             <i className="fa fa-angle-right"></i> All Client
                                         </Link>
-                                    </li>
+                                    </li> */}
                                     <li className={`list-group-item ${isActive(routes.pendingClient) ? "active" : ""}`}>
                                         <Link to={routes.pendingClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pendingClient) ? { color: "white" } : { color: "#757589" }}>
                                             <i className="fa fa-angle-right"></i> Waiting
@@ -256,6 +254,13 @@ export default function Sidebar() {
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-briefcase font-20"></i>{t("admin.sidebar.schedule_meet")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
+                    <NavLink to="/admin/schedule-requests"
+                        className="d-flex align-items-center"
+                    >
+                        <i class="fa-solid fa-hand font-20"></i>Pending Request
                     </NavLink>
                 </li>
                 <li className="list-group-item">

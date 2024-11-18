@@ -173,7 +173,8 @@ const SafeAndGear = () => {
 
                     <div className="text-center">
                     <p className="mb-4" style={{ fontSize: "17px" }}>
-                        {t("safeAndGear.broomIntro")}
+                        {t("safeAndGear.broomIntro")}<br/>
+                        {t("safeAndGear.broomIntro2")}
                         </p>
                     </div>
                     {/* <p className="mt-4" style={{ fontSize: "16px" }}>
