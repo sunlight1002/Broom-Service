@@ -26,9 +26,7 @@ export default function AddOffer() {
     const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
     const [comment, setComment] = useState("");
     const [loading, setLoading] = useState(false);
-
-    console.log("In add offer",formValues);
-
+    
     const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
         if (indexKey > -1) {
@@ -212,6 +210,11 @@ export default function AddOffer() {
     
         // Check if form values are valid
         for (let t in formValues) {
+            if (!formValues[t] || typeof formValues[t] !== 'object') {
+                console.warn(`formValues[${t}] is undefined or not an object`, formValues[t]);
+                continue; // Skip to the next iteration if the current formValues[t] is undefined
+            }
+
             if (formValues[t].service == "" || formValues[t].service == 0) {
                 alert.error("One of the service is not selected");
                 return false;
@@ -245,6 +248,7 @@ export default function AddOffer() {
                 }
             } else {
                 console.warn(`formValues[${t}].workers is not an array`, formValues[t].workers);
+                formValues[t].workers = [];
             }
     
             if (!workerIssue) {
@@ -270,7 +274,7 @@ export default function AddOffer() {
             }
         }
     
-        const flattenedFormValues = formValues.flat();
+        const flattenedFormValues = formValues ? formValues.flat() : [];
     
         setIsSubmitting(true);
     
