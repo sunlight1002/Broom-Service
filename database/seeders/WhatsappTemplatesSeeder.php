@@ -2441,7 +2441,7 @@ office@broomservice.co.il
 Best regards,
 Broom Service Team",
 
-                'message_heb' => "שלום, *:client_name*
+                'message_heb' => "שלום, *צוות*
 
 העבודה בוטלה. אנא בדוק את הפרטים.
 

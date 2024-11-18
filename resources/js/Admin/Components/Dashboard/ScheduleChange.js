@@ -27,6 +27,7 @@ function ScheduleChange() {
     const [type, setType] = useState("Both")
     const tableRef = useRef(null);
     const filterRef = useRef(filter);
+    const typeRef = useRef(type);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -80,8 +81,7 @@ function ScheduleChange() {
                     headers: headers,
                     data: function (d) {
                         d.status = filterRef.current === "All" ? null : filterRef.current; // Use ref here
-                        d.type = type === "Both" ? null : type; // Pass the selected type filter (Client, Worker, or null for Both)
-
+                        d.type = typeRef.current === "Both" ? null : typeRef.current; // Use ref for type here
                     },
                 },
                 order: [[0, "desc"]],
@@ -111,10 +111,8 @@ function ScheduleChange() {
                                         <i class="fa fa-ellipsis-vertical"></i> 
                                     </button> 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <button type="button" class="dropdown-item dt-edit-btn" data-id="${row.id}">${t('admin.leads.Edit')}</button>
                                         <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>
                                         <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>
-                                        <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>
                                     </div> 
                                 </div>`;
                         }
@@ -141,11 +139,6 @@ function ScheduleChange() {
         $("div.dt-search").addClass("position-relative");
 
 
-        $(tableRef.current).on("click", ".dt-edit-btn", function () {
-            const _id = $(this).data("id");
-            navigate(`/admin/worker-leads/edit/${_id}`);
-        });
-
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/worker-leads/view/${_id}`);
@@ -154,11 +147,6 @@ function ScheduleChange() {
         $(tableRef.current).on("click", ".dt-change-status-btn", function () {
             const _id = $(this).data("id");
             toggleChangeStatusModal(_id);
-        });
-
-        $(tableRef.current).on("click", ".dt-delete-btn", function () {
-            const _id = $(this).data("id");
-            handleDelete(_id);
         });
 
         // Handle language changes
@@ -178,6 +166,8 @@ function ScheduleChange() {
 
     useEffect(() => {
         filterRef.current = filter; // Update the ref with the latest filter
+        typeRef.current = type; // Update the ref with the latest type
+
         const table = $(tableRef.current).DataTable();
         table.ajax.reload(null, false); // Reload the table without resetting pagination
         table.columns.adjust().draw();  // This forces a redraw to fix the column shifting issue

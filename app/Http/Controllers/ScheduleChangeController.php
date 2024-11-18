@@ -50,33 +50,29 @@ class ScheduleChangeController extends Controller
              });
          }
      
-         // Filter by user type (Client, Worker, or Both)
+         // Filter by user type and status
          $userType = $request->get('type', null); // Default to null (no filter)
          $status = $request->get('status', null); // Get status filter (null by default)
+
+         \Log::info($userType);
+         \Log::info($status);
      
-         if ($userType !== null) {
-             if ($userType === 'Client') {
-                 $query->whereHas('user', function ($q) {
-                     $q->where('user_type', 'App\Models\Client');
-                 });
-             } elseif ($userType === 'Worker') {
-                 $query->whereHas('user', function ($q) {
-                     $q->where('user_type', 'App\Models\User');
-                 });
+         $query->where(function ($query) use ($userType, $status) {
+             if ($userType) {
+                 if ($userType === 'Client') {
+                     $query->whereHas('user', function ($q) {
+                         $q->where('user_type', 'App\Models\Client');
+                     });
+                 } elseif ($userType === 'Worker') {
+                     $query->whereHas('user', function ($q) {
+                         $q->where('user_type', 'App\Models\User');
+                     });
+                 }
              }
-         }
-     
-         // Filter by status (if provided)
-         if ($status !== null && $status !== 'All') {
-             $query->where('status', $status);
-         }
-     
-         // If both `user_type` and `status` are null or 'All', return all records
-         if ($userType === null && $status === null) {
-             $query->where(function($query) {
-                return true;
-             });
-         }
+             if ($status && $status !== 'All') {
+                 $query->where('status', $status);
+             }
+         });
      
          // Select specified columns
          $query->select($columns);
@@ -116,6 +112,7 @@ class ScheduleChangeController extends Controller
              'recordsFiltered' => $totalRecords,
          ]);
      }
+     
      
      
      
