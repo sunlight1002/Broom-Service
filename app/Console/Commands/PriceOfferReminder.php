@@ -38,11 +38,11 @@ class PriceOfferReminder extends Command
             $client = $offer->client;
             $daysDiff = Carbon::now()->diffInDays(Carbon::parse($offer->created_at));
 
-            if ($daysDiff == 1) {
+            if ($daysDiff <= 1) {
                 $offer->offer_pending_since = '24 שעות'; // 24 hours
-            } elseif ($daysDiff == 3) {
+            } elseif ($daysDiff >= 3) {
                 $offer->offer_pending_since = '3 ימים'; // 3 days
-            } elseif ($daysDiff == 7) {
+            } elseif ($daysDiff >= 7) {
                 $offer->offer_pending_since = '7 ימים'; // 7 days
             } else {
                 $offer->offer_pending_since = '7 ימים'; // Or any default value
