@@ -68,7 +68,8 @@ return [
         'account_id' => env('FB_ACCOUNT_ID'),
         'access_token' => env('FB_ACCESS_TOKEN'),
         'webhook_token' => env('FB_WEBHOOK_TOKEN'),
-        'page_id' => env('FB_page_ID'),
+        'page_id' => env('FB_PAGE_ID'),
+        'business_id' => env('FB_BUSINESS_ID'),
     ],
 
     'whapi' => [
