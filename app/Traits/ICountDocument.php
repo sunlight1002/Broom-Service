@@ -51,6 +51,7 @@ trait ICountDocument
     private function generateOrderInvoice($client, $order, $card)
     {
         $payment_method = $client->payment_method;
+        \Log::info([$card]);
 
         $services = json_decode($order->items, true);
         $doctype = ($payment_method == 'cc') ? "invrec" : "invoice";

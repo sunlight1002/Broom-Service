@@ -97,7 +97,7 @@ class WhatsappNotification
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
 
-    private function replaceJobFields($text, $jobData, $workerData = null, $commentData = null)
+    private function replaceJobFields($text, $jobData,$eventData, $workerData = null, $commentData = null)
     {
         $placeholders = [];
         if(isset($jobData) && !empty($jobData)) {
@@ -130,15 +130,15 @@ class WhatsappNotification
                 ':team_job_action_link' => url("admin/jobs/" . $jobData['id'] . "/change-worker"),
                 ':job_status' => ucfirst($jobData['status']) ?? '',
                 ':client_job_review' => url("client/jobs/" . base64_encode($jobData['id']) . "/review") ?? '',
-                ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
+                ':content_txt' => isset($eventData['content_data']) ? $eventData['content_data'] : ' ',
                 ':rating' => $jobData['rating'] ?? "",
                 ':review' => $jobData['review'] ?? "",
             ];
 
         }
-        if(isset($jobData) && !empty($jobData) && isset($workerData) && !empty($workerData)) {
+        if(isset($jobData) && !empty($jobData) ) {
             $placeholders = array_merge($placeholders, [
-                ':job_accept_url' => url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve"),
+                ':job_accept_url' => isset($workerData['id']) ?? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve"),
                 ':job_contact_manager_link' => url("worker/jobs/view/" . $jobData['id']."?q=contact_manager"),
             ]) ;
         }
@@ -288,6 +288,8 @@ class WhatsappNotification
                     : ("Job is marked as " . ucfirst($jobData['status'] ?? "")),
                 ':admin_name' => $eventData['admin']['name'] ?? '',
                 ':came_from' => $eventData['type'] ?? '',
+                // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
+
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -735,7 +737,12 @@ class WhatsappNotification
                         //     $text .= $emailData['emailContent'] . "\n\n";
                         // }
 
-                        $text .= $emailData['emailContentWa'] . "\n\n";
+                        if (isset($emailData['emailContentWa'])) {
+                            $text .= $emailData['emailContentWa'] . "\n\n";
+                        }else{
+                            $text .= $emailData['emailContent'] . "\n\n";
+                        }
+
 
                         $text .= __('mail.wa-message.worker_job_approval.content', [
                             'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),

@@ -36,7 +36,6 @@ export default function AddLead() {
         notification_type: "both",
     });
 
-
     const navigate = useNavigate();
 
 

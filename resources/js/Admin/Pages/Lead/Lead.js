@@ -34,7 +34,7 @@ export default function Lead() {
         // "potential client": t("admin.leads.Potential_client"),
         // "pending client": t("admin.leads.Pending_client"),
         // "freeze client": t("admin.leads.Freeze_client"),
-        "active client": t("admin.leads.Active_client"),
+        // "active client": t("admin.leads.Active_client"),
     };
     const [filter, setFilter] = useState("All");
     const [changeStatusModal, setChangeStatusModal] = useState({

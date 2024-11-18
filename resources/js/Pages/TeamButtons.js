@@ -97,7 +97,7 @@ export default function TeamButtons() {
         };
         try {
             const response = await axios.post(`/api/admin/jobs/start-time`, data, { headers });
-            console.log(response);
+            getJob();
 
             // Handle successful response
             alert.success(response.data.message);
@@ -146,6 +146,7 @@ export default function TeamButtons() {
 
         try {
             const res = await axios.post(`/api/client/jobs/speak-to-manager`, data, { headers });
+            getJob();
             alert.success(res?.data?.message)
         } catch (error) {
             if (error.response) {
