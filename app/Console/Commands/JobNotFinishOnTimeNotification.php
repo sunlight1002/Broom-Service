@@ -49,9 +49,14 @@ class JobNotFinishOnTimeNotification extends Command
             ->with(['worker', 'client', 'jobservice', 'propertyAddress'])
             ->whereNotNull('worker_id')
             ->whereHas('worker')
+            // ->whereDoesntHave('workerMetas', function ($query) {
+            //     $query->where('worker_id', DB::raw('jobs.worker_id'));
+            //     $query->where('key', 'worker_notify_on_job_time_over');
+            // })
             ->whereDoesntHave('workerMetas', function ($query) {
-                $query->where('worker_id', DB::raw('jobs.worker_id'));
-                $query->where('key', 'worker_notify_on_job_time_over');
+                $query->whereColumn('job_id', 'jobs.id') // Match by job_id
+                      ->whereColumn('worker_id', 'jobs.worker_id') 
+                      ->where('key', 'worker_notify_on_job_time_over');
             })
             ->whereDate('start_date', now())
             ->whereRaw("STR_TO_DATE(end_time, '%H:%i:%s') > ?", [now()->format('H:i:s')])
@@ -96,7 +101,7 @@ class JobNotFinishOnTimeNotification extends Command
                 'worker_id' => $worker['id'],
                 'job_id' => $job->id,
                 'key' => 'worker_notify_on_job_time_over',
-                'value' => '1',
+                'value' => Carbon::now()->format('Y-m-d H:i:s'),
             ]);
         }
 

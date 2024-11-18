@@ -53,10 +53,15 @@ class TeamNotifyAfter30MinsIfWorkerNotConfirm extends Command
         $jobs = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress', 'workerMetas'])
             ->whereHas('worker')
+            // ->whereDoesntHave('workerMetas', function ($query) {
+            //     $query->where('worker_id', DB::raw('jobs.worker_id'));
+            //     $query->where('key', 'team_job_not_confirm_after_30_mins');
+            // })
             ->whereDoesntHave('workerMetas', function ($query) {
-                $query->where('worker_id', DB::raw('jobs.worker_id'));
-                $query->where('key', 'team_job_not_confirm_after_30_mins');
-            })
+                $query->whereColumn('job_id', 'jobs.id') // Match by job_id
+                      ->whereColumn('worker_id', 'jobs.worker_id') // Match by worker_id
+                      ->where('key', 'team_job_not_confirm_after_30_mins');
+            })            
             ->whereNotNull('worker_approved_at')
             ->whereNotNull('start_time')
             ->whereDoesntHave('hours')
@@ -95,7 +100,7 @@ class TeamNotifyAfter30MinsIfWorkerNotConfirm extends Command
                     'worker_id' => $worker->id,
                     'job_id' => $job->id,
                     'key' => 'team_job_not_confirm_after_30_mins',
-                    'value' => '1',
+                    'value' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
             }
         }

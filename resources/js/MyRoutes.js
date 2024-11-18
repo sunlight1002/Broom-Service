@@ -175,6 +175,7 @@ import WorkerLead from "./Admin/Pages/Workers/WorkerLead";
 import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
 import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
+import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -538,6 +539,11 @@ export default function MyRoutes() {
                                 exact
                                 path="schedule-requests"
                                 element={<ScheduleChange />}
+                            />
+                            <Route
+                                exact
+                                path="schedule-requests/:id"
+                                element={<ScheduleRequestDetails />}
                             />
                             <Route
                                 exact

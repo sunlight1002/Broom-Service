@@ -36,7 +36,6 @@ export default function AddLead() {
         notification_type: "both",
     });
 
-
     const navigate = useNavigate();
 
 
@@ -132,6 +131,9 @@ export default function AddLead() {
         extraValues.splice(i, 1);
         setExtra(extraValues);
     };
+
+    // console.log(formValues?.lng);
+    
     return (
         <div id="container">
             <Sidebar />

@@ -13,6 +13,7 @@ const containerStyle = {
     width: "100%",
     height: "300px",
 };
+
 const Map = memo(function Map({
     onLoad,
     onPlaceChanged,
@@ -25,16 +26,19 @@ const Map = memo(function Map({
     place,
     language,
 }) {
-    console.log(language);
-    
+
     let addressSearchRef = useRef();
     const { t } = useTranslation();
+    
+    // Set the Geocode API key
     Geocode.setApiKey("AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk");
+    Geocode.setLanguage(language === "en" ? "en" : "he"); 
 
     const center = {
         lat: latitude,
         lng: longitude,
     };
+
     useEffect(() => {
         if (address === "" && place) {
             addressSearchRef.current && (addressSearchRef.current.value = "");
@@ -51,56 +55,56 @@ const Map = memo(function Map({
             <LoadScript
                 googleMapsApiKey="AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk"
                 libraries={libraries}
+                language={language === 'en' ? 'en' : 'he'}  // Pass the language here
             >
                 <div className="skyBorder">
-
-                <GoogleMap
-                    mapContainerStyle={containerStyle}
-                    center={center}
-                    zoom={15}
+                    <GoogleMap
+                        mapContainerStyle={containerStyle}
+                        center={center}
+                        zoom={15}
                     >
-                    <Marker
-                        draggable={true}
-                        onDragEnd={(e) => onMarkerDragEnd(e)}
-                        position={{
-                            lat: latitude,
-                            lng: longitude,
-                        }}
+                        <Marker
+                            draggable={true}
+                            onDragEnd={(e) => onMarkerDragEnd(e)}
+                            position={{
+                                lat: latitude,
+                                lng: longitude,
+                            }}
                         />
-                    {address ? (
-                        <InfoWindow
-                        onClose={(e) => onInfoWindowClose(e)}
-                        position={{
-                            lat: latitude + 0.0018,
-                            lng: longitude,
-                        }}
-                        >
-                            <div>
-                                <span
-                                    style={{
-                                        padding: 0,
-                                        margin: 0,
-                                    }}
+                        {address ? (
+                            <InfoWindow
+                                onClose={(e) => onInfoWindowClose(e)}
+                                position={{
+                                    lat: latitude + 0.0018,
+                                    lng: longitude,
+                                }}
+                            >
+                                <div>
+                                    <span
+                                        style={{
+                                            padding: 0,
+                                            margin: 0,
+                                        }}
                                     >
-                                    {address}
-                                </span>
-                            </div>
-                        </InfoWindow>
-                    ) : (
-                        <></>
-                    )}
-                    <Marker />
-                </GoogleMap>
+                                        {address}
+                                    </span>
+                                </div>
+                            </InfoWindow>
+                        ) : (
+                            <></>
+                        )}
+                        <Marker />
+                    </GoogleMap>
                 </div>
                 <div className="mt-3">
-                <Autocomplete onPlaceChanged={onPlaceChanged} onLoad={onLoad}>
-                    <input
-                        ref={addressSearchRef}
-                        type="text"
-                        placeholder={t("admin.global.locationPlaceholder")}
-                        className="form-control mt-1 skyBorder"
+                    <Autocomplete onPlaceChanged={onPlaceChanged} onLoad={onLoad}>
+                        <input
+                            ref={addressSearchRef}
+                            type="text"
+                            placeholder={t("admin.global.locationPlaceholder")}
+                            className="form-control mt-1 skyBorder"
                         />
-                </Autocomplete>
+                    </Autocomplete>
                 </div>
             </LoadScript>
         </div>

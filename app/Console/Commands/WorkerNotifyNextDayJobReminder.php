@@ -54,9 +54,14 @@ class WorkerNotifyNextDayJobReminder extends Command
             ->with(['worker', 'client', 'jobservice', 'propertyAddress', 'workerMetas'])
             ->whereNotNull('worker_id')
             ->whereHas('worker')
+            // ->whereDoesntHave('workerMetas', function ($query) {
+            //     $query->where('worker_id', DB::raw('jobs.worker_id'));
+            //     $query->where('key', 'next_day_job_reminder_at_6_pm');
+            // })
             ->whereDoesntHave('workerMetas', function ($query) {
-                $query->where('worker_id', DB::raw('jobs.worker_id'));
-                $query->where('key', 'next_day_job_reminder_at_6_pm');
+                $query->whereColumn('job_id', 'jobs.id') // Match by job_id
+                    ->whereColumn('worker_id', 'jobs.worker_id') 
+                    ->where('key', 'next_day_job_reminder_at_6_pm');
             })
             ->whereNull('worker_approved_at')
             ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
@@ -97,7 +102,7 @@ class WorkerNotifyNextDayJobReminder extends Command
                     'worker_id' => $worker->id,
                     'job_id' => $job->id,
                     'key' => 'next_day_job_reminder_at_6_pm',
-                    'value' => '1',
+                    'value' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
 
                 $job->update([

@@ -50,9 +50,14 @@ class WorkerNotifyBefore1HourOfJobStart extends Command
         $jobs = Job::query()
             ->with(['worker', 'client', 'jobservice', 'propertyAddress', 'workerMetas'])
             ->whereHas('worker')
+            // ->whereDoesntHave('workerMetas', function ($query) {
+            //     $query->where('worker_id', DB::raw('jobs.worker_id'));
+            //     $query->where('key', 'reminder_to_worker_1_hour_before_job_start');
+            // })
             ->whereDoesntHave('workerMetas', function ($query) {
-                $query->where('worker_id', DB::raw('jobs.worker_id'));
-                $query->where('key', 'reminder_to_worker_1_hour_before_job_start');
+                $query->whereColumn('job_id', 'jobs.id') // Match by job_id
+                      ->whereColumn('worker_id', 'jobs.worker_id') 
+                      ->where('key', 'reminder_to_worker_1_hour_before_job_start');
             })
             ->whereNotNull('worker_approved_at')
             ->whereNotNull('start_time')
@@ -84,7 +89,7 @@ class WorkerNotifyBefore1HourOfJobStart extends Command
                     'worker_id' => $worker->id,
                     'job_id' => $job->id,
                     'key' => 'reminder_to_worker_1_hour_before_job_start',
-                    'value' => '1',
+                    'value' => Carbon::now()->format('Y-m-d H:i:s'),
                 ]);
             }
         }

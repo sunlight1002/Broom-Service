@@ -135,24 +135,24 @@ trait PaymentAPI
             'UseAdvancedDuplicatesCheck' => "",
         ];
 
-        if(!isset($chargeData['obeligo_action']) || $chargeData['obeligo_action'] != 2) {
-            $postData['ZCreditInvoiceReceipt'] = [
-                'Type' => "0",
-                'TaxRate' => config('services.app.tax_percentage'),
-                'RecepientName' => "",
-                'RecepientCompanyID' => "",
-                'Address' => "",
-                'City' => "",
-                'ZipCode' => "",
-                'PhoneNum' => "",
-                'FaxNum' => "",
-                'Comment' => "",
-                'ReceipientEmail' => "",
-                'EmailDocumentToReceipient' => "",
-                'ReturnDocumentInResponse' => "",
-                'Items' => $chargeData['items'],
-            ];
-        }
+        // if(!isset($chargeData['obeligo_action']) || $chargeData['obeligo_action'] != 2) {
+        //     $postData['ZCreditInvoiceReceipt'] = [
+        //         'Type' => "0",
+        //         'TaxRate' => config('services.app.tax_percentage'),
+        //         'RecepientName' => "",
+        //         'RecepientCompanyID' => "",
+        //         'Address' => "",
+        //         'City' => "",
+        //         'ZipCode' => "",
+        //         'PhoneNum' => "",
+        //         'FaxNum' => "",
+        //         'Comment' => "",
+        //         'ReceipientEmail' => "",
+        //         'EmailDocumentToReceipient' => "",
+        //         'ReturnDocumentInResponse' => "",
+        //         'Items' => $chargeData['items'],
+        //     ];
+        // }
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -407,6 +407,8 @@ trait PaymentAPI
 
         $json = $response->json();
         $http_code = $response->status();
+
+        \Log::info([$json]);
 
         if ($http_code != 200) {
             throw new Exception('Error : Failed to create order document');

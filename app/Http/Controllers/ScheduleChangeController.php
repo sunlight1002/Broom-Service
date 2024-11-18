@@ -247,4 +247,24 @@ class ScheduleChangeController extends Controller
         ], 200);
     }
 
+
+    public function getScheduleChange($id)
+    {
+        // Find the ScheduleChange record by its ID
+        $scheduleChange = ScheduleChange::with('user')->find($id);
+
+        // Check if the record exists
+        if (!$scheduleChange) {
+            return response()->json([
+                'message' => 'Schedule change not found',
+            ], 404);
+        }
+
+        // Return the record as a response
+        return response()->json([
+            'scheduleChange' => $scheduleChange,
+        ], 200);
+    }
+
+
 }
