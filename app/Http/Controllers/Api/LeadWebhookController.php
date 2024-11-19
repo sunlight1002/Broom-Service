@@ -41,7 +41,7 @@ class LeadWebhookController extends Controller
     protected $botMessages = [
         'main-menu' => [
             'en' => "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time",
-            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu'."\n\n". "אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
+            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu'."\n\n". "אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת."
         ]
     ];
 
@@ -168,6 +168,7 @@ class LeadWebhookController extends Controller
             $client = null;
             if (strlen($from) > 10) {
                 $client = Client::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
+                
             } else {
                 $client = Client::where('phone', 'like', '%' . $from . '%')->first();
             }
@@ -205,6 +206,9 @@ class LeadWebhookController extends Controller
                 ]);
 
                 die('Template send to new client');
+            }else if ($client->disable_notification == 1) {
+                \Log::info('notification disabled');
+                die('notification disabled');
             }
 
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
@@ -218,22 +222,13 @@ class LeadWebhookController extends Controller
 
                 $client_menus = WhatsAppBotClientState::where('client_id', $client->id)->first();
 
-                if($message === 'STOP'){
+                if($message === 'STOP' || $message === 'הפסק'){
                     $user = Client::find($client->id);
                     if (!$user) {
                         return response()->json([
                         'message' => 'User not found'
                         ]);
                     };
-
-                    if ($user->disable_notification == 1) {
-                    sendWhatsappMessage($from, array('message' => "Your already STOPPED the notifications"));
-                        return response()->json([
-                        'message' => 'Notifications are already disabled'
-                        ]);
-                    }
-                    $user->disable_notification = 1;
-                    $user->save();
 
                     event(new WhatsappNotificationEvent([
                         "type" => WhatsappMessageTemplateEnum::STOP,
@@ -242,22 +237,16 @@ class LeadWebhookController extends Controller
                         ]
                     ]));
 
-                    $msg = $client->lng == 'heb' ? "הבקשה שלך התקבלה. הסרנו אותך מהרשימה, ולא תקבל יותר הודעות מאיתנו. אם זה נעשה בטעות או אם תרצה להירשם שוב, אנא צור קשר\n\nבברכה,\nצוות ברום סרוויס🌹\nwww.broomservice.co.il\nטלפון: 03-525-70-\noffice@broomservice.co.il" 
-                    : "Your request has been processed. You have been unsubscribed, and you will no longer receive notifications from us. \nIf this was a mistake or you wish to resubscribe, please let us know.\n\nBest Regards,\nBroom Service Team 🌹\nwww.broomservice.co.il\nTelephone: 03-525-70-60\noffice@broomservice.co.il";
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
+                        "notificationData" => [
+                            'client' => $user->toArray()
+                        ]
+                    ]));
 
+                    $user->disable_notification = 1;
+                    $user->save();
                     
-                    WebhookResponse::create([
-                        'status'        => 1,
-                        'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                        'message'       => $msg,
-                        'number'        => $from,
-                        'flex'          => 'A',
-                        'read'          => 1,
-                        'data'          => json_encode($get_data)
-                    ]);
-
-                    sendWhatsappMessage($from, array('message' => $msg));
                     die("STOPPED");
                 }
 
@@ -618,7 +607,12 @@ If you would like to speak to a human representative, please send a message with
                         'key' => config('services.google.map_key')
                     ]);
 
+                    \Log::info($response->json());
+
+
                     if ($response->successful()) {
+                        \Log::info($result);
+                        \Log::info("address");
                         $data = $response->object();
                         $result = $data->results[0] ?? null;
                         if ($result) {
@@ -1253,24 +1247,24 @@ If you would like to speak to a human representative, please send a message with
 
                 \Log::info(['message' => $message, 'last_menu' => $last_menu]);
 
-                    // Follow-up message for returning to the menu, with translation based on the client's language
-                    $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת." 
-                    :"Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time";
+                // if($message !== "Human Representative"){
+                // Follow-up message for returning to the menu, with translation based on the client's language
+                $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת." 
+                :"Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time";
 
                 WebhookResponse::create([
-                    'status'        => 1,
-                    'name'          => 'whatsapp',
-                    'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                    'message'       => $follow_up_msg,
-                    'number'        => $from,
-                    'flex'          => 'A',
-                    'read'          => 1,
-                    'data'          => json_encode($get_data)
+                'status'        => 1,
+                'name'          => 'whatsapp',
+                'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                'message'       => $follow_up_msg,
+                'number'        => $from,
+                'flex'          => 'A',
+                'read'          => 1,
+                'data'          => json_encode($get_data)
                 ]);
 
                 $result = sendWhatsappMessage($from, array('message' => $follow_up_msg));
-
-
+                // }
             }
         }
 
