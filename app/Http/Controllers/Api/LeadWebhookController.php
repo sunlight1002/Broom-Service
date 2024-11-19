@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\LeadStatusEnum;
-use App\Enums\NotificationTypeEnum;
-use App\Enums\SettingKeyEnum;
-use App\Events\ClientLeadStatusChanged;
-use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\SendClientLogin;
-use App\Events\WhatsappNotificationEvent;
-use App\Http\Controllers\Controller;
-use App\Models\Fblead;
-use App\Models\Client;
-use App\Models\Contract;
-use App\Models\Job;
-use App\Jobs\SendMeetingMailJob;
-use App\Models\Offer;
-use App\Models\WebhookResponse;
-use App\Models\WhatsAppBotClientState;
-use App\Models\WhatsappLastReply;
-use App\Models\ClientPropertyAddress;
-use App\Models\Notification;
-use App\Models\Schedule;
-use App\Models\Setting;
-use App\Traits\ScheduleMeeting;
-use App\Mail\Client\LoginOtpMail;
-use Twilio\Rest\Client as TwilioClient;
 use Carbon\Carbon;
+use App\Models\Job;
+use App\Models\Offer;
+use App\Models\Client;
+use App\Models\Fblead;
+use App\Models\Setting;
+use App\Models\Contract;
+use App\Models\Schedule;
+use App\Models\Notification;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use App\Enums\LeadStatusEnum;
+use App\Enums\SettingKeyEnum;
+use App\Events\SendClientLogin;
+use App\Models\WebhookResponse;
+use App\Traits\ScheduleMeeting;
+use App\Jobs\SendMeetingMailJob;
+use App\Mail\Client\LoginOtpMail;
+use App\Models\WhatsappLastReply;
 use Illuminate\Support\Facades\DB;
+use App\Enums\NotificationTypeEnum;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use App\Models\ClientPropertyAddress;
+use App\Models\WhatsAppBotClientState;
+use App\Events\ClientLeadStatusChanged;
+use Twilio\Rest\Client as TwilioClient;
+use App\Events\WhatsappNotificationEvent;
+use Illuminate\Support\Facades\Validator;
+use App\Enums\WhatsappMessageTemplateEnum;
 
 class LeadWebhookController extends Controller
 {
@@ -168,7 +168,7 @@ class LeadWebhookController extends Controller
             $client = null;
             if (strlen($from) > 10) {
                 $client = Client::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
-                
+
             } else {
                 $client = Client::where('phone', 'like', '%' . $from . '%')->first();
             }
@@ -246,7 +246,7 @@ class LeadWebhookController extends Controller
 
                     $user->disable_notification = 1;
                     $user->save();
-                    
+
                     die("STOPPED");
                 }
 
@@ -507,7 +507,7 @@ If you would like to speak to a human representative, please send a message with
                     $msg = null;
 
                     if ( str_contains($message, 'Human Representative') || str_contains($message, 'נציג אנושי') ) {
-                        
+
                         event(new WhatsappNotificationEvent([
                             "type" => WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE,
                             "notificationData" => [
@@ -532,9 +532,9 @@ If you would like to speak to a human representative, please send a message with
                         }
 
                         $state = "main_menu->human_representative";
-                        
+
                     }
-                    
+
                     $result = sendWhatsappMessage($from, array('message' => $msg));
 
                     WebhookResponse::create([
@@ -554,10 +554,10 @@ If you would like to speak to a human representative, please send a message with
                         'menu_option' => $state,
                         'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                     ]);
-                    
+
                     $message = null;
                     die("Human representative");
-                   
+
                 }
 
                 // Store lead full name
@@ -1089,7 +1089,7 @@ If you would like to speak to a human representative, please send a message with
                     }
                     if ($auth) {
 
-                        $msg = $auth->lng == 'heb' ? "היי! שמנו לב שהמספר שלך כבר רשום במערכת שלנו.\nאיך נוכל לעזור לך היום? נא לבחור אחת מהאפשרויות הבאות:\n\n1 - שלחו לי שוב את פרטי ההתחברות\n2 - אני מעוניין שיצרו איתי קשר לגבי שירות חדש או חידוש" 
+                        $msg = $auth->lng == 'heb' ? "היי! שמנו לב שהמספר שלך כבר רשום במערכת שלנו.\nאיך נוכל לעזור לך היום? נא לבחור אחת מהאפשרויות הבאות:\n\n1 - שלחו לי שוב את פרטי ההתחברות\n2 - אני מעוניין שיצרו איתי קשר לגבי שירות חדש או חידוש"
                         : "Hello! We noticed that your number is already registered in our system.\nHow can we assist you today? Please choose one of the following options:\n\n1 - Send me my login details again\n2 - I’d like to be contacted about a new service or renewal";
 
                         // $auth->makeVisible('passcode');
@@ -1157,16 +1157,16 @@ If you would like to speak to a human representative, please send a message with
                     die("Send login details");
                 }elseif ($last_menu == 'need_more_help' && $message == '2') {
 
-                    $msg = $client->lng == 'heb' ? "הבנתי! אנחנו מעבירים אותך כעת לתפריט שירותים חדשים או חידוש\nשירותים. נא לבחור באפשרות המתאימה לך ביותר. 🛠️\nהאם יש משהו נוסף שבו אוכל לעזור לך היום? (כן או לא) 👋" 
+                    $msg = $client->lng == 'heb' ? "הבנתי! אנחנו מעבירים אותך כעת לתפריט שירותים חדשים או חידוש\nשירותים. נא לבחור באפשרות המתאימה לך ביותר. 🛠️\nהאם יש משהו נוסף שבו אוכל לעזור לך היום? (כן או לא) 👋"
                     :"Got it! We will redirect you to the menu for new services or renewals.\nPlease select the option that best suits your needs. 🛠️\n\nIs there anything else I can help you with today? (Yes or No) 👋";
 
                     $result = sendWhatsappMessage($from, array('message' => $msg));
-                    
+
                     die('main_menu');
                 }
 
-               
-                
+
+
                 // Send about service message
                 if ($last_menu == 'main_menu' && isset($menus[$last_menu][$message]['content'][$client->lng == 'heb' ? 'he' : 'en'])) {
                     $msg = $menus[$last_menu][$message]['content'][$client->lng == 'heb' ? 'he' : 'en'];
@@ -1249,7 +1249,7 @@ If you would like to speak to a human representative, please send a message with
 
                 // if($message !== "Human Representative"){
                 // Follow-up message for returning to the menu, with translation based on the client's language
-                $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת." 
+                $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
                 :"Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time";
 
                 WebhookResponse::create([
@@ -1283,11 +1283,30 @@ If you would like to speak to a human representative, please send a message with
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $lead_exists = Client::where('phone', $request->phone)->orWhere('email', $request->email)->exists();
+        $phone = $request->phone;
+        $phone = preg_replace('/\D/', '', $phone);
+
+        // Check if the phone number starts with '0'
+        if (strpos($phone, '0') === 0) {
+            // Remove the leading '0' and prepend '972'
+            $phone = '972' . substr($phone, 1);
+        } elseif (strpos($phone, '972') === 0) {
+            // If the phone already starts with '972', leave it as is
+            // Ensure no leading '+'
+            $phone = ltrim($phone, '+');
+        } elseif (strpos($phone, '+') === 0) {
+            // If the phone starts with '+', remove the '+'
+            $phone = substr($phone, 1);
+        } else {
+            // If no country code is present, prepend '972'
+            $phone = '972' . $phone;
+        }
+
+        $lead_exists = Client::where('phone', $phone)->orWhere('email', $request->email)->exists();
         if (!$lead_exists) {
             $lead = new Client;
         } else {
-            $lead = Client::where('phone', 'like', '%' . $request->phone . '%')->first();
+            $lead = Client::where('phone', 'like', '%' . $phone . '%')->first();
             if (empty($lead)) {
                 $lead = Client::where('email', $request->email)->first();
             }
@@ -1297,12 +1316,12 @@ If you would like to speak to a human representative, please send a message with
 
         $lead->firstname = $name[0];
         $lead->lastname = (isset($name[1])) ? $name[1] : '';
-        $lead->phone = $request->phone;
+        $lead->phone = $phone;
         $lead->email = $request->email;
         $lead->status = 0;
         $lead->lng = 'en';
-        $lead->password = Hash::make($request->phone);
-        $lead->passcode = $request->phone;
+        $lead->password = Hash::make($phone);
+        $lead->passcode = $phone;
         $lead->save();
 
         if (!$lead_exists) {
@@ -1327,7 +1346,7 @@ If you would like to speak to a human representative, please send a message with
             'status'        => 1,
             'name'          => 'whatsapp',
             'message'       => $m,
-            'number'        => $request->phone,
+            'number'        => $phone,
             'read'          => 1,
             'flex'          => 'A',
         ]);
