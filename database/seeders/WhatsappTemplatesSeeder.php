@@ -385,7 +385,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, *:client_name*,
 
 הוספנו עדכונים לביצוע המשימות בעבודה שלך לשירות *:job_service_name*, שנקבעה ל-*:job_start_date_time*. אנא עיין בעדכונים האחרונים ובתגובות שלנו לכל משימה.
@@ -398,7 +398,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -612,7 +612,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, *:client_name*
 
 רק תזכורת ידידותית שיש לך פגישה קרובה ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בכתובת *:meeting_address* עבור *:meeting_purpose*. לחץ על הלחצן *קבל/דחה* או *העלה קובץ* כדי לקבל, לדחות, לתאם מחדש ולהעלות קבצים.
@@ -627,7 +627,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -676,7 +676,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, :client_name
 
 ברצוננו להודיעך כי הפגישה שנקבעה עבורך שונתה למועד חדש. 
@@ -693,7 +693,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -718,7 +718,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, :client_name
 
 כדי לספק לך הצעת מחיר מדויקת לשירותים המבוקשים, נשמח אם תוכל לשלוח לנו כמה תמונות או סרטון של האזור שזקוק לניקיון. כך נוכל להבין טוב יותר את הצרכים שלך ולהכין הצעת מחיר מפורטת עבורך.
@@ -735,7 +735,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -768,7 +768,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, *:client_name*
 
 זוהי תזכורת לכך שהפגישה שלך *:meeting_team_member_name* ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בוטלה כעת.
@@ -779,7 +779,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -800,7 +800,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, *:client_name*
 
 מצ'ב הצעת מחיר עבור *:offer_service_names*. לאחר אישורכם, יישלח אליכם הסכם התקשרות אותו תצטרכו למלא ולחתום למטה ואז נהיה מוכנים להתחיל בעבודה.
@@ -814,7 +814,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -884,7 +884,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום :client_name,
 
 רק תזכורת לכך שקיבלת מאיתנו הצעת מחיר בתאריך :offer_sent_date.
@@ -901,7 +901,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -925,7 +925,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום :client_name,
 
 רק תזכורת לכך שנשלח אליכם הסכם התקשרות בתאריך :contract_sent_date.
@@ -942,7 +942,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -1008,12 +1008,12 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, :client_name,
 
 רק תזכורת לכך שעדיין לא קיבלנו ממך תמונות או סרטון לצורך הצעת המחיר.
 
-נא שלחו את התמונות או הסרטון בהקדם כדי שנוכל לספק הצעת מחיר מדויקת ולהתקדם בתהליך.
+נא שלחו את התמונות או הפסקטון בהקדם כדי שנוכל לספק הצעת מחיר מדויקת ולהתקדם בתהליך.
 
 אם יש לך שאלות או בקשות, אנו פה לשירותך.
 
@@ -1025,7 +1025,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -1066,7 +1066,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "לקוחות יקרים, בוקר טוב,
 
 היום יום שני, ואנו סוגרים סידור עבודה לשבוע הבא. במידה ויש לכם אילוצים, שינויים או בקשות מיוחדות, נבקש להעבירם עוד היום.
@@ -1081,7 +1081,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -1349,7 +1349,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום צוות,
 
 אנו בברום סרוויס מבינים שלפעמים יש צורך לעשות הפסקה, ואנו רוצים להודות לכם על האמון שהענקתם לנו עד כה.
@@ -1363,7 +1363,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1978,7 +1978,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "שלום *:client_name*',
 
@@ -1990,7 +1990,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -2035,11 +2035,11 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
-                'message_heb' => "שלום, *:client_name*
+                'message_heb' => 'שלום, *:client_name*
 
-מצורף בזאת הסכם התקשרות לחתימה דיגיטלית. יש להוסיף את כרטיס האשראי לתשלום, בצירוף חתימת בעל הכרטיס המאשר לחייבו במועד החיוב. הכרטיס יחויב בסכום של 1 ש\"ח ולאחר מכן יזוכה, זאת כדי לוודא את תקינותו. הפרטים יישמרו במערכת מאובטחת. בנוסף, יש לחתום בעמוד האחרון ולאשר את ההסכם.
+לקוח יקר . מצ"ב הסכם התקשרות. נא מלאו את כל הפרטים וחתמו במקומות הנדרשים. לפרטי התשלום יש למלא את הcvv,שם בעל הכרטיס, תוקף, סוג הכרטיס וחתימתו של בעל הכרטיס. לשאר הפרטים ניצור אתכם קשר טלפוני על מנת לשמור על פרטי האשראי שלכם בצורכה מאובטחת.
 
 בדוק חוזה :client_contract_link
 
@@ -2049,7 +2049,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח "הפסק" בכל עת.',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -2073,7 +2073,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "שלום, *:client_name*
 
@@ -2087,7 +2087,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -2114,7 +2114,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, *:client_name*
 
 אנו מקווים שנהניתם מהשירות שניתן על ידי הצוות שלנו.
@@ -2133,7 +2133,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -2156,7 +2156,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, *:client_name*
 
 רק תזכורת ידידותית שיש לך פגישה קרובה ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בכתובת *:meeting_address* עבור *:meeting_purpose*. 
@@ -2172,7 +2172,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => "",
             ],
@@ -2395,7 +2395,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "שלום, *:client_name*
 
@@ -2414,7 +2414,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => "",
             ],
@@ -2576,7 +2576,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "שלום, *:client_name*
 
@@ -2591,7 +2591,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => "",
             ],
@@ -2622,7 +2622,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "שלום, *:client_name*
 
@@ -2647,7 +2647,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => "",
             ],
@@ -2670,7 +2670,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "שלום, *:client_name*
 
@@ -2687,7 +2687,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => "",
             ],
@@ -2707,7 +2707,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "שלום, *:client_name*
 
@@ -2721,7 +2721,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => "",
             ],
@@ -2750,7 +2750,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "שלום, *:client_name*
 
@@ -2774,7 +2774,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => "",
             ],
@@ -2882,16 +2882,16 @@ Broom Service Team 🌹",
 
 
 
-                [
-                    'key' => WhatsappMessageTemplateEnum::STOP,
-                    'description' => 'Client meeting schedule reminder message template',
-                    'message_en' => "Hi, *Team*
+            [
+                'key' => WhatsappMessageTemplateEnum::STOP,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *Team*
 
 
 Best regards,
 Broom Service Team",
 
-    'message_heb' => "שלום, *צוות*
+                'message_heb' => "שלום, *צוות*
 
 לקוח בשם :client_name ביקש להפסיק לקבל מאיתנו הודעות.
 יש לעדכן את המערכת ולהסיר את הלקוח מרשימת התפוצה לאלתר כדי למנוע שליחת הודעות נוספות.
@@ -2905,15 +2905,15 @@ Broom Service Team",
 
 בברכה,
 ברום סרוויס צוות",
-    'message_spa' => '',
-    'message_ru' => "",
-                ],
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
 
 
-                [
-                    'key' => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
-                    'description' => 'Client meeting schedule reminder message template',
-                    'message_en' => "Hi, *:client_name*
+            [
+                'key' => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
+                'description' => 'Client meeting schedule reminder message template',
+                'message_en' => "Hi, *:client_name*
 
 Your request has been processed. You have been unsubscribed, and you will no longer receive notifications from us. 
 If this was a mistake or you wish to resubscribe, please let us know.
@@ -2924,19 +2924,18 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il",
 
-    'message_heb' => "שלום, *:client_name*
+                'message_heb' => "שלום, *:client_name*
 
-הבקשה שלך התקבלה. הסרנו אותך מהרשימה, ולא תקבל יותר הודעות מאיתנו. אם זה נעשה בטעות או אם תרצה להירשם שוב, אנא צור קשר
-    
+הבקשה שלך התקבלה. הפסקנו אותך מהרשימה, ולא תקבל יותר הודעות מאיתנו. אם זה נעשה בטעות או אם תרצה להירשם שוב, אנא צור קשר
+                
 בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
 טלפון: 03-525-70-
 office@broomservice.co.il",
-    'message_spa' => '',
-    'message_ru' => "",
-                ],
-
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
 
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS,
@@ -2984,7 +2983,7 @@ www.broomservice.co.il
 Telephone: 03-525-70-60
 office@broomservice.co.il
 
-",
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
                 'message_heb' => "שלום, *:client_name*
 
@@ -3006,7 +3005,7 @@ www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
 
-",
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
                 'message_spa' => '',
                 'message_ru' => "",
             ],
