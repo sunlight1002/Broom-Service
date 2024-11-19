@@ -51,8 +51,6 @@ function ScheduleChange() {
         setUserId(_id)
     }
 
-    console.log(type);
-    
 
     const handleChangeStatus = async () => {
         setLoading(true)
@@ -141,7 +139,7 @@ function ScheduleChange() {
 
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
-            navigate(`/admin/worker-leads/view/${_id}`);
+            navigate(`/admin/schedule-requests/${_id}`);
         });
 
         $(tableRef.current).on("click", ".dt-change-status-btn", function () {

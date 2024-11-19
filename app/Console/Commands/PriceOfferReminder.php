@@ -45,7 +45,7 @@ class PriceOfferReminder extends Command
             } elseif ($daysDiff == 7) {
                 $offer->offer_pending_since = '7 ימים'; // 7 days
             } else {
-                $offer->offer_pending_since = ''; // Or any default value
+                $offer->offer_pending_since = '7 ימים'; // Or any default value
             }
             if ($client) {
                 $offerArr = $offer->toArray();

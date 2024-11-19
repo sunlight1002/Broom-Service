@@ -288,6 +288,8 @@ class WhatsappNotification
                     : ("Job is marked as " . ucfirst($jobData['status'] ?? "")),
                 ':admin_name' => $eventData['admin']['name'] ?? '',
                 ':came_from' => $eventData['type'] ?? '',
+                ':create_job' => url("admin/create-job/" . ($jobData['id'] ?? "")),
+                
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 
             ];

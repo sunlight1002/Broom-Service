@@ -36,10 +36,10 @@ class Kernel extends ConsoleKernel
         // Team reminder
         $schedule->command('team:notify-team-if-worker-not-confirm-before-30-mins')->everyMinute();
         $schedule->command('team:notify-team-if-worker-not-confirm-after-30-mins')->everyMinute();
-        $schedule->command('team:lead-status-pending-from-24-hours')->daily();
-        $schedule->command('team:price-offer-reminder-to-team')->daily();
+        $schedule->command('team:lead-status-pending-from-24-hours')->dailyAt('08:00');
+        $schedule->command('team:price-offer-reminder-to-team')->dailyAt('08:00');
         $schedule->command('team:contract-reminder')->hourly();
-        $schedule->command('client:offsite-meeting-reminder')->daily();
+        $schedule->command('client:offsite-meeting-reminder')->dailyAt('08:00');
 
         // Admin reminder
         // $schedule->command('admin:send-worker-invitation-report')->twiceDailyAt(8, 18);

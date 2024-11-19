@@ -447,6 +447,7 @@ Equipo de Broom Service',
                 'key' => WhatsappMessageTemplateEnum::WORKER_NOTIFY_FOR_NEXT_JOB_ON_COMPLETE_JOB,
                 'description' => 'Worker Notification for Next Job',
                 'message_en' => 'Thank you, *:worker_name*!
+
 You have a job scheduled at *:job_start_time* at the following location:
 
 *Address:* :job_full_address
@@ -538,6 +539,7 @@ Equipo Broom Service',
                 'key' => WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER,
                 'description' => 'Notification to Worker (sent 1 minute after scheduled job completion time)',
                 'message_en' => 'Hi, :worker_name,
+
 The job at :job_full_address was scheduled to be completed by :job_end_time. Please finish the job if you have completed all tasks, or contact your manager if you need assistance.
 *Options:*
 - Finish Job :worker_job_link
@@ -546,6 +548,7 @@ The job at :job_full_address was scheduled to be completed by :job_end_time. Ple
 Best regards,
 Broom Service Team',
                 'message_heb' => 'היי, :worker_name,
+
 העבודה בכתובת :job_full_address הייתה אמורה להסתיים בשעה :job_end_time. אנא סיים את העבודה אם כל המשימות הושלמו, או צור קשר עם המנהל במידת הצורך.
 *אפשרויות:*
 - סיים עבודה  :worker_job_link
@@ -554,6 +557,7 @@ Broom Service Team',
 בברכה,
 צוות ברום סרוויס',
                 'message_spa' => 'Hola, :worker_name,
+
 El trabajo en :job_full_address estaba programado para completarse a las :job_end_time. Por favor, finaliza el trabajo si has completado todas las tareas, o contacta a tu gerente si necesitas ayuda.
 *Opciones:*
 - Finalizar trabajo :worker_job_link
@@ -562,6 +566,7 @@ El trabajo en :job_full_address estaba programado para completarse a las :job_en
 Saludos cordiales,
 Equipo Broom Service',
                 'message_ru' => 'Привет, :worker_name,
+                
 Работа по адресу :job_full_address должна была завершиться к :job_end_time. Пожалуйста, завершите работу, если все задачи выполнены, или свяжитесь с менеджером, если нужна помощь.
 *Варианты:*
 - Завершить работу :worker_job_link
@@ -842,6 +847,7 @@ office@broomservice.co.il
                 'description' => 'Reminder to Team - Price Offer Sent (24 Hours, 3 Days, 7 Days)',
                 'message_en' => '',
                 'message_heb' => 'שלום צוות,
+
 חלפו :offer_pending_since מאז שנשלחה הצעת המחיר ללקוח הבא. נא לעיין בפרטי ההצעה ולעדכן את הסטטוס בהתאם או ליצור קשר עם הלקוח להמשך.
 
 פרטי לקוח:
@@ -1666,9 +1672,7 @@ Click here to take action: :lead_detail_url',
 הזמנה (:order_id) נוצרה עבור :client_name עם הנחה של ₪:discount ובסך הכל ₪:total לאחר ההנחה.
 
 בברכה,
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60
-🌐 www.broomservice.co.il',
+ברום סרוויס צוות',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1687,9 +1691,7 @@ Click here to take action: :lead_detail_url',
 הזמנה (:order_id) נוצרה עבור :client_name עם הנחה של ₪:discount ובסך הכל ₪:total לאחר ההנחה.
 
 בברכה,
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60
-🌐 www.broomservice.co.il',
+ברום סרוויס צוות',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1707,9 +1709,7 @@ Click here to take action: :lead_detail_url',
 קבלה לחשבונית (:invoice_id) נוצרה עבור :client_name,
 
 בברכה,
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60
-🌐 www.broomservice.co.il',
+ברום סרוויס צוות',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1728,9 +1728,7 @@ Click here to take action: :lead_detail_url',
 חשבונית (:invoice_id) נוצרה ונשלחה ל- :client_name.
 
 בברכה,
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60
-🌐 www.broomservice.co.il',
+ברום סרוויס צוות',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1748,9 +1746,7 @@ Click here to take action: :lead_detail_url',
 הלקוח :client_name ביצע תשלום.
 
 בברכה,
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60
-🌐 www.broomservice.co.il',
+ברום סרוויס צוות',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1768,9 +1764,7 @@ Click here to take action: :lead_detail_url',
 הלקוח :client_name ביצע תשלום.
 
 בברכה,
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60
-🌐 www.broomservice.co.il',
+ברום סרוויס צוות',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1788,9 +1782,7 @@ Click here to take action: :lead_detail_url',
 ההזמנה של הלקוח :client_name (:order_id) בוטלה.
 
 בברכה,
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60
-🌐 www.broomservice.co.il',
+ברום סרוויס צוות',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1808,9 +1800,7 @@ Click here to take action: :lead_detail_url',
 התשלום של :client_name עם הכרטיס [**** **** **** :card_number] נכשל.
 
 בברכה,
-ברום סרוויס צוות
-📞 טלפון: 03-525-70-60
-🌐 www.broomservice.co.il',
+ברום סרוויס צוות',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1978,11 +1968,9 @@ Equipo de Broom Service",
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT,
                 'description' => 'Send message to client when status is not updated from 24 hours',
-                'message_en' => "our agreement has been confirmed,
+                'message_en' => "Hello *:client_name*
 
-Hello *:client_name*
-
-Your agreement has been successfully confirmed. We will contact you soon to schedule your service.
+Your agreement has been successfully confirmed. We will contact you soon to schedule your service.
 
 Best regards,
 Broom Service Team 🌹
@@ -1992,11 +1980,9 @@ office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
-                'message_heb' => "נושא: אישור ההסכם שלך
+                'message_heb' => "שלום *:client_name*',
 
-'שלום *:client_name*',
-
-הלקוח :client_name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.
+ההסכם שלך אומת בהצלחה. ניצור איתך קשר בקרוב לתיאום השירות.
 
 בברכה,
 צוות ברום סרוויס🌹
@@ -2019,7 +2005,9 @@ office@broomservice.co.il
 
                 'message_heb' => "שלום, *צוות*
 
-הלקוח :client_name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי.
+הלקוח :client_name חתם ואימת את ההסכם. יש לבצע שיבוץ בהקדם האפשרי
+
+:create_job
 
 בברכה,
 ברום סרוויס צוות",
