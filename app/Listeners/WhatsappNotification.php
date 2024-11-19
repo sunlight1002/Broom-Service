@@ -409,6 +409,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
                     case WhatsappMessageTemplateEnum::NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS:
                     case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
+                    case WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT:
                         if($clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;

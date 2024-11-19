@@ -2882,16 +2882,16 @@ Broom Service Team 🌹",
 
 
 
-            [
-                'key' => WhatsappMessageTemplateEnum::STOP,
-                'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *Team*
+                [
+                    'key' => WhatsappMessageTemplateEnum::STOP,
+                    'description' => 'Client meeting schedule reminder message template',
+                    'message_en' => "Hi, *Team*
 
 
 Best regards,
 Broom Service Team",
 
-                'message_heb' => "שלום, *צוות*
+    'message_heb' => "שלום, *צוות*
 
 לקוח בשם :client_name ביקש להפסיק לקבל מאיתנו הודעות.
 יש לעדכן את המערכת ולהסיר את הלקוח מרשימת התפוצה לאלתר כדי למנוע שליחת הודעות נוספות.
@@ -2905,9 +2905,38 @@ Broom Service Team",
 
 בברכה,
 ברום סרוויס צוות",
-                'message_spa' => '',
-                'message_ru' => "",
-            ],
+    'message_spa' => '',
+    'message_ru' => "",
+                ],
+
+
+                [
+                    'key' => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
+                    'description' => 'Client meeting schedule reminder message template',
+                    'message_en' => "Hi, *:client_name*
+
+Your request has been processed. You have been unsubscribed, and you will no longer receive notifications from us. 
+If this was a mistake or you wish to resubscribe, please let us know.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il",
+
+    'message_heb' => "שלום, *:client_name*
+
+הבקשה שלך התקבלה. הסרנו אותך מהרשימה, ולא תקבל יותר הודעות מאיתנו. אם זה נעשה בטעות או אם תרצה להירשם שוב, אנא צור קשר
+    
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-
+office@broomservice.co.il",
+    'message_spa' => '',
+    'message_ru' => "",
+                ],
+
 
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS,
