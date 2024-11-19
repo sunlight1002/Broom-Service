@@ -86,6 +86,13 @@ export default function Hearing() {
                                 </p>`;
                     }
                 },
+                {
+                    title:"Document",
+                    data: "document",
+                    render: function (data) {
+                        return data ? data : 'No Document';
+                    }
+                },
                 // {
                 //     title: "Files",
                 //     data: "action",

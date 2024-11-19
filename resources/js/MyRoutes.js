@@ -76,6 +76,7 @@ import WorkersRefund from "./Admin/Pages/Workers/WorkersRefund";
 import WorkerTermination from "./Admin/Components/Workers/WorkerTermination";
 import WorkersHearing from "./Admin/Components/Workers/WorkersHearing";
 import ViewHearing from "./Admin/Pages/Hearing/ViewHearing";
+import Claim from "./Admin/Components/Workers/Claim";
 import HearingProtocol from "./Admin/Components/Workers/HearingProtocol";
 import ViewWorker from "./Admin/Pages/Workers/ViewWorker";
 import ViewWorkerContract from "./Admin/Pages/Workers/WorkerContract";
@@ -685,6 +686,16 @@ export default function MyRoutes() {
                                 exact
                                 path="workers/view/:id/upload-claim"
                                 element={<HearingProtocol />}
+                            />
+                              <Route
+                                exact
+                                path="workers/view/:workerId/hearing-invitation/:hid/create-claim" 
+                                element={<Claim />} 
+                            />
+                            <Route 
+                                exact
+                                path="workers/view/:id/upload-claim" 
+                                element={<HearingProtocol />} 
                             />
                             <Route
                                 exact

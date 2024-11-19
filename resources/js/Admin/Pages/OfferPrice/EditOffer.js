@@ -50,6 +50,8 @@ export default function EditOffer() {
     const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
     const [comment, setComment] = useState("");
 
+    console.log("In edit offer",formValues);
+    
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",

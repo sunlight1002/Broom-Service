@@ -137,6 +137,7 @@
         "noTimeSlot": "No time slot",
         "available": "Available",
         "sent": "Sent",
+        "workers": "Workers",
         "noOfWorker": "No. of Workers",
         "verified": "verified",
         "unverified": "un-verified",
@@ -944,6 +945,7 @@
         },
         "global": {
             "Action":"Action",
+            "Document": "Document",
             "addTeamMember": "Add Team member",
             "NameEn": "Name - En",
             "NameHev": "Name - Heb",

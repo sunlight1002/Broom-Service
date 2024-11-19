@@ -43,6 +43,8 @@ use App\Http\Controllers\HearingInvitationController;
 use App\Http\Controllers\User\WorkerHearingController;
 use App\Http\Controllers\HearingProtocolController;
 use App\Http\Controllers\ScheduleChangeController;
+use App\Http\Controllers\HearingCommentController;
+use App\Http\Controllers\ClaimController;
 
 /*
 |--------------------------------------------------------------------------
@@ -367,9 +369,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/scheduled-hearings/{id}', [HearingInvitationController::class, 'getScheduledHearings']);
     Route::delete('/hearing/{id}', [HearingInvitationController::class, 'destroy']);
 
-    
     Route::post('/hearing-protocol', [HearingProtocolController::class, 'store']);
-    Route::get('/protocol/{id}', [HearingProtocolController::class, 'show']);
+    Route::get('/hearing-protocol/comments', [HearingCommentController::class, 'getComments']);
+
+    Route::post('/claims', [ClaimController::class, 'store']);
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);

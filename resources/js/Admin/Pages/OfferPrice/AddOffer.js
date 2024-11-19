@@ -27,6 +27,7 @@ export default function AddOffer() {
     const [comment, setComment] = useState("");
     const [loading, setLoading] = useState(false);
 
+    console.log("In add offer",formValues);
 
     const handleSave = (indexKey, tmpJobData) => {
         let newFormValues = [...formValues];
@@ -106,48 +107,150 @@ export default function AddOffer() {
         }
     }, []);
 
+    // let handleSubmit = (event, _action) => {
+    //     event.preventDefault();
+    //     setLoading(true);
+
+    //     for (let t in formValues) {
+    //         if (formValues[t].service == "" || formValues[t].service == 0) {
+    //             alert.error("One of the service is not selected");
+    //             return false;
+    //         }
+
+    //         let ot = document.querySelector("#other_title" + t);
+
+    //         if (formValues[t].service == "10" && ot != undefined) {
+    //             if (formValues[t].other_title == "") {
+    //                 alert.error("Other title cannot be blank");
+    //                 return false;
+    //             }
+    //             formValues[t].other_title = document.querySelector(
+    //                 "#other_title" + t
+    //             ).value;
+    //         }
+
+    //         if (formValues[t].frequency == "" || formValues[t].frequency == 0) {
+    //             alert.error("One of the frequency is not selected");
+    //             return false;
+    //         }
+
+    //         let workerIssue = true;
+    //         if (Array.isArray(formValues[t].workers)) {
+    //             for (let index = 0; index < formValues[t].workers.length; index++) {
+    //                 const _worker = formValues[t].workers[index];
+
+    //                 if (_worker.jobHours == "") {
+    //                     alert.error("One of the job hours value is missing");
+    //                     workerIssue = false;
+    //                     break;
+    //                 }
+    //             }
+    //         } else{
+    //             console.warn(`formValues[${t}].workers is not an array`, formValues[t].workers);
+
+    //         }   
+
+    //         if (!workerIssue) {
+    //             return workerIssue;
+    //         }
+
+    //         !formValues[t].type ? (formValues[t].type = "fixed") : "";
+    //         if (formValues[t].type == "hourly") {
+    //             if (formValues[t].rateperhour == "") {
+    //                 alert.error("One of the rate per hour value is missing");
+    //                 return false;
+    //             }
+    //         } else if (formValues[t].type === "squaremeter") {
+    //             if (formValues[t].ratepersquaremeter === "" || formValues[t].totalsquaremeter === "") {
+    //                 alert.error("Rate per square meter or total square meter is missing");
+    //                 return false;
+    //             }
+    //         }  else {
+    //             if (formValues[t].fixed_price == "") {
+    //                 alert.error("One of the job price is missing");
+    //                 return false;
+    //             }
+    //         }
+    //     }
+    //     setIsSubmitting(true);
+
+    //     const data = {
+    //         client_id: clientID,
+    //         comment: comment,
+    //         status: "sent",
+    //         services: JSON.stringify(formValues),
+    //         action: _action,
+    //     };
+
+    //     axios
+    //         .post(`/api/admin/offers`, data, { headers })
+    //         .then((response) => {
+    //             if (response.data.errors) {
+    //                 setLoading(false);
+    //                 for (let e in response.data.errors) {
+    //                     alert.error(response.data.errors[e]);
+    //                 }
+    //             } else {
+    //                 setLoading(false);
+    //                 alert.success(response.data.message);
+    //                 setTimeout(() => {
+    //                     navigate(`/admin/offered-price`);
+    //                 }, 1000);
+    //             }
+    //             setIsSubmitting(false);
+    //         })
+    //         .catch((e) => {
+    //             setLoading(false);
+    //             setIsSubmitting(false);
+    //             alert.error(e.response.data.message);
+    //         });
+    // };
+
     let handleSubmit = (event, _action) => {
         event.preventDefault();
         setLoading(true);
-
+    
+        // Check if form values are valid
         for (let t in formValues) {
             if (formValues[t].service == "" || formValues[t].service == 0) {
                 alert.error("One of the service is not selected");
                 return false;
             }
-
+    
             let ot = document.querySelector("#other_title" + t);
-
+    
             if (formValues[t].service == "10" && ot != undefined) {
                 if (formValues[t].other_title == "") {
                     alert.error("Other title cannot be blank");
                     return false;
                 }
-                formValues[t].other_title = document.querySelector(
-                    "#other_title" + t
-                ).value;
+                formValues[t].other_title = document.querySelector("#other_title" + t).value;
             }
-
+    
             if (formValues[t].frequency == "" || formValues[t].frequency == 0) {
                 alert.error("One of the frequency is not selected");
                 return false;
             }
-
+    
             let workerIssue = true;
-            for (let index = 0; index < formValues[t].workers.length; index++) {
-                const _worker = formValues[t].workers[index];
-
-                if (_worker.jobHours == "") {
-                    alert.error("One of the job hours value is missing");
-                    workerIssue = false;
-                    break;
+            if (Array.isArray(formValues[t].workers)) {
+                for (let index = 0; index < formValues[t].workers.length; index++) {
+                    const _worker = formValues[t].workers[index];
+    
+                    if (_worker.jobHours == "") {
+                        alert.error("One of the job hours value is missing");
+                        workerIssue = false;
+                        break;
+                    }
                 }
+            } else {
+                console.warn(`formValues[${t}].workers is not an array`, formValues[t].workers);
             }
-
+    
             if (!workerIssue) {
                 return workerIssue;
             }
-
+    
             !formValues[t].type ? (formValues[t].type = "fixed") : "";
             if (formValues[t].type == "hourly") {
                 if (formValues[t].rateperhour == "") {
@@ -159,23 +262,26 @@ export default function AddOffer() {
                     alert.error("Rate per square meter or total square meter is missing");
                     return false;
                 }
-            }  else {
+            } else {
                 if (formValues[t].fixed_price == "") {
                     alert.error("One of the job price is missing");
                     return false;
                 }
             }
         }
+    
+        const flattenedFormValues = formValues.flat();
+    
         setIsSubmitting(true);
-
+    
         const data = {
             client_id: clientID,
             comment: comment,
             status: "sent",
-            services: JSON.stringify(formValues),
+            services: JSON.stringify(flattenedFormValues),
             action: _action,
         };
-
+    
         axios
             .post(`/api/admin/offers`, data, { headers })
             .then((response) => {
@@ -199,7 +305,7 @@ export default function AddOffer() {
                 alert.error(e.response.data.message);
             });
     };
-
+    
     useEffect(() => {
         if (clientID) {
             getSelectedClient();
