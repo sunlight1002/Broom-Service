@@ -25,7 +25,7 @@ export default function EmployeeDetails({
             setIndentityType("IDNumber");
         }
         // Only update identity type if it's not yet set or country changes to Israel
-        if (values.employeeIdentityType === "" && values.employeecountry !== "Israel") {
+        if (values.employeeIdentityType === "" || values.employeecountry !== "Israel") {
             setIndentityType("Passport");
         }
     }, [values.employeecountry]);
