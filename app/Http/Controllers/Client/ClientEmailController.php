@@ -189,6 +189,17 @@ class ClientEmailController extends Controller
             ]
         ]));
 
+        $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+
+        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+
+        }
+
         //   $emailData = [
         //     'client' => $client->toArray(),
         //     'status' => $newLeadStatus,
@@ -480,6 +491,17 @@ class ClientEmailController extends Controller
                     'client' => $client->toArray(),
                 ]
             ]));
+
+
+        $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+
+        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        }
 
             return response()->json([
                 'message' => "Contract has been rejected"

@@ -736,6 +736,7 @@ trait PaymentAPI
             "currency_code" => "ILS",
             "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "items" => $items,
+            "vat_id" => $client->vat_number ?? '',
             "totalsum" => $totalsum,
             "discount" => $discount,
             "roundup" => $roundup,
@@ -805,7 +806,7 @@ trait PaymentAPI
         ]);
 
         $captureChargeResponse = $this->captureCardCharge([
-            'card_number' => $token,
+            'card_number' => $token??"",
             'amount' => $subtotal,
             'client_name' => $client->firstname . ' ' . $client->lastname,
             'client_address' => $address ? $address->geo_address : '',
@@ -816,6 +817,7 @@ trait PaymentAPI
             'original_zcredit_reference_number' => "",
             'items' => $pay_items
         ]);
+        \Log::info(['captureChargeResponse' => $captureChargeResponse]);
 
         if (!$captureChargeResponse['HasError']) {
             $transaction->update([
