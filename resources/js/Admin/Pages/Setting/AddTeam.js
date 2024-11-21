@@ -14,7 +14,7 @@ export default function AddTeam() {
     const [name, setName] = useState(null);
     const [hebname, setHebName] = useState(null);
     const [email, setEmail] = useState(null);
-    const [phone, setPhone] = useState(null);
+    const [phone, setPhone] = useState(" ");
     const [address, setAddress] = useState(null);
     const [password, setPassword] = useState(null);
     const [confirmPassword, setConfirmPassword] = useState(null);
@@ -50,11 +50,17 @@ export default function AddTeam() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
+
+        const sanitizedPhone = phone.replace(
+            /(?<=^\+?\d+)\s*0+/,
+            ""
+        ); 
+        
         const data = {
             name: name,
             heb_name: hebname,
             email: email,
-            phone: phone,
+            phone: sanitizedPhone,
             address,
             address,
             color: !color ? "#fff" : color,

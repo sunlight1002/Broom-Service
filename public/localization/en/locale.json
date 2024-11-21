@@ -54,6 +54,7 @@
         "date_period": "Date Period",
         "date": "Date",
         "time": "Time",
+        "noTimeSlotAvailable": "No time slot available",
         "custom_date": "Custom Date Range",
         "from": "From",
         "filter": "Filter",
@@ -660,6 +661,9 @@
                 "file": "File",
                 "save": "Save File",
                 "close": "Close"
+            },
+            "reSchedule": {
+                "selectDateAndTime": "Select a Date & Time"
             }
         },
         "offer": {
@@ -1397,7 +1401,9 @@
             "Potential_client": "Potential client",
             "Pending_client": "Pending client",
             "Freeze_client": "Freeze client",
+            "Waiting_client": "Waiting",
             "Active_client": "Active client",
+            "Past_client": "Past client",
             "Unhappy": "Unhappy",
             "Price_issue": "Price issue",
             "Moved": "Moved",

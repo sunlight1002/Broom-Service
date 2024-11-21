@@ -38,7 +38,6 @@ export default function AddLead() {
 
     const navigate = useNavigate();
 
-
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -48,12 +47,17 @@ export default function AddLead() {
     const handleFormSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-        // var phoneClc = "";
-        // var phones = document.querySelectorAll(".pphone");
-        // phones.forEach((p, i) => {
-        //     phoneClc += p.value + ",";
-        // });
-        // phoneClc = phoneClc.replace(/,\s*$/, "");
+
+        const sanitizedPhone = formValues.phone.replace(
+            /(?<=^\+?\d+)\s*0+/,
+            ""
+        );
+
+        const sanitizedExtra = extra.map((entry) => ({
+            ...entry,
+            phone: entry.phone ? entry.phone.replace(/(?<=^\+?\d+)\s*0+/, "") : "",
+        }));
+          
         axios
             .post(
                 `/api/admin/leads`,
@@ -72,12 +76,12 @@ export default function AddLead() {
                         lng: formValues.lng ? formValues.lng : "heb",
                         color: !formValues.color ? "#fff" : formValues.color,
                         email: formValues.email,
-                        phone: formValues.phone,
+                        phone: sanitizedPhone,
                         password: formValues.passcode,
                         payment_method: formValues.payment_method,
                         notification_type: formValues.notification_type,
                         vat_number: formValues.vat_number,
-                        extra: JSON.stringify(extra),
+                        extra: JSON.stringify(sanitizedExtra),
                         status: !status ? 0 : parseInt(status),
                         meta: "",
                         send_bot_message: formValues.send_bot_message,
@@ -131,8 +135,6 @@ export default function AddLead() {
         extraValues.splice(i, 1);
         setExtra(extraValues);
     };
-
-    // console.log(formValues?.lng);
     
     return (
         <div id="container">

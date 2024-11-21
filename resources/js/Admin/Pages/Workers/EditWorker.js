@@ -143,8 +143,14 @@ export default function EditWorker() {
         setLoading(true);
         setIsSubmitting(true);
 
+        const sanitizedPhone = formValues.phone.replace(
+            /(?<=^\+?\d+)\s*0+/,
+            ""
+        );
+
         const data = {
             ...formValues,
+            phone: sanitizedPhone,  
             address: address,
             renewal_visa: formValues.renewal_date,
             lng: !lng ? "en" : lng,

@@ -141,8 +141,15 @@ export default function AddWorker() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
+        
+        const sanitizedPhone = formValues.phone.replace(
+            /(?<=^\+?\d+)\s*0+/,
+            ""
+        );
+
         const data = {
             ...formValues,
+            phone: sanitizedPhone,
             address: address,
             renewal_visa: formValues.renewal_date,
             lng: !lng ? "en" : lng,
@@ -161,7 +168,6 @@ export default function AddWorker() {
             branch_number: bankDetails.branch_no,
             account_number: bankDetails.account_no,
         };
-        console.log(data);
 
         elementsRef.current.map(
             (ref) => (data[ref.current.name] = ref.current.checked)

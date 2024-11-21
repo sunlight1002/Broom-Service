@@ -247,7 +247,7 @@ export default function AddOffer() {
                     }
                 }
             } else {
-                console.warn(`formValues[${t}].workers is not an array`, formValues[t].workers);
+                // console.warn(`formValues[${t}].workers is not an array`, formValues[t].workers);
                 formValues[t].workers = [];
             }
     

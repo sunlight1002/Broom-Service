@@ -74,12 +74,16 @@ export default function EditWorker() {
         e.preventDefault();
         setLoading(true);
 
-        // var phoneClc = "";
-        // var phones = document.querySelectorAll(".pphone");
-        // phones.forEach((p, i) => {
-        //     phoneClc += p.value + ",";
-        // });
-        // phoneClc = phoneClc.replace(/,\s*$/, "");
+        const sanitizedPhone = phone.replace(
+            /(?<=^\+?\d+)\s*0+/,
+            ""
+        );
+
+        const sanitizedExtra = extra.map((entry) => ({
+            ...entry,
+            phone: entry.phone ? entry.phone.replace(/(?<=^\+?\d+)\s*0+/, "") : "",
+        }));
+
         const data = {
             firstname: firstname,
             lastname: lastname,
@@ -89,12 +93,12 @@ export default function EditWorker() {
             passcode: passcode,
             color: !color ? "#fff" : color,
             email: email,
-            phone: phone,
+            phone: sanitizedPhone,
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
             notification_type: notificationType,
-            extra: JSON.stringify(extra),
+            extra: JSON.stringify(sanitizedExtra),
             status: !status ? 0 : parseInt(status),
         };
 

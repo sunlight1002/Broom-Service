@@ -656,6 +656,9 @@
                 "file": "קובץ",
                 "save": "שמור את הקובץ",
                 "close": "סגור"
+            },
+            "reSchedule": {
+                "selectDateAndTime": "בחר תאריך ושעה"
             }
         },
         "offer": {
@@ -1432,7 +1435,9 @@
             "Potential_client": "לקוח פוטנציאלי",
             "Pending_client": "לקוח בהמתנה",
             "Freeze_client": "לקוח מוקפא",
+            "Waiting_client": "ממתין",
             "Active_client": "לקוח פעיל",
+            "Past_client": "לקוח עבר",
             "Unhappy": "אוּמלָל",
             "Price_issue": "בעיית המחיר",
             "Moved":  "עבר דירה",
