@@ -30,12 +30,12 @@ export default function EditClient() {
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [vatNumber, setVatNumber] = useState("");
     const [loading, setLoading] = useState(false);
+    const [disableNotification, setDisableNotification] = useState(false)
 
     const alert = useAlert();
     const params = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation();
-
 
     const [cjob, setCjob] = useState("0");
     const [addresses, setAddresses] = useState([]);
@@ -45,6 +45,7 @@ export default function EditClient() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
 
     const handleUpdate = (e) => {
         e.preventDefault();
@@ -101,6 +102,7 @@ export default function EditClient() {
             vat_number: vatNumber,
             payment_method: paymentMethod,
             notification_type: notificationType,
+            disable_notification: disableNotification,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
         };
@@ -152,6 +154,7 @@ export default function EditClient() {
                 setNotificationType(response.data.client.notification_type);
                 setVatNumber(response.data.client.vat_number);
                 setAddresses(response.data.client.property_addresses);
+                setDisableNotification(response.data.client.disable_notification == 1 ? true : false);
                 response.data.client.extra != null
                     ? setExtra(JSON.parse(response.data.client.extra))
                     : setExtra([{ email: "", name: "", phone: "" }]);
@@ -386,6 +389,16 @@ export default function EditClient() {
                                                 <option value="en">English</option>
                                             </select>
                                         </div>
+                                        <div className="form-group d-flex align-items-center justify-items-center">
+                                            <label className="control-label navyblueColor" style={{width: "10rem"}}>
+                                                Disabled Notification
+                                            </label>
+                                            <input
+                                                type="checkbox"
+                                                checked={disableNotification}
+                                                onChange={() => setDisableNotification(prev=> !prev)}
+                                            />
+                                        </div>
                                     </div>
                                     <div className="col">
                                     <div className="form-group d-flex align-items-center">
@@ -524,6 +537,7 @@ export default function EditClient() {
                                                 ""
                                             )}
                                         </div>
+
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                             {t("admin.leads.AddLead.VatNumber")}
