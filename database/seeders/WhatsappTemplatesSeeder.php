@@ -2023,7 +2023,7 @@ office@broomservice.co.il
 
 Greetings from Broom Service.
 
-A work agreement for digital signature is attached. The credit card must be added to the payment, together with the cardholder's signature confirming that it will be charged on the billing date. The card will be charged NIS 1 and then credited, to verify its integrity. The details will be stored in a secure system. In addition, you must sign the last page and confirm the agreement.
+A work agreement for digital signature is attached. Please fill in the necessary details and sign on the last page for payment details you must fill in the details of each ID number and the signature of the card holder without the CVV details which you will give us over the phone in order to save and secure your payment details and with your signature below for any questions please
 
 Check Contract :client_contract_link
 
