@@ -437,7 +437,7 @@ export default function WorkContract() {
                                                             ? s.other_title
                                                             : s.name}
                                                     </td>
-                                                    <td>{s.type}</td>
+                                                    <td>{s.type == "fixed" ? t("admin.leads.AddLead.Options.Type.Fixed") : s.type == "hourly" ? t("admin.leads.AddLead.Options.Type.Hourly") : t("admin.leads.AddLead.Options.Type.Squaremeter") }</td>
                                                     <td>{s.freq_name} </td>
                                                     {showWorkerHours && (
                                                         <td>

@@ -52,6 +52,7 @@ import AdvanceLoan from "./Worker/Pages/MyAccount/AdvanceLoan";
 import Admin from "./Admin/Admin";
 import AdminDashboard from "./Admin/Dashboard";
 import TotalJobs from "./Admin/Pages/Jobs/TotalJobs";
+import ChangeWorkerRequestList from "./Admin/Pages/Jobs/ChangeWorkerRequests/ChangeWorkerRequestList";
 import CreateJob from "./Admin/Pages/Jobs/CreateJob";
 import CreateClientJob from "./Admin/Pages/Jobs/CreateClientJob";
 import ChangeWorker from "./Admin/Pages/Jobs/ChangeWorker";
@@ -173,6 +174,7 @@ import AddHoliday from "./Admin/Pages/Setting/AddHoliday";
 import EditHoliday from "./Admin/Pages/Setting/EditHoliday";
 import WorkerLead from "./Admin/Pages/Workers/WorkerLead";
 import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
+import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
 import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
@@ -418,6 +420,11 @@ export default function MyRoutes() {
                             />
                             <Route
                                 exact
+                                path="/client/jobs/:id/change-worker-request"
+                                element={<ChangeWorkerRequest />}
+                            />
+                            <Route
+                                exact
                                 path="/client/settings"
                                 element={<ClientSetting />}
                             />
@@ -535,6 +542,11 @@ export default function MyRoutes() {
                                 element={<AdminDashboard />}
                             />
                             <Route exact path="jobs" element={<TotalJobs />} />
+                            <Route
+                                exact
+                                path="jobs/change-worker-requests"
+                                element={<ChangeWorkerRequestList />}
+                            />
                             <Route
                                 exact
                                 path="schedule-requests"

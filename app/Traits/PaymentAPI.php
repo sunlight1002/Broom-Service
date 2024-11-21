@@ -14,9 +14,11 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
 
 trait PaymentAPI
 {
+    use ICountDocument;
     private function validateCard($cardData)
     {
         $zcreditTerminalNumber = Setting::query()
@@ -343,6 +345,31 @@ trait PaymentAPI
     // Same API but different configuration for 'order' doctype.
     private function generateOrderDocument($client, $items, $duedate, $data)
     {
+        $requestData = [
+            'data' => [
+                'firstname' => $client['firstname'] ?? null,
+                'lastname' => $client['lastname'] ?? null,
+                'id' => $client['id'] ?? null,
+                'phone' => $client['phone'] ?? null,
+                'email' => $client['email'] ?? null,
+                'vat_number' => $client['vat_number'] ?? null,
+                'status' => $client['status'] ?? null,
+                'invoicename' => $client['invoicename'] ? $client['invoicename'] : ($client['firstname'] ." " . $client['lastname']),
+            ],
+        ];
+        // Wrap the data in a Request object
+        $request = new Request($requestData);
+
+        // Call createOrUpdateUser with the constructed Request
+        $iCountResponse = $this->createOrUpdateUser($request);
+
+        $iCountData = $iCountResponse->json();
+
+        // Update client with iCount client_id
+        if (isset($iCountData['client_id'])) {
+            $client->update(['icount_client_id' => $iCountData['client_id']]);
+        }
+
         $address = $client->property_addresses()->first();
 
         $iCountCompanyID = Setting::query()
@@ -705,6 +732,8 @@ trait PaymentAPI
         $discount
     ) {
         $address = $client->property_addresses()->first();
+        \Log::info($item);
+        \Log::info("items");
 
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)

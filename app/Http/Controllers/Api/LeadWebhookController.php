@@ -1246,8 +1246,9 @@ If you would like to speak to a human representative, please send a message with
                 }
 
                 \Log::info(['message' => $message, 'last_menu' => $last_menu]);
+                \Log::info(str_contains($message, '@'));
 
-                // if($message !== "Human Representative"){
+                if(($message !== "Human Representative") || !(str_contains($message, '@'))){
                 // Follow-up message for returning to the menu, with translation based on the client's language
                 $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
                 :"Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time";
@@ -1264,7 +1265,7 @@ If you would like to speak to a human representative, please send a message with
                 ]);
 
                 $result = sendWhatsappMessage($from, array('message' => $follow_up_msg));
-                // }
+                }
             }
         }
 
