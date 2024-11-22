@@ -6,6 +6,8 @@
     "global": {
         "alltime":"כל הזמנים",
         "name":"שם",
+        "document_name":"שם המסמך",
+        "enter_document_name":"הזן את שם המסמך",
         "Email":"אימייל",
         "cycle": "מחזור",
         "open": "פתוח",

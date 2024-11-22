@@ -341,6 +341,10 @@ class ClientEmailController extends Controller
 
         $schedule->load(['client', 'team', 'propertyAddress']);
         event(new ReScheduleMeetingJob($schedule));
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
+            "notificationData" => $schedule->toArray()
+        ]));
 
         return response()->json([
             'message' => 'Thanks, your meeting is rescheduled'

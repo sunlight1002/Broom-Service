@@ -8,6 +8,8 @@
         "all":"All",
         "alltime":"All time",
         "name":"Name",
+        "document_name":"Document name",
+        "enter_document_name":"Enter document name",
         "Email":"Email",
         "cycle": "Cycle",
         "open": "Open",

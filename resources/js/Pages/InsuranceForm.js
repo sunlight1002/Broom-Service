@@ -72,7 +72,7 @@ const InsuranceForm = () => {
         // page 3
         GCandidatename: "",
         GDate: "",
-        g1: "",
+        // g1: "",
         g1Height: "",
         g1Weight: "",
         g2: "",
@@ -111,6 +111,7 @@ const InsuranceForm = () => {
         // stamp: companySign
     };
 
+
     const formSchema = yup.object({
         canFirstName: yup
             .string()
@@ -140,24 +141,39 @@ const InsuranceForm = () => {
         gender: yup.string().trim().required(t("insurance.genderReq")),
         g1Height: yup.string().trim().required(t("insurance.heightReq")),
         g1Weight: yup.string().trim().required(t("insurance.weightReq")),
-        details: yup.string().test(
-            "is-required",
-            "Details are required",
-            function (value) {
-                const { g1, g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22, g23, g24 } = this.parent;
-                
-                const requiresDetails = [
-                    g1, g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10, 
-                    g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22, 
-                    g23, g24
-                ].includes("yes");
-    
-                if (requiresDetails && !value) {
-                    return this.createError({ message: "Details are required because a field is marked 'yes'" });
+        details: yup
+            .string()
+            .test(
+                "is-required-or-nullable",
+                "Details are required because a field is marked 'yes'",
+                function (value) {
+                    const {
+                        g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
+                        g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
+                        g23, g24
+                    } = this.parent;
+
+                    const requiresDetails = [
+                        g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
+                        g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
+                        g23, g24
+                    ].includes("yes");
+
+                    // If none of the fields require details, allow null or undefined
+                    if (!requiresDetails) {
+                        return true; // Treat as valid (nullable case)
+                    }
+
+                    // If details are required, ensure value is not empty
+                    if (!value) {
+                        return this.createError({ message: "Details are required because a field is marked 'yes'" });
+                    }
+
+                    return true;
                 }
-                return true;
-            }
-        ),
+            )
+            .nullable(), // Allow null if the test logic passes for nullable case
+
         signature: yup.mixed().required(t("form101.errorMsg.sign")),
     });
     const [formValues, setFormValues] = useState(null);
@@ -175,6 +191,8 @@ const InsuranceForm = () => {
         values,
         setFieldValue,
         isSubmitting,
+        validateForm,
+        setTouched,
         isValid,
     } = useFormik({
         initialValues: formValues ?? initialValues,
@@ -184,6 +202,27 @@ const InsuranceForm = () => {
             await saveFormData(true);
         },
     });
+
+
+    const handleFormSubmit = async (e) => {
+        e.preventDefault(); 
+        setFormSubmitted(true);
+
+        setTouched(
+            Object.keys(values).reduce(
+                (acc, key) => ({ ...acc, [key]: true }),
+                {}
+            )
+        );
+
+        const validationErrors = await validateForm();
+
+        if (Object.keys(validationErrors).length > 0) {
+            scrollToError(validationErrors);
+        } else {
+            handleSubmit(e);
+        }
+    };
 
     useEffect(() => {
         if (!isValid && formSubmitted) {
@@ -323,11 +362,12 @@ const InsuranceForm = () => {
                 height: pngDims1.height,
             });
 
-            page3.drawText(values.details, {
+            page3.drawText(values.details || "", { // Provide an empty string as fallback
                 x: page3.getWidth() / 2 - pngDims1.width / 2 - 220,
                 y: page3.getHeight() / 2 - pngDims1.height / 2 - 355,
                 size: 10,
             });
+
 
             page4.drawImage(pngImage, {
                 x: page4.getWidth() / 2 - pngDims2.width / 2 - 80,
@@ -877,7 +917,7 @@ const InsuranceForm = () => {
                                     </span>
                                 </div>
                             </label>
-                            <div>
+                            {/* <div>
                                 <div className="form-check form-check-inline">
                                     <input
                                         className="form-check-input"
@@ -916,7 +956,7 @@ const InsuranceForm = () => {
                                         {t("insurance.No")}
                                     </label>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                         <hr />
                     </div>
@@ -2221,6 +2261,7 @@ const InsuranceForm = () => {
                                 <div>
                                     <textarea
                                         type="text"
+                                        name="details"
                                         value={values.details}
                                         onChange={(e) =>
                                             setFieldValue("details", e.target.value)
@@ -2321,14 +2362,12 @@ const InsuranceForm = () => {
                             <button
                                 type="submit"
                                 className="btn btn-primary"
-                                onClick={(e) => {
-                                    handleSubmit(e);
-                                    setFormSubmitted(true);
-                                }}
+                                onClick={handleFormSubmit}
                                 disabled={isSubmitting}
                             >
                                 {t("insurance.Submit")}
                             </button>
+
                         </div>
                     </div>
                 )}
