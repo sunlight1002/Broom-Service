@@ -37,7 +37,8 @@ class Admin extends Authenticatable
         'bank_name',
         'bank_number',
         'branch_number',
-        'account_number'
+        'account_number',
+        'contactId',
     ];
 
     /**

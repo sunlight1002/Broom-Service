@@ -87,7 +87,6 @@ export default function PriceOffer() {
             const res = await axios.get(`/api/admin/get-sub-services/${id}`, { headers });
             const allSubServices = res.data.subServices;
 
-            // Filter sub-services based on subServiceId in airbnb state
             const filteredSubServices = allSubServices.filter(sub => airbnb.subServiceId.includes(sub.id));
 
             setSubService(filteredSubServices);

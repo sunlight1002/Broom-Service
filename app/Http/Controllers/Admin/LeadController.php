@@ -26,6 +26,7 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
 use App\Rules\ValidPhoneNumber;
 use App\Models\LeadActivity;
+use App\Jobs\AddGoogleContactJob;
 
 class LeadController extends Controller
 {
@@ -114,7 +115,12 @@ class LeadController extends Controller
         $input['passcode'] = $password;
 
         // Create the client
-        $client = Client::create($input);
+        $client = Client::create($input);   
+
+        // AddGoogleContactJob::dispatch($client);
+
+        $job = new AddGoogleContactJob($client);
+        $job->handle();
 
         // Create user in iCount
         $iCountResponse = $this->createOrUpdateUser($request);
@@ -276,6 +282,9 @@ class LeadController extends Controller
 
 
         $client->update($input);
+
+        AddGoogleContactJob::dispatch($client);
+
         return response()->json([
             'message' => 'Lead updated successfully',
         ]);

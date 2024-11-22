@@ -33,6 +33,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use App\Rules\ValidPhoneNumber;
 use PDF;
+use App\Jobs\AddGoogleContactForWorkerJob;
+
 class WorkerController extends Controller
 {
     use JobSchedule;
@@ -416,6 +418,8 @@ class WorkerController extends Controller
 
         event(new WorkerCreated($worker));
 
+        AddGoogleContactForWorkerJob::dispatch($worker);
+
         return response()->json([
             'message' => 'Worker created successfully',
         ]);
@@ -524,6 +528,8 @@ class WorkerController extends Controller
             'manpower_company_id'       => $request->company_type == "manpower" ? $request->manpower_company_id : NULL,
             'driving_fees' =>$request->driving_fees,
         ]);
+
+        AddGoogleContactForWorkerJob::dispatch($worker);
 
         return response()->json([
             'message' => 'Worker updated successfully',

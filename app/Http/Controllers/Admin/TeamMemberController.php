@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 use App\Rules\ValidPhoneNumber;
+use App\Jobs\AddGoogleContactForTeamJob;
 
 class TeamMemberController extends Controller
 {
@@ -85,7 +86,9 @@ class TeamMemberController extends Controller
 
         $input = $request->input();
         $input['password'] = Hash::make($input['password']);
-        Admin::create($input);
+        $admin = Admin::create($input);
+
+        AddGoogleContactForTeamJob::dispatch($admin);
 
         return response()->json([
             'message' => 'Team member added successfully'
@@ -165,6 +168,9 @@ class TeamMemberController extends Controller
         }
 
         $admin->update($request);
+
+        AddGoogleContactForTeamJob::dispatch($admin);
+
         return response()->json([
             'message' => 'Team member updated successfully'
         ]);

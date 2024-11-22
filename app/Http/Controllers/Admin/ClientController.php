@@ -49,8 +49,7 @@ use App\Rules\ValidPhoneNumber;
 use App\Models\LeadActivity;
 use App\Models\WebhookResponse;
 use App\Models\WhatsAppBotClientState;
-
-
+use App\Jobs\AddGoogleContactJob;
 
 class ClientController extends Controller
 {
@@ -67,68 +66,6 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    // public function index(Request $request)
-    // {
-    //     $action = $request->get('action');
-
-    //     $query = Client::query()
-    //         ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
-    //         ->leftJoin('contracts', 'contracts.client_id', '=', 'clients.id')
-    //         ->where('clients.status', '>', 0)
-    //         ->when($action == 'booked', function ($q) {
-    //             return $q->has('jobs');
-    //         })
-    //         ->when($action == 'notbooked', function ($q) {
-    //             return $q->whereDoesntHave('jobs');
-    //         })
-    //         ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status', 'clients.created_at')
-    //         ->selectRaw('IF(contracts.status = "' . ContractStatusEnum::VERIFIED . '", 1, 0) AS has_contract')
-    //         ->groupBy('clients.id');
-
-    //         return DataTables::eloquent($query)
-    //         ->filter(function ($query) use ($request) {
-    //             if (request()->has('search')) {
-    //                 $keyword = request()->get('search')['value'];
-
-    //                 if (!empty($keyword)) {
-    //                     $query->where(function ($sq) use ($keyword) {
-    //                         $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
-    //                             ->orWhere('clients.email', 'like', "%" . $keyword . "%")
-    //                             ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
-    //                             ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%");
-    //                     });
-    //                 }
-    //             }
-    //         })
-    //         ->editColumn('created_at', function ($data) {
-    //             return $data->created_at ? Carbon::parse($data->created_at)->format('d/m/Y') : '-';
-    //         })
-    //         ->editColumn('name', function ($data) {
-    //             return $data->firstname . ' ' . $data->lastname;
-    //         })
-    //         ->filterColumn('name', function ($query, $keyword) {
-    //             $sql = "CONCAT_WS(' ', clients.firstname, clients.lastname) like ?";
-    //             $query->whereRaw($sql, ["%{$keyword}%"]);
-    //         })
-    //         ->orderColumn('name', function ($query, $order) {
-    //             $query->orderBy('firstname', $order);
-    //         })
-    //         ->editColumn('lead_status', function ($data) {
-    //             // Add the condition here to send "waiting on frontend" when lead_status is "pending client"
-    //             return $data->lead_status === 'pending client' ? 'waiting' : $data->lead_status;
-    //         })
-    //         ->filterColumn('lead_status', function ($query, $keyword) {
-    //             $sql = "leadstatus.lead_status like ?";
-    //             $query->whereRaw($sql, ["%{$keyword}%"]);
-    //         })
-    //         ->addColumn('action', function ($data) {
-    //             return '';
-    //         })
-    //         ->rawColumns(['action'])
-    //         ->toJson();
-    // }
-
-    
     public function index(Request $request)
     {
         $action = $request->get('action');
@@ -571,6 +508,8 @@ class ClientController extends Controller
             ], 422);
         }
         $client->update($input);
+
+        AddGoogleContactJob::dispatch($client);
 
         if (!empty($request->jobdata)) {
             $offer = Offer::create([

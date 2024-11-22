@@ -59,9 +59,6 @@ return [
         'redirect_uri' => env('GOOGLE_REDIRECT_URI'),
         'map_key' => env('GOOGLE_MAP_KEY'),
         'translate_key' => env('GOOGLE_TRANSLATE_API_KEY'),
-        'scopes' => [
-            'https://www.googleapis.com/auth/contacts',
-    ],
     ],
 
     'facebook' => [

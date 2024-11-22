@@ -152,7 +152,7 @@ export default function Integration() {
         <>
           <input
             type="submit"
-            value="Google Calendar Event"
+            value="Connect Google Account"
             onClick={handleGoogleCalendarClick}
             className="btn navyblue saveBtn"
             disabled={isGoogleConnected}
@@ -195,7 +195,7 @@ export default function Integration() {
               <div className="form-group mt-4 text-center">
                 <input
                   type="button"
-                  value="Remove Google Calendar"
+                  value="Remove Google Account"
                   onClick={handleRemoveGoogleCalendar}
                   className="btn red mt-2 text-center"
                   disabled={isLoading}
