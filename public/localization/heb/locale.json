@@ -1183,8 +1183,8 @@
                     },
                     "Type": {
                         "title": "סוג",
-                        "Fixed": "ביקור",
-                        "Hourly": "שעה",
+                        "Fixed": "לביקור",
+                        "Hourly": "לשעה",
                         "Squaremeter":"מ\"ר"
                     },
                     "addPayment": "הוסף תשלום",

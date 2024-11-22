@@ -10,6 +10,7 @@ import { useAlert } from "react-alert";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import useToggle from "../Hooks/useToggle";
+import FullPageLoader from "../Components/common/FullPageLoader";
 
 export default function MeetingFiles() {
     const param = useParams();
@@ -24,20 +25,21 @@ export default function MeetingFiles() {
     const [loading, setLoading] = useState("Loading...");
     const [address, setAddress] = useState(null);
     const [toggle, toggleValue] = useToggle(false);
+    const [filetype, setFiletype] = useState("image")
+    const [loader, setLoader] = useState(false);
     const meetId = Base64.decode(param.id);
-    console.log(meetId);
-    
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
     };
 
     const getMeeting = () => {
+        setLoader(true);
         axios
             .post(`/api/client/meeting`, { id: Base64.decode(param.id) })
             .then((res) => {
-                console.log(res);
-                
+                setLoader(false);
                 const { schedule } = res.data;
                 setMeeting(schedule);
                 setTeamName(schedule.team?.name);
@@ -53,19 +55,27 @@ export default function MeetingFiles() {
             });
     };
     const handleFileChange = (e) => {
-        let type = e.target.files[0].type.split("/")[1];
-        let allow = ["jpeg", "png", "jpg", "mp4", "webm"];
-        if (allow.includes(type)) {
-            setFile(e.target.files[0]);
-        } else {
-            setFile([]);
-            window.alert("This file is not allowed");
-            document.querySelector('input[type="file"]').value = "";
+        if (e.target.files.length > 0) {
+            let file = e.target.files[0];
+            const sanitizedFileName = file.name.replace(/\s+/g, "_");
+            const type = file.type.split("/")[1];
+            const allow = filetype === "image" ? ["jpeg", "png", "jpg"] : ["mp4", "webm"];
+
+            if (allow.includes(type)) {
+                const sanitizedFile = new File([file], sanitizedFileName, { type: file.type });
+                setFile(sanitizedFile);
+            } else {
+                setFile([]);
+                window.alert("This file is not allowed");
+                e.target.value = ""; // Reset the file input
+            }
         }
     };
 
+
     const handleFile = (e) => {
         e.preventDefault();
+        setLoader(true);
         if (file.length == 0) {
             window.alert("Please add file");
             return;
@@ -89,6 +99,7 @@ export default function MeetingFiles() {
                 headers: type == "image" ? headers : videoHeader,
             })
             .then((res) => {
+                setLoader(false);
                 if (res.data.error) {
                     for (let e in res.data.error) {
                         window.alert(res.data.error[e]);
@@ -96,12 +107,15 @@ export default function MeetingFiles() {
                 } else {
                     document.querySelector(".closeb").click();
                     alert.success(res.data.message);
-                    getFiles();
+                    setTimeout(() => {
+                        getFiles();
+                    }, 1000);
                     setNote("");
                     setFile([]);
                     document.querySelector('input[type="file"]').value = "";
                 }
                 toggleValue(false);
+
             });
     };
 
@@ -133,6 +147,7 @@ export default function MeetingFiles() {
         });
     };
     const getFiles = () => {
+        setLoader(true);
         if (meeting.client_id) {
             axios
                 .post(
@@ -141,6 +156,7 @@ export default function MeetingFiles() {
                     { headers }
                 )
                 .then((res) => {
+                    setLoader(false);
                     setAllFiles(res.data.files);
                     if (!res.data.files.length) {
                         setLoading("No file added for this meeting");
@@ -434,6 +450,8 @@ export default function MeetingFiles() {
                                                                 <select
                                                                     name="filetype"
                                                                     className="form-control"
+                                                                    value={filetype}
+                                                                    onChange={(e) => setFiletype(e.target.value)}
                                                                 >
                                                                     <option value="image">
                                                                         {t(
@@ -451,22 +469,13 @@ export default function MeetingFiles() {
                                                         <div className="col-sm-12">
                                                             <div className="form-group">
                                                                 <label className="control-label">
-                                                                    {t(
-                                                                        "client.meeting.cfiles.file"
-                                                                    )}{" "}
-                                                                    *
+                                                                    {t("client.meeting.cfiles.file")} *
                                                                 </label>
                                                                 <input
-                                                                    accept="image/*,video/*"
+                                                                    accept={filetype === "image" ? "image/*" : "video/*"}
                                                                     type="file"
                                                                     name="file"
-                                                                    onChange={(
-                                                                        e
-                                                                    ) => {
-                                                                        handleFileChange(
-                                                                            e
-                                                                        );
-                                                                    }}
+                                                                    onChange={(e) => handleFileChange(e)}
                                                                     className="form-control"
                                                                     required
                                                                 />
@@ -551,6 +560,7 @@ export default function MeetingFiles() {
                     </div>
                 </div>
             </div>
+            { loader && <FullPageLoader visible={loader} />}
         </div>
     );
 }

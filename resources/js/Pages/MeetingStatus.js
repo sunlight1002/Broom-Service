@@ -65,16 +65,17 @@ export default function MeetingStatus() {
                 <div className="thankyou meet-status dashBox p-0 p-md-4">
                     <svg
                         width="190"
+                        className="pl-2 mb-2"
                         height="77"
                         xmlns="http://www.w3.org/2000/svg"
                         xmlnsXlink="http://www.w3.org/1999/xlink"
                     >
                         <image xlinkHref={logo} width="190" height="77"></image>
                     </svg>
-                    <h1>
+                    <h1 className="pl-2">
                         {t("meet_stat.with")} {teamName}
                     </h1>
-                    <ul className="list-unstyled">
+                    <ul className="list-unstyled pl-2">
                         {meeting.start_date && (
                             <>
                                 <li>
@@ -96,7 +97,7 @@ export default function MeetingStatus() {
                         </li>
                     </ul>
 
-                    <CustomCalendar meeting={meeting} />
+                    <CustomCalendar meeting={meeting} start_time={meeting.start_time} />
                 </div>
             )}
         </div>

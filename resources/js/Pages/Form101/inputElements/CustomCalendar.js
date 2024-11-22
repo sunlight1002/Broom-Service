@@ -11,10 +11,11 @@ import "./customCalendar.css";
 import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 
 import { enUS, he } from "date-fns/locale";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 registerLocale("en", enUS);
 registerLocale("he", he);
 
-const CustomCalendar = ({ meeting }) => {
+const CustomCalendar = ({ meeting, start_time }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -23,6 +24,7 @@ const CustomCalendar = ({ meeting }) => {
 
   const { t } = useTranslation();
   const alert = useAlert();
+
 
   const getTeamAvailibality = (date) => {
     const _date = moment(date).format("Y-MM-DD");
@@ -51,6 +53,7 @@ const CustomCalendar = ({ meeting }) => {
         });
       });
   };
+
 
   const timeOptions = useMemo(() => {
     return createHalfHourlyTimeArray("08:00", "24:00");
@@ -112,8 +115,9 @@ const CustomCalendar = ({ meeting }) => {
       alert.error("Time not selected");
       return false;
     }
-
     setIsLoading(true);
+
+
     axios
       .post(`/api/client/meeting/${meeting.id}/reschedule`, {
         start_date: selectedDate ? moment(selectedDate).format("YYYY-MM-DD") : null,
@@ -135,7 +139,7 @@ const CustomCalendar = ({ meeting }) => {
       });
   };
   const currentLanguage = meeting?.client?.lng === "heb" ? "he" : "en";
-  moment.locale(currentLanguage); 
+  moment.locale(currentLanguage);
 
   const formattedSelectedDate = useMemo(() => {
     if (selectedDate) {
@@ -157,10 +161,10 @@ const CustomCalendar = ({ meeting }) => {
 
   return (
     <>
-      <div className="mx-auto mt-5 custom-calendar">
+      <div className="mx-auto custom-calendar">
         <div className="border">
-          <h5 className="mt-3">{t("client.meeting.reSchedule.selectDateAndTime")}</h5>
-          <div className="d-flex gap-3 p-3" style={{ overflowX: "auto" }}>
+          <h5 className="mt-3 pl-2">{t("client.meeting.reSchedule.selectDateAndTime")}</h5>
+          <div className="d-flex gap-3 pt-3 flex-wrap" style={{ overflowX: "auto" }}>
             <div>
               <DatePicker
                 selected={selectedDate}
@@ -176,23 +180,34 @@ const CustomCalendar = ({ meeting }) => {
               <h6 className="time-slot-date">{formattedSelectedDate}</h6>
               <ul className="list-unstyled mt-4 timeslot">
                 {timeSlots.length > 0 ? (
-                  timeSlots.map((t, index) => (
-                    <li
-                      className={`py-2 px-3 border  mb-2  text-center border-primary ${
-                        selectedTime === t ? "bg-primary text-white" : "text-primary"
-                      }`}
-                      key={index}
-                      onClick={() => setSelectedTime(t)}
-                    >
-                      {t}
+                  timeSlots.filter((t) => moment(t, "hh:mm A").isAfter(moment()) && moment(t, "HH:mm A").format("HH:mm A") !== moment(start_time, "HH:mm A").format("HH:mm A")).length > 0 ? (
+                    timeSlots
+                      .filter((t) => moment(t, "hh:mm A").isAfter(moment())) // Filter out past times
+                      .filter((t) => moment(t, "HH:mm A").format("HH:mm A") !== moment(start_time, "HH:mm A").format("HH:mm A")) // Exclude start_time
+                      .map((t, index) => {
+                        return (
+                          <li
+                            className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"}`}
+                            key={index}
+                            onClick={() => handleTimeChange(t)}
+                          >
+                            {t}
+                          </li>
+                        );
+                      })
+                  ) : (
+                    <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
+                      {t("global.noTimeSlot")} {t("global.available")}
                     </li>
-                  ))
+                  )
                 ) : (
                   <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
-                    {t("global.noTimeSlotAvailable")}
+                    {t("global.noTimeSlot")} {t("global.available")}
                   </li>
                 )}
+
               </ul>
+
             </div>
           </div>
         </div>
@@ -206,6 +221,7 @@ const CustomCalendar = ({ meeting }) => {
       >
         Submit
       </button>
+      {isLoading && <FullPageLoader visible={isLoading} />}
     </>
   );
 };

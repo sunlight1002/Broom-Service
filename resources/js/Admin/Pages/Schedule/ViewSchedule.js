@@ -17,200 +17,112 @@ import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 import Map from "../../Components/Map/map";
 import Sidebar from "../../Layouts/Sidebar";
 
-    export default function ViewSchedule() {
-        const [client, setClient] = useState([]);
-        const [totalTeam, setTotalTeam] = useState([]);
-        const [team, setTeam] = useState("");
-        const [bstatus, setBstatus] = useState("");
-        const [events, setEvents] = useState([]);
-        const [meetVia, setMeetVia] = useState("on-site");
-        const [meetLink, setMeetLink] = useState("");
-        const [startSlot, setStartSlot] = useState([]);
-        const [endSlot, setEndSlot] = useState([]);
-        const [interval, setInterval] = useState([]);
-        const [purpose, setPurpose] = useState("Price offer");
-        const [purposeText, setPurposeText] = useState("");
-        const [addresses, setAddresses] = useState([]);
-        const [address, setAddress] = useState("");
-        const [availableSlots, setAvailableSlots] = useState([]);
-        const [bookedSlots, setBookedSlots] = useState([]);
-        const [schedule, setSchedule] = useState(null);
-        const [isLoading, setIsLoading] = useState(false);
-        const [selectedDate, setSelectedDate] = useState(null);
-        const [selectedTime, setSelectedTime] = useState(null);
-        const [isModalOpen, setModalStatus] = useState(false);
-        const [place, setPlace] = useState();
-        const [latitude, setLatitude] = useState(32.109333);
-        const [longitude, setLongitude] = useState(34.855499);
-        const [libraries] = useState(["places", "geometry"]);
-        const [allWorkers, setAllWorkers] = useState([]);
-        const [workers, setWorkers] = useState([]);
+export default function ViewSchedule() {
+    const [client, setClient] = useState([]);
+    const [totalTeam, setTotalTeam] = useState([]);
+    const [team, setTeam] = useState("");
+    const [bstatus, setBstatus] = useState("");
+    const [events, setEvents] = useState([]);
+    const [meetVia, setMeetVia] = useState("on-site");
+    const [meetLink, setMeetLink] = useState("");
+    const [startSlot, setStartSlot] = useState([]);
+    const [endSlot, setEndSlot] = useState([]);
+    const [interval, setInterval] = useState([]);
+    const [purpose, setPurpose] = useState("Price offer");
+    const [purposeText, setPurposeText] = useState("");
+    const [addresses, setAddresses] = useState([]);
+    const [address, setAddress] = useState("");
+    const [availableSlots, setAvailableSlots] = useState([]);
+    const [bookedSlots, setBookedSlots] = useState([]);
+    const [schedule, setSchedule] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState(null);
+    const [isModalOpen, setModalStatus] = useState(false);
+    const [place, setPlace] = useState();
+    const [latitude, setLatitude] = useState(32.109333);
+    const [longitude, setLongitude] = useState(34.855499);
+    const [libraries] = useState(["places", "geometry"]);
+    const [allWorkers, setAllWorkers] = useState([]);
+    const [workers, setWorkers] = useState([]);
 
-        const params = useParams();
-        const alert = useAlert();
-        const navigate = useNavigate();
-        const { t } = useTranslation();
-        const queryParams = new URLSearchParams(window.location.search);
-        const sid = queryParams.get("sid");
-        const urlParamAction = queryParams.get("action");
+    const params = useParams();
+    const alert = useAlert();
+    const navigate = useNavigate();
+    const { t } = useTranslation();
+    const queryParams = new URLSearchParams(window.location.search);
+    const sid = queryParams.get("sid");
+    const urlParamAction = queryParams.get("action");
 
-        let isAdd = useRef(true);
-        let fullAddress = useRef();
-        let floor = useRef();
-        let Apt = useRef();
-        let enterance = useRef();
-        let zip = useRef();
-        let parking = useRef();
-        let addressId = useRef();
-        let lat = useRef();
-        let long = useRef();
-        let city = useRef();
-        let prefer_type = useRef();
-        let is_dog_avail = useRef();
-        let is_cat_avail = useRef();
-        let client_id = useRef();
-        let addressName = useRef();
-        let key = useRef();
-        let lobby = useRef();
+    let isAdd = useRef(true);
+    let fullAddress = useRef();
+    let floor = useRef();
+    let Apt = useRef();
+    let enterance = useRef();
+    let zip = useRef();
+    let parking = useRef();
+    let addressId = useRef();
+    let lat = useRef();
+    let long = useRef();
+    let city = useRef();
+    let prefer_type = useRef();
+    let is_dog_avail = useRef();
+    let is_cat_avail = useRef();
+    let client_id = useRef();
+    let addressName = useRef();
+    let key = useRef();
+    let lobby = useRef();
 
-        const headers = {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ` + localStorage.getItem("admin-token"),
-        };
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
 
-        const sendMeeting = async () => {
-            if (meetVia === "on-site") {
-                if (!selectedDate) {
-                    alert.error("Date not selected");
-                    return false;
-                }
-
-                if (!selectedTime) {
-                    alert.error("Time not selected");
-                    return false;
-                }
+    const sendMeeting = async () => {
+        if (meetVia === "on-site") {
+            if (!selectedDate) {
+                alert.error("Date not selected");
+                return false;
             }
 
-            let purps = "";
-            if (purpose == null) {
-                purps = "Price offer";
-            } else if (purpose == "Other") {
-                purps = purposeText;
-            } else {
-                purps = purpose;
+            if (!selectedTime) {
+                alert.error("Time not selected");
+                return false;
             }
+        }
 
-            let st = document.querySelector("#status").value;
-            const data = {
-                client_id: params.id,
-                team_id: team.length > 0 ? team : team == 0 ? "" : "",
-                start_date: selectedDate
-                    ? Moment(selectedDate).format("YYYY-MM-DD")
-                    : null,
-                start_time: selectedTime,
-                meet_via: meetVia,
-                meet_link: meetLink,
-                purpose: purps,
-                booking_status: st,
-                address_id: address,
-            };
+        let purps = "";
+        if (purpose == null) {
+            purps = "Price offer";
+        } else if (purpose == "Other") {
+            purps = purposeText;
+        } else {
+            purps = purpose;
+        }
 
-            setIsLoading(true);
-
-            if (sid) {
-                await axios
-                    .put(`/api/admin/schedule/${sid}`, data, {
-                        headers,
-                    })
-                    .then((res) => {
-                        setIsLoading(false);
-
-                        if (res.data.errors) {
-                            for (let e in res.data.errors) {
-                                alert.error(res.data.errors[e]);
-                            }
-                        } else {
-                            alert.success(res.data.message);
-                        }
-                    })
-                    .catch((e) => {
-                        setIsLoading(false);
-
-                        Swal.fire({
-                            title: "Error!",
-                            text: e.response.data.message,
-                            icon: "error",
-                        });
-                    });
-            } else {
-                await axios
-                    .post(`/api/admin/schedule`, data, {
-                        headers,
-                    })
-                    .then((res) => {
-                        setIsLoading(false);
-
-                        if (res.data.errors) {
-                            for (let e in res.data.errors) {
-                                alert.error(res.data.errors[e]);
-                            }
-                        } else {
-                            if (res.data.action == "redirect") {
-                                window.location = res.data.url;
-                            } else {
-                                alert.success(res.data.message);
-                                setTimeout(() => {
-                                    navigate("/admin/schedule");
-                                }, 1000);
-                            }
-                        }
-                    })
-                    .catch((e) => {
-                        setIsLoading(false);
-
-                        Swal.fire({
-                            title: "Error!",
-                            text: e.response.data.message,
-                            icon: "error",
-                        });
-                    });
-            }
+        let st = document.querySelector("#status").value;
+        const data = {
+            client_id: params.id,
+            team_id: team.length > 0 ? team : team == 0 ? "" : "",
+            start_date: selectedDate
+                ? Moment(selectedDate).format("YYYY-MM-DD")
+                : null,
+            start_time: selectedTime,
+            meet_via: meetVia,
+            meet_link: meetLink,
+            purpose: purps,
+            booking_status: st,
+            address_id: address,
         };
 
-        const resetForm = () => {
-            fullAddress.current && (fullAddress.current.value = "");
-            addressName.current && (addressName.current.value = "");
-            floor.current && (floor.current.value = "");
-            Apt.current && (Apt.current.value = "");
-            enterance.current && (enterance.current.value = "");
-            zip.current && (zip.current.value = "");
-            parking.current && (parking.current.value = "");
-            key.current && (key.current.value = "");
-            lobby.current && (lobby.current.value = "");
-            prefer_type.current && (prefer_type.current.value = "default");
-            is_cat_avail.current && (is_cat_avail.current.checked = false);
-            is_dog_avail.current && (is_dog_avail.current.checked = false);
-            client_id.current && (client_id.current.value = 0);
-            lat.current && (lat.current.value = 32.109333);
-            long.current && (long.current.value = 34.855499);
-            setAddress("");
-            setLatitude(32.109333);
-            setLongitude(34.855499);
-            setWorkers([]);
-        };
+        setIsLoading(true);
 
-        const createAndSendMeeting = (_scheduleID) => {
-            setIsLoading(true);
-
-            axios
-                .post(
-                    `/api/admin/schedule/${_scheduleID}/create-event`,
-                    {},
-                    {
-                        headers,
-                    }
-                )
+        if (sid) {
+            await axios
+                .put(`/api/admin/schedule/${sid}`, data, {
+                    headers,
+                })
                 .then((res) => {
                     setIsLoading(false);
 
@@ -219,404 +131,492 @@ import Sidebar from "../../Layouts/Sidebar";
                             alert.error(res.data.errors[e]);
                         }
                     } else {
-                        setTimeout(() => {
-                            navigate("/admin/schedule");
-                        }, 1000);
-                    }
-                })
-                .catch((error) => {
-                    setIsLoading(false);
-                    if (error.response.data.error.message) {
-                        Swal.fire({
-                            title: "Error!",
-                            text: error.response.data.error.message,
-                            icon: "error",
-                        });
-                    }
-                });
-        };
-
-        const getClient = () => {
-            axios
-                .get(`/api/admin/clients/${params.id}`, { headers })
-                .then((res) => {
-                    const { client } = res.data;
-                    setClient(client);
-                    setAddresses(
-                        client.property_addresses ? client.property_addresses : []
-                    );
-                });
-        };
-
-        const getTeams = () => {
-            axios.get(`/api/admin/teams/all`, { headers }).then((res) => {
-                setTotalTeam(res.data.data);
-            });
-        };
-
-        const getSchedule = () => {
-            setIsLoading(true);
-
-            axios
-                .get(`/api/admin/schedule/${sid}`, { headers })
-                .then((res) => {
-                    setIsLoading(false);
-                    const d = res.data.schedule;
-                    setSchedule(d);
-                    setTeam(d.team_id ? d.team_id.toString() : "");
-                    setBstatus(d.booking_status);
-                    if (d.start_date) {
-                        setSelectedDate(Moment(d.start_date).toDate());
-                    } else {
-                        setSelectedDate(null);
-                    }
-
-                    if (d.start_time) {
-                        setSelectedTime(d.start_time);
-                    } else {
-                        setSelectedTime("");
-                    }
-                    setMeetVia(d.meet_via);
-                    setMeetLink(d.meet_link ?? "");
-                    setPurpose(d.purpose);
-                    setAddress(d.address_id);
-                    if (
-                        d.purpose != "Price offer" &&
-                        d.purpose != "Quality check"
-                    ) {
-                        setPurposeText(d.purpose);
+                        alert.success(res.data.message);
                     }
                 })
                 .catch((e) => {
                     setIsLoading(false);
-                });
-        };
 
-        const getTeamEvents = async (_teamID) => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
+                });
+        } else {
             await axios
-                .get(`/api/admin/teams/${_teamID}/schedule-events`, { headers })
+                .post(`/api/admin/schedule`, data, {
+                    headers,
+                })
                 .then((res) => {
-                    setEvents(res.data.events);
-                });
-        };
+                    setIsLoading(false);
 
-        const getTime = () => {
-            axios.get(`/api/admin/get-time`, { headers }).then((res) => {
-                if (res.data.data) {
-                    setStartSlot(res.data.data.start_time);
-                    setEndSlot(res.data.data.end_time);
-                    let ar = JSON.parse(res.data.data.days);
-                    let ai = [];
-                    ar && ar.map((a, i) => ai.push(parseInt(a)));
-                    var hid = [0, 1, 2, 3, 4, 5, 6].filter(function (obj) {
-                        return ai.indexOf(obj) == -1;
-                    });
-                    setInterval(hid);
-                }
-            });
-        };
-
-        useEffect(() => {
-            getClient();
-            getTime();
-            getTeams();
-            if (sid != null) {
-                setTimeout(() => {
-                    getSchedule();
-
-                    if (urlParamAction === "create-calendar-event") {
-                        createAndSendMeeting(sid);
-                    }
-                }, 500);
-            }
-        }, []);
-
-        useEffect(() => {
-            if (meetVia == "off-site") {
-                setSelectedDate("");
-                setSelectedTime("");
-            }
-        }, [meetVia]);
-
-        const getTeamAvailibality = async () => {
-            if (team && team != "0" && team != "" && selectedDate) {
-                const _date = Moment(selectedDate).format("Y-MM-DD");
-
-                await axios
-                    .get(`/api/admin/teams/availability/${team}/date/${_date}`, {
-                        headers,
-                    })
-                    .then((response) => {
-                        setAvailableSlots(
-                            response.data.available_slots.map((i) => {
-                                return {
-                                    start_time: i.start_time.slice(0, -3),
-                                    end_time: i.end_time.slice(0, -3),
-                                };
-                            })
-                        );
-                        setBookedSlots(response.data.booked_slots);
-                    })
-                    .catch((e) => {
-                        setAvailableSlots([]);
-                        setBookedSlots([]);
-
-                        Swal.fire({
-                            title: "Error!",
-                            text: e.response.data.message,
-                            icon: "error",
-                        });
-                    });
-            } else {
-                setAvailableSlots([]);
-                setBookedSlots([]);
-            }
-        };
-
-        const handleDateChange = (_date) => {
-            setSelectedDate(_date);
-        };
-
-        const handleTimeChange = (_time) => {
-            setSelectedTime(_time);
-        };
-
-        const timeOptions = useMemo(() => {
-            return createHalfHourlyTimeArray("08:00", "24:00");
-        }, []);
-
-        const startTimeOptions = useMemo(() => {
-            const _timeOptions = timeOptions.filter((_option) => {
-                if (_option == "24:00") {
-                    return false;
-                }
-
-                if (schedule && schedule.start_time) {
-                    const _st = moment(schedule.start_time, "hh:mm A").format(
-                        "kk:mm"
-                    );
-                    if (_st == _option) {
-                        return true;
-                    }
-                }
-
-                const _startTime = moment(_option, "kk:mm");
-                const isSlotAvailable = availableSlots.some((slot) => {
-                    const _slotStartTime = moment(slot.start_time, "kk:mm");
-                    const _slotEndTime = moment(slot.end_time, "kk:mm");
-
-                    return (
-                        _slotStartTime.isSame(_startTime) ||
-                        _startTime.isBetween(_slotStartTime, _slotEndTime)
-                    );
-                });
-
-                if (!isSlotAvailable) {
-                    return false;
-                }
-
-                return !bookedSlots.some((slot) => {
-                    const _slotStartTime = moment(slot.start_time, "kk:mm");
-                    const _slotEndTime = moment(slot.end_time, "kk:mm");
-
-                    return (
-                        _startTime.isBetween(_slotStartTime, _slotEndTime) ||
-                        _startTime.isSame(_slotStartTime)
-                    );
-                });
-            });
-
-            return _timeOptions;
-        }, [timeOptions, availableSlots, bookedSlots]);
-
-        useEffect(() => {
-            getTeamAvailibality();
-        }, [team, selectedDate]);
-
-        useEffect(() => {
-            if (team) {
-                getTeamEvents(team);
-            }
-        }, [team]);
-
-        const handlePurpose = (e) => {
-            let pt = document.querySelector("#purpose_text");
-            if (e.target.value == "Other") {
-                pt.style.display = "block";
-            } else {
-                pt.style.display = "none";
-            }
-        };
-
-        const onLoad = (autocomplete) => {
-            setPlace(autocomplete);
-        };
-        const onPlaceChanged = () => {
-            if (place) {
-                const _place = place.getPlace();
-                setAddress(_place.formatted_address);
-                fullAddress.current.value = _place.formatted_address;
-                addressName.current.value = _place.name;
-                setLatitude(_place.geometry.location.lat());
-                lat.current.value = _place.geometry.location.lat();
-                setLongitude(_place.geometry.location.lng());
-                long.current.value = _place.geometry.location.lng();
-            }
-        };
-
-        useEffect(() => {
-            if (place?.getPlace() && isModalOpen && isAdd.current) {
-                const _place = place.getPlace();
-                lat.current.value = _place.geometry.location.lat();
-                long.current.value = _place.geometry.location.lng();
-                city.current.value = _place.vicinity;
-                const address_components = _place.address_components;
-                $.each(address_components, function (index, component) {
-                    var types = component.types;
-                    $.each(types, function (index, type) {
-                        if (type === "postal_code") {
-                            zip.current.value = component.long_name;
+                    if (res.data.errors) {
+                        for (let e in res.data.errors) {
+                            alert.error(res.data.errors[e]);
                         }
+                    } else {
+                        if (res.data.action == "redirect") {
+                            window.location = res.data.url;
+                        } else {
+                            alert.success(res.data.message);
+                            setTimeout(() => {
+                                navigate("/admin/schedule");
+                            }, 1000);
+                        }
+                    }
+                })
+                .catch((e) => {
+                    setIsLoading(false);
+
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
                     });
                 });
-            }
-            if (!address && isModalOpen) {
-                zip.current.value = "";
-            }
-        }, [place?.getPlace(), isModalOpen]);
+        }
+    };
 
-        const handleAddress = (e) => {
-            e.preventDefault();
-            let addressVal = [...addresses];
-            if (address === "" && fullAddress.current.value === "") {
-                let newErrors = { ...errors };
-                newErrors.address = "Please Select address";
-                setErrors(newErrors);
-                return false;
-            } else if (addressName.current.value === "") {
-                let newErrors = { ...errors };
-                newErrors.address_name = "Please add address";
-                setErrors(newErrors);
-                return false;
-            } else {
-                const getWorkerId = [...workers].map((w) => w.value);
-                const updatedData = {
-                    geo_address: fullAddress.current.value,
-                    address_name: addressName.current.value
-                        ? addressName.current.value
-                        : "",
-                    floor: floor.current.value,
-                    apt_no: Apt.current.value,
-                    entrence_code: enterance.current.value,
-                    zipcode: zip.current.value,
-                    parking: parking.current.value,
-                    longitude: long.current.value,
-                    latitude: lat.current.value,
-                    city: city.current.value,
-                    prefer_type: prefer_type.current.value,
-                    key: key.current.value,
-                    lobby: lobby.current.value,
-                    is_dog_avail: is_dog_avail.current.checked,
-                    is_cat_avail: is_cat_avail.current.checked,
-                    client_id: client_id.current.value,
-                    id: 0,
-                    not_allowed_worker_ids:
-                        getWorkerId.length > 0 ? getWorkerId.toString() : null,
-                };
-                const adId = addressId.current?.value;
-                if (isAdd.current) {
-                    if (!params.id) {
-                        addressVal = [updatedData, ...addressVal];
+    const resetForm = () => {
+        fullAddress.current && (fullAddress.current.value = "");
+        addressName.current && (addressName.current.value = "");
+        floor.current && (floor.current.value = "");
+        Apt.current && (Apt.current.value = "");
+        enterance.current && (enterance.current.value = "");
+        zip.current && (zip.current.value = "");
+        parking.current && (parking.current.value = "");
+        key.current && (key.current.value = "");
+        lobby.current && (lobby.current.value = "");
+        prefer_type.current && (prefer_type.current.value = "default");
+        is_cat_avail.current && (is_cat_avail.current.checked = false);
+        is_dog_avail.current && (is_dog_avail.current.checked = false);
+        client_id.current && (client_id.current.value = 0);
+        lat.current && (lat.current.value = 32.109333);
+        long.current && (long.current.value = 34.855499);
+        setAddress("");
+        setLatitude(32.109333);
+        setLongitude(34.855499);
+        setWorkers([]);
+    };
+
+    const createAndSendMeeting = (_scheduleID) => {
+        setIsLoading(true);
+
+        axios
+            .post(
+                `/api/admin/schedule/${_scheduleID}/create-event`,
+                {},
+                {
+                    headers,
+                }
+            )
+            .then((res) => {
+                setIsLoading(false);
+
+                if (res.data.errors) {
+                    for (let e in res.data.errors) {
+                        alert.error(res.data.errors[e]);
                     }
                 } else {
-                    addressVal[addressId.current.value]["geo_address"] =
-                        updatedData.geo_address;
-                    addressVal[addressId.current.value]["floor"] =
-                        updatedData.floor;
-                    addressVal[addressId.current.value]["apt_no"] =
-                        updatedData.apt_no;
-                    addressVal[addressId.current.value]["entrence_code"] =
-                        updatedData.entrence_code;
-                    addressVal[addressId.current.value]["zipcode"] =
-                        updatedData.zipcode;
-                    addressVal[addressId.current.value]["parking"] =
-                        updatedData.parking;
-                    addressVal[addressId.current.value]["prefer_type"] =
-                        updatedData.prefer_type;
-                    addressVal[addressId.current.value]["key"] =
-                        updatedData.key;
-                    addressVal[addressId.current.value]["lobby"] =
-                        updatedData.lobby;
-                    addressVal[addressId.current.value]["is_dog_avail"] =
-                        updatedData.is_dog_avail;
-                    addressVal[addressId.current.value]["is_cat_avail"] =
-                        updatedData.is_cat_avail;
-                    addressVal[addressId.current.value]["longitude"] =
-                        updatedData.longitude;
-                    addressVal[addressId.current.value]["latitude"] =
-                        updatedData.latitude;
-                    addressVal[addressId.current.value]["address_name"] =
-                        updatedData.address_name ? updatedData.address_name : "";
-                    addressVal[addressId.current.value]["not_allowed_worker_ids"] =
-                        updatedData.not_allowed_worker_ids
-                            ? updatedData.not_allowed_worker_ids
-                            : "";
-                    // console.log(updatedData.not_allowed_worker_ids);
+                    setTimeout(() => {
+                        navigate("/admin/schedule");
+                    }, 1000);
                 }
-                if (params.id) {
-                    axios
-                        .post(
-                            `/api/admin/leads/save-property-address`,
-                            {
-                                data: isAdd.current
-                                    ? updatedData
-                                    : addressVal[addressId.current.value],
-                            },
-                            { headers }
-                        )
-                        .then((response) => {
-                            if (isAdd.current) {
-                                addressVal = [response.data.data, ...addressVal];
-                            } else {
-                                addressVal[adId] = response.data.data;
-                            }
-                            setAddresses(addressVal);
-                            alert.success(
-                                "Lead property address saved successfully!"
-                            );
-                        });
+            })
+            .catch((error) => {
+                setIsLoading(false);
+                if (error.response.data.error.message) {
+                    Swal.fire({
+                        title: "Error!",
+                        text: error.response.data.error.message,
+                        icon: "error",
+                    });
+                }
+            });
+    };
+
+    const getClient = () => {
+        axios
+            .get(`/api/admin/clients/${params.id}`, { headers })
+            .then((res) => {
+                const { client } = res.data;
+                setClient(client);
+                setAddresses(
+                    client.property_addresses ? client.property_addresses : []
+                );
+            });
+    };
+
+    const getTeams = () => {
+        axios.get(`/api/admin/teams/all`, { headers }).then((res) => {
+            setTotalTeam(res.data.data);
+        });
+    };
+
+    const getSchedule = () => {
+        setIsLoading(true);
+
+        axios
+            .get(`/api/admin/schedule/${sid}`, { headers })
+            .then((res) => {
+                setIsLoading(false);
+                const d = res.data.schedule;
+                setSchedule(d);
+                setTeam(d.team_id ? d.team_id.toString() : "");
+                setBstatus(d.booking_status);
+                if (d.start_date) {
+                    setSelectedDate(Moment(d.start_date).toDate());
                 } else {
-                    setAddresses(addressVal);
+                    setSelectedDate(null);
+                }
+
+                if (d.start_time) {
+                    setSelectedTime(d.start_time);
+                } else {
+                    setSelectedTime("");
+                }
+                setMeetVia(d.meet_via);
+                setMeetLink(d.meet_link ?? "");
+                setPurpose(d.purpose);
+                setAddress(d.address_id);
+                if (
+                    d.purpose != "Price offer" &&
+                    d.purpose != "Quality check"
+                ) {
+                    setPurposeText(d.purpose);
+                }
+            })
+            .catch((e) => {
+                setIsLoading(false);
+            });
+    };
+
+    const getTeamEvents = async (_teamID) => {
+        await axios
+            .get(`/api/admin/teams/${_teamID}/schedule-events`, { headers })
+            .then((res) => {
+                setEvents(res.data.events);
+            });
+    };
+
+    const getTime = () => {
+        axios.get(`/api/admin/get-time`, { headers }).then((res) => {
+            if (res.data.data) {
+                setStartSlot(res.data.data.start_time);
+                setEndSlot(res.data.data.end_time);
+                let ar = JSON.parse(res.data.data.days);
+                let ai = [];
+                ar && ar.map((a, i) => ai.push(parseInt(a)));
+                var hid = [0, 1, 2, 3, 4, 5, 6].filter(function (obj) {
+                    return ai.indexOf(obj) == -1;
+                });
+                setInterval(hid);
+            }
+        });
+    };
+
+    useEffect(() => {
+        getClient();
+        getTime();
+        getTeams();
+        if (sid != null) {
+            setTimeout(() => {
+                getSchedule();
+
+                if (urlParamAction === "create-calendar-event") {
+                    createAndSendMeeting(sid);
+                }
+            }, 500);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (meetVia == "off-site") {
+            setSelectedDate("");
+            setSelectedTime("");
+        }
+    }, [meetVia]);
+
+    const getTeamAvailibality = async () => {
+        if (team && team != "0" && team != "" && selectedDate) {
+            const _date = Moment(selectedDate).format("Y-MM-DD");
+
+            await axios
+                .get(`/api/admin/teams/availability/${team}/date/${_date}`, {
+                    headers,
+                })
+                .then((response) => {
+                    setAvailableSlots(
+                        response.data.available_slots.map((i) => {
+                            return {
+                                start_time: i.start_time.slice(0, -3),
+                                end_time: i.end_time.slice(0, -3),
+                            };
+                        })
+                    );
+                    setBookedSlots(response.data.booked_slots);
+                })
+                .catch((e) => {
+                    setAvailableSlots([]);
+                    setBookedSlots([]);
+
+                    Swal.fire({
+                        title: "Error!",
+                        text: e.response.data.message,
+                        icon: "error",
+                    });
+                });
+        } else {
+            setAvailableSlots([]);
+            setBookedSlots([]);
+        }
+    };
+
+    const handleDateChange = (_date) => {
+        setSelectedDate(_date);
+    };
+
+    const handleTimeChange = (_time) => {
+        setSelectedTime(_time);
+    };
+
+    const timeOptions = useMemo(() => {
+        return createHalfHourlyTimeArray("08:00", "24:00");
+    }, []);
+
+    const startTimeOptions = useMemo(() => {
+        const _timeOptions = timeOptions.filter((_option) => {
+            if (_option == "24:00") {
+                return false;
+            }
+
+            if (schedule && schedule.start_time) {
+                const _st = moment(schedule.start_time, "hh:mm A").format(
+                    "kk:mm"
+                );
+                if (_st == _option) {
+                    return true;
                 }
             }
-            resetForm();
-            setModalStatus(false);
-        };
 
+            const _startTime = moment(_option, "kk:mm");
+            const isSlotAvailable = availableSlots.some((slot) => {
+                const _slotStartTime = moment(slot.start_time, "kk:mm");
+                const _slotEndTime = moment(slot.end_time, "kk:mm");
 
-        const formattedSelectedDate = useMemo(() => {
-            if (selectedDate) {
-                const _date = new Date(selectedDate);
-                const dayName = _date.toLocaleDateString("en-US", {
-                    month: "long",
-                });
+                return (
+                    _slotStartTime.isSame(_startTime) ||
+                    _startTime.isBetween(_slotStartTime, _slotEndTime)
+                );
+            });
 
-                const monthName = _date.toLocaleDateString("en-US", {
-                    weekday: "long",
-                });
-
-                const date = _date.getDate();
-
-                return `${dayName}, ${monthName}, ${date}`;
+            if (!isSlotAvailable) {
+                return false;
             }
-            return "";
-        }, [selectedDate]);
 
-        const timeSlots = useMemo(() => {
-            return startTimeOptions.map((i) =>
-                moment(i, "kk:mm").format("hh:mm A")
-            );
-        }, [startTimeOptions]);
+            return !bookedSlots.some((slot) => {
+                const _slotStartTime = moment(slot.start_time, "kk:mm");
+                const _slotEndTime = moment(slot.end_time, "kk:mm");
+
+                return (
+                    _startTime.isBetween(_slotStartTime, _slotEndTime) ||
+                    _startTime.isSame(_slotStartTime)
+                );
+            });
+        });
+
+        return _timeOptions;
+    }, [timeOptions, availableSlots, bookedSlots]);
+
+    useEffect(() => {
+        getTeamAvailibality();
+    }, [team, selectedDate]);
+
+    useEffect(() => {
+        if (team) {
+            getTeamEvents(team);
+        }
+    }, [team]);
+
+    const handlePurpose = (e) => {
+        let pt = document.querySelector("#purpose_text");
+        if (e.target.value == "Other") {
+            pt.style.display = "block";
+        } else {
+            pt.style.display = "none";
+        }
+    };
+
+    const onLoad = (autocomplete) => {
+        setPlace(autocomplete);
+    };
+    const onPlaceChanged = () => {
+        if (place) {
+            const _place = place.getPlace();
+            setAddress(_place.formatted_address);
+            fullAddress.current.value = _place.formatted_address;
+            addressName.current.value = _place.name;
+            setLatitude(_place.geometry.location.lat());
+            lat.current.value = _place.geometry.location.lat();
+            setLongitude(_place.geometry.location.lng());
+            long.current.value = _place.geometry.location.lng();
+        }
+    };
+
+    useEffect(() => {
+        if (place?.getPlace() && isModalOpen && isAdd.current) {
+            const _place = place.getPlace();
+            lat.current.value = _place.geometry.location.lat();
+            long.current.value = _place.geometry.location.lng();
+            city.current.value = _place.vicinity;
+            const address_components = _place.address_components;
+            $.each(address_components, function (index, component) {
+                var types = component.types;
+                $.each(types, function (index, type) {
+                    if (type === "postal_code") {
+                        zip.current.value = component.long_name;
+                    }
+                });
+            });
+        }
+        if (!address && isModalOpen) {
+            zip.current.value = "";
+        }
+    }, [place?.getPlace(), isModalOpen]);
+
+    const handleAddress = (e) => {
+        e.preventDefault();
+        let addressVal = [...addresses];
+        if (address === "" && fullAddress.current.value === "") {
+            let newErrors = { ...errors };
+            newErrors.address = "Please Select address";
+            setErrors(newErrors);
+            return false;
+        } else if (addressName.current.value === "") {
+            let newErrors = { ...errors };
+            newErrors.address_name = "Please add address";
+            setErrors(newErrors);
+            return false;
+        } else {
+            const getWorkerId = [...workers].map((w) => w.value);
+            const updatedData = {
+                geo_address: fullAddress.current.value,
+                address_name: addressName.current.value
+                    ? addressName.current.value
+                    : "",
+                floor: floor.current.value,
+                apt_no: Apt.current.value,
+                entrence_code: enterance.current.value,
+                zipcode: zip.current.value,
+                parking: parking.current.value,
+                longitude: long.current.value,
+                latitude: lat.current.value,
+                city: city.current.value,
+                prefer_type: prefer_type.current.value,
+                key: key.current.value,
+                lobby: lobby.current.value,
+                is_dog_avail: is_dog_avail.current.checked,
+                is_cat_avail: is_cat_avail.current.checked,
+                client_id: client_id.current.value,
+                id: 0,
+                not_allowed_worker_ids:
+                    getWorkerId.length > 0 ? getWorkerId.toString() : null,
+            };
+            const adId = addressId.current?.value;
+            if (isAdd.current) {
+                if (!params.id) {
+                    addressVal = [updatedData, ...addressVal];
+                }
+            } else {
+                addressVal[addressId.current.value]["geo_address"] =
+                    updatedData.geo_address;
+                addressVal[addressId.current.value]["floor"] =
+                    updatedData.floor;
+                addressVal[addressId.current.value]["apt_no"] =
+                    updatedData.apt_no;
+                addressVal[addressId.current.value]["entrence_code"] =
+                    updatedData.entrence_code;
+                addressVal[addressId.current.value]["zipcode"] =
+                    updatedData.zipcode;
+                addressVal[addressId.current.value]["parking"] =
+                    updatedData.parking;
+                addressVal[addressId.current.value]["prefer_type"] =
+                    updatedData.prefer_type;
+                addressVal[addressId.current.value]["key"] =
+                    updatedData.key;
+                addressVal[addressId.current.value]["lobby"] =
+                    updatedData.lobby;
+                addressVal[addressId.current.value]["is_dog_avail"] =
+                    updatedData.is_dog_avail;
+                addressVal[addressId.current.value]["is_cat_avail"] =
+                    updatedData.is_cat_avail;
+                addressVal[addressId.current.value]["longitude"] =
+                    updatedData.longitude;
+                addressVal[addressId.current.value]["latitude"] =
+                    updatedData.latitude;
+                addressVal[addressId.current.value]["address_name"] =
+                    updatedData.address_name ? updatedData.address_name : "";
+                addressVal[addressId.current.value]["not_allowed_worker_ids"] =
+                    updatedData.not_allowed_worker_ids
+                        ? updatedData.not_allowed_worker_ids
+                        : "";
+                // console.log(updatedData.not_allowed_worker_ids);
+            }
+            if (params.id) {
+                axios
+                    .post(
+                        `/api/admin/leads/save-property-address`,
+                        {
+                            data: isAdd.current
+                                ? updatedData
+                                : addressVal[addressId.current.value],
+                        },
+                        { headers }
+                    )
+                    .then((response) => {
+                        if (isAdd.current) {
+                            addressVal = [response.data.data, ...addressVal];
+                        } else {
+                            addressVal[adId] = response.data.data;
+                        }
+                        setAddresses(addressVal);
+                        alert.success(
+                            "Lead property address saved successfully!"
+                        );
+                    });
+            } else {
+                setAddresses(addressVal);
+            }
+        }
+        resetForm();
+        setModalStatus(false);
+    };
+
+
+    const formattedSelectedDate = useMemo(() => {
+        if (selectedDate) {
+            const _date = new Date(selectedDate);
+            const dayName = _date.toLocaleDateString("en-US", {
+                month: "long",
+            });
+
+            const monthName = _date.toLocaleDateString("en-US", {
+                weekday: "long",
+            });
+
+            const date = _date.getDate();
+
+            return `${dayName}, ${monthName}, ${date}`;
+        }
+        return "";
+    }, [selectedDate]);
+
+    const timeSlots = useMemo(() => {
+        return startTimeOptions.map((i) =>
+            moment(i, "kk:mm").format("hh:mm A")
+        );
+    }, [startTimeOptions]);
 
     return (
         <div id="container">
@@ -912,24 +912,25 @@ import Sidebar from "../../Layouts/Sidebar";
 
                                                 <ul className="list-unstyled mt-4 timeslot">
                                                     {timeSlots.length > 0 ? (
-                                                        timeSlots.filter((t) => {
-                                                                return moment(t, "hh:mm A").isAfter(moment());
-                                                            }).map((t, index) => {
-                                                                return (
+                                                        timeSlots.filter((t) => moment(t, "hh:mm A").isAfter(moment())).length > 0 ? (
+                                                            timeSlots
+                                                                .filter((t) => moment(t, "hh:mm A").isAfter(moment()))
+                                                                .map((t, index) => (
                                                                     <li
-                                                                        className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t
-                                                                                ? "bg-primary text-white"
-                                                                                : "text-primary"
+                                                                        className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"
                                                                             }`}
                                                                         key={index}
-                                                                        onClick={() => {
-                                                                            handleTimeChange(t);
-                                                                        }}
+                                                                        onClick={() => handleTimeChange(t)}
                                                                     >
                                                                         {t}
                                                                     </li>
-                                                                );
-                                                            })
+                                                                ))
+                                                        ) : (
+                                                            <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
+                                                                {t("global.noTimeSlot")}
+                                                                {t("global.available")}
+                                                            </li>
+                                                        )
                                                     ) : (
                                                         <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
                                                             {t("global.noTimeSlot")}
