@@ -45,6 +45,7 @@ use App\Http\Controllers\HearingProtocolController;
 use App\Http\Controllers\ScheduleChangeController;
 use App\Http\Controllers\HearingCommentController;
 use App\Http\Controllers\ClaimController;
+// use App\Http\Controllers\Admin\ChangeWorkerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -425,6 +426,11 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/schedule-changes', [ScheduleChangeController::class, 'index'])->name('schedule-changes.index');
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
     Route::get('/schedule-change/{id}', [ScheduleChangeController::class, 'getScheduleChange']);
+
+
+    // Route::get('jobs/change-worker-requests', [ChangeWorkerController::class, 'index']);
+    // Route::post('jobs/change-worker-requests/{id}/accept', [ChangeWorkerController::class, 'accept']);
+    // Route::post('jobs/change-worker-requests/{id}/reject', [ChangeWorkerController::class, 'reject']);
 
 });
 

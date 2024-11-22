@@ -913,6 +913,8 @@ import Sidebar from "../../Layouts/Sidebar";
                                                     {timeSlots.length > 0 ? (
                                                         timeSlots.map(
                                                             (t, index) => {
+                                                                console.log(t);
+                                                                
                                                                 return (
                                                                     <li
                                                                         className={`py-2 px-3 border  mb-2  text-center border-primary  ${selectedTime ===

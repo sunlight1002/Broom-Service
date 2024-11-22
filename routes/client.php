@@ -46,6 +46,9 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::get('jobs/{id}/total-amount-by-group', [JobController::class, 'getOpenJobAmountByGroup']);
     Route::resource('jobs/{id}/comments', JobCommentController::class)->only(['index', 'store', 'destroy']);
 
+    // Route::post('jobs/{id}/change-worker-request', [JobController::class, 'changeWorkerRequest']);
+
+
     Route::post('jobs/request-to-change', [ScheduleChangeController::class, 'requestToChange']);
     Route::get('/schedule-changes', [ScheduleChangeController::class, 'getAllScheduleChanges']);
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
@@ -68,6 +71,7 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::get('workers', [WorkerController::class, 'index']);
 
     Route::get('invoices', [InvoiceController::class, 'index']);
+
 });
 Route::post('jobs/speak-to-manager', [JobController::class, 'addProblems']);
 Route::post('jobs/get-problem', [JobController::class, 'getProblems']);

@@ -240,6 +240,8 @@ class WhatsappNotification
                 ':client_contract_link' => url("work-contract/" . $contractData['contract_id']),
                 ':team_contract_link' => isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '',
                 ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at'])->format('M d Y H:i') : '',
+                ':create_job' => isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : " ",
+
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -288,7 +290,6 @@ class WhatsappNotification
                     : ("Job is marked as " . ucfirst($jobData['status'] ?? "")),
                 ':admin_name' => $eventData['admin']['name'] ?? '',
                 ':came_from' => $eventData['type'] ?? '',
-                ':create_job' => url("admin/create-job/" . ($jobData['id'] ?? "")),
                 
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 

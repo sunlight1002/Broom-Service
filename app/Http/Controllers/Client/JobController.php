@@ -171,7 +171,7 @@ class JobController extends Controller
         $currentDay = now()->format('l'); // e.g., "Monday"
         $repeatancy = $request->get('repeatancy');
         $until_date = $request->get('until_date');
-
+        
         $jobs = Job::query()
             ->with(['client', 'offer', 'worker', 'jobservice'])
             ->whereIn('status', [
@@ -186,20 +186,46 @@ class JobController extends Controller
             })
             ->where('job_group_id', $job->job_group_id)
             ->get();
-
+        
         $admin = Admin::where('role', 'admin')->first();
-
+        
         foreach ($jobs as $key => $job) {
-
-            // Check if the job can be cancelled without a fee
             $feePercentage = 0;
+        
+            $endOfWeek = now()->endOfWeek();
+            $endOfNextWeek = now()->addWeek()->endOfWeek();
+            $jobStartDate = Carbon::parse($job->start_date);
+            $timeDifference = $jobStartDate->diffInHours(now(), false);
+        
             if ($currentDay === 'Wednesday') {
-                $feePercentage = 0;
-            } else{
-                $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
+    
+                if ($timeDifference <= 24) {
+                    // If cancellation is within 24 hours, charge 100%
+                    $feePercentage = 100;
+                } elseif ($jobStartDate->lte($endOfWeek)) {
+                    // Charge 50% for jobs canceled till the end of this week
+                    $feePercentage = 50;
+                } else {
+                    // No charge for jobs after this week
+                    $feePercentage = 0;
+                }
+            } else {
+                // Handle non-Wednesday conditions
+                if ($timeDifference <= 24) {
+                    // If cancellation is within 24 hours, charge 100%
+                    $feePercentage = 100;
+                    
+                }else if ($jobStartDate->lte($endOfNextWeek)) {
+                    // Charge 50% for jobs till the end of next week
+                    $feePercentage = 50;
+                } else {
+                    // No charge for jobs after next week
+                    $feePercentage = 0;
+                }
             }
-
-             $feeAmount = ($feePercentage / 100) * $job->total_amount;
+        
+            $feeAmount = ($feePercentage / 100) * $job->total_amount;
+        
 
             \Log::info("JobCancellationFee Save for Job : ". $job->id);
 
