@@ -909,33 +909,27 @@ import Sidebar from "../../Layouts/Sidebar";
                                                 <h6 className="time-slot-date">
                                                     {formattedSelectedDate}
                                                 </h6>
+
                                                 <ul className="list-unstyled mt-4 timeslot">
                                                     {timeSlots.length > 0 ? (
-                                                        timeSlots.map(
-                                                            (t, index) => {
-                                                                console.log(t);
-                                                                
+                                                        timeSlots.filter((t) => {
+                                                                return moment(t, "hh:mm A").isAfter(moment());
+                                                            }).map((t, index) => {
                                                                 return (
                                                                     <li
-                                                                        className={`py-2 px-3 border  mb-2  text-center border-primary  ${selectedTime ===
-                                                                            t
-                                                                            ? "bg-primary text-white"
-                                                                            : "text-primary"
+                                                                        className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t
+                                                                                ? "bg-primary text-white"
+                                                                                : "text-primary"
                                                                             }`}
-                                                                        key={
-                                                                            index
-                                                                        }
+                                                                        key={index}
                                                                         onClick={() => {
-                                                                            handleTimeChange(
-                                                                                t
-                                                                            );
+                                                                            handleTimeChange(t);
                                                                         }}
                                                                     >
                                                                         {t}
                                                                     </li>
                                                                 );
-                                                            }
-                                                        )
+                                                            })
                                                     ) : (
                                                         <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
                                                             {t("global.noTimeSlot")}
