@@ -204,7 +204,7 @@ export default function EmployeeDetails({
                                 // readonly={values.employeePassportNumber === null ? false : true}
                                 />
                             </div>
-                            <div className="col-md-4 col-sm-6 col-xs-6">
+                            <div className="col-xs-6 mb-1">
                                 <label htmlFor="employeepassportCopy">
                                     {t("form101.passport_photo")}
                                 </label>

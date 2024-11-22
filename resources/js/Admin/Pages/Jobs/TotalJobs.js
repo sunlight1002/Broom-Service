@@ -197,7 +197,7 @@ export default function TotalJobs() {
                     //     return json.data;
                     // },
                 },
-                order: [[0, "desc"]],
+                order: [[0, "asc"]],
                 columns: [
                     {
                         title: t("global.date"),

@@ -632,6 +632,27 @@ office@broomservice.co.il
                 'message_ru' => '',
             ],
 
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED,
+                'description' => 'Reminder to Team - Client Cancel meeting',
+                'message_en' => '',
+                'message_heb' => 'שלום צוות,
+
+לקוח בשם :client_name ביצע שינוי בפגישה שתוכננה ל :today_tommarow_or_date.
+
+- *פעולה שבוצעה* : בוטלה  
+- *תאריך ושעה חדשה*: :meeting_date_time
+- *מיקום*: :meet_link
+- *לינק להודעה ב-CRM*: :client_detail_url
+
+אנא ודאו שהשינויים מעודכנים ביומנים שלכם והיו ערוכים בהתאם.
+
+בברכה,
+צוות ברום סרוויס',
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
 
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_RESCHEDULE_MEETING,
@@ -1350,7 +1371,7 @@ Telephone: 03-525-70-60
 office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
-                'message_heb' => "שלום צוות,
+                'message_heb' => "שלום :client_name,
 
 אנו בברום סרוויס מבינים שלפעמים יש צורך לעשות הפסקה, ואנו רוצים להודות לכם על האמון שהענקתם לנו עד כה.
 רצינו להזכיר לכם שאנו כאן בשבילכם ומוכנים לחדש את השירות בכל עת שתחליטו. אנו ממשיכים לשפר ולהרחיב את מגוון השירותים שלנו כדי להבטיח שתמיד תקבלו את הטוב ביותר.
@@ -1409,7 +1430,7 @@ Click here to take action: :lead_detail_url',
 נא להמשיך בשלבים הבאים.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1427,7 +1448,7 @@ Click here to take action: :lead_detail_url',
 עדכון: פגישה נקבעה או סרטון הוזמן מ:client_name. נא להיערך בהתאם.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1445,7 +1466,7 @@ Click here to take action: :lead_detail_url',
 עדכון סטטוס: הליד :client_name סומן כלא רלוונטי בשל חוסר התאמה לשירות או מגבלת מיקום.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1464,7 +1485,7 @@ Click here to take action: :lead_detail_url',
 נא לסמן כהושלם או לסגור את הליד.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1483,7 +1504,7 @@ Click here to take action: :lead_detail_url',
 נא לבדוק ולבצע מעקב בהתאם לצורך.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1502,7 +1523,7 @@ Click here to take action: :lead_detail_url',
 ממתינים להחלטתו.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1521,7 +1542,7 @@ Click here to take action: :lead_detail_url',
 נא להמשיך בשלבים הבאים.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1540,7 +1561,7 @@ Click here to take action: :lead_detail_url',
 נא לתאם את השירות בהקדם האפשרי.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1559,7 +1580,7 @@ Click here to take action: :lead_detail_url',
 יש לעדכן את הצוות ולהתכונן למפגשים הקרובים.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1578,7 +1599,7 @@ Click here to take action: :lead_detail_url',
 נא לבדוק עם הלקוח ולפתור כל בעיה קיימת.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1616,7 +1637,7 @@ Click here to take action: :lead_detail_url',
 שקלו לבחון מחדש את אסטרטגיית התמחור במידת הצורך.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1654,7 +1675,7 @@ Click here to take action: :lead_detail_url',
 אנא קחו זאת בחשבון למעקב עתידי או מבצעים.
 
 טלפון: :client_phone_number.
-לחץ כאן כדי לפעול: :lead_detail_url"',
+לחץ כאן כדי לפעול: :lead_detail_url',
 
                 'message_spa' => '',
                 'message_ru' => '',

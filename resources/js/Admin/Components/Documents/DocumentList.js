@@ -113,16 +113,18 @@ const DocumentList = ({ documents, worker, handleDelete }) => {
                                         ? d.document_type.name
                                         : "NA"}
                                 </p>
-                                <p
-                                    style={{
-                                        fontSize: "16px",
-                                        fontWeight: "600",
-                                    }}
-                                >
-                                    ({d.document_type && d.document_type.id === 9
-                                        ? d.name
-                                        : "NA"})
-                                </p>
+                                {d.document_type && d.document_type.id === 9 && (
+                                     <p
+                                     style={{
+                                         fontSize: "16px",
+                                         fontWeight: "600",
+                                     }}
+                                 >
+                                     ({d.document_type && d.document_type.id === 9
+                                         ? d.name
+                                         : "NA"})
+                                 </p>
+                                )}
                             </div>
                             <div className="col-sm-4 col-4">
                                 <span

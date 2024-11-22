@@ -2804,33 +2804,32 @@ button.time-counter, span.time-counter {
   box-shadow: none !important;
   background-color: #FFFFFF !important;
 }
-/*
-.dt-paging-button{
-  background-color: #1E1E1E !important;
-  color: white !important;
-  padding: 0px !important;
-}
-.dt-paging-button.disabled{
-  background-color: #1E1E1E !important;
-  color: white !important;
-  padding: 0px !important;
-} */
 
-#content .paging_full_numbers button:nth-child(3){
-  background-color: #fafbfc !important;
-  color: rgb(0, 0, 0) !important;
-  padding: 5px 20px ;
-  border-radius: 5px;
+
+#content .dt-paging-button.disabled,
+#content .dt-paging-button.next,
+#content .dt-paging-button.previous ,
+#content .dt-paging-button.last,
+#content .dt-paging-button.first {
+  color: white !important;
 }
-#content .paging_full_numbers button{
-  background-color: #1E1E1E !important;
+
+
+#content .paging_full_numbers button {
+  background-color: #1E1E1E;
   color: white !important;
   border-radius: 5px;
-  padding: 5px 10px ;
+  padding: 5px 10px;
   margin-left: 5px;
   margin-right: 5px;
-  /* padding: 0px !important; */
 }
+
+#content .paging_full_numbers .dt-paging-button.current {
+  background-color: #ffffff; 
+  color: rgb(0, 0, 0) !important;
+  padding: 5px 18px;
+}
+
 
 #content thead tr{
   background-color: #fafbfc !important ;
@@ -2845,10 +2844,6 @@ button.time-counter, span.time-counter {
   border: none;
 
 }
-
-/* #content tbody tr td:nth-child(5) span{
-
-} */
 
 #content .dt-layout-row:nth-child(1){
   display: flex !important;

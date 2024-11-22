@@ -34,7 +34,7 @@ class NotifyTeamAndClientTommorowMeetings extends Command
         $tomorrow = Carbon::tomorrow()->toDateString();
 
         // Retrieve schedules that are scheduled for tomorrow and meet_via is "on-site"
-        $schedules = Schedule::with('client')
+        $schedules = Schedule::with(['client', 'propertyAddress'])
                     ->where('start_date', $tomorrow)
                     ->where('meet_via', 'on-site')
                     ->get();
@@ -44,13 +44,17 @@ class NotifyTeamAndClientTommorowMeetings extends Command
 
         if ($schedules->isNotEmpty()) {
             foreach ($schedules as $schedule) {
+                $geoAddress = urlencode($schedule->propertyAddress->geo_address); // Encode the address
                 $TeamMessage .= "$count. *פגישה עם " . $schedule->client->firstname ." " .$schedule->client->lastname ."*"."  
  - *שעה*: " . Carbon::parse($schedule->start_date ?? "00-00-0000")->format('M d Y') . " " .  ($schedule->start_time ?? '') . "  
  - *מיקום*: " . $schedule->meet_link ."
  - *נושא הפגישה*: " . $schedule->purpose ."
- - *פרטי קשר של הלקוח*: " . $schedule->client->phone ." / " . $schedule->client->email ."
- \n";
+ - *פרטי קשר של הלקוח*: " . $schedule->client->phone ." / " . $schedule->client->email . "
+ - *כתובת*: " . url("https://maps.google.com?q=" . $geoAddress) . "\n";
+
                 $count += 1;
+                
+                $geoAddress = url("https://maps.google.com?q=". $schedule->client->geo_address);
             $this->notifyClient($schedule);
             }
             

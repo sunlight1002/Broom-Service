@@ -22,6 +22,9 @@ export default function Thankyou() {
         axios
             .post(responseUrl, {
                 id: Base64.decode(param.id),
+            }).then((res) => {
+                console.log(res);
+                
             })
             .catch((e) => {
                 Swal.fire({
@@ -31,6 +34,7 @@ export default function Thankyou() {
                 });
             });
     };
+    
     const getMeeting = () => {
         axios
             .post(`/api/client/meeting`, { id: Base64.decode(param.id) })
@@ -40,6 +44,8 @@ export default function Thankyou() {
                     param.response == "accept" ? "confirmed" : "declined";
                 setStatus(stat);
                 setInstatus(instat);
+                console.log(stat);
+                
                 if (stat == "pending" || instat != stat) {
                     updateMeeting();
                 }

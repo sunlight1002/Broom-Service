@@ -10,12 +10,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./customCalendar.css";
 import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 
-import { enUS, he } from "date-fns/locale";
+import { enUS, he, tr } from "date-fns/locale";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 registerLocale("en", enUS);
 registerLocale("he", he);
 
-const CustomCalendar = ({ meeting, start_time }) => {
+const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -152,12 +152,29 @@ const CustomCalendar = ({ meeting, start_time }) => {
     }
     return "";
   }, [selectedDate, currentLanguage]);
+  
+  const selectDate = moment(selectedDate).format("DD-MM-YYYY");
+
+  const res = moment(start_time, "hh:mm A").format("HH:mm");
 
   const timeSlots = useMemo(() => {
-    return startTimeOptions.map((i) =>
-      moment(i, "kk:mm").format("hh:mm A")
-    );
-  }, [startTimeOptions]);
+    const filteredTimeOptions = selectedDate !== meetingDate
+      ? startTimeOptions.filter((i) => moment(i, "kk:mm").format("HH:mm") !== res)
+      : startTimeOptions;
+  
+    return filteredTimeOptions.map((i) => moment(i, "kk:mm").format("hh:mm A"));
+  }, [startTimeOptions, selectedDate, meetingDate, res]);
+  
+
+  const filteredTimeSlots = timeSlots.filter((t) => {
+    const slotTime = moment(t, "hh:mm A");
+
+    if (selectDate === meetingDate) {
+      return slotTime.isAfter(moment()); 
+    }
+    return true;
+  });
+
 
   return (
     <>
@@ -176,38 +193,36 @@ const CustomCalendar = ({ meeting, start_time }) => {
                 locale={currentLanguage}
               />
             </div>
-            <div className="mt-1 ">
+            <div className="mt-1">
               <h6 className="time-slot-date">{formattedSelectedDate}</h6>
               <ul className="list-unstyled mt-4 timeslot">
-                {timeSlots.length > 0 ? (
-                  timeSlots.filter((t) => moment(t, "hh:mm A").isAfter(moment()) && moment(t, "HH:mm A").format("HH:mm A") !== moment(start_time, "HH:mm A").format("HH:mm A")).length > 0 ? (
-                    timeSlots
-                      .filter((t) => moment(t, "hh:mm A").isAfter(moment())) // Filter out past times
-                      .filter((t) => moment(t, "HH:mm A").format("HH:mm A") !== moment(start_time, "HH:mm A").format("HH:mm A")) // Exclude start_time
-                      .map((t, index) => {
-                        return (
-                          <li
-                            className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"}`}
-                            key={index}
-                            onClick={() => handleTimeChange(t)}
-                          >
-                            {t}
-                          </li>
-                        );
-                      })
-                  ) : (
-                    <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
-                      {t("global.noTimeSlot")} {t("global.available")}
+                {filteredTimeSlots.length > 0 ? (
+                  filteredTimeSlots.map((t, index) => (
+                    <li
+                      className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"
+                        }`}
+                      style={{
+                        backgroundColor: selectDate === meetingDate && start_time === t ? "#dbdbdb" : undefined,
+                      }}
+                      disabled={selectDate === meetingDate && start_time === t}
+                      key={index}
+                      onClick={() => {
+                        if (selectDate === meetingDate && start_time === t) {
+                          alert.error("You can't select the same time");
+                          return;
+                        }
+                        setSelectedTime(t);
+                      }}
+                    >
+                      {t}
                     </li>
-                  )
+                  ))
                 ) : (
                   <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
                     {t("global.noTimeSlot")} {t("global.available")}
                   </li>
                 )}
-
               </ul>
-
             </div>
           </div>
         </div>

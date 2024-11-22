@@ -97,7 +97,7 @@ export default function MeetingStatus() {
                         </li>
                     </ul>
 
-                    <CustomCalendar meeting={meeting} start_time={meeting.start_time} />
+                    <CustomCalendar meeting={meeting} start_time={meeting.start_time} meetingDate={dt}/>
                 </div>
             )}
         </div>

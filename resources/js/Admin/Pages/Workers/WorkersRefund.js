@@ -48,7 +48,6 @@ export default function WorkersRefund() {
                     },
                     dataSrc: function (json) {
                         // Debugging: Check the structure of the response
-                        // console.log('DataTable Response:', json);
                         if (!json.data) {
                             console.error('Invalid data format', json);
                             return [];

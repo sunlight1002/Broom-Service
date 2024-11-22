@@ -413,11 +413,11 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT:
                     case WhatsappMessageTemplateEnum::CLIENT_NOT_IN_SYSTEM_OR_NO_OFFER:
                     case WhatsappMessageTemplateEnum::CLIENT_HAS_OFFER_BUT_NO_SIGNED_OR_NO_CONTRACT:
-                        if($clientData['disable_notification'] == 1){
+                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
                         }
-                        $receiverNumber = $clientData['phone'];
+                        $receiverNumber = isset($clientData['phone']) && $clientData['phone'];
                         $lng = $clientData['lng'] ?? 'heb';
                         break;
 
@@ -453,6 +453,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS:
                     case WhatsappMessageTemplateEnum::STOP:
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
+                    case WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED:
                     // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';

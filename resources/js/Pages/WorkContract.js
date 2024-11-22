@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import Swal from "sweetalert2";
 import moment from "moment";
+import FullPageLoader from "../Components/common/FullPageLoader";
 
 export default function WorkContract() {
     const { t } = useTranslation();
@@ -30,6 +31,7 @@ export default function WorkContract() {
     const [isCardAdded, setIsCardAdded] = useState(false);
     const [consentToAds, setConsentToAds] = useState(true);
     const [signDate, setSignDate] = useState(moment().format("DD/MM/YYYY"));
+    const [loading, setLoading] = useState(false)
 
     const params = useParams();
     const sigRef1 = useRef();
@@ -46,6 +48,12 @@ export default function WorkContract() {
             swal(t("work-contract.messages.sign_err"), "", "error");
             return false;
         }
+        if (!cardSignature) {
+            swal(t("work-contract.messages.sign_card_err"), "", "error");
+            return false;
+        }
+
+        setLoading(true);
 
         const data = {
             unique_hash: params.id,
@@ -62,6 +70,7 @@ export default function WorkContract() {
         axios
             .post(`/api/client/accept-contract`, data)
             .then((res) => {
+                setLoading(false);
                 if (res.data.error) {
                     swal("", res.data.error, "error");
                 } else {
@@ -73,6 +82,7 @@ export default function WorkContract() {
                 }
             })
             .catch((e) => {
+                setLoading(false);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -184,6 +194,8 @@ export default function WorkContract() {
         axios
             .post(`/api/client/contracts/${params.id}/initialize-card`, {})
             .then((response) => {
+                console.log(response);
+                
                 setCheckingForCard(true);
 
                 setSessionURL(response.data.redirect_url);
@@ -885,6 +897,7 @@ export default function WorkContract() {
                     </div>
                 </div>
             </div>
+            <FullPageLoader visible={loading} />
         </div>
     );
 }

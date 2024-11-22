@@ -16,6 +16,7 @@ import FullPageLoader from "../../../Components/common/FullPageLoader";
 import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 import Map from "../../Components/Map/map";
 import Sidebar from "../../Layouts/Sidebar";
+import { f } from "html2pdf.js";
 
 export default function ViewSchedule() {
     const [client, setClient] = useState([]);
@@ -613,11 +614,21 @@ export default function ViewSchedule() {
     }, [selectedDate]);
 
     const timeSlots = useMemo(() => {
-        return startTimeOptions.map((i) =>
-            moment(i, "kk:mm").format("hh:mm A")
-        );
-    }, [startTimeOptions]);
-
+        return startTimeOptions
+          .map((i) => moment(i, "kk:mm").format("hh:mm A")) // format time as hh:mm A
+          .filter((t) => {
+            const todayFormattedDate = moment().format("MMMM, dddd, DD"); 
+      
+            if (formattedSelectedDate === todayFormattedDate) {
+              // Check if the time slot is in the future
+              return moment(t, "hh:mm A").isAfter(moment());
+            }
+      
+            // If the dates are not the same, return all time slots
+            return true;
+          });
+      }, [startTimeOptions, formattedSelectedDate]);
+      
     return (
         <div id="container">
             <Sidebar />
@@ -912,31 +923,23 @@ export default function ViewSchedule() {
 
                                                 <ul className="list-unstyled mt-4 timeslot">
                                                     {timeSlots.length > 0 ? (
-                                                        timeSlots.filter((t) => moment(t, "hh:mm A").isAfter(moment())).length > 0 ? (
-                                                            timeSlots
-                                                                .filter((t) => moment(t, "hh:mm A").isAfter(moment()))
-                                                                .map((t, index) => (
-                                                                    <li
-                                                                        className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"
-                                                                            }`}
-                                                                        key={index}
-                                                                        onClick={() => handleTimeChange(t)}
-                                                                    >
-                                                                        {t}
-                                                                    </li>
-                                                                ))
-                                                        ) : (
-                                                            <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
-                                                                {t("global.noTimeSlot")}
-                                                                {t("global.available")}
+                                                        timeSlots.map((t, index) => (
+                                                            <li
+                                                                className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"
+                                                                    }`}
+                                                                key={index}
+                                                                onClick={() => handleTimeChange(t)}
+                                                            >
+                                                                {t}
                                                             </li>
-                                                        )
+                                                        ))
                                                     ) : (
                                                         <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
                                                             {t("global.noTimeSlot")}
                                                             {t("global.available")}
                                                         </li>
-                                                    )}
+                                                    )
+                                                    }
                                                 </ul>
                                             </div>
                                         </div>

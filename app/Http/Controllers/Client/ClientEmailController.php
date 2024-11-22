@@ -263,6 +263,7 @@ class ClientEmailController extends Controller
 
     public function rejectMeeting(Request $request)
     {
+        \Log::info("ferfr");
         $schedule = Schedule::find($request->id);
         if (!$schedule) {
             return response()->json([
@@ -299,6 +300,11 @@ class ClientEmailController extends Controller
             'meet_id' => $request->id,
             'status' => 'declined'
         ]);
+
+        event(new WhatsappNotificationEvent([
+            "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED,
+            "notificationData" => $schedule->toArray()
+        ]));
 
         return response()->json([
             'message' => 'Thanks, your meeting is declined'

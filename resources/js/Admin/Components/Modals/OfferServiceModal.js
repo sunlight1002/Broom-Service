@@ -271,7 +271,7 @@
 //                         </div>
 //                     </div>
 //                 </div>
-                
+
 //                 <div className="align-items-center mb-3">
 //                     <h4>{t("global.workers")}</h4>
 //                     <label htmlFor="noOfWrkers">{t("global.noOfWorker")} : </label>
@@ -594,7 +594,7 @@ export default function OfferServiceModal({
 
     const [offerServiceTmp, setOfferServiceTmp] = useState(
         isAdd ? [initialValues] : tmpFormValues && Array.isArray(tmpFormValues) ? tmpFormValues : [initialValues]
-    );        
+    );
 
     useEffect(() => {
         if (!isAdd && Array.isArray(tmpFormValues) && tmpFormValues.length > 0) {
@@ -661,7 +661,7 @@ export default function OfferServiceModal({
 
     const handleInputChange = (index, field, value) => {
         setOfferServiceTmp((prevState) =>
-            prevState.map((service, i) => 
+            prevState.map((service, i) =>
                 i === index ? { ...service, [field]: value } : service
             )
         );
@@ -669,19 +669,19 @@ export default function OfferServiceModal({
 
     const handleFrequencyChange = (index, e) => {
         const target = e.target;
-        
+
         if (!target) {
             console.warn("Event target is null or undefined.");
             return;
         }
-    
+
         const selectedOption = target.selectedIndex >= 0 ? target.options[target.selectedIndex] : null;
-    
+
         if (!selectedOption) {
             console.warn("No option selected for frequency.");
             return;
         }
-    
+
         setOfferServiceTmp((prevState) =>
             prevState.map((service, i) => {
                 if (i === index) {
@@ -697,10 +697,10 @@ export default function OfferServiceModal({
             })
         );
     };
-    
+
     const handleServiceChange = (index, e) => {
         const target = e.target;
-        
+
         if (!target) {
             console.warn("Event target is null or undefined.");
             return;
@@ -710,7 +710,7 @@ export default function OfferServiceModal({
             console.warn("No option selected for service.");
             return;
         }
-    
+
         setOfferServiceTmp((prevState) =>
             prevState.map((service, i) => {
                 if (i === index) {
@@ -725,7 +725,7 @@ export default function OfferServiceModal({
             })
         );
     };
-    
+
     const handleAddressChange = (index, value) => {
         const selectedAddress = addresses.find(address => address.id === parseInt(value));
 
@@ -734,8 +734,8 @@ export default function OfferServiceModal({
                 i === index
                     ? {
                         ...service,
-                        address: value, 
-                        address_name: selectedAddress ? selectedAddress.address_name : "", 
+                        address: value,
+                        address_name: selectedAddress ? selectedAddress.address_name : "",
                     }
                     : service
             )
@@ -744,16 +744,16 @@ export default function OfferServiceModal({
 
     const handleAddService = () => {
         const selectedAddress = addresses[0];
-    
+
         setOfferServiceTmp((prevState) => [
             ...prevState,
-            { 
-                ...initialValues, 
+            {
+                ...initialValues,
                 address: selectedAddress.id
             }
         ]);
     };
-    
+
 
     const handleDeleteService = (index) => {
         setOfferServiceTmp((prevState) => prevState.filter((_, i) => i !== index));
@@ -769,12 +769,12 @@ export default function OfferServiceModal({
 
     const handleChangeWorkerCount = (e, serviceIndex) => {
         const _noOfWorker = e.target.value > 0 ? e.target.value : 1;
-    
+
         const _workerForms = Array.from(
             { length: _noOfWorker },
             () => initialValues.workers[0]
         );
-    
+
         setOfferServiceTmp((prevState) => {
             const updatedServices = [...prevState];
             updatedServices[serviceIndex] = {
@@ -788,32 +788,32 @@ export default function OfferServiceModal({
     const handleWorkerForm = (serviceIndex, workerIndex, tmpvalue) => {
         setOfferServiceTmp((prevState) => {
             const updatedServices = [...prevState];
-    
+
             if (!updatedServices[serviceIndex]) {
                 console.error(`Service at index ${serviceIndex} does not exist.`);
-                return prevState; 
+                return prevState;
             }
-    
+
             if (!updatedServices[serviceIndex].workers) {
-                updatedServices[serviceIndex].workers = []; 
+                updatedServices[serviceIndex].workers = [];
             }
-    
+
             if (workerIndex >= updatedServices[serviceIndex].workers.length) {
                 console.error(`Worker at index ${workerIndex} does not exist.`);
             }
-    
+
             const updatedWorkers = updatedServices[serviceIndex].workers.map((worker, wIndex) => {
                 if (wIndex === workerIndex) {
-                    return tmpvalue; 
+                    return tmpvalue;
                 }
                 return worker;
             });
-    
+
             updatedServices[serviceIndex].workers = updatedWorkers;
-    
+
             return updatedServices;
         });
-    };    
+    };
 
     return (
         <Modal
@@ -829,31 +829,29 @@ export default function OfferServiceModal({
                     {isAdd ? t("global.addService") : t("admin.global.Edit") + t("global.service")}
                 </Modal.Title>
             </Modal.Header>
-    
+
             <Modal.Body>
-                <div className="col-sm-6">
-                    <div className="row mb-3">
-                        <div className="col-sm-12">
-                            <div className="form-group">
-                                <label className="control-label">{t("client.jobs.change.property")}</label>
-                                <select
-                                    className="form-control"
-                                    name="address"
-                                    value={offerServiceTmp[0]?.address || ""}
-                                    onChange={(e) => handleAddressChange(0, e.target.value)}
-                                >
-                                    <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
-                                    {addresses.map((address, i) => (
-                                        <option value={address.id} key={i}>
-                                            {address.address_name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                <div className="row mb-1">
+                    <div className="col-sm-6">
+                        <div className="form-group m-0">
+                            <label className="control-label">{t("client.jobs.change.property")}</label>
+                            <select
+                                className="form-control"
+                                name="address"
+                                value={offerServiceTmp[0]?.address || ""}
+                                onChange={(e) => handleAddressChange(0, e.target.value)}
+                            >
+                                <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
+                                {addresses.map((address, i) => (
+                                    <option value={address.id} key={i}>
+                                        {address.address_name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>
-    
+
                 {/* {offerServiceTmp.map((service, index) => (
                     <div key={index}>
                         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -1050,215 +1048,213 @@ export default function OfferServiceModal({
                     </div>
                 ))} */}
 
-                    {Array.isArray(offerServiceTmp) && offerServiceTmp.length > 0 ? (
-                        offerServiceTmp.map((service, index) => (
-                            <div key={index}>
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h5>{t("global.service")} {index + 1}</h5>
+                {Array.isArray(offerServiceTmp) && offerServiceTmp.length > 0 ? (
+                    offerServiceTmp.map((service, index) => (
+                        <div key={index}>
+                            <div className="d-flex justify-content-between align-items-center mb-1">
+                                <h5 className="mt-3 mb-2">{t("global.service")} {index + 1}</h5>
                                 {offerServiceTmp.length > 1 && index !== offerServiceTmp.length - 1 && (
-                                <Button
-                                    className="navyblue delete-btn"
-                                    onClick={() => handleDeleteService(index)}
-                                >
-                                    <FaTrashAlt />
-                                </Button>
+                                    <Button
+                                        className="navyblue delete-btn"
+                                        onClick={() => handleDeleteService(index)}
+                                    >
+                                        <FaTrashAlt />
+                                    </Button>
                                 )}
                             </div>
 
-                            <div className="row mb-3">
+                            <div className="row mb-1">
                                 {/* Service Input */}
                                 <div className="col-sm-6">
-                                <div className="form-group">
-                                    <label className="control-label">{t("global.service")}</label>
-                                    <select
-                                    name="service"
-                                    className="form-control"
-                                    value={service.service || ""}
-                                    onChange={(e) => {
-                                        handleServiceChange(index, e);
-                                        if (e.target.value === "10") {
-                                        setToggleOtherService(true);
-                                        } else if (e.target.value === "29") {
-                                        setToggleAirbnbService(true);
-                                        handleGetSubServices(29);
-                                        } else {
-                                        setToggleAirbnbService(false);
-                                        setToggleOtherService(false);
-                                        }
-                                    }}
-                                    >
-                                    <option value={0}>{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
-                                    {services.map((service, i) => (
-                                        <option 
-                                        key={i} 
-                                        value={service.id} 
-                                        name={service.name} 
-                                        template={service.template}
+                                    <div className="form-group m-0">
+                                        <label className="control-label">{t("global.service")}</label>
+                                        <select
+                                            name="service"
+                                            className="form-control"
+                                            value={service.service || ""}
+                                            onChange={(e) => {
+                                                handleServiceChange(index, e);
+                                                if (e.target.value === "10") {
+                                                    setToggleOtherService(true);
+                                                } else if (e.target.value === "29") {
+                                                    setToggleAirbnbService(true);
+                                                    handleGetSubServices(29);
+                                                } else {
+                                                    setToggleAirbnbService(false);
+                                                    setToggleOtherService(false);
+                                                }
+                                            }}
                                         >
-                                        {service.name}
-                                        </option>
-                                    ))}
-                                    </select>
-                                </div>
+                                            <option value={0}>{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
+                                            {services.map((service, i) => (
+                                                <option
+                                                    key={i}
+                                                    value={service.id}
+                                                    name={service.name}
+                                                    template={service.template}
+                                                >
+                                                    {service.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
 
                                 {/* Frequency Input */}
                                 <div className="col-sm-6">
-                                <div className="form-group">
-                                    <label className="control-label">{t("client.offer.view.frequency")}</label>
-                                    <select
-                                    name="frequency"
-                                    className="form-control mb-2"
-                                    value={service.frequency || 0}
-                                    onChange={(e) => handleFrequencyChange(index, e)}
-                                    >
-                                    <option value={0}>{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
-                                    {frequencies.map((s, i) => (
-                                        <option cycle={s.cycle} period={s.period} name={s.name} value={s.id} key={i}>
-                                        {s.name}
-                                        </option>
-                                    ))}
-                                    </select>
-                                </div>
+                                    <div className="form-group m-0">
+                                        <label className="control-label">{t("client.offer.view.frequency")}</label>
+                                        <select
+                                            name="frequency"
+                                            className="form-control mb-2"
+                                            value={service.frequency || 0}
+                                            onChange={(e) => handleFrequencyChange(index, e)}
+                                        >
+                                            <option value={0}>{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
+                                            {frequencies.map((s, i) => (
+                                                <option cycle={s.cycle} period={s.period} name={s.name} value={s.id} key={i}>
+                                                    {s.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="row mb-3">
+                            <div className="row mb-2">
                                 {/* Type Input */}
                                 <div className="col-sm-6">
-                                <div className="form-group">
-                                    <label className="control-label">{t("price_offer.type")}</label>
-                                    <select
-                                    name="type"
-                                    className="form-control"
-                                    value={service.type}
-                                    onChange={(e) => handleInputChange(index, 'type', e.target.value)}
-                                    >
-                                    <option value="fixed">{t("admin.leads.AddLead.Options.Type.Fixed")}</option>
-                                    <option value="hourly">{t("admin.leads.AddLead.Options.Type.Hourly")}</option>
-                                    <option value="squaremeter">{t("admin.leads.AddLead.Options.Type.Squaremeter")}</option>
-                                    </select>
-                                </div>
+                                    <div className="form-group m-0">
+                                        <label className="control-label">{t("price_offer.type")}</label>
+                                        <select
+                                            name="type"
+                                            className="form-control"
+                                            value={service.type}
+                                            onChange={(e) => handleInputChange(index, 'type', e.target.value)}
+                                        >
+                                            <option value="fixed">{t("admin.leads.AddLead.Options.Type.Fixed")}</option>
+                                            <option value="hourly">{t("admin.leads.AddLead.Options.Type.Hourly")}</option>
+                                            <option value="squaremeter">{t("admin.leads.AddLead.Options.Type.Squaremeter")}</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 {/* Price Input */}
                                 <div className="col-sm-6">
-                                <div className="form-group">
-                                    <label className="control-label">{t("admin.leads.AddLead.AddLeadClient.jobMenu.Price")}</label>
-                                    {service.type === "fixed" && (
-                                    <input
-                                        type="number"
-                                        name="fixed_price"
-                                        value={service.fixed_price || ""}
-                                        onChange={(e) => handleInputChange(index, 'fixed_price', e.target.value)}
-                                        className="form-control jobprice"
-                                        required
-                                        placeholder="Enter job price"
-                                    />
-                                    )}
-                                    {service.type === "hourly" && (
-                                    <input
-                                        type="number"
-                                        name="rateperhour"
-                                        value={service.rateperhour || ""}
-                                        onChange={(e) => handleInputChange(index, 'rateperhour', e.target.value)}
-                                        className="form-control jobprice"
-                                        required
-                                        placeholder="Enter rate P/Hour"
-                                    />
-                                    )}
-                                    {service.type === "squaremeter" && (
-                                    <input
-                                        type="number"
-                                        name="ratepersquaremeter"
-                                        value={service.ratepersquaremeter || ""}
-                                        onChange={(e) => handleInputChange(index, 'ratepersquaremeter', e.target.value)}
-                                        className="form-control p-2"
-                                        required
-                                        placeholder="Enter rate P/Square meter"
-                                    />
-                                    )}
-                                </div>
+                                    <div className="form-group m-0">
+                                        <label className="control-label">{t("admin.leads.AddLead.AddLeadClient.jobMenu.Price")}</label>
+                                        {service.type === "fixed" && (
+                                            <input
+                                                type="number"
+                                                name="fixed_price"
+                                                value={service.fixed_price || ""}
+                                                onChange={(e) => handleInputChange(index, 'fixed_price', e.target.value)}
+                                                className="form-control jobprice"
+                                                required
+                                                placeholder="Enter job price"
+                                            />
+                                        )}
+                                        {service.type === "hourly" && (
+                                            <input
+                                                type="number"
+                                                name="rateperhour"
+                                                value={service.rateperhour || ""}
+                                                onChange={(e) => handleInputChange(index, 'rateperhour', e.target.value)}
+                                                className="form-control jobprice"
+                                                required
+                                                placeholder="Enter rate P/Hour"
+                                            />
+                                        )}
+                                        {service.type === "squaremeter" && (
+                                            <input
+                                                type="number"
+                                                name="ratepersquaremeter"
+                                                value={service.ratepersquaremeter || ""}
+                                                onChange={(e) => handleInputChange(index, 'ratepersquaremeter', e.target.value)}
+                                                className="form-control p-2"
+                                                required
+                                                placeholder="Enter rate P/Square meter"
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
                             {service.type === "squaremeter" && (
-                                <div className="row mb-3">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                    <label className="control-label">Total Square Meter</label>
-                                    <input
-                                        type="number"
-                                        name="totalsquaremeter"
-                                        value={service.totalsquaremeter || ""}
-                                        onChange={(e) => handleInputChange(index, 'totalsquaremeter', e.target.value)}
-                                        className="form-control p-2"
-                                        required
-                                        placeholder="Total Square meter"
-                                    />
+                                <div className="row mb-1">
+                                    <div className="col-sm-12">
+                                        <div className="form-group m-0">
+                                            <label className="control-label">Total Square Meter</label>
+                                            <input
+                                                type="number"
+                                                name="totalsquaremeter"
+                                                value={service.totalsquaremeter || ""}
+                                                onChange={(e) => handleInputChange(index, 'totalsquaremeter', e.target.value)}
+                                                className="form-control p-2"
+                                                required
+                                                placeholder="Total Square meter"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
                                 </div>
                             )}
 
                             {toggleAirbnbService && (
-                                <div className="row mb-3">
-                                <div className="col-sm-12">
-                                    <div className="form-group">
-                                    <label className="control-label">{t("price_offer.subservice")}</label>
-                                    <Select
-                                        options={transformedSubData}
-                                        isMulti
-                                        value={selectedOptions}
-                                        onChange={handleSubServices}
-                                        placeholder={t("client.jobs.change.select_subservices")}
-                                    />
+                                <div className="row mb-1">
+                                    <div className="col-sm-12">
+                                        <div className="form-group m-0">
+                                            <label className="control-label">{t("price_offer.subservice")}</label>
+                                            <Select
+                                                options={transformedSubData}
+                                                isMulti
+                                                value={selectedOptions}
+                                                onChange={handleSubServices}
+                                                placeholder={t("client.jobs.change.select_subservices")}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
                                 </div>
                             )}
 
-                            <div>
-                                <div className="mb-3">
-                                <h5>{t("global.workers")}</h5>
-                                <div className="d-flex align-items-center">
-                                    <label htmlFor={`noOfWorkers-${index}`} className="mr-2">{t("global.noOfWorker")} :</label>
-                                    <input
-                                    type="number"
-                                    min={1}
-                                    className="form-control w-25"
-                                    id={`noOfWorkers-${index}`}
-                                    value={service.workers.length}
-                                    onChange={(e) => handleChangeWorkerCount(e, index)}
-                                    />
-                                </div>
+                                <div className="mb-2">
+                                    <h5 className="mt-3 mb-2">{t("global.workers")}</h5>
+                                    <div className="d-flex align-items-center">
+                                        <label htmlFor={`noOfWorkers-${index}`} className="mr-2">{t("global.noOfWorker")} :</label>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            className="form-control w-25"
+                                            id={`noOfWorkers-${index}`}
+                                            value={service.workers.length}
+                                            onChange={(e) => handleChangeWorkerCount(e, index)}
+                                        />
+                                    </div>
                                 </div>
                                 <div className="row">
-                                {service.workers.map((worker, workerIndex) => (
-                                    <div key={workerIndex} className="col-sm-6">
-                                    <WorkerForm
-                                        workerFormValues={worker}
-                                        handleTmpValue={handleWorkerForm}
-                                        index={workerIndex}
-                                        serviceIndex={index}
-                                    />
-                                    </div>
-                                ))}
+                                    {service.workers.map((worker, workerIndex) => (
+                                        <div key={workerIndex} className="col-sm-6">
+                                            <WorkerForm
+                                                workerFormValues={worker}
+                                                handleTmpValue={handleWorkerForm}
+                                                index={workerIndex}
+                                                serviceIndex={index}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                            </div>
-                        ))
-                        ) : (
-                        <p>{t("global.noServicesAvailable")}</p>
-                        )
-                    }
-                    <div className="mt-4 text-right">
-                        <Button onClick={handleAddService} className="navyblue btn">
-                            {t("global.addService")}
-                        </Button>
-                    </div>
+                    ))
+                ) : (
+                    <p>{t("global.noServicesAvailable")}</p>
+                )
+                }
+                <div className="mt-4 text-right">
+                    <Button onClick={handleAddService} className="navyblue btn">
+                        {t("global.addService")}
+                    </Button>
+                </div>
             </Modal.Body>
-    
+
             <Modal.Footer>
                 <Button
                     type="button"
@@ -1293,14 +1289,14 @@ function WorkerForm({ workerFormValues, handleTmpValue, index, serviceIndex }) {
 
     return (
         <div className="row mb-3">
-            <div className="col-sm-6">
-                <div className="form-group">
+            <div className="col-sm-3 d-flex align-items-center justify-content-center">
+                <div className="form-group m-0">
                     <strong>{t("global.worker")} {index + 1}</strong>
                 </div>
             </div>
 
-            <div className="col-sm-6">
-                <div className="form-group">
+            <div className="col-sm-7">
+                <div className="form-group m-0">
                     <input
                         type="number"
                         name="jobHours"
@@ -1316,4 +1312,3 @@ function WorkerForm({ workerFormValues, handleTmpValue, index, serviceIndex }) {
         </div>
     );
 }
-    
