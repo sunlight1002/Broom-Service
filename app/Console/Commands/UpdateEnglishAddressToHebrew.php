@@ -85,7 +85,7 @@ class UpdateEnglishAddressToHebrew extends Command
      * @param string $longitude
      * @return array|null
      */
-    private function fetchAddressFromGoogleMaps($latitude, $longitude)
+    private function fetchAddressFromGoogleMaps($latitude, $longitude)  
     {
         $url = "https://maps.googleapis.com/maps/api/geocode/json";
 

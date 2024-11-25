@@ -20,6 +20,7 @@ export default function chat() {
     const { t } = useTranslation();
     const [data, setData] = useState(null);
     const [messages, setMessages] = useState(null);
+    const [groupedMessages, setGroupedMessages] = useState({});
     const [selectNumber, setSelectNumber] = useState(null);
     const [clients, setClients] = useState(null);
     const [expired, setExpired] = useState(0);
@@ -127,6 +128,9 @@ export default function chat() {
             localStorage.setItem("chatLen", c.length);
             // setExpired(res.data.expired);
             setMessages(c);
+
+            const grouped = groupMessagesByDate(c);
+            setGroupedMessages(grouped); 
         });
     };
 
@@ -150,7 +154,19 @@ export default function chat() {
         }
     };
 
-
+    const groupMessagesByDate = (messages) => {
+        if (!messages) return {};
+    
+        return messages.reduce((grouped, message) => {
+            const date = new Date(message.created_at).toLocaleDateString(); // Adjust date format as needed
+            if (!grouped[date]) {
+                grouped[date] = [];
+            }
+            grouped[date].push(message);
+            return grouped;
+        }, {});
+    };
+    
 
     const sendMessage = () => {
         let msg = document.getElementById("message_typing").value;
@@ -904,106 +920,156 @@ export default function chat() {
                                                                     padding: "0px",
                                                                 }}
                                                             >
-                                                                <ul
-                                                                    className="conversation-list"
-                                                                    style={{
-                                                                        fontFamily: "sans-serif",
-                                                                    }}
-                                                                >
-                                                                    {messages?.map((m, i) => {
-                                                                        if (m.message != "restart") {
-                                                                            return (
-                                                                                <li className={m.flex == "C" ? "clearfix " : "clearfix odd"} key={i}>
-                                                                                    <div className="conversation-text"
-                                                                                        style={{
-                                                                                            display: 'flex',
-                                                                                            alignItems: "center",
-                                                                                            justifyContent: m.flex != "C" && "end"
-                                                                                        }}
-                                                                                    >
-                                                                                        {/* <span class="tail-container"></span><span class="tail-container highlight"></span> */}
+                                                            <ul
+                                                                className="conversation-list"
+                                                                style={{
+                                                                    fontFamily: "sans-serif",
+                                                                    listStyleType: "none",
+                                                                    padding: 0,
+                                                                }}
+                                                            >
+                                                                {Object.keys(groupedMessages).map((date, idx) => (
+                                                                    <div key={idx}>
+                                                                        <div
+                                                                            className="date-header"
+                                                                            style={{
+                                                                                textAlign: "center",
+                                                                                margin: "10px 0",
+                                                                                fontWeight: "bold",
+                                                                                backgroundColor: "white",
+                                                                                padding: "5px 5px",   
+                                                                                borderRadius: "10px",    
+                                                                                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                                                                                display: "inline-block", 
+                                                                                width: "auto",
+                                                                                marginLeft: "320px"
+                                                                            }}
+                                                                        >
+                                                                            {date}
+                                                                        </div>
 
-                                                                                        <div className={`message-bubble ${m.flex !== "C" ? "message-outgoing " : "message-incoming"} `}>
-                                                                                            <div className="message-content">
-                                                                                                {/* <div className="text-content">
-                                                                                                    <span className="message-text">Your card is not charged yet</span>
-                                                                                                </div> */}
-                                                                                                <div className="text-content"
-                                                                                                style={{display: "flex", flexDirection: "column"}}
-                                                                                                >
-                                                                                                    {/* Check if the message starts with "Replying to:" */}
-                                                                                                    {m?.message != null && m?.message?.startsWith("Replying to:") && (
-                                                                                                        <span className="replying-text">{m.message}</span>
-                                                                                                    )}
+                                                                        {groupedMessages[date].map((m, i) => {
+                                                                            if (m.message !== "restart") {
+                                                                                return (
+                                                                                    <li className={m.flex === "C" ? "clearfix" : "clearfix odd"} key={i}>
+                                                                                        <div
+                                                                                            className="conversation-text"
+                                                                                            style={{
+                                                                                                display: 'flex',
+                                                                                                alignItems: "center",
+                                                                                                justifyContent: m.flex !== "C" && "end",
+                                                                                            }}
+                                                                                        >
+                                                                                            <div
+                                                                                                className={`message-bubble ${m.flex !== "C" ? "message-outgoing" : "message-incoming"}`}
+                                                                                            >
+                                                                                                <div className="message-content">
+                                                                                                    <div
+                                                                                                        className="text-content"
+                                                                                                        style={{ display: "flex", flexDirection: "column" }}
+                                                                                                    >
+                                                                                                        {m?.message != null && m?.message?.startsWith("Replying to:") && (
+                                                                                                            <span className="replying-text">{m.message}</span>
+                                                                                                        )}
 
-                                                                                                    {/* Check for media based on wa_id */}
-                                                                                                    {m?.message != null && m?.message?.startsWith("Replying to:") && (
-                                                                                                        <>
-                                                                                                            {webhookResponses?.filter(response => response.id == m.wa_id) // Check for matching wa_id
-                                                                                                                .map((response) => (
-                                                                                                                    <React.Fragment key={response.id}>
-                                                                                                                        {response.video && (
-                                                                                                                            <video width="300" height="220" controls>
-                                                                                                                                <source src={`/storage/uploads/media/${response.video}`} type="video/mp4" />
-                                                                                                                            </video>
-                                                                                                                        )}
-                                                                                                                        {response.image && (
-                                                                                                                            <img src={`/storage/uploads/media/${response.image}`} alt="image" width="300" />
-                                                                                                                        )}
-                                                                                                                    </React.Fragment>
-                                                                                                                ))}
-                                                                                                        </>
-                                                                                                    )}
+                                                                                                        {m?.message != null && m?.message?.startsWith("Replying to:") && (
+                                                                                                            <>
+                                                                                                                {webhookResponses
+                                                                                                                    ?.filter((response) => response.id === m.wa_id)
+                                                                                                                    .map((response) => (
+                                                                                                                        <React.Fragment key={response.id}>
+                                                                                                                            {response.video && (
+                                                                                                                                <video width="300" height="220" controls>
+                                                                                                                                    <source
+                                                                                                                                        src={`/storage/uploads/media/${response.video}`}
+                                                                                                                                        type="video/mp4"
+                                                                                                                                    />
+                                                                                                                                </video>
+                                                                                                                            )}
+                                                                                                                            {response.image && (
+                                                                                                                                <img
+                                                                                                                                    src={`/storage/uploads/media/${response.image}`}
+                                                                                                                                    alt="image"
+                                                                                                                                    width="300"
+                                                                                                                                />
+                                                                                                                            )}
+                                                                                                                        </React.Fragment>
+                                                                                                                    ))}
+                                                                                                            </>
+                                                                                                        )}
 
-                                                                                                    {/* Display regular message if no media */}
-                                                                                                    {!m?.message?.startsWith("Replying to:") && (
-                                                                                                        <>
-                                                                                                            {m?.video && (
-                                                                                                                <video width="300" height="220" controls>
-                                                                                                                    <source src={`/storage/uploads/media/${m.video}`} type="video/mp4" />
-                                                                                                                </video>
-                                                                                                            )}
-                                                                                                            {m?.image && (
-                                                                                                                <img src={`/storage/uploads/media/${m.image}`} alt="image" width="300" />
-                                                                                                            )}
-                                                                                                            <br />
-                                                                                                            {m.message}
-                                                                                                        </>
-                                                                                                    )}
-                                                                                                </div>
-                                                                                                <div className="message-info">
-                                                                                                    <span className="message-time"> {new Date(m.created_at).toLocaleString("en-GB")}</span>
-                                                                                                    <span className="message-status">
-                                                                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 15" width="16" height="15">
-                                                                                                            <path fill="#727678" d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"></path>
-                                                                                                        </svg>
-                                                                                                    </span>
+                                                                                                        {!m?.message?.startsWith("Replying to:") && (
+                                                                                                            <>
+                                                                                                                {m?.video && (
+                                                                                                                    <video width="300" height="220" controls>
+                                                                                                                        <source
+                                                                                                                            src={`/storage/uploads/media/${m.video}`}
+                                                                                                                            type="video/mp4"
+                                                                                                                        />
+                                                                                                                    </video>
+                                                                                                                )}
+                                                                                                                {m?.image && (
+                                                                                                                    <img
+                                                                                                                        src={`/storage/uploads/media/${m.image}`}
+                                                                                                                        alt="image"
+                                                                                                                        width="300"
+                                                                                                                    />
+                                                                                                                )}
+                                                                                                                <br />
+                                                                                                                {m.message}
+                                                                                                            </>
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                    <div className="message-info">
+                                                                                                        <span className="message-time">
+                                                                                                            {new Date(m.created_at).toLocaleTimeString("en-GB")}
+                                                                                                        </span>
+                                                                                                        <span className="message-status">
+                                                                                                            <svg
+                                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                                                viewBox="0 0 16 15"
+                                                                                                                width="16"
+                                                                                                                height="15"
+                                                                                                            >
+                                                                                                                <path
+                                                                                                                    fill="#727678"
+                                                                                                                    d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"
+                                                                                                                ></path>
+                                                                                                            </svg>
+                                                                                                        </span>
+                                                                                                    </div>
                                                                                                 </div>
                                                                                             </div>
+                                                                                            <i
+                                                                                                className="fa-solid fa-reply"
+                                                                                                style={{
+                                                                                                    marginBottom: "50px",
+                                                                                                    cursor: "pointer",
+                                                                                                    background: "#e7e3e3",
+                                                                                                    padding: "7px",
+                                                                                                    borderRadius: "100%",
+                                                                                                }}
+                                                                                                onClick={() => {
+                                                                                                    if (m?.video != null) {
+                                                                                                        setMedia(m.video);
+                                                                                                    } else if (m?.image != null) {
+                                                                                                        setImage(m?.image);
+                                                                                                    }
+                                                                                                    setReplyMessage(m.message);
+                                                                                                    setReplyId(m?.id);
+                                                                                                }}
+                                                                                            ></i>
                                                                                         </div>
-                                                                                        <i
-                                                                                            className="fa-solid fa-reply"
-                                                                                            style={{ marginBottom: "50px", cursor: "pointer", background: "#e7e3e3", padding: "7px", borderRadius: "100%" }}
-                                                                                            onClick={() => {
-                                                                                                if (m?.video != null) {
-                                                                                                    setMedia(m.video);
-                                                                                                } else if (m?.image != null) {
-                                                                                                    setImage(m?.image)
-                                                                                                }
-                                                                                                setReplyMessage(m.message);
-                                                                                                setReplyId(m?.id)
+                                                                                    </li>
+                                                                                );
+                                                                            }
+                                                                            return null;
+                                                                        })}
+                                                                    </div>
+                                                                ))}
+                                                                <div ref={chatEndRef} />
+                                                            </ul>
 
-                                                                                            }} // Set the message to reply to
-                                                                                        ></i>
-                                                                                    </div>
-                                                                                </li>
-
-                                                                            );
-                                                                        }
-                                                                    })}
-                                                                    <div ref={chatEndRef} /> {/* Reference for scrolling */}
-                                                                </ul>
-                                                                {/* Reply Message Display */}
                                                                 {/* Reply Message Display */}
                                                                 <div className="reply-message">
                                                                     {(replyId || (selectedFile && selectedFile.name)) && (

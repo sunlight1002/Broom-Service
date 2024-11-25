@@ -2119,7 +2119,6 @@ class WhatsappNotification
             // dd($th);
             // throw $th;
             Log::error('WA NOTIFICATION ERROR', ['error' => $th->getMessage(), 's' => $th->getTraceAsString()]);
-            Log::error();
         }
     }
 }
