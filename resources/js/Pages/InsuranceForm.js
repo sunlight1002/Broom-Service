@@ -205,7 +205,7 @@ const InsuranceForm = () => {
 
 
     const handleFormSubmit = async (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         setFormSubmitted(true);
 
         setTouched(
@@ -448,6 +448,10 @@ const InsuranceForm = () => {
                 document.querySelector("html").setAttribute("dir", "rtl");
             } else {
                 document.querySelector("html").removeAttribute("dir");
+                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                if (rtlLink) {
+                    rtlLink.remove();
+                }
             }
 
             if (res.data.form) {

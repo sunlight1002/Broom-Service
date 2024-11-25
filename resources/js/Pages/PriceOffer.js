@@ -42,6 +42,13 @@ export default function PriceOffer() {
             setStatus(data.status);
             setClient(data.client);
             i18next.changeLanguage(data.client?.lng);
+            if(data?.client?.lng) {
+                document.querySelector("html").removeAttribute("dir");
+                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                if (rtlLink) {
+                    rtlLink.remove();
+                }
+            }
             let _services = JSON.parse(data.services);
 
             setServices(_services);

@@ -46,6 +46,10 @@ export default function Invoices() {
                     document.querySelector("html").setAttribute("dir", "rtl");
                 } else {
                     document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
                 }
 
                 if (response.data.invoices.data.length > 0) {

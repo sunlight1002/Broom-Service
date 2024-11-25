@@ -41,7 +41,7 @@ class LeadWebhookController extends Controller
     protected $botMessages = [
         'main-menu' => [
             'en' => "Hi, I'm Bar, the digital representative of Broom Service. How can I help you today? 😊\n\nAt any stage, you can return to the main menu by sending the number 9 or return one menu back by sending the number 0.\n\n1. About the Service\n2. Service Areas\n3. Set an appointment for a quote\n4. Customer Service\n5. Switch to a human representative (during business hours)\n7. שפה עברית\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time",
-            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu'."\n\n". "אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת."
+            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu' . "\n\n" . "אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת."
         ]
     ];
 
@@ -94,7 +94,7 @@ class LeadWebhookController extends Controller
                     ['lead_status' => LeadStatusEnum::PENDING]
                 );
             }
-            $m = $this->botMessages['main-menu']['en'];
+            $m = $this->botMessages['main-menu']['heb'];
 
             $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
 
@@ -137,7 +137,7 @@ class LeadWebhookController extends Controller
         $responseClientState = [];
         $data_returned = json_decode($get_data, true);
         $message = null;
-        // Log::info(['whatsapp_webhook' => $request->all()]);
+        Log::info(['whatsapp_webhook' => $data_returned]);
 
 
         if (
@@ -147,7 +147,7 @@ class LeadWebhookController extends Controller
         ) {
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
-            // Log::info($from);
+            Log::info($from);
 
             $response = WebhookResponse::create([
                 'status'        => 1,
@@ -161,20 +161,16 @@ class LeadWebhookController extends Controller
             ]);
 
             $lng = 'heb';
-            if (strlen($from) > 10 && substr($from, 0, 3) != 972) {
-                $lng = 'eng';
-            }
 
             $client = null;
             if (strlen($from) > 10) {
                 $client = Client::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
-
             } else {
                 $client = Client::where('phone', 'like', '%' . $from . '%')->first();
             }
 
             if (!$client) {
-                $m = $this->botMessages['main-menu']['en'];
+                $m = $this->botMessages['main-menu']['heb'];
                 $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
                 $response = WebhookResponse::create([
@@ -198,7 +194,7 @@ class LeadWebhookController extends Controller
                 $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
                 $lead->save();
 
-               $responseClientState = WhatsAppBotClientState::updateOrCreate([
+                $responseClientState = WhatsAppBotClientState::updateOrCreate([
                     'client_id' => $lead->id,
                 ], [
                     'menu_option' => 'main_menu',
@@ -206,7 +202,7 @@ class LeadWebhookController extends Controller
                 ]);
 
                 die('Template send to new client');
-            }else if ($client->disable_notification == 1) {
+            } else if ($client->disable_notification == 1) {
                 \Log::info('notification disabled');
                 die('notification disabled');
             }
@@ -218,34 +214,31 @@ class LeadWebhookController extends Controller
                     ->where('updated_at', '>=', Carbon::now()->subMinutes(15))
                     ->first();
 
-                // Log::info('Result details:', ['result' => $result]);
-
                 $client_menus = WhatsAppBotClientState::where('client_id', $client->id)->first();
 
-                if($message === 'STOP' || $message === 'הפסק'){
-                    $user = Client::find($client->id);
-                    if (!$user) {
+                if ($message === 'STOP' || $message === 'הפסק') {
+                    if (!$client) {
                         return response()->json([
-                        'message' => 'User not found'
+                            'message' => 'User not found'
                         ]);
                     };
 
                     event(new WhatsappNotificationEvent([
                         "type" => WhatsappMessageTemplateEnum::STOP,
                         "notificationData" => [
-                            'client' => $user->toArray()
+                            'client' => $client->toArray()
                         ]
                     ]));
 
                     event(new WhatsappNotificationEvent([
                         "type" => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
                         "notificationData" => [
-                            'client' => $user->toArray()
+                            'client' => $client->toArray()
                         ]
                     ]));
 
-                    $user->disable_notification = 1;
-                    $user->save();
+                    $client->disable_notification = 1;
+                    $client->save();
 
                     die("STOPPED");
                 }
@@ -407,7 +400,7 @@ Payment is made by 💳 credit card at the end of the month or after the visit, 
 To receive a quote, you must schedule an appointment at your property with one of our supervisors, at no cost or obligation on your part, during which we will help you choose a package and then we will send you a detailed quote according to the requested work.
 Please note that office hours are 🕖 Monday-Thursday from 8:00 to 14:00.
 To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
-                                                                        'he' => 'ברום סרוויס - שירות חדרים לבית שלכם 🏠.
+                                'he' => 'ברום סרוויס - שירות חדרים לבית שלכם 🏠.
 ברום סרוויס היא חברת ניקיון מקצועית המציעה שירותי ניקיון ברמה גבוהה לבית או לדירה, על בסיס קבוע או חד פעמי, ללא כל התעסקות מיותרת 🧹.
 אנו מציעים מגוון חבילות ניקיון מותאמות אישית, החל מחבילות ניקיון על בסיס קבוע ועד לשירותים נוספים כגון, ניקיון לאחר שיפוץ או לפני מעבר דירה, ניקוי חלונות בכל גובה ועוד ✨
 את כלל השירותים והחבילות שלנו תוכלו לראות באתר האינטרנט שלנו בכתובת 🌐 www.broomservice.co.il
@@ -434,7 +427,7 @@ To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a repre
 - Herzliya
 
 To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a representative.',
-                                                                        'he' => 'אנו מספקים שירות באזור 🗺️:
+                                'he' => 'אנו מספקים שירות באזור 🗺️:
 - תל אביב
 - רמת גן
 - גבעתיים
@@ -461,18 +454,18 @@ To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a repre
                                 'en' => 'Existing customers can use our customer portal to get information, make changes to orders, and contact us on various matters.
 You can also log in to our customer portal with the details you received at the time of registration at crm.broomservice.co.il.
 Enter your phone number or email address with which you registered for the service 📝',
-                                                                        'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
+                                'he' => 'לקוחות קיימים יכולים להשתמש בפורטל הלקוחות שלנו כדי לקבל מידע, לבצע שינויים בהזמנות וליצור איתנו קשר בנושאים שונים.
 תוכלו גם להיכנס לפורטל הלקוחות שלנו עם הפרטים שקיבלתם במעמד ההרשמה בכתובת crm.broomservice.co.il.
 הזן את מס הטלפון או כתובת המייל איתם נרשמת לשירות 📝',
-                                                                    ]
-                                                                ],
-                                                                '5' => [
-                                                                    'title' => "Switch to a Human Representative - During Business Hours",
-                                                                    'content' => [
-                                                                        'en' => 'Dear customers, office hours are Monday-Thursday from 8:00 to 14:00.
+                            ]
+                        ],
+                        '5' => [
+                            'title' => "Switch to a Human Representative - During Business Hours",
+                            'content' => [
+                                'en' => 'Dear customers, office hours are Monday-Thursday from 8:00 to 14:00.
 If you contact us outside of business hours, a representative from our team will get back to you as soon as possible on the next business day, during business hours.
 If you would like to speak to a human representative, please send a message with the word "Human Representative". 🙋🏻',
-                                                                        'he' => 'לקוחות יקרים, שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00.
+                                'he' => 'לקוחות יקרים, שעות הפעילות במשרד הן בימים א-ה בשעות 8:00-14:00.
 במידה ופניתם מעבר לשעות הפעילות נציג מטעמנו יחזור אליכם בהקדם ביום העסקים הבא, בשעות הפעילות.
 אם אתם מעוניינים לדבר עם נציג אנושי, אנא שלחו הודעה עם המילה "נציג אנושי". 🙋🏻',
                             ]
@@ -506,7 +499,7 @@ If you would like to speak to a human representative, please send a message with
                 if ($last_menu == 'human_representative') {
                     $msg = null;
 
-                    if ( str_contains($message, 'Human Representative') || str_contains($message, 'נציג אנושי') ) {
+                    if (str_contains($message, 'Human Representative') || str_contains($message, 'נציג אנושי')) {
 
                         event(new WhatsappNotificationEvent([
                             "type" => WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE,
@@ -523,7 +516,6 @@ If you would like to speak to a human representative, please send a message with
                         }
 
                         $state = "main_menu->human_representative->need_more_help";
-
                     } else {
                         if ($client->lng == 'heb') {
                             $msg = 'נראה שהזנת קלט שגוי. אנא בדוק ונסה שוב.';
@@ -532,7 +524,6 @@ If you would like to speak to a human representative, please send a message with
                         }
 
                         $state = "main_menu->human_representative";
-
                     }
 
                     $result = sendWhatsappMessage($from, array('message' => $msg));
@@ -557,7 +548,6 @@ If you would like to speak to a human representative, please send a message with
 
                     $message = null;
                     die("Human representative");
-
                 }
 
                 // Store lead full name
@@ -1090,7 +1080,7 @@ If you would like to speak to a human representative, please send a message with
                     if ($auth) {
 
                         $msg = $auth->lng == 'heb' ? "היי! שמנו לב שהמספר שלך כבר רשום במערכת שלנו.\nאיך נוכל לעזור לך היום? נא לבחור אחת מהאפשרויות הבאות:\n\n1 - שלחו לי שוב את פרטי ההתחברות\n2 - אני מעוניין שיצרו איתי קשר לגבי שירות חדש או חידוש"
-                        : "Hello! We noticed that your number is already registered in our system.\nHow can we assist you today? Please choose one of the following options:\n\n1 - Send me my login details again\n2 - I’d like to be contacted about a new service or renewal";
+                            : "Hello! We noticed that your number is already registered in our system.\nHow can we assist you today? Please choose one of the following options:\n\n1 - Send me my login details again\n2 - I’d like to be contacted about a new service or renewal";
 
                         // $auth->makeVisible('passcode');
                         // event(new SendClientLogin($auth->toArray()));
@@ -1136,9 +1126,9 @@ If you would like to speak to a human representative, please send a message with
                     event(new SendClientLogin($client->toArray()));
 
                     $msg = "Thank you! We’re resending your login details to your registered email address now. Please check your inbox shortly. 📧\nIs there anything else I can help you with today? (Yes or No) 👋";
-                        if ($client->lng == 'heb') {
-                            $msg = "תודה! אנחנו שולחים כעת את פרטי ההתחברות שלך למייל הרשום אצלנו. נא לבדוק את תיבת הדואר שלך בקרוב. 📧\nהאם יש משהו נוסף שבו אוכל לעזור לך היום? (כן או לא) 👋";
-                        }
+                    if ($client->lng == 'heb') {
+                        $msg = "תודה! אנחנו שולחים כעת את פרטי ההתחברות שלך למייל הרשום אצלנו. נא לבדוק את תיבת הדואר שלך בקרוב. 📧\nהאם יש משהו נוסף שבו אוכל לעזור לך היום? (כן או לא) 👋";
+                    }
 
                     if (!empty($msg)) {
                         WebhookResponse::create([
@@ -1155,10 +1145,10 @@ If you would like to speak to a human representative, please send a message with
                     }
 
                     die("Send login details");
-                }elseif ($last_menu == 'need_more_help' && $message == '2') {
+                } elseif ($last_menu == 'need_more_help' && $message == '2') {
 
                     $msg = $client->lng == 'heb' ? "הבנתי! אנחנו מעבירים אותך כעת לתפריט שירותים חדשים או חידוש\nשירותים. נא לבחור באפשרות המתאימה לך ביותר. 🛠️\nהאם יש משהו נוסף שבו אוכל לעזור לך היום? (כן או לא) 👋"
-                    :"Got it! We will redirect you to the menu for new services or renewals.\nPlease select the option that best suits your needs. 🛠️\n\nIs there anything else I can help you with today? (Yes or No) 👋";
+                        : "Got it! We will redirect you to the menu for new services or renewals.\nPlease select the option that best suits your needs. 🛠️\n\nIs there anything else I can help you with today? (Yes or No) 👋";
 
                     $result = sendWhatsappMessage($from, array('message' => $msg));
 
@@ -1239,7 +1229,6 @@ If you would like to speak to a human representative, please send a message with
                                 'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                             ]);
                             break;
-
                     }
                     // Log::info('Send message: ' . $menus[$last_menu][$message]['title']);
                     die("Language switched to english");
@@ -1248,23 +1237,23 @@ If you would like to speak to a human representative, please send a message with
                 \Log::info(['message' => $message, 'last_menu' => $last_menu]);
                 \Log::info(str_contains($message, '@'));
 
-                if(($message !== "Human Representative") || !(str_contains($message, '@'))){
-                // Follow-up message for returning to the menu, with translation based on the client's language
-                $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
-                :"Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time";
+                if (($message !== "Human Representative") || !(str_contains($message, '@'))) {
+                    // Follow-up message for returning to the menu, with translation based on the client's language
+                    $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
+                        : "Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time";
 
-                WebhookResponse::create([
-                'status'        => 1,
-                'name'          => 'whatsapp',
-                'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                'message'       => $follow_up_msg,
-                'number'        => $from,
-                'flex'          => 'A',
-                'read'          => 1,
-                'data'          => json_encode($get_data)
-                ]);
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'message'       => $follow_up_msg,
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($get_data)
+                    ]);
 
-                $result = sendWhatsappMessage($from, array('message' => $follow_up_msg));
+                    $result = sendWhatsappMessage($from, array('message' => $follow_up_msg));
                 }
             }
         }

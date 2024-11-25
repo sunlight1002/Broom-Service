@@ -27,66 +27,70 @@ class AddGoogleContactJob implements ShouldQueue
 
     public function handle()
     {
-        $client = $this->client;
-    
-        $googleAccessToken = Setting::query()
-            ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
-            ->value('value');
-    
-        if (!$googleAccessToken) {
-            throw new Exception('Error: Google Access Token not found.');
+        try {
+            $client = $this->client;
+
+            $googleAccessToken = Setting::query()
+                ->where('key', SettingKeyEnum::GOOGLE_ACCESS_TOKEN)
+                ->value('value');
+
+            if (!$googleAccessToken) {
+                throw new Exception('Error: Google Access Token not found.');
+            }
+
+            $contactData = [
+                'names' => [
+                    [
+                        'givenName' => $client->firstname,
+                        'familyName' => $client->lastname,
+                    ]
+                ],
+                'phoneNumbers' => [
+                    [
+                        'value' => $client->phone
+                    ]
+                ],
+                'emailAddresses' => [
+                    [
+                        'value' => $client->email
+                    ]
+                ]
+            ];
+
+            if ($client->contactId) {
+
+                $contactDetails = $this->getGoogleContact($client->contactId, $googleAccessToken);
+
+                if (isset($contactDetails['etag'])) {
+                    $contactData['etag'] = $contactDetails['etag'];
+                }
+
+                $updateResponse = $this->updateGoogleContact($client->contactId, $contactData, $googleAccessToken);
+
+            } else {
+                $contactId = $this->createGoogleContact($contactData, $googleAccessToken);
+
+                if ($contactId) {
+                    $client->update(['contactId' => $contactId]);
+                }
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
         }
-    
-        $contactData = [
-            'names' => [
-                [
-                    'givenName' => $client->firstname,
-                    'familyName' => $client->lastname,
-                ]
-            ],
-            'phoneNumbers' => [
-                [
-                    'value' => $client->phone
-                ]
-            ],
-            'emailAddresses' => [
-                [
-                    'value' => $client->email
-                ]
-            ]
-        ];
-
-        if ($client->contactId) {
-            
-            $contactDetails = $this->getGoogleContact($client->contactId, $googleAccessToken);
-    
-            if (isset($contactDetails['etag'])) {
-                $contactData['etag'] = $contactDetails['etag'];
-            }
-    
-            $updateResponse = $this->updateGoogleContact($client->contactId, $contactData, $googleAccessToken);
-    
-        } else {
-            $contactId = $this->createGoogleContact($contactData, $googleAccessToken);
-
-            if ($contactId) {
-                $client->update(['contactId' => $contactId]);
-            }
-        }   
     }
-    
+
     private function createGoogleContact($contactData, $googleAccessToken)
     {
         $url = 'https://people.googleapis.com/v1/people:createContact';
-    
+
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $googleAccessToken,
             'Content-Type' => 'application/json',
         ])->post($url, $contactData);
-    
+
         $http_code = $response->status();
         $data = $response->json();
-    
+
         if ($http_code == 401) {
             $this->refreshAccessToken($googleAccessToken);
             return $this->createGoogleContact($contactData, $googleAccessToken);
@@ -100,17 +104,17 @@ class AddGoogleContactJob implements ShouldQueue
     private function normalizeContactId($contactId)
     {
         $decodedContactId = urldecode($contactId);
-    
+
         if (strpos($decodedContactId, 'people/people/') === 0) {
             $decodedContactId = substr($decodedContactId, 7);
         }
-    
+
         if (strpos($decodedContactId, 'people/') !== 0) {
             $decodedContactId = 'people/' . $decodedContactId;
         }
 
         return $decodedContactId;
-    }    
+    }
 
     private function updateGoogleContact($contactId, $contactData, $googleAccessToken)
     {
@@ -184,7 +188,7 @@ class AddGoogleContactJob implements ShouldQueue
             throw $e;
         }
     }
-    
+
     private function refreshAccessToken(&$googleAccessToken)
     {
         $refreshToken = Setting::query()

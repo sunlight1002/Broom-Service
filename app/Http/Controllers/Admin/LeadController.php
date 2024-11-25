@@ -115,12 +115,9 @@ class LeadController extends Controller
         $input['passcode'] = $password;
 
         // Create the client
-        $client = Client::create($input);   
+        $client = Client::create($input);
 
-        // AddGoogleContactJob::dispatch($client);
-
-        $job = new AddGoogleContactJob($client);
-        $job->handle();
+        AddGoogleContactJob::dispatch($client);
 
         // Create user in iCount
         $iCountResponse = $this->createOrUpdateUser($request);
@@ -563,9 +560,9 @@ class LeadController extends Controller
 
                         $phone = isset($mapped_field_data['phone_number']) && !empty($mapped_field_data['phone_number']) ? str_replace('+', '', $mapped_field_data['phone_number']) : '';
                         $lng = 'heb';
-                        if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
-                            $lng = 'en';
-                        }
+                        // if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
+                        //     $lng = 'en';
+                        // }
                         // Fblead::create(["challenge" => json_encode($lead_data)]);
                         $client = Client::updateOrCreate([
                             'email'             => $email,

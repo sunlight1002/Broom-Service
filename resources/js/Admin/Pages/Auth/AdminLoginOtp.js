@@ -25,10 +25,17 @@ export default function AdminLoginOtp() {
 
     useEffect(() => {
         i18next.changeLanguage(adminLng);
+        if(adminLng == "en") {
+            document.querySelector("html").removeAttribute("dir");
+                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                if (rtlLink) {
+                    rtlLink.remove();
+                }
+        }
     }, [adminLng]);
 
 
-    
+
     useEffect(() => {
         const countdown = setInterval(() => {
             setTimer(prevTimer => {
@@ -109,7 +116,7 @@ export default function AdminLoginOtp() {
                 localStorage.setItem("admin-token", result.data.admin.token);
                 localStorage.setItem("admin-name", result.data.admin.name);
                 localStorage.setItem("admin-id", result.data.admin.id);
-                
+
                 const rememberToken = result?.data?.remember_token;
 
                 if (rememberToken) {
@@ -270,7 +277,7 @@ export default function AdminLoginOtp() {
                                                 </small>
                                             )}
                                             <div className='d-flex justify-content-center align-items-center'>
-                                                <label htmlFor='remind' 
+                                                <label htmlFor='remind'
                                                 style={{marginBottom: "0", marginRight: "5px"}}
                                                 >Remember this device</label>
                                                 <input onChange={e => setRemind(prev => !prev)} type='checkbox' id='remind' name='remember' />

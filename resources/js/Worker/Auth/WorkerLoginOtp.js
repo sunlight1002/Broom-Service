@@ -91,7 +91,7 @@ export default function WorkerLoginOtp() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setLoading(true) 
+        setLoading(true)
 
         const stringOtp = otp.join("");
 
@@ -101,7 +101,7 @@ export default function WorkerLoginOtp() {
         };
         try {
             const result = await axios.post(`/api/verifyOtp`, data);
-            
+
             if (result.data.errors) {
                 setErrors(result.data.errors.otp);
             } else {

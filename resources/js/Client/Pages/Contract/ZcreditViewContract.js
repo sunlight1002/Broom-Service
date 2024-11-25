@@ -133,7 +133,13 @@ export default function WorkContract() {
                         );
                     }
                     i18next.changeLanguage(res.data.offer.client.lng);
-
+                    if(res.data.contract?.client?.lng == "en") {
+                        document.querySelector("html").removeAttribute("dir");
+                            const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                            if (rtlLink) {
+                                rtlLink.remove();
+                            }
+                    }
                     if (res.data.offer.client.lng == "heb") {
                         import("../../../Assets/css/rtl.css");
                         document
@@ -225,7 +231,7 @@ export default function WorkContract() {
 
     const handleCardSelect = (e) => {
         console.log(e.target.value);
-        
+
         if (e.target.checked) {
             setSelectedClientCardID(e.target.value);
         } else {
@@ -286,11 +292,11 @@ export default function WorkContract() {
     const clientName = useMemo(() => {
         return client ? `${client.firstname} ${client.lastname}` : "";
     }, [client]);
-    
+
     const showWorkerHours = useMemo(() => {
         return services.filter((i) => i.type !== "fixed").length > 0;
     }, [services]);
-    
+
     const selectedClientCard = useMemo(() => {
         return clientCards.find((i) => i.id === parseInt(selectedClientCardID));
     }, [clientCards, selectedClientCardID]);
@@ -610,7 +616,7 @@ export default function WorkContract() {
                                     <td>{t('work-contract.employees_txt')}</td>
                                 </tr>
                             </table>
-                            
+
                         </div>
                         <h6 className='text-underline'>{t('work-contract.tenant_subtitle')}</h6>
                         <div className='agg-list'>
@@ -788,7 +794,7 @@ export default function WorkContract() {
 
                         <div className='mb-4'>&nbsp;</div>
 
-                        
+
                         <div
                             className="modal fade"
                             id="exampleModal"

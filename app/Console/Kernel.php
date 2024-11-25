@@ -45,7 +45,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('admin:send-worker-invitation-report')->twiceDailyAt(8, 18);
 
         // Facebook Leads
-        $schedule->command('facebook:fetch-yesterday-leads')->everyFiveMinutes();
+        $schedule->command('lead:fetch-facebook-leads')->everyFiveMinutes();
 
         $schedule->command('client:review-job-request')->dailyAt('08:00');
 

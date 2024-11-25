@@ -49,7 +49,7 @@ export default function EditOffer() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
     const [comment, setComment] = useState("");
-    
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -69,13 +69,13 @@ export default function EditOffer() {
     };
 
     const handleSave = (indexKey, tmpJobData) => {
-        let newFormValues = [...formValues];
-        if (indexKey > -1) {
-            newFormValues[indexKey] = tmpJobData;
-        } else {
-            newFormValues.push(tmpJobData);
-        }
-        setFormValues(newFormValues);
+        // let newFormValues = [...formValues];
+        // if (indexKey > -1) {
+        //     newFormValues[indexKey] = tmpJobData;
+        // } else {
+        //     newFormValues.push(tmpJobData);
+        // }
+        setFormValues(tmpJobData);
     };
 
     let removeFormFields = (i) => {
@@ -159,7 +159,7 @@ export default function EditOffer() {
     //         if (Array.isArray(formValues[t]?.workers)) {
     //             for (let index = 0; index < formValues[t].workers.length; index++) {
     //                 const _worker = formValues[t].workers[index];
-    
+
     //                 if (_worker.jobHours == "") {
     //                     alert.error("One of the job hours value is missing");
     //                     workerIssue = false;
@@ -221,19 +221,19 @@ export default function EditOffer() {
 
     const handleUpdate = (event, _action) => {
         event.preventDefault();
-    
+
         // Flatten the formValues array to remove any nested arrays
         const flattenedFormValues = formValues.flat();
-    
+
         console.log("Flattened Form Data on Update", flattenedFormValues);
-    
+
         // Rest of your validation and processing
         for (let t in flattenedFormValues) {
             if (flattenedFormValues[t].service == "" || flattenedFormValues[t].service == 0) {
                 alert.error("One of the service is not selected");
                 return false;
             }
-    
+
             if (flattenedFormValues[t].frequency == "" || flattenedFormValues[t].frequency == 0) {
                 alert.error("One of the frequency is not selected");
                 return false;
@@ -255,23 +255,23 @@ export default function EditOffer() {
                     return false;
                 }
             }
-    
+
             let workerIssue = true;
             for (let index = 0; index < flattenedFormValues[t].workers.length; index++) {
                 const _worker = flattenedFormValues[t].workers[index];
-    
+
                 if (_worker.jobHours == "") {
                     alert.error("One of the job hours value is missing");
                     workerIssue = false;
                     break;
                 }
             }
-    
+
             if (!workerIssue) {
                 return workerIssue;
             }
             let ot = document.querySelector("#other_title" + t);
-    
+
             if (flattenedFormValues[t].service == "10" && ot != undefined) {
                 if (flattenedFormValues[t].other_title == "") {
                     alert.error("Other title cannot be blank");
@@ -282,9 +282,9 @@ export default function EditOffer() {
                 ).value;
             }
         }
-    
+
         setIsSubmitting(true);
-    
+
         const data = {
             client_id: clientID,
             comment: comment,
@@ -292,7 +292,7 @@ export default function EditOffer() {
             services: JSON.stringify(flattenedFormValues),
             action: _action,
         };
-    
+
         axios
             .put(`/api/admin/offers/${param.id}`, data, { headers })
             .then((response) => {
@@ -312,7 +312,7 @@ export default function EditOffer() {
                 setIsSubmitting(false);
             });
     };
-    
+
 
     useEffect(() => {
         console.log("Updated Form Values:", formValues);
@@ -460,4 +460,4 @@ export default function EditOffer() {
             </div>
         </div>
     );
-}   
+}

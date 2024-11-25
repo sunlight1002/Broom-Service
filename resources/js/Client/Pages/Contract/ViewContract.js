@@ -82,6 +82,13 @@ export default function WorkContract() {
                 setLoading(false)
                 console.log(res.data.contract?.client?.lng);
                 i18next.changeLanguage(res.data.contract?.client?.lng);
+                if(res.data.contract?.client?.lng == "en") {
+                    document.querySelector("html").removeAttribute("dir");
+                        const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                        if (rtlLink) {
+                            rtlLink.remove();
+                        }
+                }
                 swal(res.data.message, '', 'success')
                 setTimeout(() => {
                     window.location.reload(true);
@@ -112,12 +119,19 @@ export default function WorkContract() {
             .post(`/api/client/contracts/${param.hash}`)
             .then((res) => {
                 console.log(res);
-                
+
                 setCards(res.data.cards[0])
                 setoffer(res.data.offer);
                 setClient(res.data.offer?.client);
                 console.log(res.data.offer?.client?.lng);
                 i18next.changeLanguage(res.data.offer?.client?.lng);
+                if(res.data.offer?.client?.lng == "en") {
+                    document.querySelector("html").removeAttribute("dir");
+                        const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                        if (rtlLink) {
+                            rtlLink.remove();
+                        }
+                }
                 setServices(JSON.parse(res.data.offer?.services))
                 if (res.data.cards[0]?.card_type) {
                     setCtype(res.data.cards[0].card_type)
@@ -178,7 +192,7 @@ export default function WorkContract() {
         getOffer();
         getContract();
     }, [])
-    
+
 console.log(services[0]?.address?.city);
 
     return (

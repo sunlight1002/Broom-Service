@@ -141,6 +141,10 @@ export default function WorkContract() {
                             .setAttribute("dir", "rtl");
                     } else {
                         document.querySelector("html").removeAttribute("dir");
+                        const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                        if (rtlLink) {
+                            rtlLink.remove();
+                        }
                     }
                 } else {
                     setOffer({});
@@ -195,7 +199,7 @@ export default function WorkContract() {
             .post(`/api/client/contracts/${params.id}/initialize-card`, {})
             .then((response) => {
                 console.log(response);
-                
+
                 setCheckingForCard(true);
 
                 setSessionURL(response.data.redirect_url);

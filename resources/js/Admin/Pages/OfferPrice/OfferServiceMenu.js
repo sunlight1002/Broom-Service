@@ -50,7 +50,7 @@
 //     const { t } = useTranslation();
 
 //    console.log("In main menu:", formValues);
-   
+
 //     const jobActions = [
 //         {
 //             key: "edit",
@@ -84,14 +84,14 @@
 //                     .map((w) => parseInt(w.jobHours))
 //                     .reduce((a, b) => a + b, 0);
 //                 return _service.rateperhour * _totalHours;
-    
+
 //             } else if (_service.type === "squaremeter") {
 //                 if (_service.ratepersquaremeter && _service.totalsquaremeter) {
 //                     return _service.ratepersquaremeter * _service.totalsquaremeter;
 //                 } else {
 //                     return "-";
 //                 }
-    
+
 //             } else {
 //                 return _service.fixed_price;
 //             }
@@ -99,7 +99,7 @@
 //             return "-";
 //         }
 //     };
-    
+
 
 //     return (
 //         <div>
@@ -291,7 +291,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
 }) {
 
     const { t } = useTranslation();
-    
+
     const jobActions = [
         {
             key: "edit",
@@ -326,14 +326,14 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                     .map((w) => parseInt(w.jobHours))
                     .reduce((a, b) => a + b, 0);
                 return _service.rateperhour * _totalHours;
-    
+
             } else if (_service.type === "squaremeter") {
                 if (_service.ratepersquaremeter && _service.totalsquaremeter) {
                     return _service.ratepersquaremeter * _service.totalsquaremeter;
                 } else {
                     return "-";
                 }
-    
+
             } else {
                 return _service.fixed_price;
             }
@@ -344,7 +344,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
 
     return (
         <div>
-            <div className="text-right" style={{ marginBottom: "5px" }}>    
+            <div className="text-right" style={{ marginBottom: "5px" }}>
                 <button
                     type="button"
                     onClick={handleAddService}
@@ -404,7 +404,8 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                                             if (menu.key === "edit") {
                                                                 indexRef.current = innerIndex;
                                                                 isAdd.current = false;
-                                                                setTmpFormValues(item);
+                                                                console.log(formValues);
+                                                                setTmpFormValues(formValues);
                                                                 setIsOpen(true);
                                                             } else {
                                                                 handleRemoveFormFields(innerIndex);

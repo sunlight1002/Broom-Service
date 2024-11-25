@@ -52,16 +52,11 @@ export default function EditTeam() {
         e.preventDefault()
         setLoading(true);
 
-        const sanitizedPhone = phone.replace(
-            /(?<=^\+?\d+)\s*0+/,
-            ""
-        ); 
-
         const data = {
             name: name,
             heb_name: hebname,
             email: email,
-            phone: sanitizedPhone,
+            phone: phone,
             address,
             address,
             color: !color ? "#fff" : color,
@@ -197,8 +192,14 @@ export default function EditTeam() {
                                         <PhoneInput
                                             country={'il'}
                                             value={phone}
-                                            onChange={(phone) => {
-                                                 setPhone(phone);
+                                            onChange={(phone, country) => {
+                                                // Remove leading '0' after country code
+                                                const dialCode = country.dialCode;
+                                                let formattedPhone = phone;
+                                                if (phone.startsWith(dialCode + '0')) {
+                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                }
+                                                setPhone(formattedPhone);
                                             }}
                                             inputClass="form-control"
                                             inputProps={{

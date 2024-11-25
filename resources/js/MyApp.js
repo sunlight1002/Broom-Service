@@ -10,7 +10,7 @@ import HttpApi from 'i18next-http-backend';
 window.Swal = swal;
 
 i18n
-  .use(initReactI18next) 
+  .use(initReactI18next)
   .use(LanguageDetector)
   .use(HttpApi)
   .init({
@@ -25,24 +25,24 @@ i18n
       loadPath: '/localization/{{lng}}/locale.json',
     },
     react: {useSuspense:false},
-  
+
 });
 
 
 const lng = localStorage.getItem('i18nextLng');
 const url = window.location.href;
-if(lng == 'heb' 
-    // && !url.includes('admin')
+if(lng == 'heb'
+    && !url.includes('admin')
     && !url.includes('price-offer')
     && !url.includes('work-contract')
     && !url.includes('meeting-status')
     && !url.includes('thankyou')
     && !url.includes('form101')
     && !url.includes('worker-contract')
-    
+
   )
-    
-{ 
+
+{
    import ('./Assets/css/rtl.css');
    document.querySelector('html').setAttribute('dir','rtl');
 } else {
@@ -51,7 +51,7 @@ if(lng == 'heb'
 
 const root = document.getElementById('root');
 render(
-  <React.StrictMode> 
+  <React.StrictMode>
     <MyRoutes />
   </React.StrictMode>
 , root);

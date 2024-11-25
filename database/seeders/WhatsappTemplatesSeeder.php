@@ -566,7 +566,7 @@ El trabajo en :job_full_address estaba programado para completarse a las :job_en
 Saludos cordiales,
 Equipo Broom Service',
                 'message_ru' => 'Привет, :worker_name,
-                
+
 Работа по адресу :job_full_address должна была завершиться к :job_end_time. Пожалуйста, завершите работу, если все задачи выполнены, или свяжитесь с менеджером, если нужна помощь.
 *Варианты:*
 - Завершить работу :worker_job_link
@@ -640,7 +640,7 @@ office@broomservice.co.il
 
 לקוח בשם :client_name ביצע שינוי בפגישה שתוכננה ל :today_tommarow_or_date.
 
-- *פעולה שבוצעה* : בוטלה  
+- *פעולה שבוצעה* : בוטלה
 - *תאריך ושעה חדשה*: :meeting_date_time
 - *מיקום*: :meet_link
 - *לינק להודעה ב-CRM*: :client_detail_url
@@ -662,7 +662,7 @@ office@broomservice.co.il
 
 לקוח בשם :client_name ביצע שינוי בפגישה שתוכננה ל :today_tommarow_or_date.
 
-- *פעולה שבוצעה*: תואמה מחדש  
+- *פעולה שבוצעה*: תואמה מחדש
 - *תאריך ושעה חדשה*: :meeting_date_time
 - *מיקום*: :meet_link
 - *לינק להודעה ב-CRM*: :client_detail_url
@@ -685,7 +685,7 @@ Hello :client_name,
 
 We would like to inform you that your scheduled meeting has been rescheduled to a new date.
 
-The updated meeting is set for :meeting_date, between :meeting_start_time and :meeting_end_time at the address: :meeting_address, for a quote discussion. 
+The updated meeting is set for :meeting_date, between :meeting_start_time and :meeting_end_time at the address: :meeting_address, for a quote discussion.
 
 Please use the links below to confirm, decline, or reschedule the meeting, or to upload any necessary files:
 - *Accept/Decline*: :meeting_reschedule_link
@@ -700,14 +700,14 @@ office@broomservice.co.il
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, :client_name
 
-ברצוננו להודיעך כי הפגישה שנקבעה עבורך שונתה למועד חדש. 
+ברצוננו להודיעך כי הפגישה שנקבעה עבורך שונתה למועד חדש.
 
-הפגישה המתואמת שלך תתקיים בתאריך :meeting_date בין השעות :meeting_start_time ל-:meeting_end_time בכתובת :meeting_address עבור הצעת מחיר. 
+הפגישה המתואמת שלך תתקיים בתאריך :meeting_date בין השעות :meeting_start_time ל-:meeting_end_time בכתובת :meeting_address עבור הצעת מחיר.
 אנא לחץ על הלחצנים הבאים כדי לאשר, לדחות או לתאם מחדש את הפגישה, או להעלות קבצים במידת הצורך:
 
 - *קבל/דחה*: :meeting_reschedule_link
 - *העלה קובץ*: :meeting_file_upload_link
-                
+
 בברכה,
 צוות ברום סרוויס🌹
 www.broomservice.co.il
@@ -2164,7 +2164,7 @@ office@broomservice.co.il
                 'description' => 'Client meeting schedule reminder message template',
                 'message_en' => "Hi, *:client_name*
 
-Just a friendly reminder that you have an upcoming appointment on *:meeting_date* between *:meeting_start_time* to *:meeting_end_time* at *:meeting_address* for *:meeting_purpose*. 
+Just a friendly reminder that you have an upcoming appointment on *:meeting_date* between *:meeting_start_time* to *:meeting_end_time* at *:meeting_address* for *:meeting_purpose*.
 Click the *Accept/Reject* or *Upload file* button for Accept, Reject, Reschedule, and Upload Files.
 
 Accept/Reject: :meeting_reschedule_link
@@ -2180,7 +2180,7 @@ office@broomservice.co.il
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
                 'message_heb' => "שלום, *:client_name*
 
-רק תזכורת ידידותית שיש לך פגישה קרובה ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בכתובת *:meeting_address* עבור *:meeting_purpose*. 
+רק תזכורת ידידותית שיש לך פגישה קרובה ב-*:meeting_date* בין *:meeting_start_time* ל-*:meeting_end_time* בכתובת *:meeting_address* עבור *:meeting_purpose*.
 לחץ על הלחצן *קבל/דחה* או *העלה קובץ* כדי לקבל, לדחות, לתאם מחדש ולהעלות קבצים.
 
 קבל/דחה: :meeting_reschedule_link
@@ -2905,12 +2905,8 @@ Broom Service Team 🌹",
 
             [
                 'key' => WhatsappMessageTemplateEnum::STOP,
-                'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *Team*
-
-
-Best regards,
-Broom Service Team",
+                'description' => 'Team notification if client stop notification',
+                'message_en' => "",
 
                 'message_heb' => "שלום, *צוות*
 
@@ -2960,10 +2956,10 @@ Broom Service Team",
 
 This is a friendly reminder about your scheduled meeting with us tomorrow. Here are the details:
 
-- *Date & Time*: :meeting_date_time 
-- *Location*: :meet_link  
+- *Date & Time*: :meeting_date_time
+- *Location*: :meet_link
 
-Please let us know if you need to make any changes by clicking on one of the options below:  
+Please let us know if you need to make any changes by clicking on one of the options below:
 
 *Accept/Decline*: :meeting_reschedule_link
 *Upload Files*: :meeting_file_upload_link
@@ -2982,15 +2978,15 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 זוהי תזכורת לפגישה שנקבעה איתך למחר. להלן הפרטים:
 
-- *תאריך ושעה*: :meeting_date_time  
+- *תאריך ושעה*: :meeting_date_time
 - *מיקום*: :meet_link
 
-אנא עדכן אותנו אם יש צורך לבצע שינויים על ידי לחיצה על אחת מהאפשרויות הבאות:  
+אנא עדכן אותנו אם יש צורך לבצע שינויים על ידי לחיצה על אחת מהאפשרויות הבאות:
 
 קבל/דחה: :meeting_reschedule_link
 העלה קובץ: :meeting_file_upload_link
 
-נשמח לקבל את תשובתך כדי שנוכל להיערך בהתאם.       
+נשמח לקבל את תשובתך כדי שנוכל להיערך בהתאם.
 
 בברכה,
 צוות ברום סרוויס🌹
@@ -3122,6 +3118,31 @@ office@broomservice.co.il',
                 'message_ru' => '',
             ],
 
+            [
+                'key' => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
+                'description' => 'Send notification to client after stop message',
+                'message_en' => 'Hi, *:client_name*
+
+Your request has been processed. You have been unsubscribed, and you will no longer receive notifications from us.
+If this was a mistake or you wish to resubscribe, please let us know.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il',
+                'message_heb' => "שלום, *:client_name*
+
+הבקשה שלך התקבלה. הסרנו אותך מהרשימה, ולא תקבל יותר הודעות מאיתנו. אם זה נעשה בטעות או אם תרצה להירשם שוב, אנא צור קשר
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-
+office@broomservice.co.il",
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
         ];
 
         foreach ($templates as $key => $template) {

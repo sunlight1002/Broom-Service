@@ -115,6 +115,10 @@ const SafeAndGear = () => {
                 document.querySelector("html").setAttribute("dir", "rtl");
             } else {
                 document.querySelector("html").removeAttribute("dir");
+                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                if (rtlLink) {
+                    rtlLink.remove();
+                }
             }
 
             if (res.data.worker) {

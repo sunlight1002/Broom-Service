@@ -48,10 +48,10 @@ export default function WorkerJobDetails() {
                     document.querySelector("html").setAttribute("dir", "rtl");
                 } else {
                     document.querySelector("html").removeAttribute("dir");
-                }
-
-                if (response.data.data.worker.lng == "heb") {
-                    document.querySelector("html").setAttribute("dir", "rtl");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
                 }
 
                 if (!response.data.data.worker_approved_at) {
@@ -77,7 +77,7 @@ export default function WorkerJobDetails() {
         return "-";
     }, [job]);
 
-    const {durationInHours, startTime, endTime} = getShiftsDetails(job)    
+    const {durationInHours, startTime, endTime} = getShiftsDetails(job)
 
     return (
         <div className="container">

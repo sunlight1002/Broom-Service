@@ -3,6 +3,7 @@ import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
+import i18next from "i18next";
 
 import companySign from "../../../Assets/image/company-sign.png";
 import logo from "../../../Assets/image/sample.svg";
@@ -35,16 +36,13 @@ export default function ViewContract() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    console.log(client,"Frfr");
-    
 
     const getContract = () => {
         axios
             .post(`/api/admin/get-contract/${params.id}`, {}, { headers })
             .then((res) => {
                 const _contract = res.data.contract;
-                console.log("Contract data:",_contract);
-                
+
                 setOffer(_contract.offer);
                 setServices(JSON.parse(_contract.offer.services));
                 setClient(_contract.client);
@@ -62,18 +60,23 @@ export default function ViewContract() {
                         moment(_contract.signed_at).format("DD/MM/YYYY")
                     );
                 }
-                // i18next.changeLanguage(_contract.client.lng);
+                i18next.changeLanguage(_contract.client.lng);
 
-                // if (_contract.client.lng == "heb") {
-                //     import("../../../Assets/css/rtl.css");
-                //     document.querySelector("html").setAttribute("dir", "rtl");
-                // } else {
-                //     document.querySelector("html").removeAttribute("dir");
-                // }
+                if (_contract?.client?.lng == "heb") {
+                    import("../../../Assets/css/rtl.css").then(() => {
+                        document.querySelector("html").setAttribute("dir", "rtl");
+                    });
+                } else {
+                    document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
+                }
             });
     };
 
-    
+
 
     const handleVerify = (e) => {
         e.preventDefault();
@@ -309,7 +312,7 @@ export default function ViewContract() {
                                     <tbody>
                                         {services.map((s, i) => {
                                             console.log(s.address.address_name);
-                                            
+
                                             return (
                                                 <tr key={i}>
                                                     <td>

@@ -143,14 +143,9 @@ export default function EditWorker() {
         setLoading(true);
         setIsSubmitting(true);
 
-        const sanitizedPhone = formValues.phone.replace(
-            /(?<=^\+?\d+)\s*0+/,
-            ""
-        );
-
         const data = {
             ...formValues,
-            phone: sanitizedPhone,  
+            phone: formValues.phone,
             address: address,
             renewal_visa: formValues.renewal_date,
             lng: !lng ? "en" : lng,
@@ -375,7 +370,15 @@ export default function EditWorker() {
                                         <PhoneInput
                                             country={'il'}
                                             value={formValues.phone}
-                                            onChange={(phone) => handleFormValuesChange('phone', phone)}
+                                            onChange={(phone, country) => {
+                                                // Remove leading '0' after country code
+                                                const dialCode = country.dialCode;
+                                                let formattedPhone = phone;
+                                                if (phone.startsWith(dialCode + '0')) {
+                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                }
+                                                handleFormValuesChange('phone', formattedPhone)
+                                            }}
                                             inputClass="form-control"
                                             inputProps={{
                                                 name: 'phone',

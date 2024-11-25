@@ -48,16 +48,6 @@ export default function AddLead() {
         e.preventDefault();
         setLoading(true);
 
-        const sanitizedPhone = formValues.phone.replace(
-            /(?<=^\+?\d+)\s*0+/,
-            ""
-        );
-
-        const sanitizedExtra = extra.map((entry) => ({
-            ...entry,
-            phone: entry.phone ? entry.phone.replace(/(?<=^\+?\d+)\s*0+/, "") : "",
-        }));
-          
         axios
             .post(
                 `/api/admin/leads`,
@@ -76,12 +66,12 @@ export default function AddLead() {
                         lng: formValues.lng ? formValues.lng : "heb",
                         color: !formValues.color ? "#fff" : formValues.color,
                         email: formValues.email,
-                        phone: sanitizedPhone,
+                        phone: formValues.phone,
                         password: formValues.passcode,
                         payment_method: formValues.payment_method,
                         notification_type: formValues.notification_type,
                         vat_number: formValues.vat_number,
-                        extra: JSON.stringify(sanitizedExtra),
+                        extra: JSON.stringify(extra),
                         status: !status ? 0 : parseInt(status),
                         meta: "",
                         send_bot_message: formValues.send_bot_message,
@@ -135,7 +125,7 @@ export default function AddLead() {
         extraValues.splice(i, 1);
         setExtra(extraValues);
     };
-    
+
     return (
         <div id="container">
             <Sidebar />
@@ -324,10 +314,16 @@ export default function AddLead() {
                                                 <PhoneInput
                                                     country={'il'}
                                                     value={formValues.phone}
-                                                    onChange={(phone) => {
+                                                    onChange={(phone, country) => {
+                                                        // Remove leading '0' after country code
+                                                        const dialCode = country.dialCode;
+                                                        let formattedPhone = phone;
+                                                        if (phone.startsWith(dialCode + '0')) {
+                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                        }
                                                         setFormValues({
                                                             ...formValues,
-                                                            phone: phone,
+                                                            phone: formattedPhone,
                                                         });
                                                     }}
                                                     inputClass="form-control"
@@ -349,7 +345,7 @@ export default function AddLead() {
                                                 {t(
                                                     "admin.leads.AddLead.PrimaryEmail"
                                                 )}{" "}
-                                                
+
                                             </label>
                                             <div className="d-flex flex-column w-100">
 
@@ -715,7 +711,15 @@ export default function AddLead() {
                                                             <PhoneInput
                                                                 country={'il'}
                                                                 value={ex.phone || ""}
-                                                                onChange={(value) => handleAlternatePhone(i, value)}
+                                                                onChange={(phone, country) => {
+                                                                    // Remove leading '0' after country code
+                                                                    const dialCode = country.dialCode;
+                                                                    let formattedPhone = phone;
+                                                                    if (phone.startsWith(dialCode + '0')) {
+                                                                      formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                    }
+                                                                    handleAlternatePhone(i, formattedPhone)
+                                                                }}
                                                                 inputClass="form-control"
                                                                 inputProps={{
                                                                     name: 'phone',

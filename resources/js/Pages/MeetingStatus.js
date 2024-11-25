@@ -27,7 +27,13 @@ export default function MeetingStatus() {
                 if (lng == "heb") {
                     import("../Assets/css/rtl.css");
                     document.querySelector("html").setAttribute("dir", "rtl");
-                } else document.querySelector("html").removeAttribute("dir");
+                } else {
+                    document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
+                }
             });
     };
 

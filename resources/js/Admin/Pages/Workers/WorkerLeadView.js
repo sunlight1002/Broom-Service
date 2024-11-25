@@ -28,7 +28,7 @@ export default function WorkerLeadView({ mode }) {
         work_sunday_to_thursday_fit_schedule_8_10am_12_2pm: null,
         full_or_part_time: "full time"
     });
-    
+
 
     const statusArr = {
         "pending": "pending",
@@ -46,7 +46,7 @@ export default function WorkerLeadView({ mode }) {
     const handleGetWorkerLead = async () => {
         try {
             const response = await axios.get(`/api/admin/worker-leads/${params.id}/edit`, { headers });
-            const res = response?.data;            
+            const res = response?.data;
             setFormValues({
                 name: res?.name,
                 email: res?.email,
@@ -68,7 +68,7 @@ export default function WorkerLeadView({ mode }) {
     }
 
     const handleUpdate = async (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         try {
             await axios.put(`/api/admin/worker-leads/${params.id}`, formValues, { headers });
             alert.success("Worker lead updated successfully");
@@ -80,21 +80,21 @@ export default function WorkerLeadView({ mode }) {
     }
 
     const handleAdd = async (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         try {
             await axios.post(`/api/admin/worker-leads/add`, formValues, { headers });
             alert.success("Worker lead added successfully");
-            navigate('/admin/worker-leads'); 
+            navigate('/admin/worker-leads');
         } catch (error) {
             console.log(error);
             alert.error("Error adding worker lead");
         }
     }
 
-    useEffect(() => {        
+    useEffect(() => {
             handleGetWorkerLead();
     }, []);
-    
+
 
     return (
         <div id="container">
@@ -143,8 +143,14 @@ export default function WorkerLeadView({ mode }) {
                                         <PhoneInput
                                             country={'il'}
                                             value={formValues.phone}
-                                            onChange={(phone) => {
-                                                setFormValues({ ...formValues, phone });
+                                            onChange={(phone, country) => {
+                                                // Remove leading '0' after country code
+                                                const dialCode = country.dialCode;
+                                                let formattedPhone = phone;
+                                                if (phone.startsWith(dialCode + '0')) {
+                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                }
+                                                setFormValues({ ...formValues, phone: formattedPhone });
                                             }}
                                             inputClass="form-control"
                                             placeholder={t("admin.leads.phone")} // Move placeholder out of inputProps

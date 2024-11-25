@@ -16,7 +16,7 @@ export default function AdminLogin() {
         // console.log(adminLogin);
         if(adminLogin) {
             navigate("/admin/dashboard");
-        }    
+        }
     }, [navigate])
 
     const adminLng = localStorage.getItem("admin-lng")
@@ -31,12 +31,12 @@ export default function AdminLogin() {
     const [isRemembered, setIsRemembered] = useState(false);
 
     useEffect(() => {
-        const token = getCookie('remember_device_token');           
+        const token = getCookie('remember_device_token');
         if (token) {
             setIsRemembered(true);
         }
     }, []);
-    
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -49,7 +49,7 @@ export default function AdminLogin() {
 
         await axios.post(`/api/admin/login`, data).then((result) => {
             // console.log(result);
-            
+
             if (result.data.errors) {
                 setLoading(false)
                 setErrors(result.data.errors);
@@ -61,6 +61,13 @@ export default function AdminLogin() {
                     localStorage.setItem("admin-lng", result.data.lng);
                     const adminLng = localStorage.getItem("admin-lng")
                     i18next.changeLanguage(adminLng);
+                    if(adminLng == "en") {
+                        document.querySelector("html").removeAttribute("dir");
+                            const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                            if (rtlLink) {
+                                rtlLink.remove();
+                            }
+                    }
                     window.location = "/admin/dashboard";
                 }else{
                     if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
@@ -75,6 +82,13 @@ export default function AdminLogin() {
                         localStorage.setItem("admin-lng", result.data.lng);
                         const adminLng = localStorage.getItem("admin-lng")
                         i18next.changeLanguage(adminLng);
+                        if(adminLng == "en") {
+                            document.querySelector("html").removeAttribute("dir");
+                                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                                if (rtlLink) {
+                                    rtlLink.remove();
+                                }
+                        }
                         window.location = "/admin/dashboard";
                     }
                 }

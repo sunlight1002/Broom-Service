@@ -82,7 +82,7 @@ export default function AddLeadClient() {
         const sanitizedPhone = formValues.phone.replace(
             /(?<=^\+?\d+)\s*0+/,
             ""
-        ); 
+        );
 
         const data = {
             firstname: firstname,
@@ -409,8 +409,14 @@ export default function AddLeadClient() {
                                             <PhoneInput
                                                     country={'il'}
                                                     value={phone}
-                                                    onChange={(phone) => {
-                                                        setPhone(phone);
+                                                    onChange={(phone, country) => {
+                                                        // Remove leading '0' after country code
+                                                        const dialCode = country.dialCode;
+                                                        let formattedPhone = phone;
+                                                        if (phone.startsWith(dialCode + '0')) {
+                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                        }
+                                                        setPhone(formattedPhone);
                                                     }}
                                                     inputClass="form-control"
                                                     inputProps={{
@@ -499,7 +505,15 @@ export default function AddLeadClient() {
                                                             <PhoneInput
                                                                     country={'il'}
                                                                     value={ex.phone || ""}
-                                                                    onChange={(value) => handleAlternatePhone(i, value)}
+                                                                    onChange={(phone, country) => {
+                                                                        // Remove leading '0' after country code
+                                                                        const dialCode = country.dialCode;
+                                                                        let formattedPhone = phone;
+                                                                        if (phone.startsWith(dialCode + '0')) {
+                                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                        }
+                                                                        handleAlternatePhone(i, formattedPhone)
+                                                                    }}
                                                                     inputClass="form-control"
                                                                     inputProps={{
                                                                         name: 'phone',

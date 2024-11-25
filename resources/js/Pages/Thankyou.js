@@ -24,7 +24,7 @@ export default function Thankyou() {
                 id: Base64.decode(param.id),
             }).then((res) => {
                 console.log(res);
-                
+
             })
             .catch((e) => {
                 Swal.fire({
@@ -34,7 +34,7 @@ export default function Thankyou() {
                 });
             });
     };
-    
+
     const getMeeting = () => {
         axios
             .post(`/api/client/meeting`, { id: Base64.decode(param.id) })
@@ -45,7 +45,7 @@ export default function Thankyou() {
                 setStatus(stat);
                 setInstatus(instat);
                 console.log(stat);
-                
+
                 if (stat == "pending" || instat != stat) {
                     updateMeeting();
                 }
@@ -55,7 +55,13 @@ export default function Thankyou() {
                 if (lng == "heb") {
                     import("../Assets/css/rtl.css");
                     document.querySelector("html").setAttribute("dir", "rtl");
-                } else document.querySelector("html").removeAttribute("dir");
+                } else {
+                    document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
+                }
             });
     };
 

@@ -26,15 +26,15 @@ export default function AddOffer() {
     const [isOpenCommentModal, setIsOpenCommentModal] = useState(false);
     const [comment, setComment] = useState("");
     const [loading, setLoading] = useState(false);
-    
+
     const handleSave = (indexKey, tmpJobData) => {
-        let newFormValues = [...formValues];
-        if (indexKey > -1) {
-            newFormValues[indexKey] = tmpJobData;
-        } else {
-            newFormValues.push(tmpJobData);
-        }
-        setFormValues(newFormValues);
+        // let newFormValues = [...formValues];
+        // if (indexKey > -1) {
+        //     newFormValues[indexKey] = tmpJobData;
+        // } else {
+        //     newFormValues.push(tmpJobData);
+        // }
+        setFormValues(tmpJobData);
     };
 
     let removeFormFields = (i) => {
@@ -108,20 +108,16 @@ export default function AddOffer() {
     let handleSubmit = (event, _action) => {
         event.preventDefault();
         setLoading(true);
-    
+
         for (let t in formValues) {
-            if (!formValues[t] || typeof formValues[t] !== 'object') {
-                console.warn(`formValues[${t}] is undefined or not an object`, formValues[t]);
-                continue;
-            }
 
             if (formValues[t].service == "" || formValues[t].service == 0) {
                 alert.error("One of the service is not selected");
                 return false;
             }
-    
+
             let ot = document.querySelector("#other_title" + t);
-    
+
             if (formValues[t].service == "10" && ot != undefined) {
                 if (formValues[t].other_title == "") {
                     alert.error("Other title cannot be blank");
@@ -129,17 +125,17 @@ export default function AddOffer() {
                 }
                 formValues[t].other_title = document.querySelector("#other_title" + t).value;
             }
-    
+
             if (formValues[t].frequency == "" || formValues[t].frequency == 0) {
                 alert.error("One of the frequency is not selected");
                 return false;
             }
-    
+
             let workerIssue = true;
             if (Array.isArray(formValues[t].workers)) {
                 for (let index = 0; index < formValues[t].workers.length; index++) {
                     const _worker = formValues[t].workers[index];
-    
+
                     if (_worker.jobHours == "") {
                         alert.error("One of the job hours value is missing");
                         workerIssue = false;
@@ -149,11 +145,11 @@ export default function AddOffer() {
             } else {
                 formValues[t].workers = [];
             }
-    
+
             if (!workerIssue) {
                 return workerIssue;
             }
-    
+
             !formValues[t].type ? (formValues[t].type = "fixed") : "";
             if (formValues[t].type == "hourly") {
                 if (formValues[t].rateperhour == "") {
@@ -172,11 +168,11 @@ export default function AddOffer() {
                 }
             }
         }
-    
+
         const flattenedFormValues = formValues ? formValues.flat() : [];
-    
+
         setIsSubmitting(true);
-    
+
         const data = {
             client_id: clientID,
             comment: comment,
@@ -184,7 +180,7 @@ export default function AddOffer() {
             services: JSON.stringify(flattenedFormValues),
             action: _action,
         };
-    
+
         axios
             .post(`/api/admin/offers`, data, { headers })
             .then((response) => {
@@ -208,7 +204,7 @@ export default function AddOffer() {
                 alert.error(e.response.data.message);
             });
     };
-    
+
     useEffect(() => {
         if (clientID) {
             getSelectedClient();

@@ -38,7 +38,7 @@ export default function WorkerForm() {
             url: `/insurance-form/${encodedWorkerId}`,
         },
     };
-    
+
     const [worker, setWorker] = useState({});
     const [forms, setForms] = useState(formArr);
     const [isFetched, setIsFetched] = useState(false);
@@ -76,6 +76,10 @@ export default function WorkerForm() {
                     document.querySelector("html").setAttribute("dir", "rtl");
                 } else {
                     document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
                 }
                 setIsFetched(true);
             })

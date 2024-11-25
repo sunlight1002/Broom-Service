@@ -48,6 +48,14 @@ export default function ClientLogin() {
                 if (isRemembered) {
                     localStorage.setItem("client-token", result.data.token);
                     i18next.changeLanguage(result.data.lng);
+                    if(result?.data?.lng == "en") {
+                        document.querySelector("html").removeAttribute("dir");
+                            const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                            if (rtlLink) {
+                                rtlLink.remove();
+                            }
+                    }
+
                     localStorage.setItem(
                         "client-name",
                         result.data.firstname + " " + result.data.lastname
@@ -65,6 +73,13 @@ export default function ClientLogin() {
                     } else {
                         localStorage.setItem("client-token", result.data.token);
                         i18next.changeLanguage(result.data.lng);
+                        if(result?.data?.lng == "en") {
+                            document.querySelector("html").removeAttribute("dir");
+                                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                                if (rtlLink) {
+                                    rtlLink.remove();
+                                }
+                        }
                         localStorage.setItem(
                             "client-name",
                             result.data.firstname + " " + result.data.lastname

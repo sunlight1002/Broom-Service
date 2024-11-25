@@ -74,16 +74,6 @@ export default function EditWorker() {
         e.preventDefault();
         setLoading(true);
 
-        const sanitizedPhone = phone.replace(
-            /(?<=^\+?\d+)\s*0+/,
-            ""
-        );
-
-        const sanitizedExtra = extra.map((entry) => ({
-            ...entry,
-            phone: entry.phone ? entry.phone.replace(/(?<=^\+?\d+)\s*0+/, "") : "",
-        }));
-
         const data = {
             firstname: firstname,
             lastname: lastname,
@@ -93,12 +83,12 @@ export default function EditWorker() {
             passcode: passcode,
             color: !color ? "#fff" : color,
             email: email,
-            phone: sanitizedPhone,
+            phone: phone,
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
             notification_type: notificationType,
-            extra: JSON.stringify(sanitizedExtra),
+            extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
         };
 
@@ -328,8 +318,14 @@ export default function EditWorker() {
                                                         <PhoneInput
                                                             country={'il'}
                                                             value={phone}
-                                                            onChange={(phone) => {
-                                                                setPhone(phone);
+                                                            onChange={(phone, country) => {
+                                                                // Remove leading '0' after country code
+                                                                const dialCode = country.dialCode;
+                                                                let formattedPhone = phone;
+                                                                if (phone.startsWith(dialCode + '0')) {
+                                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                }
+                                                                setPhone(formattedPhone);
                                                             }}
                                                             inputClass="form-control"
                                                             inputProps={{
@@ -613,7 +609,7 @@ export default function EditWorker() {
                                                 extra.map((ex, i) => {
                                                     return (
                                                         <React.Fragment key={i}>
-                                                            <div className="d-flex">
+                                                            <div className="d-flex flex-column">
                                                                 <div className="">
                                                                     <div className="form-group" style={{ marginRight: "6px" }}>
                                                                         <label className="control-label">
@@ -680,7 +676,15 @@ export default function EditWorker() {
                                                                         <PhoneInput
                                                                             country={'il'}
                                                                             value={ex.phone || ""}
-                                                                            onChange={(value) => handleAlternatePhone(i, value)}
+                                                                            onChange={(phone, country) => {
+                                                                                // Remove leading '0' after country code
+                                                                                const dialCode = country.dialCode;
+                                                                                let formattedPhone = phone;
+                                                                                if (phone.startsWith(dialCode + '0')) {
+                                                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                                }
+                                                                                handleAlternatePhone(i, formattedPhone)
+                                                                            }}
                                                                             inputClass="form-control"
                                                                             inputProps={{
                                                                                 name: 'phone',

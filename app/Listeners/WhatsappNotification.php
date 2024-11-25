@@ -290,7 +290,7 @@ class WhatsappNotification
                     : ("Job is marked as " . ucfirst($jobData['status'] ?? "")),
                 ':admin_name' => $eventData['admin']['name'] ?? '',
                 ':came_from' => $eventData['type'] ?? '',
-                
+
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 
             ];
@@ -417,7 +417,8 @@ class WhatsappNotification
                             \Log::info("client disable notification");
                             return;
                         }
-                        $receiverNumber = isset($clientData['phone']) && $clientData['phone'];
+                        $receiverNumber = $clientData['phone'] ?? null;
+                        Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
                         break;
 
@@ -1535,7 +1536,7 @@ class WhatsappNotification
                     //         'url' => url("admin/clients/view/" . $clientData['id'])
                     //     ]);
 
-                        break;
+                        // break;
 
                     // case WhatsappMessageTemplateEnum::WAITING:
                     //     $clientData = $eventData['client'];
@@ -2117,8 +2118,8 @@ class WhatsappNotification
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
-            Log::alert('WA NOTIFICATION ERROR');
-            Log::alert($th);
+            Log::error('WA NOTIFICATION ERROR', ['error' => $th->getMessage(), 's' => $th->getTraceAsString()]);
+            Log::error();
         }
     }
 }
