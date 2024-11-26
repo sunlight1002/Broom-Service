@@ -19,15 +19,17 @@ class SendNotificationJob implements ShouldQueue
     protected $client;
     protected $newLeadStatus;
     protected $emailData;
+    protected $contract;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(Client $client, $newLeadStatus, $emailData)
+    public function __construct(Client $client, $newLeadStatus, $emailData, $contract)
     {
         $this->client = $client;
         $this->newLeadStatus = $newLeadStatus;
         $this->emailData = $emailData;
+        $this->contract = $contract;
     }
 
     /**
@@ -43,7 +45,10 @@ class SendNotificationJob implements ShouldQueue
 
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM,
-            "notificationData" => ['client' => $this->client->toArray()],
+            "notificationData" => [
+                'client' => $this->client->toArray(),
+                'contract' => $this->contract->toArray(),
+            ],
         ]));
     }
 }

@@ -633,6 +633,7 @@ class InvoiceController extends Controller
             $invoice = Invoices::where('invoice_id', $docnum)->first();
             if ($invoice->txn_id != null && $invoice->callback != null) {
                 $refundResponse = $this->refundByReferenceID($invoice->txn_id, $invoice->amount_with_tax);
+                \Log::info([$refundResponse]);
 
                 if ($refundResponse && !$refundResponse['HasError']) {
                     Refunds::create([

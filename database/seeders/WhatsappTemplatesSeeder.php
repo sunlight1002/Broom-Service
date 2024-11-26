@@ -1820,8 +1820,41 @@ Click here to take action: :lead_detail_url',
 
 התשלום של :client_name עם הכרטיס [**** **** **** :card_number] נכשל.
 
+:admin_add_client_card
+
 בברכה,
 ברום סרוויס צוות',
+
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT,
+                'description' => 'Send message to client to arrange a callbac',
+                'message_en' => 'Hi, *:client_name*,
+
+Greetings from Broom Service
+
+Your payment with card [**** **** **** :card_number] has failed. Please add a new card.
+
+:client_card
+
+Best regards,
+Broom Service Team
+📞 03-525-70-60
+🌐 www.broomservice.co.il',
+
+                'message_heb' => 'שלום, *:client_name*
+
+התשלום עם כרטיס [**** **** ****:card_number] נכשל. אנא עדכנו לכרטיס תקין או צרו איתנו קשר בהקדם.
+
+:client_card
+
+בברכה,
+ברום סרוויס צוות
+📞 03-525-70-60
+🌐 www.broomservice.co.i',
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1835,18 +1868,14 @@ Click here to take action: :lead_detail_url',
 Worker :worker_name's leave job date is set to :date
 
 Best regards,
-Broom Service Team
-📞 03-525-70-60
-🌐 www.broomservice.co.il",
+Broom Service Team",
 
                 'message_heb' => "שלום, *צוות*
 
 העובד :worker_name קבע תאריך לעזיבת עבודה ל-:last_work_date.
 
 בברכה,
-ברום סרוויס צוות
-📞 03-525-70-60
-🌐 www.broomservice.co.il",
+ברום סרוויס צוות",
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -1859,18 +1888,14 @@ Broom Service Team
 
 
 Best regards,
-Broom Service Team
-📞 03-525-70-60
-🌐 www.broomservice.co.il",
+Broom Service Team",
 
                 'message_heb' => "שלום, *צוות*
 
 :worker_name שינה זמינות שמשפיעה על עבודה ב-:date.
 
 בברכה,
-ברום סרוויס צוות
-📞 03-525-70-60
-🌐 www.broomservice.co.il",
+ברום סרוויס צוות",
 
                 'message_spa' => '',
                 'message_ru' => '',

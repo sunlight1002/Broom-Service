@@ -343,8 +343,9 @@ trait PaymentAPI
     }
 
     // Same API but different configuration for 'order' doctype.
-    private function generateOrderDocument($client, $items, $duedate, $data, $jobId = null)
+    private function generateOrderDocument($client, $items, $duedate, $data, $jobId = null, $serviceDate)
     {
+        \Log::info($serviceDate);
         \Log::info("generateOrderDocument");
         $requestData = [
             'data' => [
@@ -416,6 +417,7 @@ trait PaymentAPI
             "client_address" => $address ? $address->geo_address : '',
             "currency_code" => "ILS",
             "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "doc_date" => $serviceDate,
             "items" => $items,
             "totalsum" => $totalsum,
             "discount" => $discount,
@@ -769,8 +771,12 @@ trait PaymentAPI
             ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
             ->value('value');
 
+        // \Log::info("totalsum".$totalsum);
+        // \Log::info("discount".$discount);
         $total = $totalsum - $discount;
+        // \Log::info("total".$total);
         $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
+        // \Log::info("roundup".$roundup);
 
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
 

@@ -59,7 +59,7 @@ class CreateJobOrder implements ShouldQueue
             })
             ->find($this->jobID);
 
-        \Log::info('job', $job?->toArray()??[]);
+        // \Log::info('job', $job?->toArray()??[]);
 
         if ($job) {
             $items = [];
@@ -151,6 +151,8 @@ class CreateJobOrder implements ShouldQueue
 
             $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
+            $serviceDate = Carbon::parse($service->created_at)->format('d-m-Y');
+
             $order = $this->generateOrderDocument(
                 $client,
                 $items,
@@ -160,7 +162,9 @@ class CreateJobOrder implements ShouldQueue
                     'is_one_time_in_month' => $job->is_one_time_in_month_job,
                     'discount_amount' => $job->discount_amount
                 ],
-                $this->jobID
+                $this->jobID,
+                $serviceDate
+                
             );
 
             if ($job->extra_amount) {
@@ -175,8 +179,6 @@ class CreateJobOrder implements ShouldQueue
                 \Log::info("GenerateJobInvoice one time job");  
                 GenerateJobInvoice::dispatch($order->id, $client->id);
             }else if ($job->is_one_time_in_month_job && isset($order)) {
-                \Log::info("month job");
-
 
                 \Log::info("GenerateJobInvoice Payment Initiate Call");
 

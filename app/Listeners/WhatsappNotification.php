@@ -67,6 +67,8 @@ class WhatsappNotification
                 ':new_status' => $eventData['new_status'] ?? '',
                 ':testimonials_link' => url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl'),
                 ':broom_brochure' => $clientData['lng'] == "en" ? url("pdfs/BroomServiceEnglish.pdf") : url("pdfs/BroomServiceHebrew.pdf"),
+                ':admin_add_client_card' => url("admin/clients/view/" .$clientData['id'] ."?=card"),
+                ':client_card' => url("client/settings"),
             ];
 
         }
@@ -237,7 +239,7 @@ class WhatsappNotification
         $placeholders = [];
         if($contractData) {
             $placeholders = [
-                ':client_contract_link' => url("work-contract/" . $contractData['contract_id']),
+                ':client_contract_link' => url("work-contract/" . $contractData['id'] ?? ''),
                 ':team_contract_link' => isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '',
                 ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at'])->format('M d Y H:i') : '',
                 ':create_job' => isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : " ",
@@ -413,6 +415,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT:
                     case WhatsappMessageTemplateEnum::CLIENT_NOT_IN_SYSTEM_OR_NO_OFFER:
                     case WhatsappMessageTemplateEnum::CLIENT_HAS_OFFER_BUT_NO_SIGNED_OR_NO_CONTRACT:
+                    case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT:
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
