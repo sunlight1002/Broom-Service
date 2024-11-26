@@ -504,6 +504,9 @@ export default function TotalJobs() {
             const _id = $(this).data("id");
             const _totalAmount = $(this).data("total-amount");
 
+            console.log(_id, _totalAmount);
+            
+
             handleSwitchWorker({
                 id: _id,
                 total_amount: _totalAmount,

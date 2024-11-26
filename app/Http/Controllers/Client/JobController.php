@@ -192,10 +192,16 @@ class JobController extends Controller
         foreach ($jobs as $key => $job) {
             $feePercentage = 0;
         
+            \Log::info('Current Day: ' . $currentDay);
             $endOfWeek = now()->endOfWeek();
+            \Log::info('endOfWeek: ' . $endOfWeek);
             $endOfNextWeek = now()->addWeek()->endOfWeek();
+            \Log::info('endOfNextWeek: ' . $endOfNextWeek);
             $jobStartDate = Carbon::parse($job->start_date);
-            $timeDifference = $jobStartDate->diffInHours(now(), false);
+            \Log::info("Job Start Date : ". $jobStartDate);
+            $timeDifference = $jobStartDate->diffInHours(now(), true);
+            \Log::info("Time Difference : ". $timeDifference);
+
         
             if ($currentDay === 'Wednesday') {
     
@@ -223,6 +229,8 @@ class JobController extends Controller
                     $feePercentage = 0;
                 }
             }
+
+            \Log::info("Fee Percentage : ". $feePercentage);    
         
             $feeAmount = ($feePercentage / 100) * $job->total_amount;
         
@@ -257,60 +265,62 @@ class JobController extends Controller
 
             ScheduleNextJobOccurring::dispatch($job->id,null);
 
-            Notification::create([
-                'user_id' => $job->client->id,
-                'user_type' => get_class($job->client),
-                'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
-                'job_id' => $job->id,
-                'status' => 'declined'
-            ]);
-
-            App::setLocale('en');
-            $data = array(
-                'by'         => 'client',
-                'email'      => $admin->email??"",
-                'admin'      => $admin?->toArray()??[],
-                'job'        => $job?->toArray()??[],
-            );
-
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
-                "notificationData" => array(
+            if($key == 0){
+                Notification::create([
+                    'user_id' => $job->client->id,
+                    'user_type' => get_class($job->client),
+                    'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
+                    'job_id' => $job->id,
+                    'status' => 'declined'
+                ]);
+    
+                App::setLocale('en');
+                $data = array(
                     'by'         => 'client',
-                    'job'        => $job->toArray(),
-                )
-            ]));
-            // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
-            //     $messages->to($data['email']);
-            //     $sub = __('mail.client_job_status.subject');
-            //     $messages->subject($sub);
-            // });
-
-            //send notification to admin
-            $emailContent = '';
-            if ($data['by'] == 'client') {
-                $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($job->status) . '.';
-                if ($job->cancellation_fee_amount) {
-                    $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $job->cancellation_fee_amount . 'ILS.';
+                    'email'      => $admin->email??"",
+                    'admin'      => $admin?->toArray()??[],
+                    'job'        => $job?->toArray()??[],
+                );
+    
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
+                    "notificationData" => array(
+                        'by'         => 'client',
+                        'job'        => $job->toArray(),
+                    )
+                ]));
+                // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
+                //     $messages->to($data['email']);
+                //     $sub = __('mail.client_job_status.subject');
+                //     $messages->subject($sub);
+                // });
+    
+                //send notification to admin
+                $emailContent = '';
+                if ($data['by'] == 'client') {
+                    $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($job->status) . '.';
+                    if ($job->cancellation_fee_amount) {
+                        $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $job->cancellation_fee_amount . 'ILS.';
+                    }
+                } else {
+                    $emailContent .= 'Job is marked as' . ucfirst($job->status) . 'by admin/team.';
                 }
-            } else {
-                $emailContent .= 'Job is marked as' . ucfirst($job->status) . 'by admin/team.';
-            }
-
-            $emailSubject = ($data['by'] == 'admin') ?
-                ('Job has been cancelled') . " #" . $job->id :
-                __('mail.client_job_status.subject') . " #" . $job->id;
-
-            //send notification to worker
-            $job = $job->toArray();
-            $worker = $job['worker'];
-            if($worker) {
-                $emailData = [
-                    'emailSubject'  => $emailSubject,
-                    'emailTitle'  => __('mail.job_common.job_status'),
-                    'emailContent'  => $emailContent
-                ];
-                event(new JobNotificationToWorker($worker, $job, $emailData));
+    
+                $emailSubject = ($data['by'] == 'admin') ?
+                    ('Job has been cancelled') . " #" . $job->id :
+                    __('mail.client_job_status.subject') . " #" . $job->id;
+    
+                //send notification to worker
+                $job = $job->toArray();
+                $worker = $job['worker'];
+                if($worker) {
+                    $emailData = [
+                        'emailSubject'  => $emailSubject,
+                        'emailTitle'  => __('mail.job_common.job_status'),
+                        'emailContent'  => $emailContent
+                    ];
+                    event(new JobNotificationToWorker($worker, $job, $emailData));
+                }
             }
         }
 

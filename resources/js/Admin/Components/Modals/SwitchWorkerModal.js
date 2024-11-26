@@ -34,6 +34,9 @@ export default function SwitchWorkerModal({
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    console.log(formValues);
+    
+
     const checkValidation = () => {
         if (!formValues.worker_id) {
             alert.error("The worker is missing");
@@ -72,6 +75,8 @@ export default function SwitchWorkerModal({
                 headers,
             })
             .then((response) => {
+                console.log(response.data);
+                
                 setWorkers(response.data.data);
             });
     };

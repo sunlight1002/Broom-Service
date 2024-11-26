@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 
 import $ from "jquery";
 import "datatables.net";
@@ -15,7 +16,7 @@ import FilterButtons from "../../../Components/common/FilterButton";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Contract() {
-    const { t , i18n} = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const tableRef = useRef(null);
     const statusRef = useRef(null);
@@ -35,6 +36,21 @@ export default function Contract() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
+    const adminLng = localStorage.getItem("admin-lng");
+
+    useEffect(() => {
+        i18next.changeLanguage(adminLng);
+
+        if (adminLng == "heb") {
+            import("../../../Assets/css/rtl.css");
+            document.querySelector("html").setAttribute("dir", "rtl");
+        } else {
+            document.querySelector("html").removeAttribute("dir");
+        }
+    }, [])
+
+
 
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -76,7 +92,7 @@ export default function Contract() {
                     {
                         title: t("admin.global.Phone"),
                         data: "phone",
-                        render: function(data) {
+                        render: function (data) {
                             return `+${data}`;
                         }
                     },
@@ -221,8 +237,8 @@ export default function Contract() {
             }
 
             if (_id) {
-            const url = `/admin/view-contract/${_id}`;
-            window.open(url, '_blank'); 
+                const url = `/admin/view-contract/${_id}`;
+                window.open(url, '_blank');
             }
         });
 
@@ -609,7 +625,7 @@ export default function Contract() {
                     </div>
                 </div>
             </div>
-            {loading && <FullPageLoader visible={loading}/>}
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

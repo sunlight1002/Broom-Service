@@ -345,7 +345,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED:
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED:
                     case WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL:
-                        $receiverNumber = $workerData['phone'];
+                        $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
 

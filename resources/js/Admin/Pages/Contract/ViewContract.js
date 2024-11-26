@@ -42,7 +42,6 @@ export default function ViewContract() {
             .post(`/api/admin/get-contract/${params.id}`, {}, { headers })
             .then((res) => {
                 const _contract = res.data.contract;
-
                 setOffer(_contract.offer);
                 setServices(JSON.parse(_contract.offer.services));
                 setClient(_contract.client);

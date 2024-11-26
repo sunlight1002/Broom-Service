@@ -10,6 +10,7 @@ class Order extends Model
 
     protected $fillable = [
         'order_id',
+        'job_id',
         'client_id',
         'doc_url',
         'response',
