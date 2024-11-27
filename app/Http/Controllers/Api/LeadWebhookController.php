@@ -10,6 +10,7 @@ use App\Models\Fblead;
 use App\Models\Setting;
 use App\Models\Contract;
 use App\Models\Schedule;
+use Illuminate\Support\Str;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Enums\LeadStatusEnum;
@@ -131,6 +132,8 @@ class LeadWebhookController extends Controller
         return ($nums != "" && strlen($nums) > 8) ? true : false;
     }
 
+
+
     public function fbWebhookCurrentLive(Request $request)
     {
         $get_data = $request->getContent();
@@ -148,6 +151,81 @@ class LeadWebhookController extends Controller
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
             Log::info($from);
+            $lng = 'heb';
+
+            if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+
+                if($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')){
+                    $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
+
+                    if (preg_match('/^name:\s*([a-zA-Z\s]+)\s*phone:\s*([\d\s\-+()]+)$/i', $messageBody, $matches)) {
+                        $fullName = $matches[1] ?? null;
+                        $phone = $matches[2] ?? null;
+    
+                        if ($fullName) {
+                            // Split full name into first and last name
+                            $nameParts = explode(' ', trim($fullName));
+                            $firstName = $nameParts[0] ?? null;
+                            $lastName = $nameParts[1] ?? null;
+                        }
+    
+                        // Validate and format the phone number
+                        if ($phone) {
+                            // 1. Remove all special characters from the phone number
+                            $phone = preg_replace('/[^0-9+]/', '', $phone);
+    
+                            // 2. Extract digits if necessary
+                            if (preg_match('/\d+/', $phone, $phoneMatches)) {
+                                $phone = $phoneMatches[0];
+    
+                                // Reapply rules on the extracted phone number
+                                if (strpos($phone, '0') === 0) {
+                                    $phone = '972' . substr($phone, 1);
+                                }
+    
+                                if (strpos($phone, '+') === 0) {
+                                    $phone = substr($phone, 1);
+                                }
+                            }
+    
+                            // Ensure phone number length and format
+                            $phoneLength = strlen($phone);
+                            if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
+                                $phone = '972' . $phone;
+                            }
+    
+                            $client = Client::where('phone', $phone)->first();
+    
+                            if (!$client) {
+                                $client = new Client;
+                                $client->phone = $phone;
+    
+                                $client->firstname     = $firstName ?? '';
+                                $client->lastname      = $lastName ?? '';
+                                $client->phone         = $phone;
+                                $client->email         = $phone . '@lead.com';
+                                $client->status        = 0;
+                                $client->password      = Hash::make($from);
+                                $client->passcode      = $phone;
+                                $client->geo_address   = '';
+                                $client->lng           = ($lng == 'heb' ? 'heb' : 'en');
+                                $client->save();
+    
+                                $m = $lng == 'heb' ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id) : "New lead created successfully\n" . url("admin/leads/view/" . $client->id);
+                            } else {
+                                $m = $lng == 'heb' ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id) : "lead is already exist\n" . url("admin/leads/view/" . $client->id);
+                            }
+    
+                            $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), array('name' => '', 'message' => $m));
+                            
+                            die();
+                        }    
+                        die();
+                    }
+                    die();
+                }
+                die();
+            }
 
             $response = WebhookResponse::create([
                 'status'        => 1,
@@ -160,7 +238,6 @@ class LeadWebhookController extends Controller
                 'data'          => json_encode($get_data)
             ]);
 
-            $lng = 'heb';
 
             $client = null;
             if (strlen($from) > 10) {
