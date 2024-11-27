@@ -309,9 +309,9 @@ class DashboardController extends Controller
             $input['avatar'] = $name;
         }
 
-        // if ($request->has('twostepverification')) {
-        //     $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
-        // }
+        if ($request->has('twostepverification')) {
+            $input['two_factor_enabled'] = $request->input('twostepverification') == 'true';
+        }
 
         $client = Client::find(Auth::user()->id);
 
