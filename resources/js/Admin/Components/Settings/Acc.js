@@ -46,7 +46,7 @@ export default function Acc() {
         try {
             setLoading(true);
             const response = await axios.get("/api/admin/my-account", { headers });
-            
+
             setName(response.data.account.name);
             setColor(response.data.account.color);
             setEmail(response.data.account.email);
@@ -79,6 +79,13 @@ export default function Acc() {
         formData.append("twostepverification", twostepverification);
         formData.append("lng", lng === "0" ? "heb" : lng);
         i18next.changeLanguage(lng);
+        if(lng == "en") {
+            document.querySelector("html").removeAttribute("dir");
+                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                if (rtlLink) {
+                    rtlLink.remove();
+                }
+        }
 
         // for (const [key, value] of formData.entries()) {
         //     console.log(`${key}: ${value}`);

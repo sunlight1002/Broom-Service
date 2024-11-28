@@ -141,8 +141,10 @@ export default function AddWorker() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
+
         const data = {
             ...formValues,
+            phone: formValues.phone,
             address: address,
             renewal_visa: formValues.renewal_date,
             lng: !lng ? "en" : lng,
@@ -161,7 +163,6 @@ export default function AddWorker() {
             branch_number: bankDetails.branch_no,
             account_number: bankDetails.account_no,
         };
-        console.log(data);
 
         elementsRef.current.map(
             (ref) => (data[ref.current.name] = ref.current.checked)
@@ -315,7 +316,15 @@ export default function AddWorker() {
                                             <PhoneInput
                                                 country={'il'}
                                                 value={formValues.phone}
-                                                onChange={(phone) => handleFormValuesChange('phone', phone)}
+                                                onChange={(phone, country) => {
+                                                    // Remove leading '0' after country code
+                                                    const dialCode = country.dialCode;
+                                                    let formattedPhone = phone;
+                                                    if (phone.startsWith(dialCode + '0')) {
+                                                      formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                    }
+                                                    handleFormValuesChange('phone', formattedPhone)
+                                                }}
                                                 inputClass="form-control"
                                                 inputProps={{
                                                     name: 'phone',

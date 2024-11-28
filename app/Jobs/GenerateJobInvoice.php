@@ -25,15 +25,18 @@ class GenerateJobInvoice implements ShouldQueue
         ICountDocument;
 
     protected $orderID;
+    protected $clientID;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($orderID)
+    public function __construct($orderID = null, $clientID = null)
     {
         $this->orderID = $orderID;
+        $this->clientID = $clientID;
+
     }
 
     /**
@@ -50,28 +53,50 @@ class GenerateJobInvoice implements ShouldQueue
      */
     public function handle()
     {
-        $order = Order::query()
-            ->where(function ($q) {
-                $q
-                    ->where('invoice_status', '0')
+        // Fetch orders for the client with the specified conditions
+        $orders = Order::query()
+                ->with('client') // Eager load client relationship
+                ->where(function ($q) {
+                    $q->where('invoice_status', '0')
                     ->orWhere('invoice_status', '1');
-            })
-            ->where('status', 'Open')
-            ->find($this->orderID);
-
-        if ($order) {
-            $client = $order->client;
-
-            $card = $this->getClientCard($client->id);
-
-            $payment_method = $client->payment_method;
-
-            if (
-                ($payment_method == 'cc' && $card) ||
-                $payment_method != 'invoice'
-            ) {
-                $this->generateOrderInvoice($client, $order, $card);
+                })
+                ->where('client_id', $this->clientID)
+                ->where('status', 'Open');
+    
+        // Add this condition only if $this->orderID is present
+        if (!empty($this->orderID)) {
+            \Log::info('Order ID: ' . $this->orderID);
+            $orders->where('id', $this->orderID);
+        }
+        
+        $orders = $orders->get();
+    
+    
+        \Log::info(['Orders: ' => $orders??[]]);
+    
+        // Ensure orders exist
+        if ($orders->isNotEmpty()) {
+            // Fetch the client once, assuming all orders belong to the same client
+            $client = $orders->first()->client;
+    
+            if (!$client) {
+                \Log::error("Client not found for client_id: {$this->clientID}");
+                return;
             }
+    
+            // Fetch the client's card details
+            $card = $this->getClientCard($this->clientID);
+    
+            $payment_method = $client->payment_method;
+    
+            if (($payment_method == 'cc' && $card) || $payment_method != 'invoice') {
+                $this->generateOrderInvoice($client, $orders, $card);
+            } else {
+                \Log::warning("No valid payment method or card found for client_id: {$this->clientID}");
+            }
+        } else {
+            \Log::info("No orders found for client_id: {$this->clientID}");
         }
     }
+    
 }

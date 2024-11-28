@@ -79,12 +79,11 @@ export default function AddLeadClient() {
             services: JSON.stringify(formValues),
         };
 
-        // var phoneClc = "";
-        // var phones = document.querySelectorAll(".pphone");
-        // phones.forEach((p, i) => {
-        //     phoneClc += p.value + ",";
-        // });
-        // phoneClc = phoneClc.replace(/,\s*$/, "");
+        const sanitizedPhone = formValues.phone.replace(
+            /(?<=^\+?\d+)\s*0+/,
+            ""
+        );
+
         const data = {
             firstname: firstname,
             lastname: lastname == null ? "" : lastname,
@@ -94,7 +93,7 @@ export default function AddLeadClient() {
             lng: lng ? lng : "heb",
             color: !color ? "#fff" : color,
             email: email,
-            phone: phone,
+            phone: sanitizedPhone,
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
@@ -410,8 +409,14 @@ export default function AddLeadClient() {
                                             <PhoneInput
                                                     country={'il'}
                                                     value={phone}
-                                                    onChange={(phone) => {
-                                                        setPhone(phone);
+                                                    onChange={(phone, country) => {
+                                                        // Remove leading '0' after country code
+                                                        const dialCode = country.dialCode;
+                                                        let formattedPhone = phone;
+                                                        if (phone.startsWith(dialCode + '0')) {
+                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                        }
+                                                        setPhone(formattedPhone);
                                                     }}
                                                     inputClass="form-control"
                                                     inputProps={{
@@ -500,7 +505,15 @@ export default function AddLeadClient() {
                                                             <PhoneInput
                                                                     country={'il'}
                                                                     value={ex.phone || ""}
-                                                                    onChange={(value) => handleAlternatePhone(i, value)}
+                                                                    onChange={(phone, country) => {
+                                                                        // Remove leading '0' after country code
+                                                                        const dialCode = country.dialCode;
+                                                                        let formattedPhone = phone;
+                                                                        if (phone.startsWith(dialCode + '0')) {
+                                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                        }
+                                                                        handleAlternatePhone(i, formattedPhone)
+                                                                    }}
                                                                     inputClass="form-control"
                                                                     inputProps={{
                                                                         name: 'phone',

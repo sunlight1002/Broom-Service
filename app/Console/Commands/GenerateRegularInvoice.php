@@ -54,7 +54,7 @@ class GenerateRegularInvoice extends Command
             ->get();
 
         foreach ($orders as $key => $order) {
-            GenerateJobInvoice::dispatch($order->id)
+            GenerateJobInvoice::dispatch($order->id, null)
                 ->delay(now()->addMinutes(1 + (($key) * 2)));
         }
 

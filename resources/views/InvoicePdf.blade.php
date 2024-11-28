@@ -17,27 +17,27 @@
       </style>
    </head>
    <body @if($client->lng == '')  style='direction:rtl' @endif>
-     
+
       <!-- partial:index.partial.html -->
       <div class="container">
          <div class="row">
-         
+
             <div class="span4">
                <img src="./images/sample.png" class="img-rounded logo" style="width:70%">
                <address>
                   <strong>Brom Service L.M. Ltd.</strong><br>
-                  H.P. 515184208<br>
+                  B.N. 515184208<br>
                   <strong>{{__('invoice.pdf.phone')}}: </strong>+91-124-111111<br>
                   <strong>{{__('invoice.pdf.email')}}: </strong> <a href="office@broomservice.co.il">office@broomservice.co.il</a><br>
-                 
+
                   <strong>
-                     @if($invoice->status == 'paid') 
+                     @if($invoice->status == 'paid')
                       <span class='form-control btn btn-success' style="line-height:18px;margin-top:15px;width:200px">{{ __('invoice.pdf.paid') }}</span>
                      @elseif( $invoice->status == 'partially paid' )
                      <span class='form-control btn btn-warning' style="line-height:18px;margin-top:15px;width:200px">{{ __('invoice.pdf.partial') }}</span>
                      @else
                      <span class='form-control btn btn-danger' style="line-height:18px;margin-top:15px;width:200px">{{ __('invoice.pdf.pending') }}</span>
-                     @endif 
+                     @endif
                   </strong>
                </address>
             </div>
@@ -71,7 +71,7 @@
          <div class="row">
             <div class="span8">
                <h4>{{ __('invoice.pdf.invoice') }} #000{{ $invoice->id }}</h4>
-               @if($invoice->due_date != null) 
+               @if($invoice->due_date != null)
                <h6 class="text-right">{{ __('invoice.pdf.due_date') }} : {{  Carbon\Carbon::parse($invoice->due_date)->format('d, M Y h:i:s') }}</h6>
                @endif
             </div>

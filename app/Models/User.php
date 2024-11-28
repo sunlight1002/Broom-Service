@@ -73,7 +73,8 @@ class User extends Authenticatable
         'account_number',
         'driving_fees',
         'employment_type',
-        'salary'
+        'salary',
+        'contactId',
     ];
 
     /**

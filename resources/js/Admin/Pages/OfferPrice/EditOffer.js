@@ -69,13 +69,13 @@ export default function EditOffer() {
     };
 
     const handleSave = (indexKey, tmpJobData) => {
-        let newFormValues = [...formValues];
-        if (indexKey > -1) {
-            newFormValues[indexKey] = tmpJobData;
-        } else {
-            newFormValues.push(tmpJobData);
-        }
-        setFormValues(newFormValues);
+        // let newFormValues = [...formValues];
+        // if (indexKey > -1) {
+        //     newFormValues[indexKey] = tmpJobData;
+        // } else {
+        //     newFormValues.push(tmpJobData);
+        // }
+        setFormValues(tmpJobData);
     };
 
     let removeFormFields = (i) => {
@@ -111,40 +111,154 @@ export default function EditOffer() {
         });
     };
 
-    let handleUpdate = (event, _action) => {
+    // let handleUpdate = (event, _action) => {
+    //     event.preventDefault();
+
+    //     console.log("Form Data on Update", formValues);
+
+    //     for (let t in formValues) {
+    //         if (formValues[t].service == "" || formValues[t].service == 0) {
+    //             alert.error("One of the service is not selected");
+    //             return false;
+    //         }
+
+    //         if (formValues[t].frequency == "" || formValues[t].frequency == 0) {
+    //             alert.error("One of the frequency is not selected");
+    //             return false;
+    //         }
+    //         !formValues[t].type ? (formValues[t].type = "fixed") : "";
+    //         if (formValues[t].type == "hourly") {
+    //             if (formValues[t].service == "") {
+    //                 alert.error("One of the rate per hour value is missing");
+    //                 return false;
+    //             }
+    //         } else if (formValues[t].type === "squaremeter") {
+    //             if (formValues[t].ratepersquaremeter === "" || formValues[t].totalsquaremeter === "") {
+    //                 alert.error("Rate per square meter or total square meter is missing");
+    //                 return false;
+    //             }
+    //         } else {
+    //             if (formValues[t].fixed_price == "") {
+    //                 alert.error("One of the job price is missing");
+    //                 return false;
+    //             }
+    //         }
+
+    //         // let workerIssue = true;
+    //         // for (let index = 0; index < formValues[t].workers.length; index++) {
+    //         //     const _worker = formValues[t].workers[index];
+
+    //         //     if (_worker.jobHours == "") {
+    //         //         alert.error("One of the job hours value is missing");
+    //         //         workerIssue = false;
+    //         //         break;
+    //         //     }
+    //         // }
+
+    //         let workerIssue = true;
+    //         if (Array.isArray(formValues[t]?.workers)) {
+    //             for (let index = 0; index < formValues[t].workers.length; index++) {
+    //                 const _worker = formValues[t].workers[index];
+
+    //                 if (_worker.jobHours == "") {
+    //                     alert.error("One of the job hours value is missing");
+    //                     workerIssue = false;
+    //                     break;
+    //                 }
+    //             }
+    //         } else {
+    //             console.error(`formValues[${t}].workers is not an array`, formValues[t]?.workers);
+    //             formValues[t].workers = [];
+    //         }
+
+    //         if (!workerIssue) {
+    //             return workerIssue;
+    //         }
+    //         let ot = document.querySelector("#other_title" + t);
+
+    //         if (formValues[t].service == "10" && ot != undefined) {
+    //             if (formValues[t].other_title == "") {
+    //                 alert.error("Other title cannot be blank");
+    //                 return false;
+    //             }
+    //             formValues[t].other_title = document.querySelector(
+    //                 "#other_title" + t
+    //             ).value;
+    //         }
+
+    //         if (formValues[t].frequency) {
+    //         }
+    //     }
+    //     setIsSubmitting(true);
+
+    //     const data = {
+    //         client_id: clientID,
+    //         comment: comment,
+    //         status: status,
+    //         services: JSON.stringify(formValues),
+    //         action: _action,
+    //     };
+
+    //     axios
+    //         .put(`/api/admin/offers/${param.id}`, data, { headers })
+    //         .then((response) => {
+    //             if (response.data.errors) {
+    //                 for (let e in response.data.errors) {
+    //                     alert.error(response.data.errors[e]);
+    //                 }
+    //             } else {
+    //                 alert.success(response.data.message);
+    //                 setTimeout(() => {
+    //                     navigate(`/admin/offered-price`);
+    //                 }, 1000);
+    //             }
+    //             setIsSubmitting(false);
+    //         })
+    //         .catch((e) => {
+    //             setIsSubmitting(false);
+    //         });
+    // };
+
+    const handleUpdate = (event, _action) => {
         event.preventDefault();
 
-        for (let t in formValues) {
-            if (formValues[t].service == "" || formValues[t].service == 0) {
+        // Flatten the formValues array to remove any nested arrays
+        const flattenedFormValues = formValues.flat();
+
+        console.log("Flattened Form Data on Update", flattenedFormValues);
+
+        // Rest of your validation and processing
+        for (let t in flattenedFormValues) {
+            if (flattenedFormValues[t].service == "" || flattenedFormValues[t].service == 0) {
                 alert.error("One of the service is not selected");
                 return false;
             }
 
-            if (formValues[t].frequency == "" || formValues[t].frequency == 0) {
+            if (flattenedFormValues[t].frequency == "" || flattenedFormValues[t].frequency == 0) {
                 alert.error("One of the frequency is not selected");
                 return false;
             }
-            !formValues[t].type ? (formValues[t].type = "fixed") : "";
-            if (formValues[t].type == "hourly") {
-                if (formValues[t].service == "") {
+            !flattenedFormValues[t].type ? (flattenedFormValues[t].type = "fixed") : "";
+            if (flattenedFormValues[t].type == "hourly") {
+                if (flattenedFormValues[t].service == "") {
                     alert.error("One of the rate per hour value is missing");
                     return false;
                 }
-            } else if (formValues[t].type === "squaremeter") {
-                if (formValues[t].ratepersquaremeter === "" || formValues[t].totalsquaremeter === "") {
+            } else if (flattenedFormValues[t].type === "squaremeter") {
+                if (flattenedFormValues[t].ratepersquaremeter === "" || flattenedFormValues[t].totalsquaremeter === "") {
                     alert.error("Rate per square meter or total square meter is missing");
                     return false;
                 }
             } else {
-                if (formValues[t].fixed_price == "") {
+                if (flattenedFormValues[t].fixed_price == "") {
                     alert.error("One of the job price is missing");
                     return false;
                 }
             }
 
             let workerIssue = true;
-            for (let index = 0; index < formValues[t].workers.length; index++) {
-                const _worker = formValues[t].workers[index];
+            for (let index = 0; index < flattenedFormValues[t].workers.length; index++) {
+                const _worker = flattenedFormValues[t].workers[index];
 
                 if (_worker.jobHours == "") {
                     alert.error("One of the job hours value is missing");
@@ -158,26 +272,24 @@ export default function EditOffer() {
             }
             let ot = document.querySelector("#other_title" + t);
 
-            if (formValues[t].service == "10" && ot != undefined) {
-                if (formValues[t].other_title == "") {
+            if (flattenedFormValues[t].service == "10" && ot != undefined) {
+                if (flattenedFormValues[t].other_title == "") {
                     alert.error("Other title cannot be blank");
                     return false;
                 }
-                formValues[t].other_title = document.querySelector(
+                flattenedFormValues[t].other_title = document.querySelector(
                     "#other_title" + t
                 ).value;
             }
-
-            if (formValues[t].frequency) {
-            }
         }
+
         setIsSubmitting(true);
 
         const data = {
             client_id: clientID,
             comment: comment,
             status: status,
-            services: JSON.stringify(formValues),
+            services: JSON.stringify(flattenedFormValues),
             action: _action,
         };
 
@@ -200,6 +312,11 @@ export default function EditOffer() {
                 setIsSubmitting(false);
             });
     };
+
+
+    useEffect(() => {
+        console.log("Updated Form Values:", formValues);
+    }, [formValues]);
 
     const getOffer = () => {
         axios

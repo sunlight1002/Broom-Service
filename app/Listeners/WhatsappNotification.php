@@ -67,6 +67,8 @@ class WhatsappNotification
                 ':new_status' => $eventData['new_status'] ?? '',
                 ':testimonials_link' => url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl'),
                 ':broom_brochure' => $clientData['lng'] == "en" ? url("pdfs/BroomServiceEnglish.pdf") : url("pdfs/BroomServiceHebrew.pdf"),
+                ':admin_add_client_card' => url("admin/clients/view/" .$clientData['id'] ."?=card"),
+                ':client_card' => url("client/settings"),
             ];
 
         }
@@ -237,9 +239,11 @@ class WhatsappNotification
         $placeholders = [];
         if($contractData) {
             $placeholders = [
-                ':client_contract_link' => url("work-contract/" . ($contractData['contract_id'] ?? "")),
+                ':client_contract_link' => url("work-contract/" . $contractData['id'] ?? ''),
                 ':team_contract_link' => isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '',
                 ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at'])->format('M d Y H:i') : '',
+                ':create_job' => isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : " ",
+
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -288,8 +292,7 @@ class WhatsappNotification
                     : ("Job is marked as " . ucfirst($jobData['status'] ?? "")),
                 ':admin_name' => $eventData['admin']['name'] ?? '',
                 ':came_from' => $eventData['type'] ?? '',
-                ':create_job' => url("admin/create-job/" . ($jobData['id'] ?? "")),
-                
+
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 
             ];
@@ -344,7 +347,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED:
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED:
                     case WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL:
-                        $receiverNumber = $workerData['phone'];
+                        $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
 
@@ -410,11 +413,15 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS:
                     case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
                     case WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT:
-                        if($clientData['disable_notification'] == 1){
+                    case WhatsappMessageTemplateEnum::CLIENT_NOT_IN_SYSTEM_OR_NO_OFFER:
+                    case WhatsappMessageTemplateEnum::CLIENT_HAS_OFFER_BUT_NO_SIGNED_OR_NO_CONTRACT:
+                    case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT:
+                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
                         }
-                        $receiverNumber = $clientData['phone'];
+                        $receiverNumber = $clientData['phone'] ?? null;
+                        Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
                         break;
 
@@ -450,6 +457,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_TOMMOROW_MEETINGS:
                     case WhatsappMessageTemplateEnum::STOP:
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
+                    case WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED:
                     // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';
@@ -1531,7 +1539,7 @@ class WhatsappNotification
                     //         'url' => url("admin/clients/view/" . $clientData['id'])
                     //     ]);
 
-                        break;
+                        // break;
 
                     // case WhatsappMessageTemplateEnum::WAITING:
                     //     $clientData = $eventData['client'];
@@ -2113,8 +2121,7 @@ class WhatsappNotification
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
-            Log::alert('WA NOTIFICATION ERROR');
-            Log::alert($th);
+            Log::error('WA NOTIFICATION ERROR', ['error' => $th->getMessage(), 's' => $th->getTraceAsString()]);
         }
     }
 }

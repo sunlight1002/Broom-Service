@@ -51,6 +51,14 @@ export default function AdminHeader() {
             i18next.changeLanguage(
                 response.data.account.lng ? response.data.account.lng : "en"
             );
+
+            if(response?.data?.account?.lng == "en") {
+                document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
+            }
         });
     };
 
@@ -101,7 +109,7 @@ export default function AdminHeader() {
                                         <span className="counter">{count}</span>
                                     ) : (
                                         ""
-                                    )}  
+                                    )}
 
                                     <button
                                         onClick={(e) => handleCount(e)}

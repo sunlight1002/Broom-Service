@@ -10,4 +10,5 @@ final class WorkerFormTypeEnum extends AbstractEnum
     public const CONTRACT = 'contract';
     public const SAFTEY_AND_GEAR = 'saftey-and-gear';
     public const INSURANCE = 'insurance';
+    public const MANPOWER_SAFTEY = 'manpower-saftey';
 }

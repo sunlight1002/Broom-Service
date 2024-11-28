@@ -26,6 +26,7 @@ use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
 use App\Rules\ValidPhoneNumber;
 use App\Models\LeadActivity;
+use App\Jobs\AddGoogleContactJob;
 
 class LeadController extends Controller
 {
@@ -115,6 +116,8 @@ class LeadController extends Controller
 
         // Create the client
         $client = Client::create($input);
+
+        AddGoogleContactJob::dispatch($client);
 
         // Create user in iCount
         $iCountResponse = $this->createOrUpdateUser($request);
@@ -276,6 +279,9 @@ class LeadController extends Controller
 
 
         $client->update($input);
+
+        AddGoogleContactJob::dispatch($client);
+
         return response()->json([
             'message' => 'Lead updated successfully',
         ]);
@@ -554,9 +560,9 @@ class LeadController extends Controller
 
                         $phone = isset($mapped_field_data['phone_number']) && !empty($mapped_field_data['phone_number']) ? str_replace('+', '', $mapped_field_data['phone_number']) : '';
                         $lng = 'heb';
-                        if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
-                            $lng = 'en';
-                        }
+                        // if (isset($phone) && strlen($phone) > 10 && substr($phone, 0, 3) != 972) {
+                        //     $lng = 'en';
+                        // }
                         // Fblead::create(["challenge" => json_encode($lead_data)]);
                         $client = Client::updateOrCreate([
                             'email'             => $email,

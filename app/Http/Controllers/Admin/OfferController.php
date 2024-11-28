@@ -107,28 +107,6 @@ class OfferController extends Controller
 
         $services = json_decode($request->get('services'), true);
 
-        // $tax_percentage = config('services.app.tax_percentage');
-        // $subtotal = 0;
-        // foreach ($services as $skey => $service) {
-        //     $serviceTotal = 0;
-        //     if ($service['type'] == 'hourly') {
-        //         foreach ($service['workers'] as $wkey => $worker) {
-        //             $serviceTotal += $service['rateperhour'] * $worker['jobHours'];
-        //         }
-        //         $subtotal += $serviceTotal;
-        //     } else {
-        //         $serviceTotal += $service['fixed_price'] * count($service['workers']);
-        //         $subtotal += $serviceTotal;
-        //     }
-        //     $services[$skey]['totalamount'] = $serviceTotal;
-        // }
-
-        // $tax_amount = ($tax_percentage / 100) * $subtotal;
-
-        // $input = $request->except(['action']);
-        // $input['subtotal'] = $subtotal;
-        // $input['total'] = $subtotal + $tax_amount;
-
         $tax_percentage = config('services.app.tax_percentage');
         $subtotal = 0;
 

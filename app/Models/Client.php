@@ -54,7 +54,8 @@ class Client extends Authenticatable
         'otp_expiry',
         'two_factor_enabled',
         'first_login',
-        'disable_notification'
+        'disable_notification',
+        'contactId',
     ];
 
     /**

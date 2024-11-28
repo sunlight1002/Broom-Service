@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Base64 } from "js-base64";
 import Form101Table from "./Form101Table";
@@ -15,6 +15,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
     const [insuranceForm, setInsuranceForm] = useState(false);
     const [form, setForm] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     const alert = useAlert();
 
@@ -60,7 +61,8 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
 
 
 
-    const ResetForm = async (form_id) => {
+    const ResetForm = async (form_id, type) => {
+        
         Swal.fire({
             title: "Are you sure?",
             text: "You want to reset this form!",
@@ -74,12 +76,37 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                 try {
                     const res = await axios.post(`/api/admin/document/reset/${form_id}`, {}, { headers })
                     alert.success(res?.data?.message)
+                    if(type == "form101"){
+                        window.open(`/form101/${Base64.encode(worker.id.toString())}`, "_blank");
+                    }else if(type == "contract"){
+                        window.open(`/worker-contract/${Base64.encode(worker.id.toString())}`, "_blank");
+                    }else if(type == "safety_and_gear_form"){
+                        window.open(`/worker-safe-gear/${Base64.encode(worker.id.toString())}`, "_blank");
+                    }else if(type == "form_insurance"){
+                        window.open(`/insurance-form/${Base64.encode(worker.id.toString())}`, "_blank");
+                    }else if(type == "2form101"){
+                        window.open(`/form101/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
+                    }
                     getForm();
                 } catch (error) {
-                    alert.error(error.response.data?.message);
+                    alert.error(error.response?.data?.message);
                 }
             }
         });
+    }
+
+    const handleNotSigned = (form_id, type) => {
+        if(type == "form101"){
+            window.open(`/form101/${Base64.encode(worker.id.toString())}`, "_blank");
+        }else if(type == "contract"){
+            window.open(`/worker-contract/${Base64.encode(worker.id.toString())}`, "_blank");
+        }else if(type == "safety_and_gear_form"){
+            window.open(`/worker-safe-gear/${Base64.encode(worker.id.toString())}`, "_blank");
+        }else if(type == "form_insurance"){
+            window.open(`/insurance-form/${Base64.encode(worker.id.toString())}`, "_blank");
+        }else if(type == "2form101"){
+            window.open(`/form101/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
+        }
     }
 
     const save = (data) => {
@@ -199,7 +226,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 {t("global.signed")}
                                             </span>
                                         ) : (
-                                            <span className="btn btn-warning ">
+                                            <span className="btn btn-warning "
+                                            onClick={() => handleNotSigned(contractForm?.id, "contract")}
+                                            >
                                                 {t("global.notSigned")}
                                             </span>
                                         )}
@@ -235,7 +264,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 >
                                                     <i className="fa fa-download"></i>
                                                 </a>
-                                                <button onClick={() => ResetForm(contractForm?.id)} className="btn btn-warning">Reset</button>
+                                                <button onClick={() => ResetForm(contractForm?.id, "contract")} className="btn btn-warning">Reset</button>
                                             </div>
                                         ) : (
                                             <span className="btn btn-warning">-</span>
@@ -280,7 +309,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                     {t("global.signed")}
                                                 </span>
                                             ) : (
-                                                <span className="btn btn-warning">
+                                                <span className="btn btn-warning"
+                                                onClick={() => handleNotSigned(form?.id, "form101")}
+                                                >
                                                     {t("global.notSigned")}
                                                 </span>
                                             )}
@@ -313,7 +344,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                     >
                                                         <i className="fa fa-download"></i>
                                                     </a>
-                                                    <button onClick={() => ResetForm(form?.id)} className="btn btn-warning">Reset</button>
+                                                    <button onClick={() => ResetForm(form?.id, "form101")} className="btn btn-warning">Reset</button>
                                                 </div>
                                             ) : (
                                                 <span className="btn btn-warning">-</span>
@@ -360,7 +391,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 {t("global.signed")}
                                             </span>
                                         ) : (
-                                            <span className="btn btn-warning">
+                                            <span className="btn btn-warning"
+                                            onClick={() => handleNotSigned(safetyAndGearForm?.id, "safety_and_gear_form")}
+                                            >
                                                 {t("global.notSigned")}
                                             </span>
                                         )}
@@ -395,7 +428,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 >
                                                     <i className="fa fa-download"></i>
                                                 </a>
-                                                <button onClick={() => ResetForm(safetyAndGearForm?.id)} className="btn btn-warning">Reset</button>
+                                                <button onClick={() => ResetForm(safetyAndGearForm?.id, "safety_and_gear_form")} className="btn btn-warning">Reset</button>
                                             </div>
 
                                         ) : (
@@ -439,7 +472,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             {t("global.signed")}
                                         </span>
                                     ) : (
-                                        <span className="btn btn-warning">
+                                        <span className="btn btn-warning"
+                                        onClick={() => handleNotSigned(insuranceForm?.id, "form_insurance")}
+                                        >
                                             {t("global.notSigned")}
                                         </span>
                                     )}
@@ -475,7 +510,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             >
                                                 <i className="fa fa-download"></i>
                                             </a>
-                                            <button onClick={() => ResetForm(insuranceForm?.id)} className="btn btn-warning">Reset</button>
+                                            <button onClick={() => ResetForm(insuranceForm?.id, "form_insurance")} className="btn btn-warning">Reset</button>
                                         </div>
                                     ) : (
                                         <span className="btn btn-warning">-</span>
@@ -498,7 +533,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     style={{ boxShadow: "none" }}
                 >
                     <div className="card-comments cardforResponsive"></div>
-                    <Form101Table formdata={forms} workerId={worker.id} ResetForm={ResetForm} />
+                    <Form101Table formdata={forms} workerId={worker.id} ResetForm={ResetForm} handleNotSigned={handleNotSigned}/>
                 </div>
             )}
         </div>

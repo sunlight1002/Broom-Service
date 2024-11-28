@@ -18,6 +18,8 @@ use App\Http\Controllers\User\SkippedCommentController;
 use App\Http\Controllers\RefundClaimController;
 use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\ScheduleChangeController;
+use App\Http\Controllers\HearingProtocolController;
+use App\Http\Controllers\HearingCommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +57,10 @@ Route::post('worker/{id}/insurance-form', [AuthController::class, 'saveInsurance
 Route::get('worker/{id}', [AuthController::class, 'getWorker']);
 Route::get('worker-invitation/{id}', [AuthController::class, 'getWorkerInvitation']);
 Route::post('worker-invitation-update/{id}', [AuthController::class, 'getWorkerInvitationUpdate']);
+Route::post('{id}/manpower-form', [AuthController::class, 'manpowerForm']);
+Route::get('getManpowerSafteyForm/{id}', [AuthController::class, 'getManpowerSafty']);
+
+
 
 Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
 Route::post('guest/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
@@ -89,6 +95,9 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('job-comments/update-status', [SkippedCommentController::class, 'updateStatus']);
 
     Route::get('/schedule', [DashboardController::class, 'index']);
+
+    Route::get('/protocol', [HearingProtocolController::class, 'show']);
+    Route::post('/comments', [HearingCommentController::class, 'store']);
 
     Route::get('availabilities', [JobController::class, 'getAvailability']);
     Route::post('availabilities', [JobController::class, 'updateAvailability']);

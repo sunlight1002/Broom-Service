@@ -23,6 +23,9 @@ export default function ClientHistory({
 }) {
     const { hash } = useLocation();
     const { t } = useTranslation();
+    const query = new URLSearchParams(location.search);
+    const type = query.get("q");
+    console.log(type);
 
     return (
 
@@ -318,7 +321,7 @@ export default function ClientHistory({
                     id="tab-creditCard"
                     className={
                         `tab-pane ` +
-                        (hash === "#tab-creditCard" ? "active show" : "")
+                        ((hash === "#tab-creditCard" || type === "card") ? "active show" : "")
                     }
                     role="tab-panel"
                     aria-labelledby="creditCard-tab"

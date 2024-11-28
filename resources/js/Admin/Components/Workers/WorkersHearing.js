@@ -30,6 +30,12 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
         });
     };
 
+    // const handleCreateClaim = () => {
+    //     navigate(`/admin/workers/view/${id}/create-claim`, {
+    //         state: { worker, getWorkerDetails },
+    //     });
+    // };
+
     const handleUploadClaim = () => {
         navigate(`/admin/workers/view/${id}/upload-claim`, {
             state: { worker, getWorkerDetails },
@@ -255,21 +261,29 @@ const WorkersHearing = ({ worker, getWorkerDetails }) => {
                         <h1 className="page-title">{t("admin.hearing.title")}</h1>
                         <div className="ml-auto d-flex">
                             <button 
-                                className="text-white navyblue text-left mr-2"
+                                className="text-white navyblue text-left mr-2 w-full"
                                 style={{ padding: "5px", borderRadius: "5px" }}
                                 onClick={handleScheduleHearing}
                             >
                                 <i className="fas fa-hand-point-right "></i>
                                 {t("admin.hearing.scheduleHearing")}
                             </button>
-                            <button 
-                                className="text-white navyblue text-left mr-2"
+                            {/* <button 
+                                className="text-white navyblue text-left mr-2 w-full"
+                                style={{ padding: "5px", borderRadius: "5px" }}
+                                onClick={handleCreateClaim}
+                            >
+                                <i className="fas fa-upload"></i>
+                                Create Claim
+                            </button> */}
+                            {/* <button     
+                                className="text-white navyblue text-left mr-2 w-full"
                                 style={{ padding: "5px", borderRadius: "5px" }}
                                 onClick={handleUploadClaim}
                             >
                                 <i className="fas fa-upload"></i>
                                 Upload Claim
-                            </button>
+                            </button> */}
                         </div>
                     </div>
                 </div>

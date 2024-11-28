@@ -1136,7 +1136,7 @@ const Form101Component = () => {
             formData.append("savingType", savingType);
             formData.append("formId", formId);
 
-            
+
             axios
                 .post(`/api/form101/${id}`, formData, {
                     headers: {
@@ -1213,6 +1213,10 @@ const Form101Component = () => {
                 document.querySelector("html").setAttribute("dir", "rtl");
             } else {
                 document.querySelector("html").removeAttribute("dir");
+                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                if (rtlLink) {
+                    rtlLink.remove();
+                }
             }
 
             if (res.data.form) {
@@ -1251,7 +1255,7 @@ const Form101Component = () => {
     };
 
 
-    const handleDocSubmit = (data) => {    
+    const handleDocSubmit = (data) => {
         axios
             .post(`/api/admin/document/save`, data, { headers })
             .then((res) => {

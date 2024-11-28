@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import { Base64 } from "js-base64";
 import { frequencyDescription } from "../Utils/job.utils";
 import FullPageLoader from "../Components/common/FullPageLoader";
+import MiniLoader from "../Components/common/MiniLoader";
 
 export default function PriceOffer() {
     const { t } = useTranslation();
@@ -41,6 +42,13 @@ export default function PriceOffer() {
             setStatus(data.status);
             setClient(data.client);
             i18next.changeLanguage(data.client?.lng);
+            if(data?.client?.lng) {
+                document.querySelector("html").removeAttribute("dir");
+                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                if (rtlLink) {
+                    rtlLink.remove();
+                }
+            }
             let _services = JSON.parse(data.services);
 
             setServices(_services);
@@ -87,7 +95,6 @@ export default function PriceOffer() {
             const res = await axios.get(`/api/admin/get-sub-services/${id}`, { headers });
             const allSubServices = res.data.subServices;
 
-            // Filter sub-services based on subServiceId in airbnb state
             const filteredSubServices = allSubServices.filter(sub => airbnb.subServiceId.includes(sub.id));
 
             setSubService(filteredSubServices);
@@ -212,11 +219,12 @@ export default function PriceOffer() {
                                         <button
                                             type="button"
                                             className="btn btn-pink acpt"
+                                            disabled={loading}
                                             onClick={(e) =>
                                                 handleOffer(e, offer.id)
                                             }
                                         >
-                                            {t("price_offer.button")}
+                                            {loading ? <MiniLoader/> : t("price_offer.button")}
                                         </button>
                                         <button
                                             type="button"
@@ -1209,11 +1217,12 @@ export default function PriceOffer() {
                                     <button
                                         type="button"
                                         className="btn btn-pink acpt"
+                                        disabled={loading}
                                         onClick={(e) =>
                                             handleOffer(e, offer.id)
                                         }
                                     >
-                                        {t("price_offer.button")}
+                                        {loading ? <MiniLoader/> : t("price_offer.button")}
                                     </button>
                                 </div>
                             </>

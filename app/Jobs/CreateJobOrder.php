@@ -59,12 +59,13 @@ class CreateJobOrder implements ShouldQueue
             })
             ->find($this->jobID);
 
-        \Log::info('job', $job?->toArray()??[]);
+        // \Log::info('job', $job?->toArray()??[]);
 
         if ($job) {
             $items = [];
             $client = $job->client;
             $service = $job->jobservice;
+            // \Log::info(['service'=> $service]);
 
             // mark job(s) as last of month
             $monthEndDate = Carbon::parse($job->start_date)->endOfMonth()->toDateString();
@@ -150,6 +151,8 @@ class CreateJobOrder implements ShouldQueue
 
             $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
+            $serviceDate = Carbon::parse($service->created_at)->format('d-m-Y');
+
             $order = $this->generateOrderDocument(
                 $client,
                 $items,
@@ -158,7 +161,10 @@ class CreateJobOrder implements ShouldQueue
                     'job_ids' => [$job->id],
                     'is_one_time_in_month' => $job->is_one_time_in_month_job,
                     'discount_amount' => $job->discount_amount
-                ]
+                ],
+                $this->jobID,
+                $serviceDate
+                
             );
 
             if ($job->extra_amount) {
@@ -169,11 +175,14 @@ class CreateJobOrder implements ShouldQueue
                 event(new ClientOrderWithDiscount($client, $order));
             }
 
-            if ($job->is_one_time_in_month_job) {
+            if ($service->freq_name == 'One Time' && isset($order)) {
+                \Log::info("GenerateJobInvoice one time job");  
+                GenerateJobInvoice::dispatch($order->id, $client->id);
+            }else if ($job->is_one_time_in_month_job && isset($order)) {
 
                 \Log::info("GenerateJobInvoice Payment Initiate Call");
 
-                GenerateJobInvoice::dispatch($order->id);
+                GenerateJobInvoice::dispatch(null, $client->id);
 
                 \Log::info("GenerateJobInvoice Payment Call Complete");
             }

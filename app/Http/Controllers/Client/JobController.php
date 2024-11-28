@@ -171,7 +171,7 @@ class JobController extends Controller
         $currentDay = now()->format('l'); // e.g., "Monday"
         $repeatancy = $request->get('repeatancy');
         $until_date = $request->get('until_date');
-
+        
         $jobs = Job::query()
             ->with(['client', 'offer', 'worker', 'jobservice'])
             ->whereIn('status', [
@@ -186,20 +186,54 @@ class JobController extends Controller
             })
             ->where('job_group_id', $job->job_group_id)
             ->get();
-
+        
         $admin = Admin::where('role', 'admin')->first();
-
+        
         foreach ($jobs as $key => $job) {
-
-            // Check if the job can be cancelled without a fee
             $feePercentage = 0;
+        
+            \Log::info('Current Day: ' . $currentDay);
+            $endOfWeek = now()->endOfWeek();
+            \Log::info('endOfWeek: ' . $endOfWeek);
+            $endOfNextWeek = now()->addWeek()->endOfWeek();
+            \Log::info('endOfNextWeek: ' . $endOfNextWeek);
+            $jobStartDate = Carbon::parse($job->start_date);
+            \Log::info("Job Start Date : ". $jobStartDate);
+            $timeDifference = $jobStartDate->diffInHours(now(), true);
+            \Log::info("Time Difference : ". $timeDifference);
+
+        
             if ($currentDay === 'Wednesday') {
-                $feePercentage = 0;
-            } else{
-                $feePercentage = Carbon::parse($job->start_date)->diffInDays(today(), false) <= -1 ? 50 : 100;
+    
+                if ($timeDifference <= 24) {
+                    // If cancellation is within 24 hours, charge 100%
+                    $feePercentage = 100;
+                } elseif ($jobStartDate->lte($endOfWeek)) {
+                    // Charge 50% for jobs canceled till the end of this week
+                    $feePercentage = 50;
+                } else {
+                    // No charge for jobs after this week
+                    $feePercentage = 0;
+                }
+            } else {
+                // Handle non-Wednesday conditions
+                if ($timeDifference <= 24) {
+                    // If cancellation is within 24 hours, charge 100%
+                    $feePercentage = 100;
+                    
+                }else if ($jobStartDate->lte($endOfNextWeek)) {
+                    // Charge 50% for jobs till the end of next week
+                    $feePercentage = 50;
+                } else {
+                    // No charge for jobs after next week
+                    $feePercentage = 0;
+                }
             }
 
-             $feeAmount = ($feePercentage / 100) * $job->total_amount;
+            \Log::info("Fee Percentage : ". $feePercentage);    
+        
+            $feeAmount = ($feePercentage / 100) * $job->total_amount;
+        
 
             \Log::info("JobCancellationFee Save for Job : ". $job->id);
 
@@ -227,64 +261,70 @@ class JobController extends Controller
             ]);
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
+            if($repeatancy == 'forever' && $key == 0) {
+                GenerateJobInvoice::dispatch(null, $job->client->id);
+            }
+
             CreateJobOrder::dispatch($job->id);
 
             ScheduleNextJobOccurring::dispatch($job->id,null);
 
-            Notification::create([
-                'user_id' => $job->client->id,
-                'user_type' => get_class($job->client),
-                'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
-                'job_id' => $job->id,
-                'status' => 'declined'
-            ]);
-
-            App::setLocale('en');
-            $data = array(
-                'by'         => 'client',
-                'email'      => $admin->email??"",
-                'admin'      => $admin?->toArray()??[],
-                'job'        => $job?->toArray()??[],
-            );
-
-            event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
-                "notificationData" => array(
+            if($key == 0){
+                Notification::create([
+                    'user_id' => $job->client->id,
+                    'user_type' => get_class($job->client),
+                    'type' => NotificationTypeEnum::CLIENT_CANCEL_JOB,
+                    'job_id' => $job->id,
+                    'status' => 'declined'
+                ]);
+    
+                App::setLocale('en');
+                $data = array(
                     'by'         => 'client',
-                    'job'        => $job->toArray(),
-                )
-            ]));
-            // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
-            //     $messages->to($data['email']);
-            //     $sub = __('mail.client_job_status.subject');
-            //     $messages->subject($sub);
-            // });
-
-            //send notification to admin
-            $emailContent = '';
-            if ($data['by'] == 'client') {
-                $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($job->status) . '.';
-                if ($job->cancellation_fee_amount) {
-                    $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $job->cancellation_fee_amount . 'ILS.';
+                    'email'      => $admin->email??"",
+                    'admin'      => $admin?->toArray()??[],
+                    'job'        => $job?->toArray()??[],
+                );
+    
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
+                    "notificationData" => array(
+                        'by'         => 'client',
+                        'job'        => $job->toArray(),
+                    )
+                ]));
+                // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
+                //     $messages->to($data['email']);
+                //     $sub = __('mail.client_job_status.subject');
+                //     $messages->subject($sub);
+                // });
+    
+                //send notification to admin
+                $emailContent = '';
+                if ($data['by'] == 'client') {
+                    $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($job->status) . '.';
+                    if ($job->cancellation_fee_amount) {
+                        $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $job->cancellation_fee_amount . 'ILS.';
+                    }
+                } else {
+                    $emailContent .= 'Job is marked as' . ucfirst($job->status) . 'by admin/team.';
                 }
-            } else {
-                $emailContent .= 'Job is marked as' . ucfirst($job->status) . 'by admin/team.';
-            }
-
-            $emailSubject = ($data['by'] == 'admin') ?
-                ('Job has been cancelled') . " #" . $job->id :
-                __('mail.client_job_status.subject') . " #" . $job->id;
-
-            //send notification to worker
-            $job = $job->toArray();
-            $worker = $job['worker'];
-            if($worker) {
-                $emailData = [
-                    'emailSubject'  => $emailSubject,
-                    'emailTitle'  => __('mail.job_common.job_status'),
-                    'emailContent'  => $emailContent
-                ];
-                event(new JobNotificationToWorker($worker, $job, $emailData));
+    
+                $emailSubject = ($data['by'] == 'admin') ?
+                    ('Job has been cancelled') . " #" . $job->id :
+                    __('mail.client_job_status.subject') . " #" . $job->id;
+    
+                //send notification to worker
+                $job = $job->toArray();
+                $worker = $job['worker'];
+                if($worker) {
+                    $emailData = [
+                        'emailSubject'  => $emailSubject,
+                        'emailTitle'  => __('mail.job_common.job_status'),
+                        'emailContent'  => $emailContent
+                    ];
+                    event(new JobNotificationToWorker($worker, $job, $emailData));
+                }
             }
         }
 
@@ -314,7 +354,7 @@ class JobController extends Controller
 
             foreach ($completedJobs as $key => $completedJob) {
                 if($completedJob->order->paid_status != OrderPaidStatusEnum::PAID) {
-                    GenerateJobInvoice::dispatch($completedJob->order->id);
+                    GenerateJobInvoice::dispatch(null, $completedJob->order->id);
                 }
             }
         }

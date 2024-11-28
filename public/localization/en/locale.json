@@ -8,6 +8,8 @@
         "all":"All",
         "alltime":"All time",
         "name":"Name",
+        "document_name":"Document name",
+        "enter_document_name":"Enter document name",
         "Email":"Email",
         "cycle": "Cycle",
         "open": "Open",
@@ -54,6 +56,7 @@
         "date_period": "Date Period",
         "date": "Date",
         "time": "Time",
+        "noTimeSlotAvailable": "No time slot available",
         "custom_date": "Custom Date Range",
         "from": "From",
         "filter": "Filter",
@@ -137,6 +140,7 @@
         "noTimeSlot": "No time slot",
         "available": "Available",
         "sent": "Sent",
+        "workers": "Workers",
         "noOfWorker": "No. of Workers",
         "verified": "verified",
         "unverified": "un-verified",
@@ -659,6 +663,9 @@
                 "file": "File",
                 "save": "Save File",
                 "close": "Close"
+            },
+            "reSchedule": {
+                "selectDateAndTime": "Select a Date & Time"
             }
         },
         "offer": {
@@ -701,7 +708,7 @@
         },
         "contract-form": {
             "business_name_value": "Broom Service L.M. Ltd",
-            "h_p": "H.P",
+            "h_p": "B.N",
             "address": "Address",
             "address_value": "6 Hasharon, Tel Aviv",
             "phone": "Phone",
@@ -944,6 +951,7 @@
         },
         "global": {
             "Action":"Action",
+            "Document": "Document",
             "addTeamMember": "Add Team member",
             "NameEn": "Name - En",
             "NameHev": "Name - Heb",
@@ -1395,7 +1403,9 @@
             "Potential_client": "Potential client",
             "Pending_client": "Pending client",
             "Freeze_client": "Freeze client",
+            "Waiting_client": "Waiting",
             "Active_client": "Active client",
+            "Past_client": "Past client",
             "Unhappy": "Unhappy",
             "Price_issue": "Price issue",
             "Moved": "Moved",
@@ -2749,6 +2759,31 @@
         "submit": "Submit",
         "add":"Add",
         "update":"Update"
+    },
+    "manpower_safty_form": {
+        "title": "Absence of Claims Statement",
+        "date" : "date: {{date}}",
+        "to": "To:",
+        "salutation": "Broom Service L.M Ltd – Company Registration Number 515184208 (here in after referred to as: \"the Company\")",
+        "subject": "Subject:",
+        "subject_title": " Commitment, Confirmation of Waiver, and Release",
+        "sub_title": "I, the undersigned, {{full_name}}, ID/PASSPORT No. {{number}} Address: {{address}}, hereby declare, confirm, and undertake to you as follows:",
+        "ms1": "I am employed by {{company_name}} (here in after: 'the Employer'), which is a service contractor providing services to various clients, including your company.",
+        "ms2": "I confirm that during my employment with the Employer, I am not employed by the Company, and no employer-employee relationship has existed or will exist between me and the Company.",
+        "ms3": "Throughout my employment with the Employer, I have received and will continue to receive all payments owed to me, including salary, social benefits, and any other payments to which I am entitled.",
+        "ms4": "During my entire period of employment with the Employer, and upon termination of my employment relationship with the Employer and cessation of service provision to your Company, the Employer has paid me all outstanding payments due in connection with my work, including final settlements for vacation, convalescence pay, and severance compensation.",
+        "ms5": "I have no claims or demands against the Employer and/or the Company regarding my employment or its termination. If I ever had any claims or demands, they have been fully resolved. This includes, but is not limited to, claims for: salary, bonuses, overtime, vacation pay, pension fund contributions, study fund, convalescence pay, advance notice pay, cost-of-living adjustments, sick leave, severance pay, and any other outstanding debts.",
+        "ms6": "If I am entitled by law or agreement to additional rights beyond what I have already received, I hereby fully, irrevocably, and unconditionally waive any claims, demands, or lawsuits of any kind against you, your shareholders, managers, employees, or any related persons.",
+        "ms7": "I confirm and declare that the agreements signed between you and the service provider do not create an employer-employee relationship between your Company and myself. These agreements are made for business purposes only and do not establish an employment relationship. Accordingly, I undertake not to sue you or any of your representatives in relation to any claim arising from an employer-employee relationship.",
+        "ms8": "I confirm that my declarations, confirmations, and undertakings as stated above are irrevocable and have been made of my own free will, fully aware of all my rights as an employee under any law.",
+        "ms9": "The content of this waiver statement has been explained to me in detail, in a language I fully understand. I confirm that I accept and agree to its terms. I make this decision with a clear mind, without pressure, conditions, or coercion, knowing that I have received all my rights from the Employer.",
+        "sincerely": "Sincerely,",
+        "the_worker": "The Worker",
+        "signature": "Signature:",
+        "employee": "Employee",
+        "confirmation": "Confirmation:",
+        "confirm_subject": "I hereby confirm the signature of {{worker_name}} ID/passport No. {{number}} on this document after reviewing, reading, and understanding its terms and legal implications.",
+        "name": "Name: Alex Kanev,"
     },
     "resendOtp": {
         "workerLoginOtpTitle": "Worker Login Otp",

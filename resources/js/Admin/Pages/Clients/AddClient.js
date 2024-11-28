@@ -80,12 +80,6 @@ export default function AddClient() {
             services: JSON.stringify(formValues),
         };
 
-        // var phoneClc = "";
-        // var phones = document.querySelectorAll(".pphone");
-        // phones.forEach((p, i) => {
-        //     phoneClc += p.value + ",";
-        // });
-        // phoneClc = phoneClc.replace(/,\s*$/, "");
         const data = {
             firstname: firstname,
             lastname: lastname == null ? "" : lastname,
@@ -370,8 +364,14 @@ export default function AddClient() {
                                                 <PhoneInput
                                                     country={'il'}
                                                     value={phone}
-                                                    onChange={(phone) => {
-                                                        setPhone(phone);
+                                                    onChange={(phone, country) => {
+                                                        // Remove leading '0' after country code
+                                                        const dialCode = country.dialCode;
+                                                        let formattedPhone = phone;
+                                                        if (phone.startsWith(dialCode + '0')) {
+                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                        }
+                                                        setPhone(formattedPhone);
                                                     }}
                                                     inputClass="form-control"
                                                     inputProps={{
@@ -715,7 +715,15 @@ export default function AddClient() {
                                                                 <PhoneInput
                                                                     country={'il'}
                                                                     value={ex.phone || ""}
-                                                                    onChange={(value) => handleAlternatePhone(i, value)}
+                                                                    onChange={(phone, country) => {
+                                                                        // Remove leading '0' after country code
+                                                                        const dialCode = country.dialCode;
+                                                                        let formattedPhone = phone;
+                                                                        if (phone.startsWith(dialCode + '0')) {
+                                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                        }
+                                                                        handleAlternatePhone(i, formattedPhone)
+                                                                    }}
                                                                     inputClass="form-control"
                                                                     inputProps={{
                                                                         name: 'phone',

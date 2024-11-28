@@ -888,6 +888,7 @@ class AuthController extends Controller
 
     public function getSafegear($id)
     {
+        \Log::info($id);
         $worker = User::find($id);
         if (!$worker) {
             return response()->json([
@@ -1049,6 +1050,93 @@ class AuthController extends Controller
     
         return response()->json([
             'message' => 'Insurance form signed successfully.'
+        ]);
+    }
+
+
+    public function manpowerForm(Request $request, $id)
+    {
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+
+        $data = $request->all();
+        $pdfFile = $data['pdf_file'];
+        unset($data['pdf_file']);
+
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::MANPOWER_SAFTEY)
+            ->first();
+
+        if ($form && $form->pdf_name !== null && $form->submitted_at !== null) {
+                return response()->json([
+                'message' => 'Manpower safety already signed.'
+            ], 403);
+        }
+
+        if (!Storage::drive('public')->exists('signed-docs')) {
+            Storage::drive('public')->makeDirectory('signed-docs');
+        }
+
+        $file_name = Str::uuid()->toString() . '.pdf';
+        if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
+            return response()->json([
+                'message' => "Can't save PDF"
+            ], 403);
+        }
+
+
+          // Update the existing form if it exists and is not signed yet, otherwise create a new form
+          if ($form) {
+            $form->update([
+                'data' => $data,
+                'submitted_at' => now()->toDateTimeString(),
+                'pdf_name' => $file_name
+            ]);
+        } else {
+            $form = $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::MANPOWER_SAFTEY,
+                'data' => $data,
+                'submitted_at' => now()->toDateTimeString(),
+                'pdf_name' => $file_name
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Manpower form signed successfully.'
+        ]);
+    }
+
+
+    public function getManpowerSafty($id)
+    {
+        $worker = User::find($id);
+
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+    
+        $form = $worker->forms()
+            ->where('type', WorkerFormTypeEnum::MANPOWER_SAFTEY)
+            ->first();
+    
+        // Fetch Manpower Company name if available
+        $manpowerCompany = null;
+        if ($worker->manpower_company_id) {
+            $manpowerCompany = ManpowerCompany::find($worker->manpower_company_id);
+        }
+    
+        return response()->json([
+            'lng' => $worker->lng,
+            'worker' => $worker,
+            'form' => $form,
+            'manpower_company_name' => $manpowerCompany->name ?? null, // Include name or null
         ]);
     }
     

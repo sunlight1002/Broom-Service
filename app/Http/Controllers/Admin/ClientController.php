@@ -49,8 +49,7 @@ use App\Rules\ValidPhoneNumber;
 use App\Models\LeadActivity;
 use App\Models\WebhookResponse;
 use App\Models\WhatsAppBotClientState;
-
-
+use App\Jobs\AddGoogleContactJob;
 
 class ClientController extends Controller
 {
@@ -70,7 +69,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $action = $request->get('action');
-
+    
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
             ->leftJoin('contracts', 'contracts.client_id', '=', 'clients.id')
@@ -84,12 +83,12 @@ class ClientController extends Controller
             ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status', 'clients.created_at')
             ->selectRaw('IF(contracts.status = "' . ContractStatusEnum::VERIFIED . '", 1, 0) AS has_contract')
             ->groupBy('clients.id');
-
+    
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
-                if (request()->has('search')) {
-                    $keyword = request()->get('search')['value'];
-
+                if ($request->has('search')) {
+                    $keyword = $request->get('search')['value'];
+    
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
@@ -114,7 +113,6 @@ class ClientController extends Controller
                 $query->orderBy('firstname', $order);
             })
             ->editColumn('lead_status', function ($data) {
-                // Add the condition here to send "waiting on frontend" when lead_status is "pending client"
                 return $data->lead_status === 'pending client' ? 'waiting' : $data->lead_status;
             })
             ->filterColumn('lead_status', function ($query, $keyword) {
@@ -127,8 +125,7 @@ class ClientController extends Controller
             ->rawColumns(['action'])
             ->toJson();
     }
-
-
+    
 
     public function AllClients()
     {
@@ -511,6 +508,8 @@ class ClientController extends Controller
             ], 422);
         }
         $client->update($input);
+
+        AddGoogleContactJob::dispatch($client);
 
         if (!empty($request->jobdata)) {
             $offer = Offer::create([

@@ -27,15 +27,14 @@ export default function AddOffer() {
     const [comment, setComment] = useState("");
     const [loading, setLoading] = useState(false);
 
-
     const handleSave = (indexKey, tmpJobData) => {
-        let newFormValues = [...formValues];
-        if (indexKey > -1) {
-            newFormValues[indexKey] = tmpJobData;
-        } else {
-            newFormValues.push(tmpJobData);
-        }
-        setFormValues(newFormValues);
+        // let newFormValues = [...formValues];
+        // if (indexKey > -1) {
+        //     newFormValues[indexKey] = tmpJobData;
+        // } else {
+        //     newFormValues.push(tmpJobData);
+        // }
+        setFormValues(tmpJobData);
     };
 
     let removeFormFields = (i) => {
@@ -111,6 +110,7 @@ export default function AddOffer() {
         setLoading(true);
 
         for (let t in formValues) {
+
             if (formValues[t].service == "" || formValues[t].service == 0) {
                 alert.error("One of the service is not selected");
                 return false;
@@ -123,9 +123,7 @@ export default function AddOffer() {
                     alert.error("Other title cannot be blank");
                     return false;
                 }
-                formValues[t].other_title = document.querySelector(
-                    "#other_title" + t
-                ).value;
+                formValues[t].other_title = document.querySelector("#other_title" + t).value;
             }
 
             if (formValues[t].frequency == "" || formValues[t].frequency == 0) {
@@ -134,14 +132,18 @@ export default function AddOffer() {
             }
 
             let workerIssue = true;
-            for (let index = 0; index < formValues[t].workers.length; index++) {
-                const _worker = formValues[t].workers[index];
+            if (Array.isArray(formValues[t].workers)) {
+                for (let index = 0; index < formValues[t].workers.length; index++) {
+                    const _worker = formValues[t].workers[index];
 
-                if (_worker.jobHours == "") {
-                    alert.error("One of the job hours value is missing");
-                    workerIssue = false;
-                    break;
+                    if (_worker.jobHours == "") {
+                        alert.error("One of the job hours value is missing");
+                        workerIssue = false;
+                        break;
+                    }
                 }
+            } else {
+                formValues[t].workers = [];
             }
 
             if (!workerIssue) {
@@ -159,20 +161,23 @@ export default function AddOffer() {
                     alert.error("Rate per square meter or total square meter is missing");
                     return false;
                 }
-            }  else {
+            } else {
                 if (formValues[t].fixed_price == "") {
                     alert.error("One of the job price is missing");
                     return false;
                 }
             }
         }
+
+        const flattenedFormValues = formValues ? formValues.flat() : [];
+
         setIsSubmitting(true);
 
         const data = {
             client_id: clientID,
             comment: comment,
             status: "sent",
-            services: JSON.stringify(formValues),
+            services: JSON.stringify(flattenedFormValues),
             action: _action,
         };
 

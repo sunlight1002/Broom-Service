@@ -64,7 +64,7 @@ export default function Payments() {
                     d.end_date = endDateRef.current.value;
                 },
             },
-            order: [[0, "desc"]],
+            order: [[0, "asc"]],
             columns: [
                 {
                     title: t("global.date"),

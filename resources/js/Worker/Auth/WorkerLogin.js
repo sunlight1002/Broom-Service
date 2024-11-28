@@ -39,7 +39,7 @@ export default function WorkerLogin() {
             worker_id: worker,
             password: password,
         };
-        axios.post(`/api/login`, data).then((result) => {            
+        axios.post(`/api/login`, data).then((result) => {
             if (result.data.errors) {
                 setLoading(false)
                 setErrors(result.data.errors);
@@ -47,12 +47,19 @@ export default function WorkerLogin() {
                 if (isRemembered) {
                     localStorage.setItem("worker-token", result.data.token);
                     i18next.changeLanguage(result.data.lng);
+                    if(result?.data?.lng == 'en') {
+                        document.querySelector("html").removeAttribute("dir");
+                        const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                        if (rtlLink) {
+                            rtlLink.remove();
+                        }
+                    }
                     localStorage.setItem(
                         "worker-name",
                         result.data.firstname + " " + result.data.lastname
                     );
                     localStorage.setItem("worker-id", result.data.id);
-    
+
                     window.location = "/worker/dashboard";
                 }else{
                     if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
@@ -63,12 +70,19 @@ export default function WorkerLogin() {
                     }else{
                         localStorage.setItem("worker-token", result.data.token);
                         i18next.changeLanguage(result.data.lng);
+                        if(result?.data?.lng == 'en') {
+                            document.querySelector("html").removeAttribute("dir");
+                            const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                            if (rtlLink) {
+                                rtlLink.remove();
+                            }
+                        }
                         localStorage.setItem(
                             "worker-name",
                             result.data.firstname + " " + result.data.lastname
                         );
                         localStorage.setItem("worker-id", result.data.id);
-        
+
                         window.location = "/worker/dashboard";
                     }
                 }

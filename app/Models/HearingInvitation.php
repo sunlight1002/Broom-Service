@@ -21,11 +21,12 @@ class HearingInvitation extends Model
         'meet_link',
         'purpose',
         'booking_status',
+        'file',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function admin()

@@ -51,11 +51,17 @@ export default function ContractEng() {
                 // }
                 // console.log(_contract.client.lng);
                 i18next.changeLanguage(_contract.client.lng);
+
                 if (_contract.client.lng == "heb") {
-                    import("../../../Assets/css/rtl.css");
-                    document.querySelector("html").setAttribute("dir", "rtl");
+                    import("../../../Assets/css/rtl.css").then(() => {
+                        document.querySelector("html").setAttribute("dir", "rtl");
+                    });
                 } else {
                     document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
                 }
             });
     };

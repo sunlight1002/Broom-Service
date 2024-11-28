@@ -43,6 +43,9 @@ use App\Http\Controllers\HearingInvitationController;
 use App\Http\Controllers\User\WorkerHearingController;
 use App\Http\Controllers\HearingProtocolController;
 use App\Http\Controllers\ScheduleChangeController;
+use App\Http\Controllers\HearingCommentController;
+use App\Http\Controllers\ClaimController;
+// use App\Http\Controllers\Admin\ChangeWorkerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -367,8 +370,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/scheduled-hearings/{id}', [HearingInvitationController::class, 'getScheduledHearings']);
     Route::delete('/hearing/{id}', [HearingInvitationController::class, 'destroy']);
 
-    
     Route::post('/hearing-protocol', [HearingProtocolController::class, 'store']);
+    Route::get('/hearing-protocol/comments', [HearingCommentController::class, 'getComments']);
+
+    Route::post('/claims', [ClaimController::class, 'store']);
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);
@@ -421,6 +426,11 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/schedule-changes', [ScheduleChangeController::class, 'index'])->name('schedule-changes.index');
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
     Route::get('/schedule-change/{id}', [ScheduleChangeController::class, 'getScheduleChange']);
+
+
+    // Route::get('jobs/change-worker-requests', [ChangeWorkerController::class, 'index']);
+    // Route::post('jobs/change-worker-requests/{id}/accept', [ChangeWorkerController::class, 'accept']);
+    // Route::post('jobs/change-worker-requests/{id}/reject', [ChangeWorkerController::class, 'reject']);
 
 });
 

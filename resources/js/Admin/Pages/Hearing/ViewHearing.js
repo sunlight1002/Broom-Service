@@ -397,6 +397,11 @@ function ViewHearing() {
         );
     }, [startTimeOptions]);
 
+    const handleCreateClaim = () => {
+        navigate(`/admin/workers/view/${workerId}/hearing-invitation/${hid}/create-claim`, {
+        });
+    };
+
     return (
         <div id="container">
             <Sidebar />
@@ -404,6 +409,14 @@ function ViewHearing() {
                 <h1 className="page-title">
                     {t("admin.hearing.scheduleHearing")}
                 </h1>
+                <button 
+                    className="text-white navyblue text-left mr-2 w-full"
+                    style={{ padding: "5px", borderRadius: "5px" }}
+                    onClick={handleCreateClaim}
+                >
+                    <i className="fas fa-upload"></i>
+                    Create Claim
+                </button>
                 <div className="dashBox maxWidthControl p-4 sch-meet">
                     <div className="row mt-4">
                         <div className="col-sm-6">

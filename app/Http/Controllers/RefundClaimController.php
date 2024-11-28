@@ -250,6 +250,7 @@ class RefundClaimController extends Controller
         
         $refundClaim->load('user');
         $this->sendClaimNotification($refundClaim);
-        return response()->json($refundClaim);
+        return response()->json([], 204); // 204: No Content
+
     }
 }

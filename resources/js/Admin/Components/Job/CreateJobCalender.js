@@ -41,6 +41,7 @@ export default function CreateJobCalender({
     const [customDateRange, setCustomDateRange] = useState([]);
     const [searchVal, setSearchVal] = useState("");
     const [loading, setLoading] = useState(false);
+    const [hasFetched, setHasFetched] = useState(false);
     const [prevWorker, setPrevWorker] = useState(true)
     const [serviceIndex, setServiceIndex] = useState(null)
 
@@ -92,6 +93,8 @@ export default function CreateJobCalender({
     };
 
     const getWorkers = useCallback(async (_service) => {
+        if (hasFetched) return;
+        setHasFetched(true);
         try {
             setLoading(true);
             const res = await axios.get(`/api/admin/all-workers`, {
@@ -120,7 +123,7 @@ export default function CreateJobCalender({
         } finally {
             setLoading(false);
         }
-    }, [distance, headers, alert]);
+    }, [distance, headers, alert, hasFetched]);
 
     useEffect(() => {
         handleServices(serviceIndex);

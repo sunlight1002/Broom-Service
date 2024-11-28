@@ -192,7 +192,7 @@ class ContractController extends Controller
                 'status' => $newLeadStatus,
             ];
 
-            SendNotificationJob::dispatch($client, $newLeadStatus, $emailData);
+            SendNotificationJob::dispatch($client, $newLeadStatus, $emailData, $contract);
         }
 
         return response()->json([

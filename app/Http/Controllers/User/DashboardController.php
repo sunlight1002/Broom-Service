@@ -60,6 +60,7 @@ class DashboardController extends Controller
                 'hearing_invitations.start_time', 
                 'hearing_invitations.end_time', 
                 'hearing_invitations.purpose', 
+                'hearing_invitations.file',
                 'users.firstname as worker_name',
                 'users.address as address_name'
             );
@@ -85,7 +86,10 @@ class DashboardController extends Controller
                 // Define actions (buttons or links) as needed, currently left empty
                 return '';
             })
-            ->rawColumns(['action'])
+            ->addColumn('document', function ($data) {
+                return $data->file ? '<a href="' . asset($data->file) . '" target="_blank">Download Document</a>' : 'No Document';
+            })
+            ->rawColumns(['action', 'document'])
             ->toJson();
     }
 

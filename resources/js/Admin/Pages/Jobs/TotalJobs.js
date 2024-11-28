@@ -197,7 +197,7 @@ export default function TotalJobs() {
                     //     return json.data;
                     // },
                 },
-                order: [[0, "desc"]],
+                order: [[0, "asc"]],
                 columns: [
                     {
                         title: t("global.date"),
@@ -503,6 +503,9 @@ export default function TotalJobs() {
         $(tableRef.current).on("click", ".dt-switch-worker-btn", function () {
             const _id = $(this).data("id");
             const _totalAmount = $(this).data("total-amount");
+
+            console.log(_id, _totalAmount);
+            
 
             handleSwitchWorker({
                 id: _id,

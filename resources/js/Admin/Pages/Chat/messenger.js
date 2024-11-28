@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 import { template } from "lodash";
 import { useTranslation } from "react-i18next";
+import { FaRegCircleUser } from "react-icons/fa6";
 
 export default function Messenger() {
     const { t } = useTranslation();
@@ -104,7 +105,13 @@ export default function Messenger() {
     }, []);
 
     return (
-        <div id="container">
+        <div 
+            id="container" 
+            style={{
+                height: "90vh",
+                overflow: "hidden",
+            }}
+        >
             <Sidebar />
             <div id="content">
                 <div className="view-applicant">
@@ -293,12 +300,14 @@ export default function Messenger() {
                                     style={{
                                         backgroundColor: "#00a4f39e!important",
                                         borderRadius: "3%",
+                                        overflowY: "auto",
                                     }}
                                 >
                                     {data?.map((d, i) => {
                                         return (
                                             <div
                                                 className="mb-3 card p-3 mt-3 uname"
+                                                style={{color:"black"}}
                                                 onClick={(e) => {
                                                     getMessages(d.id);
                                                     setSelectNumber(d.id);
@@ -317,20 +326,26 @@ export default function Messenger() {
                                                 }}
                                                 key={i}
                                             >
-                                                <h5
-                                                    className="mt-0 mb-1"
-                                                    style={{
-                                                        cursor: "pointer",
-                                                    }}
-                                                >
-                                                    <Link to="#">
-                                                        <i className="fas fa-user"></i>
-                                                        {
-                                                            d.participants
-                                                                .data[0].name
-                                                        }
-                                                    </Link>
-                                                </h5>
+                                                <div className="d-flex align-items-center">
+                                                    <div className="user-icon2">
+                                                        <FaRegCircleUser className="font-24" style={{ color: "#2F4054" }} />
+                                                    </div>
+                                                    <div className="ml-2">
+                                                        <h5
+                                                            className="mt-0 mb-2"
+                                                            style={{
+                                                                cursor: "pointer",
+                                                            }}
+                                                        >
+                                                            <Link
+                                                                to="#"
+                                                                style={{ textDecoration: "none" }}
+                                                            >
+                                                                {d.participants.data[0].name}
+                                                            </Link>
+                                                        </h5>
+                                                    </div>
+                                                </div>
                                             </div>
                                         );
                                     })}

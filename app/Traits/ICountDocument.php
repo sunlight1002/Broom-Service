@@ -48,58 +48,64 @@ trait ICountDocument
         return response()->json(['message' => 'Doc closed successfully!']);
     }
 
-    private function generateOrderInvoice($client, $order, $card)
+    private function generateOrderInvoice($client, $orders, $card)
     {
         $payment_method = $client->payment_method;
-        \Log::info([$card]);
-
-        $services = json_decode($order->items, true);
         $doctype = ($payment_method == 'cc') ? "invrec" : "invoice";
-
+    
         $subtotal = 0;
-        foreach ($services as $key => $service) {
-            $subtotal += (float)$service['unitprice'] * (int)$service['quantity'];
+        $discount = 0;
+        $services = [];
+        
+        foreach ($orders as $order) {
+            // Decode the 'items' field for each individual order
+            $orderServices = json_decode($order->items, true);
+            
+            foreach ($orderServices as $service) {
+                $services[] = $service; // Consolidate all services
+                $subtotal += $service['unitprice'] * $service['quantity'];
+            }
+            
+            // Aggregate the discount for each order
+            $discount += (float)$order->discount_amount;
         }
+    
         $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
-
         $duedate = Carbon::today()->endOfMonth()->toDateString();
-
+        \Log::info('total: ' . $total);
+        \Log::info('subtotal: ' . $subtotal);
+    
         $isPaymentProcessed = false;
-        /* Auto payment */
+    
+        // Auto payment
         if ($payment_method == 'cc') {
-
             \Log::info('Payment IcountDoc commitInvoicePayment Initiate');
-
-            $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $subtotal);
-
+            $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $total);
+    
             \Log::info('Payment IcountDoc commitInvoicePayment Finish');
-
+    
             if ($paymentResponse['HasError'] == true) {
-
                 \Log::info('Payment IcountDoc commitInvoicePayment Error');
-
-                $order->update([
-                    'paid_status' => OrderPaidStatusEnum::PROBLEM
-                ]);
-
+                foreach ($orders as $order) {
+                    $order->update(['paid_status' => OrderPaidStatusEnum::PROBLEM]);
+                }
                 event(new ClientPaymentFailed($client, $card));
-
                 $doctype = 'invoice';
             } else {
                 $isPaymentProcessed = true;
             }
         }
-
+    
         $otherInvDocOptions = [
-            'based_on' => [
-                [
-                    'docnum'  => $order->order_id,
-                    'doctype' => 'order'
-                ]
-            ]
+            'based_on' => $orders->map(function ($order) {
+                return [
+                    'docnum' => $order->order_id,
+                    'doctype' => 'order',
+                ];
+            })->toArray(),
         ];
-
+    
         if ($payment_method == 'cc') {
             $otherInvDocOptions['cc'] = [
                 "sum" => $total,
@@ -110,125 +116,78 @@ trait ICountDocument
                 "holder_id" => $card->card_holder_id,
             ];
         }
-
-        if ($doctype == 'invoice') {
-
-            \Log::info('Payment IcountDoc generateInvoiceDocument doctype : invoice');
-
-            $json = $this->generateInvoiceDocument(
-                $client,
-                $order,
-                $duedate,
-                $otherInvDocOptions
-            );
-        } else {
-
-            \Log::info('Payment IcountDoc generateInvRecDocument');
-
-            $json = $this->generateInvRecDocument(
-                $client,
-                $services,
-                $duedate,
-                $otherInvDocOptions,
-                $order->amount,
-                $order->discount_amount,
-            );
-        }
+    
+        $json = $doctype == 'invoice'
+            ? $this->generateInvoiceDocument($client, $orders, $duedate, $otherInvDocOptions)
+            : $this->generateInvRecDocument($client, $services, $duedate, $otherInvDocOptions, $subtotal, $discount); // Pass discount here
+        
         \Log::info('Payment IcountDoc generateDocument Finish');
-
-        $discount = isset($json['doc_info']['discount']) ? $json['doc_info']['discount'] : NULL;
-        $totalAmount = isset($json['doc_info']['afterdiscount']) ? $json['doc_info']['afterdiscount'] : NULL;
-
-        \Log::info('Payment IcountDoc Invoice create');
-
+    
+        $discount = $json['doc_info']['discount'] ?? null;
+        $totalAmount = $json['doc_info']['afterdiscount'] ?? null;
+    
+        // Create the invoice
         $invoice = Invoices::create([
             'invoice_id'        => $json['docnum'],
-            'order_id'          => $order->id,
+            'client_id'         => $client->id,
             'amount'            => $json['doc_info']['totalsum'],
             'paid_amount'       => $isPaymentProcessed ? $json['doc_info']['totalsum'] : 0,
             'discount_amount'   => $discount,
             'total_amount'      => $totalAmount,
             'amount_with_tax'   => $json['doc_info']['totalwithvat'],
-            'pay_method'        => ($isPaymentProcessed) ? 'Credit Card' : 'NA',
-            'client_id'         => $client->id,
-            'doc_url'    => $json['doc_info']['doc_url'],
-            'type'       => $doctype,
+            'pay_method'        => $isPaymentProcessed ? 'Credit Card' : 'NA',
+            'doc_url'           => $json['doc_info']['doc_url'],
+            'type'              => $doctype,
             'invoice_icount_status' => 'Open',
-            'due_date'   => $duedate,
-            'txn_id'     => ($isPaymentProcessed) ? $paymentResponse['ReferenceNumber'] : '',
-            'callback'   => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
-            'status'     => ($isPaymentProcessed) ? InvoiceStatusEnum::PAID : (isset($paymentResponse) ? $paymentResponse['ReturnMessage'] : InvoiceStatusEnum::UNPAID),
+            'due_date'          => $duedate,
+            'txn_id'            => $isPaymentProcessed ? $paymentResponse['ReferenceNumber'] : '',
+            'callback'          => isset($paymentResponse) ? json_encode($paymentResponse, true) : '',
+            'status'            => $isPaymentProcessed
+                ? InvoiceStatusEnum::PAID
+                : (isset($paymentResponse) ? $paymentResponse['ReturnMessage'] : InvoiceStatusEnum::UNPAID),
         ]);
-
-        $order->jobs()->update([
-            'invoice_id'            => $invoice->id,
-            'is_invoice_generated'  => true,
-            'invoice_no'            => $json["docnum"],
-            'invoice_url'           => $json['doc_info']['doc_url'],
-            'isOrdered'             => 2,
-        ]);
-
-        $order->jobCancellationFees()->update([
-            'invoice_id'            => $invoice->id,
-            'is_invoice_generated'  => true,
-        ]);
-
-        \Log::info('Payment IcountDoc close order');
-
-        /*Close Order */
-        $this->closeDoc($order->order_id, 'order');
-
-        // if ($isPaymentProcessed && $doctype == 'invrec') {
-        //     //close invoice
-        //     $this->closeDoc($json['docnum'], 'invrec');
-        //     $invoice->update(['invoice_icount_status' => 'Closed']);
-        // }
-
-        $orderUpdateData = [
-            'status' => 'Closed',
-            'invoice_status' => 2,
-        ];
-
-        if ($isPaymentProcessed) {
-            $orderUpdateData['paid_status'] = OrderPaidStatusEnum::PAID;
-            $orderUpdateData['paid_amount'] = $subtotal;
-            $orderUpdateData['unpaid_amount'] = 0;
-        } elseif ($payment_method != 'cc') {
-            $orderUpdateData['paid_status'] = OrderPaidStatusEnum::UNPAID;
-            $orderUpdateData['paid_amount'] = 0;
-            $orderUpdateData['unpaid_amount'] = $subtotal;
-        } else {
-            $orderUpdateData['paid_status'] = OrderPaidStatusEnum::PROBLEM;
-            $orderUpdateData['paid_amount'] = 0;
-            $orderUpdateData['unpaid_amount'] = $subtotal;
+    
+        foreach ($orders as $order) {
+            $order->jobs()->update([
+                'invoice_id'            => $invoice->id,
+                'is_invoice_generated'  => true,
+                'invoice_no'            => $json["docnum"],
+                'invoice_url'           => $json['doc_info']['doc_url'],
+                'isOrdered'             => 2,
+            ]);
+    
+            $order->jobCancellationFees()->update([
+                'invoice_id'            => $invoice->id,
+                'is_invoice_generated'  => true,
+            ]);
+    
+            $order->update([
+                'status' => 'Closed',
+                'invoice_status' => 2,
+                'paid_status' => $isPaymentProcessed ? OrderPaidStatusEnum::PAID : OrderPaidStatusEnum::UNPAID,
+                'paid_amount' => $isPaymentProcessed ? $subtotal : 0,
+                'unpaid_amount' => $isPaymentProcessed ? 0 : $subtotal,
+            ]);
         }
-
-        $order->update($orderUpdateData);
-
-        \Log::info('Payment IcountDoc update Job and JobCancellationFee for paid status');
-
+    
+        if ($isPaymentProcessed) {
+            event(new ClientPaymentPaid($client, $subtotal));
+        }
+    
         if ($doctype == 'invrec') {
-            Job::where('order_id', $order->id)
-                ->update([
-                    'is_paid' => true
-                ]);
-
-            JobCancellationFee::where('order_id', $order->id)
-                ->update([
-                    'is_paid' => true
-                ]);
-
+            foreach ($orders as $order) {
+                $order->jobs()->update(['is_paid' => true]);
+                $order->jobCancellationFees()->update(['is_paid' => true]);
+            }
             event(new ClientInvRecCreated($client, $invoice->invoice_id));
         } else {
             event(new ClientInvoiceCreated($client, $invoice));
         }
-
-        if ($isPaymentProcessed) {
-            event(new ClientPaymentPaid($client, $subtotal));
-        }
-
+    
         \Log::info('Payment IcountDoc finish');
     }
+ 
+    
 
 
 
@@ -265,7 +224,7 @@ trait ICountDocument
             'vat_id' => $input['vat_number'] ?? null,
             'custom_info' => json_decode(json_encode([
                 'status' => $input['status'] ?? null,
-                'invoicename' => $input['invoicename'] ?? null,
+                'invoicename' => $input['invoicename'] ? $input['invoicename'] : ($input['firstname'] ." " . $input['lastname']),
             ]))
         ];
 

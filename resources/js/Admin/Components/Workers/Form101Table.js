@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Base64 } from "js-base64";
 import Moment from "moment";
+import { useTranslation } from "react-i18next";
 
-export default function Form101Table({ formdata, workerId, ResetForm }) {
+export default function Form101Table({ formdata, workerId, ResetForm ,handleNotSigned}) {
     const [formData, setFormData] = useState([]);
     const [order, setOrder] = useState("ASC");
+
+    const { t } = useTranslation();
 
     useEffect(() => {
         // if (!formData.length) {
@@ -107,9 +110,13 @@ export default function Form101Table({ formdata, workerId, ResetForm }) {
                                                 textTransform: "capitalize",
                                             }}
                                         >
+                                            <span className="btn btn-warning"
+                                            onClick={() => handleNotSigned(item?.id, "2form101")}
+                                            >
                                             {item.pdf_name
-                                                ? "Signed"
-                                                : "Not signed"}
+                                                ? t("global.signed")
+                                                : t("global.notSigned")}
+                                            </span>
                                         </td>
                                         <td>
                                             <div className="d-flex">
@@ -138,7 +145,7 @@ export default function Form101Table({ formdata, workerId, ResetForm }) {
                                                             >
                                                                 <i class="fa-solid fa-download"></i>
                                                             </Link>
-                                                            <button onClick={() => ResetForm(item?.id)} className="btn btn-warning">Reset</button>
+                                                            <button onClick={() => ResetForm(item?.id, "2form101")} className="btn btn-warning">Reset</button>
                                                         </div>
                                                     ) : ''
                                                 }

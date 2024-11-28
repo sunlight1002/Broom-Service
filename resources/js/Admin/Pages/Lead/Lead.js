@@ -132,6 +132,18 @@ export default function Lead() {
                         },
                     },
                 ],
+                // drawCallback: function () {
+                //     // Update pagination button styles
+                //     document.querySelectorAll("#content .paging_full_numbers button").forEach((button) => {
+                //         if (document.querySelector("#content .dt-paging-button current")) {
+                //             button.style.backgroundColor = "#ffffff !important";
+                //             button.style.color = "rgb(0, 0, 0) !important";
+                //         } else if (document.querySelector("#content dt-paging-button")) {
+                //             button.style.backgroundColor = "#1E1E1E !important";
+                //             button.style.color = "#ffffff !important";
+                //         }
+                //     });
+                // },
                 ordering: true,
                 searching: true,
                 responsive: true,
@@ -204,6 +216,7 @@ export default function Lead() {
             const _id = $(this).data("id");
             handleDelete(_id);
         });
+        
 
         // Handle language changes
         i18n.on("languageChanged", () => {
@@ -220,6 +233,33 @@ export default function Lead() {
         };
     }, []);
 
+
+    const sortTable = (colIdx) => {
+        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
+    };
+
+    const toggleChangeStatusModal = (clientId = 0) => {
+        setChangeStatusModal((prev) => {
+            return {
+                isOpen: !prev.isOpen,
+                id: clientId,
+            };
+        });
+    };
+
+    const updateData = () => {
+        setTimeout(() => {
+            $(tableRef.current).DataTable().draw();
+        }, 1000);
+    };
+
+    useEffect(() => {
+        if (filter == "All") {
+            $(tableRef.current).DataTable().column(4).search(null).draw();
+        } else {
+            $(tableRef.current).DataTable().column(4).search(filter).draw();
+        }
+    }, [filter]);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -248,32 +288,7 @@ export default function Lead() {
         });
     };
 
-    const sortTable = (colIdx) => {
-        $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
-    };
 
-    const toggleChangeStatusModal = (clientId = 0) => {
-        setChangeStatusModal((prev) => {
-            return {
-                isOpen: !prev.isOpen,
-                id: clientId,
-            };
-        });
-    };
-
-    const updateData = () => {
-        setTimeout(() => {
-            $(tableRef.current).DataTable().draw();
-        }, 1000);
-    };
-
-    useEffect(() => {
-        if (filter == "All") {
-            $(tableRef.current).DataTable().column(4).search(null).draw();
-        } else {
-            $(tableRef.current).DataTable().column(4).search(filter).draw();
-        }
-    }, [filter]);
 
     return (
         <div id="container">

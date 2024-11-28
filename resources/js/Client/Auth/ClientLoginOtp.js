@@ -24,6 +24,13 @@ export default function ClientLoginOtp() {
 
     useEffect(() => {
         i18next.changeLanguage(clientLng);
+        if(clientLng == "en") {
+            document.querySelector("html").removeAttribute("dir");
+                const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                if (rtlLink) {
+                    rtlLink.remove();
+                }
+        }
     }, [clientLng]);
 
     useEffect(() => {
@@ -105,6 +112,13 @@ export default function ClientLoginOtp() {
             } else {
                 localStorage.setItem("client-token", result.data.client.token);
                 i18next.changeLanguage(result.data.client.lng);
+                if(result?.data?.client?.lng == "en") {
+                    document.querySelector("html").removeAttribute("dir");
+                        const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                        if (rtlLink) {
+                            rtlLink.remove();
+                        }
+                }
                 localStorage.setItem(
                     "client-name",
                     result.data.client.firstname + " " + result.data.client.lastname

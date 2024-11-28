@@ -90,7 +90,7 @@ export default function Sidebar() {
     // console.log(lng);
 
     useEffect(() => {
-        i18next.changeLanguage(adminLng);
+        // i18next.changeLanguage(adminLng);
         getAdmin();
     }, []);
 

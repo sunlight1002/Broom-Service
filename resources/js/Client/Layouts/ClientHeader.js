@@ -39,6 +39,13 @@ export default function ClientHeader() {
         axios.get("/api/client/my-account", { headers }).then((res) => {
             setAvatar(res.data.account.avatar);
             i18next.changeLanguage(res.data.account.lng);
+            if(res?.data?.account?.lng == "en") {
+                document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) {
+                        rtlLink.remove();
+                    }
+            }
         });
     };
     useEffect(() => {

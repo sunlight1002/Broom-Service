@@ -9,6 +9,8 @@ use App\Models\WebhookResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class ChatController extends Controller
 {
@@ -469,71 +471,153 @@ class ChatController extends Controller
         return response()->json(['message' => 'chat responses added']);
     }
 
+    public function getPageAccessToken()
+    {
+        $userAccessToken = config('services.facebook.access_token');
+        $appId = config('services.facebook.app_id');
+        $appSecret = config('services.facebook.app_secret');
+
+        $permissionsUrl = "https://graph.facebook.com/v18.0/me/permissions?access_token={$userAccessToken}";
+
+        $permissionsResponse = Http::get($permissionsUrl);
+
+        if ($permissionsResponse->successful()) {
+            $permissionsData = $permissionsResponse->json();
+
+            $permissions = array_column($permissionsData['data'], 'permission');
+            if (!in_array('pages_manage_metadata', $permissions)) {
+                Log::error('User access token does not have the necessary permissions.');
+                return null;
+            }
+        } else {
+            Log::error('Failed to check user permissions.', ['error' => $permissionsResponse->body()]);
+            return null;
+        }
+
+        $pageId = config('services.facebook.page_id');
+        if (!$pageId) {
+            Log::error('Page ID not found in .env file');
+            return null;
+        }
+
+        $url = "https://graph.facebook.com/v18.0/{$pageId}?fields=access_token&access_token={$userAccessToken}";
+
+        $response = Http::get($url);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            $pageAccessToken = $data['access_token'];
+
+            return $pageAccessToken;
+        } else {
+            Log::error('Failed to generate Page Access Token', [
+                'error' => $response->body()
+            ]);
+
+            return null;
+        }
+    }
+
+    public function subscribePageToApp($pageId)
+    {
+        $pageAccessToken = $this->getPageAccessToken();
+
+        if ($pageAccessToken) {
+            $url = "https://graph.facebook.com/{$pageId}/subscribed_apps";
+
+            $response = Http::get($url, [
+                'subscribed_fields' => 'messages',
+                'access_token' => $pageAccessToken
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            } else {
+                Log::error('Failed to subscribe Page to app', [
+                    'error' => $response->body()
+                ]);
+                return null;
+            }
+        } else {
+            Log::error('Page Access Token not available');
+            return null;
+        }
+    }
+
     public function Participants()
     {
-        $url = 'https://graph.facebook.com/v18.0/' . config('services.facebook.account_id') . '/conversations?fields=participants&limit=100000000000000000000000000000000000000000000000000000&access_token=' . config('services.facebook.access_token');
-
+        $pageAccessToken = $this->getPageAccessToken();
+    
+        if (!$pageAccessToken) {
+            Log::error('Page Access Token is not available');
+            return response()->json([
+                'error' => 'Page Access Token is missing'
+            ]);
+        }
+    
+        $url ='https://graph.facebook.com/v21.0/' . config('services.facebook.account_id') . '/conversations?fields=participants&limit=100000000000000000000000000000000000000000000000000000&access_token=' . $pageAccessToken;
+    
         $ch = curl_init();
-
+    
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
+    
         $result = curl_exec($ch);
+        
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
         $_p = json_decode($result);
-
+    
         return response()->json([
             'data' => $_p,
             'page_id' => config('services.facebook.account_id')
         ]);
-    }
+    }    
 
     public function messengerMessage($id)
     {
-        $url = 'https://graph.facebook.com/v17.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . config('services.facebook.access_token');
-
+        $url = 'https://graph.facebook.com/v21.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . config('services.facebook.access_token');
+    
+        Log::info("Requesting Messenger messages", ["URL" => $url]);
+    
         $ch = curl_init();
-
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
+    
         $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
         if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
+            Log::error("CURL error", ["Error" => curl_error($ch)]);
+            curl_close($ch);
+            return response()->json(['error' => 'Failed to fetch data'], 500);
         }
         curl_close($ch);
-        $_p = json_decode($result);
-
+    
+        $response = json_decode($result, true);
+    
+        // Check for Graph API error
+        if ($httpCode !== 200 || isset($response['error'])) {
+            Log::error("Graph API error", [
+                'HTTP Code' => $httpCode,
+                'Response' => $response,
+            ]);
+            return response()->json(['error' => $response['error'] ?? 'Unknown error'], $httpCode);
+        }
+    
+        Log::info('Messenger messages fetched successfully', [
+            'chat' => $response
+        ]);
+    
         return response()->json([
-            'chat' => $_p,
+            'chat' => $response,
         ]);
     }
-
+    
     public function messengerReply(Request $request)
     {
-        /*$ch = curl_init();
-        
-        $url = 'https://graph.facebook.com/v18.0/'.config('services.facebook.account_id').'/messages?recipient={id:'.intval($request->pid).'}&message={text:"i am string"}&messaging_type=RESPONSE&access_token='.env("FB_USER_ACCESS_TOKEN");
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-
-        $result = curl_exec($ch);
-        if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
-        }
-        curl_close($ch);
-        dd($result);
-        $resp = json_decode($result);
-        */
-
         $accessToken = config('services.facebook.access_token');
 
         $url = "https://graph.facebook.com/v18.0/" . config('services.facebook.account_id') . "/messages";

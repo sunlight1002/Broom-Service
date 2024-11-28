@@ -53,7 +53,7 @@ class CheckOnceInMonthJobForInvoice extends Command
             $job = $order->jobs[0];
 
             if ($job->is_one_time_in_month_job) {
-                GenerateJobInvoice::dispatch($order->id)
+                GenerateJobInvoice::dispatch($order->id, null)
                     ->delay(now()->addMinutes(1 + (($key) * 2)));
             }
         }

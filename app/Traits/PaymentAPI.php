@@ -14,9 +14,11 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
 
 trait PaymentAPI
 {
+    use ICountDocument;
     private function validateCard($cardData)
     {
         $zcreditTerminalNumber = Setting::query()
@@ -341,8 +343,35 @@ trait PaymentAPI
     }
 
     // Same API but different configuration for 'order' doctype.
-    private function generateOrderDocument($client, $items, $duedate, $data)
+    private function generateOrderDocument($client, $items, $duedate, $data, $jobId = null, $serviceDate)
     {
+        \Log::info($serviceDate);
+        \Log::info("generateOrderDocument");
+        $requestData = [
+            'data' => [
+                'firstname' => $client['firstname'] ?? null,
+                'lastname' => $client['lastname'] ?? null,
+                'id' => $client['id'] ?? null,
+                'phone' => $client['phone'] ?? null,
+                'email' => $client['email'] ?? null,
+                'vat_number' => $client['vat_number'] ?? null,
+                'status' => $client['status'] ?? null,
+                'invoicename' => $client['invoicename'] ? $client['invoicename'] : ($client['firstname'] ." " . $client['lastname']),
+            ],
+        ];
+        // Wrap the data in a Request object
+        $request = new Request($requestData);
+
+        // Call createOrUpdateUser with the constructed Request
+        $iCountResponse = $this->createOrUpdateUser($request);
+
+        $iCountData = $iCountResponse->json();
+
+        // Update client with iCount client_id
+        if (isset($iCountData['client_id'])) {
+            $client->update(['icount_client_id' => $iCountData['client_id']]);
+        }
+
         $address = $client->property_addresses()->first();
 
         $iCountCompanyID = Setting::query()
@@ -359,7 +388,12 @@ trait PaymentAPI
 
         $totalsum = 0;
         foreach ($items as $key => $item) {
-            $totalsum = $totalsum + ($item['unitprice'] * $item['quantity']);
+            $totalsum += $totalsum + ($item['unitprice'] * $item['quantity']);
+        }
+
+        if ($totalsum == 0) {
+            \Log::info("Document skipped as totalsum is 0.");
+            return null; // Or handle the situation as needed
         }
 
         $discount = 0;
@@ -383,6 +417,7 @@ trait PaymentAPI
             "client_address" => $address ? $address->geo_address : '',
             "currency_code" => "ILS",
             "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
+            "doc_date" => $serviceDate,
             "items" => $items,
             "totalsum" => $totalsum,
             "discount" => $discount,
@@ -458,6 +493,7 @@ trait PaymentAPI
         $order = Order::create([
             'order_id'          => $json['docnum'],
             'doc_url'           => $json['doc_url'],
+            'job_id'            => $jobId,
             'client_id'         => $client->id,
             'response'          => json_encode($json, true),
             'items'             => json_encode($items),
@@ -621,35 +657,48 @@ trait PaymentAPI
 
     private function generateInvoiceDocument(
         $client,
-        $order,
+        $orders,
         $duedate,
         $otherInvDocOptions
     ) {
         $address = $client->property_addresses()->first();
-
+    
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
             ->value('value');
-
+    
         $iCountUsername = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
             ->value('value');
-
+    
         $iCountPassword = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
             ->value('value');
-
-        $items = json_decode($order->items, true);
-        $totalsum = $order->amount;
-
-        $discount = $order->discount_amount;
+    
+        // Consolidate items and totals from all orders
+        $items = [];
+        $totalsum = 0;
+        $discount = 0;
+    
+        foreach ($orders as $order) {
+            if ($order->amount == 0) {
+                \Log::info('order', $order->id);
+                continue;
+            }
+        
+            $orderItems = json_decode($order->items, true); // Decode items per order
+            $items = array_merge($items, $orderItems); // Merge items from all orders
+            $totalsum += $order->amount;
+            $discount += $order->discount_amount;
+        }
+    
         $total = $totalsum - $discount;
         $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
-
+    
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
-
+    
         $postData = [
-            "cid"  => $iCountCompanyID,
+            "cid" => $iCountCompanyID,
             "lang" => ($client->lng == 'heb') ? 'he' : 'en',
             "user" => $iCountUsername,
             "pass" => $iCountPassword,
@@ -672,29 +721,31 @@ trait PaymentAPI
             "email_to" => $client->email,
             "cc" => isset($otherInvDocOptions['cc']) ? $otherInvDocOptions['cc'] : [],
         ];
-
+    
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
         ])->post(
             $url,
             $postData
         );
-
+    
         $json = $response->json();
         $http_code = $response->status();
-
+    
         if ($http_code != 200) {
             throw new Exception('Error : Failed to create invoice document');
         }
-
+    
         if (!$json["status"]) {
             throw new Exception($json["reason"], 500);
         }
-
+    
         $documentInfoJson = $this->getICountDocument($json['docnum'], 'invoice');
-
+    
         return $documentInfoJson;
     }
+    
+
 
     private function generateInvRecDocument(
         $client,
@@ -705,6 +756,8 @@ trait PaymentAPI
         $discount
     ) {
         $address = $client->property_addresses()->first();
+        // \Log::info($items);
+        \Log::info("items");
 
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
@@ -718,8 +771,12 @@ trait PaymentAPI
             ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
             ->value('value');
 
+        // \Log::info("totalsum".$totalsum);
+        // \Log::info("discount".$discount);
         $total = $totalsum - $discount;
+        // \Log::info("total".$total);
         $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
+        // \Log::info("roundup".$roundup);
 
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
 
@@ -817,7 +874,7 @@ trait PaymentAPI
             'original_zcredit_reference_number' => "",
             'items' => $pay_items
         ]);
-        \Log::info(['captureChargeResponse' => $captureChargeResponse]);
+        // \Log::info(['captureChargeResponse' => $captureChargeResponse]);
 
         if (!$captureChargeResponse['HasError']) {
             $transaction->update([

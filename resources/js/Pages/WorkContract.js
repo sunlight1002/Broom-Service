@@ -11,6 +11,7 @@ import swal from 'sweetalert';
 import Moment from 'moment';
 import { useTranslation } from 'react-i18next';
 import { Base64 } from 'js-base64';
+import FullPageLoader from '../Components/common/FullPageLoader'
 
 export default function WorkContract() {
 
@@ -25,6 +26,7 @@ export default function WorkContract() {
     const [signature, setSignature] = useState(null);
     const [signature2, setSignature2] = useState(null);
     const [Aaddress, setAaddress] = useState(null);
+    const [loading, setLoading] = useState(false)
     const [ctype, setCtype] = useState("");
     const [cname, setCname] = useState("");
     const [cvv, setCvv] = useState("");
@@ -132,6 +134,10 @@ export default function WorkContract() {
                         document.querySelector("html").setAttribute("dir", "rtl");
                     } else {
                         document.querySelector("html").removeAttribute("dir");
+                        const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                        if (rtlLink) {
+                            rtlLink.remove();
+                        }
                     }
                 } catch (error) {
                     console.log(error);
@@ -610,6 +616,7 @@ export default function WorkContract() {
                     </div>
                 </div>
             </div>
+            <FullPageLoader visible={loading} />
         </div>
     );
 }

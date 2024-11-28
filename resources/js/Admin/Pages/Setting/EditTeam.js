@@ -11,7 +11,7 @@ export default function EditTeam() {
     const [name, setName] = useState(null);
     const [hebname, setHebName] = useState(null);
     const [email, setEmail] = useState(null);
-    const [phone, setPhone] = useState(null);
+    const [phone, setPhone] = useState(" ");
     const [address, setAddress] = useState(null);
     const [password, setPassword] = useState(null);
     const [confirmPassword, setConfirmPassword] = useState(null);
@@ -51,6 +51,7 @@ export default function EditTeam() {
     const handleUpdate = (e) => {
         e.preventDefault()
         setLoading(true);
+
         const data = {
             name: name,
             heb_name: hebname,
@@ -191,8 +192,14 @@ export default function EditTeam() {
                                         <PhoneInput
                                             country={'il'}
                                             value={phone}
-                                            onChange={(phone) => {
-                                                 setPhone(phone);
+                                            onChange={(phone, country) => {
+                                                // Remove leading '0' after country code
+                                                const dialCode = country.dialCode;
+                                                let formattedPhone = phone;
+                                                if (phone.startsWith(dialCode + '0')) {
+                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                }
+                                                setPhone(formattedPhone);
                                             }}
                                             inputClass="form-control"
                                             inputProps={{

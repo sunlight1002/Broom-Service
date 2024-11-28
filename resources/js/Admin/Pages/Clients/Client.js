@@ -18,24 +18,18 @@ import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeStatusModal from "../../Components/Modals/ChangeStatusModal";
 import { leadStatusColor } from "../../../Utils/client.utils";
-
+import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Clients() {
 
     const location = useLocation();
     const params = new URLSearchParams(location.search);
     const type = params.get("type");
-    console.log(type); 
-    
-
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
     const [changeStatusModal, setChangeStatusModal] = useState({
         isOpen: false,
         id: 0,
-    });
-    const [filters, setFilters] = useState({
-        action: "past",
     });
 
     const tableRef = useRef(null);
@@ -43,6 +37,20 @@ export default function Clients() {
 
     const alert = useAlert();
     const { t, i18n } = useTranslation();
+
+    const [filter, setFilter] = useState('All');
+
+    const leadStatuses = [
+        t("admin.client.Potential"),
+        t("admin.client.Waiting_client"),
+        t("admin.client.Active_client"),
+        t("admin.client.Freeze_client"),
+        t("admin.client.Past_client"),
+    ];
+    
+    const [filters, set_Filters] = useState({
+        action: "past",
+    });
 
     const statusArr = type === "past"
         ? {
@@ -75,7 +83,8 @@ export default function Clients() {
                     },
                     data: function (d) {
                         d.type = type;
-                        d.action = filters.action; // Filter by the selected action (status filter)
+                        d.action = filters.action;
+                        d.lead_status = filter === "All" ? "" : filter;
                     },
                 },
                 order: [[0, "desc"]],
@@ -283,16 +292,28 @@ export default function Clients() {
             });
     };
 
-    useEffect(() => {
-        if (type == "past") {
-            $(tableRef.current).DataTable().column(4).search(filters.action).draw();
-        } else if(type == "all"){
-            $(tableRef.current).DataTable().column(4).search('').draw();
-        }else{
-            $(tableRef.current).DataTable().column(4).search(type).draw();
-        }
-    }, [type, filters]);
+    // useEffect(() => {
+    //     if (type == "past") {
+    //         $(tableRef.current).DataTable().column(4).search(filters.action).draw();
+    //     } else if(type == "all"){
+    //         $(tableRef.current).DataTable().column(4).search('').draw();
+    //     }else{
+    //         $(tableRef.current).DataTable().column(4).search(type).draw();
+    //     }
+    // }, [type, filters]);
 
+    useEffect(() => {
+        const dataTable = $(tableRef.current).DataTable();
+    
+        if (filter === "All") {
+            dataTable.column(4).search("").draw(); // Show all records when "All" filter is selected
+        } else {
+            dataTable.column(4).search(filter).draw(); // Filter by selected lead status
+        }
+    
+        dataTable.ajax.reload(); // Reload data with the new filter
+    }, [filter]); // Trigger this effect when the `filter` state changes
+    
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",
@@ -436,7 +457,7 @@ export default function Clients() {
                                         <button
                                             className="dropdown-item"
                                             onClick={(e) => {
-                                                setFilters({
+                                                set_Filters({
                                                     action: "past",
                                                 });
                                             }}
@@ -446,7 +467,7 @@ export default function Clients() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setFilters({
+                                                set_Filters({
                                                     action: "unhappy",
                                                 });
                                             }}
@@ -456,7 +477,7 @@ export default function Clients() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setFilters({
+                                                set_Filters({
                                                     action: "price issue",
                                                 });
                                             }}
@@ -466,7 +487,7 @@ export default function Clients() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setFilters({
+                                                set_Filters({
                                                     action: "moved",
                                                 });
                                             }}
@@ -476,7 +497,7 @@ export default function Clients() {
                                         <button
                                             className="dropdown-item"
                                             onClick={() => {
-                                                setFilters({
+                                                set_Filters({
                                                     action: "one-Time",
                                                 });
                                             }}
@@ -528,57 +549,57 @@ export default function Clients() {
                                 <div className="mr-3" style={{ fontWeight: "bold" }}>
                                     Status
                                 </div>
-                                <FilterButtons
+                                <Filter_Buttons
                                     text="Past"
                                     className="px-3 mr-1"
                                     value="past"
                                     onClick={() => {
-                                        setFilters({
+                                        set_Filters({
                                             action: "past",
                                         });
                                     }}
                                     selectedFilter={filters.action}
                                 />
 
-                                <FilterButtons
+                                <Filter_Buttons
                                     text="Unhappy"
                                     value="unhappy"
                                     className="px-3 mr-1"
                                     onClick={() => {
-                                        setFilters({
+                                        set_Filters({
                                             action: "unhappy",
                                         });
                                     }}
                                     selectedFilter={filters.action}
                                 />
-                                <FilterButtons
+                                <Filter_Buttons
                                     text="Price issue"
                                     className="px-3 mr-1"
                                     value="price issue"
                                     onClick={() => {
-                                        setFilters({
+                                        set_Filters({
                                             action: "price issue",
                                         });
                                     }}
                                     selectedFilter={filters.action}
                                 />
-                                <FilterButtons
+                                <Filter_Buttons
                                     text="Moved"
                                     className="px-3 mr-1"
                                     value="moved"
                                     onClick={() => {
-                                        setFilters({
+                                        set_Filters({
                                             action: "moved",
                                         });
                                     }}
                                     selectedFilter={filters.action}
                                 />
-                                <FilterButtons
+                                <Filter_Buttons
                                     text="One-Time"
                                     className="px-3 mr-1"
                                     value="one-Time"
                                     onClick={() => {
-                                        setFilters({
+                                        set_Filters({
                                             action: "one-Time",
                                         });
                                     }}
@@ -588,7 +609,31 @@ export default function Clients() {
                         </div>
                     )
                 }
-                <div className="card" style={{ boxShadow: "none" }}>
+                {/* Integrating new FilterButtons section here */}
+            <div className="col-sm-12">
+                <FilterButtons
+                    text={t("admin.leads.All")}
+                    className="px-3 mr-1"
+                    selectedFilter={filter}
+                    setselectedFilter={(status) => {
+                        setFilter(status);
+                    }}
+                />
+                {leadStatuses.map((_status, _index) => {
+                    return (
+                        <FilterButtons
+                            text={_status}
+                            className="px-3 mr-1"
+                            key={_index}
+                            selectedFilter={filter}
+                            setselectedFilter={(status) => {
+                                setFilter(status);
+                            }}
+                        />
+                    );
+                })}
+            </div>
+          <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body px-0">
                         <div className="boxPanel">
                             <table
@@ -648,7 +693,7 @@ export default function Clients() {
         </div>
     );
 }
-const FilterButtons = ({ text, className, selectedFilter, onClick, value }) => (
+const Filter_Buttons = ({ text, className, selectedFilter, onClick, value }) => (
     <button
         className={`btn border rounded ${className}`}
         style={

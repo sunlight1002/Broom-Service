@@ -38,7 +38,6 @@ export default function AddLead() {
 
     const navigate = useNavigate();
 
-
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -48,12 +47,7 @@ export default function AddLead() {
     const handleFormSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-        // var phoneClc = "";
-        // var phones = document.querySelectorAll(".pphone");
-        // phones.forEach((p, i) => {
-        //     phoneClc += p.value + ",";
-        // });
-        // phoneClc = phoneClc.replace(/,\s*$/, "");
+
         axios
             .post(
                 `/api/admin/leads`,
@@ -132,8 +126,6 @@ export default function AddLead() {
         setExtra(extraValues);
     };
 
-    // console.log(formValues?.lng);
-    
     return (
         <div id="container">
             <Sidebar />
@@ -322,10 +314,16 @@ export default function AddLead() {
                                                 <PhoneInput
                                                     country={'il'}
                                                     value={formValues.phone}
-                                                    onChange={(phone) => {
+                                                    onChange={(phone, country) => {
+                                                        // Remove leading '0' after country code
+                                                        const dialCode = country.dialCode;
+                                                        let formattedPhone = phone;
+                                                        if (phone.startsWith(dialCode + '0')) {
+                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                        }
                                                         setFormValues({
                                                             ...formValues,
-                                                            phone: phone,
+                                                            phone: formattedPhone,
                                                         });
                                                     }}
                                                     inputClass="form-control"
@@ -347,7 +345,7 @@ export default function AddLead() {
                                                 {t(
                                                     "admin.leads.AddLead.PrimaryEmail"
                                                 )}{" "}
-                                                
+
                                             </label>
                                             <div className="d-flex flex-column w-100">
 
@@ -713,7 +711,15 @@ export default function AddLead() {
                                                             <PhoneInput
                                                                 country={'il'}
                                                                 value={ex.phone || ""}
-                                                                onChange={(value) => handleAlternatePhone(i, value)}
+                                                                onChange={(phone, country) => {
+                                                                    // Remove leading '0' after country code
+                                                                    const dialCode = country.dialCode;
+                                                                    let formattedPhone = phone;
+                                                                    if (phone.startsWith(dialCode + '0')) {
+                                                                      formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                    }
+                                                                    handleAlternatePhone(i, formattedPhone)
+                                                                }}
                                                                 inputClass="form-control"
                                                                 inputProps={{
                                                                     name: 'phone',

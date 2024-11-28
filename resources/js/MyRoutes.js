@@ -41,6 +41,7 @@ import WorkerTotalJobs from "./Worker/Pages/Job/WorkerTotalJobs";
 import WorkerViewJob from "./Worker/Pages/Job/WorkerViewJob";
 import HearingInvitation from "./Admin/Components/Workers/HearingInvitationForm";
 import Hearing from "./Worker/Pages/Hearing/Hearing";
+import Protocol from "./Worker/Pages/Protocol/Protocol";
 import Availability from "./Worker/Pages/Availability/Availability";
 import NotAvailability from "./Worker/Pages/Availability/NotAvailability";
 import SickLeaves from "./Worker/Pages/MyAccount/SickLeaves";
@@ -52,6 +53,7 @@ import AdvanceLoan from "./Worker/Pages/MyAccount/AdvanceLoan";
 import Admin from "./Admin/Admin";
 import AdminDashboard from "./Admin/Dashboard";
 import TotalJobs from "./Admin/Pages/Jobs/TotalJobs";
+// import ChangeWorkerRequestList from "./Admin/Pages/Jobs/ChangeWorkerRequests/ChangeWorkerRequestList";
 import CreateJob from "./Admin/Pages/Jobs/CreateJob";
 import CreateClientJob from "./Admin/Pages/Jobs/CreateClientJob";
 import ChangeWorker from "./Admin/Pages/Jobs/ChangeWorker";
@@ -74,6 +76,7 @@ import WorkersRefund from "./Admin/Pages/Workers/WorkersRefund";
 import WorkerTermination from "./Admin/Components/Workers/WorkerTermination";
 import WorkersHearing from "./Admin/Components/Workers/WorkersHearing";
 import ViewHearing from "./Admin/Pages/Hearing/ViewHearing";
+import Claim from "./Admin/Components/Workers/Claim";
 import HearingProtocol from "./Admin/Components/Workers/HearingProtocol";
 import ViewWorker from "./Admin/Pages/Workers/ViewWorker";
 import ViewWorkerContract from "./Admin/Pages/Workers/WorkerContract";
@@ -173,9 +176,11 @@ import AddHoliday from "./Admin/Pages/Setting/AddHoliday";
 import EditHoliday from "./Admin/Pages/Setting/EditHoliday";
 import WorkerLead from "./Admin/Pages/Workers/WorkerLead";
 import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
+// import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
 import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
+import ManpowerSaftyForm from "./Pages/ManpowerSaftyForm";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -313,6 +318,11 @@ export default function MyRoutes() {
                         path="insurance-form/:id"
                         element={<InsuranceForm />}
                     />
+                    <Route
+                        exact
+                        path="manpower-safty-form/:id"
+                        element={<ManpowerSaftyForm />}
+                    />
                     <Route exact path="calendar" element={<CalendarTeam />} />
                     <Route
                         exact
@@ -416,6 +426,11 @@ export default function MyRoutes() {
                                 path="/client/jobs/:id/change-schedule"
                                 element={<ChangeSchedule />}
                             />
+                            {/* <Route
+                                exact
+                                path="/client/jobs/:id/change-worker-request"
+                                element={<ChangeWorkerRequest />}
+                            /> */}
                             <Route
                                 exact
                                 path="/client/settings"
@@ -459,6 +474,11 @@ export default function MyRoutes() {
                                 exact
                                 path="hearing"
                                 element={<Hearing />}
+                            />
+                            <Route
+                                exact
+                                path="protocol"
+                                element={<Protocol />}
                             />
                             <Route
                                 exact
@@ -535,6 +555,11 @@ export default function MyRoutes() {
                                 element={<AdminDashboard />}
                             />
                             <Route exact path="jobs" element={<TotalJobs />} />
+                            {/* <Route
+                                exact
+                                path="jobs/change-worker-requests"
+                                element={<ChangeWorkerRequestList />}
+                            /> */}
                             <Route
                                 exact
                                 path="schedule-requests"
@@ -662,6 +687,16 @@ export default function MyRoutes() {
                                 exact
                                 path="workers/view/:id/hearing-invitation"
                                 element={<HearingInvitation />}
+                            />
+                            <Route
+                                exact
+                                path="workers/view/:id/upload-claim"
+                                element={<HearingProtocol />}
+                            />
+                            <Route
+                                exact
+                                path="workers/view/:workerId/hearing-invitation/:hid/create-claim"
+                                element={<Claim />}
                             />
                             <Route
                                 exact

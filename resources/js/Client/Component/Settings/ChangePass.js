@@ -18,7 +18,7 @@ export default function ChangePass() {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("client-token"),
-    };
+    };    
 
     const togglePasswordVisibility = (type) => {
         switch (type) {
