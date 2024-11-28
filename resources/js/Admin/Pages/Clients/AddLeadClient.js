@@ -79,11 +79,6 @@ export default function AddLeadClient() {
             services: JSON.stringify(formValues),
         };
 
-        const sanitizedPhone = formValues.phone.replace(
-            /(?<=^\+?\d+)\s*0+/,
-            ""
-        );
-
         const data = {
             firstname: firstname,
             lastname: lastname == null ? "" : lastname,
@@ -93,7 +88,7 @@ export default function AddLeadClient() {
             lng: lng ? lng : "heb",
             color: !color ? "#fff" : color,
             email: email,
-            phone: sanitizedPhone,
+            phone: phone,
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
