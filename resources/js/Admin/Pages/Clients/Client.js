@@ -47,7 +47,7 @@ export default function Clients() {
         t("admin.client.Freeze_client"),
         t("admin.client.Past_client"),
     ];
-    
+
     const [filters, set_Filters] = useState({
         action: "past",
     });
@@ -64,7 +64,6 @@ export default function Clients() {
             "freeze client": t("admin.client.Freeze_client"),
             "active client": t("admin.client.Active_client"),
         };
-
 
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -292,28 +291,16 @@ export default function Clients() {
             });
     };
 
-    // useEffect(() => {
-    //     if (type == "past") {
-    //         $(tableRef.current).DataTable().column(4).search(filters.action).draw();
-    //     } else if(type == "all"){
-    //         $(tableRef.current).DataTable().column(4).search('').draw();
-    //     }else{
-    //         $(tableRef.current).DataTable().column(4).search(type).draw();
-    //     }
-    // }, [type, filters]);
-
     useEffect(() => {
-        const dataTable = $(tableRef.current).DataTable();
-    
-        if (filter === "All") {
-            dataTable.column(4).search("").draw(); // Show all records when "All" filter is selected
-        } else {
-            dataTable.column(4).search(filter).draw(); // Filter by selected lead status
+        if (type == "past") {
+            $(tableRef.current).DataTable().column(4).search(filters.action).draw();
+        } else if(type == "all"){
+            $(tableRef.current).DataTable().column(4).search('').draw();
+        }else{
+            $(tableRef.current).DataTable().column(4).search(type).draw();
         }
-    
-        dataTable.ajax.reload(); // Reload data with the new filter
-    }, [filter]); // Trigger this effect when the `filter` state changes
-    
+    }, [type, filters]);
+
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",
@@ -502,7 +489,7 @@ export default function Clients() {
                                                 });
                                             }}
                                         >
-                                           One-Time
+                                            One-Time
                                         </button>
                                         <button
                                             className="dropdown-item"
@@ -610,30 +597,34 @@ export default function Clients() {
                     )
                 }
                 {/* Integrating new FilterButtons section here */}
-            <div className="col-sm-12">
-                <FilterButtons
-                    text={t("admin.leads.All")}
-                    className="px-3 mr-1"
-                    selectedFilter={filter}
-                    setselectedFilter={(status) => {
-                        setFilter(status);
-                    }}
-                />
-                {leadStatuses.map((_status, _index) => {
-                    return (
-                        <FilterButtons
-                            text={_status}
-                            className="px-3 mr-1"
-                            key={_index}
-                            selectedFilter={filter}
-                            setselectedFilter={(status) => {
-                                setFilter(status);
-                            }}
-                        />
-                    );
-                })}
-            </div>
-          <div className="card" style={{ boxShadow: "none" }}>
+                {
+                    type != "past" && (
+                        <div className="col-sm-12">
+                            <FilterButtons
+                                text={t("admin.leads.All")}
+                                className="px-3 mr-1"
+                                selectedFilter={filter}
+                                setselectedFilter={(status) => {
+                                    setFilter(status);
+                                }}
+                            />
+                            {leadStatuses.map((_status, _index) => {
+                                return (
+                                    <FilterButtons
+                                        text={_status}
+                                        className="px-3 mr-1"
+                                        key={_index}
+                                        selectedFilter={filter}
+                                        setselectedFilter={(status) => {
+                                            setFilter(status);
+                                        }}
+                                    />
+                                );
+                            })}
+                        </div>
+                    )
+                }
+                <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body px-0">
                         <div className="boxPanel">
                             <table
