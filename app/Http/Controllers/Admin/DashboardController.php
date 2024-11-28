@@ -311,7 +311,6 @@ class DashboardController extends Controller
             $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->client->id . "'>" . $notice->client->firstname . " " . $notice->client->lastname .
               "</a> has been failed";
           } else if ($notice->type == NotificationTypeEnum::PAYMENT_PAID) {
-            \Log::info(['notice' => $notice]);
             $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->client->id . "'>" . $notice->client->firstname . " " . $notice->client->lastname .
               "</a> has been paid";
           } else if ($notice->type == NotificationTypeEnum::PAYMENT_PARTIAL_PAID) {
