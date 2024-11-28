@@ -181,6 +181,7 @@ import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
 import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
 import ManpowerSaftyForm from "./Pages/ManpowerSaftyForm";
+import AllForms from "./Pages/Form101/AllForms";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -302,6 +303,16 @@ export default function MyRoutes() {
                         exact
                         path="form101/:id/:formId"
                         element={<Form101 />}
+                    />
+                    <Route
+                        exact
+                        path="forms/:id"
+                        element={<AllForms />}
+                    />
+                     <Route
+                        exact
+                        path="forms/:id/:formId"
+                        element={<AllForms />}
                     />
                     <Route
                         exact
