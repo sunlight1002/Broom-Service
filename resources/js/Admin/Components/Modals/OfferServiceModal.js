@@ -631,6 +631,10 @@ export default function OfferServiceModal({
     }, [offerServiceTmp]);
 
     const checkValidation = (_formValues) => {
+        if (_formValues.address == "") {
+            alert.error("The address is not selected");
+            return false;
+        }
         return true;
     };
 
