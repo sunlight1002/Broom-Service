@@ -1,3 +1,5 @@
+//nonIsraeliContract
+
 import React, { useEffect, useRef, useState } from "react";
 import { Table } from "react-bootstrap";
 import * as yup from "yup";
@@ -9,6 +11,7 @@ import TextField from "../../../Pages/Form101/inputElements/TextField";
 import DateField from "../../../Pages/Form101/inputElements/DateField";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
+import { GrFormNextLink, GrFormPreviousLink } from "react-icons/gr";
 
 export function NonIsraeliContract({
     handleFormSubmit,
@@ -17,7 +20,11 @@ export function NonIsraeliContract({
     isSubmitted,
     isGeneratingPDF,
     contentRef,
+    nextStep,
+    setNextStep
 }) {
+console.log(nextStep, "nextStep nonIsraeliContract");
+    
     const sigRef1 = useRef();
     const sigRef2 = useRef();
     const sigRef3 = useRef();
@@ -26,12 +33,13 @@ export function NonIsraeliContract({
     const companySigRef2 = useRef();
     const { t } = useTranslation();
     const [formValues, setFormValues] = useState(null);
+    const [savingType, setSavingType] = useState("submit");
 
     const currentDate = moment().format("YYYY-MM-DD");
 
     const initialValues = {
         fullName: "",
-        IdNumber: "",
+        passport: "",
         Address: "",
         startDate: "",
         signatureDate1: currentDate,
@@ -47,78 +55,57 @@ export function NonIsraeliContract({
         role: "",
     };
 
-    const formSchema = yup.object(workerDetail.passport? {
-        fullName: yup
+
+    const scrollToError = (errors) => {
+        const errorFields = Object.keys(errors);
+        if (errorFields.length > 0) {
+            const firstErrorField = errorFields[0];
+            const errorElement = document.getElementById(firstErrorField);
+            if (errorElement) {
+                errorElement.scrollIntoView({ behavior: "smooth" });
+                errorElement.focus();
+            }
+        }
+    };
+
+    const formSchema = {
+        step5: yup.object({
+            fullName: yup
             .string()
             .trim()
             .required(t("nonIsrailContract.errorMsg.FullName")),
-        // role: yup
-        //     .string()
-        //     .trim()
-        //     .required(t("nonIsrailContract.errorMsg.Role")),
-        IdNumber: yup
-            .string()
-            .trim(),
-        Address: yup
-            .string()
-            .trim()
-            .required(t("nonIsrailContract.errorMsg.address")),
-        startDate: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.startDate")),
-        signatureDate1: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.Date")),
-        signatureDate2: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.Date")),
-        signatureDate3: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.Date")),
-        signatureDate4: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.Date")),
-        signature1: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
-        signature2: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
-        signature3: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
-        signature4: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
-    }: {
-        fullName: yup
-            .string()
-            .trim()
-            .required(t("nonIsrailContract.errorMsg.FullName")),
-        // role: yup
-        //     .string()
-        //     .trim()
-        //     .required(t("nonIsrailContract.errorMsg.Role")),
-        passport: yup
-            .string()
-            .trim()
-            .required(t("nonIsrailContract.errorMsg.passportNumReq")),
-        Address: yup
-            .string()
-            .trim()
-            .required(t("nonIsrailContract.errorMsg.address")),
-        startDate: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.startDate")),
-        signatureDate1: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.Date")),
-        signatureDate2: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.Date")),
-        signatureDate3: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.Date")),
-        signatureDate4: yup
-            .date()
-            .required(t("nonIsrailContract.errorMsg.Date")),
-        signature1: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
-        signature2: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
-        signature3: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
-        signature4: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
-    });
+            passport: yup
+                .string()
+                .trim()
+                .required(t("nonIsrailContract.errorMsg.passportNumReq")),
+            startDate: yup
+                .date()
+                .required(t("nonIsrailContract.errorMsg.startDate")),
+            signatureDate1: yup
+                .date()
+                .required(t("nonIsrailContract.errorMsg.Date")),
+            signature1: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+
+        }),
+        step6: yup.object({
+            Address: yup
+                .string()
+                .trim()
+                .required(t("nonIsrailContract.errorMsg.address")),
+            signatureDate2: yup
+                .date()
+                .required(t("nonIsrailContract.errorMsg.Date")),
+            signatureDate3: yup
+                .date()
+                .required(t("nonIsrailContract.errorMsg.Date")),
+            signatureDate4: yup
+                .date()
+                .required(t("nonIsrailContract.errorMsg.Date")),
+            signature2: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+            signature3: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+            signature4: yup.mixed().required(t("nonIsrailContract.errorMsg.sign")),
+        })
+    }
 
     const {
         errors,
@@ -129,14 +116,20 @@ export function NonIsraeliContract({
         values,
         setFieldValue,
         isSubmitting,
+        validateForm
     } = useFormik({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
-        validationSchema: formSchema,
-        onSubmit: (values) => {
+        validationSchema: formSchema[`step${nextStep}`], // Use dynamic schema based on current step
+        onSubmit: (values) => {            
             handleFormSubmit(values);
+            // setNextStep(prev => prev+1)
+            // if (workerDetail?.is_existing_worker) {
+            //     setNextStep(prev => prev + 1)
+            // }
         },
     });
+    
 
     useEffect(() => {
         if (isSubmitted) {
@@ -206,216 +199,187 @@ export function NonIsraeliContract({
         setFieldValue("companySignature2", "");
     };
 
-    return (
-        <div className="container targetDiv" ref={contentRef}>
-            <div id="content">
-                <div className="mt-4">
-                    <form onSubmit={handleSubmit}>
-                        <div className="text-center">
-                            <h5>
-                                <strong>
-                                    <u>{t("nonIsrailContract.title1")}</u>
-                                </strong>
-                            </h5>
+    useEffect(() => {
+        console.log(errors);
 
-                            <p className="mt-2">
-                                {t("nonIsrailContract.title2")}
-                            </p>
-                        </div>
-                        <div>
-                            <ol
-                                className="mt-5 lh-lg text-justify"
-                                style={{ fontSize: "16px" }}
-                            >
-                                <li>
-                                    <strong>
-                                        {t("nonIsrailContract.nic1")}
-                                    </strong>
-                                    <div className="row gap-3">
-                                        <div className="col-6">
-                                            <TextField
-                                                name={"fullName"}
-                                                onBlur={handleBlur}
-                                                onChange={handleChange}
-                                                label={t(
-                                                    "nonIsrailContract.empName"
-                                                )}
-                                                value={values.fullName}
-                                                required={true}
-                                                readonly={true}
-                                                error={
-                                                    touched.fullName &&
-                                                    errors.fullName
-                                                }
-                                            />
+    }, [errors])
+
+    const handleNextPrev = async (e) => {
+        e.preventDefault();
+        
+        // Validate the current step
+        const validationErrors = await validateForm(); // This will populate the `errors` object
+        
+        // Check if page 7 exists based on the conditions
+        const pageSevenExists = (workerDetail.country !== "Israel" && workerDetail.is_existing_worker !== 1);
+        
+        // If there are no validation errors
+        if (!Object.keys(validationErrors).length) {
+            if (nextStep === 5) {
+                // Set saving type based on the condition
+                if (pageSevenExists) {
+                    setSavingType("draft"); // If page 7 exists, save as draft
+                } else {
+                    setSavingType("submit"); // If page 7 doesn't exist, submit on step 6
+                }
+                // Move to Step 6 if Step 5 has no validation errors
+                setNextStep(6);
+            } else if (nextStep === 6) {
+                // Set saving type to "submit" if we are on Step 6 or beyond
+                setSavingType("submit");
+                // Submit the form if Step 6 has no validation errors
+                handleSubmit();
+            }
+        } else {
+            // Scroll to error if validation fails
+            scrollToError(validationErrors);
+            handleSubmit();
+        }
+    };
+    
+    
+
+
+    return (
+        <div className="mt-5 targetDiv" ref={contentRef}>
+            <div className="">
+                <p className="navyblueColor font-30 mt-4 font-w-500">{t("nonIsrailContract.title1")}</p>
+                <p className="mt-2">{t("nonIsrailContract.title2")}</p>
+            </div>
+            <form onSubmit={handleNextPrev}>
+                {
+                    nextStep === 5 && (
+                        <div className="row">
+                            <section className="col pl-0">
+                                <ol
+                                    className="mt-5 lh-lg text-justify"
+                                    style={{ fontSize: "16px" }}
+                                >
+                                    <li>
+                                        <strong>
+                                            {t("nonIsrailContract.nic1")}
+                                        </strong>
+                                        <div className="row gap-3">
+                                            <div className="col-6">
+                                                <TextField
+                                                    name={"fullName"}
+                                                    onBlur={handleBlur}
+                                                    onChange={handleChange}
+                                                    label={t(
+                                                        "nonIsrailContract.empName"
+                                                    )}
+                                                    value={values.fullName}
+                                                    required={true}
+                                                    readonly={true}
+                                                    error={
+                                                        touched.fullName &&
+                                                        errors.fullName
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="col-6">
+                                                <TextField
+                                                    name={"passport"}
+                                                    onBlur={handleBlur}
+                                                    onChange={handleChange}
+                                                    label={t(
+                                                        "nonIsrailContract.passport"
+                                                    )}
+                                                    value={values.passport}
+                                                    required={true}
+                                                    error={
+                                                        touched.IdNumber &&
+                                                        errors.passport
+                                                    }
+                                                    readonly={workerDetail.passport === null ? false : true}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="col-6">
-                                            <TextField
-                                                name={"passport"}
-                                                onBlur={handleBlur}
-                                                onChange={handleChange}
-                                                label={t(
-                                                    "nonIsrailContract.passport"
-                                                )}
-                                                value={values.passport}
-                                                required={true}
-                                                error={
-                                                    touched.IdNumber &&
-                                                    errors.passport
-                                                }
-                                                readonly={workerDetail.passport === null ? false : true}
-                                            />
-                                        </div>
-                                    </div>
-                                    <TextField
-                                        name={"Address"}
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                        label={t("nonIsrailContract.Address")}
-                                        value={values.Address}
-                                        readonly={true}
-                                        required={true}
-                                        error={
-                                            touched.Address && errors.Address
-                                        }
-                                    />
-                                </li>
-                                <li>
-                                    <DateField
-                                        name={"startDate"}
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                        label={t("nonIsrailContract.dateStart")}
-                                        value={values.startDate}
-                                        required={true}
-                                        error={
-                                            touched.startDate &&
-                                            errors.startDate
-                                        }
-                                    />
-                                    <p className="mb-2">
-                                        {t("nonIsrailContract.nic2")}
-                                    </p>
-                                </li>
-                                <li>
-                                    {t("nonIsrailContract.nic3-1")}
-                                    <TextField
-                                        name={"role"}
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                        label={t("nonIsrailContract.role")}
-                                        value={values.role}
-                                        required={true}
-                                        error={touched.role && errors.role}
-                                        readonly={true}
-                                    />
-                                    <p className="mb-2">
-                                        {t("nonIsrailContract.nic3-2")}
-                                    </p>
-                                </li>
-                                <li>
-                                    <p className="mb-2">
-                                        {t("nonIsrailContract.nic4")}
-                                    </p>
-                                </li>
-                                <li>
-                                    {workerDetail?.is_existing_worker ? (
+                                        <TextField
+                                            name={"Address"}
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}
+                                            label={t("nonIsrailContract.Address")}
+                                            value={values.Address}
+                                            readonly={true}
+                                            required={true}
+                                            error={
+                                                touched.Address && errors.Address
+                                            }
+                                        />
+                                    </li>
+                                    <li>
+                                        <DateField
+                                            name={"startDate"}
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}
+                                            label={t("nonIsrailContract.dateStart")}
+                                            value={values.startDate}
+                                            required={true}
+                                            error={
+                                                touched.startDate &&
+                                                errors.startDate
+                                            }
+                                        />
                                         <p className="mb-2">
-                                            {t("nonIsrailContract.nic5_new", {
-                                                payment_per_hour:
-                                                    workerDetail.payment_per_hour,
-                                            })}
+                                            {t("nonIsrailContract.nic2")}
                                         </p>
-                                    ) : (
+                                    </li>
+                                    <li>
+                                        {t("nonIsrailContract.nic3-1")}
+                                        <TextField
+                                            name={"role"}
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}
+                                            label={t("nonIsrailContract.role")}
+                                            value={values.role}
+                                            required={true}
+                                            error={touched.role && errors.role}
+                                            readonly={true}
+                                        />
                                         <p className="mb-2">
-                                            {t("nonIsrailContract.nic5", {
-                                                payment_per_hour:
-                                                    workerDetail.payment_per_hour,
-                                            })}
+                                            {t("nonIsrailContract.nic3-2")}
                                         </p>
-                                    )}
-                                    <ol>
+                                    </li>
+                                    <li>
+                                        <p className="mb-2">
+                                            {t("nonIsrailContract.nic4")}
+                                        </p>
+                                    </li>
+
+                                </ol>
+
+                            </section>
+                            <section className="col pl-0">
+                                <ol start="5" className="lh-lg text-justify" style={{ fontSize: "16px" }}>
+                                    <li>
+                                        {workerDetail?.is_existing_worker ? (
+                                            <p className="mb-2">
+                                                {t("nonIsrailContract.nic5_new", {
+                                                    payment_per_hour:
+                                                        workerDetail.payment_per_hour,
+                                                })}
+                                            </p>
+                                        ) : (
+                                            <p className="mb-2">
+                                                {t("nonIsrailContract.nic5", {
+                                                    payment_per_hour:
+                                                        workerDetail.payment_per_hour,
+                                                })}
+                                            </p>
+                                        )}
                                         <>
                                             {workerDetail?.is_existing_worker ? "" : (
-                                                <li>
-
-                                                    <p className="mb-2">
-                                                        {t(
-                                                            "nonIsrailContract.nic5_sub.nic5_sub1"
-                                                        )}
-                                                    </p>
-                                                </li>
+                                                <p className="mb-2">
+                                                    {"* "}{t(
+                                                        "nonIsrailContract.nic5_sub.nic5_sub1"
+                                                    )}
+                                                </p>
                                             )}
-                                            <div className="row">
+                                            <div className="d-flex align-items-center">
                                                 <div
                                                     className={
-                                                        "col-md-4 " +
-                                                        (isGeneratingPDF
-                                                            ? "col-4"
-                                                            : "")
-                                                    }
-                                                >
-                                                    {workerDetail?.is_existing_worker ? "" : (
-                                                        <p>
-                                                            <strong>
-                                                                {t(
-                                                                    "nonIsrailContract.nic5_sub.nic5_sub2"
-                                                                )}
-                                                            </strong>
-                                                        </p>
-                                                    )}
-                                                    {formValues &&
-                                                        formValues.signature1 ? (
-                                                        <img
-                                                            src={
-                                                                formValues.signature1
-                                                            }
-                                                        />
-                                                    ) : (
-                                                        <>
-                                                            <SignatureCanvas
-                                                                penColor="black"
-                                                                canvasProps={{
-                                                                    width: 250,
-                                                                    height: 100,
-                                                                    className:
-                                                                        "sign101 border mt-1",
-                                                                }}
-                                                                ref={sigRef1}
-                                                                onEnd={
-                                                                    handleSignatureEnd1
-                                                                }
-                                                            />
-                                                            {touched.signature1 &&
-                                                                errors.signature1 && (
-                                                                    <p className="text-danger">
-                                                                        {touched.signature1 &&
-                                                                            errors.signature1}
-                                                                    </p>
-                                                                )}
-
-                                                            {!isGeneratingPDF && (
-                                                                <div className="d-block">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn btn-warning mb-2"
-                                                                        onClick={
-                                                                            clearSignature1
-                                                                        }
-                                                                    >
-                                                                        {t(
-                                                                            "nonIsrailContract.nic5_sub.clear"
-                                                                        )}
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                </div>
-                                                <div className="col-5"></div>
-                                                <div
-                                                    className={
-                                                        "col-md-3 " +
+                                                        " " +
                                                         (isGeneratingPDF
                                                             ? "col-3"
                                                             : "")
@@ -439,698 +403,795 @@ export function NonIsraeliContract({
                                                         }
                                                     />
                                                 </div>
+                                                <div
+                                                    className={
+                                                        "" +
+                                                        (isGeneratingPDF
+                                                            ? "col-4"
+                                                            : "")
+                                                    }
+                                                    style={{ marginLeft: "180px" }}
+                                                >
+                                                    {workerDetail?.is_existing_worker ? "" : (
+                                                        <p>
+                                                            <strong>
+                                                                {t(
+                                                                    "nonIsrailContract.nic5_sub.nic5_sub2"
+                                                                )}
+                                                            </strong>
+                                                        </p>
+                                                    )}
+                                                    {formValues &&
+                                                        formValues.signature1 ? (
+                                                        <img
+                                                            src={
+                                                                formValues.signature1
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <div className="d-flex">
+                                                            <div>
+                                                                <SignatureCanvas
+                                                                    penColor="black"
+                                                                    canvasProps={{
+                                                                        width: 250,
+                                                                        height: 100,
+                                                                        className:
+                                                                            "sign101 border mt-1",
+                                                                    }}
+                                                                    ref={sigRef1}
+                                                                    onEnd={
+                                                                        handleSignatureEnd1
+                                                                    }
+                                                                />
+                                                                {touched.signature1 &&
+                                                                    errors.signature1 && (
+                                                                        <p className="text-danger">
+                                                                            {touched.signature1 &&
+                                                                                errors.signature1}
+                                                                        </p>
+                                                                    )}
+                                                            </div>
+                                                            {!isGeneratingPDF && (
+                                                                <div className="d-block align-content-end">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn navyblue px-3 py-1 ml-2 mb-2"
+                                                                        onClick={
+                                                                            clearSignature1
+                                                                        }
+                                                                    >
+                                                                        {t(
+                                                                            "nonIsrailContract.nic5_sub.clear"
+                                                                        )}
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </>
-                                    </ol>
-                                    <Table
-                                        bordered
-                                        className="mt-5"
-                                        size="sm"
-                                        responsive
-                                    >
-                                        <thead className="text-center">
-                                            <tr>
-                                                <th colSpan={2}>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.th.th1"
-                                                    )}
-                                                </th>
-                                                <th colSpan={2}>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.th.th2"
-                                                    )}
-                                                </th>
-                                            </tr>
-                                            <tr>
-                                                <th>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.th.th3"
-                                                    )}
-                                                </th>
-                                                <th>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.th.th4"
-                                                    )}
-                                                </th>
-                                                <th>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.th.th3"
-                                                    )}
-                                                </th>
-                                                <th>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.th.th4"
-                                                    )}
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="text-left">
-                                            <tr>
-                                                <td>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr1.td1"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr1.td2"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr1.td3"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr1.td4"
-                                                    )}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr2.td1"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr2.td2"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr2.td3"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr2.td4"
-                                                    )}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr3.td1"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr3.td2"
-                                                    )}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td>
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr4.td1"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic5_sub.table.tr4.td2"
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
-                                    <p>
-                                        {t(
-                                            "nonIsrailContract.nic5_sub.nic5_sub3"
-                                        )}
-                                    </p>
-                                    <p>
-                                        {t(
-                                            "nonIsrailContract.nic5_sub.nic5_sub4"
-                                        )}
-                                    </p>
-                                    <p>
-                                        {t(
-                                            "nonIsrailContract.nic5_sub.nic5_sub5"
-                                        )}
-                                    </p>
-                                    <div className="row mt-3">
-                                        <div
-                                            className={
-                                                "col-md-4 " +
-                                                (isGeneratingPDF ? "col-4" : "")
-                                            }
+                                        <Table
+                                            bordered
+                                            className="mt-5"
+                                            size="sm"
+                                            responsive
                                         >
-                                            <p>
-                                                <strong>
-                                                    {t(
-                                                        "nonIsrailContract.workerSign"
-                                                    )}
-                                                </strong>
-                                            </p>
-                                            {formValues &&
-                                                formValues.signature2 ? (
-                                                <img
-                                                    src={formValues.signature2}
-                                                />
-                                            ) : (
-                                                <>
-                                                    <SignatureCanvas
-                                                        penColor="black"
-                                                        canvasProps={{
-                                                            width: 250,
-                                                            height: 100,
-                                                            className:
-                                                                "sign101 border mt-1",
-                                                        }}
-                                                        ref={sigRef2}
-                                                        onEnd={
-                                                            handleSignatureEnd2
-                                                        }
-                                                    />
-                                                    {touched.signature2 &&
-                                                        errors.signature2 && (
-                                                            <p className="text-danger">
-                                                                {touched.signature2 &&
-                                                                    errors.signature2}
-                                                            </p>
+                                            <thead className="text-center">
+                                                <tr>
+                                                    <th colSpan={2}>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.th.th1"
                                                         )}
-
-                                                    {!isGeneratingPDF && (
-                                                        <div className="d-block">
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-warning mb-2"
-                                                                onClick={
-                                                                    clearSignature2
-                                                                }
-                                                            >
-                                                                {t(
-                                                                    "nonIsrailContract.clear"
-                                                                )}
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </>
-                                            )}
-                                        </div>
-                                        <div className="col-5"></div>
-                                        <div
-                                            className={
-                                                "col-md-3 " +
-                                                (isGeneratingPDF ? "col-3" : "")
-                                            }
-                                        >
-                                            <DateField
-                                                name={"signatureDate2"}
-                                                onBlur={handleBlur}
-                                                onChange={handleChange}
-                                                label={t(
-                                                    "nonIsrailContract.date"
-                                                )}
-                                                value={values.signatureDate2}
-                                                required={true}
-                                                readOnly
-                                                error={
-                                                    touched.signatureDate2 &&
-                                                    errors.signatureDate2
-                                                }
-                                            />
-                                        </div>
-                                    </div>
-                                </li>
-                                <li>
-                                    <p className="mb-2">
-                                        {t("nonIsrailContract.nic6")}
-                                    </p>
-                                </li>
-                                <li>
-                                    <p
-                                        style={{
-                                            marginBottom: isGeneratingPDF
-                                                ? "370px"
-                                                : "16px",
-                                        }}
-                                    >
-                                        {t("nonIsrailContract.nic7")}
-                                    </p>
-                                </li>
-                                <li>
-                                    <p className="mb-2">
-                                        {t("nonIsrailContract.nic8")}
-                                    </p>
-                                    <Table
-                                        bordered
-                                        size="sm"
-                                        className="mt-3"
-                                        responsive
-                                    >
-                                        <thead className="text-center">
-                                            <tr>
-                                                <th>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.th.th1"
-                                                    )}
-                                                </th>
-                                                <th>
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.th.th2"
-                                                    )}
-                                                </th>
-                                                <th>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.th.th3"
-                                                    )}
-                                                </th>
-                                                <th>
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.th.th4"
-                                                    )}
-                                                </th>
-                                                <th>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.th.th5"
-                                                    )}
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="text-left">
-                                            <tr>
-                                                <td>
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr1.td1"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr1.td2"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr1.td3"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr1.td4"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr1.td5"
-                                                    )}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr2.td1"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr2.td2"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr2.td3"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr2.td4"
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {" "}
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.table.tr2.td5"
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
-                                    <p>
-                                        {t(
-                                            "nonIsrailContract.nic8Sub.nic8Sub_1"
-                                        )}
-                                    </p>
-                                    <p>
-                                        {t(
-                                            "nonIsrailContract.nic8Sub.nic8Sub_2"
-                                        )}
-                                    </p>
-                                    <p>
-                                        {t(
-                                            "nonIsrailContract.nic8Sub.nic8Sub_3"
-                                        )}
-                                    </p>
-                                    <div className="row gap-3">
-                                        <div
-                                            className={
-                                                "col-lg-6 " +
-                                                (isGeneratingPDF ? "col-6" : "")
-                                            }
-                                        >
-                                            <p>
-                                                <strong>
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.nic8Sub_4"
-                                                    )}
-                                                </strong>
-                                            </p>
-                                            {formValues &&
-                                                formValues.signature3 ? (
-                                                <img
-                                                    src={formValues.signature3}
-                                                />
-                                            ) : (
-                                                <>
-                                                    <SignatureCanvas
-                                                        penColor="black"
-                                                        canvasProps={{
-                                                            width: 250,
-                                                            height: 100,
-                                                            className:
-                                                                "sign101 border mt-1",
-                                                        }}
-                                                        ref={sigRef3}
-                                                        onEnd={
-                                                            handleSignatureEnd3
-                                                        }
-                                                    />
-                                                    {touched.signature3 &&
-                                                        errors.signature3 && (
-                                                            <p className="text-danger">
-                                                                {touched.signature3 &&
-                                                                    errors.signature3}
-                                                            </p>
+                                                    </th>
+                                                    <th colSpan={2}>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.th.th2"
                                                         )}
-
-                                                    {!isGeneratingPDF && (
-                                                        <div className="d-block">
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-warning mb-2"
-                                                                onClick={
-                                                                    clearSignature3
-                                                                }
-                                                            >
-                                                                {t(
-                                                                    "nonIsrailContract.nic8Sub.nic8Sub_5"
-                                                                )}
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </>
-                                            )}
-                                        </div>
-                                        <div
-                                            className={
-                                                "col-lg-6 " +
-                                                (isGeneratingPDF ? "col-6" : "")
-                                            }
-                                        >
-                                            <p>
-                                                <strong>
-                                                    {t(
-                                                        "nonIsrailContract.nic8Sub.nic8Sub_6"
-                                                    )}
-                                                </strong>
-                                            </p>
-                                            {initialValues.companySignature2 &&
-                                                initialValues.companySignature2 ? (
-                                                <img
-                                                    src={initialValues.companySignature1}
-                                                />
-                                            ) : (
-                                                <>
-                                                    <SignatureCanvas
-                                                        penColor="black"
-                                                        canvasProps={{
-                                                            width: 250,
-                                                            height: 100,
-                                                            className:
-                                                                "sign101 border mt-1",
-                                                        }}
-                                                        ref={companySigRef1}
-                                                        onEnd={
-                                                            handleCompanySignatureEnd1
-                                                        }
-                                                    />
-                                                    {touched.companySignature1 &&
-                                                        errors.companySignature1 && (
-                                                            <p className="text-danger">
-                                                                {touched.companySignature1 &&
-                                                                    errors.companySignature1}
-                                                            </p>
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.th.th3"
                                                         )}
-
-                                                    {!isGeneratingPDF && (
-                                                        <div className="d-block">
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-warning mb-2"
-                                                                onClick={
-                                                                    clearCompanySignature1
-                                                                }
-                                                            >
-                                                                {t(
-                                                                    "nonIsrailContract.clear"
-                                                                )}
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </>
+                                                    </th>
+                                                    <th>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.th.th4"
+                                                        )}
+                                                    </th>
+                                                    <th>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.th.th3"
+                                                        )}
+                                                    </th>
+                                                    <th>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.th.th4"
+                                                        )}
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-left">
+                                                <tr>
+                                                    <td>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr1.td1"
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {" "}
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr1.td2"
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {" "}
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr1.td3"
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {" "}
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr1.td4"
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        {" "}
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr2.td1"
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {" "}
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr2.td2"
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {" "}
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr2.td3"
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {" "}
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr2.td4"
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr3.td1"
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr3.td2"
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr4.td1"
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {" "}
+                                                        {t(
+                                                            "nonIsrailContract.nic5_sub.table.tr4.td2"
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </Table>
+                                    </li>
+                                </ol>
+                            </section>
+                        </div>
+                    )
+                }
+                {
+                    nextStep === 6 && (
+                        <div className="row mt-4">
+                            <section className="col">
+                                <p className="">
+                                    {t(
+                                        "nonIsrailContract.nic5_sub.nic5_sub3"
+                                    )}
+                                </p>
+                                <p className="mt-2">
+                                    {t(
+                                        "nonIsrailContract.nic5_sub.nic5_sub4"
+                                    )}
+                                </p>
+                                <p className="mt-2">
+                                    {t(
+                                        "nonIsrailContract.nic5_sub.nic5_sub5"
+                                    )}
+                                </p>
+                                <div className="d-flex justify-content-between mt-3">
+                                    <div
+                                        className={
+                                            "" +
+                                            (isGeneratingPDF ? "col-3" : "")
+                                        }
+                                    >
+                                        <DateField
+                                            name={"signatureDate2"}
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}
+                                            label={t(
+                                                "nonIsrailContract.date"
                                             )}
-                                        </div>
+                                            value={values.signatureDate2}
+                                            required={true}
+                                            readOnly
+                                            error={
+                                                touched.signatureDate2 &&
+                                                errors.signatureDate2
+                                            }
+                                        />
                                     </div>
                                     <div
-                                        className="row"
-                                        style={{
-                                            marginBottom: isGeneratingPDF
-                                                ? "110px"
-                                                : "16px",
-                                        }}
+                                        className={
+                                            "d-flex align-items-end flex-column" +
+                                            (isGeneratingPDF ? "col-4" : "")
+                                        }
                                     >
-                                        <div className="col-12">
+                                        <p>
+                                            <strong>
+                                                {t(
+                                                    "nonIsrailContract.workerSign"
+                                                )}
+                                            </strong>
+                                        </p>
+                                        {formValues &&
+                                            formValues.signature2 ? (
+                                            <img
+                                                src={formValues.signature2}
+                                            />
+                                        ) : (
+                                            <div id="signature2">
+                                                <SignatureCanvas
+                                                    penColor="black"
+                                                    canvasProps={{
+                                                        width: 250,
+                                                        height: 100,
+                                                        className:
+                                                            "sign101 border mt-1",
+                                                    }}
+                                                    ref={sigRef2}
+                                                    onEnd={
+                                                        handleSignatureEnd2
+                                                    }
+                                                />
+                                                {touched.signature2 &&
+                                                    errors.signature2 && (
+                                                        <p className="text-danger">
+                                                            {touched.signature2 &&
+                                                                errors.signature2}
+                                                        </p>
+                                                    )}
+
+                                                {!isGeneratingPDF && (
+                                                    <div className="d-block">
+                                                        <button
+                                                            type="button"
+                                                            className="btn navyblue px-3 py-1 my-2"
+                                                            onClick={
+                                                                clearSignature2
+                                                            }
+                                                        >
+                                                            {t(
+                                                                "nonIsrailContract.clear"
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <ol start={6} className="lh-lg text-justify pl-0" style={{ fontSize: "16px" }}>
+                                    <li>
+                                        <p className="mb-2">
+                                            {t("nonIsrailContract.nic6")}
+                                        </p>
+                                    </li>
+                                    <li>
+                                        <p
+                                            style={{
+                                                marginBottom: isGeneratingPDF
+                                                    ? "370px"
+                                                    : "16px",
+                                            }}
+                                        >
+                                            {t("nonIsrailContract.nic7")}
+                                        </p>
+                                    </li>
+                                    <li>
+                                        <p className="mb-2">
+                                            {t("nonIsrailContract.nic8")}
+                                        </p>
+                                    </li>
+                                </ol>
+
+
+                                <Table
+                                    bordered
+                                    size="sm"
+                                    className="mt-3"
+                                    responsive
+                                >
+                                    <thead className="text-center">
+                                        <tr>
+                                            <th>
+                                                {" "}
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.th.th1"
+                                                )}
+                                            </th>
+                                            <th>
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.th.th2"
+                                                )}
+                                            </th>
+                                            <th>
+                                                {" "}
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.th.th3"
+                                                )}
+                                            </th>
+                                            <th>
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.th.th4"
+                                                )}
+                                            </th>
+                                            <th>
+                                                {" "}
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.th.th5"
+                                                )}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-left">
+                                        <tr>
+                                            <td>
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr1.td1"
+                                                )}
+                                            </td>
+                                            <td>
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr1.td2"
+                                                )}
+                                            </td>
+                                            <td>
+                                                {" "}
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr1.td3"
+                                                )}
+                                            </td>
+                                            <td>
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr1.td4"
+                                                )}
+                                            </td>
+                                            <td>
+                                                {" "}
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr1.td5"
+                                                )}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr2.td1"
+                                                )}
+                                            </td>
+                                            <td>
+                                                {" "}
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr2.td2"
+                                                )}
+                                            </td>
+                                            <td>
+                                                {" "}
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr2.td3"
+                                                )}
+                                            </td>
+                                            <td>
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr2.td4"
+                                                )}
+                                            </td>
+                                            <td>
+                                                {" "}
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.table.tr2.td5"
+                                                )}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </Table>
+                                <p>
+                                    {t(
+                                        "nonIsrailContract.nic8Sub.nic8Sub_1"
+                                    )}
+                                </p>
+                                <p>
+                                    {t(
+                                        "nonIsrailContract.nic8Sub.nic8Sub_2"
+                                    )}
+                                </p>
+                                <p>
+                                    {t(
+                                        "nonIsrailContract.nic8Sub.nic8Sub_3"
+                                    )}
+                                </p>
+                                <div className="d-flex justify-content-between mt-3 gap-3">
+                                    <div
+                                        className={
+                                            " " +
+                                            (isGeneratingPDF ? "col-6" : "")
+                                        }
+                                    >
+                                        <p>
+                                            <strong>
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.nic8Sub_6"
+                                                )}
+                                            </strong>
+                                        </p>
+                                        {initialValues.companySignature2 &&
+                                            initialValues.companySignature2 ? (
+                                            <img
+                                                src={initialValues.companySignature1}
+                                            />
+                                        ) : (
+                                            <>
+                                                <SignatureCanvas
+                                                    id="signature3"
+
+                                                    penColor="black"
+                                                    canvasProps={{
+                                                        width: 250,
+                                                        height: 100,
+                                                        className:
+                                                            "sign101 border mt-1",
+                                                    }}
+                                                    ref={companySigRef1}
+                                                    onEnd={
+                                                        handleCompanySignatureEnd1
+                                                    }
+                                                />
+                                                {touched.companySignature1 &&
+                                                    errors.companySignature1 && (
+                                                        <p className="text-danger">
+                                                            {touched.companySignature1 &&
+                                                                errors.companySignature1}
+                                                        </p>
+                                                    )}
+
+                                                {!isGeneratingPDF && (
+                                                    <div className="d-block">
+                                                        <button
+                                                            type="button"
+                                                            className="btn navyblue px-3 py-1 mb-2"
+                                                            onClick={
+                                                                clearCompanySignature1
+                                                            }
+                                                        >
+                                                            {t(
+                                                                "nonIsrailContract.clear"
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                    <div
+                                        className={
+                                            "d-flex flex-column " +
+                                            (isGeneratingPDF ? "col-6" : "")
+                                        }
+                                    >
+                                        <p>
+                                            <strong>
+                                                {t(
+                                                    "nonIsrailContract.nic8Sub.nic8Sub_4"
+                                                )}
+                                            </strong>
+                                        </p>
+                                        {formValues &&
+                                            formValues.signature3 ? (
+                                            <img
+                                                src={formValues.signature3}
+                                            />
+                                        ) : (
+                                            <>
+                                                <SignatureCanvas
+                                                    id="signature3"
+
+                                                    penColor="black"
+                                                    canvasProps={{
+                                                        width: 250,
+                                                        height: 100,
+                                                        className:
+                                                            "sign101 border mt-1",
+                                                    }}
+                                                    ref={sigRef3}
+                                                    onEnd={
+                                                        handleSignatureEnd3
+                                                    }
+                                                />
+                                                {touched.signature3 &&
+                                                    errors.signature3 && (
+                                                        <p className="text-danger">
+                                                            {touched.signature3 &&
+                                                                errors.signature3}
+                                                        </p>
+                                                    )}
+
+                                                {!isGeneratingPDF && (
+                                                    <div className="d-flex justify-content-end">
+                                                        <button
+                                                            type="button"
+                                                            className="btn navyblue px-3 py-1 my-2"
+                                                            onClick={
+                                                                clearSignature3
+                                                            }
+                                                        >
+                                                            {t(
+                                                                "nonIsrailContract.nic8Sub.nic8Sub_5"
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                                <div
+                                    className="row"
+                                    style={{
+                                        marginBottom: isGeneratingPDF
+                                            ? "110px"
+                                            : "16px",
+                                    }}
+                                >
+                                    <div className="col-12">
+                                        <DateField
+                                            name={"signatureDate3"}
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}
+                                            label={t(
+                                                "nonIsrailContract.date"
+                                            )}
+                                            value={values.signatureDate3}
+                                            required={true}
+                                            readOnly
+                                            error={
+                                                touched.signatureDate3 &&
+                                                errors.signatureDate3
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </section>
+                            <section className="col">
+                                <ol className="mt-3" style={
+                                    workerDetail?.lng === "heb"
+                                        ? { direction: "rtl", textAlign: "right" }
+                                        : {}
+                                }>
+                                    <li>
+                                        <u>
+                                            {t("nonIsrailContract.deduction.title")}
+                                        </u>
+                                        <ol>
+                                            <li>
+                                                {t("nonIsrailContract.deduction.deduction1")}
+                                            </li>
+                                            <li>
+                                                {t("nonIsrailContract.deduction.deduction2")}
+                                            </li>
+                                            <li>
+                                                {t("nonIsrailContract.deduction.deduction3")}
+                                            </li>
+                                        </ol>
+                                    </li>
+                                    <li className="mt-3">
+                                        <u>
+                                            {t("nonIsrailContract.obligations.title")}
+                                        </u>
+                                        <p>
+                                            {t("nonIsrailContract.obligations.obligation1")}
+                                        </p>
+                                    </li>
+                                    <li className="mt-3">
+                                        <u>
+                                            {t("nonIsrailContract.supervisor.title")}
+                                        </u>
+                                        <p>
+                                            {t("nonIsrailContract.supervisor.supervisor1")}
+                                        </p>
+                                        <p>
+                                            {t("nonIsrailContract.supervisor.supervisor2")}
+                                        </p>
+                                        <div className="d-flex justify-content-between mt-5 gap-3">
+                                            <div
+                                                className={
+                                                    "" +
+                                                    (isGeneratingPDF ? "col-6" : "")
+                                                }
+                                            >
+                                                <p>
+                                                    <strong>
+                                                        {t("nonIsrailContract.companySign")}
+                                                    </strong>
+                                                </p>
+                                                {initialValues.companySignature2 &&
+                                                    initialValues.companySignature2 ? (
+                                                    <img
+                                                        src={initialValues.companySignature2}
+                                                    />
+                                                ) : (
+                                                    <>
+                                                        <SignatureCanvas
+                                                            penColor="black"
+                                                            canvasProps={{
+                                                                width: 250,
+                                                                height: 100,
+                                                                className:
+                                                                    "sign101 border mt-1",
+                                                            }}
+                                                            ref={companySigRef2}
+                                                            onEnd={
+                                                                handleCompanySignatureEnd2
+                                                            }
+                                                        />
+                                                        {touched.companySignature2 &&
+                                                            errors.companySignature2 && (
+                                                                <p className="text-danger">
+                                                                    {touched.companySignature2 &&
+                                                                        errors.companySignature2}
+                                                                </p>
+                                                            )}
+
+                                                        {!isGeneratingPDF && (
+                                                            <div className="d-block">
+                                                                <button
+                                                                    className="btn navyblue px-3 py-1 mt-2 mb-2"
+                                                                    type="button"
+                                                                    onClick={
+                                                                        clearCompanySignature2
+                                                                    }
+                                                                >
+                                                                    {t(
+                                                                        "nonIsrailContract.clear"
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
+                                            <div
+                                                className={
+                                                    "d-flex align-items-end flex-column" +
+                                                    (isGeneratingPDF ? "col-6" : "")
+                                                }
+                                            >
+                                                <p>
+                                                    <strong>
+                                                        {t("nonIsrailContract.workerSign")}
+                                                    </strong>
+                                                </p>
+                                                {formValues && formValues.signature4 ? (
+                                                    <img src={formValues.signature4} />
+                                                ) : (
+                                                    <>
+                                                        <SignatureCanvas
+                                                            penColor="black"
+                                                            canvasProps={{
+                                                                width: 250,
+                                                                height: 100,
+                                                                className:
+                                                                    "sign101 border mt-1",
+                                                            }}
+                                                            ref={sigRef4}
+                                                            onEnd={handleSignatureEnd4}
+                                                        />
+                                                        {touched.signature4 &&
+                                                            errors.signature4 && (
+                                                                <p className="text-danger">
+                                                                    {touched.signature4 &&
+                                                                        errors.signature4}
+                                                                </p>
+                                                            )}
+
+                                                        {!isGeneratingPDF && (
+                                                            <div className="d-block">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn navyblue px-3 py-1 mt-2 mb-2"
+                                                                    onClick={
+                                                                        clearSignature4
+                                                                    }
+                                                                >
+                                                                    {t(
+                                                                        "nonIsrailContract.clear"
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="">
                                             <DateField
-                                                name={"signatureDate3"}
+                                                name={"signatureDate4"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
-                                                label={t(
-                                                    "nonIsrailContract.date"
-                                                )}
-                                                value={values.signatureDate3}
+                                                label={t("nonIsrailContract.date")}
+                                                value={values.signatureDate4}
                                                 required={true}
                                                 readOnly
                                                 error={
-                                                    touched.signatureDate3 &&
-                                                    errors.signatureDate3
+                                                    touched.signatureDate4 &&
+                                                    errors.signatureDate4
                                                 }
                                             />
                                         </div>
-                                    </div>
-                                </li>
-                            </ol>
-                            <ol className="mt-3" style={
-                                workerDetail?.lng === "heb"
-                                    ? { direction: "rtl", textAlign: "right" }
-                                    : {}
-                            }>
-                                <li>
-                                    <u>
-                                        {t("nonIsrailContract.deduction.title")}
-                                    </u>
-                                    <ol>
-                                        <li>
-                                            {t("nonIsrailContract.deduction.deduction1")}
-                                        </li>
-                                        <li>
-                                            {t("nonIsrailContract.deduction.deduction2")}
-                                        </li>
-                                        <li>
-                                            {t("nonIsrailContract.deduction.deduction3")}
-                                        </li>
-                                    </ol>
-                                </li>
-                                <li className="mt-3">
-                                    <u>
-                                        {t("nonIsrailContract.obligations.title")}
-                                    </u>
-                                    <p>
-                                        {t("nonIsrailContract.obligations.obligation1")}
-                                    </p>
-                                </li>
-                                <li className="mt-3">
-                                    <u>
-                                        {t("nonIsrailContract.supervisor.title")}
-                                    </u>
-                                    <p>
-                                        {t("nonIsrailContract.supervisor.supervisor1")}
-                                    </p>
-                                    <p>
-                                        {t("nonIsrailContract.supervisor.supervisor2")}
-                                    </p>
-                                </li>
-                            </ol>
+                                    </li>
+                                </ol>
 
-                            <div className="row mt-5 gap-3">
-                                <div
-                                    className={
-                                        "col-lg-6 " +
-                                        (isGeneratingPDF ? "col-6" : "")
-                                    }
-                                >
-                                    <p>
-                                        <strong>
-                                            {t("nonIsrailContract.workerSign")}
-                                        </strong>
-                                    </p>
-                                    {formValues && formValues.signature4 ? (
-                                        <img src={formValues.signature4} />
-                                    ) : (
-                                        <>
-                                            <SignatureCanvas
-                                                penColor="black"
-                                                canvasProps={{
-                                                    width: 250,
-                                                    height: 100,
-                                                    className:
-                                                        "sign101 border mt-1",
-                                                }}
-                                                ref={sigRef4}
-                                                onEnd={handleSignatureEnd4}
-                                            />
-                                            {touched.signature4 &&
-                                                errors.signature4 && (
-                                                    <p className="text-danger">
-                                                        {touched.signature4 &&
-                                                            errors.signature4}
-                                                    </p>
-                                                )}
 
-                                            {!isGeneratingPDF && (
-                                                <div className="d-block">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-warning mb-2"
-                                                        onClick={
-                                                            clearSignature4
-                                                        }
-                                                    >
-                                                        {t(
-                                                            "nonIsrailContract.clear"
-                                                        )}
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
-                                <div
-                                    className={
-                                        "col-lg-6 " +
-                                        (isGeneratingPDF ? "col-6" : "")
-                                    }
-                                >
-                                    <p>
-                                        <strong>
-                                            {t("nonIsrailContract.companySign")}
-                                        </strong>
-                                    </p>
-                                    {initialValues.companySignature2 &&
-                                        initialValues.companySignature2 ? (
-                                        <img
-                                            src={initialValues.companySignature2}
-                                        />
-                                    ) : (
-                                        <>
-                                            <SignatureCanvas
-                                                penColor="black"
-                                                canvasProps={{
-                                                    width: 250,
-                                                    height: 100,
-                                                    className:
-                                                        "sign101 border mt-1",
-                                                }}
-                                                ref={companySigRef2}
-                                                onEnd={
-                                                    handleCompanySignatureEnd2
-                                                }
-                                            />
-                                            {touched.companySignature2 &&
-                                                errors.companySignature2 && (
-                                                    <p className="text-danger">
-                                                        {touched.companySignature2 &&
-                                                            errors.companySignature2}
-                                                    </p>
-                                                )}
-
-                                            {!isGeneratingPDF && (
-                                                <div className="d-block">
-                                                    <button
-                                                        className="btn btn-warning mb-2"
-                                                        type="button"
-                                                        onClick={
-                                                            clearCompanySignature2
-                                                        }
-                                                    >
-                                                        {t(
-                                                            "nonIsrailContract.clear"
-                                                        )}
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
-                                <div className="col-12">
-                                    <DateField
-                                        name={"signatureDate4"}
-                                        onBlur={handleBlur}
-                                        onChange={handleChange}
-                                        label={t("nonIsrailContract.date")}
-                                        value={values.signatureDate4}
-                                        required={true}
-                                        readOnly
-                                        error={
-                                            touched.signatureDate4 &&
-                                            errors.signatureDate4
-                                        }
-                                    />
-                                </div>
-                            </div>
+                            </section>
                         </div>
-                        {!isSubmitted && !isGeneratingPDF && (
-                            <button
-                                className="btn btn-success mt-3"
-                                type="submit"
-                                disabled={isSubmitting}
-                            >
-                                {t("nonIsrailContract.Accept")}
-                            </button>
-                        )}
-                    </form>
-                </div>
-            </div>
+                    )
+                }
+                {[5, 6].includes(nextStep) && (
+                    <div className="d-flex justify-content-end">
+                        <button
+                            type="button"
+                            onClick={() => setNextStep(prev => prev - 1)}
+                            className="navyblue py-2 px-4 mr-2"
+                            style={{ borderRadius: "5px" }}
+                        >
+                            <GrFormPreviousLink /> Prev
+                        </button>
+
+                        <button
+                            type="submit"
+                            className="navyblue py-2 px-4"
+                            style={{ borderRadius: "5px" }}
+                        >
+                            {nextStep === 6 && !isSubmitted? "Submit" : "Next"} <GrFormNextLink />
+                        </button>
+                    </div>
+                )}
+            </form>
         </div>
     );
 }

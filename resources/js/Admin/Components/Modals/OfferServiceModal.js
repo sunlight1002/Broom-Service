@@ -604,7 +604,8 @@ export default function OfferServiceModal({
         }
     }, [isAdd, tmpFormValues]);
 
-    const [toggleOtherService, setToggleOtherService] = useState(false);
+    const [toggleOtherService, setToggleOtherService] = useState([]);
+
     const [toggleAirbnbService, setToggleAirbnbService] = useState(false);
     const [selectedSubServices, setSelectedSubServices] = useState([]);
     const [subData, setSubData] = useState([]);
@@ -615,20 +616,25 @@ export default function OfferServiceModal({
         label: adminlng === "en" ? s.name_en : s.name_heb,
     }));
 
+    console.log(toggleOtherService);
+
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    useEffect(() => {
-        if (offerServiceTmp[0].service === "29") {
-            setToggleAirbnbService(true);
-            handleGetSubServices(29);
-        } else if (offerServiceTmp[0].service === "10") {
-            setToggleOtherService(true);
-        }
-    }, [offerServiceTmp]);
+    // useEffect(() => {
+    //     if (offerServiceTmp[0].service === "29") {
+    //         setToggleAirbnbService(true);
+    //         handleGetSubServices(29);
+    //     } else if (offerServiceTmp[0].service === "10") {
+    //         console.log(offerServiceTmp);
+
+    //         setToggleOtherService(true);
+    //     }
+    // }, [offerServiceTmp]);
 
     const checkValidation = (_formValues) => {
         if (_formValues.address == "") {
@@ -670,6 +676,8 @@ export default function OfferServiceModal({
             )
         );
     };
+    
+    
 
     const handleFrequencyChange = (index, e) => {
         const target = e.target;
@@ -1078,16 +1086,24 @@ export default function OfferServiceModal({
                                             value={service.service || ""}
                                             onChange={(e) => {
                                                 handleServiceChange(index, e);
+                                                const updatedToggleState = [...toggleOtherService];
+
                                                 if (e.target.value === "10") {
-                                                    setToggleOtherService(true);
-                                                } else if (e.target.value === "29") {
+                                                    updatedToggleState[index] = true;
+                                                } else {
+                                                    updatedToggleState[index] = false;
+                                                }
+
+                                                setToggleOtherService(updatedToggleState);
+
+                                                if (e.target.value === "29") {
                                                     setToggleAirbnbService(true);
                                                     handleGetSubServices(29);
                                                 } else {
                                                     setToggleAirbnbService(false);
-                                                    setToggleOtherService(false);
                                                 }
                                             }}
+
                                         >
                                             <option value={0}>{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
                                             {services.map((service, i) => (
@@ -1220,33 +1236,49 @@ export default function OfferServiceModal({
                                 </div>
                             )}
 
-                                <div className="mb-2">
-                                    <h5 className="mt-3 mb-2">{t("global.workers")}</h5>
-                                    <div className="d-flex align-items-center">
-                                        <label htmlFor={`noOfWorkers-${index}`} className="mr-2">{t("global.noOfWorker")} :</label>
-                                        <input
-                                            type="number"
-                                            min={1}
-                                            className="form-control w-25"
-                                            id={`noOfWorkers-${index}`}
-                                            value={service.workers.length}
-                                            onChange={(e) => handleChangeWorkerCount(e, index)}
-                                        />
-                                    </div>
+                            {toggleOtherService[index] && (
+                                <div className="form-group">
+                                    <textarea
+                                        type="text"
+                                        name="other_title"
+                                        id={`other_title_${index}`}
+                                        placeholder="Service Title"
+                                        className="form-control"
+                                        value={offerServiceTmp[index]?.other_title || ""}
+                                        onChange={(e) => handleInputChange(index, 'other_title', e.target.value)}
+                                    />
                                 </div>
-                                <div className="row">
-                                    {service.workers.map((worker, workerIndex) => (
-                                        <div key={workerIndex} className="col-sm-6">
-                                            <WorkerForm
-                                                workerFormValues={worker}
-                                                handleTmpValue={handleWorkerForm}
-                                                index={workerIndex}
-                                                serviceIndex={index}
-                                            />
-                                        </div>
-                                    ))}
+                            )}
+
+
+
+                            <div className="mb-2">
+                                <h5 className="mt-3 mb-2">{t("global.workers")}</h5>
+                                <div className="d-flex align-items-center">
+                                    <label htmlFor={`noOfWorkers-${index}`} className="mr-2">{t("global.noOfWorker")} :</label>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        className="form-control w-25"
+                                        id={`noOfWorkers-${index}`}
+                                        value={service.workers.length}
+                                        onChange={(e) => handleChangeWorkerCount(e, index)}
+                                    />
                                 </div>
                             </div>
+                            <div className="row">
+                                {service.workers.map((worker, workerIndex) => (
+                                    <div key={workerIndex} className="col-sm-6">
+                                        <WorkerForm
+                                            workerFormValues={worker}
+                                            handleTmpValue={handleWorkerForm}
+                                            index={workerIndex}
+                                            serviceIndex={index}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ))
                 ) : (
                     <p>{t("global.noServicesAvailable")}</p>

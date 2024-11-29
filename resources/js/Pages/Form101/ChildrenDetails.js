@@ -1,8 +1,12 @@
+//ChildrenDetails
+
 import React from "react";
 import TextField from "./inputElements/TextField";
 import DateField from "./inputElements/DateField";
 import CheckBox from "./inputElements/CheckBox";
 import { useTranslation } from "react-i18next";
+import { FaRegTrashCan } from "react-icons/fa6";
+
 
 export const childrenInitial = {
     firstName: "",
@@ -18,31 +22,33 @@ const ChildrenDetails = ({
     handleBlur,
     handleChange,
     setFieldValue,
+    handleBubbleToggle,
+    activeBubble
 }) => {
     const { t } = useTranslation();
 
     return (
         <div>
-            <h2>{t("form101.children_headline")}</h2>
+            <p className="navyblueColor font-24 font-w-500  mb-2">{t("form101.children_headline")}</p>
 
             {values.children &&
                 values.children.map((child, index) => (
                     <div key={index}>
                         <hr />
-                        {t("form101.child")} {index + 1}{" "}
+                        {t("form101.child")} {index + 1}{"  "}
                         <button
                             type="button"
-                            className="btn btn-sm btn-danger action-btn"
+                            className="btn btn-sm ml-2 mb-2 action-btn"
                             onClick={() => {
                                 const newChildren = [...values.children];
                                 newChildren.splice(index, 1);
                                 setFieldValue("children", newChildren);
                             }}
                         >
-                            -
+                            <FaRegTrashCan />
                         </button>
                         <div className="row">
-                            <div className="col-sm-4">
+                            <div className="col">
                                 <TextField
                                     name={`children[${index}].firstName`}
                                     label={t("form101.label_firstName")}
@@ -60,7 +66,7 @@ const ChildrenDetails = ({
                                     required
                                 />
                             </div>
-                            <div className="col-sm-4">
+                            <div className="col">
                                 <TextField
                                     name={`children[${index}].IdNumber`}
                                     label={t("form101.id_num")}
@@ -78,7 +84,9 @@ const ChildrenDetails = ({
                                     required
                                 />
                             </div>
-                            <div className="col-sm-4">
+                        </div>
+                        <div className="row">
+                            <div className="col-md-6">
                                 <DateField
                                     name={`children[${index}].Dob`}
                                     label={t("form101.dob")}
@@ -98,7 +106,7 @@ const ChildrenDetails = ({
                             </div>
                         </div>
                         <div className="row">
-                            <div className="col-sm-4">
+                            <div className="ml-3">
                                 <CheckBox
                                     name={`children[${index}].inCustody`}
                                     label={t("form101.child_custody")}
@@ -116,7 +124,7 @@ const ChildrenDetails = ({
                                     }
                                 />
                             </div>
-                            <div className="col-sm-4">
+                            <div className="ml-4">
                                 <CheckBox
                                     name={`children[${index}].haveChildAllowance`}
                                     label={t("form101.child_insurance")}
@@ -141,7 +149,7 @@ const ChildrenDetails = ({
                 ))}
             <button
                 type="button"
-                className="btn btn-success button add mb-3 action-btn"
+                className="btn button add mb-3 mt-3 action-btn"
                 onClick={() => {
                     setFieldValue("children", [
                         ...values.children,

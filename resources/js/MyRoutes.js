@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy } from "react";
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { positions, Provider } from "react-alert";
@@ -147,14 +147,18 @@ import MeetingFiles from "./Pages/MeetingFIles";
 import MeetingSchedule from "./Pages/MeetingSchedule";
 import Availibility from "./Pages/TeamMembers/Availibility";
 import ChangeSchedule from "./Client/Pages/Jobs/ChangeSchedule";
-import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
-import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
-import InsuranceForm from "./Pages/InsuranceForm";
 import ChangeShift from "./Admin/Pages/Jobs/ChangeShift";
 import WorkerHours from "./Admin/Pages/Workers/WorkerHours";
 import Invoices from "./Client/Pages/Invoices/Invoices";
 import ManpowerCompanies from "./Admin/Pages/ManpowerCompanies/ManpowerCompanies";
 import WorkerAffectedAvailability from "./Admin/Pages/Workers/WorkerAffectedAvailability";
+import SafeAndGear from "./Admin/Pages/safeAndGear/SafeAndGear";
+import ReviewJob from "./Client/Pages/Jobs/ReviewJob";
+import InsuranceForm from "./Pages/InsuranceForm";
+// const SafeAndGear = lazy(() => import('./Admin/Pages/safeAndGear/SafeAndGear'))
+// const ReviewJob = lazy(() => import('./Client/Pages/Jobs/ReviewJob'))
+// const InsuranceForm = lazy(() => import('./Pages/InsuranceForm'))
+// const WorkerForm = lazy(() => import('./Pages/WorkerForm'))
 import WorkerForm from "./Pages/WorkerForm";
 import WorkerInvitationForm from "./Pages/WorkerInvitationForm";
 import AdminLoginOtp from "./Admin/Pages/Auth/AdminLoginOtp";
@@ -182,6 +186,8 @@ import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
 import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
 import ManpowerSaftyForm from "./Pages/ManpowerSaftyForm";
 import AllForms from "./Pages/Form101/AllForms";
+// const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
+// const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -309,7 +315,7 @@ export default function MyRoutes() {
                         path="forms/:id"
                         element={<AllForms />}
                     />
-                     <Route
+                    <Route
                         exact
                         path="forms/:id/:formId"
                         element={<AllForms />}
@@ -360,7 +366,11 @@ export default function MyRoutes() {
                         path="worker-forms/:id"
                         element={<WorkerForm />}
                     />
-
+                    <Route
+                        exact
+                        path="worker-forms/:id/:formId"
+                        element={<WorkerForm />}
+                    />
                     <Route
                         exact
                         path="worker-invitation-form/:id"

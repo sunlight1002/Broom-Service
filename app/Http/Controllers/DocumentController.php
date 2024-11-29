@@ -62,7 +62,7 @@ class DocumentController extends Controller
                 $tmp_file_name = $user->id . "_passport_" . date('s') . "_" . $pasport_file->getClientOriginalName();
                 
                 if (Storage::disk('public')->putFileAs("uploads/documents", $pasport_file, $tmp_file_name)) {
-                    $user->passport = $tmp_file_name;
+                    $user->passport_card = $tmp_file_name;
                     $user->save();
                 }
             }

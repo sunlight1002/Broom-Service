@@ -1,3 +1,5 @@
+//EmployerDetails
+
 import React from "react";
 import TextField from "./inputElements/TextField";
 import { useTranslation } from "react-i18next";
@@ -8,18 +10,21 @@ export default function EmployerDetails({
     touched,
     handleBlur,
     handleChange,
+    handleBubbleToggle,
+    activeBubble
 }) {
     const { t } = useTranslation();
     return (
         <div>
-            <h2>{t("form101.employer_details")}</h2>
+            <p className="navyblueColor font-24 font-w-500 mt-3 mb-2">{t("form101.employer_details")}</p>
             <div className="row">
-                <div className=" col-md-3 col-sm-6 col-xs-6">
+                <div className="col-sm">
                     <TextField
                         name="employerName"
                         label={t("form101.label_name")}
                         value={values.employerName}
                         onChange={handleChange}
+                        toggleBubble={handleBubbleToggle}
                         onBlur={handleBlur}
                         readonly={true}
                         error={
@@ -28,13 +33,21 @@ export default function EmployerDetails({
                                 : ""
                         }
                     />
+                    {activeBubble === 'employerName' && (
+                        <div className="d-flex justify-content-end">
+                            <div className="speech up">
+                                Info about Employee Last Name!
+                            </div>
+                        </div>
+                    )}
                 </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
+                <div className="col-sm">
                     <TextField
                         name="employerAddress"
                         label={t("form101.label_address")}
                         value={values.employerAddress}
                         onChange={handleChange}
+                        toggleBubble={handleBubbleToggle}
                         onBlur={handleBlur}
                         readonly={true}
                         error={
@@ -43,13 +56,23 @@ export default function EmployerDetails({
                                 : ""
                         }
                     />
+                    {activeBubble === 'employerAddress' && (
+                        <div className="d-flex justify-content-end">
+                            <div className="speech up">
+                                Info about Employee Last Name!
+                            </div>
+                        </div>
+                    )}
                 </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
+            </div>
+            <div className="row">
+                <div className="col-sm">
                     <TextField
                         name="employerPhone"
                         label={t("form101.label_phNum")}
                         value={values.employerPhone}
                         onChange={handleChange}
+                        toggleBubble={handleBubbleToggle}
                         onBlur={handleBlur}
                         readonly={true}
                         error={
@@ -58,22 +81,37 @@ export default function EmployerDetails({
                                 : ""
                         }
                     />
+                    {activeBubble === 'employerPhone' && (
+                        <div className="d-flex justify-content-end">
+                            <div className="speech up">
+                                Info about Employee Last Name!
+                            </div>
+                        </div>
+                    )}
                 </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
+                <div className="col-sm">
                     <TextField
                         name="employerDeductionsFileNo"
                         label={t("form101.label_ddfileId")}
                         value={values.employerDeductionsFileNo}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        toggleBubble={handleBubbleToggle}
                         readonly={true}
                         error={
                             touched.employerDeductionsFileNo &&
-                            errors.employerDeductionsFileNo
+                                errors.employerDeductionsFileNo
                                 ? errors.employerDeductionsFileNo
                                 : ""
                         }
                     />
+                    {activeBubble === 'employerDeductionsFileNo' && (
+                        <div className="d-flex justify-content-end">
+                            <div className="speech up">
+                                Info about Employee Last Name!
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

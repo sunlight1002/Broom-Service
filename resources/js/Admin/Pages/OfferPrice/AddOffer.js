@@ -108,6 +108,11 @@ export default function AddOffer() {
     let handleSubmit = (event, _action) => {
         event.preventDefault();
         setLoading(true);
+        
+        if (formValues.length == 0) {
+            alert.error("One of the service is not selected");
+            return false;
+        }
 
         for (let t in formValues) {
 
@@ -305,7 +310,7 @@ export default function AddOffer() {
                                     </button>
                                     <button
                                         type="submit"
-                                        disabled={isSubmitting}
+                                        // disabled={isSubmitting}
                                         className="btn btn-pink"
                                         onClick={(e) => {
                                             handleSubmit(e, "Save and Send");

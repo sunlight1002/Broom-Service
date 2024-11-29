@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, {useEffect} from "react";
 import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import CheckBox from "./inputElements/CheckBox";
 import { useTranslation } from "react-i18next";
@@ -10,6 +11,8 @@ const OtherIncome = ({
     handleBlur,
     handleChange,
     setFieldValue,
+    handleBubbleToggle,
+    activeBubble
 }) => {
     const { t } = useTranslation();
     const handleIncomeChange = (e) => {
@@ -21,34 +24,40 @@ const OtherIncome = ({
                 : values.otherIncome.incomeType.filter((type) => type !== value)
         );
     };
+
     return (
-        <div>
-            <h2>{t("form101.other_income_details")}</h2>
-            <RadioButtonGroup
-                name="otherIncome.haveincome"
-                label={t("form101.if_other_income")}
-                options={[
-                    {
-                        label: t("form101.if_income_no"),
-                        value: "No",
-                    },
-                    { label: t("form101.if_income_yes"), value: "Yes" },
-                ]}
-                value={values.otherIncome ? values.otherIncome.haveincome : ""}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={
-                    errors.otherIncome &&
-                    touched.otherIncome &&
-                    errors.otherIncome &&
-                    touched.otherIncome.haveincome &&
-                    errors.otherIncome.haveincome
-                        ? errors.otherIncome.haveincome
-                        : ""
-                }
-                isFlex
-                required
-            />
+        <div className="mt-4">
+            <p className="navyblueColor font-24  font-w-500">{t("form101.other_income_details")}</p>
+
+            <div className="mt-3" id="otherIncome">
+                <RadioButtonGroup
+                    name="otherIncome.haveincome"
+                    label={t("form101.if_other_income")}
+                    options={[
+                        {
+                            label: t("form101.if_income_no"),
+                            value: "No",
+                        },
+                        { label: t("form101.if_income_yes"), value: "Yes" },
+                    ]}
+                    value={values.otherIncome ? values.otherIncome.haveincome : ""}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    resClassName="status"
+                    error={
+                        errors.otherIncome &&
+                            touched.otherIncome &&
+                            errors.otherIncome &&
+                            touched.otherIncome.haveincome &&
+                            errors.otherIncome.haveincome
+                            ? errors.otherIncome.haveincome
+                            : ""
+                    }
+                    isFlex
+                    required
+                />
+            </div>
+
             {values.otherIncome && values.otherIncome?.haveincome === "Yes" && (
                 <div className="row">
                     <div className="col-sm-4 col-12">
@@ -66,9 +75,9 @@ const OtherIncome = ({
                             onBlur={handleBlur}
                             error={
                                 touched.otherIncome &&
-                                errors.otherIncome &&
-                                touched.otherIncome.incomeType &&
-                                errors.otherIncome.incomeType
+                                    errors.otherIncome &&
+                                    touched.otherIncome.incomeType &&
+                                    errors.otherIncome.incomeType
                                     ? errors.otherIncome.incomeType
                                     : ""
                             }
@@ -89,9 +98,9 @@ const OtherIncome = ({
                             onBlur={handleBlur}
                             error={
                                 touched.otherIncome &&
-                                errors.otherIncome &&
-                                touched.otherIncome.incomeType &&
-                                errors.otherIncome.incomeType
+                                    errors.otherIncome &&
+                                    touched.otherIncome.incomeType &&
+                                    errors.otherIncome.incomeType
                                     ? errors.otherIncome.incomeType
                                     : ""
                             }
@@ -112,9 +121,9 @@ const OtherIncome = ({
                             onBlur={handleBlur}
                             error={
                                 touched.otherIncome &&
-                                errors.otherIncome &&
-                                touched.otherIncome.incomeType &&
-                                errors.otherIncome.incomeType
+                                    errors.otherIncome &&
+                                    touched.otherIncome.incomeType &&
+                                    errors.otherIncome.incomeType
                                     ? errors.otherIncome.incomeType
                                     : ""
                             }
@@ -135,9 +144,9 @@ const OtherIncome = ({
                             onBlur={handleBlur}
                             error={
                                 touched.otherIncome &&
-                                errors.otherIncome &&
-                                touched.otherIncome.incomeType &&
-                                errors.otherIncome.incomeType
+                                    errors.otherIncome &&
+                                    touched.otherIncome.incomeType &&
+                                    errors.otherIncome.incomeType
                                     ? errors.otherIncome.incomeType
                                     : ""
                             }
@@ -153,9 +162,9 @@ const OtherIncome = ({
                             onBlur={handleBlur}
                             error={
                                 touched.otherIncome &&
-                                errors.otherIncome &&
-                                touched.otherIncome.allowance &&
-                                errors.otherIncome.allowance
+                                    errors.otherIncome &&
+                                    touched.otherIncome.allowance &&
+                                    errors.otherIncome.allowance
                                     ? errors.otherIncome.allowance
                                     : ""
                             }
@@ -171,9 +180,9 @@ const OtherIncome = ({
                             onBlur={handleBlur}
                             error={
                                 touched.otherIncome &&
-                                errors.otherIncome &&
-                                touched.otherIncome.scholarship &&
-                                errors.otherIncome.scholarship
+                                    errors.otherIncome &&
+                                    touched.otherIncome.scholarship &&
+                                    errors.otherIncome.scholarship
                                     ? errors.otherIncome.scholarship
                                     : ""
                             }
@@ -198,9 +207,9 @@ const OtherIncome = ({
                             onBlur={handleBlur}
                             error={
                                 touched.otherIncome &&
-                                errors.otherIncome &&
-                                touched.otherIncome.taxCreditsAtOtherIncome &&
-                                errors.otherIncome.taxCreditsAtOtherIncome
+                                    errors.otherIncome &&
+                                    touched.otherIncome.taxCreditsAtOtherIncome &&
+                                    errors.otherIncome.taxCreditsAtOtherIncome
                                     ? errors.otherIncome.taxCreditsAtOtherIncome
                                     : ""
                             }
@@ -217,9 +226,9 @@ const OtherIncome = ({
                             onBlur={handleBlur}
                             error={
                                 touched.otherIncome &&
-                                errors.otherIncome &&
-                                touched.otherIncome.studyFund &&
-                                errors.otherIncome.studyFund
+                                    errors.otherIncome &&
+                                    touched.otherIncome.studyFund &&
+                                    errors.otherIncome.studyFund
                                     ? errors.otherIncome.studyFund
                                     : ""
                             }
@@ -235,9 +244,9 @@ const OtherIncome = ({
                             onBlur={handleBlur}
                             error={
                                 touched.otherIncome &&
-                                errors.otherIncome &&
-                                touched.otherIncome.pensionInsurance &&
-                                errors.otherIncome.pensionInsurance
+                                    errors.otherIncome &&
+                                    touched.otherIncome.pensionInsurance &&
+                                    errors.otherIncome.pensionInsurance
                                     ? errors.otherIncome.pensionInsurance
                                     : ""
                             }

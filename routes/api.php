@@ -104,6 +104,8 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
 
     Route::get('doc-types', [DocumentController::class, 'getDocumentTypes']);
     Route::post('upload', [DocumentController::class, 'upload']);
+    Route::post('document/save', [DocumentController::class, 'save']);
+
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('details', [AuthController::class, 'details']);
     Route::post('profile', [AuthController::class, 'updateProfile']);

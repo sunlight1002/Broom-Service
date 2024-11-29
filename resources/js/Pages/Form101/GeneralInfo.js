@@ -15,13 +15,20 @@ export default function GeneralInfo({
     handleChange,
     setFieldValue,
     handleBubbleToggle,
-    activeBubble
+    activeBubble,
+    handleFileChange
 }) {
 
     const [indentityType, setIndentityType] = useState(values.employeecountry);
     useEffect(() => {
-        setIndentityType(values.employeecountry === "Israel" ? "IDNumber" : "Passport")
-    }, [values])
+        if (values.employeecountry === "Israel") {
+            setIndentityType("IDNumber");
+        }
+        // Only update identity type if it's not yet set or country changes to Israel
+        if (values.employeeIdentityType === "" || values.employeecountry !== "Israel") {
+            setIndentityType("Passport");
+        }
+    }, [values.employeecountry]);
 
 
     const { t } = useTranslation();
@@ -61,28 +68,28 @@ export default function GeneralInfo({
     ];
 
     const tips = {
-        "First Name":" Enter your full first name as it appears on your identification document.",
-		"Last Name": "Enter your full last name as it appears on your identification document.",
-		"Identification By": "Select the type of identification you are providing (e.g., ID card, passport).",
-		"Passport": "If applicable, enter your passport number and country of issue.",
+        "First Name": " Enter your full first name as it appears on your identification document.",
+        "Last Name": "Enter your full last name as it appears on your identification document.",
+        "Identification By": "Select the type of identification you are providing (e.g., ID card, passport).",
+        "Passport": "If applicable, enter your passport number and country of issue.",
         "ID Number": "If applicable, enter your ID number and country of issue.",
-		"Photocopy Of ID Card": "Attach a clear photocopy of your identification card.",
-		"Date Of Birth": "Enter your date of birth in DD/MM/YYYY format.",
-		"Date Of Immigration": "If you are an immigrant, enter the date of your immigration to Israel in DD/MM/YYYY format.",
-		"City": "Enter the city of your current residence.",
-		"Street": "Enter the street name of your current residence.",
-		"House Number": "Enter the house or building number of your current residence.",
-		"Postal Code":" Enter the postal code of your current address.",
-		"Phone Number": "Enter your landline phone number, if applicable.",
-		"Mobile Number": "Enter your mobile phone number.",
-		"Email": "Enter your active email address for contact purposes.",
-		"Start Date Of Job":" Enter the date you started working for your current employer in DD/MM/YYYY format.",
-		"Role": "Specify your current job role or position.",
-		"Sex": "Select your gender (Male/Female).",
-		"Israeli Resident": "Indicate whether you are an Israeli resident (Yes/No).",
-		"Member Of Kibbutz/Cooperative Session": "Mark if you are a member of a kibbutz or cooperative association.",
-		"Health Fund Number":" Enter your health fund membership number, if applicable.",
-		"Marital Status":" Select your marital status (e.g., Single, Married, Divorced)."
+        "Photocopy Of ID Card": "Attach a clear photocopy of your identification card.",
+        "Date Of Birth": "Enter your date of birth in DD/MM/YYYY format.",
+        "Date Of Immigration": "If you are an immigrant, enter the date of your immigration to Israel in DD/MM/YYYY format.",
+        "City": "Enter the city of your current residence.",
+        "Street": "Enter the street name of your current residence.",
+        "House Number": "Enter the house or building number of your current residence.",
+        "Postal Code": " Enter the postal code of your current address.",
+        "Phone Number": "Enter your landline phone number, if applicable.",
+        "Mobile Number": "Enter your mobile phone number.",
+        "Email": "Enter your active email address for contact purposes.",
+        "Start Date Of Job": " Enter the date you started working for your current employer in DD/MM/YYYY format.",
+        "Role": "Specify your current job role or position.",
+        "Sex": "Select your gender (Male/Female).",
+        "Israeli Resident": "Indicate whether you are an Israeli resident (Yes/No).",
+        "Member Of Kibbutz/Cooperative Session": "Mark if you are a member of a kibbutz or cooperative association.",
+        "Health Fund Number": " Enter your health fund membership number, if applicable.",
+        "Marital Status": " Select your marital status (e.g., Single, Married, Divorced)."
     }
 
     const save = (data) => {
@@ -147,7 +154,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeFirstName' && (
                                         <div className="d-flex justify-content-end" style={{ position: 'relative' }}>
                                             <div className="speech up">
-                                            Enter your full first name as it appears on your identification document.
+                                                Enter your full first name as it appears on your identification document.
                                             </div>
                                         </div>
                                     )}
@@ -171,7 +178,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeLastName' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter your full last name as it appears on your identification document.
+                                                Enter your full last name as it appears on your identification document.
                                             </div>
                                         </div>
                                     )}
@@ -199,7 +206,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeIsraeliResident' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Indicate whether you are an Israeli resident (Yes/No).
+                                                Indicate whether you are an Israeli resident (Yes/No).
                                             </div>
                                         </div>
                                     )}
@@ -224,7 +231,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeSex' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Select your gender (Male/Female).
+                                                Select your gender (Male/Female).
                                             </div>
                                         </div>
                                     )}
@@ -241,11 +248,11 @@ export default function GeneralInfo({
                                                 type="radio"
                                                 name="employeeIdentityType"
                                                 value="IDNumber"
-                                                className="mr-2 pl-2"
-                                                checked={indentityType === "IDNumber"}
+                                                className="mr-2"
+                                                checked={indentityType === "IDNumber" ? true : false}
                                                 onChange={(e) => {
-                                                    handleChange(e);
                                                     setIndentityType(e.target.value);
+                                                    handleChange(e);
                                                     setFieldValue("employeeIdentityType", e.target.value);
                                                 }}
                                             />
@@ -256,12 +263,13 @@ export default function GeneralInfo({
                                                 type="radio"
                                                 name="employeeIdentityType"
                                                 value="Passport"
-                                                className="mr-2 pl-2"
-                                                checked={indentityType === "Passport"}
+                                                className="mr-2"
+                                                checked={indentityType === "Passport" ? true : false}
                                                 onChange={(e) => {
-                                                    handleChange(e);
                                                     setIndentityType(e.target.value);
+                                                    handleChange(e);
                                                     setFieldValue("employeeIdentityType", e.target.value);
+
                                                 }}
                                             />
                                             <span className="">{t("form101.passport_foreign")}</span>
@@ -280,14 +288,23 @@ export default function GeneralInfo({
                                         label={t("form101.country_passport")}
                                         value={values.employeecountry}
                                         onChange={(e) => {
-                                            setIndentityType(e.target.value === "Israel" ? "IDNumber" : "Passport");
+                                            const selectedCountry = e.target.value;
                                             handleChange(e);
-                                            setFieldValue("employeeIdentityType", e.target.value === "Israel" ? "IDNumber" : "Passport");
+
+                                            // Set identity type based on country, but only modify the identity field
+                                            if (selectedCountry === "Israel") {
+                                                setIndentityType("IDNumber");
+                                                setFieldValue("employeeIdentityType", "IDNumber");
+                                            } else {
+                                                setIndentityType("Passport");
+                                                setFieldValue("employeeIdentityType", "Passport");
+                                            }
+
+                                            setFieldValue("employeecountry", selectedCountry); // Update country
                                         }}
                                         onBlur={handleBlur}
                                         error={
-                                            touched.employeecountry &&
-                                                errors.employeecountry
+                                            touched.employeecountry && errors.employeecountry
                                                 ? errors.employeecountry
                                                 : ""
                                         }
@@ -319,7 +336,7 @@ export default function GeneralInfo({
                                             {activeBubble === 'employeePassportNumber' && (
                                                 <div className="d-flex justify-content-end">
                                                     <div className="speech up">
-                                                    If applicable, enter your passport number and country of issue.
+                                                        If applicable, enter your passport number and country of issue.
                                                     </div>
                                                 </div>
                                             )}
@@ -334,14 +351,13 @@ export default function GeneralInfo({
                                                     type="file"
                                                     name="employeepassportCopy"
                                                     id="employeepassportCopy"
-                                                    className="form-control man p-0 border-0"
-                                                    style={{ fontSize: "unset", backgroundColor: "unset", }}
                                                     accept="image/*"
                                                     onChange={(e) => {
                                                         setFieldValue(
                                                             "employeepassportCopy",
                                                             e.target.files[0]
-                                                        )
+                                                        );
+                                                        handleFileChange(e, "passport");
                                                     }
                                                     }
                                                     onBlur={handleBlur}
@@ -415,7 +431,7 @@ export default function GeneralInfo({
                                             {activeBubble === 'employeeIdNumber' && (
                                                 <div className="d-flex justify-content-end">
                                                     <div className="speech up">
-                                                    If applicable, enter your ID number and country of issue.
+                                                        If applicable, enter your ID number and country of issue.
                                                     </div>
                                                 </div>
                                             )}
@@ -431,11 +447,13 @@ export default function GeneralInfo({
                                                     name="employeeIdCardCopy"
                                                     id="employeeIdCardCopy"
                                                     accept="image/*"
-                                                    onChange={(e) =>
+                                                    onChange={(e) => {
                                                         setFieldValue(
                                                             "employeeIdCardCopy",
                                                             e.target.files[0]
-                                                        )
+                                                        );
+                                                        handleFileChange(e, "id_card");
+                                                    }
                                                     }
                                                     onBlur={handleBlur}
                                                 />
@@ -472,7 +490,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeDob' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter your date of birth in DD/MM/YYYY format.
+                                                Enter your date of birth in DD/MM/YYYY format.
                                             </div>
                                         </div>
                                     )}
@@ -497,7 +515,7 @@ export default function GeneralInfo({
                                             {activeBubble === 'employeeDateOfAliyah' && (
                                                 <div className="d-flex justify-content-end">
                                                     <div className="speech up">
-                                                    Enter the date you started working for your current employer in DD/MM/YYYY format.
+                                                        Enter the date you started working for your current employer in DD/MM/YYYY format.
                                                     </div>
                                                 </div>
                                             )}
@@ -524,7 +542,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeCity' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter the city of your current residence.
+                                                Enter the city of your current residence.
                                             </div>
                                         </div>
                                     )}
@@ -547,7 +565,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeStreet' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter the street name of your current residence.
+                                                Enter the street name of your current residence.
                                             </div>
                                         </div>
                                     )}
@@ -572,7 +590,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeHouseNo' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter the house or building number of your current residence.
+                                                Enter the house or building number of your current residence.
                                             </div>
                                         </div>
                                     )}
@@ -596,7 +614,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeePostalCode' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter the postal code of your current address.
+                                                Enter the postal code of your current address.
                                             </div>
                                         </div>
                                     )}
@@ -622,7 +640,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeMobileNo' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter your mobile phone number.
+                                                Enter your mobile phone number.
                                             </div>
                                         </div>
                                     )}
@@ -644,7 +662,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeePhoneNo' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter your landline phone number, if applicable.
+                                                Enter your landline phone number, if applicable.
                                             </div>
                                         </div>
                                     )}
@@ -670,7 +688,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeEmail' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter your active email address for contact purposes.
+                                                Enter your active email address for contact purposes.
                                             </div>
                                         </div>
                                     )}
@@ -683,9 +701,7 @@ export default function GeneralInfo({
                                         onChange={(e) => {
                                             if (e.target.value !== null) {
                                                 setFieldValue("DateOfBeginningWork", e.target.value);
-                                            } else {
-                                                console.log(values.DateOfBeginningWork);
-                                            }
+                                            } 
                                         }}
                                         toggleBubble={handleBubbleToggle} // Pass the toggle handler
                                         onBlur={handleBlur}
@@ -699,7 +715,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'DateOfBeginningWork' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                            Enter the date you started working for your current employer in DD/MM/YYYY format.
+                                                Enter the date you started working for your current employer in DD/MM/YYYY format.
                                             </div>
                                         </div>
                                     )}

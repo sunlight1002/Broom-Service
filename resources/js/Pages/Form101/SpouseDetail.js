@@ -29,9 +29,9 @@ export default function SpouseDetail({
                             onBlur={handleBlur}
                             error={
                                 touched.Spouse &&
-                                errors.Spouse &&
-                                touched.Spouse.firstName &&
-                                errors.Spouse.firstName
+                                    errors.Spouse &&
+                                    touched.Spouse.firstName &&
+                                    errors.Spouse.firstName
                                     ? errors.Spouse.firstName
                                     : ""
                             }
@@ -47,9 +47,9 @@ export default function SpouseDetail({
                             onBlur={handleBlur}
                             error={
                                 touched.Spouse &&
-                                errors.Spouse &&
-                                touched.Spouse.lastName &&
-                                errors.Spouse.lastName
+                                    errors.Spouse &&
+                                    touched.Spouse.lastName &&
+                                    errors.Spouse.lastName
                                     ? errors.Spouse.lastName
                                     : ""
                             }
@@ -111,9 +111,9 @@ export default function SpouseDetail({
                                     onBlur={handleBlur}
                                     error={
                                         touched.Spouse &&
-                                        errors.Spouse &&
-                                        touched.Spouse.Country &&
-                                        errors.Spouse.Country
+                                            errors.Spouse &&
+                                            touched.Spouse.Country &&
+                                            errors.Spouse.Country
                                             ? errors.Spouse.Country
                                             : ""
                                     }
@@ -129,9 +129,9 @@ export default function SpouseDetail({
                                     onBlur={handleBlur}
                                     error={
                                         touched.Spouse &&
-                                        errors.Spouse &&
-                                        touched.Spouse.passportNumber &&
-                                        errors.Spouse.passportNumber
+                                            errors.Spouse &&
+                                            touched.Spouse.passportNumber &&
+                                            errors.Spouse.passportNumber
                                             ? errors.Spouse.passportNumber
                                             : ""
                                     }
@@ -149,9 +149,9 @@ export default function SpouseDetail({
                                 onBlur={handleBlur}
                                 error={
                                     touched.Spouse &&
-                                    errors.Spouse &&
-                                    touched.Spouse.IdNumber &&
-                                    errors.Spouse.IdNumber
+                                        errors.Spouse &&
+                                        touched.Spouse.IdNumber &&
+                                        errors.Spouse.IdNumber
                                         ? errors.Spouse.IdNumber
                                         : ""
                                 }
@@ -168,9 +168,9 @@ export default function SpouseDetail({
                             onBlur={handleBlur}
                             error={
                                 touched.Spouse &&
-                                errors.Spouse &&
-                                touched.Spouse.Dob &&
-                                errors.Spouse.Dob
+                                    errors.Spouse &&
+                                    touched.Spouse.Dob &&
+                                    errors.Spouse.Dob
                                     ? errors.Spouse.Dob
                                     : ""
                             }
@@ -187,9 +187,9 @@ export default function SpouseDetail({
                                 onBlur={handleBlur}
                                 error={
                                     touched.Spouse &&
-                                    errors.Spouse &&
-                                    touched.Spouse.DateOFAliyah &&
-                                    errors.Spouse.DateOFAliyah
+                                        errors.Spouse &&
+                                        touched.Spouse.DateOFAliyah &&
+                                        errors.Spouse.DateOFAliyah
                                         ? errors.Spouse.DateOFAliyah
                                         : ""
                                 }
@@ -217,9 +217,9 @@ export default function SpouseDetail({
                             onBlur={handleBlur}
                             error={
                                 touched.Spouse &&
-                                errors.Spouse &&
-                                touched.Spouse.hasIncome &&
-                                errors.Spouse.hasIncome
+                                    errors.Spouse &&
+                                    touched.Spouse.hasIncome &&
+                                    errors.Spouse.hasIncome
                                     ? errors.Spouse.hasIncome
                                     : ""
                             }
@@ -248,11 +248,11 @@ export default function SpouseDetail({
                                             onBlur={handleBlur}
                                             error={
                                                 touched.Spouse &&
-                                                errors.Spouse &&
-                                                touched.Spouse.incomeTypeOpt1 &&
-                                                errors.Spouse.incomeTypeOpt1
+                                                    errors.Spouse &&
+                                                    touched.Spouse.incomeTypeOpt1 &&
+                                                    errors.Spouse.incomeTypeOpt1
                                                     ? errors.Spouse
-                                                          .incomeTypeOpt1
+                                                        .incomeTypeOpt1
                                                     : ""
                                             }
                                         />
@@ -262,21 +262,22 @@ export default function SpouseDetail({
                                             name={"Spouse.incomeTypeOpt2"}
                                             label={t("form101.incomeTypeOpt2")}
                                             value={values.Spouse.incomeTypeOpt2}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
                                                 setFieldValue(
                                                     "Spouse.incomeTypeOpt2",
                                                     e.target.checked
-                                                )
+                                                );
+                                                handleChange(e);
                                             }
-                                            onChange={handleChange}
+                                            }
                                             onBlur={handleBlur}
                                             error={
                                                 touched.Spouse &&
-                                                errors.Spouse &&
-                                                touched.Spouse.incomeTypeOpt2 &&
-                                                errors.Spouse.incomeTypeOpt2
+                                                    errors.Spouse &&
+                                                    touched.Spouse.incomeTypeOpt2 &&
+                                                    errors.Spouse.incomeTypeOpt2
                                                     ? errors.Spouse
-                                                          .incomeTypeOpt2
+                                                        .incomeTypeOpt2
                                                     : ""
                                             }
                                         />

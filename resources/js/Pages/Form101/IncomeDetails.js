@@ -1,4 +1,6 @@
-import React from "react";
+// IncomeDetails
+
+import React, { useEffect } from "react";
 import CheckBox from "./inputElements/CheckBox";
 import DateField from "./inputElements/DateField";
 import { useTranslation } from "react-i18next";
@@ -10,6 +12,8 @@ const IncomeDetails = ({
     handleBlur,
     handleChange,
     setFieldValue,
+    handleBubbleToggle,
+    activeBubble
 }) => {
     const { t } = useTranslation();
     const handleIncomeChange = (event) => {
@@ -17,11 +21,42 @@ const IncomeDetails = ({
         const newValue = checked ? value : "";
         setFieldValue(name, newValue);
     };
+
     return (
-        <div>
-            <h2>{t("form101.employer_income_details")}</h2>
+        <div className="mt-3">
+            <p className="navyblueColor font-24 font-w-500  mb-2">{t("form101.employer_income_details")}</p>
+
             <div className="row">
-                <div className="col-sm-4">
+                <div className="col">
+                    <DateField
+                        name="DateOfBeginningWork"
+                        label={t("form101.do_commencement")}
+                        value={values.DateOfBeginningWork}
+                        onChange={(e) => {
+                            if (e.target.value !== null) {
+                                setFieldValue("DateOfBeginningWork", e.target.value);
+                            }
+                        }}
+                        toggleBubble={handleBubbleToggle}
+                        onBlur={handleBlur}
+                        error={
+                            touched.DateOfBeginningWork && errors.DateOfBeginningWork
+                                ? errors.DateOfBeginningWork
+                                : ""
+                        }
+                        required
+                    />
+                    {activeBubble === 'DateOfBeginningWork' && (
+                        <div className="d-flex justify-content-end">
+                            <div className="speech up">
+                                Info about Employee First Name!
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+            <div className="row mt-2">
+                <div className="col">
                     <CheckBox
                         name={"incomeType"}
                         label={t("form101.month_salary")}
@@ -36,7 +71,7 @@ const IncomeDetails = ({
                         }
                     />
                 </div>{" "}
-                <div className="col-sm-4">
+                <div className="col">
                     <CheckBox
                         name={"incomeType"}
                         label={t("form101.salary_ap")}
@@ -54,7 +89,7 @@ const IncomeDetails = ({
                         }
                     />
                 </div>
-                <div className="col-sm-4">
+                <div className="col">
                     <CheckBox
                         name={"incomeType"}
                         label={t("form101.partial_salary")}
@@ -71,7 +106,7 @@ const IncomeDetails = ({
                 </div>
             </div>
             <div className="row">
-                <div className="col-sm-4">
+                <div className="col">
                     <CheckBox
                         name={"incomeType"}
                         label={t("form101.daily_wages")}
@@ -88,7 +123,7 @@ const IncomeDetails = ({
                         }
                     />
                 </div>
-                <div className="col-sm-4">
+                <div className="col">
                     <CheckBox
                         name={"incomeType"}
                         label={t("form101.allowance")}
@@ -103,7 +138,7 @@ const IncomeDetails = ({
                         }
                     />
                 </div>
-                <div className="col-sm-4">
+                <div className="col">
                     <CheckBox
                         name={"incomeType"}
                         label={t("form101.scholarship")}
@@ -118,22 +153,7 @@ const IncomeDetails = ({
                         }
                     />
                 </div>
-                <div className="col-12">
-                    <DateField
-                        name="DateOfBeginningWork"
-                        label={t("form101.do_commencement")}
-                        value={values.DateOfBeginningWork}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.DateOfBeginningWork &&
-                            errors.DateOfBeginningWork
-                                ? errors.DateOfBeginningWork
-                                : ""
-                        }
-                        required
-                    />
-                </div>
+
             </div>
         </div>
     );

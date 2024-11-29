@@ -1,3 +1,5 @@
+// InsuranceForm.js
+
 import React, { useState, useEffect, useRef } from "react";
 import { PDFDocument } from 'pdf-lib'
 import fontkit from "@pdf-lib/fontkit";
@@ -18,6 +20,8 @@ import { useTranslation } from "react-i18next";
 import SignatureCanvas from "react-signature-canvas";
 import companySign from '../Assets/image/company-sign.png'
 import Font from '../../../public/fonts/OSAran400FFC.ttf'
+import { GrFormPreviousLink } from "react-icons/gr";
+import { GrFormNextLink } from "react-icons/gr";
 
 import moment from "moment";
 
@@ -27,30 +31,17 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 
-const InsuranceForm = () => {
+const InsuranceForm = ({
+    nextStep,
+    setNextStep,
+    handleBubbleToggle,
+    activeBubble
+}) => {
     const [show, setShow] = useState(false);
     const sigRef = useRef();
     const currentDate = moment().format("YYYY-MM-DD");
     const [pdfData, setPdfData] = useState(null);
     const { t } = useTranslation();
-
-    const [formSubmitted, setFormSubmitted] = useState(false);
-
-    const scrollToError = (errors) => {
-        if (formSubmitted) {
-            const errorFields = Object.keys(errors);
-            if (errorFields.length > 0) {
-                const firstErrorField = errorFields[0];
-                const errorElement = document.getElementById(firstErrorField);
-                if (errorElement) {
-                    errorElement.scrollIntoView({ behavior: "smooth" });
-                    errorElement.focus();
-                }
-            }
-        }
-        setFormSubmitted(false)
-    };
-
     const initialValues = {
         // page 1
         type: "New",
@@ -72,7 +63,7 @@ const InsuranceForm = () => {
         // page 3
         GCandidatename: "",
         GDate: "",
-        // g1: "",
+        g1: "",
         g1Height: "",
         g1Weight: "",
         g2: "",
@@ -111,71 +102,90 @@ const InsuranceForm = () => {
         // stamp: companySign
     };
 
+    useEffect(() => {
+        window.scroll(0, 0);
+    }, [nextStep])
 
-    const formSchema = yup.object({
-        canFirstName: yup
-            .string()
-            .trim()
-            .min(2, t("insurance.fname2CharLong"))
-            .required(t("insurance.fnameReq")),
-        canLastName: yup
-            .string()
-            .trim()
-            .min(2, t("insurance.lname2CharLong"))
-            .required(t("insurance.lnameReq")),
-        canPassport: yup
-            .string()
-            .trim()
-            .min(2, t("insurance.passport2CharLong"))
-            .required(t("insurance.passportReq")),
-        canOrigin: yup.string().trim().required(t("insurance.originReq")),
-        canDOB: yup.date().required(t("insurance.dobReq")),
-        canFirstDateOfIns: yup.date().required(t("insurance.FDIReq")),
-        canZipcode: yup.string().trim().required(t("insurance.zipReq")),
-        canTown: yup.string().trim().required(t("insurance.townReq")),
-        canHouseNo: yup.string().trim().required(t("insurance.houseNumReq")),
-        canStreet: yup.string().trim().required(t("insurance.streetReq")),
-        canTelephone: yup.number().required(t("insurance.telReq")),
-        canCellPhone: yup.number().required(t("insurance.phoneReq")),
-        canEmail: yup.string().trim().email().required(t("insurance.emailReq")),
-        gender: yup.string().trim().required(t("insurance.genderReq")),
-        g1Height: yup.string().trim().required(t("insurance.heightReq")),
-        g1Weight: yup.string().trim().required(t("insurance.weightReq")),
-        details: yup
-            .string()
-            .test(
-                "is-required-or-nullable",
-                "Details are required because a field is marked 'yes'",
-                function (value) {
-                    const {
-                        g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
-                        g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
-                        g23, g24
-                    } = this.parent;
 
-                    const requiresDetails = [
-                        g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
-                        g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
-                        g23, g24
-                    ].includes("yes");
+    const scrollToError = (errors) => {
+        const errorFields = Object.keys(errors);
+        if (errorFields.length > 0) {
+            const firstErrorField = errorFields[0];
+            console.log(firstErrorField);
 
-                    // If none of the fields require details, allow null or undefined
-                    if (!requiresDetails) {
-                        return true; // Treat as valid (nullable case)
+            const errorElement = document.getElementById(firstErrorField);
+            if (errorElement) {
+                errorElement.scrollIntoView({ behavior: "smooth" });
+                errorElement.focus();
+            }
+        }
+    };
+
+    const formSchema = {
+        step7: yup.object({
+            canFirstName: yup
+                .string()
+                .trim()
+                .min(2, t("insurance.fname2CharLong"))
+                .required(t("insurance.fnameReq")),
+            canLastName: yup
+                .string()
+                .trim()
+                .min(2, t("insurance.lname2CharLong"))
+                .required(t("insurance.lnameReq")),
+            canPassport: yup
+                .string()
+                .trim()
+                .min(2, t("insurance.passport2CharLong"))
+                .required(t("insurance.passportReq")),
+            canOrigin: yup.string().trim().required(t("insurance.originReq")),
+            canDOB: yup.date().required(t("insurance.dobReq")),
+            canFirstDateOfIns: yup.date().required(t("insurance.FDIReq")),
+            canZipcode: yup.string().trim().required(t("insurance.zipReq")),
+            canTown: yup.string().trim().required(t("insurance.townReq")),
+            canHouseNo: yup.string().trim().required(t("insurance.houseNumReq")),
+            canStreet: yup.string().trim().required(t("insurance.streetReq")),
+            canTelephone: yup.number().required(t("insurance.telReq")),
+            canCellPhone: yup.number().required(t("insurance.phoneReq")),
+            canEmail: yup.string().trim().email().required(t("insurance.emailReq")),
+            gender: yup.string().trim().required(t("insurance.genderReq")),
+            g1Height: yup.string().trim().required(t("insurance.heightReq")),
+            g1Weight: yup.string().trim().required(t("insurance.weightReq")),
+            details: yup
+                .string()
+                .test(
+                    "is-required-or-nullable",
+                    "Details are required because a field is marked 'yes'",
+                    function (value) {
+                        const {
+                            g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
+                            g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
+                            g23, g24
+                        } = this.parent;
+
+                        const requiresDetails = [
+                            g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
+                            g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
+                            g23, g24
+                        ].includes("yes");
+
+                        // If none of the fields require details, allow null or undefined
+                        if (!requiresDetails) {
+                            return true; // Treat as valid (nullable case)
+                        }
+
+                        // If details are required, ensure value is not empty
+                        if (!value) {
+                            return this.createError({ message: "Details are required because a field is marked 'yes'" });
+                        }
+
+                        return true;
                     }
-
-                    // If details are required, ensure value is not empty
-                    if (!value) {
-                        return this.createError({ message: "Details are required because a field is marked 'yes'" });
-                    }
-
-                    return true;
-                }
-            )
-            .nullable(), // Allow null if the test logic passes for nullable case
-
-        signature: yup.mixed().required(t("form101.errorMsg.sign")),
-    });
+                )
+                .nullable(), // Allow null if the test logic passes for nullable case
+            signature: yup.mixed().required(t("form101.errorMsg.sign")),
+        })
+    };
     const [formValues, setFormValues] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -187,9 +197,9 @@ const InsuranceForm = () => {
         touched,
         handleBlur,
         handleChange,
-        handleSubmit,
         values,
         setFieldValue,
+        handleSubmit,
         isSubmitting,
         validateForm,
         setTouched,
@@ -197,38 +207,25 @@ const InsuranceForm = () => {
     } = useFormik({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
-        validationSchema: formSchema,
+        validationSchema: formSchema[`step${nextStep}`],
         onSubmit: async (values) => {
+
             await saveFormData(true);
         },
     });
 
+    console.log(errors, "errors");
 
-    const handleFormSubmit = async (e) => {
+
+
+    const handleNextPrev = async (e) => {
         e.preventDefault();
-        setFormSubmitted(true);
-
-        setTouched(
-            Object.keys(values).reduce(
-                (acc, key) => ({ ...acc, [key]: true }),
-                {}
-            )
-        );
-
-        const validationErrors = await validateForm();
-
-        if (Object.keys(validationErrors).length > 0) {
-            scrollToError(validationErrors);
-        } else {
-            handleSubmit(e);
-        }
+        handleSubmit();
+        // Validate the current step
+        const validationErrors = await validateForm(); // This will populate the `errors` object
+        scrollToError(validationErrors);
     };
 
-    useEffect(() => {
-        if (!isValid && formSubmitted) {
-            scrollToError(errors);
-        }
-    }, [errors, isValid, formSubmitted]);
 
     const saveFormData = async (isSubmit) => {
         const formPdfBytes = await fetch("/pdfs/health-insurance.pdf").then(
@@ -477,6 +474,8 @@ const InsuranceForm = () => {
                 setFieldValue("canPassport", _worker.passport);
                 setFieldValue("canFirstDateOfIns", _worker.first_date);
 
+                console.log(_worker);
+
                 const _gender = _worker.gender;
                 setFieldValue(
                     "gender",
@@ -522,1883 +521,1848 @@ const InsuranceForm = () => {
         setFieldValue("signature", "");
     };
 
+
+
     return (
-        <form className="my-2 mx-4" onSubmit={handleSubmit}>
-            <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "18px", fontWeight: "bold" }}
-            >
-                {t("insurance.insuraceDetailCandidate")}
+        <div>
+            <div className="mb-4">
+                <p className="navyblueColor font-30 mt-4 font-w-500"> {t("insurance.insuraceDetailCandidate")}</p>
             </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.fN")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canFirstName"}
-                            className="form-control"
-                            value={values.canFirstName}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            readOnly
-                        />
-                        <span className="text-danger">
-                            {touched.canFirstName && errors.canFirstName}
-                        </span>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.LN")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canLastName"}
-                            id={"canLastName"}
-                            className="form-control"
-                            value={values.canLastName}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            readOnly
-                        />
-                        <span className="text-danger">
-                            {touched.canLastName && errors.canLastName}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Passport")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canPassport"}
-                            id={"canPassport"}
-                            className="form-control"
-                            value={values.canPassport}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        <span className="text-danger">
-                            {touched.canPassport && errors.canPassport}
-                        </span>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Origin")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canOrigin"}
-                            id={"canOrigin"}
-                            className="form-control"
-                            value={values.canOrigin}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        <span className="text-danger">
-                            {touched.canOrigin && errors.canOrigin}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.DOB")}
-                        </label>
-                        <input
-                            type="date"
-                            name={"canDOB"}
-                            id={"canDOB"}
-                            className="form-control"
-                            value={values.canDOB}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        <span className="text-danger">
-                            {touched.canDOB && errors.canDOB}
-                        </span>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.FirstDateIns")}
-                        </label>
-                        <input
-                            type="date"
-                            name={"canFirstDateOfIns"}
-                            id={"canFirstDateOfIns"}
-                            className="form-control"
-                            value={values.canFirstDateOfIns}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        <span className="text-danger">
-                            {touched.canFirstDateOfIns &&
-                                errors.canFirstDateOfIns}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.zipCode")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canZipcode"}
-                            id={"canZipcode"}
-                            className="form-control"
-                            value={values.canZipcode}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        <span className="text-danger">
-                            {touched.canZipcode && errors.canZipcode}
-                        </span>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Town")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canTown"}
-                            id={"canTown"}
-                            className="form-control"
-                            value={values.canTown}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        <span className="text-danger">
-                            {touched.canTown && errors.canTown}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.HouseNumber")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canHouseNo"}
-                            id={"canHouseNo"}
-                            className="form-control"
-                            value={values.canHouseNo}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        <span className="text-danger">
-                            {touched.canHouseNo && errors.canHouseNo}
-                        </span>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Street")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canStreet"}
-                            id={"canStreet"}
-                            className="form-control"
-                            value={values.canStreet}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        <span className="text-danger">
-                            {touched.canStreet && errors.canStreet}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Telephone")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canTelephone"}
-                            id={"canTelephone"}
-                            className="form-control"
-                            value={values.canTelephone}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                        />
-                        <span className="text-danger">
-                            {touched.canTelephone && errors.canTelephone}
-                        </span>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Cellphone")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canCellPhone"}
-                            id={"canCellPhone"}
-                            className="form-control"
-                            value={values.canCellPhone}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            readOnly
-                        />
-                        <span className="text-danger">
-                            {touched.canCellPhone && errors.canCellPhone}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Email")}
-                        </label>
-                        <input
-                            type="text"
-                            name={"canEmail"}
-                            id={"canEmail"}
-                            className="form-control"
-                            value={values.canEmail}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            readOnly
-                        />
-                        <span className="text-danger">
-                            {touched.canEmail && errors.canEmail}
-                        </span>
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <label className="control-label">
-                        {t("insurance.Gender")}
-                    </label>
-                    <div className="d-flex">
-                        <Form.Check
-                            label={t("insurance.Male")}
-                            className="mr-2"
-                            name="gender"
-                            value="Male"
-                            checked={values.gender === "Male"}
-                            type="radio"
-                            id={`gender-1`}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            disabled
-                        />
-                        <Form.Check
-                            label={t("insurance.Female")}
-                            name="gender"
-                            value="Female"
-                            checked={values.gender === "Female"}
-                            type="radio"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            id={`gender-2`}
-                            disabled
-                        />
-                    </div>
-                    <span className="text-danger">
-                        {touched.gender && errors.gender}
-                    </span>
-                </div>
-            </div>
-
-            {/* Section G */}
-
-            <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "18px", fontWeight: "bold" }}
-            >
-                {t("insurance.HealthDeclaration")}
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.CandidateName")}
-                        </label>
-                        <input
-                            type="text"
-                            name="GCandidatename"
-                            className="form-control"
-                            value={values.GCandidatename}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "18px", fontWeight: "bold" }}
-            >
-                {t("insurance.generalQesMwdical")}
-            </div>
-            <div>
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label d-flex align-items-center">
-                                <div className="mr-2">
-                                    {t("insurance.Height")}
-                                </div>
-                                <div className="w-100">
-                                    <input
-                                        type="text"
-                                        name="height"
-                                        id="g1Height"
-                                        className="form-control"
-                                        value={values.g1Height}
-                                        onChange={(e) =>
-                                            setFieldValue(
-                                                "g1Height",
-                                                e.target.value
-                                            )
-                                        }
-                                    />{" "}
-                                    <span className="text-danger">
-                                        {touched.g1Height && errors.g1Height}
-                                    </span>
-                                </div>
-                                <div
-                                    style={{
-                                        whiteSpace: "nowrap",
-                                        margin: "0 5px",
-                                    }}
-                                >
-                                    {t("insurance.andWidth")}
-                                </div>
-                                <div className="w-100">
-                                    <input
-                                        type="text"
-                                        name="width"
-                                        id="g1Weight"
-                                        className="form-control"
-                                        value={values.g1Weight}
-                                        onChange={(e) =>
-                                            setFieldValue(
-                                                "g1Weight",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                    <span className="text-danger">
-                                        {touched.g1Weight && errors.g1Weight}
-                                    </span>
-                                </div>
-                            </label>
-                            {/* <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        checked={values.g1 === "yes"}
-                                        name="Height and Width"
-                                        id="g1yes"
-                                        onChange={(e) =>
-                                            setFieldValue("g1", e.target.value)
-                                        }
-                                        value="yes"
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g1yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="Height and Width"
-                                        checked={values.g1 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g1", e.target.value)
-                                        }
-                                        id="g1no"
-                                        value="no"
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g1no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div> */}
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.isthereChangeInWeight")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        checked={values.g2 === "yes"}
-                                        name="g2yn"
-                                        id="g2yes"
-                                        onChange={(e) =>
-                                            setFieldValue("g2", e.target.value)
-                                        }
-                                        value="yes"
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g2yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g2yn"
-                                        checked={values.g2 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g2", e.target.value)
-                                        }
-                                        id="g2no"
-                                        value="no"
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g2no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.alcohol")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        checked={values.g3 === "yes"}
-                                        name="g3yn"
-                                        id="g3yes"
-                                        onChange={(e) =>
-                                            setFieldValue("g3", e.target.value)
-                                        }
-                                        value="yes"
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g3yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g3yn"
-                                        checked={values.g3 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g3", e.target.value)
-                                        }
-                                        id="g3no"
-                                        value="no"
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g3no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.smoke")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g4y2"
-                                        id="g4t"
-                                        checked={values.g4Today === "yes"}
-                                        onChange={(e) => {
-                                            setFieldValue("g4Today", "yes");
-                                            setFieldValue("g4Past", "no");
-                                        }}
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g4t"
-                                    >
-                                        {t("insurance.Today")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g4yn2"
-                                        id="g4p"
-                                        checked={values.g4Today === "no"}
-                                        onChange={(e) => {
-                                            setFieldValue("g4Today", "no");
-                                            setFieldValue("g4Past", "yes");
-                                        }}
-                                        value="yes"
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g4p"
-                                    >
-                                        {t("insurance.InThePast")}
-                                    </label>
-                                </div>
-                                <div className="d-flex align-items-center">
-                                    <div
-                                        style={{
-                                            whiteSpace: "nowrap",
-                                        }}
-                                        className="mr-4"
-                                    >
-                                        {t("insurance.whenStop")}
-                                    </div>
-                                    <input
-                                        type="text"
-                                        name="g4stop"
-                                        className="form-control"
-                                        value={values.g4WhenStop}
-                                        onChange={(e) =>
-                                            setFieldValue(
-                                                "g4WhenStop",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        checked={values.g4 === "yes"}
-                                        name="g4yn"
-                                        id="g4yes"
-                                        onChange={(e) =>
-                                            setFieldValue("g4", e.target.value)
-                                        }
-                                        value="yes"
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g4yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g4yn"
-                                        checked={values.g4 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g4", e.target.value)
-                                        }
-                                        id="g4no"
-                                        value="no"
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g4no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.drugs")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g5"
-                                        id="g5yes"
-                                        value="yes"
-                                        checked={values.g5 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g5", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g5yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g5"
-                                        id="g5no"
-                                        value="no"
-                                        checked={values.g5 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g5", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g5no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.surgery")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g6"
-                                        id="g6yes"
-                                        value="yes"
-                                        checked={values.g6 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g6", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g6yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g6"
-                                        id="g6no"
-                                        value="no"
-                                        checked={values.g6 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g6", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g6no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.hospitalized")}
-                            </label>
-                            <div> {t("insurance.hospitalizedReason")}</div>
-                            <div className="d-flex align-items-center">
-                                <input
-                                    type="text"
-                                    name="g7text"
-                                    className="form-control"
-                                    value={values.g7Reason}
-                                    onChange={(e) =>
-                                        setFieldValue(
-                                            "g7Reason",
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                            </div>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g7"
-                                        id="g7yes"
-                                        value="yes"
-                                        checked={values.g7 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g7", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g7yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g7"
-                                        id="g7no"
-                                        value="no"
-                                        checked={values.g7 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g7", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g7no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.chronicCondition")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g8"
-                                        id="g8yes"
-                                        value="yes"
-                                        checked={values.g8 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g8", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g8yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g8"
-                                        id="g8no"
-                                        value="no"
-                                        checked={values.g8 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g8", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g8no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.DidAnyTest")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g9"
-                                        id="g9yes"
-                                        value="yes"
-                                        checked={values.g9 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g9", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g9yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g9"
-                                        id="g9no"
-                                        value="no"
-                                        checked={values.g9 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g9", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g9no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-            </div>
-
-            <div
-                className="row justify-content-center my-2 w-75 mx-auto"
-                style={{ fontSize: "18px", fontWeight: "bold" }}
-            >
-                {t("insurance.Qestiondiseases")}
-            </div>
-
-            <div>
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.heartAndBlood")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g10"
-                                        id="g10yes"
-                                        value="yes"
-                                        checked={values.g10 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g10", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g10yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g10"
-                                        id="g10no"
-                                        value="no"
-                                        checked={values.g10 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g10", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g10no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.nervousSys")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g11"
-                                        id="g11yes"
-                                        value="yes"
-                                        checked={values.g11 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g11", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g11yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g11"
-                                        id="g11no"
-                                        value="no"
-                                        checked={values.g11 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g11", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g11no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Respiratory")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g12"
-                                        id="g12yes"
-                                        value="yes"
-                                        checked={values.g12 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g12", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g12yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g12"
-                                        id="g12no"
-                                        value="no"
-                                        checked={values.g12 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g12", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g12no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Respiratory")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g13"
-                                        id="g13yes"
-                                        value="yes"
-                                        checked={values.g13 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g13", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g13yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g13"
-                                        id="g13no"
-                                        value="no"
-                                        checked={values.g13 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g13", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g13no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Gastrointestinal")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g14"
-                                        id="g14yes"
-                                        value="yes"
-                                        checked={values.g14 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g14", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g14yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g14"
-                                        id="g14no"
-                                        value="no"
-                                        checked={values.g14 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g14", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g14no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Kidneys")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g15"
-                                        id="g15yes"
-                                        value="yes"
-                                        checked={values.g15 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g15", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g15yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g15"
-                                        id="g15no"
-                                        value="no"
-                                        checked={values.g15 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g15", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g15no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Metabolic")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g16"
-                                        id="g16yes"
-                                        value="yes"
-                                        checked={values.g16 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g16", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g16yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g16"
-                                        id="g16no"
-                                        value="no"
-                                        checked={values.g16 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g16", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g16no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Dermatology")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g17"
-                                        id="g17yes"
-                                        value="yes"
-                                        checked={values.g17 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g17", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g17yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g17"
-                                        id="g17no"
-                                        value="no"
-                                        checked={values.g17 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g17", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g17no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Malignant")}
-                            </label>
-                            <div className="d-flex align-items-center">
-                                <input
-                                    type="text"
-                                    name="g7text"
-                                    className="form-control"
-                                    value={values.g18Treatment}
-                                    onChange={(e) =>
-                                        setFieldValue(
-                                            "g18Treatment",
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                            </div>
-                            <div className="">{t("insurance.pathology")}</div>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g18"
-                                        id="g18yes"
-                                        value="yes"
-                                        checked={values.g18 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g18", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g18yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g18"
-                                        id="g18no"
-                                        value="no"
-                                        checked={values.g18 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g18", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g18no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Infectious")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g19"
-                                        id="g19yes"
-                                        value="yes"
-                                        checked={values.g19 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g19", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g19yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g19"
-                                        id="g19no"
-                                        value="no"
-                                        checked={values.g19 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g19", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g19no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.JointsAndfBone")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g20"
-                                        id="g20yes"
-                                        value="yes"
-                                        checked={values.g20 == "yes"}
-                                        onChange={(e) => {
-                                            setFieldValue(
-                                                "g20",
-                                                e.target.value
-                                            );
-                                        }}
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g20yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g20"
-                                        id="g20no"
-                                        value="no"
-                                        checked={values.g20 == "no"}
-                                        onChange={(e) => {
-                                            setFieldValue(
-                                                "g20",
-                                                e.target.value
-                                            );
-                                        }}
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g20no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.eyesCataract")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g21"
-                                        id="g21-yes"
-                                        value="yes"
-                                        checked={values.g21 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g21", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g21-yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g21"
-                                        id="g21-no"
-                                        value="no"
-                                        checked={values.g21 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g21", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g21-no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Otolaryngology")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g22"
-                                        id="g22-yes"
-                                        value="yes"
-                                        checked={values.g22 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g22", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g22-yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g22"
-                                        id="g22-no"
-                                        value="no"
-                                        checked={values.g22 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g22", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g22-no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.Hernia")}
-                            </label>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g23"
-                                        id="g23-yes"
-                                        value="yes"
-                                        checked={values.g23 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g23", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g23-yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g23"
-                                        id="g23-no"
-                                        value="no"
-                                        checked={values.g23 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g23", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g23-no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-
-                <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t("insurance.womenOnly")}
-                            </label>
-                            <div className="d-flex align-items-center">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    value={values.g24Treatment}
-                                    onChange={(e) =>
-                                        setFieldValue(
-                                            "g24Treatment",
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                            </div>
-                            <div>{t("insurance.Caesarean")}</div>
-                            <div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g24"
-                                        id="g24-yes"
-                                        value="yes"
-                                        checked={values.g24 === "yes"}
-                                        onChange={(e) =>
-                                            setFieldValue("g24", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g24-yes"
-                                    >
-                                        {t("insurance.Yes")}
-                                    </label>
-                                </div>
-                                <div className="form-check form-check-inline">
-                                    <input
-                                        className="form-check-input"
-                                        type="radio"
-                                        name="g24"
-                                        id="g24-no"
-                                        value="no"
-                                        checked={values.g24 === "no"}
-                                        onChange={(e) =>
-                                            setFieldValue("g24", e.target.value)
-                                        }
-                                    />
-                                    <label
-                                        className="form-check-label"
-                                        htmlFor="g24-no"
-                                    >
-                                        {t("insurance.No")}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <hr />
-                        <div className="col-sm-12">
+            <form className="row" onSubmit={handleNextPrev}>
+                <section className="col-xl">
+                    <div className="row justify-content-center">
+                        <div className="col-sm">
                             <div className="form-group">
                                 <label className="control-label">
-                                    Details of positive findings
+                                    {t("insurance.fN")}
                                 </label>
-                                <div>
-                                    <textarea
-                                        type="text"
-                                        name="details"
-                                        value={values.details}
-                                        onChange={(e) =>
-                                            setFieldValue("details", e.target.value)
-                                        }
-                                        className="form-control"
-                                        required
-                                        placeholder={"Enter if it required..."}
-                                    ></textarea>
-                                    <span className="text-danger">
-                                        {touched.details && errors.details}
-                                    </span>
-                                </div>
+                                <input
+                                    type="text"
+                                    name={"canFirstName"}
+                                    id="canFirstName"
+                                    className="form-control"
+                                    value={values.canFirstName}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    readOnly
+                                />
+                                <span className="text-danger">
+                                    {touched.canFirstName && errors.canFirstName}
+                                </span>
                             </div>
                         </div>
-                        <hr />
-
-                    </div>
-                </div>
-            </div>
-
-            {/* LAST section */}
-            <div
-                className="row justify-content-center my-2"
-                style={{ fontSize: "18px", fontWeight: "bold" }}
-            >
-                {t("insurance.signCanidate")}
-            </div>
-
-            <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <div className="form-group">
-                        <label className="control-label">
-                            {t("insurance.Date")}
-                        </label>
-                        <input
-                            type="date"
-                            name="canDate"
-                            className="form-control"
-                            value={values.canDate}
-                            onChange={handleChange}
-                            readOnly
-                        />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <label className="control-label">
-                        {t("insurance.Signature")}
-                    </label>
-                    <div className="d-lg-flex align-items-center">
-                        {formValues && formValues.signature ? (
-                            <img src={formValues.signature} />
-                        ) : (
-                            <>
-                                <div id="signature" className="d-flex flex-column">
-                                    <SignatureCanvas
-                                        penColor="black"
-                                        canvasProps={{
-                                            width: 250,
-                                            height: 100,
-                                            className:
-                                                "sign101 border mt-1 bg-white",
-                                        }}
-                                        ref={sigRef}
-                                        onEnd={handleSignatureEnd}
-                                    />
-                                    <span className="text-danger">
-                                        {touched.signature && errors.signature}
-                                    </span>
-                                </div>
-                                <p className="ml-2">
-                                    <button
-                                        className="btn btn-warning mb-2"
-                                        onClick={clearSignature}
-                                    >
-                                        {t("form101.button_clear")}
-                                    </button>
-                                </p>
-                            </>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Buttons */}
-            <div>
-                {!isSubmitted && (
-                    <div className="row justify-content-center">
-                        <div className="col-md-8 d-flex">
-                            <button
-                                type="button"
-                                className="btn btn-secondary"
-                                onClick={handleShow}
-                                disabled={isSubmitting}
-                            >
-                                {t("insurance.Preview")}
-                            </button>
-                            <div className="mx-2"></div>
-                            <button
-                                type="submit"
-                                className="btn btn-primary"
-                                onClick={handleFormSubmit}
-                                disabled={isSubmitting}
-                            >
-                                {t("insurance.Submit")}
-                            </button>
-
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.LN")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name={"canLastName"}
+                                    id="canLastName"
+                                    className="form-control"
+                                    value={values.canLastName}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    readOnly
+                                />
+                                <span className="text-danger">
+                                    {touched.canLastName && errors.canLastName}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                )}
 
-                <Modal
-                    dialogClassName="pdf-dialog"
-                    style={{
-                        width: "auto",
-                        maxWidth: "max-content !important",
-                    }}
-                    show={show}
-                    onHide={handleClose}
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title>{t("insurance.Preview")}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        {!!pdfData && <PdfViewer url={pdfData} />}
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleClose}>
-                            {t("insurance.Close")}
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-            </div>
-        </form>
+                    <div className="row justify-content-center">
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.Passport")}
+                                </label>
+                                <input
+                                    type="text"
+                                    id="canPassport"
+                                    name={"canPassport"}
+                                    className="form-control"
+                                    value={values.canPassport}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <span className="text-danger">
+                                    {touched.canPassport && errors.canPassport}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.Origin")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name={"canOrigin"}
+                                    id={"canOrigin"}
+                                    className="form-control"
+                                    value={values.canOrigin}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <span className="text-danger">
+                                    {touched.canOrigin && errors.canOrigin}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row justify-content-center">
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.DOB")}
+                                </label>
+                                <input
+                                    type="date"
+                                    name={"canDOB"}
+                                    id="canDOB"
+                                    className="form-control"
+                                    value={values.canDOB}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <span className="text-danger">
+                                    {touched.canDOB && errors.canDOB}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.FirstDateIns")}
+                                </label>
+                                <input
+                                    type="date"
+                                    name={"canFirstDateOfIns"}
+                                    id="canFirstDateOfIns"
+                                    className="form-control"
+                                    value={values.canFirstDateOfIns}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <span className="text-danger">
+                                    {touched.canFirstDateOfIns &&
+                                        errors.canFirstDateOfIns}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row justify-content-center">
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.zipCode")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name={"canZipcode"}
+                                    id="canZipcode"
+                                    className="form-control"
+                                    value={values.canZipcode}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <span className="text-danger">
+                                    {touched.canZipcode && errors.canZipcode}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.Town")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name={"canTown"}
+                                    id={"canTown"}
+                                    className="form-control"
+                                    value={values.canTown}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <span className="text-danger">
+                                    {touched.canTown && errors.canTown}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row justify-content-center">
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.HouseNumber")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name={"canHouseNo"}
+                                    id="canHouseNo"
+                                    className="form-control"
+                                    value={values.canHouseNo}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <span className="text-danger">
+                                    {touched.canHouseNo && errors.canHouseNo}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.Street")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name={"canStreet"}
+                                    id="canStreet"
+                                    className="form-control"
+                                    value={values.canStreet}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <span className="text-danger">
+                                    {touched.canStreet && errors.canStreet}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row justify-content-center">
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.Telephone")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name={"canTelephone"}
+                                    id="canTelephone"
+                                    className="form-control"
+                                    value={values.canTelephone}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                <span className="text-danger">
+                                    {touched.canTelephone && errors.canTelephone}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.Cellphone")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name={"canCellPhone"}
+                                    className="form-control"
+                                    value={values.canCellPhone}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    readOnly
+                                />
+                                <span className="text-danger">
+                                    {touched.canCellPhone && errors.canCellPhone}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row justify-content-center">
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.Email")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name={"canEmail"}
+                                    className="form-control"
+                                    value={values.canEmail}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    readOnly
+                                />
+                                <span className="text-danger">
+                                    {touched.canEmail && errors.canEmail}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="col-sm">
+                            <label className="control-label">
+                                {t("insurance.Gender")}
+                            </label>
+                            <div className="d-flex">
+                                <Form.Check
+                                    label={t("insurance.Male")}
+                                    className="mr-2 "
+                                    name="gender"
+                                    value="Male"
+                                    checked={values.gender === "Male"}
+                                    type="radio"
+                                    id={`gender-1`}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    disabled
+                                />
+                                <Form.Check
+                                    label={t("insurance.Female")}
+                                    name="gender"
+                                    value="Female"
+                                    checked={values.gender === "Female"}
+                                    type="radio"
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    id={`gender-2`}
+                                    disabled
+                                />
+                            </div>
+                            <span className="text-danger">
+                                {touched.gender && errors.gender}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Section G */}
+
+                    <div
+                        className="row justify-content-center my-2"
+                        style={{ fontSize: "18px", fontWeight: "bold" }}
+                    >
+                        {t("insurance.HealthDeclaration")}
+                    </div>
+
+                    <div className="row justify-content-center">
+                        <div className="col">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.CandidateName")}
+                                </label>
+                                <input
+                                    type="text"
+                                    name="GCandidatename"
+                                    className="form-control"
+                                    value={values.GCandidatename}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        className="row justify-content-center my-2"
+                        style={{ fontSize: "18px", fontWeight: "bold" }}
+                    >
+                        {t("insurance.generalQesMwdical")}
+                    </div>
+                    <div>
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label d-flex align-items-center">
+                                        <div className="mr-2">
+                                            {t("insurance.Height")}
+                                        </div>
+                                        <div className="d-flex flex-column">
+                                            <input
+                                                type="text"
+                                                name="height"
+                                                className="form-control"
+                                                value={values.g1Height}
+                                                onChange={(e) =>
+                                                    setFieldValue(
+                                                        "g1Height",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />{" "}
+                                            <span className="text-danger">
+                                                {touched.g1Height && errors.g1Height}
+                                            </span>
+                                        </div>
+                                        <div
+                                            style={{
+                                                whiteSpace: "nowrap",
+                                                margin: "0 5px",
+                                            }}
+                                        >
+                                            {t("insurance.andWidth")}
+                                        </div>
+                                        <div className="d-flex flex-column">
+                                            <input
+                                                type="text"
+                                                name="width"
+                                                className="form-control"
+                                                value={values.g1Weight}
+                                                onChange={(e) =>
+                                                    setFieldValue(
+                                                        "g1Weight",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                            <span className="text-danger">
+                                                {touched.g1Weight && errors.g1Weight}
+                                            </span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.isthereChangeInWeight")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                checked={values.g2 === "yes"}
+                                                name="g2yn"
+                                                id="g2yes"
+                                                onChange={(e) =>
+                                                    setFieldValue("g2", e.target.value)
+                                                }
+                                                value="yes"
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g2yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g2yn"
+                                                checked={values.g2 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g2", e.target.value)
+                                                }
+                                                id="g2no"
+                                                value="no"
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g2no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.alcohol")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                checked={values.g3 === "yes"}
+                                                name="g3yn"
+                                                id="g3yes"
+                                                onChange={(e) =>
+                                                    setFieldValue("g3", e.target.value)
+                                                }
+                                                value="yes"
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g3yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g3yn"
+                                                checked={values.g3 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g3", e.target.value)
+                                                }
+                                                id="g3no"
+                                                value="no"
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g3no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.smoke")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g4y2"
+                                                id="g4t"
+                                                checked={values.g4Today === "yes"}
+                                                onChange={(e) => {
+                                                    setFieldValue("g4Today", "yes");
+                                                    setFieldValue("g4Past", "no");
+                                                }}
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g4t"
+                                            >
+                                                {t("insurance.Today")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g4yn2"
+                                                id="g4p"
+                                                checked={values.g4Today === "no"}
+                                                onChange={(e) => {
+                                                    setFieldValue("g4Today", "no");
+                                                    setFieldValue("g4Past", "yes");
+                                                }}
+                                                value="yes"
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g4p"
+                                            >
+                                                {t("insurance.InThePast")}
+                                            </label>
+                                        </div>
+                                        <div className="d-flex flex-column">
+                                            <div
+                                                style={{
+                                                    whiteSpace: "nowrap",
+                                                }}
+                                                className="mr-4"
+                                            >
+                                                {t("insurance.whenStop")}
+                                            </div>
+                                            <input
+                                                type="text"
+                                                name="g4stop"
+                                                className="form-control"
+                                                value={values.g4WhenStop}
+                                                onChange={(e) =>
+                                                    setFieldValue(
+                                                        "g4WhenStop",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                checked={values.g4 === "yes"}
+                                                name="g4yn"
+                                                id="g4yes"
+                                                onChange={(e) =>
+                                                    setFieldValue("g4", e.target.value)
+                                                }
+                                                value="yes"
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g4yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g4yn"
+                                                checked={values.g4 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g4", e.target.value)
+                                                }
+                                                id="g4no"
+                                                value="no"
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g4no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.drugs")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g5"
+                                                id="g5yes"
+                                                value="yes"
+                                                checked={values.g5 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g5", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g5yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g5"
+                                                id="g5no"
+                                                value="no"
+                                                checked={values.g5 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g5", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g5no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.surgery")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g6"
+                                                id="g6yes"
+                                                value="yes"
+                                                checked={values.g6 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g6", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g6yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g6"
+                                                id="g6no"
+                                                value="no"
+                                                checked={values.g6 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g6", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g6no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.hospitalized")}
+                                    </label>
+                                    <div> {t("insurance.hospitalizedReason")}</div>
+                                    <div className="d-flex align-items-center">
+                                        <input
+                                            type="text"
+                                            name="g7text"
+                                            className="form-control"
+                                            value={values.g7Reason}
+                                            onChange={(e) =>
+                                                setFieldValue(
+                                                    "g7Reason",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g7"
+                                                id="g7yes"
+                                                value="yes"
+                                                checked={values.g7 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g7", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g7yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g7"
+                                                id="g7no"
+                                                value="no"
+                                                checked={values.g7 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g7", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g7no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.chronicCondition")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g8"
+                                                id="g8yes"
+                                                value="yes"
+                                                checked={values.g8 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g8", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g8yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g8"
+                                                id="g8no"
+                                                value="no"
+                                                checked={values.g8 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g8", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g8no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.DidAnyTest")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g9"
+                                                id="g9yes"
+                                                value="yes"
+                                                checked={values.g9 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g9", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g9yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g9"
+                                                id="g9no"
+                                                value="no"
+                                                checked={values.g9 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g9", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g9no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section className="col-xl">
+                    <div
+                        className="col pl-0 mb-4"
+                        style={{ fontSize: "18px", fontWeight: "bold" }}
+                    >
+                        {t("insurance.Qestiondiseases")}
+                    </div>
+
+                    <div>
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.heartAndBlood")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g10"
+                                                id="g10yes"
+                                                value="yes"
+                                                checked={values.g10 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g10", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g10yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g10"
+                                                id="g10no"
+                                                value="no"
+                                                checked={values.g10 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g10", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g10no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.nervousSys")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g11"
+                                                id="g11yes"
+                                                value="yes"
+                                                checked={values.g11 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g11", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g11yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g11"
+                                                id="g11no"
+                                                value="no"
+                                                checked={values.g11 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g11", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g11no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Respiratory")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g12"
+                                                id="g12yes"
+                                                value="yes"
+                                                checked={values.g12 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g12", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g12yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g12"
+                                                id="g12no"
+                                                value="no"
+                                                checked={values.g12 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g12", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g12no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Respiratory")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g13"
+                                                id="g13yes"
+                                                value="yes"
+                                                checked={values.g13 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g13", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g13yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g13"
+                                                id="g13no"
+                                                value="no"
+                                                checked={values.g13 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g13", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g13no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Gastrointestinal")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g14"
+                                                id="g14yes"
+                                                value="yes"
+                                                checked={values.g14 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g14", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g14yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g14"
+                                                id="g14no"
+                                                value="no"
+                                                checked={values.g14 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g14", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g14no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Kidneys")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g15"
+                                                id="g15yes"
+                                                value="yes"
+                                                checked={values.g15 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g15", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g15yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g15"
+                                                id="g15no"
+                                                value="no"
+                                                checked={values.g15 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g15", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g15no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Metabolic")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g16"
+                                                id="g16yes"
+                                                value="yes"
+                                                checked={values.g16 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g16", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g16yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g16"
+                                                id="g16no"
+                                                value="no"
+                                                checked={values.g16 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g16", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g16no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Dermatology")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g17"
+                                                id="g17yes"
+                                                value="yes"
+                                                checked={values.g17 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g17", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g17yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g17"
+                                                id="g17no"
+                                                value="no"
+                                                checked={values.g17 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g17", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g17no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Malignant")}
+                                    </label>
+                                    <div className="d-flex align-items-center">
+                                        <input
+                                            type="text"
+                                            name="g7text"
+                                            className="form-control"
+                                            value={values.g18Treatment}
+                                            onChange={(e) =>
+                                                setFieldValue(
+                                                    "g18Treatment",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                    <div className="">{t("insurance.pathology")}</div>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g18"
+                                                id="g18yes"
+                                                value="yes"
+                                                checked={values.g18 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g18", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g18yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g18"
+                                                id="g18no"
+                                                value="no"
+                                                checked={values.g18 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g18", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g18no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Infectious")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g19"
+                                                id="g19yes"
+                                                value="yes"
+                                                checked={values.g19 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g19", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g19yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g19"
+                                                id="g19no"
+                                                value="no"
+                                                checked={values.g19 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g19", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g19no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.JointsAndfBone")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g20"
+                                                id="g20yes"
+                                                value="yes"
+                                                checked={values.g20 == "yes"}
+                                                onChange={(e) => {
+                                                    setFieldValue(
+                                                        "g20",
+                                                        e.target.value
+                                                    );
+                                                }}
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g20yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g20"
+                                                id="g20no"
+                                                value="no"
+                                                checked={values.g20 == "no"}
+                                                onChange={(e) => {
+                                                    setFieldValue(
+                                                        "g20",
+                                                        e.target.value
+                                                    );
+                                                }}
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g20no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.eyesCataract")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g21"
+                                                id="g21-yes"
+                                                value="yes"
+                                                checked={values.g21 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g21", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g21-yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g21"
+                                                id="g21-no"
+                                                value="no"
+                                                checked={values.g21 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g21", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g21-no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Otolaryngology")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g22"
+                                                id="g22-yes"
+                                                value="yes"
+                                                checked={values.g22 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g22", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g22-yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g22"
+                                                id="g22-no"
+                                                value="no"
+                                                checked={values.g22 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g22", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g22-no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.Hernia")}
+                                    </label>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g23"
+                                                id="g23-yes"
+                                                value="yes"
+                                                checked={values.g23 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g23", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g23-yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g23"
+                                                id="g23-no"
+                                                value="no"
+                                                checked={values.g23 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g23", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g23-no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label className="control-label">
+                                        {t("insurance.womenOnly")}
+                                    </label>
+                                    <div className="d-flex align-items-center">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={values.g24Treatment}
+                                            onChange={(e) =>
+                                                setFieldValue(
+                                                    "g24Treatment",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                    <div>{t("insurance.Caesarean")}</div>
+                                    <div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g24"
+                                                id="g24-yes"
+                                                value="yes"
+                                                checked={values.g24 === "yes"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g24", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g24-yes"
+                                            >
+                                                {t("insurance.Yes")}
+                                            </label>
+                                        </div>
+                                        <div className="form-check form-check-inline">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="g24"
+                                                id="g24-no"
+                                                value="no"
+                                                checked={values.g24 === "no"}
+                                                onChange={(e) =>
+                                                    setFieldValue("g24", e.target.value)
+                                                }
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="g24-no"
+                                            >
+                                                {t("insurance.No")}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            Details of positive findings
+                                        </label>
+                                        <div>
+                                            <textarea
+                                                type="text"
+                                                name="details"
+                                                value={values.details}
+                                                onChange={(e) =>
+                                                    setFieldValue("details", e.target.value)
+                                                }
+                                                className="form-control"
+                                                placeholder={"Enter if it required..."}
+                                            ></textarea>
+                                            <span className="text-danger">
+                                                {touched.details && errors.details}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* LAST section */}
+                    <div
+                        className="row justify-content-center my-2"
+                        style={{ fontSize: "18px", fontWeight: "bold" }}
+                    >
+                        {t("insurance.signCanidate")}
+                    </div>
+
+                    <div className="row justify-content-center">
+                        <div className="col-sm">
+                            <div className="form-group">
+                                <label className="control-label">
+                                    {t("insurance.Date")}
+                                </label>
+                                <input
+                                    type="date"
+                                    name="canDate"
+                                    className="form-control"
+                                    value={values.canDate}
+                                    onChange={handleChange}
+                                    readOnly
+                                />
+                            </div>
+                        </div>
+                        <div className="col-sm">
+                            <label className="control-label">
+                                {t("insurance.Signature")}
+                            </label>
+                            <div className="d-lg-flex align-items-center">
+                                {formValues && formValues.signature ? (
+                                    <img src={formValues.signature} />
+                                ) : (
+                                    <>
+                                        <div className="d-flex flex-column" id="signature">
+                                            <SignatureCanvas
+                                                penColor="black"
+                                                canvasProps={{
+                                                    width: 250,
+                                                    height: 100,
+                                                    className:
+                                                        "sign101 border mt-1 bg-white",
+                                                }}
+                                                ref={sigRef}
+                                                onEnd={handleSignatureEnd}
+                                            />
+                                            <span className="text-danger">
+                                                {touched.signature && errors.signature}
+                                            </span>
+                                        </div>
+                                        <p className="ml-2 mt-5">
+                                            <button
+                                                className="btn px-3 py-1 navyblue mb-2"
+                                                onClick={clearSignature}
+                                            >
+                                                {t("form101.button_clear")}
+                                            </button>
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Buttons */}
+                    <div>
+                        <div className="row justify-content-center mt-4">
+                            <div className="col d-flex justify-content-end">
+                                <button
+                                    type="button"
+                                    className="btn align-content-center navyblue mr-2"
+                                    onClick={() => setNextStep(prev => prev - 1)}
+                                >
+                                    <GrFormPreviousLink /> Prev
+                                </button>
+                                {!isSubmitted && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            className="btn navyblue"
+                                            onClick={handleShow}
+                                            disabled={isSubmitting}
+                                        >
+                                            {t("insurance.Preview")}
+                                        </button>
+                                        <div className="mx-2"></div>
+                                        <button
+                                            type="submit"
+                                            className="btn navyblue"
+                                        // disabled={isSubmitting}
+                                        >
+                                            {t("insurance.Submit")}
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        <Modal
+                            dialogClassName="pdf-dialog"
+                            style={{
+                                width: "auto",
+                                maxWidth: "max-content !important",
+                            }}
+                            show={show}
+                            onHide={handleClose}
+                        >
+                            <Modal.Header closeButton>
+                                <Modal.Title>{t("insurance.Preview")}</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                {!!pdfData && <PdfViewer url={pdfData} />}
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleClose}>
+                                    {t("insurance.Close")}
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+                    </div>
+                </section>
+            </form>
+        </div>
     );
 };
 

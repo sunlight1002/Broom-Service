@@ -1,16 +1,25 @@
-import { useFormik } from "formik";
-import React, { useEffect, useRef, useState } from "react";
-import * as yup from "yup";
-import { Base64 } from "js-base64";
-import { useParams } from "react-router-dom";
-import { useAlert } from "react-alert";
-import i18next from "i18next";
-import SignatureCanvas from "react-signature-canvas";
-import html2pdf from "html2pdf.js";
-import { objectToFormData } from "../../../Utils/common.utils";
-import { useTranslation } from "react-i18next";
+// safeAndGear
 
-const SafeAndGear = () => {
+import { useFormik } from "formik";
+import html2pdf from "html2pdf.js";
+import i18next from "i18next";
+import { Base64 } from "js-base64";
+import React, { useEffect, useRef, useState } from "react";
+import { useAlert } from "react-alert";
+import { useTranslation } from "react-i18next";
+import { GrFormNextLink, GrFormPreviousLink } from "react-icons/gr";
+import { useParams } from "react-router-dom";
+import SignatureCanvas from "react-signature-canvas";
+import * as yup from "yup";
+import { objectToFormData } from "../../../Utils/common.utils";
+
+
+const SafeAndGear = ({
+    nextStep,
+    setNextStep,
+    handleBubbleToggle,
+    activeBubble
+}) => {
     const sigRef = useRef();
     const param = useParams();
     const { t } = useTranslation();
@@ -23,6 +32,9 @@ const SafeAndGear = () => {
     const [signature, setSignature] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+    const [savingType, setSavingType] = useState("submit");
+    const [is_existing_worker, setIs_existing_worker] = useState(0)
+    const [country, setCountry] = useState("")
 
     const contentRef = useRef(null);
 
@@ -48,53 +60,62 @@ const SafeAndGear = () => {
         initialValues,
         validationSchema: formSchema,
         onSubmit: async (values) => {
-            setIsGeneratingPDF(true);
-            const options = {
-                filename: "my-document.pdf",
-                margin: [5, 5, 0, 5],
-                image: { type: "jpeg", quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: {
-                    unit: "mm",
-                    format: "a4",
-                    orientation: "portrait",
-                },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            };
-
-            const content = contentRef.current;
-
-            const _pdf = await html2pdf()
-                .set(options)
-                .from(content)
-                .outputPdf("blob", "Safety-And-Gear.pdf");
-
-            setIsGeneratingPDF(false);
-
-            // Convert JSON object to FormData
-            let formData = objectToFormData(values);
-            formData.append("pdf_file", _pdf);
-
-            axios
-                .post(`/api/${id}/safegear`, formData, {
-                    headers: {
-                        Accept: "application/json, text/plain, */*",
-                        "Content-Type": "multipart/form-data",
+            if (!isSubmitted) {
+                setIsGeneratingPDF(true);
+                const options = {
+                    filename: "my-document.pdf",
+                    margin: [5, 5, 0, 5],
+                    image: { type: "jpeg", quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: {
+                        unit: "mm",
+                        format: "a4",
+                        orientation: "portrait",
                     },
-                })
-                .then((res) => {
-                    alert.success(t("safeAndGear.successfullySigned"));
-                    setTimeout(() => {
-                        window.location.reload(true);
-                    }, 2000);
-                })
-                .catch((e) => {
-                    Swal.fire({
-                        title: t("safeAndGear.error"),
-                        text: e.response.data.message,
-                        icon: "error",
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                const content = contentRef.current;
+
+                const _pdf = await html2pdf()
+                    .set(options)
+                    .from(content)
+                    .outputPdf("blob", "Safety-And-Gear.pdf");
+
+                // setIsGeneratingPDF(false);
+
+                // Convert JSON object to FormData
+                let formData = objectToFormData(values);
+                formData.append("pdf_file", _pdf);
+                formData.append("savingType", savingType);
+
+                axios
+                    .post(`/api/${id}/safegear`, formData, {
+                        headers: {
+                            Accept: "application/json, text/plain, */*",
+                            "Content-Type": "multipart/form-data",
+                        },
+                    })
+                    .then((res) => {
+                        setIsSubmitted(true); // Mark as submitted
+                        setNextStep(prev => prev + 1);
+                        // setTimeout(() => {
+                        //     window.location.reload(true);
+                        // }, 2000);
+                    })
+                    .catch((e) => {
+                        if (e?.response?.data?.message === 'Safety and gear already signed.') {
+                            setNextStep(prev => prev + 1);
+                        }
+                        // Swal.fire({
+                        //     title: t("safeAndGear.error"),
+                        //     text: e.response.data.message,
+                        //     icon: "error",
+                        // });
                     });
-                });
+            } else {
+                setNextStep(prev => prev + 1);
+            }
         },
     });
 
@@ -109,6 +130,8 @@ const SafeAndGear = () => {
 
     useEffect(() => {
         axios.get(`/api/getSafegear/${id}`).then((res) => {
+            console.log(res);
+
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../../../Assets/css/rtl.css");
@@ -120,10 +143,11 @@ const SafeAndGear = () => {
                     rtlLink.remove();
                 }
             }
-
             if (res.data.worker) {
                 setFieldValue("workerName", res.data.worker.firstname);
                 setFieldValue("workerName2", res.data.worker.lastname);
+                setIs_existing_worker(res.data.worker.is_existing_worker)
+                setCountry(res.data.worker.country)
             }
 
             if (res.data.form) {
@@ -148,135 +172,120 @@ const SafeAndGear = () => {
         });
     };
 
-    const workerStyle = {
-        workerName: {
-            width: "100%",
-            padding: "8px",
-            margin: "0px 0px 15px",
-            textAlign: "left",
-            fontSize: "18px",
-        },
-        workerName2: {
-            width: "100%",
-            padding: "8px",
-            margin: "10px 0px 0px 0px",
-            fontSize: "18px",
-        },
+
+    const handleSaveAsDraft = async (e) => {
+        // Check if page 7 exists
+        e.preventDefault();
+        setSavingType("submit")
+        handleSubmit();
     };
+
 
     return (
         <div id="container" className="targetDiv rtlcon" ref={contentRef}>
-            <div id="content">
-                <div className="mx-5 mt-5">
-                    <div className="text-center">
-                    <p className="mb-4" style={{ fontSize: "20px" }}>
-                        {t("safeAndGear.welcomeToBroom")}
-                        </p>
-                    </div>
-
-                    <div className="text-center">
-                    <p className="mb-4" style={{ fontSize: "17px" }}>
-                        {t("safeAndGear.broomIntro")}<br/>
-                        {t("safeAndGear.broomIntro2")}
-                        </p>
-                    </div>
-                    {/* <p className="mt-4" style={{ fontSize: "16px" }}>
-                        {t("safeAndGear.sfg1")}
-                    </p> */}
-                    <ol className="mt-3 lh-lg " style={{ fontSize: "16px" }}>
-                        <li>{t("safeAndGear.sfg1")}</li>
-                        <li>{t("safeAndGear.sfg2")}</li>
-                        <li>{t("safeAndGear.sfg3")}</li>
-                        <li>{t("safeAndGear.sfg4")}</li>
-                        <li>{t("safeAndGear.sfg5")}</li>
-                        <li>{t("safeAndGear.sfg6")}</li>
-                        <li>{t("safeAndGear.sfg7")}</li>
-                        <li>{t("safeAndGear.sfg8")}</li>
-                        {/* <li>{t("safeAndGear.sfg9")}</li> */}
-                    </ol>
-
-                    <div className="mt-5" style={{ marginBottom: "130px" }}>
-                        <div className="text-center">
-                            <h5>
-                                <strong>
-                                    {t("safeAndGear.safeAndGearProcedure")}
-                                </strong>
-                            </h5>
+            <p className="navyblueColor font-34 mt-4 font-w-500">Safety And Gear Form</p>
+            <form onSubmit={handleSaveAsDraft}>
+                <div className="row">
+                    <section className="col-xl">
+                        <div className="">
+                            <p className="mb-4 mt-2" style={{ fontSize: "17px" }}>
+                                {t("safeAndGear.broomIntro")}
+                            </p>
                         </div>
-                        <ol
-                            className="mt-4 lh-lg "
-                            style={{ fontSize: "16px" }}
-                        >
-                            <li>{t("safeAndGear.sp1")}</li>
-                            <li>{t("safeAndGear.sp2")}</li>
-                            <li>{t("safeAndGear.sp3")}</li>
-                            <li>{t("safeAndGear.sp4")}</li>
-                            <li>{t("safeAndGear.sp5")}</li>
-                            <li>{t("safeAndGear.sp6")}</li>
-                            <li>{t("safeAndGear.sp7")}</li>
-                            <li>{t("safeAndGear.sp8")}</li>
-                            <li>{t("safeAndGear.sp9")}</li>
-                        </ol>
-                    </div>
-                    <div className="mt-5">
-                        <div className="text-center">
-                            <h5>
-                                <strong>{t("safeAndGear.eqList")}</strong>
-                            </h5>
+                        <div className="mt-3 lh-lg " style={{ fontSize: "16px" }}>
+                            <div className="d-flex mt-2 navublueColor"><span>1.&nbsp;</span><p>{t("safeAndGear.sfg1")}</p></div>
+                            <div className="d-flex mt-2 navublueColor"><span>2.&nbsp;</span><p>{t("safeAndGear.sfg2")}</p></div>
+                            <div className="d-flex mt-2 navublueColor"><span>3.&nbsp;</span><p>{t("safeAndGear.sfg3")}</p></div>
+                            <div className="d-flex mt-2 navublueColor"><span>4.&nbsp;</span><p>{t("safeAndGear.sfg4")}</p></div>
+                            <div className="d-flex mt-2 navublueColor"><span>5.&nbsp;</span><p>{t("safeAndGear.sfg5")}</p></div>
+                            <div className="d-flex mt-2 navublueColor"><span>6.&nbsp;</span><p>{t("safeAndGear.sfg6")}</p></div>
+                            <div className="d-flex mt-2 navublueColor"><span>7.&nbsp;</span><p>{t("safeAndGear.sfg7")}</p></div>
+                            <div className="d-flex mt-2 navublueColor"><span>8.&nbsp;</span><p>{t("safeAndGear.sfg8")}</p></div>
+
                         </div>
-                        <div></div>
-                        <form onSubmit={handleSubmit}>
-                            <div className="mt-4" style={{ fontSize: "16px" }}>
+                        <div className="mt-5" style={{ marginBottom: "130px" }}>
+                            <div className="">
+                                <h5>
+                                    <strong>
+                                        {t("safeAndGear.safeAndGearProcedure")}
+                                    </strong>
+                                </h5>
+                            </div>
+                            <div
+                                className="mt-4 lh-lg "
+                                style={{ fontSize: "16px" }}
+                            >
+                                <div className="d-flex mt-2 navublueColor"><span>2.&nbsp;</span><p>{t("safeAndGear.sp2")}</p></div>
+                                <div className="d-flex mt-2 navublueColor"><span>3.&nbsp;</span><p>{t("safeAndGear.sp3")}</p></div>
+                                <div className="d-flex mt-2 navublueColor"><span>4.&nbsp;</span><p>{t("safeAndGear.sp4")}</p></div>
+                                <div className="d-flex mt-2 navublueColor"><span>5.&nbsp;</span><p>{t("safeAndGear.sp5")}</p></div>
+                                <div className="d-flex mt-2 navublueColor"><span>6.&nbsp;</span><p>{t("safeAndGear.sp6")}</p></div>
+                                <div className="d-flex mt-2 navublueColor"><span>7.&nbsp;</span><p>{t("safeAndGear.sp7")}</p></div>
+                                <div className="d-flex mt-2 navublueColor"><span>8.&nbsp;</span><p>{t("safeAndGear.sp8")}</p></div>
+                                <div className="d-flex mt-2 navublueColor"><span>9.&nbsp;</span><p>{t("safeAndGear.sp9")}</p></div>
+
+                            </div>
+                        </div>
+                    </section>
+                    <section className="col-xl">
+                        <div className="" style={{ border: "1px solid #d2d7dd", background: "#eaecef", padding: "35px 25px", borderRadius: "10px" }}>
+                            <div className="d-flex">
+                                <p className="navyblueColor font-24  font-w-500">{t("safeAndGear.eqList")}</p>
                                 <span
-                                    className="badge badge-primary"
-                                    style={workerStyle.workerName}
+                                    className="navyblueColor font-24  font-w-500 ml-3"
                                 >
                                     {values.workerName +
                                         " " +
                                         values.workerName2}
                                 </span>
-                                <p>
-                                    {/* I{" "}
-                                    {values.workerName +
-                                        " " +
-                                        values.workerName2}{" "}
-                                    {t("safeAndGear.eq1")} */}
-
+                            </div>
+                            <div className="mt-4" style={{ fontSize: "16px" }}>
+                                <div className="d-flex mt-2 navublueColor">
+                                    <span>1.&nbsp;</span>
+                                    <p>
                                         {t("safeAndGear.eq1", {
                                             fullname:
-                                            values.workerName +
-                                            " " +
-                                            values.workerName2,
+                                                values.workerName +
+                                                " " +
+                                                values.workerName2,
                                         })}
-
-
-                                </p>
-                                {/* <p>{t("safeAndGear.eq1")}</p> */}
-                                <p>{t("safeAndGear.eq2")}</p>
-                                <p>{t("safeAndGear.eq3")}</p>
-                                <p>{t("safeAndGear.eq4")}</p>
-                                <p>{t("safeAndGear.eq5")}</p>
-                                <p> {t("safeAndGear.eq6")}</p>
-                                <div className="row gap-5">
-                                    <div className="col-md-6 col-12">
+                                    </p>
+                                </div>
+                                <div className="d-flex mt-2 navublueColor">
+                                    <span>2.&nbsp;</span>
+                                    <p>{t("safeAndGear.eq2")}</p>
+                                </div>
+                                <div className="d-flex mt-2 navublueColor">
+                                    <span>3.&nbsp;</span>
+                                    <p>{t("safeAndGear.eq3")}</p>
+                                </div>
+                                <div className="d-flex mt-2 navublueColor">
+                                    <span>4.&nbsp;</span>
+                                    <p>{t("safeAndGear.eq4")}</p>
+                                </div>
+                                <div className="d-flex mt-2 navublueColor">
+                                    <span>5.&nbsp;</span>
+                                    <p>{t("safeAndGear.eq5")}</p>
+                                </div>
+                                <div className="d-flex mt-2 navublueColor">
+                                    <span>6.&nbsp;</span>
+                                    <p>{t("safeAndGear.eq6")}</p>
+                                </div>
+                                <div className="row">
+                                    <div className="col d-flex justify-content-center align-items-center">
                                         <span
-                                            className="badge badge-primary"
-                                            style={workerStyle.workerName2}
+                                            className="navyblueColor font-w-500"
                                         >
                                             {values.workerName +
                                                 " " +
                                                 values.workerName2}
                                         </span>
                                     </div>
-                                    <div className="col-md-6 col-12 mt-3 mt-md-0">
+                                    <div className="col mt-3">
                                         <p>
                                             <strong>
                                                 {t("safeAndGear.sign")}
                                             </strong>
-                                            <span className="text-danger">
-                                                {touched.signature &&
-                                                    errors.signature}
-                                            </span>
                                         </p>
                                         {formValues &&
                                             formValues.signature != null ? (
@@ -288,46 +297,67 @@ const SafeAndGear = () => {
                                                     canvasProps={{
                                                         width: 250,
                                                         height: 100,
-                                                        className:
-                                                            "sign101 border mt-1",
+                                                        className: `sign101 mt-1 form-control  ${touched.signature && errors.signature && 'is-invalid'}`,
+                                                        style: { background: "#f1f1f1" }
                                                     }}
                                                     ref={sigRef}
                                                     onEnd={handleSignatureEnd}
                                                 />
+                                                <span className="text-danger">
+                                                    {touched.signature && errors.signature}
+                                                </span>
+                                            </div>
 
-                                                {!isGeneratingPDF && (
-                                                    <div className="d-block">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-warning mb-2"
-                                                            onClick={
-                                                                clearSignature
-                                                            }
-                                                        >
-                                                            {t(
-                                                                "safeAndGear.Clear"
-                                                            )}
-                                                        </button>
-                                                    </div>
-                                                )}
+                                        )}
+                                    </div>
+                                    <div className="col d-flex align-items-end">
+                                        {!isGeneratingPDF && !isSubmitted && (
+                                            <div className="d-block">
+                                                <button
+                                                    type="button"
+                                                    className="btn navyblue px-4 mb-2"
+                                                    onClick={
+                                                        clearSignature
+                                                    }
+                                                >
+                                                    {t(
+                                                        "safeAndGear.Clear"
+                                                    )}
+                                                </button>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             </div>
-                            {!isSubmitted && !isGeneratingPDF && (
+                        </div>
+                        <div className="d-flex justify-content-end" style={{ margin: "20px 10px" }}>
+                            {nextStep !== 1 && (
                                 <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="btn btn-success"
+                                    type="button"
+                                    onClick={(e) => setNextStep(prev => prev - 1)}
+                                    className="navyblue py-2 px-4 mr-2"
+                                    name="prev"
+                                    style={{ borderRadius: "5px" }}
                                 >
-                                    {t("safeAndGear.Accept")}
+                                    <GrFormPreviousLink />Prev
                                 </button>
                             )}
-                        </form>
-                    </div>
+                            {nextStep < 6 && (
+                                <button
+                                    type="submit"
+                                    name="next"
+                                    disabled={isSubmitting}
+                                    className="navyblue py-2 px-4"
+                                    style={{ borderRadius: "5px" }}
+                                >
+                                    Next<GrFormNextLink />
+                                </button>
+                            )}
+                        </div>
+                    </section>
                 </div>
-            </div>
+            </form>
+
         </div>
     );
 };
