@@ -116,6 +116,11 @@ export function IsrailContact({
         setFieldValue("signature", "");
     };
 
+    console.log(errors);
+    console.log(touched, "touched");
+
+
+
     return (
         <div className="container targetDiv rtlcon" ref={contentRef}>
             <div id="content">
@@ -244,18 +249,16 @@ export function IsrailContact({
                                             }
                                         >
                                             <TextField
-                                             name={"PhoneNo"}
+                                                name={"PhoneNo"}
                                                 onBlur={handleBlur}
                                                 onChange={handleChange}
                                                 label={t(
                                                     "israilContract.mobileNumber"
                                                 )}
                                                 value={values.PhoneNo}
-
-                                                required={true}
                                                 error={
                                                     touched.PhoneNo &&
-                                                    "mobile is required"
+                                                    errors.PhoneNo && "Mobile is required"
                                                 }
                                             />
                                         </div>
@@ -692,29 +695,31 @@ export function IsrailContact({
                                         <strong>
                                             {t("israilContract.sign")}
                                         </strong>
-                                        <span className="text-danger">
-                                            {touched.signature &&
-                                                errors.signature}
-                                        </span>
                                     </p>
                                     {formValues && formValues.signature ? (
                                         <img src={formValues.signature} />
                                     ) : (
                                         <>
-                                            <SignatureCanvas
-                                                penColor="black"
-                                                canvasProps={{
-                                                    width: 250,
-                                                    height: 100,
-                                                    className:
-                                                        "sign101 border mt-1",
-                                                }}
-                                                ref={sigRef}
-                                                onEnd={handleSignatureEnd}
-                                            />
+                                            <div className="d-flex flex-column">
+                                                <SignatureCanvas
+                                                    penColor="black"
+                                                    canvasProps={{
+                                                        width: 250,
+                                                        height: 100,
+                                                        className:
+                                                            "sign101 border mt-1",
+                                                    }}
+                                                    ref={sigRef}
+                                                    onEnd={handleSignatureEnd}
+                                                />
+                                                <span className="text-danger">
+                                                    {touched.signature &&
+                                                        errors.signature}
+                                                </span>
+                                            </div>
 
                                             {!isGeneratingPDF && (
-                                                <div className="d-block">
+                                                <div className="d-block mt-1">
                                                     <button
                                                         className="btn btn-warning mb-2"
                                                         type="button"
