@@ -110,6 +110,8 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
 
     Route::get('documents', [DocumentController::class, 'documents']);
     Route::get('forms', [DocumentController::class, 'forms']);
+    Route::post('document/save', [DocumentController::class, 'save']);
+
 
     //task and comment
     Route::apiResource('/phase', PhaseController::class)->only(['index', 'show']);

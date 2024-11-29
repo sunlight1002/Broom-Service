@@ -64,7 +64,7 @@ const Form101Component = () => {
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+        Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
 
 
@@ -1257,7 +1257,7 @@ const Form101Component = () => {
 
     const handleDocSubmit = (data) => {
         axios
-            .post(`/api/admin/document/save`, data, { headers })
+            .post(`/api/document/save`, data, { headers })
             .then((res) => {
                 if (res.data.errors) {
                     console.log(res.data.errors);
