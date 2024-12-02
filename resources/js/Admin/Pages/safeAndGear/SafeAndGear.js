@@ -82,7 +82,7 @@ const SafeAndGear = ({
                     .from(content)
                     .outputPdf("blob", "Safety-And-Gear.pdf");
 
-                // setIsGeneratingPDF(false);
+                    setIsGeneratingPDF(false); // Reset PDF mode
 
                 // Convert JSON object to FormData
                 let formData = objectToFormData(values);
@@ -99,19 +99,11 @@ const SafeAndGear = ({
                     .then((res) => {
                         setIsSubmitted(true); // Mark as submitted
                         setNextStep(prev => prev + 1);
-                        // setTimeout(() => {
-                        //     window.location.reload(true);
-                        // }, 2000);
                     })
                     .catch((e) => {
                         if (e?.response?.data?.message === 'Safety and gear already signed.') {
                             setNextStep(prev => prev + 1);
                         }
-                        // Swal.fire({
-                        //     title: t("safeAndGear.error"),
-                        //     text: e.response.data.message,
-                        //     icon: "error",
-                        // });
                     });
             } else {
                 setNextStep(prev => prev + 1);
@@ -182,7 +174,7 @@ const SafeAndGear = ({
 
 
     return (
-        <div id="container" className="targetDiv rtlcon" ref={contentRef}>
+        <div id="container" className={`pdf-wrapper targetDiv rtlcon ${isGeneratingPDF ? "pdf-layout" : ""}`} ref={contentRef}>
             <p className="navyblueColor font-34 mt-4 font-w-500">Safety And Gear Form</p>
             <form onSubmit={handleSaveAsDraft}>
                 <div className="row">
@@ -330,7 +322,7 @@ const SafeAndGear = ({
                                 </div>
                             </div>
                         </div>
-                        <div className="d-flex justify-content-end" style={{ margin: "20px 10px" }}>
+                        <div className={`d-flex justify-content-end ${isGeneratingPDF ? "hide-in-pdf" : ""}`} style={{ margin: "20px 10px" }}>
                             {nextStep !== 1 && (
                                 <button
                                     type="button"

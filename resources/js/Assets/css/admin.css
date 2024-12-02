@@ -4214,3 +4214,36 @@ tbody tr:hover {
 .tail-container.highlight{
   opacity:0;
 }
+
+
+.safety-gear-pdf-container.pdf-layout {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.safety-gear-pdf-container.pdf-layout .col-xl {
+  flex: 1;
+  margin: 5px;
+}
+
+.safety-gear-pdf-container.pdf-layout img {
+  max-width: 100%;
+  height: auto;
+}
+
+.hide-in-pdf {
+  display: none !important;
+}
+
+.pdf-container {
+  page-break-inside: avoid;
+}
+
+
+.no-break {
+  page-break-inside: avoid;
+  page-break-before: auto;
+  page-break-after: auto;
+}

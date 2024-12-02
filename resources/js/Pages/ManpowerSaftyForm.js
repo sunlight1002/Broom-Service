@@ -170,16 +170,16 @@ const ManpowerSaftyForm = () => {
 
 
     return (
-        <div id="container" className="targetDiv rtlcon" ref={contentRef}>
+        <div id="container" className="targetDiv rtlcon pdf-container" ref={contentRef}>
             <div id="content" style={{ paddingLeft: "25px" }}>
                 <div className="mx-5 mt-4">
-                    <div className="text-center">
+                    <div className="text-center no-break">
                         <p className="mb-4 badge badge-primary" style={{ fontSize: "25px" }}>
                             <strong>{t("safeAndGear.welcomeToBroom")}</strong>
                         </p>
                     </div>
 
-                    <div className="text-left">
+                    <div className="text-left no-break">
                         <p className="mb-2" style={{ fontSize: "17px" }}>
                             <strong>{t("manpower_safty_form.title")}</strong><br />
                             <strong>{t("manpower_safty_form.date", { date: values.date })}</strong><br />
@@ -187,14 +187,14 @@ const ManpowerSaftyForm = () => {
                     </div>
 
 
-                    <div className="text-left">
+                    <div className="text-left no-break">
                         <p className="mb-4" style={{ fontSize: "17px" }}>
                             <strong>{t("manpower_safty_form.to")}</strong><br />
                             {t("manpower_safty_form.salutation")}<br />
                         </p>
                     </div>
 
-                    <div className="text-left">
+                    <div className="text-left no-break">
                         <p className="mb-4" style={{ fontSize: "17px" }}>
                             <strong>{t("manpower_safty_form.subject")}</strong>{t("manpower_safty_form.subject_title")}<br />
                             {t("manpower_safty_form.sub_title", {
@@ -205,7 +205,7 @@ const ManpowerSaftyForm = () => {
                         </p>
                     </div>
 
-                    <ol className="mt-3 lh-lg " style={{ fontSize: "16px" }}>
+                    <ol className="mt-3 lh-lg no-break" style={{ fontSize: "16px" }}>
                         <li>{t("manpower_safty_form.ms1", { company_name: values.manpower_company_name })}</li>
                         <li>{t("manpower_safty_form.ms2")}</li>
                         <li>{t("manpower_safty_form.ms3")}</li>
@@ -213,6 +213,9 @@ const ManpowerSaftyForm = () => {
                         <li>{t("manpower_safty_form.ms5")}</li>
                         <li>{t("manpower_safty_form.ms6")}</li>
                         <li>{t("manpower_safty_form.ms7")}</li>
+                    </ol>
+
+                    <ol start={8} className="lh-lg " style={{ fontSize: "16px" }}>
                         <li>{t("manpower_safty_form.ms8")}</li>
                         <li>{t("manpower_safty_form.ms9")}</li>
                     </ol>
