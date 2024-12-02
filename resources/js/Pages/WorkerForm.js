@@ -37,6 +37,11 @@ export default function WorkerForm() {
             isFilled: false,
             url: `/insurance-form/${encodedWorkerId}`,
         },
+        manpowerSaftyForm: {
+            name: "formTxt.manpowerSaftyForm",
+            isFilled: false,
+            url: `/manpower-safty-form/${encodedWorkerId}`,
+        },
     };
 
     const [worker, setWorker] = useState({});
@@ -47,6 +52,8 @@ export default function WorkerForm() {
         axios
             .get(`/api/worker/${param.id}`)
             .then((res) => {
+                console.log(res.data);
+                
                 const { worker: workData, forms: formData } = res.data;
                 setWorker(workData);
 

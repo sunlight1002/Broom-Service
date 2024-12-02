@@ -13,6 +13,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
     const [contractForm, setContractForm] = useState(false);
     const [safetyAndGearForm, setSafetyAndGearForm] = useState(false);
     const [insuranceForm, setInsuranceForm] = useState(false);
+    const [ManpowerSaftyForm, setManpowerSaftyForm] = useState(false);
     const [form, setForm] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
@@ -44,9 +45,13 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     const _insuranceForm = formsData.find((f) =>
                         f.type.includes("insurance")
                     );
+                    const _manpowerForm = formsData.find((f) =>
+                        f.type.includes("manpower-saftey")
+                    );
                     setContractForm(_contractForm);
                     setSafetyAndGearForm(_saftyGearForm);
                     setInsuranceForm(_insuranceForm);
+                    setManpowerSaftyForm(_manpowerForm);
                     setForm(_form101Forms.length > 0);
                 }
             })
@@ -86,6 +91,8 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                         window.open(`/insurance-form/${Base64.encode(worker.id.toString())}`, "_blank");
                     }else if(type == "2form101"){
                         window.open(`/form101/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
+                    }else if(type == "manpower"){
+                        window.open(`/manpower-safty-form/${Base64.encode(worker.id.toString())}`, "_blank");
                     }
                     getForm();
                 } catch (error) {
@@ -106,6 +113,8 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
             window.open(`/insurance-form/${Base64.encode(worker.id.toString())}`, "_blank");
         }else if(type == "2form101"){
             window.open(`/form101/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
+        }else if(type == "manpower"){
+            window.open(`/manpower-safty-form/${Base64.encode(worker.id.toString())}`, "_blank");
         }
     }
 
@@ -188,6 +197,90 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
             role="tabpanel"
             aria-labelledby="customer-notes-tab"
         >
+            {worker.company_type === "manpower" && (
+                <div
+                className="card card-widget widget-user-2"
+                style={{ boxShadow: "none" }}
+            >
+                <div className="card-comments cardforResponsive"></div>
+                <div
+                    className="card-comment p-3"
+                    style={{
+                        backgroundColor: "rgba(0,0,0,.05)",
+                        borderRadius: "5px",
+                    }}
+                >
+                    <div className="d-flex justify-content-between align-items-center flex-res-column-505" >
+                        <div className="mb-2">
+                            <span className="noteDate font-weight-bold">
+                                {t("formTxt.manpowerSaftyForm")}
+                            </span>
+                        </div>
+
+                        <div className="d-flex ">
+                            <div className=" mb-2 mr-4 text-center">
+                                {(ManpowerSaftyForm?.submitted_at && worker)? (
+                                    <span className="btn btn-success">
+                                        {t("global.signed")}
+                                    </span>
+                                ) : (
+                                    <span className="btn btn-warning "
+                                    onClick={() => handleNotSigned(ManpowerSaftyForm?.id, "manpower")}
+                                    >
+                                        {t("global.notSigned")}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className=" mb-2 mr-4  text-center">
+                                {(ManpowerSaftyForm?.submitted_at && worker) ? (
+                                    <Link
+                                        target="_blank"
+                                        to={
+                                            worker.ManpowerSaftyForm
+                                                ? `/storage/uploads/worker/contract/${worker.ManpowerSaftyForm}`
+                                                : `/worker-forms/` +
+                                                Base64.encode(worker.id.toString())
+                                        }
+                                        className="btn btn-warning"
+                                    >
+                                        <i className="fa fa-eye"></i>
+                                    </Link>
+                                ) : (
+                                    <span className="btn btn-warning">-</span>
+                                )}
+                            </div>
+
+                            <div className="mb-2 mr-4 text-center">
+                                {((ManpowerSaftyForm) && ManpowerSaftyForm?.pdf_name) ? (
+                                    <div className="d-flex" style={{ gap: "22px" }}>
+                                        <a
+                                            href={`/storage/signed-docs/${ManpowerSaftyForm.pdf_name}`}
+                                            target={"_blank"}
+                                            download={`${ManpowerSaftyForm.type}.pdf`}
+                                            className="btn btn-warning"
+                                        >
+                                            <i className="fa fa-download"></i>
+                                        </a>
+                                        <button onClick={() => ResetForm(ManpowerSaftyForm?.id, "manpower")} className="btn btn-warning">Reset</button>
+                                    </div>
+                                ) : (
+                                    <span className="btn btn-warning">-</span>
+                                )}
+                            </div>
+
+                            {/* {Object.is(worker.worker_contract, null) && worker.is_exist ? (
+                                <div className="col-lg-12">
+                                    {uploadFormDiv("worker_contract")}
+                                </div>
+                            ) : (
+                                ""
+                            )} */}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            )}
             {worker.company_type === "my-company" && (
                 <>
                     <div className="text-right pb-3">

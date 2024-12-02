@@ -559,15 +559,19 @@ class AuthController extends Controller
                 WorkerFormTypeEnum::SAFTEY_AND_GEAR,
                 WorkerFormTypeEnum::FORM101,
                 WorkerFormTypeEnum::INSURANCE,
+                WorkerFormTypeEnum::MANPOWER_SAFTEY,
             ])
             ->whereYear('created_at', now()->year)
             ->get()
             ->groupBy('type');
 
+        \Log::info([$forms]);
+
         $contractForm = $forms[WorkerFormTypeEnum::CONTRACT][0] ?? null;
         $safetyAndGearForm = $forms[WorkerFormTypeEnum::SAFTEY_AND_GEAR][0] ?? null;
         $form101Form = $forms[WorkerFormTypeEnum::FORM101][0] ?? null;
         $insuranceForm = $forms[WorkerFormTypeEnum::INSURANCE][0] ?? null;
+        $manpowerForm = $forms[WorkerFormTypeEnum::MANPOWER_SAFTEY][0] ?? null;
 
         $forms = [];
 
@@ -576,6 +580,10 @@ class AuthController extends Controller
                 $forms['form101Form'] = $form101Form ? $form101Form : null;
                 $forms['saftyAndGearForm'] = $safetyAndGearForm ? $safetyAndGearForm : null;
                 $forms['contractForm'] = $contractForm ? $contractForm : null;
+            }
+
+            if ($user->company_type == 'manpower'){
+                $forms['manpowerSaftyForm'] = $manpowerForm ? $manpowerForm : null;
             }
 
             if ($user->country != 'Israel' && !$user->is_existing_worker) {
