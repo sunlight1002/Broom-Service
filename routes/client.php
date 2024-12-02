@@ -80,6 +80,7 @@ Route::delete('jobs/delete-problem/{id}', [JobController::class, 'deleteProblem'
 Route::post('login', [AuthController::class, 'login']);
 Route::post('verifyOtp', [AuthController::class, 'verifyOtp']);
 Route::post('resendOtp', [AuthController::class, 'resendOtp']);
+Route::post('change-password', [AuthController::class, 'changePassword']);
 
 // Emails Routes
 Route::get('{id}/info', [ClientEmailController::class, 'getClientInfo']);

@@ -168,7 +168,7 @@ export default function ClientDashboard() {
                                                                     className=""
                                                                     style={{background: "#E5EBF1", color: "#2F4054", padding: "5px 7px 0px", borderRadius: "5px"}}
                                                                 >
-                                                                    <i class="fa fa-eye font-18"></i>
+                                                                    <i className="fa fa-eye font-18"></i>
                                                                 </Link>
                                                             </div>
                                                         </Td>

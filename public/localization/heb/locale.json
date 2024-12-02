@@ -593,6 +593,7 @@
         "search": "חפש",
         "next": "הבא",
         "previous": "הקודם",
+        "change_password": "שנה סיסמה",
         "common": {
             "offers": "הצעות",
             "meetings": "פגישות",
@@ -1016,7 +1017,8 @@
             "time_for_job": "זמן לעבודה",
             "time_worker_actually": "הזמן שהעובד עבד בפועל",
             "client_review": "ביקורת לקוח",
-            "visits":"ביקורים"
+            "visits":"ביקורים",
+            "change_password": "שנה סיסמה"
         },
         "modal": {
             "title": "מודל",

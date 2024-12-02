@@ -598,6 +598,7 @@
         "search": "search",
         "next": "Next",
         "previous": "Previous",
+        "change_password": "Change Password",
         "common": {
             "offers": "Offers",
             "meetings": "Meetings",
@@ -1016,7 +1017,8 @@
             "if_job_was_done": "If Job Was Done",
             "time_for_job": "Time For Job",
             "time_worker_actually": "Time Worker Actually",
-            "client_review": "Client Review"
+            "client_review": "Client Review",
+            "change_password": "Change Password"
         },
         "dashboard": {
             "jobPosted": "Job Posted",

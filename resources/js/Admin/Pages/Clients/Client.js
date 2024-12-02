@@ -63,6 +63,7 @@ export default function Clients() {
             "pending client": "Waiting",
             "freeze client": t("admin.client.Freeze_client"),
             "active client": t("admin.client.Active_client"),
+            "past": t("admin.client.Past_client"),
         };
 
     const initializeDataTable = () => {

@@ -976,6 +976,7 @@ class ClientController extends Controller
             LeadStatusEnum::PRICE_ISSUE => 2,
             LeadStatusEnum::MOVED => 2,
             LeadStatusEnum::ONE_TIME => 2,
+            LeadStatusEnum::PAST => 2
         ];
         $client = Client::find($data['id']);
         if (!$client) {

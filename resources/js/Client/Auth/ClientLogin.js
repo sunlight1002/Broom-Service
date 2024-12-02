@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import logo from "../../Assets/image/sample.svg";
 import i18next from "i18next";
+import React, { useEffect, useState } from "react";
+import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
-import FullLoader from "../../../../public/js/FullLoader";
-import FullPageLoader from "../../Components/common/FullPageLoader";
 import { getCookie } from "../../Admin/Components/common/Cookies";
+import logo from "../../Assets/image/sample.svg";
+import FullPageLoader from "../../Components/common/FullPageLoader";
 
 export default function ClientLogin() {
     const [email, setEmail] = useState("");
@@ -15,13 +15,13 @@ export default function ClientLogin() {
     const [isRemembered, setIsRemembered] = useState(false)
     const navigate = useNavigate()
 
-    // useEffect(() => {
-    //     const clientLogin = localStorage.getItem("client-id")
-    //     // console.log(adminLogin);
-    //     if (clientLogin) {
-    //         navigate("/client/dashboard");
-    //     }
-    // }, [navigate])
+    useEffect(() => {
+        const clientLogin = localStorage.getItem("client-token")
+        // console.log(adminLogin);
+        if (clientLogin) {
+            navigate("/client/dashboard");
+        }
+    }, [navigate])
 
 
     useEffect(() => {
@@ -40,56 +40,51 @@ export default function ClientLogin() {
             password: password,
         };
         axios.post(`/api/client/login`, data).then((result) => {
-            // console.log(result);
             if (result.data.errors) {
-                setLoading(false)
+                setLoading(false);
                 setErrors(result.data.errors);
+                return;
+            }
+
+            const { token, lng, firstname, lastname, id, email, two_factor_enabled, first_login } = result.data;
+            localStorage.setItem("client-id", id);
+
+            const saveClientData = () => {
+                localStorage.setItem("client-token", token);
+                localStorage.setItem("client-name", `${firstname} ${lastname}`);
+                i18next.changeLanguage(lng);
+
+                if (lng === "en") {
+                    document.querySelector("html").removeAttribute("dir");
+                    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+                    if (rtlLink) rtlLink.remove();
+                }
+            };
+            const redirectTo = (url) => {
+                setLoading(false);
+                window.location = url;
+            };
+
+            if (isRemembered) {
+                if(first_login === 1) {
+                    redirectTo("/client/change-password");
+                }else{
+                    saveClientData();
+                    redirectTo("/client/dashboard");
+                }
             } else {
-                if (isRemembered) {
-                    localStorage.setItem("client-token", result.data.token);
-                    i18next.changeLanguage(result.data.lng);
-                    if(result?.data?.lng == "en") {
-                        document.querySelector("html").removeAttribute("dir");
-                            const rtlLink = document.querySelector('link[href*="rtl.css"]');
-                            if (rtlLink) {
-                                rtlLink.remove();
-                            }
-                    }
-
-                    localStorage.setItem(
-                        "client-name",
-                        result.data.firstname + " " + result.data.lastname
-                    );
-                    localStorage.setItem("client-id", result.data.id);
-                    setLoading(false)
-                    window.location = "/client/dashboard";
+                if (two_factor_enabled === 1 || result.data[0] === 1) {
+                    localStorage.setItem("client-email", email);
+                    localStorage.setItem("client-lng", lng);
+                    redirectTo("/client/login-otp");
                 } else {
-                    if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
-                        localStorage.setItem("client-email", result.data.email);
-                        localStorage.setItem("client-lng", result.data.lng);
-
-                        window.location = "/client/login-otp";
-                        setLoading(false)
-                    } else {
-                        localStorage.setItem("client-token", result.data.token);
-                        i18next.changeLanguage(result.data.lng);
-                        if(result?.data?.lng == "en") {
-                            document.querySelector("html").removeAttribute("dir");
-                                const rtlLink = document.querySelector('link[href*="rtl.css"]');
-                                if (rtlLink) {
-                                    rtlLink.remove();
-                                }
-                        }
-                        localStorage.setItem(
-                            "client-name",
-                            result.data.firstname + " " + result.data.lastname
-                        );
-                        localStorage.setItem("client-id", result.data.id);
-                        setLoading(false)
-                        window.location = "/client/dashboard";
+                    if(first_login === 1) {
+                        redirectTo("/client/change-password");
+                    }else{
+                        saveClientData();
+                        redirectTo("/client/dashboard");
                     }
                 }
-
             }
         });
     };

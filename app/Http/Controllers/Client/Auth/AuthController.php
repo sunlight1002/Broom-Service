@@ -277,6 +277,43 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+    public function changePassword(Request $request)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'new_password' => 'required|string|min:6|confirmed', // 'confirmed' ensures new_password == confirm_password
+        ]);
+    
+        // Handle validation errors
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+    
+        try {
+            $clientId = $request->id;
+    
+            // Fetch the client
+            $client = Client::findOrFail($clientId);
+    
+            // Update the password and passcode
+            $client->password = bcrypt($request->new_password);
+            $client->passcode = $request->new_password; // Assuming passcode is stored in plain text
+            $client->first_login = false;
+            $client->save();
+    
+            return response()->json([
+                'message' => 'Password updated successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the password.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
     
 
     /** 

@@ -186,6 +186,7 @@ import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
 import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
 import ManpowerSaftyForm from "./Pages/ManpowerSaftyForm";
 import AllForms from "./Pages/Form101/AllForms";
+import ChangePassword from "./Client/Auth/ChangePassword";
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
 
@@ -207,6 +208,11 @@ export default function MyRoutes() {
                         exact
                         path="client/login"
                         element={<ClientLogin />}
+                    />
+                    <Route
+                        exact
+                        path="client/change-password"
+                        element={<ChangePassword />}
                     />
                     <Route
                         exact
