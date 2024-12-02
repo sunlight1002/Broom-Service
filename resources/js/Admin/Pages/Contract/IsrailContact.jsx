@@ -139,7 +139,7 @@ export function IsrailContact({
     }, [isSubmitted, workerFormDetails, workerDetail]);
 
     const disableInputs = () => {
-        const inputs = document.querySelectorAll(".targetDiv input");
+        const inputs = document.querySelectorAll(".contracttargetDiv input");
         inputs.forEach((input) => {
             input.disabled = true;
         });
@@ -175,7 +175,7 @@ export function IsrailContact({
     };
 
     return (
-        <div className="mt-5 targetDiv rtlcon" ref={contentRef}>
+        <div className="mt-5 contracttargetDiv rtlcon" ref={contentRef}>
             <div className="">
                 <p className="navyblueColor font-30 mt-4 font-w-500">{t("israilContract.title1")}</p>
                 <p className="mt-2">{t("israilContract.title2")}</p>

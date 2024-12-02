@@ -20,7 +20,7 @@ const ChangePassword = () => {
     const { t } = useTranslation();
     const alert = useAlert();
 
-       useEffect(() => {
+    useEffect(() => {
         const clientLogin = localStorage.getItem("client-token")
         // console.log(adminLogin);
         if (clientLogin) {
