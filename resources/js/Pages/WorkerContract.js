@@ -56,6 +56,7 @@ export default function WorkerContract({
             // Convert JSON object to FormData
             let formData = objectToFormData(values);
             formData.append("pdf_file", _pdf);
+            formData.append("step", nextStep);
 
             axios
                 .post(`/api/${Base64.decode(param.id)}/work-contract`, formData, {

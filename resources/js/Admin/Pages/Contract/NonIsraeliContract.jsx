@@ -23,7 +23,6 @@ export function NonIsraeliContract({
     nextStep,
     setNextStep
 }) {
-console.log(nextStep, "nextStep nonIsraeliContract");
     
     const sigRef1 = useRef();
     const sigRef2 = useRef();
@@ -198,11 +197,6 @@ console.log(nextStep, "nextStep nonIsraeliContract");
         companySigRef2.current.clear();
         setFieldValue("companySignature2", "");
     };
-
-    useEffect(() => {
-        console.log(errors);
-
-    }, [errors])
 
     const handleNextPrev = async (e) => {
         e.preventDefault();

@@ -624,6 +624,14 @@ class AuthController extends Controller
             ], 404);
         }
 
+        $step = $data['step'] ?? 1;  // Retrieve 'step' from the request (if exists)
+    
+         // Save the 'step' value to the worker's record
+         if ($step) {
+             $worker->step = $step;  // Assuming the 'step' field exists on the worker model
+             $worker->save();
+         }
+
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
             ->first();
@@ -710,7 +718,14 @@ class AuthController extends Controller
         $data = $this->transformFormDataForBoolean($data);
         $savingType = $data['savingType'];
         $formId = $data['formId'];
+        $step = $data['step'] ?? 1;  // Retrieve 'step' from the request (if exists)
         unset($data['savingType']);
+    
+        // Save the 'step' value to the worker's record
+        if ($step) {
+            $worker->step = $step;  // Assuming the 'step' field exists on the worker model
+            $worker->save();
+        }
 
         if (!Storage::disk('public')->exists('uploads/form101/documents')) {
             Storage::disk('public')->makeDirectory('uploads/form101/documents');
@@ -859,7 +874,13 @@ class AuthController extends Controller
         $data = $request->all();
         $savingType = $data['savingType'] ?? 'submit'; // Default to submit
         $pdfFile = $data['pdf_file'] ?? null; // PDF may not be sent for drafts
+        $step = $data['step'] ?? 1;  // Retrieve 'step' from the request (if exists)
         unset($data['pdf_file'], $data['savingType']); // Remove them from $data
+
+        if ($step) {
+            $worker->step = $step;  // Assuming the 'step' field exists on the worker model
+            $worker->save();
+        }
 
         // Check if the form already exists and has been submitted
         $form = $worker->forms()
@@ -1033,6 +1054,14 @@ class AuthController extends Controller
         $data = $request->all();
         $pdfFile = $data['pdf_file'];
         unset($data['pdf_file']);
+
+        $step = $data['step'] ?? 1;  // Retrieve 'step' from the request (if exists)
+    
+        // Save the 'step' value to the worker's record
+        if ($step) {
+            $worker->step = $step;  // Assuming the 'step' field exists on the worker model
+            $worker->save();
+        }
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::INSURANCE)

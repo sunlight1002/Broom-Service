@@ -120,8 +120,6 @@ export function IsrailContact({
 
     useEffect(() => {
         if (isSubmitted) {
-            console.log("anadar");
-            
             setFormValues(workerFormDetails);
             disableInputs();
         } else {
@@ -141,8 +139,6 @@ export function IsrailContact({
     }, [isSubmitted, workerFormDetails, workerDetail]);
 
     const disableInputs = () => {
-        console.log("disableInputs");
-        
         const inputs = document.querySelectorAll(".targetDiv input");
         inputs.forEach((input) => {
             input.disabled = true;

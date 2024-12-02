@@ -88,6 +88,7 @@ const SafeAndGear = ({
                 let formData = objectToFormData(values);
                 formData.append("pdf_file", _pdf);
                 formData.append("savingType", savingType);
+                formData.append("step", nextStep);
 
                 axios
                     .post(`/api/${id}/safegear`, formData, {

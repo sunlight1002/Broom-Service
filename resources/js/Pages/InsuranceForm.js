@@ -34,8 +34,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const InsuranceForm = ({
     nextStep,
     setNextStep,
-    handleBubbleToggle,
-    activeBubble
+    isManpower
 }) => {
     const [show, setShow] = useState(false);
     const sigRef = useRef();
@@ -111,8 +110,6 @@ const InsuranceForm = ({
         const errorFields = Object.keys(errors);
         if (errorFields.length > 0) {
             const firstErrorField = errorFields[0];
-            console.log(firstErrorField);
-
             const errorElement = document.getElementById(firstErrorField);
             if (errorElement) {
                 errorElement.scrollIntoView({ behavior: "smooth" });
@@ -121,71 +118,74 @@ const InsuranceForm = ({
         }
     };
 
-    const formSchema = {
-        step7: yup.object({
-            canFirstName: yup
-                .string()
-                .trim()
-                .min(2, t("insurance.fname2CharLong"))
-                .required(t("insurance.fnameReq")),
-            canLastName: yup
-                .string()
-                .trim()
-                .min(2, t("insurance.lname2CharLong"))
-                .required(t("insurance.lnameReq")),
-            canPassport: yup
-                .string()
-                .trim()
-                .min(2, t("insurance.passport2CharLong"))
-                .required(t("insurance.passportReq")),
-            canOrigin: yup.string().trim().required(t("insurance.originReq")),
-            canDOB: yup.date().required(t("insurance.dobReq")),
-            canFirstDateOfIns: yup.date().required(t("insurance.FDIReq")),
-            canZipcode: yup.string().trim().required(t("insurance.zipReq")),
-            canTown: yup.string().trim().required(t("insurance.townReq")),
-            canHouseNo: yup.string().trim().required(t("insurance.houseNumReq")),
-            canStreet: yup.string().trim().required(t("insurance.streetReq")),
-            canTelephone: yup.number().required(t("insurance.telReq")),
-            canCellPhone: yup.number().required(t("insurance.phoneReq")),
-            canEmail: yup.string().trim().email().required(t("insurance.emailReq")),
-            gender: yup.string().trim().required(t("insurance.genderReq")),
-            g1Height: yup.string().trim().required(t("insurance.heightReq")),
-            g1Weight: yup.string().trim().required(t("insurance.weightReq")),
-            details: yup
-                .string()
-                .test(
-                    "is-required-or-nullable",
-                    "Details are required because a field is marked 'yes'",
-                    function (value) {
-                        const {
-                            g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
-                            g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
-                            g23, g24
-                        } = this.parent;
-
-                        const requiresDetails = [
-                            g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
-                            g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
-                            g23, g24
-                        ].includes("yes");
-
-                        // If none of the fields require details, allow null or undefined
-                        if (!requiresDetails) {
-                            return true; // Treat as valid (nullable case)
-                        }
-
-                        // If details are required, ensure value is not empty
-                        if (!value) {
-                            return this.createError({ message: "Details are required because a field is marked 'yes'" });
-                        }
-
-                        return true;
+    const commonFields = yup.object({
+        canFirstName: yup
+            .string()
+            .trim()
+            .min(2, t("insurance.fname2CharLong"))
+            .required(t("insurance.fnameReq")),
+        canLastName: yup
+            .string()
+            .trim()
+            .min(2, t("insurance.lname2CharLong"))
+            .required(t("insurance.lnameReq")),
+        canPassport: yup
+            .string()
+            .trim()
+            .min(2, t("insurance.passport2CharLong"))
+            .required(t("insurance.passportReq")),
+        canOrigin: yup.string().trim().required(t("insurance.originReq")),
+        canDOB: yup.date().required(t("insurance.dobReq")),
+        canFirstDateOfIns: yup.date().required(t("insurance.FDIReq")),
+        canZipcode: yup.string().trim().required(t("insurance.zipReq")),
+        canTown: yup.string().trim().required(t("insurance.townReq")),
+        canHouseNo: yup.string().trim().required(t("insurance.houseNumReq")),
+        canStreet: yup.string().trim().required(t("insurance.streetReq")),
+        canTelephone: yup.number().required(t("insurance.telReq")),
+        canCellPhone: yup.number().required(t("insurance.phoneReq")),
+        canEmail: yup.string().trim().email().required(t("insurance.emailReq")),
+        gender: yup.string().trim().required(t("insurance.genderReq")),
+        g1Height: yup.string().trim().required(t("insurance.heightReq")),
+        g1Weight: yup.string().trim().required(t("insurance.weightReq")),
+        details: yup
+            .string()
+            .test(
+                "is-required-or-nullable",
+                "Details are required because a field is marked 'yes'",
+                function (value) {
+                    const {
+                        g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
+                        g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
+                        g23, g24
+                    } = this.parent;
+    
+                    const requiresDetails = [
+                        g2, g3, g4, g4Today, g4Past, g5, g6, g7, g8, g9, g10,
+                        g11, g12, g13, g14, g15, g16, g17, g18, g19, g20, g21, g22,
+                        g23, g24
+                    ].includes("yes");
+    
+                    if (!requiresDetails) {
+                        return true; // Allow null or undefined if not required
                     }
-                )
-                .nullable(), // Allow null if the test logic passes for nullable case
-            signature: yup.mixed().required(t("form101.errorMsg.sign")),
-        })
-    };
+    
+                    if (!value) {
+                        return this.createError({ message: "Details are required because a field is marked 'yes'" });
+                    }
+    
+                    return true;
+                }
+            )
+            .nullable(),
+        signature: yup.mixed().required(t("form101.errorMsg.sign")),
+    });
+    
+    // Define the formSchema using commonFields
+    const formSchema = yup.object({
+        step7: commonFields,
+        step2: commonFields
+    });
+    
     const [formValues, setFormValues] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -207,15 +207,14 @@ const InsuranceForm = ({
     } = useFormik({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
-        validationSchema: formSchema[`step${nextStep}`],
+        validationSchema: formSchema[`step${nextStep}`] || commonFields,
         onSubmit: async (values) => {
 
             await saveFormData(true);
         },
+        validateOnChange: true,  // Validate on every field change
+        validateOnBlur: true, 
     });
-
-    console.log(errors, "errors");
-
 
 
     const handleNextPrev = async (e) => {
@@ -404,6 +403,7 @@ const InsuranceForm = ({
             // Convert JSON object to FormData
             let formData = objectToFormData(values);
             formData.append("pdf_file", blob);
+            formData.append("step", nextStep);
 
             axios
                 .post(`/api/worker/${id}/insurance-form`, formData, {
@@ -473,8 +473,6 @@ const InsuranceForm = ({
                 setFieldValue("canCellPhone", _worker.phone);
                 setFieldValue("canPassport", _worker.passport);
                 setFieldValue("canFirstDateOfIns", _worker.first_date);
-
-                console.log(_worker);
 
                 const _gender = _worker.gender;
                 setFieldValue(

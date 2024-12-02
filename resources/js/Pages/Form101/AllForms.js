@@ -61,8 +61,8 @@ function AllForms() {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [savingType, setSavingType] = useState("submit");
     const [formSubmitted, setFormSubmitted] = useState(false);
-    const [nextStep, setNextStep] = useState(page ? parseInt(page) : 1);
     const [worker, setWorker] = useState([])
+    const [nextStep, setNextStep] = useState(page ? parseInt(page) : 1);
     const [isManpower, setIsManpower] = useState(false)
     const [activeBubble, setActiveBubble] = useState(null);
 
@@ -1218,6 +1218,7 @@ function AllForms() {
                 let formData = objectToFormData(values);
                 formData.append("savingType", savingType);
                 formData.append("formId", formId);
+                formData.append("step", nextStep);
 
                 axios
                     .post(`/api/form101/${id}`, formData, {
@@ -1293,6 +1294,10 @@ function AllForms() {
                 }
             } else if (res.data.worker) {
                 const _worker = res.data.worker;
+
+                if(!page){
+                    setNextStep(res.data.worker.step)
+                }
 
                 if (_worker?.firstName !== null) {
                     setFieldValue("employeeFirstName", _worker.firstname);
@@ -1393,159 +1398,105 @@ function AllForms() {
     };
 
     return (
-       <>
-        {
-            isManpower || type === "manpower" ? (
-                <ManpowerSaftyForm/>
-            ) : (
-                <div className=" mt-4 mb-5 bg-transparent targetDiv" style={{
-                    margin: mobileView ? "0 20px" : "0 120px" 
-                    }}>
-                <div className="d-flex align-items-center justify-content-between flex-dir-co-1070">
-                    <img
-                        src={logo}
-                        className="img-fluid broom-logo"
-                        alt="Broom Services"
-                    />
-                    {!isManpower && (
-                        <div className="d-flex flex-wrap align-items-center">
+        <div className=" mt-4 mb-5 bg-transparent targetDiv" style={{
+            margin: mobileView ? "0 20px" : "0 120px"
+        }}>
+            <div className="d-flex align-items-center justify-content-between flex-dir-co-1070">
+                <img
+                    src={logo}
+                    className="img-fluid broom-logo"
+                    alt="Broom Services"
+                />
+                {!isManpower ? (
+                    <div className="d-flex flex-wrap align-items-center">
+                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>Step 1</span>
+                        <span className="mx-2"> - </span>
+                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>Step 2</span>
+                        <span className="mx-2"> - </span>
+                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>Step 3</span>
+                        {
+                            !param.formId ? (
+                                <>
+                                    <span className="mx-2"> - </span>
+                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>Step 4</span>
+                                    <span className="mx-2"> - </span>
+                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 5 ? 'bluecolor' : 'lightgrey'}`}>Step 5</span>
+                                    <span className="mx-2"> - </span>
+                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 6 ? 'bluecolor' : 'lightgrey'}`}>Step 6</span>
+                                </>
+                            ) : ""
+                        }
+                        {
+                            !param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1) && (
+                                <>
+                                    <span className="mx-2"> - </span>
+                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 7 ? 'bluecolor' : 'lightgrey'}`}>Step 7</span>
+                                </>
+                            )
+                        }
+                    </div>
+                ) : (
+                    <div className="d-flex flex-wrap align-items-center">
+                        {worker.country !== "Israel" && <>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>Step 1</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>Step 2</span>
-                            <span className="mx-2"> - </span>
-                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>Step 3</span>
-                            {
-                                !param.formId ? (
-                                    <>
-                                        <span className="mx-2"> - </span>
-                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>Step 4</span>
-                                        <span className="mx-2"> - </span>
-                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 5 ? 'bluecolor' : 'lightgrey'}`}>Step 5</span>
-                                        <span className="mx-2"> - </span>
-                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 6 ? 'bluecolor' : 'lightgrey'}`}>Step 6</span>
-                                    </>
-                                ) : ""
-                            }
-                            {
-                                !param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1) && (
-                                    <>
-                                        <span className="mx-2"> - </span>
-                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 7 ? 'bluecolor' : 'lightgrey'}`}>Step 7</span>
-                                    </>
-                                )
-                            }
-                        </div>
-                    )}
-                </div>
-    
-                {
-                    nextStep === 1 && !isManpower && (
-                        <>
-                            <GeneralInfo
-                                handleBlur={handleBlur}
-                                handleChange={handleChange}
-                                errors={errors}
-                                values={values}
-                                touched={touched}
-                                setFieldValue={setFieldValue}
-                                handleBubbleToggle={handleBubbleToggle}
-                                activeBubble={activeBubble}
-                                handleFileChange={handleFileChange}
-                            // identityType={identityType}
-                            />
                         </>
-                    )
-                }
-    
-                {
-                    nextStep === 2 && !isManpower && (
-                        <>
-                            <p className="navyblueColor font-34 mt-4 font-w-500">Form 101</p>
-                            <div className="row mt-3">
-                                <section className="col-xl ">
-                                    <p className="font-w-500">
-                                        Employee card and a request for tax relief and coordination by the employer according to the Income Tax Regulations (deduction from salary and wages), 1993.
-                                    </p>
-                                    <p className="font-w-500 mt-2">
-                                        This form will be filled out by each employee upon starting his job, as well as at the beginning of each tax year (unless the manager has approved otherwise). The form is a reference for the employer to provide tax relief and to make tax adjustments in the calculation of the employee's salary. If there is a change in the details this must be declared within a week.
-                                    </p>
-                                    <p className="navyblueColor mt-4 font-24 font-w-500">Tax year</p>
-                                    <p className="font-w-500 mt-2">
-                                        2024 (The form can only be filled out for the current tax year. Except in the month of December, when the form can also be filled out for the next tax year and in the month of january, when the form can be filled out also for the previous tax year, for the benefit of employees who did not have time to fill out the form in time.)
-                                    </p>
-                                    <div className="box-heading">
-                                        <EmployerDetails
-                                            handleBlur={handleBlur}
-                                            handleChange={handleChange}
-                                            errors={errors}
-                                            values={values}
-                                            touched={touched}
-                                            handleBubbleToggle={handleBubbleToggle}
-                                            activeBubble={activeBubble}
-                                        />
-                                    </div>
-                                    <div className="box-heading">
-                                        <EmployeeDetails
-                                            handleBlur={handleBlur}
-                                            handleChange={handleChange}
-                                            errors={errors}
-                                            values={values}
-                                            touched={touched}
-                                            setFieldValue={setFieldValue}
-                                            handleBubbleToggle={handleBubbleToggle}
-                                            activeBubble={activeBubble}
-                                            handleFileChange={handleFileChange}
-                                        />
-                                    </div>
-                                </section>
-                                <section className="col pl-4 pb-4 pr-4">
-                                    <div className="box-heading">
-                                        <ChildrenDetails
-                                            handleBlur={handleBlur}
-                                            handleChange={handleChange}
-                                            errors={errors}
-                                            values={values}
-                                            touched={touched}
-                                            setFieldValue={setFieldValue}
-                                            handleBubbleToggle={handleBubbleToggle}
-                                            activeBubble={activeBubble}
-                                        />
-                                    </div>
-                                    <div className="box-heading">
-                                        <IncomeDetails
-                                            handleBlur={handleBlur}
-                                            handleChange={handleChange}
-                                            errors={errors}
-                                            values={values}
-                                            touched={touched}
-                                            setFieldValue={setFieldValue}
-                                            handleBubbleToggle={handleBubbleToggle}
-                                            activeBubble={activeBubble}
-                                        />
-                                    </div>{" "}
-                                </section>
-                            </div>
-                        </>
-                    )
-                }
-                {
-                    nextStep === 3 && !isManpower && (
+                        }
+                    </div>
+                )}
+            </div>
+
+            {
+                nextStep === 1 && !isManpower ? (
+                    <>
+                        <GeneralInfo
+                            handleBlur={handleBlur}
+                            handleChange={handleChange}
+                            errors={errors}
+                            values={values}
+                            touched={touched}
+                            setFieldValue={setFieldValue}
+                            handleBubbleToggle={handleBubbleToggle}
+                            activeBubble={activeBubble}
+                            handleFileChange={handleFileChange}
+                        // identityType={identityType}
+                        />
+                    </>
+                ) : (
+                    nextStep === 1 && <ManpowerSaftyForm setNextStep={setNextStep} />
+                )
+            }
+
+            {
+                nextStep === 2 && !isManpower ? (
+                    <>
+                        <p className="navyblueColor font-34 mt-4 font-w-500">Form 101</p>
                         <div className="row mt-3">
-                            <section className="col-xl">
+                            <section className="col-xl ">
+                                <p className="font-w-500">
+                                    Employee card and a request for tax relief and coordination by the employer according to the Income Tax Regulations (deduction from salary and wages), 1993.
+                                </p>
+                                <p className="font-w-500 mt-2">
+                                    This form will be filled out by each employee upon starting his job, as well as at the beginning of each tax year (unless the manager has approved otherwise). The form is a reference for the employer to provide tax relief and to make tax adjustments in the calculation of the employee's salary. If there is a change in the details this must be declared within a week.
+                                </p>
+                                <p className="navyblueColor mt-4 font-24 font-w-500">Tax year</p>
+                                <p className="font-w-500 mt-2">
+                                    2024 (The form can only be filled out for the current tax year. Except in the month of December, when the form can also be filled out for the next tax year and in the month of january, when the form can be filled out also for the previous tax year, for the benefit of employees who did not have time to fill out the form in time.)
+                                </p>
                                 <div className="box-heading">
-                                    <OtherIncome
+                                    <EmployerDetails
                                         handleBlur={handleBlur}
                                         handleChange={handleChange}
                                         errors={errors}
                                         values={values}
                                         touched={touched}
-                                        setFieldValue={setFieldValue}
                                         handleBubbleToggle={handleBubbleToggle}
                                         activeBubble={activeBubble}
                                     />
                                 </div>
                                 <div className="box-heading">
-                                    <SpouseDetail
+                                    <EmployeeDetails
                                         handleBlur={handleBlur}
                                         handleChange={handleChange}
                                         errors={errors}
@@ -1554,30 +1505,13 @@ function AllForms() {
                                         setFieldValue={setFieldValue}
                                         handleBubbleToggle={handleBubbleToggle}
                                         activeBubble={activeBubble}
-                                    />
-                                </div>
-                                <div className="box-heading">
-                                    <TaxExemption
-                                        handleBlur={handleBlur}
-                                        handleChange={handleChange}
-                                        errors={errors}
-                                        values={values}
-                                        touched={touched}
-                                        setFieldValue={setFieldValue}
-                                        handleBubbleToggle={handleBubbleToggle}
-                                        activeBubble={activeBubble}
+                                        handleFileChange={handleFileChange}
                                     />
                                 </div>
                             </section>
-                            <section className="col pt-4 pb-5">
-                                <div className="box-heading ">
-                                    <p className="navyblueColor font-24  font-w-500">{t("form101.year_changes")}</p>
-                                    <p>{t("form101.year_changes_details1")}</p>
-                                    <p>{t("form101.year_changes_details2")}</p>
-                                </div>
-    
+                            <section className="col pl-4 pb-4 pr-4">
                                 <div className="box-heading">
-                                    <TaxCoordination
+                                    <ChildrenDetails
                                         handleBlur={handleBlur}
                                         handleChange={handleChange}
                                         errors={errors}
@@ -1588,175 +1522,255 @@ function AllForms() {
                                         activeBubble={activeBubble}
                                     />
                                 </div>
-    
                                 <div className="box-heading">
-                                    <p className="navyblueColor font-24  font-w-500">{t("form101.text_disclaimer")}</p>
-                                    <p>{t("form101.disclaimer_details1")}</p>
-                                    <p>{t("form101.disclaimer_details2")}</p>
-                                    <div className="row mt-3 justify-content-between">
-                                        <div className="form-group col-sm">
-                                            <DateField
-                                                label={t("form101.Date")}
-                                                name={"date"}
-                                                required={true}
-                                                onBlur={handleBlur}
-                                                onChange={handleChange}
-                                                value={values.date}
-                                                readOnly
-                                                error={touched.date && errors.date}
-                                            />
-                                        </div>
-                                        {formValues && formValues.signature != null ? (
-                                            <img src={formValues.signature} />
-                                        ) : (
-                                            <div className="col-sm">
-                                                <p className="navyblueColor font-w-500"> Employee Signature *</p>
-                                                <div id="signature">
-                                                    <SignatureCanvas
-                                                        penColor="black"
-                                                        canvasProps={{
-                                                            width: 250,
-                                                            height: 100,
-                                                            className:
-                                                                "sign101 border mt-1",
-                                                        }}
-                                                        ref={sigRef}
-                                                        onEnd={handleSignatureEnd}
-                                                    />
-                                                    {touched.signature &&
-                                                        errors.signature &&
-                                                        touched.signature &&
-                                                        errors.signature && (
-                                                            <p className="text-danger mr-3  ">
-                                                                {errors.signature}
-                                                            </p>
-                                                        )}
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className="d-flex justify-content-end">
-                                                        <button
-                                                            className="btn navyblue px-3 mb-2"
-                                                            onClick={clearSignature}
-                                                        >
-                                                            {t("form101.button_clear")}
-                                                        </button>
-                                                    </div>
-                                                </div>
-    
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="box-heading">
-                                    <p className="navyblueColor font-24 my-2 font-w-500">{t("form101.sendTOYouAndEmployer")}</p>
-                                    <div className="row justify-content-between mt-3">
-                                        <div className="col-sm">
-                                            <TextField
-                                                name="sender.employerEmail"
-                                                label={t("form101.employerEmail")}
-                                                value={values.sender.employerEmail}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                readonly={true}
-                                                error={
-                                                    touched.sender &&
-                                                        errors.sender &&
-                                                        touched.sender.employerEmail &&
-                                                        errors.sender.employerEmail
-                                                        ? errors.sender.employerEmail
-                                                        : ""
-                                                }
-                                                required
-                                            />
-                                        </div>
-                                        <div className="col-sm">
-                                            <TextField
-                                                name="sender.employeeEmail"
-                                                label={t("form101.employesEmail")}
-                                                value={values.sender.employeeEmail}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                readonly={true}
-                                                error={
-                                                    touched.sender &&
-                                                        errors.sender &&
-                                                        touched.sender.employeeEmail &&
-                                                        errors.sender.employeeEmail
-                                                        ? errors.sender.employeeEmail
-                                                        : ""
-                                                }
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                                    <IncomeDetails
+                                        handleBlur={handleBlur}
+                                        handleChange={handleChange}
+                                        errors={errors}
+                                        values={values}
+                                        touched={touched}
+                                        setFieldValue={setFieldValue}
+                                        handleBubbleToggle={handleBubbleToggle}
+                                        activeBubble={activeBubble}
+                                    />
+                                </div>{" "}
                             </section>
                         </div>
-                    )
-                }
-    
-                {
-                    nextStep === 4 && !isManpower && (
-                        <SafeAndGear nextStep={nextStep} handleNextPrev={handleNextPrev} setNextStep={setNextStep}
-                            handleBubbleToggle={handleBubbleToggle}
-                            activeBubble={activeBubble}
-                        />
-                    )
-                }
-    
-                {
-                    (nextStep === 5 || nextStep === 6) && !isManpower && (
-                        <WorkerContract nextStep={nextStep} setNextStep={setNextStep} worker={worker}
-                            handleBubbleToggle={handleBubbleToggle}
-                            activeBubble={activeBubble}
-                        />
-                    )
-                }
-                {/* {
+                    </>
+                ) : (
+                    nextStep === 2 && worker.country !== "Israel" ? 
+                    <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker} isManpower={isManpower}/> : ""
+                )
+            }
+            {
+                nextStep === 3 && !isManpower && (
+                    <div className="row mt-3">
+                        <section className="col-xl">
+                            <div className="box-heading">
+                                <OtherIncome
+                                    handleBlur={handleBlur}
+                                    handleChange={handleChange}
+                                    errors={errors}
+                                    values={values}
+                                    touched={touched}
+                                    setFieldValue={setFieldValue}
+                                    handleBubbleToggle={handleBubbleToggle}
+                                    activeBubble={activeBubble}
+                                />
+                            </div>
+                            <div className="box-heading">
+                                <SpouseDetail
+                                    handleBlur={handleBlur}
+                                    handleChange={handleChange}
+                                    errors={errors}
+                                    values={values}
+                                    touched={touched}
+                                    setFieldValue={setFieldValue}
+                                    handleBubbleToggle={handleBubbleToggle}
+                                    activeBubble={activeBubble}
+                                />
+                            </div>
+                            <div className="box-heading">
+                                <TaxExemption
+                                    handleBlur={handleBlur}
+                                    handleChange={handleChange}
+                                    errors={errors}
+                                    values={values}
+                                    touched={touched}
+                                    setFieldValue={setFieldValue}
+                                    handleBubbleToggle={handleBubbleToggle}
+                                    activeBubble={activeBubble}
+                                />
+                            </div>
+                        </section>
+                        <section className="col pt-4 pb-5">
+                            <div className="box-heading ">
+                                <p className="navyblueColor font-24  font-w-500">{t("form101.year_changes")}</p>
+                                <p>{t("form101.year_changes_details1")}</p>
+                                <p>{t("form101.year_changes_details2")}</p>
+                            </div>
+
+                            <div className="box-heading">
+                                <TaxCoordination
+                                    handleBlur={handleBlur}
+                                    handleChange={handleChange}
+                                    errors={errors}
+                                    values={values}
+                                    touched={touched}
+                                    setFieldValue={setFieldValue}
+                                    handleBubbleToggle={handleBubbleToggle}
+                                    activeBubble={activeBubble}
+                                />
+                            </div>
+
+                            <div className="box-heading">
+                                <p className="navyblueColor font-24  font-w-500">{t("form101.text_disclaimer")}</p>
+                                <p>{t("form101.disclaimer_details1")}</p>
+                                <p>{t("form101.disclaimer_details2")}</p>
+                                <div className="row mt-3 justify-content-between">
+                                    <div className="form-group col-sm">
+                                        <DateField
+                                            label={t("form101.Date")}
+                                            name={"date"}
+                                            required={true}
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}
+                                            value={values.date}
+                                            readOnly
+                                            error={touched.date && errors.date}
+                                        />
+                                    </div>
+                                    {formValues && formValues.signature != null ? (
+                                        <img src={formValues.signature} />
+                                    ) : (
+                                        <div className="col-sm">
+                                            <p className="navyblueColor font-w-500"> Employee Signature *</p>
+                                            <div id="signature">
+                                                <SignatureCanvas
+                                                    penColor="black"
+                                                    canvasProps={{
+                                                        width: 250,
+                                                        height: 100,
+                                                        className:
+                                                            "sign101 border mt-1",
+                                                    }}
+                                                    ref={sigRef}
+                                                    onEnd={handleSignatureEnd}
+                                                />
+                                                {touched.signature &&
+                                                    errors.signature &&
+                                                    touched.signature &&
+                                                    errors.signature && (
+                                                        <p className="text-danger mr-3  ">
+                                                            {errors.signature}
+                                                        </p>
+                                                    )}
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="d-flex justify-content-end">
+                                                    <button
+                                                        className="btn navyblue px-3 mb-2"
+                                                        onClick={clearSignature}
+                                                    >
+                                                        {t("form101.button_clear")}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="box-heading">
+                                <p className="navyblueColor font-24 my-2 font-w-500">{t("form101.sendTOYouAndEmployer")}</p>
+                                <div className="row justify-content-between mt-3">
+                                    <div className="col-sm">
+                                        <TextField
+                                            name="sender.employerEmail"
+                                            label={t("form101.employerEmail")}
+                                            value={values.sender.employerEmail}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            readonly={true}
+                                            error={
+                                                touched.sender &&
+                                                    errors.sender &&
+                                                    touched.sender.employerEmail &&
+                                                    errors.sender.employerEmail
+                                                    ? errors.sender.employerEmail
+                                                    : ""
+                                            }
+                                            required
+                                        />
+                                    </div>
+                                    <div className="col-sm">
+                                        <TextField
+                                            name="sender.employeeEmail"
+                                            label={t("form101.employesEmail")}
+                                            value={values.sender.employeeEmail}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            readonly={true}
+                                            error={
+                                                touched.sender &&
+                                                    errors.sender &&
+                                                    touched.sender.employeeEmail &&
+                                                    errors.sender.employeeEmail
+                                                    ? errors.sender.employeeEmail
+                                                    : ""
+                                            }
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                )
+            }
+
+            {
+                nextStep === 4 && !isManpower && (
+                    <SafeAndGear nextStep={nextStep} handleNextPrev={handleNextPrev} setNextStep={setNextStep}
+                        handleBubbleToggle={handleBubbleToggle}
+                        activeBubble={activeBubble}
+                    />
+                )
+            }
+
+            {
+                (nextStep === 5 || nextStep === 6) && !isManpower && (
+                    <WorkerContract nextStep={nextStep} setNextStep={setNextStep} worker={worker}
+                        handleBubbleToggle={handleBubbleToggle}
+                        activeBubble={activeBubble}
+                    />
+                )
+            }
+            {/* {
                     nextStep === 6 && (
                         <WorkerContract nextStep={nextStep} setNextStep={setNextStep} worker={worker}/>
                     )
                 } */}
-    
-                {
-                    nextStep === 7 && (!param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1)) && !isManpower && (
-                        <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker}
-                            handleBubbleToggle={handleBubbleToggle}
-                            activeBubble={activeBubble}
-                        />
-                    )
-                }
-    
-                {
-                    ![4, 5, 6, 7].includes(nextStep) ? (
-                        <div className="d-flex justify-content-end">
-                            {nextStep !== 1 && !isManpower && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => handleNextPrev(e)}
-                                    className="navyblue py-2 px-4 mr-2"
-                                    name="prev"
-                                    style={{ borderRadius: "5px" }}
-                                >
-                                    <GrFormPreviousLink /> Prev
-                                </button>
-                            )}
-                            {!(param.formId && nextStep === 3) && nextStep < 7 && !isManpower && (
-                                <button
-                                    type="button"
-                                    onClick={async (e) => {
-                                        await handleSaveAsDraft();
-                                        // handleNextPrev(e);
-                                    }}
-                                    name="next"
-                                    className="navyblue py-2 px-4"
-                                    style={{ borderRadius: "5px" }}
-                                // disabled={isSubmitted}
-                                >
-                                    Next <GrFormNextLink />
-                                </button>
-                            )}
-                            {/* {
+
+            {
+                nextStep === 7 && (!param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1)) && !isManpower && (
+                    <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker}
+                        handleBubbleToggle={handleBubbleToggle}
+                        activeBubble={activeBubble}
+                    />
+                )
+            }
+
+            {
+                ![4, 5, 6, 7].includes(nextStep) ? (
+                    <div className="d-flex justify-content-end">
+                        {nextStep !== 1 && !isManpower && (
+                            <button
+                                type="button"
+                                onClick={(e) => handleNextPrev(e)}
+                                className="navyblue py-2 px-4 mr-2"
+                                name="prev"
+                                style={{ borderRadius: "5px" }}
+                            >
+                                <GrFormPreviousLink /> Prev
+                            </button>
+                        )}
+                        {!(param.formId && nextStep === 3) && nextStep < 7 && !isManpower && (
+                            <button
+                                type="button"
+                                onClick={async (e) => {
+                                    await handleSaveAsDraft();
+                                    // handleNextPrev(e);
+                                }}
+                                name="next"
+                                className="navyblue py-2 px-4"
+                                style={{ borderRadius: "5px" }}
+                            // disabled={isSubmitted}
+                            >
+                                Next <GrFormNextLink />
+                            </button>
+                        )}
+                        {/* {
                                 (param.formId && nextStep === 3) && !isManpower && (
                                     <button
                                         type="submit"
@@ -1770,15 +1784,12 @@ function AllForms() {
                                     </button>
                                 )
                             } */}
-                        </div>
-                    ) : null
-                }
-    
-    
-            </div>
-            )
-        }
-       </>        
+                    </div>
+                ) : null
+            }
+
+
+        </div>
     )
 }
 

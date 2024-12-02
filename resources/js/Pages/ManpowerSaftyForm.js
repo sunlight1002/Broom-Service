@@ -12,8 +12,11 @@ import SignatureCanvas from "react-signature-canvas";
 import * as yup from "yup";
 import companySign from '../Assets/image/company-sign.png';
 import { objectToFormData } from "../Utils/common.utils";
+import { GrFormNextLink } from "react-icons/gr";
 
-const ManpowerSaftyForm = () => {
+const ManpowerSaftyForm = ({
+    setNextStep
+}) => {
     const sigRef = useRef();
     const param = useParams();
     const { t } = useTranslation();
@@ -26,6 +29,7 @@ const ManpowerSaftyForm = () => {
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
     const contentRef = useRef(null);
     const [date, setDate] = useState(moment().format("DD-MM-YYYY"));
+    const [country, setCountry] = useState("");
 
     const initialValues = {
         workerName: "",
@@ -60,53 +64,62 @@ const ManpowerSaftyForm = () => {
         initialValues,
         validationSchema: formSchema,
         onSubmit: async (values) => {
-            setIsGeneratingPDF(true);
-            const options = {
-                filename: "my-document.pdf",
-                margin: [5, 5, 0, 5],
-                image: { type: "jpeg", quality: 0.98 },
-                html2canvas: { scale: 1.5 },
-                jsPDF: {
-                    unit: "mm",
-                    format: "a4",
-                    orientation: "portrait",
-                },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            };
-
-            const content = contentRef.current;
-
-            const _pdf = await html2pdf()
-                .set(options)
-                .from(content)
-                .outputPdf("blob", "Manpower_safty.pdf");
-
-            setIsGeneratingPDF(false);
-
-            // Convert JSON object to FormData
-            let formData = objectToFormData(values);
-            formData.append("pdf_file", _pdf);
-
-            axios
-                .post(`/api/${id}/manpower-form`, formData, {
-                    headers: {
-                        Accept: "application/json, text/plain, */*",
-                        "Content-Type": "multipart/form-data",
+            if (!isSubmitted) {
+                setIsGeneratingPDF(true);
+                const options = {
+                    filename: "my-document.pdf",
+                    margin: [5, 5, 0, 5],
+                    image: { type: "jpeg", quality: 0.98 },
+                    html2canvas: { scale: 1.5 },
+                    jsPDF: {
+                        unit: "mm",
+                        format: "a4",
+                        orientation: "portrait",
                     },
-                })
-                .then((res) => {
-                    alert.success("Form submitted successfully");
-                    setTimeout(() => {
-                        window.location.reload(true);
-                    }, 2000);
-                })
-                .catch((e) => {
-                    Swal.fire({
-                        title: "Error!",
-                        text: e.response.data.message,
-                        icon: "error",
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                const content = contentRef.current;
+
+                const _pdf = await html2pdf()
+                    .set(options)
+                    .from(content)
+                    .outputPdf("blob", "Manpower_safty.pdf");
+
+                setIsGeneratingPDF(false);
+
+                // Convert JSON object to FormData
+                let formData = objectToFormData(values);
+                formData.append("pdf_file", _pdf);
+
+                axios
+                    .post(`/api/${id}/manpower-form`, formData, {
+                        headers: {
+                            Accept: "application/json, text/plain, */*",
+                            "Content-Type": "multipart/form-data",
+                        },
+                    })
+                    .then((res) => {
+                        alert.success("Form submitted successfully");
+                        if (country !== "Israel") {
+                            setNextStep(prev => prev + 1);
+                        }else{
+                            setTimeout(() => {
+                                window.location.reload(true);
+                            }, 1000);
+                        }
+                        setIsSubmitted(true);
+                    })
+                    .catch((e) => {
+                        Swal.fire({
+                            title: "Error!",
+                            text: e.response.data.message,
+                            icon: "error",
+                        });
                     });
-                });
+            }else{
+                setNextStep(prev => prev + 1)
+            }
         },
     });
 
@@ -130,6 +143,7 @@ const ManpowerSaftyForm = () => {
             }
 
             if (res.data.worker) {
+                setCountry(res.data.worker.country);
                 setFieldValue("workerName", res.data.worker.firstname);
                 setFieldValue("workerName2", res.data.worker.lastname);
                 setFieldValue("address", res.data.worker.address);
@@ -171,8 +185,8 @@ const ManpowerSaftyForm = () => {
 
     return (
         <div id="container" className="targetDiv rtlcon pdf-container" ref={contentRef}>
-            <div id="content" style={{ paddingLeft: "25px" }}>
-                <div className="mx-5 mt-4">
+            <div id="content">
+                <div className="mt-4">
                     <div className="text-center no-break">
                         <p className="mb-4 badge badge-primary" style={{ fontSize: "25px" }}>
                             <strong>{t("safeAndGear.welcomeToBroom")}</strong>
@@ -293,15 +307,18 @@ const ManpowerSaftyForm = () => {
                                     <img src={companySign} />
                                 </div>
                             </div>
-                            {!isSubmitted && !isGeneratingPDF && (
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="btn btn-success"
-                                >
-                                    {t("safeAndGear.Accept")}
-                                </button>
-                            )}
+                            <div className="row justify-content-center mt-4">
+                                <div className="col d-flex justify-content-end">
+                                        <button
+                                            type="submit"
+                                            className="btn navyblue"
+                                            // disabled={isSubmitting}
+                                        >
+                                            {!isSubmitted ? t("safeAndGear.Accept") : <> Next <GrFormNextLink /></>}
+                                        </button>
+
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
