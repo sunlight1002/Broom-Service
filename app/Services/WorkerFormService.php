@@ -1453,7 +1453,7 @@ class WorkerFormService
         }
 
         if (
-            isset($formData['employeeIdentityType']) &&
+            isset($formData['employeeIdentityType']) && isset($formData['employeeIdCardCopy']) &&
             $formData['employeeIdentityType'] == 'IDNumber'
         ) {
             // \Log::info($formData['employeeIdCardCopy']);
