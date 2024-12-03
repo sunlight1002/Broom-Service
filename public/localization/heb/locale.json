@@ -563,6 +563,7 @@
         "the_company": "החברה",
         "accept_contract": "אשר הסכם",
         "please_select": "אנא בחר",
+        "no_cards_found": "כרטיס לא נמצא",
         "messages": {
             "card_err": "נא להוסיף כרטיס",
             "card_type_err": "בחר סוג כרטיס",
@@ -959,7 +960,8 @@
             "cardDeleted": "הכרטיס נמחק.",
             "default": "ברירת מחדל",
             "markAsDefault": "סמן כברירת מחדל",
-            "NoCardAdded": "לא נוסף כרטיס"
+            "NoCardAdded": "לא נוסף כרטיס",
+            "verification": "אימות דו-שלבי"
         },
         "other": {
             "change_or_request": "שלח הודעה לגבי שינוי או בקשה:",
@@ -1831,8 +1833,12 @@
             "dashboard": "דף הבית",
             "jobs": "שירותים שהזמנתי",
             "hearing": "שימוע",
+            "protocol": "פרוטוקול",
             "schedule": "לוח זמנים",
             "not_available": "תאריכים לא זמינים",
+            "advance_loan": "מקדמה/הלוואה",
+            "tasks": "משימות",
+            "refund_claim": "תביעת החזר",
             "workingHours": "שעה (ות",
             "leaves": "עלים"
         },
@@ -1984,6 +1990,7 @@
             "Presetpermissions": "הרשאות מוגדרות מראש",
             "makeMember": "הפוך לחבר",
             "makeAdministrator": "הפוך למנהל",
+<<<<<<< Updated upstream
             "paymentMethod": "שיטת תשלום",
             "cheque": "לִבדוֹק",
             "moneyTrasnfer": "העברת כספים",
@@ -2011,6 +2018,37 @@
             "loanStart": "תאריך תחילת ההלוואה",
             "submit": "לְהַגִישׁ",
             "invitation_for_hearing": "לתאם שימוע"
+=======
+            "paymentMethod":"שיטת תשלום",
+            "please_Select": "--- בבקשה בחר ---",
+            "cheque":"לִבדוֹק",
+            "moneyTrasnfer":"העברת כספים",
+            "fullName":"שם מלא",
+            "bankName":"שם הבנק",
+            "bankNumber":"מספר בנק",
+            "branchNumber":"מספר סניף",
+            "accountNumber":"מספר חשבון",
+            "enterFullname":"הזן שם מלא",
+            "enterBankname":"הזן את שם הבנק",
+            "enterBanknumber":"הזן מספר בנק",
+            "enterBranchnumber":"הזן מספר סניף",
+            "enterAccountnumber":"הזן מספר חשבון",
+            "advance":"מקדמה/הלוואה",
+            "type":"סוּג",
+            "amount":"סְכוּם",
+            "pendingAmount":"כמות בהמתנה",
+            "action":"פעולה",
+            "addAdvance":"הוסף מקדמה/הלוואה",
+            "editAdvance":"ערוך מראש/הלוואה",
+            "selectType":"בחר סוג",
+            "Advance":"לְקַדֵם",
+            "loan":"לְהַלווֹת",
+            "monthlyPayment":"תשלום חודשי",
+            "loanStart":"תאריך תחילת ההלוואה",
+            "submit":"לְהַגִישׁ",
+            "invitation_for_hearing": "לתאם שימוע",
+            "verification": "אימות דו-שלבי"
+>>>>>>> Stashed changes
         }
     },
     "worker_contract": {

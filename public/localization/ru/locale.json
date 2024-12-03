@@ -474,6 +474,7 @@
         "the_company": "Компания",
         "accept_contract": "Принять договор",
         "please_select": "Пожалуйста, выберите",
+        "no_cards_found": "Карта не найдена",
         "messages": {
             "card_err": "Пожалуйста, добавьте карту",
             "card_type_err": "Пожалуйста, выберите тип карты",
@@ -798,7 +799,8 @@
             "cardDeleted": "Карта удалена.",
             "default": "по умолчанию",
             "markAsDefault": "Отметить как по умолчанию",
-            "NoCardAdded": "Карта не добавлена"
+            "NoCardAdded": "Карта не добавлена",
+            "verification": "Двухэтапная проверка"
         }
     },
     "admin": {
@@ -1628,8 +1630,12 @@
             "dashboard": "Панель управления",
             "jobs": "Работы",
             "hearing": "Слушание",
+            "protocol": "Протокол",
             "schedule": "График",
             "not_available": "Недоступные даты",
+            "advance_loan": "Аванс/Заем",
+            "tasks": "Задачи",
+            "refund_claim": "Претензия на возврат",
             "workingHours": "Часы"
         },
         "dashboard": {
@@ -1793,7 +1799,8 @@
             "enterBanknumber": "Введите номер банка",
             "enterBranchnumber": "Введите номер филиала",
             "enterAccountnumber": "Введите номер счета",
-            "hearing": "Слушание"
+            "hearing": "Слушание",
+            "verification": "Двухэтапная проверка"
         }
     },
     "worker_contract": {

@@ -118,7 +118,7 @@ export default function AdminHeader() {
                                         data-toggle="dropdown"
                                         style={{marginTop: "10px"}}
                                     >
-                                        <i className="mt-1"><LuBellRing /></i>
+                                        <i className="mt-1"><LuBellRing /></i>  
                                     </button>
                                     <ul className="dropdown-menu">
                                         {notices.map((n, i) => {

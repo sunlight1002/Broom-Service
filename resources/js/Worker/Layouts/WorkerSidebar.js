@@ -59,13 +59,13 @@ export default function WorkerSidebar() {
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/hearing">
-                        <i className="fa-solid fa-briefcase"></i>
+                        <i className="fa-solid fa-calendar-check font-12"></i>
                         {t("worker.sidebar.hearing")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/protocol">
-                        <i className="fa-solid fa-briefcase"></i>
+                        <i className="fa-solid fa-file-alt"></i>
                         {t("worker.sidebar.protocol")}
                     </NavLink>
                 </li>
@@ -84,19 +84,19 @@ export default function WorkerSidebar() {
                 <li className="list-group-item">
                     <NavLink to="/worker/advance-loan">
                         <i className="fa-solid fa-hand-holding-usd"></i>
-                        Advance/Loan
+                        {t("worker.sidebar.advance_loan")}
                     </NavLink>
                     </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/tasks">
                     <i class="fa-solid fa-list-check"></i>
-                        Tasks
+                        {t("worker.sidebar.tasks")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/refund-claim">
                         <i className="fa-solid fa-file-contract"></i>
-                        Refund Claim
+                        {t("worker.sidebar.refund_claim")}
                     </NavLink>
                 </li>
                 {/* <li className="list-group-item">
