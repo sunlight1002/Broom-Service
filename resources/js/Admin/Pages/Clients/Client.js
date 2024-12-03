@@ -41,7 +41,6 @@ export default function Clients() {
     const [filter, setFilter] = useState('All');
 
     const leadStatuses = [
-        t("admin.client.Potential"),
         t("admin.client.Waiting_client"),
         t("admin.client.Active_client"),
         t("admin.client.Freeze_client"),
@@ -293,15 +292,31 @@ export default function Clients() {
     };
 
     useEffect(() => {
-        if (type == "past") {
-            $(tableRef.current).DataTable().column(4).search(filters.action).draw();
-        } else if(type == "all"){
-            $(tableRef.current).DataTable().column(4).search('').draw();
-        }else{
-            $(tableRef.current).DataTable().column(4).search(type).draw();
+        const dataTable = $(tableRef.current).DataTable();
+    
+        if (type === "past") {
+            dataTable.column(4).search(filters.action).draw();
+        } else if (type === "all") {
+            dataTable.column(4).search("").draw();
+        } else {
+            dataTable.column(4).search(type).draw();
         }
-    }, [type, filters]);
-
+    
+        if (filter !== "All") {
+            if (filter === t("admin.client.Waiting_client")) {
+                dataTable.column(4).search("pending client").draw();
+            } else if (filter === t("admin.client.Past_client")) {
+                console.log("Searching for 'past client' status");
+                dataTable.column(4).search("past").draw();
+            } else {
+                dataTable.column(4).search(filter).draw();
+            }
+        }
+    
+        dataTable.ajax.reload();
+    }, [type, filters, filter]);
+    
+    
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",

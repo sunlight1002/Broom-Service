@@ -77,6 +77,7 @@ class ClientController extends Controller
             ->when($action == 'booked', function ($q) {
                 return $q->has('jobs');
             })
+            ->whereNotIn('leadstatus.lead_status', ['potential client', 'potential', 'uninterested'])
             ->when($action == 'notbooked', function ($q) {
                 return $q->whereDoesntHave('jobs');
             })
