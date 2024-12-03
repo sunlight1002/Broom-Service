@@ -4247,3 +4247,12 @@ tbody tr:hover {
   page-break-before: auto;
   page-break-after: auto;
 }
+
+
+#priceOfferTable .table-bordered td, .table-bordered th{
+  border: 1px solid #E5EBF1 !important;
+} 
+
+#priceOfferTable .table-striped tbody tr:nth-of-type(odd){
+  background-color: #f2f4f7 !important;
+}

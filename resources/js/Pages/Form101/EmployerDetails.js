@@ -24,7 +24,6 @@ export default function EmployerDetails({
                         label={t("form101.label_name")}
                         value={values.employerName}
                         onChange={handleChange}
-                        toggleBubble={handleBubbleToggle}
                         onBlur={handleBlur}
                         readonly={true}
                         error={
@@ -33,13 +32,6 @@ export default function EmployerDetails({
                                 : ""
                         }
                     />
-                    {activeBubble === 'employerName' && (
-                        <div className="d-flex justify-content-end">
-                            <div className="speech up">
-                                Info about Employee Last Name!
-                            </div>
-                        </div>
-                    )}
                 </div>
                 <div className="col-sm">
                     <TextField
@@ -47,7 +39,6 @@ export default function EmployerDetails({
                         label={t("form101.label_address")}
                         value={values.employerAddress}
                         onChange={handleChange}
-                        toggleBubble={handleBubbleToggle}
                         onBlur={handleBlur}
                         readonly={true}
                         error={
@@ -56,13 +47,6 @@ export default function EmployerDetails({
                                 : ""
                         }
                     />
-                    {activeBubble === 'employerAddress' && (
-                        <div className="d-flex justify-content-end">
-                            <div className="speech up">
-                                Info about Employee Last Name!
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
             <div className="row">
@@ -72,7 +56,6 @@ export default function EmployerDetails({
                         label={t("form101.label_phNum")}
                         value={values.employerPhone}
                         onChange={handleChange}
-                        toggleBubble={handleBubbleToggle}
                         onBlur={handleBlur}
                         readonly={true}
                         error={
@@ -81,13 +64,6 @@ export default function EmployerDetails({
                                 : ""
                         }
                     />
-                    {activeBubble === 'employerPhone' && (
-                        <div className="d-flex justify-content-end">
-                            <div className="speech up">
-                                Info about Employee Last Name!
-                            </div>
-                        </div>
-                    )}
                 </div>
                 <div className="col-sm">
                     <TextField
@@ -96,7 +72,6 @@ export default function EmployerDetails({
                         value={values.employerDeductionsFileNo}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        toggleBubble={handleBubbleToggle}
                         readonly={true}
                         error={
                             touched.employerDeductionsFileNo &&
@@ -105,13 +80,6 @@ export default function EmployerDetails({
                                 : ""
                         }
                     />
-                    {activeBubble === 'employerDeductionsFileNo' && (
-                        <div className="d-flex justify-content-end">
-                            <div className="speech up">
-                                Info about Employee Last Name!
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

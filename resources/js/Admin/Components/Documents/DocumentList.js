@@ -1,10 +1,13 @@
 import Moment from "moment";
-const arr = ["visa", "passport", "id_card"];
+const arr = ["visa", "passport_card", "id_card"];
 
 const DocumentList = ({ documents, worker, handleDelete }) => {
     const getExtension = (filename) => {
         return filename.split(".").pop();
     };
+
+    console.log(worker,"worker");
+    
 
     return (
         <div>

@@ -12,7 +12,7 @@ export default function TextField({
     error,
     required,
     readonly,
-    toggleBubble, // Passed from parent to handle toggling
+    toggleBubble = false, // Passed from parent to handle toggling
     id = name
 }) {
     return (
@@ -31,23 +31,25 @@ export default function TextField({
                     onChange={onChange}
                     onBlur={onBlur}
                     readOnly={readonly}
-                    style={{ 
-                        border: !error && "2px solid #E9ECF2", 
-                        background: "inherit" 
+                    style={{
+                        border: !error && "2px solid #E9ECF2",
+                        background: "inherit"
                     }}
                 />
-                <span
-                    className="d-flex justify-content-center align-items-center p-2 font-20"
-                    style={{
-                        backgroundColor: "rgb(244 246 249)",
-                        marginLeft: "10px",
-                        borderRadius: "10px",
-                        cursor: "pointer"
-                    }}
-                    onClick={() => toggleBubble(name)} // Trigger toggle when clicked
-                >
-                    <AiOutlineQuestionCircle />
-                </span>
+                {toggleBubble && (
+                    <span
+                        className="d-flex justify-content-center align-items-center p-2 font-20"
+                        style={{
+                            backgroundColor: "rgb(244 246 249)",
+                            marginLeft: "10px",
+                            borderRadius: "10px",
+                            cursor: "pointer"
+                        }}
+                        onClick={() => toggleBubble(name)} // Trigger toggle when clicked
+                    >
+                        <AiOutlineQuestionCircle />
+                    </span>
+                )}
             </div>
             <p className="text-danger">{error}</p>
         </div>

@@ -565,8 +565,6 @@ class AuthController extends Controller
             ->get()
             ->groupBy('type');
 
-        \Log::info([$forms]);
-
         $contractForm = $forms[WorkerFormTypeEnum::CONTRACT][0] ?? null;
         $safetyAndGearForm = $forms[WorkerFormTypeEnum::SAFTEY_AND_GEAR][0] ?? null;
         $form101Form = $forms[WorkerFormTypeEnum::FORM101][0] ?? null;
@@ -939,7 +937,6 @@ class AuthController extends Controller
 
     public function getSafegear($id)
     {
-        \Log::info($id);
         $worker = User::find($id);
         if (!$worker) {
             return response()->json([

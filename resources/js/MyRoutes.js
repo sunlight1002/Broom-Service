@@ -187,6 +187,8 @@ import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
 import ManpowerSaftyForm from "./Pages/ManpowerSaftyForm";
 import AllForms from "./Pages/Form101/AllForms";
 import ChangePassword from "./Client/Auth/ChangePassword";
+import ClientPropertyAdress from "./Client/ClientPropertyAdress";
+import ViewPropertyAddress from "./Client/ViewPropertyAddress";
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
 
@@ -452,6 +454,16 @@ export default function MyRoutes() {
                                 exact
                                 path="/client/jobs/:id/change-schedule"
                                 element={<ChangeSchedule />}
+                            />
+                            <Route
+                                exact
+                                path="/client/property-addresses"
+                                element={<ClientPropertyAdress />}
+                            />
+                            <Route
+                                exact
+                                path="/client/property-address/:id"
+                                element={<ViewPropertyAddress />}
                             />
                             {/* <Route
                                 exact

@@ -1228,6 +1228,9 @@ function AllForms() {
                         },
                     })
                     .then((response) => {
+                        if (savingType == "submit" && formId) {
+                            alert.success(response.data.message);
+                        }
                         setLoading(false);
                         setSavingType("submit");
                         setFormSubmitted(true)
@@ -1409,20 +1412,20 @@ function AllForms() {
                 />
                 {!isManpower ? (
                     <div className="d-flex flex-wrap align-items-center">
-                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>Step 1</span>
+                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                         <span className="mx-2"> - </span>
-                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>Step 2</span>
+                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
                         <span className="mx-2"> - </span>
-                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>Step 3</span>
+                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
                         {
                             !param.formId ? (
                                 <>
                                     <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>Step 4</span>
+                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 4</span>
                                     <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 5 ? 'bluecolor' : 'lightgrey'}`}>Step 5</span>
+                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 5 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 5</span>
                                     <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 6 ? 'bluecolor' : 'lightgrey'}`}>Step 6</span>
+                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 6 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 6</span>
                                 </>
                             ) : ""
                         }
@@ -1430,7 +1433,7 @@ function AllForms() {
                             !param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1) && (
                                 <>
                                     <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 7 ? 'bluecolor' : 'lightgrey'}`}>Step 7</span>
+                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 7 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 7</span>
                                 </>
                             )
                         }
@@ -1438,9 +1441,9 @@ function AllForms() {
                 ) : (
                     <div className="d-flex flex-wrap align-items-center">
                         {worker.country !== "Israel" && <>
-                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>Step 1</span>
+                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                             <span className="mx-2"> - </span>
-                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>Step 2</span>
+                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
                         </>
                         }
                     </div>
@@ -1476,14 +1479,14 @@ function AllForms() {
                             <div className="row mt-3">
                                 <section className="col-xl ">
                                     <p className="font-w-500">
-                                        Employee card and a request for tax relief and coordination by the employer according to the Income Tax Regulations (deduction from salary and wages), 1993.
+                                        {t("form101.step2(1)")}
                                     </p>
                                     <p className="font-w-500 mt-2">
-                                        This form will be filled out by each employee upon starting his job, as well as at the beginning of each tax year (unless the manager has approved otherwise). The form is a reference for the employer to provide tax relief and to make tax adjustments in the calculation of the employee's salary. If there is a change in the details this must be declared within a week.
+                                        {t("form101.step2(2)")}
                                     </p>
                                     <p className="navyblueColor mt-4 font-24 font-w-500">Tax year</p>
                                     <p className="font-w-500 mt-2">
-                                        2024 (The form can only be filled out for the current tax year. Except in the month of December, when the form can also be filled out for the next tax year and in the month of january, when the form can be filled out also for the previous tax year, for the benefit of employees who did not have time to fill out the form in time.)
+                                        {t("form101.step2(3)")}
                                     </p>
                                     <div className="box-heading">
                                         <EmployerDetails
@@ -1772,20 +1775,20 @@ function AllForms() {
                                 Next <GrFormNextLink />
                             </button>
                         )}
-                        {/* {
-                                (param.formId && nextStep === 3) && !isManpower && (
-                                    <button
-                                        type="submit"
-                                        onClick={handleSaveAsDraft}
-                                        name="next"
-                                        className="navyblue py-2 px-4"
-                                        style={{ borderRadius: "5px" }}
-                                    // disabled={isSubmitted}   
-                                    >
-                                        Submit
-                                    </button>
-                                )
-                            } */}
+                        {
+                            (param.formId && nextStep === 3) && !isManpower && (
+                                <button
+                                    type="submit"
+                                    onClick={handleSaveAsDraft}
+                                    name="next"
+                                    className="navyblue py-2 px-4"
+                                    style={{ borderRadius: "5px" }}
+                                    disabled={isSubmitted}
+                                >
+                                    Submit
+                                </button>
+                            )
+                        }
                     </div>
                 ) : null
             }

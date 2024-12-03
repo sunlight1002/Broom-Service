@@ -36,6 +36,12 @@ Route::group(['middleware' => ['auth:client-api', 'scopes:client']], function ()
     Route::get('contracts', [DashboardController::class, 'contracts']);
     Route::post('view-contract', [DashboardController::class, 'viewContract']);
     Route::post('get-contract/{id}', [DashboardController::class, 'getContract']);
+    Route::get('get-property-addressess', [DashboardController::class, 'getAllPropertyAddresses']);
+    Route::get('get-property-address/{id}', [DashboardController::class, 'getPropertyAddress']);
+    Route::post('property-address', [DashboardController::class, 'storeAddress']);
+    Route::delete('property-address/{id}', [DashboardController::class, 'destroyAddress']);
+    Route::put('property-address/{id}', [DashboardController::class, 'updateAddress']);
+
 
     //job APis
     Route::get('jobs', [JobController::class, 'index']);

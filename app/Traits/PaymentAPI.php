@@ -757,7 +757,6 @@ trait PaymentAPI
     ) {
         $address = $client->property_addresses()->first();
         // \Log::info($items);
-        \Log::info("items");
 
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)

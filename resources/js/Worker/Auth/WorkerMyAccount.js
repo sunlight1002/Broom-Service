@@ -242,7 +242,7 @@ export default function WorkerMyAccount() {
                                         country={'il'}
                                         value={phone}
                                         onChange={(phone) => {
-                                        setPhone(phone);
+                                            setPhone(phone);
                                         }}
                                         inputClass="form-control"
                                         inputProps={{
@@ -580,21 +580,23 @@ export default function WorkerMyAccount() {
                             <label className="control-label">
                                 {t("worker.settings.areYouAfraid")}
                             </label>
-                        </div>
-                        {animalArray.map((item, index) => (
-                            <div className="form-check" key={item.key}>
-                                <label className="form-check-label">
+                            {animalArray.map((item, index) => (
+                                <div className="" key={item.key}>
+                                    <label className="">
+                                        {item.name}
+                                    </label>
                                     <input
                                         ref={elementsRef.current[index]}
                                         type="checkbox"
-                                        className="form-check-input"
+                                        className="mx-2"
+                                        style={{height: "auto"}}
                                         name={item.key}
                                         value={item.key}
                                     />
-                                    {item.name}
-                                </label>
-                            </div>
-                        ))}
+                                </div>
+                            ))}
+                        </div>
+
                         <div className="form-group d-flex align-items-center">
                             <div className="toggle-switch">
                                 <div className="switch">

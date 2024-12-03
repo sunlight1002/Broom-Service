@@ -4,6 +4,7 @@ import OfferedPrice from "./offers";
 import ScheduledMeeting from "./schedules";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import LeadContract from "./LeadContract";
 
 export default function LeadHistory({ client }) {
     const { t } = useTranslation();
@@ -115,6 +116,14 @@ export default function LeadHistory({ client }) {
                     className=""
                 >
                     <OfferedPrice />
+                </div>
+            </div>
+            <div className="tab-content border-0">
+                <div
+                    id="tab-contract"
+                    className=""
+                >
+                    <LeadContract />
                 </div>
             </div>
         </div>

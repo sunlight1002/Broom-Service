@@ -68,28 +68,28 @@ export default function GeneralInfo({
     ];
 
     const tips = {
-        "First Name": " Enter your full first name as it appears on your identification document.",
-        "Last Name": "Enter your full last name as it appears on your identification document.",
-        "Identification By": "Select the type of identification you are providing (e.g., ID card, passport).",
-        "Passport": "If applicable, enter your passport number and country of issue.",
-        "ID Number": "If applicable, enter your ID number and country of issue.",
-        "Photocopy Of ID Card": "Attach a clear photocopy of your identification card.",
-        "Date Of Birth": "Enter your date of birth in DD/MM/YYYY format.",
-        "Date Of Immigration": "If you are an immigrant, enter the date of your immigration to Israel in DD/MM/YYYY format.",
-        "City": "Enter the city of your current residence.",
-        "Street": "Enter the street name of your current residence.",
-        "House Number": "Enter the house or building number of your current residence.",
-        "Postal Code": " Enter the postal code of your current address.",
-        "Phone Number": "Enter your landline phone number, if applicable.",
-        "Mobile Number": "Enter your mobile phone number.",
-        "Email": "Enter your active email address for contact purposes.",
-        "Start Date Of Job": " Enter the date you started working for your current employer in DD/MM/YYYY format.",
-        "Role": "Specify your current job role or position.",
-        "Sex": "Select your gender (Male/Female).",
-        "Israeli Resident": "Indicate whether you are an Israeli resident (Yes/No).",
-        "Member Of Kibbutz/Cooperative Session": "Mark if you are a member of a kibbutz or cooperative association.",
-        "Health Fund Number": " Enter your health fund membership number, if applicable.",
-        "Marital Status": " Select your marital status (e.g., Single, Married, Divorced)."
+        "First Name": t("form101.step1.validation.first_name"),
+        "Last Name": t("form101.step1.validation.last_name"),
+        "Identification By": t("form101.step1.validation.identification"),
+        "Passport": t("form101.step1.validation.passport"),
+        "ID Number": t("form101.step1.validation.id_number"),
+        "Photocopy Of ID Card": t("form101.step1.validation.photocopy_id"),
+        "Date Of Birth": t("form101.step1.validation.dob"),
+        "Date Of Immigration": t("form101.step1.validation.date_of_immigration"),
+        "City": t("form101.step1.validation.city"),
+        "Street": t("form101.step1.validation.street"),
+        "House Number": t("form101.step1.validation.house_number"),
+        "Postal Code": t("form101.step1.validation.postal_code"),
+        "Phone Number": t("form101.step1.validation.Phone_Number"),
+        "Mobile Number": t("form101.step1.validation.Mobile_Number"),
+        "Email": t("form101.step1.validation.Email"),
+        "Start Date Of Job": t("form101.step1.validation.Start_Date_Of_Job"),
+        "Role": t("form101.step1.validation.Role"),
+        "Sex": t("form101.step1.validation.Sex"),
+        "Israeli Resident": t("form101.step1.validation.Israeli_Resident"),
+        "Member Of Kibbutz/Cooperative Session": t("form101.step1.validation.Member_Of_Kibbutz"),
+        "Health Fund Number": t("form101.step1.validation.first_name"),
+        "Marital Status": t("form101.step1.validation.Marital_Status")
     }
 
     const save = (data) => {
@@ -111,11 +111,11 @@ export default function GeneralInfo({
 
     return (
         <div className="">
-            <p className="navyblueColor font-34 mt-4 font-w-500">Welcome to Broom Service!</p>
+            <p className="navyblueColor font-34 mt-4 font-w-500">{t("form101.step1.broom")}</p>
             <div className="row mt-3">
                 <section className="col-xl">
                     <p className="font-w-500">
-                        We are glad that you chose to work in our company. We will do everything to make you happy and satisfied with your work, and of course take care of everything you need just like a family. The job is full-time approximately 8 hours a day and Fridays are optional
+                    {t("form101.step1.heading")}
                     </p>
                     <div className="mt-3 lightgrey p-4" style={{ borderRadius: "3px" }}>
                         <p className="mb-3 font-w-500 font-20">Tips For Filling Out The Form</p>
@@ -130,7 +130,7 @@ export default function GeneralInfo({
                     </div>
                 </section>
                 <section className="col p-4">
-                    <p className="mb-3 font-w-500 font-20">Employee General Information</p>
+                    <p className="mb-3 font-w-500 font-20">{t("form101.step1.info")}</p>
                     {/* GeneralInformation */}
                     <div className="box-heading">
                         <div className="">
@@ -154,7 +154,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeFirstName' && (
                                         <div className="d-flex justify-content-end" style={{ position: 'relative' }}>
                                             <div className="speech up">
-                                                Enter your full first name as it appears on your identification document.
+                                                {t("form101.step1.validation.first_name")}
                                             </div>
                                         </div>
                                     )}
@@ -178,7 +178,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeLastName' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Enter your full last name as it appears on your identification document.
+                                                {t("form101.step1.validation.last_name")}
                                             </div>
                                         </div>
                                     )}
@@ -206,7 +206,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeIsraeliResident' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Indicate whether you are an Israeli resident (Yes/No).
+                                                {t("form101.step1.validation.Israeli_Resident")}
                                             </div>
                                         </div>
                                     )}
@@ -231,7 +231,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeSex' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Select your gender (Male/Female).
+                                                {t("form101.step1.validation.Sex")}
                                             </div>
                                         </div>
                                     )}
@@ -336,7 +336,7 @@ export default function GeneralInfo({
                                             {activeBubble === 'employeePassportNumber' && (
                                                 <div className="d-flex justify-content-end">
                                                     <div className="speech up">
-                                                        If applicable, enter your passport number and country of issue.
+                                                        {t("form101.step1.validation.passport")}
                                                     </div>
                                                 </div>
                                             )}
@@ -431,7 +431,7 @@ export default function GeneralInfo({
                                             {activeBubble === 'employeeIdNumber' && (
                                                 <div className="d-flex justify-content-end">
                                                     <div className="speech up">
-                                                        If applicable, enter your ID number and country of issue.
+                                                        {t("form101.step1.validation.id_number")}
                                                     </div>
                                                 </div>
                                             )}
@@ -515,7 +515,7 @@ export default function GeneralInfo({
                                             {activeBubble === 'employeeDateOfAliyah' && (
                                                 <div className="d-flex justify-content-end">
                                                     <div className="speech up">
-                                                        Enter the date you started working for your current employer in DD/MM/YYYY format.
+                                                        {t("form101.step1.validation.Start_Date_Of_Job")}
                                                     </div>
                                                 </div>
                                             )}
@@ -542,7 +542,8 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeCity' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Enter the city of your current residence.
+                                                {t("form101.step1.validation.city")}
+
                                             </div>
                                         </div>
                                     )}
@@ -565,7 +566,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeStreet' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Enter the street name of your current residence.
+                                                {t("form101.step1.validation.street")}
                                             </div>
                                         </div>
                                     )}
@@ -590,7 +591,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeHouseNo' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Enter the house or building number of your current residence.
+                                                {t("form101.step1.validation.house_number")}
                                             </div>
                                         </div>
                                     )}
@@ -614,7 +615,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeePostalCode' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Enter the postal code of your current address.
+                                                {t("form101.step1.validation.postal_code")}
                                             </div>
                                         </div>
                                     )}
@@ -640,7 +641,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeMobileNo' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Enter your mobile phone number.
+                                                {t("form101.step1.validation.Mobile_Number")}
                                             </div>
                                         </div>
                                     )}
@@ -662,7 +663,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeePhoneNo' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Enter your landline phone number, if applicable.
+                                                {t("form101.step1.validation.Phone_Number")}
                                             </div>
                                         </div>
                                     )}
@@ -688,7 +689,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'employeeEmail' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Enter your active email address for contact purposes.
+                                                {t("form101.step1.validation.Email")}
                                             </div>
                                         </div>
                                     )}
@@ -701,7 +702,7 @@ export default function GeneralInfo({
                                         onChange={(e) => {
                                             if (e.target.value !== null) {
                                                 setFieldValue("DateOfBeginningWork", e.target.value);
-                                            } 
+                                            }
                                         }}
                                         toggleBubble={handleBubbleToggle} // Pass the toggle handler
                                         onBlur={handleBlur}
@@ -715,7 +716,7 @@ export default function GeneralInfo({
                                     {activeBubble === 'DateOfBeginningWork' && (
                                         <div className="d-flex justify-content-end">
                                             <div className="speech up">
-                                                Enter the date you started working for your current employer in DD/MM/YYYY format.
+                                                {t("form101.step1.validation.Start_Date_Of_Job")}
                                             </div>
                                         </div>
                                     )}

@@ -360,4 +360,125 @@ class DashboardController extends Controller
             'data' => ManageTime::where('id', 1)->first()
         ]);
     }
+
+
+
+    public function storeAddress(Request $request)
+    {
+        // Validate the incoming data
+        $validator = Validator::make($request->all(), [
+            'client_id' => 'required|integer|exists:clients,id',
+            'address_name' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'geo_address' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'zipcode' => 'nullable|string|max:20',
+            'floor' => 'nullable|string|max:20',
+            'apt_no' => 'nullable|string|max:20',
+            'entrence_code' => 'nullable|string|max:20',
+            'parking' => 'nullable|string|max:50',
+            'prefer_type' => 'nullable|in:default,female,male,both',
+            'is_cat_avail' => 'nullable|boolean',
+            'is_dog_avail' => 'nullable|boolean',
+            'key' => 'nullable|string|max:50',
+            'lobby' => 'nullable|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Create or update the address
+        try {
+            $propertyAddress = ClientPropertyAddress::create($request->all());
+            return response()->json(['message' => 'Address saved successfully', 'address' => $propertyAddress], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to save address. ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function destroyAddress($id)
+    {
+        try {
+            // Find the address by ID
+            $propertyAddress = ClientPropertyAddress::findOrFail($id);
+
+            if ($propertyAddress->client_id !== Auth::user()->id) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            // Delete the address
+            $propertyAddress->delete();
+
+            return response()->json(['message' => 'Address deleted successfully'], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Address not found'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete address. ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function updateAddress(Request $request, $id)
+    {
+        try {
+            // Find the address by ID
+            $address = ClientPropertyAddress::findOrFail($id);
+    
+            // Get only the fields present in the request that are different from the existing data
+            $updatedFields = [];
+            foreach ($request->all() as $key => $value) {
+                if ($address->$key !== $value && $value !== null) {
+                    $updatedFields[$key] = $value;
+                }
+            }
+    
+            // Check if there are any fields to update
+            if (!empty($updatedFields)) {
+                $address->update($updatedFields);
+    
+                return response()->json([
+                    'message' => 'Address updated successfully',
+                    'data' => $address,
+                ], 200);
+            }
+    
+            // No fields to update
+            return response()->json([
+                'message' => 'No changes detected',
+            ], 200);
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json([
+                'message' => 'Failed to update address',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+
+    public function getAllPropertyAddresses()
+    {
+        $total_address = ClientPropertyAddress::where('client_id', Auth::user()->id)->get();
+        
+        if(!isset($total_address)){
+            return response()->json([
+                'total_address' => 0
+            ]);
+        }
+
+        return response()->json([
+            'total_address' => $total_address
+        ]);
+    }
+
+    public function getPropertyAddress($id)
+    {
+        $address = ClientPropertyAddress::where('client_id', Auth::user()->id)
+            ->where('id', $id)->first();
+        
+        return response()->json([
+            'address' => $address
+        ]);
+    }
 }
