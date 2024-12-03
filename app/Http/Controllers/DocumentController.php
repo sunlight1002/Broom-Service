@@ -135,7 +135,7 @@ class DocumentController extends Controller
 
     public function remove($id, $user_id)
     {
-        if (in_array($id, ['visa', 'passport', 'id_card'])) {
+        if (in_array($id, ['visa', 'passport_card', 'id_card'])) {
             $userobj = User::find($user_id);
             if (!empty($userobj)) {
                 if (Storage::drive('public')->exists('uploads/documents/' . $userobj->file)) {
