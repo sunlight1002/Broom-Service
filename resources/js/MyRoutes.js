@@ -180,6 +180,7 @@ import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
 import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
 import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
+import ManpowerSaftyForm from "./Pages/ManpowerSaftyForm";
 
 TimeAgo.addDefaultLocale(en);
 const options = {
@@ -316,6 +317,11 @@ export default function MyRoutes() {
                         exact
                         path="insurance-form/:id"
                         element={<InsuranceForm />}
+                    />
+                    <Route
+                        exact
+                        path="manpower-safty-form/:id"
+                        element={<ManpowerSaftyForm />}
                     />
                     <Route exact path="calendar" element={<CalendarTeam />} />
                     <Route
@@ -472,7 +478,7 @@ export default function MyRoutes() {
                             <Route
                                 exact
                                 path="protocol"
-                                element={<Protocol/>}
+                                element={<Protocol />}
                             />
                             <Route
                                 exact
@@ -687,15 +693,15 @@ export default function MyRoutes() {
                                 path="workers/view/:id/upload-claim"
                                 element={<HearingProtocol />}
                             />
-                              <Route
+                            <Route
                                 exact
-                                path="workers/view/:workerId/hearing-invitation/:hid/create-claim" 
-                                element={<Claim />} 
+                                path="workers/view/:workerId/hearing-invitation/:hid/create-claim"
+                                element={<Claim />}
                             />
-                            <Route 
+                            <Route
                                 exact
-                                path="workers/view/:id/upload-claim" 
-                                element={<HearingProtocol />} 
+                                path="workers/view/:id/upload-claim"
+                                element={<HearingProtocol />}
                             />
                             <Route
                                 exact

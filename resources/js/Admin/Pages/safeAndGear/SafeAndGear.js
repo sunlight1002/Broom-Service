@@ -164,7 +164,6 @@ const SafeAndGear = () => {
         },
     };
 
-    console.log(values.workerName);
     return (
         <div id="container" className="targetDiv rtlcon" ref={contentRef}>
             <div id="content">
