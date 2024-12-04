@@ -1962,39 +1962,6 @@
             "forms": "Forms",
             "document_type": "Document type",
             "document_name": "Document name",
-<<<<<<< Updated upstream
-            "paymentMethod": "Payment Method",
-            "cheque": "Cheque",
-            "moneyTrasnfer": "Money Transfer",
-            "fullName": "Full Name",
-            "bankName": "Bank Name",
-            "bankNumber": "Bank Number",
-            "branchNumber": "Branch Number",
-            "accountNumber": "Account Number",
-            "enterFullname": "Enter Full Name",
-            "enterBankname": "Enter Bank name",
-            "enterBanknumber": "Enter Bank Number",
-            "enterBranchnumber": "Enter Branch Number",
-            "enterAccountnumber": "Enter Account Number",
-            "advance": "Advance/Loan",
-            "type": "Type",
-            "amount": "Amount",
-            "pendingAmount": "Pending Amount",
-            "action": "Action",
-            "addAdvance": "Add Advance/Loan",
-            "editAdvance": "Edit Advance/Loan",
-            "selectType": "Select Type",
-            "Advance": "Advance",
-            "loan": "Loan",
-            "monthlyPayment": "Monthly Payment",
-            "loanStart": "Loan Start Date",
-            "submit": "Submit",
-            "fixed": "Fixed",
-            "hourly": "Hourly",
-            "salary": "Salary",
-            "termination": "Termination",
-            "invitation_for_hearing": "Schedule Hearing"
-=======
             "paymentMethod":"Payment Method",
             "please_Select": "--- please select ---",
             "cheque":"Cheque",
@@ -2028,7 +1995,6 @@
             "termination":"Termination",
             "invitation_for_hearing":"Schedule Hearing",
             "verification": "Two step Verification"
->>>>>>> Stashed changes
         }
     },
     "worker_contract": {
