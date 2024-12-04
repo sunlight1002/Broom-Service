@@ -11,6 +11,8 @@ import i18next from "i18next";
 import Swal from "sweetalert2";
 import moment from "moment";
 import FullPageLoader from "../Components/common/FullPageLoader";
+import useWindowWidth from "../Hooks/useWindowWidth";
+import { GrFormNextLink, GrFormPreviousLink } from "react-icons/gr";
 
 export default function WorkContract() {
     const { t } = useTranslation();
@@ -32,11 +34,21 @@ export default function WorkContract() {
     const [consentToAds, setConsentToAds] = useState(true);
     const [signDate, setSignDate] = useState(moment().format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(false)
-
+    const windowWidth = useWindowWidth();
+    const [mobileView, setMobileView] = useState(false);
     const params = useParams();
     const sigRef1 = useRef();
     const sigRef2 = useRef();
     const consentToAdsRef = useRef();
+    const [nextStep, setNextStep] = useState(1);
+
+    useEffect(() => {
+        if (windowWidth < 767) {
+            setMobileView(true)
+        } else {
+            setMobileView(false)
+        }
+    }, [windowWidth])
 
     const handleAccept = (e) => {
         if (!selectedClientCardID) {
@@ -53,7 +65,7 @@ export default function WorkContract() {
             return false;
         }
 
-        setLoading(true);
+        // setLoading(true);
 
         const data = {
             unique_hash: params.id,
@@ -63,7 +75,7 @@ export default function WorkContract() {
             additional_address: Aaddress,
             status: "un-verified",
             signature: signature,
-            consent_to_ads: consentToAdsRef.current.checked ? 1 : 0,
+            consent_to_ads: consentToAds ? 1 : 0,
             form_data: { card_signature: cardSignature },
         };
 
@@ -292,357 +304,309 @@ export default function WorkContract() {
         return clientCards.find((i) => i.id == selectedClientCardID);
     }, [clientCards, selectedClientCardID]);
 
+
+    const handleNextPrev = (e) => {
+        window.scrollTo(0, 0);
+        if (!selectedClientCardID && nextStep === 1 && contract.card_id == null) {
+            swal(t("work-contract.messages.card_err"), "", "error");
+            return false;
+        }
+
+        if (!cardSignature && nextStep === 1 && contract.signed_at == null) {
+            swal(t("work-contract.messages.sign_card_err"), "", "error");
+            return false;
+        }
+
+        if (!signature && nextStep === 2 && contract.signature == null) {
+            swal(t("work-contract.messages.sign_err"), "", "error");
+            return false;
+        }
+        if (e.target.name === "prev") {
+            setNextStep(prev => prev - 1);
+        } else {
+            setNextStep(prev => prev + 1);
+        }
+
+    }
+
     return (
-        <div className="container parent" style={{ display: "none" }}>
-            <div className="send-offer client-contract sendOfferRtl">
-                <div className="maxWidthControl dashBox mb-4">
-                    <div className="row border-bottom pb-2">
-                        <div className="col-sm-6">
-                            <h4 className="m-0">
-                                {t("client.contract-form.business_name_value")}
-                            </h4>
-                            <p className="m-0">
-                                {t("client.contract-form.h_p")} 515184208
+        <div className="navyblueColor parent mb-5" style={{ display: "none" }}>
+            <div className=" mt-4 mb-5 bg-transparent " style={{
+                margin: mobileView ? "0 20px" : "0 100px"
+            }}>
+                <div className="d-flex align-items-center justify-content-between flex-dir-co-1070">
+                    <img
+                        src={logo}
+                        className="img-fluid broom-logo"
+                        alt="Broom Services"
+                        style={{ height: "100px" }}
+                    />
+                </div>
+                <div>
+                    <section className="d-flex align-items-center">
+                        <p className="navyblueColor font-34 mt-4 font-w-500"> {t("client.contract-form.business_name_value")}</p>
+                    </section>
+                    <section className="d-flex flex-column ">
+                        <div className="d-flex align-items-center" style={{ gap: "30px" }}>
+                            <p className="navyblueColor font-15">
+                                {t("client.contract-form.name")}:&nbsp;
+                                <b>{clientName}</b>
                             </p>
-                            <p className="m-0">
-                                {t("client.contract-form.address")}:{" "}
-                                {t("client.contract-form.address_value")}
-                            </p>
-                            <p className="m-0">
-                                {t("client.contract-form.phone")}: 03-5257060
-                            </p>
-                            <p className="m-0">
-                                {t("client.contract-form.email")}:
-                                Office@broomservice.co.il
+                            <p className="navyblueColor font-15 m-0">
+                                {t("client.contract-form.hp_em_tz")}:&nbsp;
+                                <b>{client ? client.vat_number : ""}</b>
                             </p>
                         </div>
-                        <div className="col-sm-6">
-                            <div className="float-right">
-                                <svg
-                                    width="190"
-                                    height="77"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                                >
-                                    <image
-                                        xlinkHref={logo}
-                                        width="190"
-                                        height="77"
-                                    ></image>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row mt-4">
-                        <div className="col-md-12 d-flex">
-                            <label htmlFor="">
-                                {t("client.contract-form.name")}:
-                            </label>
-                            <span className="text-underline mx-3">
-                                {clientName}
-                            </span>
-                            <div className="mx-4">
-                                <label htmlFor="">
-                                    {t("client.contract-form.hp_em_tz")}:
-                                </label>
-                            </div>
-                            <span className="text-underline mx-3">
-                                {client ? client.vat_number : ""}
-                            </span>
-                        </div>
-                        <div className="col-md-12">
-                            <label htmlFor="">
-                                {t("client.contract-form.address")}:
-                            </label>
-                            {services.map((s, i) => (
-                                <span key={i} className="text-underline mx-3">
-                                    {s.address &&
-                                        s.address.address_name
-                                        ? s.address
-                                            .address_name
-                                        : "NA"}
-                                </span>
-                            ))}
-                        </div>
-                        <div className="col-md-12 d-flex">
-                            <label htmlFor="">
-                                {t("client.contract-form.phone")}:
-                            </label>
-                            <span className="text-underline mx-3">
-                                {client ? client.phone : ""}
-                            </span>
-                            <span className="text-underline mx-3"></span>
-                        </div>
-                        <div className="col-md-12">
-                            <label htmlFor="">
-                                {t("client.contract-form.email")}:
-                            </label>
-                            <span className="text-underline mx-3">
-                                {client ? client.email : ""}
-                            </span>
-                        </div>
-                    </div>
-                    <div className="row mt-4">
-                        <div className="col-md-12">
-                            <p className="text-center">
-                                {t(
-                                    "client.contract-form.contractual_agreement"
-                                )}
+                        <div className="d-flex align-items-center" style={{ gap: "30px" }}>
+                            <p className="navyblueColor font-15">
+                                {t("client.contract-form.phone")}:&nbsp;
+                                <b>{client ? client.phone : ""}</b>
                             </p>
-                            <p>1. {t("client.contract-form.ca1")}</p>
-
-                            <div
-                                className="text-justify"
-                                style={{ textIndent: "50px" }}
-                            >
-                                <p>
-                                    1.1.{" "}
-                                    {t("client.contract-form.ca1_1", {
-                                        name: clientName,
-                                    })}
-                                </p>
-                                <p>1.2. {t("client.contract-form.ca1_2")}</p>
-                                <p>1.3. {t("client.contract-form.ca1_3")}</p>
-                            </div>
+                            <p className="navyblueColor font-15 m-0">
+                                {t("client.contract-form.email")}:&nbsp;
+                                <b>{client ? client.email : ""}</b>
+                            </p>
                         </div>
-                    </div>
-                    <div className="row mt-4">
-                        <div className="col-md-12">
-                            <p>2. {t("client.contract-form.ca2")}</p>
-                        </div>
-                        <div className="col-md-12">
-                            <div className="table-responsive">
-                                <table className="table table-sm table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                {t("price_offer.address_text")}
-                                            </th>
-                                            <th>
-                                                {t("price_offer.service_txt")}
-                                            </th>
-                                            <th>{t("price_offer.type")}</th>
-                                            <th>
-                                                {t("price_offer.freq_s_txt")}
-                                            </th>
-                                            {showWorkerHours && (
-                                                <th>
-                                                    {t(
-                                                        "price_offer.worker_hours"
-                                                    )}
-                                                </th>
-                                            )}
-                                            <th>
-                                                {t("price_offer.amount_txt")}
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {services.map((s, i) => {
-                                            return (
-                                                <tr key={i}>
-                                                    <td>
-                                                        {s.address &&
-                                                            s.address.address_name
-                                                            ? s.address
-                                                                .address_name
-                                                            : "NA"}
-                                                    </td>
-                                                    <td>
-                                                        {s.service == 10
-                                                            ? s.other_title
-                                                            : s.name}
-                                                    </td>
-                                                    <td>{s.type == "fixed" ? t("admin.leads.AddLead.Options.Type.Fixed") : s.type == "hourly" ? t("admin.leads.AddLead.Options.Type.Hourly") : t("admin.leads.AddLead.Options.Type.Squaremeter") }</td>
-                                                    <td>{s.freq_name} </td>
-                                                    {showWorkerHours && (
-                                                        <td>
-                                                            {workerHours(s)}
-                                                        </td>
-                                                    )}
-                                                    {s.type == "fixed" ? (
-                                                        <td>
-                                                            {s.workers.length *
-                                                                s.fixed_price}{" "}
-                                                            {t(
-                                                                "global.currency"
-                                                            )}
-                                                        </td>
-                                                    ) : (
-                                                        <td>
-                                                            {s.rateperhour}{" "}
-                                                            {t(
-                                                                "global.currency"
-                                                            )}{" "}
-                                                            {t(
-                                                                "global.perhour"
-                                                            )}{" "}
-                                                        </td>
-                                                    )}
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div style={{ textIndent: "50px" }}>
-                                {t("client.contract-form.the_services")}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row mt-4">
-                        <div className="col-md-12">
-                            <p>3. {t("client.contract-form.ca3")}</p>
-                            <div
-                                className="text-justify"
-                                style={{ textIndent: "50px" }}
-                            >
-                                <p>3.1. {t("client.contract-form.ca3_1")}</p>
-                                <p>3.2. {t("client.contract-form.ca3_2")}</p>
-                                <p>3.3. {t("client.contract-form.ca3_3")}</p>
-
-                                <div className="mt-2">
-                                    <p>
-                                        {t(
-                                            "client.contract-form.cc_card_charge_auth"
-                                        )}
-                                    </p>
-                                    <p>
-                                        {t(
-                                            "client.contract-form.cc_declaration"
-                                        )}
-                                    </p>
-                                    <p>
-                                        {t("client.contract-form.cc_details")}
-                                    </p>
-                                    <p>
-                                        {t("client.contract-form.cc_card_type")}
-                                        :{" "}
-                                        {selectedClientCard
-                                            ? selectedClientCard.card_type
-                                            : ""}
-                                    </p>
-                                    <p>
-                                        {t(
-                                            "client.contract-form.cc_holder_name"
-                                        )}
-                                        :{" "}
-                                        {selectedClientCard
-                                            ? selectedClientCard.card_holder_name
-                                            : ""}
-                                    </p>
-                                    <p>
-                                        {t("client.contract-form.cc_id_number")}
-                                        :{" "}
-                                        {selectedClientCard
-                                            ? selectedClientCard.card_holder_id
-                                            : ""}
-                                    </p>
-                                    <p>
-                                        {t("client.contract-form.cc_signature")}
-                                        :
-                                    </p>
-                                    <div>
-                                        {contract && contract.signed_at ? (
-                                            <>
-                                                {contract.form_data && (
-                                                    <img
-                                                        src={
-                                                            contract.form_data
-                                                                .card_signature
-                                                        }
-                                                    />
-                                                )}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <SignatureCanvas
-                                                    penColor="black"
-                                                    canvasProps={{
-                                                        width: 250,
-                                                        height: 100,
-                                                        className: "sigCanvas",
-                                                    }}
-                                                    ref={sigRef2}
-                                                    onEnd={handleSignature2End}
-                                                />
-                                                <button
-                                                    className="btn btn-warning m-3 mb-5"
-                                                    onClick={clearSignature2}
-                                                >
-                                                    {t(
-                                                        "work-contract.btn_warning_txt"
-                                                    )}
-                                                </button>
-                                            </>
-                                        )}
-                                    </div>
-                                    <p>
-                                        {t(
-                                            "client.contract-form.add_cc_click_here"
-                                        )}
-                                    </p>
-                                    <p>
-                                        {t(
-                                            "client.contract-form.add_cc_click_here1"
-                                        )}
-                                    </p>
-
-                                    {clientCards.map((_card, _index) => {
-                                        return (
-                                            <div className="my-3" key={_index}>
-                                                <label className="form-check-label ">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="form-check-input"
-                                                        value={_card.id}
-                                                        onChange={
-                                                            handleCardSelect
-                                                        }
-                                                        checked={
-                                                            _card.id ==
-                                                            selectedClientCardID
-                                                        }
-                                                        disabled={
-                                                            contract &&
-                                                            contract.status !=
-                                                            "not-signed"
-                                                        }
-                                                    />
-                                                    **** **** ****{" "}
-                                                    {_card.card_number} -{" "}
-                                                    {_card.valid} (
-                                                    {_card.card_type})
-                                                </label>
-                                            </div>
-                                        );
-                                    })}
-
-                                    {!isCardAdded && (
-                                        <button
-                                            type="button"
-                                            className="btn btn-success ac mx-5"
-                                            onClick={(e) => handleCard(e)}
-                                            disabled={addCardBtnDisabled}
-                                        >
-                                            {t(
-                                                "client.contract-form.add_credit_card"
-                                            )}
-                                        </button>
-                                    )}
-                                    <p>
-                                        {t(
-                                            "client.contract-form.cc_compensation"
-                                        )}
-                                    </p>
+                    </section>
+                </div>
+                {
+                    nextStep === 1 && (
+                        <div className="row mt-3">
+                            <section className="col-xl">
+                                <div className="abt">
+                                    <h5 className="mb-2">{t("client.contract-form.contractual_agreement")}</h5>
                                 </div>
+                                <p className="mt-3" style={{ whiteSpace: "pre-wrap" }}><strong>1.</strong> {t("client.contract-form.ca1")}</p>
+                                <div className="text-justify m-2" >
+                                    <p>
+                                        <b className="font-w-500">1.1.</b>{" "}
+                                        {t("client.contract-form.ca1_1", { name: clientName, })}
+                                    </p>
+                                    <p><b className="font-w-500">1.2.</b> {t("client.contract-form.ca1_2")}</p>
+                                    <p><b className="font-w-500">1.3.</b> {t("client.contract-form.ca1_3")}</p>
+                                </div>
+                                <div className="row mt-4">
+                                    <div className="col-md-12">
+                                        <p><strong>2.</strong> {t("client.contract-form.ca2")}</p>
+                                    </div>
+                                    <div className="col-md-12 mt-2" id="priceOfferTable">
+                                        <div className="table-responsive">
+                                            <table className="table table-sm table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            {t("price_offer.address_text")}
+                                                        </th>
+                                                        <th>
+                                                            {t("price_offer.service_txt")}
+                                                        </th>
+                                                        <th>{t("price_offer.type")}</th>
+                                                        <th>
+                                                            {t("price_offer.freq_s_txt")}
+                                                        </th>
+                                                        {showWorkerHours && (
+                                                            <th>
+                                                                {t("price_offer.worker_hours")}
+                                                            </th>
+                                                        )}
+                                                        <th>
+                                                            {t("price_offer.amount_txt")}
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {services.map((s, i) => {
+                                                        return (
+                                                            <tr key={i}>
+                                                                <td>
+                                                                    {s.address &&
+                                                                        s.address.address_name
+                                                                        ? s.address
+                                                                            .address_name
+                                                                        : "NA"}
+                                                                </td>
+                                                                <td>
+                                                                    {s.service == 10
+                                                                        ? s.other_title
+                                                                        : s.name}
+                                                                </td>
+                                                                <td>{s.type == "fixed" ? t("admin.leads.AddLead.Options.Type.Fixed") : s.type == "hourly" ? t("admin.leads.AddLead.Options.Type.Hourly") : t("admin.leads.AddLead.Options.Type.Squaremeter")}</td>
+                                                                <td>{s.freq_name} </td>
+                                                                {showWorkerHours && (
+                                                                    <td>
+                                                                        {workerHours(s)}
+                                                                    </td>
+                                                                )}
+                                                                {s.type == "fixed" ? (
+                                                                    <td>
+                                                                        {s.workers.length *
+                                                                            s.fixed_price}{" "}
+                                                                        {t(
+                                                                            "global.currency"
+                                                                        )}
+                                                                    </td>
+                                                                ) : (
+                                                                    <td>
+                                                                        {s.rateperhour}{" "}
+                                                                        {t(
+                                                                            "global.currency"
+                                                                        )}{" "}
+                                                                        {t(
+                                                                            "global.perhour"
+                                                                        )}{" "}
+                                                                    </td>
+                                                                )}
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div >
+                                            {t("client.contract-form.the_services")}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="row mt-4">
+                                    <div className="col-md-12" style={{ lineHeight: "21px" }}>
+                                        <p><strong>3.</strong> {t("client.contract-form.ca3")}</p>
+                                        <div className="text-justify mt-3 mb-2 ml-2">
+                                            <p><b className="font-w-500">3.1.</b> {t("client.contract-form.ca3_1")}</p>
+                                            <p><b className="font-w-500">3.2.</b> {t("client.contract-form.ca3_2")}</p>
+                                            <p><b className="font-w-500">3.3.</b> {t("client.contract-form.ca3_3")}</p>
 
-                                <p>3.4. {t("client.contract-form.ca3_4")}</p>
+                                            <div className="mt-2">
+                                                <p>
+                                                    {t("client.contract-form.cc_card_charge_auth")}
+                                                </p>
+                                                <p>
+                                                    {t("client.contract-form.cc_declaration")}
+                                                </p>
+                                                <p>
+                                                    {t("client.contract-form.cc_details")}
+                                                </p>
+                                                <p>
+                                                    {t("client.contract-form.cc_card_type")}
+                                                    :{" "}
+                                                    {selectedClientCard
+                                                        ? selectedClientCard.card_type
+                                                        : ""}
+                                                </p>
+                                                <p>
+                                                    {t("client.contract-form.cc_holder_name")}
+                                                    :{" "}
+                                                    {selectedClientCard
+                                                        ? selectedClientCard.card_holder_name
+                                                        : ""}
+                                                </p>
+                                                <p>
+                                                    {t("client.contract-form.cc_id_number")}
+                                                    :{" "}
+                                                    {selectedClientCard
+                                                        ? selectedClientCard.card_holder_id
+                                                        : ""}
+                                                </p>
+                                                <p> {t("client.contract-form.cc_signature")} :</p>
+                                                <div>
+                                                    {contract && contract.signed_at ? (
+                                                        <>
+                                                            {contract.form_data && (
+                                                                <img
+                                                                    src={
+                                                                        contract.form_data
+                                                                            .card_signature
+                                                                    }
+                                                                />
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <SignatureCanvas
+                                                                penColor="black"
+                                                                canvasProps={{
+                                                                    width: 250,
+                                                                    height: 100,
+                                                                    className: "sigCanvas mt-2",
+                                                                    style: {
+                                                                        border:
+                                                                            "1px solid rgb(208 215 223)",
+                                                                        borderRadius: 5
+                                                                    }
+                                                                }}
+                                                                ref={sigRef2}
+                                                                onEnd={handleSignature2End}
+                                                            />
+                                                            <button
+                                                                className="btn navyblue m-3 mb-5 px-4 py-1"
+                                                                onClick={clearSignature2}
+                                                            >
+                                                                {t("work-contract.btn_warning_txt")}
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+
+                                                <p>{t("client.contract-form.add_cc_click_here")} </p>
+                                                <p> {t("client.contract-form.add_cc_click_here1")} </p>
+
+                                                {clientCards.map((_card, _index) => {
+                                                    return (
+                                                        <div className="my-3" key={_index}>
+                                                            <label className="custom-checkbox">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="mx-2"
+                                                                    id={_card.id}
+                                                                    value={_card.id}
+                                                                    onChange={
+                                                                        handleCardSelect
+                                                                    }
+                                                                    checked={
+                                                                        _card.id ==
+                                                                        selectedClientCardID
+                                                                    }
+                                                                    disabled={
+                                                                        contract &&
+                                                                        contract.status !=
+                                                                        "not-signed"
+                                                                    }
+                                                                />
+                                                                <span className="checkmark"></span>
+                                                            </label>
+                                                            <label className="" htmlFor={_card.id}>
+                                                                **** **** ****{" "}
+                                                                {_card.card_number} -{" "}
+                                                                {_card.valid} (
+                                                                {_card.card_type})
+                                                            </label>
+                                                        </div>
+                                                    );
+                                                })}
+
+                                                {!isCardAdded && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn navyblue ac mb-3"
+                                                        onClick={(e) => handleCard(e)}
+                                                        disabled={addCardBtnDisabled}
+                                                    >
+                                                        {t("client.contract-form.add_credit_card")}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <section className="col px-3">
+                                <p className="mb-3">
+                                    {t("client.contract-form.cc_compensation")}
+                                </p>
+                                <p><b className="font-w-500">3.4.</b> {t("client.contract-form.ca3_4")}</p>
 
                                 <label
-                                    className="form-check-label mx-2"
-                                    style={{ fontWeight: 500 }}
+                                    className="form-check-label mx-2 mt-2 custom-checkbox navyblueColor"
+                                    style={{ fontSize: "14px" }}
                                 >
                                     <input
                                         type="checkbox"
@@ -650,10 +614,8 @@ export default function WorkContract() {
                                         style={{
                                             position: "unset",
                                             margin: 0,
-                                            marginLeft: "5px",
-                                            marginRight: "5px",
                                         }}
-                                        checked={consentToAds}
+                                        defaultChecked={consentToAds}
                                         onChange={(e) => {
                                             setConsentToAds(
                                                 e.target.checked ? true : false
@@ -663,245 +625,285 @@ export default function WorkContract() {
                                             contract &&
                                             contract.status != "not-signed"
                                         }
-                                        ref={consentToAdsRef}
                                     />
-                                    4.{" "}
+                                    <span className="checkmark"></span>
+
+                                    <b className="font-w-500">3.5.</b>{" "}
                                     {t(
                                         "client.contract-form.direct_mail_declaration"
                                     )}
                                 </label>
                                 <p>
-                                    <strong>
+                                    <b className="font-w-500">
                                         {t(
                                             "client.contract-form.direct_mail_note"
                                         )}
-                                    </strong>
+                                    </b>
                                 </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row mt-4">
-                        <div className="col-md-12">
-                            <p>5. {t("client.contract-form.ca4")}</p>
-                            {offer && <p>{offer.comment}</p>}
-                            <p>
-                                {t("client.contract-form.date")}: {signDate}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="row mt-4">
-                        <div className="col-md-12">
-                            <p className="text-center">
-                                {t("client.contract-form.general_terms")}
-                            </p>
-                            <p>
-                                1.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt1_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt1")}
-                            </p>
-                            <p>
-                                2.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt2_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt2")}
-                            </p>
-                            <p>
-                                3.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt3_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt3")}
-                            </p>
-                            <p>
-                                4.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt4_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt4")}
-                            </p>
-                            <p>
-                                5.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt5_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt5")}
-                            </p>
-                            <p>
-                                6.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt6_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt6")}
-                            </p>
-                            <p>
-                                7.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt7_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt7")}
-                            </p>
-                            <p>
-                                8.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt8_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt8")}
-                            </p>
-                            <p>
-                                9.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt9_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt9_1")}
-                            </p>
-                            <p>{t("client.contract-form.gt9_2")}</p>
-                            <p>{t("client.contract-form.gt9_3")}</p>
-                            <p>
-                                10.{" "}
-                                <strong>
-                                    {t("client.contract-form.gt10_title")}
-                                </strong>{" "}
-                                {t("client.contract-form.gt10")}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="shift-30">
-                        {/* <div className="agg-list">
-                            <div className="icons">
-                                <img src={star} />
-                            </div>
-                            <div className="agg-text">
-                                <p>{t("work-contract.tenant_txt_1")}</p>
-                            </div>
-                        </div> */}
-                        <div className="row">
-                            <div className="col-sm-6">
-                                <h5 className="mt-2 mb-4">
-                                    {t("work-contract.the_tenant_subtitle")}
-                                </h5>
-                                <h6>{t("work-contract.draw_signature")}</h6>
-                                {contract && contract.signature != null ? (
-                                    <img src={contract.signature} />
-                                ) : (
-                                    <>
-                                        <SignatureCanvas
-                                            penColor="black"
-                                            canvasProps={{
-                                                width: 250,
-                                                height: 100,
-                                                className: "sigCanvas",
-                                            }}
-                                            ref={sigRef1}
-                                            onEnd={handleSignature1End}
-                                        />
-                                        <button
-                                            className="btn btn-warning"
-                                            onClick={clearSignature1}
-                                        >
-                                            {t("work-contract.btn_warning_txt")}
-                                        </button>
-                                    </>
-                                )}
-                            </div>
-                            <div className="col-sm-6">
-                                <div className="float-right">
-                                    <h5 className="mt-2 mb-4">
-                                        {t("work-contract.the_company")}
-                                    </h5>
-                                </div>
-                                <div className="float-right">
-                                    <img
-                                        src={companySign}
-                                        className="img-fluid"
-                                        alt="Company"
-                                    />
-                                </div>
-                            </div>
-                            {status == "not-signed" ? (
-                                <div className="col-sm-12 mt-2 float-right">
-                                    <button
-                                        type="button"
-                                        className="btn btn-pink"
-                                        onClick={handleAccept}
-                                    >
-                                        {t("work-contract.accept_contract")}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn btn-danger ml-2"
-                                        onClick={(e) =>
-                                            RejectContract(e, contract.id)
-                                        }
-                                    >
-                                        {t("work-contract.button_reject")}
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="col-sm-12 mt-2 float-right">
-                                    {status == "un-verified" ||
-                                        status == "verified" ? (
-                                        <h4 className="btn btn-success">
-                                            {t("global.accepted")}
-                                        </h4>
-                                    ) : (
-                                        <h4 className="btn btn-danger">
-                                            {t("global.rejected")}
-                                        </h4>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="mb-4">&nbsp;</div>
-
-                        {/*Iframe*/}
-                        <div
-                            className="modal fade"
-                            id="exampleModal"
-                            tabIndex="-1"
-                            role="dialog"
-                            aria-labelledby="exampleModalLabel"
-                            aria-hidden="true"
-                        >
-                            <div
-                                className="modal-dialog modal-dialog-centered modal-lg"
-                                role="document"
-                            >
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary"
-                                            data-dismiss="modal"
-                                            aria-label="Close"
-                                        >
-                                            {t("work-contract.back_btn")}
-                                        </button>
+                                <div className="row mt-4">
+                                    <div className="col-md-12">
+                                        <p><strong>4.</strong>  <b className="font-w-500">{t("client.contract-form.ca4")}</b></p>
+                                        {offer && <b className="font-w-500">{offer.comment}</b>}
+                                        <p>
+                                            {t("client.contract-form.date")}: <b className="font-w-500">{signDate}</b>
+                                        </p>
                                     </div>
-                                    <div className="modal-body">
-                                        <div className="row">
-                                            <div className="col-sm-12">
-                                                <div className="form-group">
-                                                    <iframe
-                                                        src={sessionURL}
-                                                        title="Pay Card Transaction"
-                                                        width="100%"
-                                                        height="800"
-                                                    ></iframe>
+                                </div>
+                                <div className="row mt-4">
+                                    <div className="col-md-12" style={{ lineHeight: "21px" }}>
+                                        <h5 className="text-left mb-3">
+                                            {t("client.contract-form.general_terms")}
+                                        </h5>
+                                        <p>
+                                            <strong>1.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt1_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt1")}
+                                        </p>
+                                        <p>
+                                            <strong>2.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt2_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt2")}
+                                        </p>
+                                        <p>
+                                            <strong>3.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt3_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt3")}
+                                        </p>
+                                        <p>
+                                            <strong>4.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt4_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt4")}
+                                        </p>
+                                        <p>
+                                            <strong>5.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt5_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt5")}
+                                        </p>
+                                    </div>
+                                </div>
+                                {/*Iframe*/}
+                                <div
+                                    className="modal fade"
+                                    id="exampleModal"
+                                    tabIndex="-1"
+                                    role="dialog"
+                                    aria-labelledby="exampleModalLabel"
+                                    aria-hidden="true"
+                                >
+                                    <div
+                                        className="modal-dialog modal-dialog-centered modal-lg"
+                                        role="document"
+                                    >
+                                        <div className="modal-content">
+                                            <div className="modal-header">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-secondary"
+                                                    data-dismiss="modal"
+                                                    aria-label="Close"
+                                                >
+                                                    {t("work-contract.back_btn")}
+                                                </button>
+                                            </div>
+                                            <div className="modal-body">
+                                                <div className="row">
+                                                    <div className="col-sm-12">
+                                                        <div className="form-group">
+                                                            <iframe
+                                                                src={sessionURL}
+                                                                title="Pay Card Transaction"
+                                                                width="100%"
+                                                                height="800"
+                                                            ></iframe>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </section>
                         </div>
-                    </div>
+                    )
+                }
+
+                {
+                    nextStep === 2 && (
+                        <div className="row mt-3">
+                            <section className="col-xl">
+                                <div className="row mt-4">
+                                    <div className="col-md-12" style={{ lineHeight: "21px" }}>
+                                        <p>
+                                            <strong>6.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt6_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt6")}
+                                        </p>
+                                        <p>
+                                            <strong>7.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt7_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt7")}
+                                        </p>
+                                        <p>
+                                            <strong>8.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt8_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt8")}
+                                        </p>
+                                        <p>
+                                            <strong>9.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt9_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt9_1")}
+                                        </p>
+                                        <p>{t("client.contract-form.gt9_2")}</p>
+                                        <p>{t("client.contract-form.gt9_3")}</p>
+                                        <p>
+                                            <strong>10.</strong>{" "}
+                                            <b className="font-w-500">
+                                                {t("client.contract-form.gt10_title")}
+                                            </b>{" "}
+                                            {t("client.contract-form.gt10")}
+                                        </p>
+                                    </div>
+                                </div>
+                            </section>
+                            <section className="col px-3">
+                                <div className="shift-30">
+                                    <div className="row">
+                                        <div className="col-sm-6">
+                                            <h5 className="mt-2 mb-4">
+                                                {t("work-contract.the_tenant_subtitle")}
+                                            </h5>
+                                            <h6 className="mb-2">{t("work-contract.draw_signature")}</h6>
+                                            {contract && contract.signature != null ? (
+                                                <img src={contract.signature} />
+                                            ) : (
+                                                <>
+                                                    <SignatureCanvas
+                                                        penColor="black"
+                                                        canvasProps={{
+                                                            width: 250,
+                                                            height: 100,
+                                                            className: "sigCanvas",
+                                                            style: {
+                                                                border:
+                                                                    "1px solid rgb(208 215 223)",
+                                                                borderRadius: 5
+                                                            }
+                                                        }}
+                                                        ref={sigRef1}
+                                                        onEnd={handleSignature1End}
+                                                    />
+                                                    <button
+                                                        className="btn navyblue px-4 py-1 mb-4 ml-2"
+                                                        onClick={clearSignature1}
+                                                    >
+                                                        {t("work-contract.btn_warning_txt")}
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                        <div className="col-sm-6">
+                                            <div className="float-right">
+                                                <h5 className="mt-2 mb-4">
+                                                    {t("work-contract.the_company")}
+                                                </h5>
+                                            </div>
+                                            <div className="float-right">
+                                                <img
+                                                    src={companySign}
+                                                    className="img-fluid"
+                                                    alt="Company"
+                                                />
+                                            </div>
+                                        </div>
+                                        {status == "not-signed" ? (
+                                            <div className="col-sm-12 mt-4 d-flex justify-content-end">
+                                                <button
+                                                    type="button"
+                                                    className="btn navyblue"
+                                                    onClick={handleAccept}
+                                                >
+                                                    {t("work-contract.accept_contract")}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="btn navyblue ml-2"
+                                                    onClick={(e) =>
+                                                        RejectContract(e, contract.id)
+                                                    }
+                                                >
+                                                    {t("work-contract.button_reject")}
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="col-sm-12 mt-4 d-flex justify-content-end">
+                                                {status == "un-verified" ||
+                                                    status == "verified" ? (
+                                                    <h4 className="btn navyblue">
+                                                        {t("global.accepted")}
+                                                    </h4>
+                                                ) : (
+                                                    <h4 className="btn navyblue">
+                                                        {t("global.rejected")}
+                                                    </h4>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="mb-4">&nbsp;</div>
+                                </div>
+                            </section>
+                        </div>
+                    )
+                }
+                <div className="d-flex justify-content-end align-items-center mr-3">
+                    {
+                        nextStep !== 1 && (
+                            <button
+                                type="button"
+                                onClick={(e) => handleNextPrev(e)}
+                                className="navyblue py-2 px-4 mr-2"
+                                name="prev"
+                                style={{ borderRadius: "5px" }}
+                            >
+                                <GrFormPreviousLink /> Prev
+                            </button>
+                        )
+                    }
+                    {
+                        nextStep !== 2 && (
+                            <button
+                                type="button"
+                                onClick={(e) => handleNextPrev(e)}
+                                name="next"
+                                className="navyblue py-2 px-4"
+                                style={{ borderRadius: "5px" }}
+                            >
+                                Next <GrFormNextLink />
+                            </button>
+                        )
+                    }
                 </div>
             </div>
-            <FullPageLoader visible={loading} />
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }
