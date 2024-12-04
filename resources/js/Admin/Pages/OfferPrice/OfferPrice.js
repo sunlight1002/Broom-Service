@@ -34,7 +34,7 @@ export default function OfferPrice() {
         setModalStatus(true);
     };
 
-    const initializeDataTable = () => {
+    const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             $(tableRef.current).DataTable({
@@ -70,7 +70,7 @@ export default function OfferPrice() {
                     {
                         title: t("admin.global.Phone"),
                         data: "phone",
-                        render: function(data) {
+                        render: function (data) {
                             return `+${data}`;
                         }
                     },
@@ -139,66 +139,98 @@ export default function OfferPrice() {
                             $(td).addClass('custom-cell-class ');
                         }
                     }
-                ]
+                ],
+                initComplete: function () {
+                    // Explicitly set the initial page after table initialization
+                    const table = $(tableRef.current).DataTable();
+                    table.page(initialPage).draw("page");
+                },
             });
+        } else {
+            // Reuse the existing table and set the page directly
+            const table = $(tableRef.current).DataTable();
+            table.page(initialPage).draw("page");
         }
     };
 
+    const getCurrentPageNumber = () => {
+        const table = $(tableRef.current).DataTable();
+        const pageInfo = table.page.info();
+        return pageInfo.page + 1; // Adjusted to return 1-based page number
+    };
+
     useEffect(() => {
-        initializeDataTable();
+        const searchParams = new URLSearchParams(location.search);
+        const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+        const initialPage = pageFromUrl - 1;
 
-       // Customize the search input
-       const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-       $("div.dt-search").append(searchInputWrapper);
-       $("div.dt-search").addClass("position-relative");
+        initializeDataTable(initialPage);
 
-       $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
-           let _id = null;
-           if (e.target.closest("tr.dt-row")) {
-               if (
-                   !e.target.closest(".dropdown-toggle") &&
-                   !e.target.closest(".dropdown-menu") &&
-                   !e.target.closest(".dt-client-name") &&
-                   (!tableRef.current.classList.contains("collapsed") ||
-                       !e.target.closest(".dtr-control"))
-               ) {
-                   _id = $(this).data("id");
-               }
-           } else {
-               if (
-                   !e.target.closest(".dropdown-toggle") &&
-                   !e.target.closest(".dropdown-menu") &&
-                   !e.target.closest(".dt-client-name")
-               ) {
-                   _id = $(e.target).closest("tr.child").prev().data("id");
-               }
-           }
+        // Customize the search input
+        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
+        $("div.dt-search").append(searchInputWrapper);
+        $("div.dt-search").addClass("position-relative");
 
-           if (_id) {
-               handleModal(_id);
-           }
-       });
+        $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
+            let _id = null;
+            if (e.target.closest("tr.dt-row")) {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-client-name") &&
+                    (!tableRef.current.classList.contains("collapsed") ||
+                        !e.target.closest(".dtr-control"))
+                ) {
+                    _id = $(this).data("id");
+                }
+            } else {
+                if (
+                    !e.target.closest(".dropdown-toggle") &&
+                    !e.target.closest(".dropdown-menu") &&
+                    !e.target.closest(".dt-client-name")
+                ) {
+                    _id = $(e.target).closest("tr.child").prev().data("id");
+                }
+            }
 
-       $(tableRef.current).on("click", ".dt-edit-btn", function () {
-           const _id = $(this).data("id");
-           navigate(`/admin/offered-price/edit/${_id}`);
-       });
+            if (_id) {
+                handleModal(_id);
+            }
+        });
 
-       $(tableRef.current).on("click", ".dt-view-btn", function () {
-           const _id = $(this).data("id");
-           // navigate(`/admin/view-offer/${_id}`);
-           handleModal(_id);
-       });
 
-       $(tableRef.current).on("click", ".dt-delete-btn", function () {
-           const _id = $(this).data("id");
-           handleDelete(_id);
-       });
+        // Event listener for pagination
+        $(tableRef.current).on("page.dt", function () {
+            const currentPageNumber = getCurrentPageNumber();
+
+            // Update the URL with the page number
+            const url = new URL(window.location);
+            url.searchParams.set("page", currentPageNumber);
+
+            // Use replaceState to avoid adding new history entry
+            window.history.replaceState({}, "", url);
+        });
+
+        $(tableRef.current).on("click", ".dt-edit-btn", function () {
+            const _id = $(this).data("id");
+            navigate(`/admin/offered-price/edit/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-view-btn", function () {
+            const _id = $(this).data("id");
+            // navigate(`/admin/view-offer/${_id}`);
+            handleModal(_id);
+        });
+
+        $(tableRef.current).on("click", ".dt-delete-btn", function () {
+            const _id = $(this).data("id");
+            handleDelete(_id);
+        });
 
         // Handle language changes
         i18n.on("languageChanged", () => {
             $(tableRef.current).DataTable().destroy(); // Destroy the table
-            initializeDataTable(); // Reinitialize the table with updated language
+            initializeDataTable(initialPage);
         });
 
         // Cleanup event listeners and destroy DataTable when unmounting
@@ -206,6 +238,7 @@ export default function OfferPrice() {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
                 $(tableRef.current).off("click");
+                $(tableRef.current).off("page.dt");
             }
         };
     }, []);

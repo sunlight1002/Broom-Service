@@ -260,7 +260,7 @@ export default function Sidebar() {
                     <NavLink to="/admin/schedule-requests"
                         className="d-flex align-items-center"
                     >
-                        <i class="fa-solid fa-hand font-20"></i>Pending Request
+                        <i className="fa-solid fa-hand font-20"></i>Pending Request
                     </NavLink>
                 </li>
                 <li className="list-group-item">

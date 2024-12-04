@@ -65,7 +65,7 @@ export default function Clients() {
             "past": t("admin.client.Past_client"),
         };
 
-    const initializeDataTable = () => {
+    const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             $(tableRef.current).DataTable({
@@ -113,9 +113,6 @@ export default function Clients() {
                         orderable: false,
                         render: function (data, type, row, meta) {
                             const _statusColor = leadStatusColor(data);
-                            // console.log(data);
-
-                            // return `<span class="badge" style="background-color: ${_statusColor.backgroundColor}; color: #fff;" > ${data} </span>`;
                             return `<p style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                             ${data}
                         </p>`;
@@ -165,13 +162,32 @@ export default function Clients() {
                             $(td).addClass('custom-cell-class ');
                         }
                     }
-                ]
+                ],
+                initComplete: function () {
+                    // Explicitly set the initial page after table initialization
+                    const table = $(tableRef.current).DataTable();
+                    table.page(initialPage).draw("page");
+                },
             });
+        } else {
+            // Reuse the existing table and set the page directly
+            const table = $(tableRef.current).DataTable();
+            table.page(initialPage).draw("page");
         }
     };
 
+    const getCurrentPageNumber = () => {
+        const table = $(tableRef.current).DataTable();
+        const pageInfo = table.page.info();
+        return pageInfo.page + 1; // Adjusted to return 1-based page number
+    };
+
     useEffect(() => {
-        initializeDataTable();
+        const searchParams = new URLSearchParams(location.search);
+        const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+        const initialPage = pageFromUrl - 1;
+
+        initializeDataTable(initialPage);
 
         // Customize the search input
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
@@ -205,6 +221,18 @@ export default function Clients() {
             }
         });
 
+        // Event listener for pagination
+        $(tableRef.current).on("page.dt", function () {
+            const currentPageNumber = getCurrentPageNumber();
+
+            // Update the URL with the page number
+            const url = new URL(window.location);
+            url.searchParams.set("page", currentPageNumber);
+
+            // Use replaceState to avoid adding new history entry
+            window.history.replaceState({}, "", url);
+        });
+
         $(tableRef.current).on("click", ".dt-create-job-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/create-job/${_id}`);
@@ -234,7 +262,7 @@ export default function Clients() {
         // Handle language changes
         i18n.on("languageChanged", () => {
             $(tableRef.current).DataTable().destroy(); // Destroy the table
-            initializeDataTable(); // Reinitialize the table with updated language
+            initializeDataTable(initialPage); // Reinitialize the table with updated language
         });
 
         // Cleanup event listeners and destroy DataTable when unmounting
@@ -242,9 +270,10 @@ export default function Clients() {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
                 $(tableRef.current).off("click");
+                $(tableRef.current).off("page.dt");
             }
         };
-    }, []);
+    }, [location.search]);
 
     const handleClose = () => {
         setImportFile("");
@@ -293,7 +322,7 @@ export default function Clients() {
 
     useEffect(() => {
         const dataTable = $(tableRef.current).DataTable();
-    
+
         if (type === "past") {
             dataTable.column(4).search(filters.action).draw();
         } else if (type === "all") {
@@ -301,7 +330,7 @@ export default function Clients() {
         } else {
             dataTable.column(4).search(type).draw();
         }
-    
+
         if (filter !== "All") {
             if (filter === t("admin.client.Waiting_client")) {
                 dataTable.column(4).search("pending client").draw();
@@ -312,11 +341,11 @@ export default function Clients() {
                 dataTable.column(4).search(filter).draw();
             }
         }
-    
+
         dataTable.ajax.reload();
     }, [type, filters, filter]);
-    
-    
+
+
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",

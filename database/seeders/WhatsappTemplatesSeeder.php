@@ -3168,6 +3168,141 @@ office@broomservice.co.il",
                 'message_spa' => '',
                 'message_ru' => '',
             ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS,
+                'description' => 'Send notification to client after 3 days without answer',
+                'message_en' => "Hi, *:client_name*
+
+We just wanted to remind you that we haven’t been able to reach you regarding your inquiry.
+We’d be happy to assist you and provide all the relevant information you need.
+
+Additionally, you are welcome to explore our satisfied customers' experiences to see the excellent service we provide:
+https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl
+
+We are available Sunday to Thursday between 8:00 AM and 4:00 PM. You can reach us at: 03-525-70-60.
+Please let us know when it would be convenient for us to contact you.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+רק רצינו להזכיר לך שעדיין לא הצלחנו ליצור איתך קשר בהמשך לפנייתך.
+נשמח לעמוד לשירותך ולספק את כל המידע הרלוונטי.
+
+בנוסף, תוכלו לקרוא על חוויות של לקוחות מרוצים למען התרשמותך מהשירות המעולה שלנו:
+https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl
+
+אנחנו זמינים בימים א'-ה' בין השעות 8:00 ל-16:00, וניתן ליצור איתנו קשר בטלפון: 03-525-70-60.
+נשמח לדעת מתי יהיה לך נוח שניצור איתך קשר.
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS,
+                'description' => 'Send notification to client after 7 days without answer',
+                'message_en' => "Hi, *:client_name*
+
+Following your inquiry, we haven’t been able to reach you yet.
+We’d like to ensure you’ve received all the necessary information regarding your request.
+
+We’re here to assist you if you are still interested in learning more about our services or have any other questions.
+
+We also invite you to read our satisfied customers' reviews to learn more about the excellent service we offer:
+https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl
+
+We are available Sunday to Thursday between 8:00 AM and 4:00 PM. You can reach us at: 03-525-70-60.
+If you no longer require us to follow up, please let us know so we can close your inquiry.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+בהמשך לפנייתך, לא הצלחנו להשיגך עד כה.
+נשמח לוודא שקיבלת מענה לפנייתך.
+
+אנחנו כאן בשבילך במידה ואתה עדיין מעוניין בפרטים על השירות או לכל עניין אחר.
+
+אנו מזמינים אותך לקרוא על חוויות של לקוחות מרוצים למען התרשמותך מהשירות המעולה שלנו:
+https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl
+
+אנחנו זמינים בימים א'-ה' בין השעות 8:00 ל-16:00, וניתן ליצור איתנו קשר בטלפון: 03-525-70-60.
+במידה ואין צורך שנחזור אליך, נשמח לדעת על כך כדי לסגור את הטיפול בפנייתך.
+נשמח לעמוד לשירותך.
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS,
+                'description' => 'Send notification to client after 8 days without answer',
+                'message_en' => "Hi, *:client_name*
+
+Following your inquiry, we haven’t been able to reach you yet.Following your inquiry, we haven’t been able to reach you so far.
+We assume you currently don’t require any further information about our services. Therefore, we will close your inquiry in our system.
+
+If you need our assistance or additional information in the future, we’ll be happy to help at any time!
+You can reach us Sunday to Thursday between 8:00 AM and 4:00 PM at: 03-525-70-60.
+
+Thank you for contacting us.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+בהמשך לפנייתך אלינו, לא הצלחנו ליצור איתך קשר עד כה. 
+אנו מניחים שאין לך צורך נוסף במידע על השירותים שלנו בשלב זה, ולכן נסגור את פנייתך במערכת.
+
+במידה ותזדקק לשירותנו או למידע נוסף בעתיד, נשמח לעמוד לשירותך בכל עת!
+תוכל ליצור איתנו קשר בימים א'-ה' בין השעות 8:00 ל-16:00 בטלפון: 03-525-70-60.
+
+תודה שפנית אלינו,
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
         ];
 
         foreach ($templates as $key => $template) {

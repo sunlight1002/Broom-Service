@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use App\Models\ClientPropertyAddress;
 use App\Models\WhatsAppBotClientState;
 use App\Events\ClientLeadStatusChanged;
@@ -34,6 +35,7 @@ use Twilio\Rest\Client as TwilioClient;
 use App\Events\WhatsappNotificationEvent;
 use Illuminate\Support\Facades\Validator;
 use App\Enums\WhatsappMessageTemplateEnum;
+
 
 class LeadWebhookController extends Controller
 {
@@ -142,6 +144,20 @@ class LeadWebhookController extends Controller
         $message = null;
         Log::info(['whatsapp_webhook' => $data_returned]);
 
+        $messageId = $data_returned['messages'][0]['id'] ?? null;
+
+        if (!$messageId) {
+            return response()->json(['status' => 'Invalid message data'], 400);
+        }
+        
+        // Check if the messageId exists in cache and matches
+        if (Cache::get('processed_message_' . $messageId) === $messageId) {
+            return response()->json(['status' => 'Already processed'], 200);
+        }
+        
+        // Store the messageId in the cache for 1 hour
+        Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
+        
 
         if (
             isset($data_returned['messages']) &&
@@ -155,77 +171,77 @@ class LeadWebhookController extends Controller
 
             if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
 
-                if($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')){
+                if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')) {
+            
                     $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
-
-                    if (preg_match('/^name:\s*([a-zA-Z\s]+)\s*phone:\s*([\d\s\-+()]+)$/i', $messageBody, $matches)) {
+            
+                    if (preg_match('/^name:\s*([a-zA-Z\s]+)\s*phone:\s*([\d\s\-+()]+)(?:\s*email:\s*([^\s]+))?$/i', $messageBody, $matches)) {
                         $fullName = $matches[1] ?? null;
                         $phone = $matches[2] ?? null;
-    
+                        $email = $matches[3] ?? null;
+            
                         if ($fullName) {
                             // Split full name into first and last name
                             $nameParts = explode(' ', trim($fullName));
                             $firstName = $nameParts[0] ?? null;
                             $lastName = $nameParts[1] ?? null;
                         }
-    
+            
                         // Validate and format the phone number
                         if ($phone) {
                             // 1. Remove all special characters from the phone number
                             $phone = preg_replace('/[^0-9+]/', '', $phone);
-    
+            
                             // 2. Extract digits if necessary
                             if (preg_match('/\d+/', $phone, $phoneMatches)) {
                                 $phone = $phoneMatches[0];
-    
+            
                                 // Reapply rules on the extracted phone number
                                 if (strpos($phone, '0') === 0) {
                                     $phone = '972' . substr($phone, 1);
                                 }
-    
+            
                                 if (strpos($phone, '+') === 0) {
                                     $phone = substr($phone, 1);
                                 }
                             }
-    
+            
                             // Ensure phone number length and format
                             $phoneLength = strlen($phone);
                             if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
                                 $phone = '972' . $phone;
                             }
-    
+            
                             $client = Client::where('phone', $phone)->first();
-    
+            
                             if (!$client) {
                                 $client = new Client;
                                 $client->phone = $phone;
-    
+            
                                 $client->firstname     = $firstName ?? '';
                                 $client->lastname      = $lastName ?? '';
                                 $client->phone         = $phone;
-                                $client->email         = $phone . '@lead.com';
+                                $client->email         = filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : ($phone . '@lead.com');
                                 $client->status        = 0;
-                                $client->password      = Hash::make($from);
+                                $client->password      = Hash::make($phone);
                                 $client->passcode      = $phone;
                                 $client->geo_address   = '';
                                 $client->lng           = ($lng == 'heb' ? 'heb' : 'en');
                                 $client->save();
-    
+            
                                 $m = $lng == 'heb' ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id) : "New lead created successfully\n" . url("admin/leads/view/" . $client->id);
                             } else {
                                 $m = $lng == 'heb' ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id) : "lead is already exist\n" . url("admin/leads/view/" . $client->id);
                             }
-    
+            
                             $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), array('name' => '', 'message' => $m));
-                            
-                            die();
-                        }    
-                        die();
+                        }
                     }
-                    die();
                 }
-                die();
+            
+                return response()->json(['status' => 'Already processed'], 200);
             }
+            
 
             $response = WebhookResponse::create([
                 'status'        => 1,

@@ -25,7 +25,7 @@ export default function WorkerLead() {
     const [workerLeadId, setWorkerLeadId] = useState(null);
     const [status, setStatus] = useState("pending")
     const tableRef = useRef(null);
-    const filterRef = useRef(filter);     
+    const filterRef = useRef(filter);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -45,8 +45,8 @@ export default function WorkerLead() {
         setIsOpen(!isOpen)
         setWorkerLeadId(_id)
     }
-    
-    
+
+
 
     const handleChangeStatus = async () => {
         setLoading(true)
@@ -60,10 +60,10 @@ export default function WorkerLead() {
         }
     }
 
-    const initializeDataTable = () => {
+    const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+           const table = $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -146,20 +146,50 @@ export default function WorkerLead() {
                             $(td).addClass('custom-cell-class');
                         }
                     }
-                ]
+                ],
+                initComplete: function () {
+                    // Explicitly set the initial page after table initialization
+                    const table = $(tableRef.current).DataTable();
+                    table.page(initialPage).draw("page");
+                },
             });
+        } else {
+            // Reuse the existing table and set the page directly
+            const table = $(tableRef.current).DataTable();
+            table.page(initialPage).draw("page");
         }
+    }
+
+
+    const getCurrentPageNumber = () => {
+        const table = $(tableRef.current).DataTable();
+        const pageInfo = table.page.info();
+        return pageInfo.page + 1; // Adjusted to return 1-based page number
     };
 
-
     useEffect(() => {
-        initializeDataTable();
+        const searchParams = new URLSearchParams(location.search);
+        const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+        const initialPage = pageFromUrl - 1;
+
+        initializeDataTable(initialPage);
 
         // Customize the search input
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
         $("div.dt-search").append(searchInputWrapper);
         $("div.dt-search").addClass("position-relative");
 
+        // Event listener for pagination
+        $(tableRef.current).on("page.dt", function () {
+            const currentPageNumber = getCurrentPageNumber();
+
+            // Update the URL with the page number
+            const url = new URL(window.location);
+            url.searchParams.set("page", currentPageNumber);
+
+            // Use replaceState to avoid adding new history entry
+            window.history.replaceState({}, "", url);
+        });
 
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const _id = $(this).data("id");
@@ -184,7 +214,7 @@ export default function WorkerLead() {
         // Handle language changes
         i18n.on("languageChanged", () => {
             $(tableRef.current).DataTable().destroy(); // Destroy the table
-            initializeDataTable(); // Reinitialize the table with updated language
+            initializeDataTable(initialPage);
         });
 
         // Cleanup event listeners and destroy DataTable when unmounting
@@ -192,9 +222,10 @@ export default function WorkerLead() {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
                 $(tableRef.current).off("click");
+                $(tableRef.current).off("page.dt");
             }
         };
-    }, []);
+    }, [location.search]);
 
     useEffect(() => {
         filterRef.current = filter; // Update the ref with the latest filter
