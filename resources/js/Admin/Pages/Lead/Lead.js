@@ -101,7 +101,7 @@ export default function Lead() {
                         orderable: false,
                         render: function (data, type, row) {
                             const _statusColor = leadStatusColor(data);
-                            return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
                                 ${data}
                             </p>`;
                         },

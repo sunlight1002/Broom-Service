@@ -20,6 +20,10 @@ export const leadStatusColor = (_status) => {
         case "unanswered":
             _color = "purple";
             break;
+        
+        case "unanswered_final":
+            _color = "#5d5d5d";
+            break;
 
         case "potential client":
             _color = "pink";
