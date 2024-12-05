@@ -1114,6 +1114,7 @@
             "Pending_client": "Pending client",
             "Freeze_client": "Freeze client",
             "Active_client": "Active client",
+            "Reschedule_call": "Reschedule call",
             "MeetingSet": "Meeting set",
             "PriceOfferSent": "Price offer sent",
             "DeclinedPriceOffer": "Declined price offer",

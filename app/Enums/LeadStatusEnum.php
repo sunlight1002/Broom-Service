@@ -21,4 +21,5 @@ final class LeadStatusEnum extends AbstractEnum
     public const MOVED = 'moved';
     public const ONE_TIME = 'one-time';
     public const PAST = 'past';
+    public const RESCHEDULE_CALL = 'reschedule call';
 }

@@ -19,7 +19,7 @@ class WhatsappTemplatesSeeder extends Seeder
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM,
                 'description' => '5 PM Daily Reminder to Worker to Confirm Address',
-                'message_en' => 'Hi, *:worker_name*,
+                'message_en' => 'Hello, *:worker_name*,
 
 Please confirm that you have seen the address for tomorrow’s job:
 
@@ -72,7 +72,7 @@ Equipo de Broom Service',
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM,
                 'description' => '6 PM Daily Reminder to Worker to Confirm Address',
-                'message_en' => 'Hi, *:worker_name*,
+                'message_en' => 'Hello, *:worker_name*,
 
 This is a reminder to confirm the address for tomorrow’s job as soon as possible:
 
@@ -150,7 +150,7 @@ Equipo de Broom Service
             [
                 'key' => WhatsappMessageTemplateEnum::REMINDER_TO_WORKER_1_HOUR_BEFORE_JOB_START,
                 'description' => 'Reminder to Worker 1 Hour Before Job Start',
-                'message_en' => 'Hi, *:worker_name*,
+                'message_en' => 'Hello, *:worker_name*,
 
 You have a job scheduled at *:job_start_time* at the following location:
 
@@ -226,7 +226,7 @@ Equipo de Broom Service',
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_CONFIRMING_ON_MY_WAY,
                 'description' => 'Notification to Worker After Confirming They’re On Their Way',
-                'message_en' => 'Hi, *:worker_name*,
+                'message_en' => 'Hello, *:worker_name*,
 
 Once you arrive at the job location, please confirm by clicking the button below.
 
@@ -291,7 +291,7 @@ Equipo de Broom Service',
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_START_THE_JOB,
                 'description' => 'Worker Notification Upon Shift Start - Job Details',
-                'message_en' => 'Hi, *:worker_name*,
+                'message_en' => 'Hello, *:worker_name*,
 
 Your job at *:job_full_address* has started. You have *:job_remaining_hours hours* to complete the service, and it should be finished by *:job_end_time*.
 
@@ -407,7 +407,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_NOTIFY_AFTER_ALL_COMMENTS_COMPLETED,
                 'description' => 'Notification to Client - Update on Comment Resolution',
-                'message_en' => 'Hi, *:worker_name*,
+                'message_en' => 'Hello, *:worker_name*,
 
 All tasks have been marked as completed. You can now finalize your shift.
 - *Click here to finish the job* :worker_job_link
@@ -538,7 +538,7 @@ Equipo Broom Service',
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_NOTIFY_ON_JOB_TIME_OVER,
                 'description' => 'Notification to Worker (sent 1 minute after scheduled job completion time)',
-                'message_en' => 'Hi, :worker_name,
+                'message_en' => 'Hello, :worker_name,
 
 The job at :job_full_address was scheduled to be completed by :job_end_time. Please finish the job if you have completed all tasks, or contact your manager if you need assistance.
 *Options:*
@@ -1417,7 +1417,7 @@ office@broomservice.co.il",
             [
                 'key' => WhatsappMessageTemplateEnum::PENDING,
                 'description' => 'Send message to team when lead is pending',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
 New lead alert! A potential client, :client_name, has been added to the system and is awaiting initial contact.
 
@@ -1439,7 +1439,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::POTENTIAL,
                 'description' => 'Send message to team when lead is potential',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1457,7 +1457,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::IRRELEVANT,
                 'description' => 'Send message to team when lead is irrelevant',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1475,7 +1475,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::UNINTERESTED,
                 'description' => 'Send message to team when lead is unintrested',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1494,7 +1494,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::UNANSWERED,
                 'description' => 'Send message to team when lead is unanswered',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1513,7 +1513,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::POTENTIAL_CLIENT,
                 'description' => 'Send message to team when lead is potential client',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1532,7 +1532,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::PENDING_CLIENT,
                 'description' => 'Send message to team when lead is pending_client',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1551,7 +1551,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::WAITING,
                 'description' => 'Send message to team when lead is waiting',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1570,7 +1570,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::ACTIVE_CLIENT,
                 'description' => 'Send message to team when lead is active_client',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1589,7 +1589,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::FREEZE_CLIENT,
                 'description' => 'Send message to team when lead is freeze_client',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1608,7 +1608,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::UNHAPPY,
                 'description' => 'Send message to team when lead is unhappy',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1627,7 +1627,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::PRICE_ISSUE,
                 'description' => 'Send message to team when lead is price_issue',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1646,7 +1646,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::MOVED,
                 'description' => 'Send message to team when lead is moved',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1665,7 +1665,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::ONETIME,
                 'description' => 'Send message to team when lead is onetime',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1684,7 +1684,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_DISCOUNT,
                 'description' => 'Send message to team to arrange a callbac',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1703,7 +1703,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::ORDER_CREATED_WITH_EXTRA,
                 'description' => 'Send message to team to arrange a callbac',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1721,7 +1721,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_INVOICE_PAID_CREATED_RECEIPT,
                 'description' => 'Send message to team to arrange a callbac',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1740,7 +1740,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_INVOICE_CREATED_AND_SENT_TO_PAY,
                 'description' => 'Send message to team to arrange a callbac',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1758,7 +1758,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::PAYMENT_PAID,
                 'description' => 'Send message to team to arrange a callbac',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1776,7 +1776,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::PAYMENT_PARTIAL_PAID,
                 'description' => 'Send message to team to arrange a callbac',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1794,7 +1794,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::ORDER_CANCELLED,
                 'description' => 'Send message to team to arrange a callbac',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1812,7 +1812,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED,
                 'description' => 'Send message to team to arrange a callbac',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1832,7 +1832,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT,
                 'description' => 'Send message to client to arrange a callbac',
-                'message_en' => 'Hi, *:client_name*,
+                'message_en' => 'Hello, *:client_name*,
 
 Greetings from Broom Service
 
@@ -1947,7 +1947,7 @@ Equipo de Broom Service",
             [
                 'key' => WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK,
                 'description' => 'Send message to team to arrange a callbac',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1968,7 +1968,7 @@ Equipo de Broom Service",
             [
                 'key' => WhatsappMessageTemplateEnum::LEAD_NEED_HUMAN_REPRESENTATIVE,
                 'description' => 'Send message to team when lead need human representative',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -1988,7 +1988,7 @@ Equipo de Broom Service",
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_JOB_STATUS_NOTIFICATION,
                 'description' => 'Send message to team when lead need human representative',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -2045,7 +2045,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM,
                 'description' => 'Send message to team when status is not updated from 24 hours',
-                'message_en' => 'Hi, *Team*,
+                'message_en' => 'Hello, *Team*,
 
                ',
 
@@ -2187,7 +2187,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 Just a friendly reminder that you have an upcoming appointment on *:meeting_date* between *:meeting_start_time* to *:meeting_end_time* at *:meeting_address* for *:meeting_purpose*.
 Click the *Accept/Reject* or *Upload file* button for Accept, Reject, Reschedule, and Upload Files.
@@ -2226,7 +2226,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::FORM101,
                 'description' => 'Send message to worker for send form 101 request',
-                'message_en' => "Hi, *:worker_name*
+                'message_en' => "Hello, *:worker_name*
 
 You have successfully registered on our portal. Please sign the Form 101 to start working on the job.
 
@@ -2268,7 +2268,7 @@ Equipo de Broom Service",
             [
                 'key' => WhatsappMessageTemplateEnum::NEW_JOB,
                 'description' => 'Send job reminder to worker on new job assign',
-                'message_en' => "Hi, *:worker_name*
+                'message_en' => "Hello, *:worker_name*
 
 :job_content_txt Please check the details.
 
@@ -2332,7 +2332,7 @@ Equipo de Broom Service",
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_HEARING_SCHEDULE,
                 'description' => 'Send job reminder to worker on new job assign',
-                'message_en' => "Hi, *:worker_name*
+                'message_en' => "Hello, *:worker_name*
 
 Just a friendly reminder that your meeting *:team_name* on *:date* between *:start_time* to *:end_time* has been scheduled.
 
@@ -2372,7 +2372,7 @@ Equipo de Broom Service",
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_UNASSIGNED,
                 'description' => 'Send job reminder to worker on new job assign',
-                'message_en' => "Hi, *:old_worker_name*
+                'message_en' => "Hello, *:old_worker_name*
 
 You have been unassigned from a job. Please check the details.
 
@@ -2424,7 +2424,7 @@ Equipo de Broom Service",
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 The service has been canceled. Please check the details.
 
@@ -2469,7 +2469,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *Team*
+                'message_en' => "Hello, *Team*
 
 
 Best regards,
@@ -2498,7 +2498,7 @@ Broom Service Team",
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_REVIEWED,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *Team*
+                'message_en' => "Hello, *Team*
 
 
 Best regards,
@@ -2519,7 +2519,7 @@ Broom Service Team",
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_CHANGED_JOB_SCHEDULE,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *Team*
+                'message_en' => "Hello, *Team*
 
 
 Best regards,
@@ -2540,7 +2540,7 @@ Broom Service Team",
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_COMMENTED,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *Team*
+                'message_en' => "Hello, *Team*
 
 
 Best regards,
@@ -2559,7 +2559,7 @@ Broom Service Team",
             [
                 'key' => WhatsappMessageTemplateEnum::ADMIN_COMMENTED,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *Team*
+                'message_en' => "Hello, *Team*
 
 
 Best regards,
@@ -2578,7 +2578,7 @@ Broom Service Team",
             [
                 'key' => WhatsappMessageTemplateEnum::NEW_LEAD_ARRIVED,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *Team*
+                'message_en' => "Hello, *Team*
 
 
 Best regards,
@@ -2609,7 +2609,7 @@ Broom Service Team",
             [
                 'key' => WhatsappMessageTemplateEnum::UNANSWERED_LEAD,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 Thank you for reaching out to us at Broom Service. We wanted to let you know that we tried to contact you but were unable to reach you. We are here and available to assist you from Sunday to Thursday, between 8:00 AM and 4:00 PM.
 Alternatively, we would be happy to know when it would be convenient for you to have us call you during our business hours.
@@ -2645,7 +2645,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::INQUIRY_RESPONSE,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 Thank you for your interest in Broom Service. We have reviewed your inquiry, and unfortunately, we do not provide services in your area or offer the specific service you are looking for.
 
@@ -2701,7 +2701,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::PAST,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 At Broom Service, we want to thank you for the trust you placed in us in the past and remind you that we are always here for you.
 
@@ -2741,7 +2741,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION,
                 'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 Just a friendly reminder that your scheduled service with Broom Service will take place next week. If you need to make any changes or cancellations, please do so by Wednesday. After Wednesday, any cancellation may incur fees according to our policy.
 
@@ -2904,7 +2904,7 @@ Broom Service Team 🌹",
 //             [
 //                 'key' => WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM,
 //                 'description' => 'Client meeting schedule reminder message template',
-//                 'message_en' => "Hi, *Team*
+//                 'message_en' => "Hello, *Team*
 
 
 // Best regards,
@@ -3047,7 +3047,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL,
                 'description' => '5 PM Daily Reminder to Worker to Confirm Address',
-                'message_en' => 'Hi, *:worker_name*,
+                'message_en' => 'Hello, *:worker_name*,
 
 This is a reminder that your visa is up for renewal on :visa_renewal_date. Please make sure you are prepared to renew your visa on time.
 
@@ -3146,7 +3146,7 @@ office@broomservice.co.il',
             [
                 'key' => WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT,
                 'description' => 'Send notification to client after stop message',
-                'message_en' => 'Hi, *:client_name*
+                'message_en' => 'Hello, *:client_name*
 
 Your request has been processed. You have been unsubscribed, and you will no longer receive notifications from us.
 If this was a mistake or you wish to resubscribe, please let us know.
@@ -3172,7 +3172,7 @@ office@broomservice.co.il",
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS,
                 'description' => 'Send notification to client after 3 days without answer',
-                'message_en' => "Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 We just wanted to remind you that we haven’t been able to reach you regarding your inquiry.
 We’d be happy to assist you and provide all the relevant information you need.
@@ -3216,7 +3216,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS,
                 'description' => 'Send notification to client after 7 days without answer',
-                'message_en' => "Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 Following your inquiry, we haven’t been able to reach you yet.
 We’d like to ensure you’ve received all the necessary information regarding your request.
@@ -3265,7 +3265,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS,
                 'description' => 'Send notification to client after 8 days without answer',
-                'message_en' => "Hi, *:client_name*
+                'message_en' => "Hello, *:client_name*
 
 Following your inquiry, we haven’t been able to reach you yet.Following your inquiry, we haven’t been able to reach you so far.
 We assume you currently don’t require any further information about our services. Therefore, we will close your inquiry in our system.
@@ -3300,6 +3300,64 @@ www.broomservice.co.il
 office@broomservice.co.il
 
 אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_CLIENT,
+                'description' => 'Send notification to client for reschedule call',
+                'message_en' => "Hello, *:client_name*
+
+Following up on our conversation, this is a reminder that we have scheduled to speak again on :reschedule_call_date at :reschedule_call_time.
+In the meantime, we invite you to read about the experiences of our satisfied clients to learn more about our excellent service:
+https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl
+
+For rescheduling the call or any other inquiries, we are here to assist you.
+
+Best Regards,
+Broom Service Team 🌹
+www.broomservice.co.il
+Telephone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
+
+בהמשך לשיחתנו, זוהי תזכורת כי קבענו לשוחח שוב ביום :reschedule_call_date בשעה :reschedule_call_time 
+בינתיים, אנו מזמינים אותך לקרוא על חוויות של לקוחות מרוצים למען התרשמותך מהשירות המעולה שלנו:
+https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl
+
+לשינוי מועד השיחה שנקבעה או לכל עניין אחר, אנו כאן לשירותך.
+
+תודה שפנית אלינו,
+
+בברכה,
+צוות ברום סרוויס🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM,
+                'description' => 'Send notification to team for reschedule call',
+                'message_en' => "",
+
+                'message_heb' => "שלום צוות,
+
+זוהי תזכורת כי היום בשעה :reschedule_call_time מתוכננת שיחה עם :client_name :client_phone_number.
+אנא ודאו שאתם מוכנים וזמינים לסייע במידת הצורך.
+במידה ויש עדכונים או שינויים, אנא עדכנו את הגורמים הרלוונטיים בהקדם.
+
+בברכה,
+צוות ברום סרוויס🌹",
                 'message_spa' => '',
                 'message_ru' => "",
             ],

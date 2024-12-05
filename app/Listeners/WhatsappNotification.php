@@ -268,7 +268,7 @@ class WhatsappNotification
     private function replaceOtherFields($text, $eventData)
     {
         $placeholders = [];
-        if($eventData || ($eventData['old_worker'] && $eventData['old_job'])) {
+        if($eventData || $eventData['activity'] || ($eventData['old_worker'] && $eventData['old_job'])) {
             $by = isset($eventData['by']) ? $eventData['by'] : 'client';
             $placeholders = [
                ':team_name' => isset($eventData['team']) && !empty($eventData['team']['name'])
@@ -292,6 +292,8 @@ class WhatsappNotification
                     : ("Job is marked as " . ucfirst($jobData['status'] ?? "")),
                 ':admin_name' => $eventData['admin']['name'] ?? '',
                 ':came_from' => $eventData['type'] ?? '',
+                ':reschedule_call_date' => $eventData['activity']['reschedule_date'] ?? '',
+                ':reschedule_call_time' => $eventData['activity']['reschedule_time'] ?? '',
 
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 
@@ -419,6 +421,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS:
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS:
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS:
+                    case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_CLIENT:
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
@@ -461,6 +464,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::STOP:
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED:
+                    case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM:
                     // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';

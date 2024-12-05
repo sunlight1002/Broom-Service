@@ -161,5 +161,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const NOTIFY_UNANSWERED_AFTER_3_DAYS = "notify-unanswered-after-3-days";
     public const NOTIFY_UNANSWERED_AFTER_7_DAYS = "notify-unanswered-after-7-days";
     public const NOTIFY_UNANSWERED_AFTER_8_DAYS = "notify-unanswered-after-8-days";
+    public const RESCHEDULE_CALL_FOR_CLIENT = "reschedule-call-for-client";
+    public const RESCHEDULE_CALL_FOR_TEAM = "reschedule-call-for-team";
     
 }
