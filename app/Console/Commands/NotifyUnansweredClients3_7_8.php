@@ -35,19 +35,14 @@ class NotifyUnansweredClients3_7_8 extends Command
      */
     public function handle()
     {
-        $currentDate = Carbon::now()->startOfDay();
+        $currentDate = Carbon::now();
 
-        $dateRanges = [
-            3 => $currentDate->copy()->subDays(3),
-            7 => $currentDate->copy()->subDays(7),
-            8 => $currentDate->copy()->subDays(8),
-        ];
-
+        // Get only the leads where created_at matches 3, 7, or 8 days ago
         $unansweredLeads = LeadStatus::where('lead_status', LeadStatusEnum::UNANSWERED)
-            ->where(function ($query) use ($dateRanges) {
-                foreach ($dateRanges as $days => $date) {
-                    $query->orWhereDate('created_at', '<=', $date);
-                }
+            ->where(function ($query) use ($currentDate) {
+                $query->whereDate('created_at', '=', $currentDate->copy()->subDays(3))
+                      ->orWhereDate('created_at', '=', $currentDate->copy()->subDays(7))
+                      ->orWhereDate('created_at', '=', $currentDate->copy()->subDays(8));
             })
             ->with('client')
             ->get();
@@ -56,18 +51,21 @@ class NotifyUnansweredClients3_7_8 extends Command
             $client = $lead->client;
 
             if ($client) {
-                $daysOld = $lead->created_at->diffInDays($currentDate);
+                $daysOld = $lead->created_at->startOfDay()->diffInDays($currentDate->startOfDay());
 
                 $metaEnum = null;
+                $enum = null;
+                $message = null;
+
                 switch ($daysOld) {
                     case 3:
                         $metaEnum = ClientMetaEnum::NOTIFICATION_SENT_UNANSWERED_3DAYS;
-                        $enum =  WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS;
+                        $enum = WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS;
                         $message = "Hello {$client->firstname}, we noticed you haven’t responded for 3 days. Please get back to us at your earliest convenience.";
                         break;
                     case 7:
                         $metaEnum = ClientMetaEnum::NOTIFICATION_SENT_UNANSWERED_7DAYS;
-                        $enum =  WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS;
+                        $enum = WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS;
                         $message = "Hi {$client->firstname}, it’s been 7 days since we last heard from you. Please let us know how we can assist you.";
                         break;
                     case 8:
@@ -75,13 +73,14 @@ class NotifyUnansweredClients3_7_8 extends Command
                         $enum = WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS;
                         $message = "Dear {$client->firstname}, this is a reminder that it has been 8 days since your query. We’re here to help—please reply.";
 
+                        // Update status to UNANSWERED_FINAL after 8 days
                         if ($lead->lead_status === LeadStatusEnum::UNANSWERED) {
                             $lead->update(['lead_status' => LeadStatusEnum::UNANSWERED_FINAL]);
                             $this->info("Client status updated to UNANSWERED_FINAL for {$client->firstname}.");
                         }
                         break;
                     default:
-                        continue 2; 
+                        continue 2;
                 }
 
                 // Check if the notification for this day has already been sent
