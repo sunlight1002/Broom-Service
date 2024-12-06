@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useAlert } from "react-alert";
 import Swal from "sweetalert2";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import DatePicker from "react-datepicker";
 import moment from "moment";
+import axios from "axios";
+import { use } from "i18next";
+import { Tooltip} from "react-tooltip";
+
 // import "react-datepicker/dist/react-datepicker.css"; // import DatePicker styles
 
 export default function ChangeStatusModal({
@@ -15,6 +19,8 @@ export default function ChangeStatusModal({
     statusArr,
 }) {
     const alert = useAlert();
+    const [allHolidays, setAllHolidays] = useState([])
+    const [holidayNamesMap, setHolidayNamesMap] = useState({});
     const [formValues, setFormValues] = useState({
         reason: "",
         status: "irrelevant",
@@ -23,6 +29,21 @@ export default function ChangeStatusModal({
         reschedule_time: "", // Add a field for the reschedule time
     });
 
+
+    const generateWeekendDates = (start, end) => {
+        const weekends = [];
+        const currentDate = new Date(start);
+
+        while (currentDate <= end) {
+            const dayOfWeek = currentDate.getDay();
+            if (dayOfWeek === 5 || dayOfWeek === 6) { // 5 = Friday, 6 = Saturday
+                weekends.push(new Date(currentDate));
+            }
+            currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+        }
+
+        return weekends;
+    };
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -64,7 +85,7 @@ export default function ChangeStatusModal({
             reschedule_date: formValues.reschedule_date
                 ? moment(formValues.reschedule_date).format("YYYY-MM-DD")
                 : null,
-            reschedule_time: formValues.reschedule_time, 
+            reschedule_time: formValues.reschedule_time,
         };
 
         // Use FormData for submission
@@ -90,13 +111,49 @@ export default function ChangeStatusModal({
                 setIsLoading(false);
             });
     };
+    const handleAllHolidays = async () => {
+        try {
+            const res = await axios.get(`/api/admin/all-holidays`, { headers });
+            const holidaysData = res.data;
 
-    // const holidays = [
-    //     new Date("2024-12-07"), // Example holiday date
-    //     new Date("2024-12-08"), // Another holiday
-    //     // Add more holiday dates as needed
-    // ];
+            const holidayDates = [];
+            const namesMap = {};
 
+            // Define the date range for weekends
+            const startDate = new Date(); // Today
+            const endDate = new Date();
+            endDate.setFullYear(startDate.getFullYear() + 1); // Next year
+
+            // Add Fridays and Saturdays
+            const weekendDates = generateWeekendDates(startDate, endDate);
+            weekendDates.forEach((date) => {
+                holidayDates.push(date);
+                namesMap[date.toDateString()] = "Weekend"; // Add "Weekend" as holiday name
+            });
+
+            // Add holidays from the API
+            holidaysData.forEach((holiday) => {
+                holiday.all_dates.forEach((date) => {
+                    const holidayDate = new Date(date);
+                    holidayDates.push(holidayDate);
+                    namesMap[holidayDate.toDateString()] = holiday.name; // Map holiday name
+                });
+            });
+
+            setAllHolidays(holidayDates);
+            setHolidayNamesMap(namesMap);
+        } catch (error) {
+            console.error("Error fetching holidays:", error);
+        }
+    };
+
+    useEffect(() => {
+        handleAllHolidays();
+    }, []);
+
+
+
+    const getHolidayName = (date) => holidayNamesMap[date.toDateString()] || "";
 
     return (
         <div>
@@ -152,12 +209,25 @@ export default function ChangeStatusModal({
                                             className="form-control"
                                             dateFormat="yyyy-MM-dd"
                                             minDate={new Date()}
-                                            // highlightDates={holidays} // Highlight holiday dates
-                                            // dayClassName={(date) =>
-                                            //     holidays.some((holiday) => holiday.toDateString() === date.toDateString())
-                                            //         ? "holiday" // Optional: apply a custom class to holidays
-                                            //         : undefined
-                                            // }
+                                            highlightDates={allHolidays} // Highlight holiday dates dynamically
+                                            dayClassName={(date) =>
+                                                allHolidays.some(
+                                                    (holiday) => holiday.toDateString() === date.toDateString()
+                                                )
+                                                    ? "holiday" // Add custom class to holiday dates
+                                                    : undefined
+                                            }
+                                            renderDayContents={(day, date) => {
+                                                const holidayName = getHolidayName(date);
+                                                return (
+                                                    <div>
+                                                        <span><strong 
+                                                        data-tooltip-id="name"
+                                                        data-tooltip-content={ holidayName }
+                                                        >{day}</strong></span>
+                                                    </div>
+                                                );
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -221,6 +291,7 @@ export default function ChangeStatusModal({
                 </Modal.Footer>
             </Modal>
             {isLoading && <FullPageLoader visible={isLoading} />}
+            <Tooltip id="name" place="top" type="dark" effect="solid" style={{ zIndex: "99999" }} />
         </div>
     );
 }

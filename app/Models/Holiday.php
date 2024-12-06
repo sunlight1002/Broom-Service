@@ -11,6 +11,10 @@ class Holiday extends Model
     protected $fillable = [
         'start_date',
         'end_date',
+        'full_day',
+        'half_day',
+        'first_half',
+        'second_half',
         'holiday_name'
     ];
 }

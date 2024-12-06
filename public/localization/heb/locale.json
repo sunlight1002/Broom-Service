@@ -1750,6 +1750,11 @@
             "holidayName": "שם החג",
             "startDate": "תאריך התחלה",
             "endDate": "תאריך סיום",
+            "day": "יום",
+            "fullDay": "יום שלם",
+            "halfDay": "חצי יום",
+            "firstHalf": "מחצית ראשונה",
+            "secondHalf": "חצי שני",
             "editHoliday": "עדכון לחג",
             "update": "לְעַדְכֵּן"
         },

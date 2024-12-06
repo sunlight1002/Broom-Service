@@ -25,6 +25,8 @@ export default function ManageHolidays() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    const adminLng = localStorage.getItem("admin-lng");
+
     const initializeDataTable = () => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -66,6 +68,41 @@ export default function ManageHolidays() {
                     {
                         title: t("admin.holidays.endDate"),
                         data: "end_date",
+                    },
+                    {
+                        title: t("admin.holidays.halfDay"),
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            // Check the language preference
+                            const isHebrew = adminLng === 'he'; // Assuming 'he' is for Hebrew language
+                            const yesText = isHebrew ? "כן" : "Yes";
+                            const noText = isHebrew ? "לא" : "No";
+                            
+                            // Return 'Yes' or 'No' based on the 'half_day' value
+                            return row.half_day == 1 ? yesText : noText;
+                        },
+                    },
+                    {
+                        title: t("admin.holidays.firstHalf"),
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            const isHebrew = adminLng === 'he'; // Assuming 'he' is for Hebrew language
+                            const yesText = isHebrew ? "כן" : "Yes";
+                            const noText = isHebrew ? "לא" : "No";
+
+                            return row.first_half == 1 ? yesText : noText;
+                        },
+                    },
+                    {
+                        title: t("admin.holidays.secondHalf"),
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            const isHebrew = adminLng === 'he'; // Assuming 'he' is for Hebrew language
+                            const yesText = isHebrew ? "כן" : "Yes";
+                            const noText = isHebrew ? "לא" : "No";
+
+                            return row.second_half == 1 ? yesText : noText;
+                        },
                     },
                     {
                         title: t("admin.global.Action"),

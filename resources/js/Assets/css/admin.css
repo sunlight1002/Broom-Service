@@ -4257,7 +4257,7 @@ tbody tr:hover {
   background-color: #f2f4f7 !important;
 }
 
-/* .holiday {
-  background-color: #f39c12; 
+.holiday {
+  background-color: #d22727 !important; 
   color: white; 
-} */
+}
