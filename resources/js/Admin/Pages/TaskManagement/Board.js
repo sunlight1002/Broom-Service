@@ -374,7 +374,7 @@ const App = () => {
                 <div className="titleBox customer-title">
                     <div className="row align-items-center justify-space-between">
                         <div className="col">
-                            <h1 className="page-title">Task Management</h1>
+                            <h1 className="page-title">{t("admin.sidebar.task_management")}</h1>
                         </div>
                     </div>
                 </div>
@@ -490,13 +490,13 @@ const App = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                )) : <div data-phase-id={list?.id}>No tasks available</div>
+                                                )) : <div data-phase-id={list?.id}>{t("admin.global.no_task")}</div>
                                                 }
                                             </ReactSortable>
                                         </div>
 
                                         <div className="add-card editable" onClick={() => handleOpenAddTaskModal(list.id)}>
-                                            Add another task
+                                            {t("admin.global.add_another_task")}
                                         </div>
                                     </div>
                                 );
@@ -510,7 +510,7 @@ const App = () => {
                                         style={{ borderRadius: "5px", width: "8rem" }}
                                         onClick={handleAddList}
                                     >
-                                        <i className="fa-solid fa-plus"></i> Add Phase
+                                        <i className="fa-solid fa-plus"></i> {t("admin.global.add_phase")}
                                     </button>
                                 )}
                                 {isAddingPhase && (
@@ -531,7 +531,7 @@ const App = () => {
                                             className='btn  mt-2'
                                             onClick={handleSavePhase}
                                         >
-                                            <i className="fa-solid fa-plus"></i> Add
+                                            <i className="fa-solid fa-plus"></i> {t("admin.global.add")}
                                         </button>
                                     </div>
                                 )}

@@ -73,14 +73,14 @@ function TaskModal({
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        {isEditing ? "Edit Task" : "Add Task"}
+                        {isEditing ? t("admin.global.edit_task") : t("admin.global.add_task")}
                     </Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
                     <div className="">
                         <div className='d-flex flex-column mb-3'>
-                            <p className='navblueColor mb-2 font-18' style={{ fontWeight: "500" }}>Task Name</p>
+                            <p className='navblueColor mb-2 font-18' style={{ fontWeight: "500" }}>{t("admin.global.task_name")}</p>
                             <div className="d-flex flex-column">
                                 <input
                                     type="text"
@@ -94,14 +94,14 @@ function TaskModal({
                             </div>
                         </div>
                         <div className='d-flex flex-column'>
-                            <p className='navblueColor mb-2 font-18' style={{ fontWeight: "500" }}>Description</p>
+                            <p className='navblueColor mb-2 font-18' style={{ fontWeight: "500" }}>{t("admin.global.description")}</p>
                             <Editor value={description} onChange={onChange} disabled={type === 'worker'} />
                         </div>
                         {
                             type === "admin" && (
                                 <div className="row form-group mt-3">
                                     <div className="col-md-6">
-                                        <label className="control-label">Team Members</label>
+                                        <label className="control-label">{t("admin.global.team_members")}</label>
                                         <Select
                                             value={selectedOptions}
                                             name="teamMembers"
@@ -115,7 +115,7 @@ function TaskModal({
                                         />
                                     </div>
                                     <div className="col-md-6">
-                                        <label className="control-label">Workers</label>
+                                        <label className="control-label">{t("admin.global.Workers")}</label>
                                         <Select
                                             value={selectedWorkers}
                                             name="workers"
@@ -170,7 +170,7 @@ function TaskModal({
                                                         className="form-control mb-3"
                                                     >
                                                         <option value="">
-                                                            -- Please select --
+                                                            {t("admin.global.please_select")}
                                                         </option>
                                                         <option value="forever">
                                                             {t(
@@ -210,7 +210,7 @@ function TaskModal({
                         <div className="row form-group mt-3">
                             <div className="col-sm">
                                 <div className="d-flex flex-column">
-                                    <label className="control-label">Priority</label>
+                                    <label className="control-label">{t("admin.global.priority")}</label>
                                     <select
                                         className="form-control"
                                         name="priority"
@@ -218,16 +218,16 @@ function TaskModal({
                                         disabled={type === 'worker'}
                                         onChange={(e) => setPriority(e.target.value)}
                                     >
-                                        <option value="">-- Select priority</option>
-                                        <option value="high">High</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="low">Low</option>
+                                        <option value="">{t("admin.global.select_priority")}</option>
+                                        <option value="high">{t("admin.global.high")}</option>
+                                        <option value="medium">{t("admin.global.medium")}</option>
+                                        <option value="low">{t("admin.global.low")}</option>
                                     </select>
                                 </div>
                             </div>
                             <div className="col-sm">
                                 <div className="d-flex flex-column">
-                                    <label className="control-label">Due Date</label>
+                                    <label className="control-label">{t("admin.global.due_date")}</label>
                                     <input
                                         type="date"
                                         className="form-control"
@@ -240,17 +240,17 @@ function TaskModal({
                             </div>
                             <div className="col-sm">
                                 <div className="d-flex flex-column">
-                                    <label className="control-label">Status</label>
+                                    <label className="control-label">{t("admin.global.status")}</label>
                                     <select
                                         className="form-control"
                                         name="status"
                                         value={status || ""}
                                         onChange={(e) => setStatus(e.target.value)}
                                     >
-                                        <option value="">-- Select status</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="in progress">In Progress</option>
-                                        <option value="complete">Complete</option>
+                                        <option value="">{t("admin.global.select_status")}</option>
+                                        <option value="pending">{t("admin.global.pending")}</option>
+                                        <option value="in progress">{t("admin.global.in_progress")}</option>
+                                        <option value="complete">{t("admin.global.completed")}</option>
                                     </select>
                                 </div>
                             </div>
@@ -273,7 +273,7 @@ function TaskModal({
                         className="btn btn-primary"
                         onClick={isEditing ? handleUpdateTask : handleAddCard}
                     >
-                        {isEditing ? "Update Task" : "Add Task"}
+                        {isEditing ? t("admin.global.update_task") : t("admin.global.add_task")}
                     </Button>
                 </Modal.Footer>
             </Modal>

@@ -58,6 +58,9 @@ export default function AdminHeader() {
                     if (rtlLink) {
                         rtlLink.remove();
                     }
+            }else{
+                document.querySelector("html").setAttribute("dir", "rtl");
+                import("../../Assets/css/rtl.css");
             }
         });
     };
