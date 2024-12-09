@@ -30,7 +30,7 @@
 
 		<p style="text-align: center;">{{__('mail.form_101.below_txt')}}</p>
 		<div style="text-align: center;">
-			<a href='{{ url("form101/".base64_encode($id)."/".base64_encode($formId))}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.form_101.btn_txt')}}</a> 
+			<a href='{{ url("worker-forms/".base64_encode($id)."/".base64_encode($formId))}}' style="background: #ef6c6b;color: #fff;border: 1px solid #ef6c6b;font-size: 16px;padding: 8px 20px;border-radius: 8px;cursor: pointer;text-decoration: none;text-align: center;">{{__('mail.form_101.btn_txt')}}</a> 
 		</div>
 		<p style="margin-top: 40px">{{__('mail.common.dont_hesitate_to_get_in_touch')}}</p>
 		<p style="font-weight: 700;margin-bottom: 0;">{{__('mail.common.regards')}}</p>

@@ -88,7 +88,7 @@ class WhatsappNotification
                 ':date' => isset($eventData['date']) ? Carbon::parse($eventData['date'])->format('M d Y') : '',
                 ':check_form' => url("worker-forms/" . base64_encode($workerData['id'])) ?? '',
                 ':form_101_link' => isset($workerData['id'], $workerData['formId'])
-                    ? url("form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId']))
+                    ? url("worker-forms/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId']))
                     : '',
                 ':refund_rejection_comment' => $eventData['refundclaim']['rejection_comment'] ?? "",
                 ':refund_status' => $eventData['refundclaim']['status'] ?? "",
