@@ -197,6 +197,31 @@ export default function WorkContract() {
         // getContract();
     }, [])
 
+
+    const handleNextPrev = (e) => {
+        window.scrollTo(0, 0);
+        if (!selectedClientCardID && nextStep === 1 && contract.card_id == null) {
+            swal(t("work-contract.messages.card_err"), "", "error");
+            return false;
+        }
+
+        if (!cardSignature && nextStep === 1 && contract.signed_at == null) {
+            swal(t("work-contract.messages.sign_card_err"), "", "error");
+            return false;
+        }
+
+        if (!signature && nextStep === 2 && contract.signature == null) {
+            swal(t("work-contract.messages.sign_err"), "", "error");
+            return false;
+        }
+        if (e.target.name === "prev") {
+            setNextStep(prev => prev - 1);
+        } else {
+            setNextStep(prev => prev + 1);
+        }
+
+    }
+
     return (
         <div className='container parent' >
             {/* <Sidebar /> */}
@@ -616,7 +641,7 @@ export default function WorkContract() {
                     </div>
                 </div>
             </div>
-            <FullPageLoader visible={loading} />
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

@@ -1456,7 +1456,6 @@ class WorkerFormService
             isset($formData['employeeIdentityType']) && isset($formData['employeeIdCardCopy']) &&
             $formData['employeeIdentityType'] == 'IDNumber'
         ) {
-            // \Log::info($formData['employeeIdCardCopy']);
             //create a page
             $pdf->AddPage();
 
@@ -1476,7 +1475,7 @@ class WorkerFormService
             $x = $lng == "heb" ? 560 : 30;
             $y = 60;
 
-            $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeeIdCardCopy']), $x, $y, $w, $h, '', '', '', true);
+            $pdf->Image(Storage::disk('public')->path('uploads/form101/documents/' . $formData['employeeIdCardCopy']??""), $x, $y, $w, $h, '', '', '', true);
         }
 
         if (

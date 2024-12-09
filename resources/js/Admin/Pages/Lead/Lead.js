@@ -19,18 +19,13 @@ import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function Lead() {
     const { t, i18n } = useTranslation();
-    // const adminLng = localStorage.getItem("admin-lng");
-
-    // useEffect(() => {
-    //     i18next.changeLanguage(adminLng);
-    // }, [adminLng]);
-
     const statusArr = {
         // pending: t("admin.leads.Pending"),
         // potential: t("admin.leads.Potential"),
         irrelevant: t("admin.leads.Irrelevant"),
         uninterested: t("admin.leads.Uninterested"),
         unanswered: t("admin.leads.Unanswered"),
+        "reschedule call": t("admin.leads.Reschedule_call"),
         // "potential client": t("admin.leads.Potential_client"),
         // "pending client": t("admin.leads.Pending_client"),
         // "freeze client": t("admin.leads.Freeze_client"),
@@ -61,10 +56,12 @@ export default function Lead() {
     };
 
 
-    const initializeDataTable = () => {
+    const initializeDataTable = (initialPage = 0) => {
+        console.log(initialPage);
+        
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable({
+            const table = $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -82,30 +79,30 @@ export default function Lead() {
                     {
                         title: t("global.date"),
                         data: "created_at",
-                        responsivePriority: 1, // Highest priority to keep this column visible
-                        width: "10%", // Optional: You can specify a fixed width
+                        responsivePriority: 1,
+                        width: "10%",
                     },
                     {
                         title: t("admin.global.Name"),
                         data: "name",
-                        responsivePriority: 2, // Second priority to keep this column visible
-                        width: "15%", // Optional: You can specify a fixed width
+                        responsivePriority: 2,
+                        width: "15%",
                     },
                     { title: t("admin.global.Email"), data: "email" },
                     {
                         title: t("admin.global.Phone"),
                         data: "phone",
-                        render: function(data) {
+                        render: function (data) {
                             return `+${data}`;
-                        }
+                        },
                     },
                     {
                         title: t("admin.global.Status"),
                         data: "lead_status",
                         orderable: false,
-                        render: function (data, type, row, meta) {
+                        render: function (data, type, row) {
                             const _statusColor = leadStatusColor(data);
-                            return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
                                 ${data}
                             </p>`;
                         },
@@ -114,10 +111,10 @@ export default function Lead() {
                         title: t("admin.global.Action"),
                         data: "action",
                         orderable: false,
-                        responsivePriority: 3, // Third priority to keep this column visible
-                        render: function (data, type, row, meta) {
-                            let _html =
-                                `<div class="action-dropdown dropdown">
+                        responsivePriority: 3,
+                        render: function (data, type, row) {
+                            return `
+                                <div class="action-dropdown dropdown">
                                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i class="fa fa-ellipsis-vertical"></i>
                                     </button>
@@ -128,47 +125,42 @@ export default function Lead() {
                                         <button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>
                                     </div>
                                 </div>`;
-                            return _html;
                         },
                     },
                 ],
-                // drawCallback: function () {
-                //     // Update pagination button styles
-                //     document.querySelectorAll("#content .paging_full_numbers button").forEach((button) => {
-                //         if (document.querySelector("#content .dt-paging-button current")) {
-                //             button.style.backgroundColor = "#ffffff !important";
-                //             button.style.color = "rgb(0, 0, 0) !important";
-                //         } else if (document.querySelector("#content dt-paging-button")) {
-                //             button.style.backgroundColor = "#1E1E1E !important";
-                //             button.style.color = "#ffffff !important";
-                //         }
-                //     });
-                // },
-                ordering: true,
-                searching: true,
+                pageLength: 10,
                 responsive: true,
                 autoWidth: true,
-                width: "100%",
-                scrollX: true,
-                createdRow: function (row, data, dataIndex) {
+                createdRow: function (row, data) {
                     $(row).addClass("dt-row custom-row-class");
                     $(row).attr("data-id", data.id);
                 },
-                columnDefs: [
-                    {
-                        targets: "_all",
-                        createdCell: function (td, cellData, rowData, row, col) {
-                            $(td).addClass("custom-cell-class ");
-                        },
-                    },
-                ],
+                initComplete: function () {
+                    // Explicitly set the initial page after table initialization
+                    const table = $(tableRef.current).DataTable();
+                    table.page(initialPage).draw("page");
+                },
             });
+        } else {
+            // Reuse the existing table and set the page directly
+            const table = $(tableRef.current).DataTable();
+            table.page(initialPage).draw("page");
         }
     };
-
+    
+    const getCurrentPageNumber = () => {
+        const table = $(tableRef.current).DataTable();
+        const pageInfo = table.page.info();
+        return pageInfo.page + 1; // Adjusted to return 1-based page number
+    };
+    
     useEffect(() => {
-        initializeDataTable();
-
+        const searchParams = new URLSearchParams(location.search);
+        const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+        const initialPage = pageFromUrl - 1;
+        
+        initializeDataTable(initialPage);
+    
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
             if (e.target.closest("tr.dt-row")) {
@@ -190,49 +182,58 @@ export default function Lead() {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                 }
             }
-
+    
             if (_id) {
                 navigate(`/admin/leads/view/${_id}`);
             }
         });
+    
+        // Event listener for pagination
+        $(tableRef.current).on("page.dt", function () {
+            const currentPageNumber = getCurrentPageNumber();
 
-        // Event Listeners
+            // Update the URL with the page number
+            const url = new URL(window.location);
+            url.searchParams.set("page", currentPageNumber);
+    
+            // Use replaceState to avoid adding new history entry
+            window.history.replaceState({}, "", url);
+        });
+    
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/leads/${_id}/edit`);
         });
-
+    
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/leads/view/${_id}`);
         });
-
+    
         $(tableRef.current).on("click", ".dt-change-status-btn", function () {
             const _id = $(this).data("id");
             toggleChangeStatusModal(_id);
         });
-
+    
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const _id = $(this).data("id");
             handleDelete(_id);
         });
-        
-
-        // Handle language changes
+    
         i18n.on("languageChanged", () => {
             $(tableRef.current).DataTable().destroy(); // Destroy the table
-            initializeDataTable(); // Reinitialize the table with updated language
+            initializeDataTable(initialPage);
         });
-
-        // Cleanup event listeners and destroy DataTable when unmounting
+    
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
                 $(tableRef.current).off("click");
+                $(tableRef.current).off("page.dt");
             }
         };
-    }, []);
-
+    }, [location.search]);
+    
 
     const sortTable = (colIdx) => {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();

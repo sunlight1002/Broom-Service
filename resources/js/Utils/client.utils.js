@@ -21,6 +21,14 @@ export const leadStatusColor = (_status) => {
             _color = "purple";
             break;
 
+        case "unanswered_final":
+            _color = "#5d5d5d";
+            break;
+
+        case "reschedule call":
+            _color = "#5584c7";
+            break;
+
         case "potential client":
             _color = "pink";
             break;

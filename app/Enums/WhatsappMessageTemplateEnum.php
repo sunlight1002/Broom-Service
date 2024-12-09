@@ -158,5 +158,10 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const CLIENT_HAS_OFFER_BUT_NO_SIGNED_OR_NO_CONTRACT = "client-has-offer-but-no-signed-or-no-contract";
     public const CLIENT_MEETING_CANCELLED = "client-meeting-cancelled";
     public const CLIENT_PAYMENT_FAILED_TO_CLIENT = "client-payment-failed-to-client";
+    public const NOTIFY_UNANSWERED_AFTER_3_DAYS = "notify-unanswered-after-3-days";
+    public const NOTIFY_UNANSWERED_AFTER_7_DAYS = "notify-unanswered-after-7-days";
+    public const NOTIFY_UNANSWERED_AFTER_8_DAYS = "notify-unanswered-after-8-days";
+    public const RESCHEDULE_CALL_FOR_CLIENT = "reschedule-call-for-client";
+    public const RESCHEDULE_CALL_FOR_TEAM = "reschedule-call-for-team";
     
 }

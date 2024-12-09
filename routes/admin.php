@@ -393,6 +393,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
 
     //holidays add or update
     Route::get('holidays', [HolidayController::class, 'index']);
+    Route::get('all-holidays', [HolidayController::class, 'getAll']);
     Route::post('holidays', [HolidayController::class, 'store']);
     Route::post('holidays/{id}', [HolidayController::class, 'update']);
     Route::delete('holidays/{id}', [HolidayController::class, 'destroy']);

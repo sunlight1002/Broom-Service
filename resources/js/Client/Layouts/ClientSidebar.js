@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { IoIosLogOut } from "react-icons/io";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { RiVideoChatLine } from "react-icons/ri";
-import { FaRegBookmark } from "react-icons/fa";
+import { FaAddressBook, FaRegBookmark } from "react-icons/fa";
 import { LiaFileContractSolid } from "react-icons/lia";
 import { MdHomeRepairService } from "react-icons/md";
 import { MdOutlinePayments } from "react-icons/md";
@@ -35,7 +35,7 @@ export default function ClientSidebar() {
             }
         });
     };
-// console.log(t("client.sidebar.dashboard"));
+    // console.log(t("client.sidebar.dashboard"));
     return (
         <div id="column-left">
             <div className="sideLogo">
@@ -126,6 +126,18 @@ export default function ClientSidebar() {
                 <li className="list-group-item">
                     <NavLink
                         className="d-flex align-items-center"
+                        to="/client/property-addresses"
+                        activeClassName="active"
+                    >
+                        <i className="d-flex align-items-center">
+                            <FaAddressBook className="font-28"/>
+                        </i>
+                        {t("client.common.property_addresses")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
+                    <NavLink
+                        className="d-flex align-items-center"
                         to="/client/settings"
                         activeClassName="active"
                     >
@@ -137,13 +149,13 @@ export default function ClientSidebar() {
                 </li>
             </ul>
             <div className="sideLogout">
-            <div className="logoutBtn">
+                <div className="logoutBtn">
                     <button className="btn d-flex justify-content-center align-items-center" onClick={HandleLogout}
                     >
                         <IoIosLogOut className="mr-1 font-28" />
                         {t("client.logout")}
                     </button>
-            </div>
+                </div>
             </div>
         </div>
     );

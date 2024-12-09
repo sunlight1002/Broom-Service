@@ -16,4 +16,9 @@ class ServiceSchedule extends Model
         'status',
         'color_code'
     ];
+
+    public function tasks()
+    {
+        return $this->hasMany(TaskManagement::class, 'frequency_id');
+    }
 }

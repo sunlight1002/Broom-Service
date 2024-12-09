@@ -1,15 +1,23 @@
+//WorkerContract
+
+import html2pdf from "html2pdf.js";
+import i18next from "i18next";
+import { Base64 } from "js-base64";
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Base64 } from "js-base64";
 import swal from "sweetalert";
-import i18next from "i18next";
-import html2pdf from "html2pdf.js";
 
 import { IsrailContact } from "../Admin/Pages/Contract/IsrailContact";
 import { NonIsraeliContract } from "../Admin/Pages/Contract/NonIsraeliContract";
 import { objectToFormData } from "../Utils/common.utils";
 
-export default function WorkerContract() {
+export default function WorkerContract({
+    nextStep,
+    setNextStep,
+    worker,
+    handleBubbleToggle,
+    activeBubble
+}) {
     const param = useParams();
     const [workerDetail, setWorkerDetail] = useState({});
     const [workerFormDetail, setWorkerFormDetail] = useState(null);
@@ -17,51 +25,65 @@ export default function WorkerContract() {
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
     const contentRef = useRef(null);
+    useEffect(() => {
+        window.scroll(0, 0);
+    }, [nextStep])
 
     const handleSubmit = async (values) => {
-        setIsGeneratingPDF(true);
-        const options = {
-            filename: "my-document.pdf",
-            margin: [5, 5, 0, 5],
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: {
-                unit: "mm",
-                format: "a4",
-                orientation: "portrait",
-            },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
-
-        const content = contentRef.current;
-
-        const _pdf = await html2pdf()
-            .set(options)
-            .from(content)
-            .outputPdf("blob", "Contract.pdf");
-
-        setIsGeneratingPDF(false);
-
-        // Convert JSON object to FormData
-        let formData = objectToFormData(values);
-        formData.append("pdf_file", _pdf);
-
-        axios
-            .post(`/api/${Base64.decode(param.id)}/work-contract`, formData, {
-                headers: {
-                    Accept: "application/json, text/plain, */*",
-                    "Content-Type": "multipart/form-data",
+        if (!isSubmitted) {
+            setIsGeneratingPDF(true);
+            const options = {
+                filename: "my-document.pdf",
+                margin: [5, 5, 0, 5],
+                image: { type: "jpeg", quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: {
+                    unit: "mm",
+                    format: "a4",
+                    orientation: "portrait",
                 },
-            })
-            .then((res) => {
-                swal(res.data.message, "", "success");
-                setTimeout(() => {
-                    window.location.href = "/worker/login";
-                }, 1000);
-            })
-            .catch((e) => {
-                swal("Error!", e.response.data.message, "error");
-            });
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            const content = contentRef.current;
+
+            const _pdf = await html2pdf()
+                .set(options)
+                .from(content)
+                .outputPdf("blob", "Contract.pdf");
+
+            setIsGeneratingPDF(false);
+            // Convert JSON object to FormData
+            let formData = objectToFormData(values);
+            formData.append("pdf_file", _pdf);
+            formData.append("step", nextStep);
+
+            axios
+                .post(`/api/${Base64.decode(param.id)}/work-contract`, formData, {
+                    headers: {
+                        Accept: "application/json, text/plain, */*",
+                        "Content-Type": "multipart/form-data",
+                    },
+                })
+                .then((res) => {
+                    if (worker.country === "Israel") {
+                        swal("Forms Submitted succesfully", "", "success");
+                    }
+                    setIsSubmitted(true);
+                    // setTimeout(() => {
+                    //     window.location.href = "/worker/login";
+                    // }, 1000);
+                })
+                .catch((e) => {
+                    if (e.response.data.message === "Contract already signed") {
+                        setNextStep(prev => prev + 1)
+                    }
+
+                    // swal("Error!", e.response.data.message, "error");
+                });
+        } else {
+            setNextStep(prev => prev + 1)
+        }
     };
 
     const getWorker = () => {
@@ -70,6 +92,7 @@ export default function WorkerContract() {
             .then((res) => {
                 if (res.data.worker) {
                     let w = res.data.worker;
+
                     setWorkerDetail(w);
                     i18next.changeLanguage(w.lng);
                     if (w.lng == "heb") {
@@ -111,6 +134,8 @@ export default function WorkerContract() {
                         isSubmitted={isSubmitted}
                         isGeneratingPDF={isGeneratingPDF}
                         contentRef={contentRef}
+                        nextStep={nextStep}
+                        setNextStep={setNextStep}
                     />
                 ) : (
                     <NonIsraeliContract
@@ -120,6 +145,8 @@ export default function WorkerContract() {
                         isSubmitted={isSubmitted}
                         isGeneratingPDF={isGeneratingPDF}
                         contentRef={contentRef}
+                        nextStep={nextStep}
+                        setNextStep={setNextStep}
                     />
                 )
             ) : (

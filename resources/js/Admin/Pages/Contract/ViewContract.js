@@ -14,6 +14,14 @@ export default function WorkContract() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    useEffect(() => {
+        if (windowWidth < 767) {
+            setMobileView(true)
+        } else {
+            setMobileView(false)
+        }
+    }, [windowWidth])
+
 
     const getContract = () => {
         axios
@@ -26,6 +34,17 @@ export default function WorkContract() {
     useEffect(() => {
         getContract();
     }, [])
+
+    const handleNextPrev = (e) => {
+        window.scrollTo(0, 0);
+        if (e.target.name === "prev") {
+            setNextStep(prev => prev - 1);
+        } else {
+            setNextStep(prev => prev + 1);
+        }
+
+    }
+
 
     return (
         (lng == 'heb') ? <ContractHeb />: <ContractEng />

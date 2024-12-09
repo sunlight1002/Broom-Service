@@ -13,6 +13,8 @@ import { Base64 } from "js-base64";
 import { frequencyDescription } from "../Utils/job.utils";
 import FullPageLoader from "../Components/common/FullPageLoader";
 import MiniLoader from "../Components/common/MiniLoader";
+import useWindowWidth from "../Hooks/useWindowWidth";
+import { FaStar } from "react-icons/fa";
 
 export default function PriceOffer() {
     const { t } = useTranslation();
@@ -25,13 +27,32 @@ export default function PriceOffer() {
     const [subService, setSubService] = useState([])
     const [clientLng, setClientLng] = useState("")
     const [loading, setLoading] = useState(false)
+    const [mobileView, setMobileView] = useState(false);
+    const windowWidth = useWindowWidth();
     const [airbnb, setAirbnb] = useState({
         id: "",
         subServiceId: [],
     })
 
+    const id = Base64.decode(param.id);
+
     // const clientLng = localStorage.getItem("client-lng")
 
+    useEffect(() => {
+        if (windowWidth < 767) {
+            setMobileView(true)
+        } else {
+            setMobileView(false)
+        }
+    }, [windowWidth])
+
+    let sectionCounter = 0;
+
+    // Function to get the next number in sequence
+    const getNextNumber = () => {
+        sectionCounter++;
+        return sectionCounter;
+    };
 
     const getOffer = async () => {
         try {
@@ -42,7 +63,7 @@ export default function PriceOffer() {
             setStatus(data.status);
             setClient(data.client);
             i18next.changeLanguage(data.client?.lng);
-            if(data?.client?.lng) {
+            if (data?.client?.lng) {
                 document.querySelector("html").removeAttribute("dir");
                 const rtlLink = document.querySelector('link[href*="rtl.css"]');
                 if (rtlLink) {
@@ -193,170 +214,110 @@ export default function PriceOffer() {
         return services.filter((i) => i.type !== "fixed").length > 0;
     }, [services]);
 
+    const TableRow = ({ colspan, content, stars }) => (
+        <tr>
+            <td colSpan={colspan}>{content}</td>
+            {stars.map((star, index) => (
+                <td style={{ color: "#1F78BD" }} key={index}>{<FaStar />}</td>
+            ))}
+            {new Array(11 - stars.length - colspan).fill(null).map((_, index) => (
+                <td key={index + stars.length}></td>
+            ))}
+        </tr>
+    );
+
     return (
-        <>
-            <div className="container parent" style={{ display: "none" }}>
-                <div className="send-offer sendOfferRtl">
-                    <div className="mb-4 maxWidthControl dashBox">
-                        <div className="row">
-                            <div className="col-sm-6">
-                                <svg
-                                    width="250"
-                                    height="94"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    xmlnsXlink="http://www.w3.org/1999/xlink"
+        <div className="navyblueColor parent">
+            <div className=" mt-4 mb-5 bg-transparent " style={{
+                margin: mobileView ? "0 20px" : "0 100px"
+            }}>
+                <div className="d-flex align-items-center justify-content-between flex-dir-co-1070">
+                    <img
+                        src={logo}
+                        className="img-fluid broom-logo"
+                        alt="Broom Services"
+                        style={{ height: "100px" }}
+                    />
+                </div>
+                <div>
+                    <section className="d-flex align-items-center" style={{ gap: "20px" }}>
+                        <p className="navyblueColor font-34 mt-4 font-w-500">Price Offer No. #{id}</p>
+                        {status == "sent" ? (
+                            <div className="headBtns mt-3">
+                                <button
+                                    type="button"
+                                    className="btn bluecolor acpt"
+                                    disabled={loading}
+                                    style={{ lineHeight: "1.3" }}
+                                    onClick={(e) =>
+                                        handleOffer(e, offer.id)
+                                    }
                                 >
-                                    <image
-                                        xlinkHref={logo}
-                                        width="250"
-                                        height="94"
-                                    ></image>
-                                </svg>
+                                    {loading ? <MiniLoader /> : t("price_offer.button")}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="ml-2 btn bluecolor rjct"
+                                    style={{ lineHeight: "1.3" }}
+                                    onClick={(e) =>
+                                        RejectOffer(offer.id)
+                                    }
+                                >
+                                    {t("price_offer.button_reject")}
+                                </button>
                             </div>
-                            <div className="col-sm-6">
-                                {status == "sent" ? (
-                                    <div className="float-right mt-2 headBtns">
-                                        <button
-                                            type="button"
-                                            className="btn btn-pink acpt"
-                                            disabled={loading}
-                                            onClick={(e) =>
-                                                handleOffer(e, offer.id)
-                                            }
-                                        >
-                                            {loading ? <MiniLoader/> : t("price_offer.button")}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="ml-2 btn btn-danger rjct"
-                                            onClick={(e) =>
-                                                RejectOffer(offer.id)
-                                            }
-                                        >
-                                            {t("price_offer.button_reject")}
-                                        </button>
-                                    </div>
+                        ) : (
+                            <div className="mt-3 headMsg">
+                                {status == "accepted" ? (
+                                    <h4 className="btn bluecolor px-3" style={{ lineHeight: "1.3" }}>
+                                        {t("global.accepted")}
+                                    </h4>
                                 ) : (
-                                    <div className="float-right mt-2 headMsg">
-                                        {status == "accepted" ? (
-                                            <h4 className="btn btn-success">
-                                                {t("global.accepted")}
-                                            </h4>
-                                        ) : (
-                                            <h4 className="btn btn-danger">
-                                                {t("global.rejected")}
-                                            </h4>
-                                        )}
-                                    </div>
+                                    <h4 className="btn bluecolor px-3" style={{ lineHeight: "1.3" }}>
+                                        {t("global.rejected")}
+                                    </h4>
                                 )}
                             </div>
-                        </div>
-                        <div className="row">
-                            <div className="col-sm-6">
-                                <h1>
-                                    {t("price_offer.title")}.{" "}
-                                    <span style={{ color: "#16a6ef" }}>
-                                        #{offer.id}
-                                    </span>
-                                </h1>
-                            </div>
-                            <div className="col-sm-6">
-                                <p className="date">
-                                    {t("price_offer.dateTxt")}:{" "}
-                                    <span style={{ color: "#16a6ef" }}>
-                                        {Moment(offer.created_at).format(
-                                            "Y-MM-DD"
-                                        )}
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="grey-bd">
-                            <p>
-                                {t("price_offer.honour_of")}:{" "}
-                                <span
-                                    style={{
-                                        color: "#3da7ef",
-                                        fontWeight: "700",
-                                    }}
-                                >
-                                    {client.firstname + " " + client.lastname}
-                                </span>{" "}
-                            </p>
-
-                            {/* <p>
-                                {t("price_offer.address_text")}:{" "}
-                                <span>{client.geo_address}</span>
-                            </p> */}
-                        </div>
+                        )}
+                    </section>
+                    <section className="d-flex align-items-center" style={{ gap: "20px" }}>
+                        <p className="navyblueColor font-15">{t("price_offer.dateTxt")}:{" "}
+                            <span >
+                                {Moment(offer.created_at).format(
+                                    "Y-MM-DD"
+                                )}
+                            </span></p>
+                        <p className="navyblueColor font-15 m-0">{t("price_offer.honour_of")}:{" "}
+                            <span>
+                                {client.firstname + " " + client.lastname}
+                            </span>{" "}</p>
+                    </section>
+                </div>
+                <div className="row mt-3">
+                    <section className="col-xl">
                         <div className="abt">
-                            <h2>{t("price_offer.about_title")}</h2>
-                            <p style={{ whiteSpace: "pre-wrap" }}>
-                                {t("price_offer.about")}
-                            </p>
+                            <h5 className="mb-2">{t("price_offer.about_title")}</h5>
+                            <p style={{ whiteSpace: "pre-wrap" }}>{t("price_offer.about")}</p>
+                        </div>
+                        <div className="we-have mt-3 mt-2">
+                            <h4>{t("price_offer.offer_title")}</h4>
                         </div>
 
-                        <div className="we-have">
-                            <h3>{t("price_offer.offer_title")}</h3>
-
-                            {/*rg.includes(sid) && sid == 4
-                                || rg.includes(sid) && sid == 5
-                                || rg.includes(sid) && sid == 6
-                                || rg.includes(sid) && sid == 7
-                                && !rg.includes(sid) && sid == 10*/}
-
-                            {allTemplates.includes("airbnb") && (
-                                <div className="shift-20">
-                                    <h4>
-                                        &bull;{" "}
-                                        {t("price_offer.airbnb.title")}
-                                    </h4>
-                                    <ul className="list-unstyled">
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.airbnb.subtitle"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.airbnb.air1"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.airbnb.air2"
-                                            )}
-                                        </li>
-                                        {/* <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li> */}
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.airbnb.air3"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.airbnb.air4"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.airbnb.air5"
-                                            )}
-                                        </li>
-                                    </ul>
-
-                                    <h4 className="mt-4">
-                                        &bull;{" "}
-                                        {t("price_offer.regular_services.rs2")}
-                                    </h4>
-                                    <table border="1" style={{ width: "100%", textAlign: "center", borderCollapse: "collapse" }}>
+                        {/* Airbnb Services */}
+                        {allTemplates.includes("airbnb") && (
+                            <div className="mt-3" style={{ lineHeight: "2.3" }}>
+                                <h5>{getNextNumber()}. {t("price_offer.airbnb.title")}</h5>
+                                <ul className="mt-2">
+                                    <li>{t("price_offer.airbnb.subtitle")}</li>
+                                    <li>{t("price_offer.airbnb.air1")}</li>
+                                    <li>{t("price_offer.airbnb.air2")}</li>
+                                    <li>{t("price_offer.airbnb.air3")}</li>
+                                    <li>{t("price_offer.airbnb.air4")}</li>
+                                    <li>{t("price_offer.airbnb.air5")}</li>
+                                </ul>
+                                <h5 className="mt-4 mb-2">{getNextNumber()}. {t("price_offer.regular_services.rs2")}</h5>
+                                <div className="table-responsive text-center">
+                                    <table className="table table-sm table-bordered table-striped">
                                         <thead>
                                             <tr>
                                                 <th>{t("price_offer.airbnb.services.title")}</th>
@@ -365,880 +326,754 @@ export default function PriceOffer() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {subService && subService.map((row, index) => (
-                                                <tr key={index}>
-                                                    <td>{clientLng == "en" ? row.name_en : row.name_heb}</td>
-                                                    <td>{row.apartment_size}</td>
-                                                    <td>{row.price}</td>
-                                                </tr>
-                                            ))}
+                                            {subService &&
+                                                subService.map((row, index) => (
+                                                    <tr key={index}>
+                                                        <td>{clientLng === "en" ? row.name_en : row.name_heb}</td>
+                                                        <td>{row.apartment_size}</td>
+                                                        <td>{row.price}</td>
+                                                    </tr>
+                                                ))}
                                         </tbody>
                                     </table>
                                 </div>
-                            )}
-
-                            {allTemplates.includes("regular") && (
-                                <div className="shift-20">
-                                    <h4>
-                                        &bull;{" "}
-                                        {t("price_offer.regular_services.rs1")}
-                                    </h4>
-                                    <ul className="list-unstyled">
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.regular_services.rs1_p1"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.regular_services.rs1_p2"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.regular_services.rs1_p3"
-                                            )}
-                                        </li>
-                                        {/* <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li> */}
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.regular_services.rs1_p5"
-                                            )}
-                                        </li>
-                                    </ul>
-
-                                    <h4 className="mt-4">
-                                        &bull;{" "}
-                                        {t("price_offer.regular_services.rs2")}
-                                    </h4>
-                                    <img
-                                        src={t(
-                                            "price_offer.regular_services.rs2_img"
-                                        )}
-                                        className="img-fluid"
-                                        alt="Room Services"
-                                    />
-                                </div>
-                            )}
-
-
-                            {/*(!rg.includes(sid) && sid == 4)
-                                    && (!rg.includes(sid) && sid == 5)
-                                    && (!rg.includes(sid) && sid == 6)
-                                    && (!rg.includes(sid) && sid == 7)
-                                    || (rg.includes(sid) && sid == 10)*/}
-
-                            {services.map((s, i) => {
-                                if (
-                                    s.service == "10" &&
-                                    allTemplates.includes("others") &&
-                                    !allTemplates.includes("regular")
-                                ) {
-                                    return (
-
-
-
-
-                                        <div className="shift-20" key={i}>
-                                            <h4 className="mt-4">
-                                                &bull; {s.other_title}
-                                            </h4>
-
-                                            <ul className="list-unstyled">
-                                                <li>
-                                                    <img src={star} />{" "}
-                                                    {t(
-                                                        "price_offer.regular_services.rs1_p1"
-                                                    )}
-                                                </li>
-                                                <li>
-                                                    <img src={star} />{" "}
-                                                    {t(
-                                                        "price_offer.regular_services.rs1_p2"
-                                                    )}
-                                                </li>
-                                                <li>
-                                                    <img src={star} />{" "}
-                                                    {t(
-                                                        "price_offer.regular_services.rs1_p3"
-                                                    )}
-                                                </li>
-                                                {/* <li><img src={star} /> {t('price_offer.regular_services.rs1_p4')}</li> */}
-                                                <li>
-                                                    <img src={star} />{" "}
-                                                    {t(
-                                                        "price_offer.regular_services.rs1_p5"
-                                                    )}
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    );
-                                }
-                            })}
-
-                            {allTemplates.includes("thorough_cleaning") && (
-                                <div className="shift-20">
-                                    <h4>
-                                        &bull;{" "}
-                                        {t(
-                                            "price_offer.thorough_cleaning.premium"
-                                        )}
-                                    </h4>
-                                    <ul className="list-unstyled">
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_1"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_2"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_3_ebasic"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_4"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_5_ebasic"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_6"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_7"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_8"
-                                            )}{" "}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_9"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_10_estandard"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_11"
-                                            )}{" "}
-                                        </li>
-                                    </ul>
-                                    <h4 className="mt-4">
-                                        &bull;{" "}
-                                        {t(
-                                            "price_offer.thorough_cleaning.standard"
-                                        )}
-                                    </h4>
-                                    <ul className="list-unstyled">
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_1"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_2"
-                                            )}{" "}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_3_ebasic"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_4"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s2_5r"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_6"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_7"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s2_8r"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_9"
-                                            )}{" "}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_11"
-                                            )}{" "}
-                                        </li>
-                                    </ul>
-                                    <h4 className="mt-4">
-                                        &bull;{" "}
-                                        {t(
-                                            "price_offer.thorough_cleaning.basic"
-                                        )}
-                                    </h4>
-                                    <ul className="list-unstyled">
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_1"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_2"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_4"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_6"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_7"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s3_8r"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_9"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.thorough_cleaning.s1_11"
-                                            )}
-                                        </li>
-                                    </ul>
-                                </div>
-                            )}
-
-                            {allTemplates.includes("office_cleaning") && (
-                                <div className="shift-20">
-                                    {!allTemplates.includes("regular") ? (
-                                        <>
-                                            <h4>
-                                                &bull;{" "}
-                                                {t(
-                                                    "price_offer.office_cleaning.oc1"
-                                                )}
-                                            </h4>
-                                            <ul className="list-unstyled">
-                                                <li>
-                                                    <img src={star} />{" "}
-                                                    {t(
-                                                        "price_offer.office_cleaning.oc1_p1"
-                                                    )}
-                                                </li>
-                                                <li>
-                                                    <img src={star} />{" "}
-                                                    {t(
-                                                        "price_offer.office_cleaning.oc1_p2"
-                                                    )}
-                                                </li>
-                                                <li>
-                                                    <img src={star} />{" "}
-                                                    {t(
-                                                        "price_offer.office_cleaning.oc1_p3"
-                                                    )}
-                                                </li>
-                                                <li>
-                                                    <img src={star} />{" "}
-                                                    {t(
-                                                        "price_offer.office_cleaning.oc1_p4"
-                                                    )}
-                                                </li>
-                                                <li>
-                                                    <img src={star} />{" "}
-                                                    {t(
-                                                        "price_offer.office_cleaning.oc1_p5"
-                                                    )}
-                                                </li>
-                                            </ul>
-                                            <h4 className="mt-4">
-                                                &bull;{" "}
-                                                {t(
-                                                    "price_offer.office_cleaning.oc2"
-                                                )}
-                                            </h4>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <h4 className="mt-4">
-                                                &bull;{" "}
-                                                {t(
-                                                    "price_offer.office_cleaning.oc2"
-                                                )}
-                                            </h4>
-                                        </>
-                                    )}
-                                    <img
-                                        src={t(
-                                            "price_offer.office_cleaning.oc2_img"
-                                        )}
-                                        className="img-fluid"
-                                        alt="Room Services"
-                                    />
-                                </div>
-                            )}
-
-                            {allTemplates.includes("after_renovation") && (
-                                <div className="shift-20">
-                                    <h4>
-                                        &bull; {t("price_offer.renovation.rn1")}
-                                    </h4>
-                                    <ul className="list-unstyled">
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t("price_offer.renovation.rn1_p1")}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t("price_offer.renovation.rn1_p2")}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t("price_offer.renovation.rn1_p3")}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t("price_offer.renovation.rn1_p4")}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t("price_offer.renovation.rn1_p5")}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t("price_offer.renovation.rn1_p6")}
-                                        </li>
-                                    </ul>
-                                    <h4 className="mt-4">
-                                        &bull; {t("price_offer.renovation.rn2")}
-                                    </h4>
-                                    <img
-                                        src={t(
-                                            "price_offer.renovation.rn2_img"
-                                        )}
-                                        className="img-fluid"
-                                        alt="Room Services"
-                                    />
-                                </div>
-                            )}
-
-                            {allTemplates.includes("polish") && (
-                                <div className="shift-20">
-                                    <h4 className="mt-4">
-                                        &bull;{" "}
-                                        {t("price_offer.our_services.s1")}
-                                    </h4>
-                                    <ul className="list-unstyled">
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.our_services.s1_p1"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.our_services.s1_p2"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.our_services.s1_p3"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.our_services.s1_p4"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.our_services.s1_p5"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.our_services.s1_p6"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.our_services.s1_p7"
-                                            )}
-                                        </li>
-                                        <li>
-                                            <img src={star} />{" "}
-                                            {t(
-                                                "price_offer.our_services.s1_p8"
-                                            )}
-                                        </li>
-                                    </ul>
-                                </div>
-                            )}
-
-
-                            <div className="shift-20">
-                                <h4 className="mt-4">
-                                    &bull;{" "}
-                                    {t("price_offer.window_any_height.title")}
-                                </h4>
-                                <ul className="list-unstyled">
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.window_any_height.p1")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.window_any_height.p2")}{" "}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.window_any_height.p3")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.window_any_height.p4")}
-                                    </li>
-                                </ul>
                             </div>
+                        )}
 
-                            <div className="shift-20">
-                                <h4 className="mt-4">
-                                    &bull; {t("price_offer.laundary.title")}
-                                </h4>
-                                <ul className="list-unstyled">
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.laundary.p1")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.laundary.p2")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.laundary.p3")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.laundary.p4")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.laundary.p5")}
-                                    </li>
+                        {/* Regular Services */}
+                        {allTemplates.includes("regular") && (
+                            <div className="mt-3" id="priceOfferTable" style={{ lineHeight: "34px" }}>
+                                <h5>{getNextNumber()}. {t("price_offer.regular_services.rs1")}</h5>
+                                <ul>
+                                    <li>{t("price_offer.regular_services.rs1_p1")}</li>
+                                    <li>{t("price_offer.regular_services.rs1_p2")}</li>
+                                    <li>{t("price_offer.regular_services.rs1_p3")}</li>
+                                    <li>{t("price_offer.regular_services.rs1_p5")}</li>
                                 </ul>
-                            </div>
-
-                            <div className="services shift-20">
-                                <h3 className="card-title">
-                                    {t("price_offer.service_title")}
-                                </h3>
-                                <div className="table-responsive">
+                                <h4 className="mt-4">
+                                    {getNextNumber()}. {" "}
+                                    {t("price_offer.regular_services.rs2")}
+                                </h4>
+                                <div className="table-responsive text-center">
                                     <table className="table table-sm table-bordered table-striped">
                                         <thead>
                                             <tr>
-                                                <th>
-                                                    {t(
-                                                        "price_offer.address_text"
-                                                    )}
-                                                </th>
-                                                <th>
-                                                    {t(
-                                                        "price_offer.service_txt"
-                                                    )}
-                                                </th>
-                                                <th>{t("price_offer.type")}</th>
-                                                <th>
-                                                    {t(
-                                                        "price_offer.freq_s_txt"
-                                                    )}
-                                                </th>
-                                                {showWorkerHours && (
-                                                    <th>
-                                                        {t(
-                                                            "price_offer.Quantity/Hours"
-                                                        )}
-                                                    </th>
-                                                )}
-                                                <th>
-                                                    {t(
-                                                        "price_offer.amount_txt"
-                                                    )}
-                                                </th>
+                                                <th>{t("price_offer.our_packages.th1")}</th>
+                                                <th>{t("price_offer.our_packages.th2")}</th>
+                                                <th>{t("price_offer.our_packages.th3")}</th>
+                                                <th>{t("price_offer.our_packages.th4")}</th>
+                                                <th>{t("price_offer.our_packages.th5")}</th>
+                                                <th>{t("price_offer.our_packages.th6")}</th>
+                                                <th>{t("price_offer.our_packages.th7")}</th>
+                                                <th>{t("price_offer.our_packages.th8")}</th>
+                                                <th>{t("price_offer.our_packages.th9")}</th>
+                                                <th>{t("price_offer.our_packages.th10")}</th>
+                                                <th>{t("price_offer.our_packages.th11")}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {services.map((s, i) => {
-                                                console.log(s);
+                                            <TableRow
+                                                colspan={2}
+                                                content={t("price_offer.our_packages.tr1.tc1")}
+                                                stars={new Array(5).fill("⭐")}
+                                            />
+                                            <TableRow
+                                                colspan={2}
+                                                content={t("price_offer.our_packages.tr2")}
+                                                stars={new Array(6).fill("⭐")}
+                                            />
+                                            <TableRow
+                                                colspan={2}
+                                                content={t("price_offer.our_packages.tr3")}
+                                                stars={new Array(7).fill("⭐")}
+                                            />
+                                            <TableRow
+                                                colspan={2}
+                                                content={t("price_offer.our_packages.tr4")}
+                                                stars={new Array(8).fill("⭐")}
+                                            />
+                                            <TableRow
+                                                colspan={2}
+                                                content={t("price_offer.our_packages.tr5")}
+                                                stars={new Array(9).fill("⭐")}
+                                            />
+                                            <tr>
+                                                <td colSpan={2}>{t("price_offer.our_packages.tr6.tc1")}</td>
+                                                <td colSpan="9" dangerouslySetInnerHTML={{ __html: t("price_offer.our_packages.tr6.tc2") }} />
+                                            </tr>
+                                            <tr>
+                                                <td colSpan={2}>{t("price_offer.our_packages.tr7.tc1")}</td>
+                                                <td colSpan="9" dangerouslySetInnerHTML={{ __html: t("price_offer.our_packages.tr7.tc2") }} />
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>                            </div>
+                        )}
 
-                                                return (
-                                                    <tr key={i}>
-                                                        <td>
-                                                            {s.address &&
-                                                                s.address
-                                                                    .address_name
-                                                                ? s.address
-                                                                    .address_name
-                                                                : "NA"}
-                                                        </td>
-                                                        <td>
-                                                            {s.service == 10
-                                                                ? s.other_title
-                                                                : s.name}
-                                                        </td>
-                                                        <td>
-                                                            {clientLng === 'heb' ? (
-                                                                s.type === 'fixed' ? 'קָבוּעַ' :
-                                                                    s.type === 'hourly' ? 'מדי שעה' :
-                                                                        s.type === 'squaremeter' ? 'מטר מרובע' : s.type
-                                                            ) : (
-                                                                s.type // Fallback to default value if ClientLng is not 'heb'
-                                                            )}
-                                                        </td>
-                                                        <td>
-                                                            {s.freq_name}{" "}
-                                                            {/* <p>
+                        {/* Other Services */}
+                        {services.map((service, index) => {
+                            if (
+                                service.service === "10" &&
+                                allTemplates.includes("others") &&
+                                !allTemplates.includes("regular")
+                            ) {
+                                return (
+                                    <div className="mt-3" key={index} style={{ lineHeight: "2.3" }}>
+                                        <h5>{getNextNumber()}. {service.other_title}</h5>
+                                        <ul>
+                                            <li>{t("price_offer.regular_services.rs1_p1")}</li>
+                                            <li>{t("price_offer.regular_services.rs1_p2")}</li>
+                                            <li>{t("price_offer.regular_services.rs1_p3")}</li>
+                                            <li>{t("price_offer.regular_services.rs1_p5")}</li>
+                                        </ul>
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })}
+
+                        {/* Thorough Cleaning */}
+                        {allTemplates.includes("thorough_cleaning") && (
+                            <div className="mt-3" style={{ lineHeight: "2.3" }}>
+                                <h5>
+                                    {getNextNumber()}. {" "}
+                                    {t(
+                                        "price_offer.thorough_cleaning.premium"
+                                    )}
+                                </h5>
+                                <ul className="">
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_1"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_2"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_3_ebasic"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_4"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_5_ebasic"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_6"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_7"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_8"
+                                        )}{" "}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_9"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_10_estandard"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_11"
+                                        )}{" "}
+                                    </li>
+                                </ul>
+                                <h5 className="mt-3">
+                                    {getNextNumber()}. {" "}
+                                    {t(
+                                        "price_offer.thorough_cleaning.standard"
+                                    )}
+                                </h5>
+                                <ul className="">
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_1"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_2"
+                                        )}{" "}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_3_ebasic"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_4"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s2_5r"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_6"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_7"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s2_8r"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_9"
+                                        )}{" "}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_11"
+                                        )}{" "}
+                                    </li>
+                                </ul>
+                                <h5 className="mt-3">
+                                    {getNextNumber()}. {" "}
+                                    {t(
+                                        "price_offer.thorough_cleaning.basic"
+                                    )}
+                                </h5>
+                                <ul className="">
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_1"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_2"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_4"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_6"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_7"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s3_8r"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_9"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.thorough_cleaning.s1_11"
+                                        )}
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* Office Cleaning */}
+                        {allTemplates.includes("office_cleaning") && (
+                            <div className="mt-3" style={{ lineHeight: "2.3" }}>
+                                {!allTemplates.includes("regular") ? (
+                                    <>
+                                        <h5>
+                                            {getNextNumber()}. {" "}
+                                            {t(
+                                                "price_offer.office_cleaning.oc1"
+                                            )}
+                                        </h5>
+                                        <ul className="">
+                                            <li>
+                                                {t(
+                                                    "price_offer.office_cleaning.oc1_p1"
+                                                )}
+                                            </li>
+                                            <li>
+                                                {t(
+                                                    "price_offer.office_cleaning.oc1_p2"
+                                                )}
+                                            </li>
+                                            <li>
+                                                {t(
+                                                    "price_offer.office_cleaning.oc1_p3"
+                                                )}
+                                            </li>
+                                            <li>
+                                                {t(
+                                                    "price_offer.office_cleaning.oc1_p4"
+                                                )}
+                                            </li>
+                                            <li>
+                                                {t(
+                                                    "price_offer.office_cleaning.oc1_p5"
+                                                )}
+                                            </li>
+                                        </ul>
+                                        <h5 className="mt-3">
+                                            {getNextNumber()}. {" "}
+                                            {t(
+                                                "price_offer.office_cleaning.oc2"
+                                            )}
+                                        </h5>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h5 className="mt-3">
+                                            {getNextNumber()}. {" "}
+                                            {t(
+                                                "price_offer.office_cleaning.oc2"
+                                            )}
+                                        </h5>
+                                    </>
+                                )}
+                                <img
+                                    src={t(
+                                        "price_offer.office_cleaning.oc2_img"
+                                    )}
+                                    className="img-fluid mt-2"
+                                    alt="Room Services"
+                                />
+                            </div>
+                        )}
+
+                        {/* After Renovation */}
+                        {allTemplates.includes("after_renovation") && (
+                            <div className="mt-3" style={{ lineHeight: "2.3" }}>
+                                <h5>
+                                    {getNextNumber()}. {t("price_offer.renovation.rn1")}
+                                </h5>
+                                <ul className="">
+                                    <li>
+                                        {t("price_offer.renovation.rn1_p1")}
+                                    </li>
+                                    <li>
+                                        {t("price_offer.renovation.rn1_p2")}
+                                    </li>
+                                    <li>
+                                        {t("price_offer.renovation.rn1_p3")}
+                                    </li>
+                                    <li>
+                                        {t("price_offer.renovation.rn1_p4")}
+                                    </li>
+                                    <li>
+                                        {t("price_offer.renovation.rn1_p5")}
+                                    </li>
+                                    <li>
+                                        {t("price_offer.renovation.rn1_p6")}
+                                    </li>
+                                </ul>
+                                <h5 className="mt-3">
+                                    {getNextNumber()}. {t("price_offer.renovation.rn2")}
+                                </h5>
+                                <img
+                                    src={t(
+                                        "price_offer.renovation.rn2_img"
+                                    )}
+                                    className="img-fluid m-2"
+                                    alt="Room Services"
+                                />
+                            </div>
+                        )}
+
+
+                        {allTemplates.includes("polish") && (
+                            <div className="mt-3" style={{ lineHeight: "2.3" }}>
+                                <h5 className="mt-3">
+                                    {getNextNumber()}. {" "}
+                                    {t("price_offer.our_services.s1")}
+                                </h5>
+                                <ul className="">
+                                    <li>
+                                        {t(
+                                            "price_offer.our_services.s1_p1"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.our_services.s1_p2"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.our_services.s1_p3"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.our_services.s1_p4"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.our_services.s1_p5"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.our_services.s1_p6"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.our_services.s1_p7"
+                                        )}
+                                    </li>
+                                    <li>
+                                        {t(
+                                            "price_offer.our_services.s1_p8"
+                                        )}
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* Window Any Height */}
+                        <div className="mt-3" style={{ lineHeight: "2.3" }}>
+                            <h5>{getNextNumber()}. {t("price_offer.window_any_height.title")}</h5>
+                            <ul>
+                                <li>{t("price_offer.window_any_height.p1")}</li>
+                                <li>{t("price_offer.window_any_height.p2")}</li>
+                                <li>{t("price_offer.window_any_height.p3")}</li>
+                                <li>{t("price_offer.window_any_height.p4")}</li>
+                            </ul>
+                        </div>
+
+                        {/* Laundry */}
+                        <div className="mt-3" style={{ lineHeight: "2.3" }}>
+                            <h5>{getNextNumber()}. {t("price_offer.laundary.title")}</h5>
+                            <ul>
+                                <li>{t("price_offer.laundary.p1")}</li>
+                                <li>{t("price_offer.laundary.p2")}</li>
+                                <li>{t("price_offer.laundary.p3")}</li>
+                                <li>{t("price_offer.laundary.p4")}</li>
+                                <li>{t("price_offer.laundary.p5")}</li>
+                            </ul>
+                        </div>
+                    </section>
+                    <section className="col px-3">
+                        <div className="shift-20" id="priceOfferTable">
+                            <h5 className="card-title">
+                                {t("price_offer.service_title")}
+                            </h5>
+                            <div className="table-responsive text-center">
+                                <table className="table table-sm table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                {t(
+                                                    "price_offer.address_text"
+                                                )}
+                                            </th>
+                                            <th>
+                                                {t(
+                                                    "price_offer.service_txt"
+                                                )}
+                                            </th>
+                                            <th>{t("price_offer.type")}</th>
+                                            <th>
+                                                {t(
+                                                    "price_offer.freq_s_txt"
+                                                )}
+                                            </th>
+                                            {showWorkerHours && (
+                                                <th>
+                                                    {t(
+                                                        "price_offer.Quantity/Hours"
+                                                    )}
+                                                </th>
+                                            )}
+                                            <th>
+                                                {t(
+                                                    "price_offer.amount_txt"
+                                                )}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {services.map((s, i) => {
+                                            return (
+                                                <tr key={i}>
+                                                    <td>
+                                                        {s.address &&
+                                                            s.address
+                                                                .address_name
+                                                            ? s.address
+                                                                .address_name
+                                                            : "NA"}
+                                                    </td>
+                                                    <td>
+                                                        {s.service == 10
+                                                            ? s.other_title
+                                                            : s.name}
+                                                    </td>
+                                                    <td>
+                                                        {clientLng === 'heb' ? (
+                                                            s.type === 'fixed' ? 'קָבוּעַ' :
+                                                                s.type === 'hourly' ? 'מדי שעה' :
+                                                                    s.type === 'squaremeter' ? 'מטר מרובע' : s.type
+                                                        ) : (
+                                                            s.type // Fallback to default value if ClientLng is not 'heb'
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {s.freq_name}{" "}
+                                                        {/* <p>
                                                                 {frequencyDescription(
                                                                     s
                                                                 )}
                                                             </p> */}
+                                                    </td>
+                                                    {s?.type == "squaremeter" ? (
+                                                        <td>
+                                                            {s.ratepersquaremeter}
                                                         </td>
-                                                        {s?.type == "squaremeter" ? (
-                                                            <td>
-                                                                {s.ratepersquaremeter}
-                                                            </td>
-                                                        ) : (
+                                                    ) : (
 
-                                                            showWorkerHours && (<td>
-                                                                {workerHours(s)}
-                                                            </td>)
+                                                        showWorkerHours && (<td>
+                                                            {workerHours(s)}
+                                                        </td>)
 
-                                                        )}
+                                                    )}
 
-                                                        {s?.type == "fixed" ? (
-                                                            <td>
-                                                                {s.workers
-                                                                    .length *
-                                                                    s.fixed_price}{" "}
-                                                                {t(
-                                                                    "global.currency"
-                                                                )}
-                                                            </td>
-                                                        ) : (
-                                                            <td>
-                                                                {s.rateperhour}{" "}
-                                                                {t(
-                                                                    "global.currency"
-                                                                )}{" "}
-                                                                {t(
-                                                                    "global.perhour"
-                                                                )}{" "}
-                                                            </td>
-                                                        )}
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            <h3 className="mt-4">
-                                <a
-                                    href="https://www.broomservice.co.il"
-                                    target="_blank"
-                                >
-                                    {t("price_offer.our_services.heading")}
-                                </a>
-                            </h3>
-                            <div className="shift-20">
-                                <h4 className="mt-4">
-                                    &bull; {t("price_offer.our_services.s1")}
-                                </h4>
-                                <ul className="list-unstyled">
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s1_p1")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s1_p2")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s1_p3")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s1_p4")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s1_p5")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s1_p6")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s1_p7")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s1_p8")}
-                                    </li>
-                                </ul>
-                                <h4 className="mt-4">
-                                    &bull; {t("price_offer.our_services.s2")}
-                                </h4>
-                                <ul className="list-unstyled">
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s2_p1")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s2_p2")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s2_p3")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s2_p4")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s2_p5")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s2_p6")}
-                                    </li>
-                                </ul>
-                                <h4 className="mt-4">
-                                    &bull; {t("price_offer.our_services.s3")}
-                                </h4>
-                                <ul className="list-unstyled">
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s3_p1")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s2_p2")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s2_p3")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s2_p4")}
-                                    </li>
-                                </ul>
-                                <h4 className="mt-4">
-                                    &bull; {t("price_offer.our_services.s4")}
-                                </h4>
-                                <ul className="list-unstyled">
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s4_p1")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s4_p2")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s4_p3")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s4_p4")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s4_p5")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s4_p6")}
-                                    </li>
-                                </ul>
-                                <h4 className="mt-4">
-                                    &bull; {t("price_offer.our_services.s5")}
-                                </h4>
-                                <ul className="list-unstyled">
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s5_p1")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s5_p2")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s5_p3")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s5_p4")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s5_p5")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s5_p6")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s5_p7")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s5_p8")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s5_p9")}
-                                    </li>
-                                </ul>
-                                {/* <h4 className="mt-4">
-                                    &bull; {t("price_offer.our_services.s6")}
-                                </h4>
-                                <ul className="list-unstyled">
-                                    <li>
-                                        <img src={star} />{" "}
-                                        {t("price_offer.our_services.s6_p1")}
-                                    </li>
-                                    <li>
-                                        <img src={star} />{" "}
-                                        <a
-                                            href="https://bell-boy.com/"
-                                            target="_blank"
-                                        >
-                                            {t(
-                                                "price_offer.our_services.s6_p2"
-                                            )}
-                                        </a>{" "}
-                                    </li>
-                                </ul> */}
+                                                    {s?.type == "fixed" ? (
+                                                        <td>
+                                                            {s.workers
+                                                                .length *
+                                                                s.fixed_price}{" "}
+                                                            {t(
+                                                                "global.currency"
+                                                            )}
+                                                        </td>
+                                                    ) : (
+                                                        <td>
+                                                            {s.rateperhour}{" "}
+                                                            {t(
+                                                                "global.currency"
+                                                            )}{" "}
+                                                            {t(
+                                                                "global.perhour"
+                                                            )}{" "}
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        {status == "sent" && (
-                            <>
-                                <div className="mt-3 mb-3 text-center">
-                                    <button
-                                        type="button"
-                                        className="btn btn-pink acpt"
-                                        disabled={loading}
-                                        onClick={(e) =>
-                                            handleOffer(e, offer.id)
-                                        }
-                                    >
-                                        {loading ? <MiniLoader/> : t("price_offer.button")}
-                                    </button>
-                                </div>
-                            </>
+                        <h4 className="mt-4">
+                            <a
+                                href="https://www.broomservice.co.il"
+                                target="_blank"
+                                className="navyblueColor"
+                            >
+                                {t("price_offer.our_services.heading")}
+                            </a>
+                        </h4>
+                        <div className="navyblueColor" style={{ lineHeight: "2.3" }}>
+                            <h4 className="mt-4">
+                                1. {t("price_offer.our_services.s1")}
+                            </h4>
+                            <ul className="">
+                                <li>
+                                    {t("price_offer.our_services.s1_p1")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s1_p2")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s1_p3")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s1_p4")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s1_p5")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s1_p6")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s1_p7")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s1_p8")}
+                                </li>
+                            </ul>
+                            <h4 className="mt-4">
+                                2. {t("price_offer.our_services.s2")}
+                            </h4>
+                            <ul className="">
+                                <li>
+                                    {t("price_offer.our_services.s2_p1")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s2_p2")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s2_p3")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s2_p4")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s2_p5")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s2_p6")}
+                                </li>
+                            </ul>
+                            <h4 className="mt-4">
+                                3. {t("price_offer.our_services.s3")}
+                            </h4>
+                            <ul className="">
+                                <li>
+                                    {t("price_offer.our_services.s3_p1")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s2_p2")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s2_p3")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s2_p4")}
+                                </li>
+                            </ul>
+                            <h4 className="mt-4">
+                                4. {t("price_offer.our_services.s4")}
+                            </h4>
+                            <ul className="">
+                                <li>
+                                    {t("price_offer.our_services.s4_p1")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s4_p2")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s4_p3")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s4_p4")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s4_p5")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s4_p6")}
+                                </li>
+                            </ul>
+                            <h4 className="mt-4">
+                                5. {t("price_offer.our_services.s5")}
+                            </h4>
+                            <ul className="">
+                                <li>
+                                    {t("price_offer.our_services.s5_p1")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s5_p2")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s5_p3")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s5_p4")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s5_p5")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s5_p6")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s5_p7")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s5_p8")}
+                                </li>
+                                <li>
+                                    {t("price_offer.our_services.s5_p9")}
+                                </li>
+                            </ul>
+                        </div>
+                        {status == "sent" ? (
+                            <div className="headBtns mt-3 d-flex justify-content-end">
+                                <button
+                                    type="button"
+                                    className="btn bluecolor acpt"
+                                    disabled={loading}
+                                    style={{ lineHeight: "1.3" }}
+                                    onClick={(e) =>
+                                        handleOffer(e, offer.id)
+                                    }
+                                >
+                                    {loading ? <MiniLoader /> : t("price_offer.button")}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="ml-2 btn bluecolor rjct"
+                                    style={{ lineHeight: "1.3" }}
+                                    onClick={(e) =>
+                                        RejectOffer(offer.id)
+                                    }
+                                >
+                                    {t("price_offer.button_reject")}
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="mt-3 headMsg d-flex justify-content-end">
+                                {status == "accepted" ? (
+                                    <h4 className="btn bluecolor px-3" style={{ lineHeight: "1.3" }}>
+                                        {t("global.accepted")}
+                                    </h4>
+                                ) : (
+                                    <h4 className="btn bluecolor px-3" style={{ lineHeight: "1.3" }}>
+                                        {t("global.rejected")}
+                                    </h4>
+                                )}
+                            </div>
                         )}
-
-                        <footer className="mt-4">
-                            <img
-                                src={footer}
-                                className="img-fluid"
-                                alt="Footer"
-                            />
-                        </footer>
-                    </div>
+                    </section>
                 </div>
-                {loading && <FullPageLoader visible={loading} />}
             </div>
-        </>
+            {loading && <FullPageLoader visible={loading} />}
+        </div>
     );
 }

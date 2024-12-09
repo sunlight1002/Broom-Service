@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\ImportClientJob;
 use App\Events\ClientLeadStatusChanged;
 use App\Models\Admin;
+use App\Models\Holiday;
 use App\Models\Client;
 use App\Models\Files;
 use App\Models\Note;
@@ -50,6 +51,9 @@ use App\Models\LeadActivity;
 use App\Models\WebhookResponse;
 use App\Models\WhatsAppBotClientState;
 use App\Jobs\AddGoogleContactJob;
+use App\Jobs\SaveGoogleCalendarCallJob;
+use App\Jobs\NotifyClientForCallAfterHoliday;
+
 
 class ClientController extends Controller
 {
@@ -77,6 +81,7 @@ class ClientController extends Controller
             ->when($action == 'booked', function ($q) {
                 return $q->has('jobs');
             })
+            ->whereNotIn('leadstatus.lead_status', ['potential client', 'potential', 'uninterested'])
             ->when($action == 'notbooked', function ($q) {
                 return $q->whereDoesntHave('jobs');
             })
@@ -959,15 +964,18 @@ class ClientController extends Controller
             'message' => 'Comment has been deleted successfully'
         ]);
     }
+    
     public function clienStatusLog(Request $request)
     {
         $data = $request->all();
+    
         $statusArr = [
             LeadStatusEnum::PENDING => 0,
             LeadStatusEnum::POTENTIAL => 0,
             LeadStatusEnum::IRRELEVANT => 0,
             LeadStatusEnum::UNINTERESTED => 0,
             LeadStatusEnum::UNANSWERED => 0,
+            LeadStatusEnum::UNANSWERED_FINAL => 2,
             LeadStatusEnum::FREEZE_CLIENT => 2,
             LeadStatusEnum::POTENTIAL_CLIENT => 1,
             LeadStatusEnum::PENDING_CLIENT => 2,
@@ -976,47 +984,105 @@ class ClientController extends Controller
             LeadStatusEnum::PRICE_ISSUE => 2,
             LeadStatusEnum::MOVED => 2,
             LeadStatusEnum::ONE_TIME => 2,
+            LeadStatusEnum::PAST => 2,
+            LeadStatusEnum::RESCHEDULE_CALL => 0,
         ];
+    
         $client = Client::find($data['id']);
         if (!$client) {
             return response()->json([
-                'message' => 'Client not found!'
+                'message' => 'Client not found!',
             ]);
         }
-
+    
         $client->status = $statusArr[$data['status']];
         $client->save();
-
+    
         $newLeadStatus = $data['status'];
-
+    
         if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
             $client->lead_status()->updateOrCreate(
                 [],
                 ['lead_status' => $newLeadStatus]
             );
-
+    
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
         }
-
+    
         $client->logs()->create([
-            'status' =>  $statusArr[$data['status']],
-            'reason' =>  $data['reason']
+            'status' => $statusArr[$data['status']],
+            'reason' => $data['reason'],
+            'reschedule_date' => $data['reschedule_date'] ?? null,
+            'reschedule_time' => $data['reschedule_time'] ?? null,
         ]);
-
-        // Log the status change
-        LeadActivity::create([
+    
+        // Log the status change in LeadActivity
+        $activity = LeadActivity::create([
             'client_id' => $data['id'],
-            'created_date' =>" ",
+            'created_date' => now(),
             'status_changed_date' => now(),
             'changes_status' => $newLeadStatus,
             'reason' => $data['reason'],
+            'reschedule_date' => $data['reschedule_date'] ?? null,
+            'reschedule_time' => $data['reschedule_time'] ?? null,
         ]);
-
+    
+        if ($data['status'] == LeadStatusEnum::RESCHEDULE_CALL) {
+            // Check if reschedule date is set or use today's date
+            $rescheduleDate = isset($data['reschedule_date']) ? Carbon::parse($data['reschedule_date']) : Carbon::today();
+            $rescheduleTime = Carbon::createFromFormat('H:i', $data['reschedule_time']);
+            $endTime = $rescheduleTime->copy()->addMinutes(30);
+        
+            $notificationData = [
+                "schedule" => [
+                    "id" => $activity->id,
+                    "start_date" => $rescheduleDate->format('Y-m-d'), // Start date for scheduling
+                    "start_time" => $data['reschedule_time'] ?? null,
+                    "end_time" => $endTime->format('H:i'),
+                    "client" => [
+                        "id" => $data['id'],
+                        "firstname" => $client->firstname ?? '',
+                        "lastname" => $client->lastname ?? '',
+                        "email" => $client->email,
+                        "phone" => $client->phone,
+                    ],
+                ]
+            ];
+        
+            // Check if today is a holiday or Saturday
+            $today = Carbon::today();
+            $holidays = Holiday::whereDate('start_date', '<=', $today)
+                ->whereDate('end_date', '>=', $today)
+                ->get();
+        
+            // Ensure $today is a Carbon instance
+            $today = Carbon::today();
+        
+            // Check if today is a holiday or Saturday
+            if ($today->isSaturday() || $holidays->contains(fn($holiday) => $today->between($holiday->start_date, $holiday->end_date))) {
+                // Move notification to the next day (Saturday or holiday)
+                $notificationDate = $today->addDay();
+            } elseif ($rescheduleDate->isSaturday() || $holidays->contains(fn($holiday) => $rescheduleDate->between($holiday->start_date, $holiday->end_date))) {
+                // If reschedule date is a holiday, do not dispatch any job
+                Log::info('Both today and reschedule date are holidays. Skipping job dispatch.');
+                return; // Skip dispatching the job if both dates are holidays
+            } else {
+                $notificationDate = Carbon::now();
+            }
+        
+            // Dispatch the jobs to save Google calendar event and send notification
+            SaveGoogleCalendarCallJob::dispatch($notificationData);
+        
+            NotifyClientForCallAfterHoliday::dispatch($client, $activity)
+                ->delay($notificationDate->diffInSeconds(now()));
+        }
+        
+    
         return response()->json([
             'message' => 'Status has been changed successfully!',
         ]);
     }
-
+    
 
     public function deleteClientMetaIfExists($clientId)
     {

@@ -242,7 +242,7 @@ export default function WorkerMyAccount() {
                                         country={'il'}
                                         value={phone}
                                         onChange={(phone) => {
-                                        setPhone(phone);
+                                            setPhone(phone);
                                         }}
                                         inputClass="form-control"
                                         inputProps={{
@@ -415,7 +415,7 @@ export default function WorkerMyAccount() {
                             <div className="col-sm-6">
                                 <div className="form-group">
                                     <label className="control-label">
-                                        Payment Method
+                                        {t("worker.settings.paymentMethod")}
                                     </label>
 
                                     <select
@@ -425,9 +425,9 @@ export default function WorkerMyAccount() {
                                         onChange={handleChange}
 
                                     >
-                                        <option value="">--- please select ---</option>
-                                        <option value="cheque">Cheque</option>
-                                        <option value="money_transfer">Money Transfer</option>
+                                        <option value="">{t("worker.settings.please_Select")}</option>
+                                        <option value="cheque">{t("worker.settings.cheque")}</option>
+                                        <option value="money_transfer">{t("worker.settings.moneyTrasnfer")}</option>
                                     </select>
                                     {errors?.payment_type ? (
                                         <small className="text-danger mb-1">
@@ -445,7 +445,7 @@ export default function WorkerMyAccount() {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                    Full Name
+                                                    {t("worker.settings.fullName")}
                                                 </label>
                                                 <input
                                                     type="text"
@@ -453,7 +453,7 @@ export default function WorkerMyAccount() {
                                                     name="full_name"
                                                     onChange={handleChange}
                                                     className="form-control"
-                                                    placeholder="Enter Full Name"
+                                                    placeholder={t("worker.settings.enterFullname")}
                                                 />
                                                 {errors?.full_name ? (
                                                     <small className="text-danger mb-1">
@@ -467,7 +467,7 @@ export default function WorkerMyAccount() {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                    Bank Name
+                                                    {t("worker.settings.bankName")}
                                                 </label>
                                                 <input
                                                     type="text"
@@ -475,7 +475,7 @@ export default function WorkerMyAccount() {
                                                     name="bank_name"
                                                     onChange={handleChange}
                                                     className="form-control"
-                                                    placeholder="Enter Bank Name"
+                                                    placeholder={t("worker.settings.enterBankname")}
                                                 />
                                                 {errors?.bank_name ? (
                                                     <small className="text-danger mb-1">
@@ -489,7 +489,7 @@ export default function WorkerMyAccount() {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                    Bank Number
+                                                    {t("worker.settings.bankNumber")}
                                                 </label>
                                                 <input
                                                     type="text"
@@ -497,7 +497,7 @@ export default function WorkerMyAccount() {
                                                     name="bank_no"
                                                     onChange={handleChange}
                                                     className="form-control"
-                                                    placeholder="Enter Bank Number"
+                                                    placeholder={t("worker.settings.enterBanknumber")}
                                                 />
                                                 {errors?.bank_number ? (
                                                     <small className="text-danger mb-1">
@@ -511,7 +511,7 @@ export default function WorkerMyAccount() {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                    Branch Number
+                                                    {t("worker.settings.branchNumber")}
                                                 </label>
                                                 <input
                                                     type="text"
@@ -519,7 +519,7 @@ export default function WorkerMyAccount() {
                                                     name="branch_no"
                                                     onChange={handleChange}
                                                     className="form-control"
-                                                    placeholder="Enter Branch Number"
+                                                    placeholder={t("worker.settings.enterBranchnumber")}
                                                 />
                                                 {errors?.branch_number ? (
                                                     <small className="text-danger mb-1">
@@ -533,7 +533,7 @@ export default function WorkerMyAccount() {
                                         <div className="col-sm-6">
                                             <div className="form-group">
                                                 <label className="control-label">
-                                                    Acount Number
+                                                    {t("worker.settings.accountNumber")}
                                                 </label>
                                                 <input
                                                     type="text"
@@ -541,7 +541,7 @@ export default function WorkerMyAccount() {
                                                     name="account_no"
                                                     onChange={handleChange}
                                                     className="form-control"
-                                                    placeholder="Enter Account Number"
+                                                    placeholder={t("worker.settings.enterAccountnumber")}
                                                 />
                                                 {errors?.account_number ? (
                                                     <small className="text-danger mb-1">
@@ -580,25 +580,27 @@ export default function WorkerMyAccount() {
                             <label className="control-label">
                                 {t("worker.settings.areYouAfraid")}
                             </label>
-                        </div>
-                        {animalArray.map((item, index) => (
-                            <div className="form-check" key={item.key}>
-                                <label className="form-check-label">
+                            {animalArray.map((item, index) => (
+                                <div className="" key={item.key}>
+                                    <label className="">
+                                        {item.name}
+                                    </label>
                                     <input
                                         ref={elementsRef.current[index]}
                                         type="checkbox"
-                                        className="form-check-input"
+                                        className="mx-2"
+                                        style={{height: "auto"}}
                                         name={item.key}
                                         value={item.key}
                                     />
-                                    {item.name}
-                                </label>
-                            </div>
-                        ))}
+                                </div>
+                            ))}
+                        </div>
+
                         <div className="form-group d-flex align-items-center">
                             <div className="toggle-switch">
                                 <div className="switch">
-                                    <span className="mr-2">Two step Verification</span>
+                                    <span className="mr-2">{t("worker.settings.verification")}</span>
                                     <input
                                         onChange={() => setTwostepverification(prev => !prev)}
                                         type="checkbox"

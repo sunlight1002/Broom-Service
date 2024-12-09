@@ -1,569 +1,387 @@
 import React, { useEffect, useState } from "react";
-import TextField from "./inputElements/TextField";
-import SelectElement from "./inputElements/SelectElement";
-import DateField from "./inputElements/DateField";
-import RadioButtonGroup from "./inputElements/RadioButtonGroup";
 import { useTranslation } from "react-i18next";
-import { countryOption } from "./cityCountry";
 
-
-export default function EmployeeDetails({
-    errors,
-    values,
-    touched,
-    handleBlur,
-    handleChange,
-    setFieldValue,
-    handleFileChange
-}) {
-    // console.log(Base64.decode(param.id));
-    const [indentityType, setIndentityType] = useState(values.employeecountry);
-    useEffect(() => {
-        console.log(values.employeecountry,"useefect");
-        
-        if (values.employeecountry === "Israel") {
-            setIndentityType("IDNumber");
-        }
-        // Only update identity type if it's not yet set or country changes to Israel
-        if (values.employeeIdentityType === "" || values.employeecountry !== "Israel") {
-            setIndentityType("Passport");
-        }
-    }, [values.employeecountry]);
-
-
-    // console.log(values.employeecountry, "in");
-
-
-
+export default function EmployeeDetails({ values }) {
+    const [indentityType, setIndentityType] = useState("");
     const { t } = useTranslation();
 
-    const sexOptions = [
-        { label: t("form101.label_male"), value: "Male" },
-        { label: t("form101.label_female"), value: "Female" },
-    ];
-
-    const maritalStatusOptions = [
-        { label: t("form101.status_single"), value: "Single" },
-        { label: t("form101.status_married"), value: "Married" },
-        { label: t("form101.status_divorcee"), value: "Divorced" },
-        { label: t("form101.status_widower"), value: "Widowed" },
-        { label: t("form101.status_separated"), value: "Separated" },
-    ];
-
-    const isIsraeliResidentOptions = [
-        { label: t("form101.label_yes"), value: "Yes" },
-        { label: t("form101.label_no"), value: "No" },
-    ];
-
-    const isKibbutzMemberOptions = [
-        { label: t("form101.label_yes"), value: "Yes" },
-        { label: t("form101.label_no"), value: "No" },
-    ];
-
-    const isHealthFundMemberOptions = [
-        { label: t("form101.label_yes"), value: "Yes" },
-        { label: t("form101.label_no"), value: "No" },
-    ];
-    const HealthFundname = [
-        { label: "Clalit", value: "Clalit" },
-        { label: "Maccabi", value: "Maccabi" },
-        { label: "Meuhedet", value: "Meuhedet" },
-        { label: "Leumit", value: "Leumit" },
-    ];
-
-    // console.log(values.employeepassportCopy);
+    useEffect(() => {
+        if (values.employeecountry === "Israel") {
+            setIndentityType("IDNumber");
+        } else {
+            setIndentityType("Passport");
+        }
+    }, [values.employeecountry, values.employeeIdentityType]);
 
 
     return (
-        <div>
-            <h2>{t("form101.employee_details")}</h2>
+        <div className="">
+            <p className="navyblueColor font-24 font-w-500 mt-3 mb-2">{t("form101.employee_details")}</p>
             <div className="row">
-                <div className="col-sm-6 col-xs-6">
-                    <TextField
-                        name="employeeFirstName"
-                        label={t("form101.label_firstName")}
-                        value={values.employeeFirstName}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        readonly={true}
-                        error={
-                            touched.employeeFirstName &&
-                                errors.employeeFirstName
-                                ? errors.employeeFirstName
-                                : ""
-                        }
-                        required
-                    />
-                </div>{" "}
-                <div className="col-sm-6 col-xs-6">
-                    <TextField
-                        name="employeeLastName"
-                        label={t("form101.label_lastName")}
-                        value={values.employeeLastName}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        readonly={true}
-                        error={
-                            touched.employeeLastName && errors.employeeLastName
-                                ? errors.employeeLastName
-                                : ""
-                        }
-                        required
-                    />
-                </div>
-                <div className="col-12">
-                    <label className="control-label d-block">
-                        {t("form101.idBy")} *
-                    </label>
-                    <label>
+
+                <div className="col">
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeFirstName" className="control-label font-w-500 navyblueColor">
+                            {t("form101.label_firstName")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeFirstName"
+                                id="employeeFirstName"
+                                defaultValue={values.employeeFirstName}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeIdentityType" className="control-label font-w-500 navyblueColor">
+                            {t("form101.idBy")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeIdentityType"
+                                id="employeeIdentityType"
+                                defaultValue={indentityType}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="employeeDob" className="control-label">
+                            {t("form101.dob")} {"*"}
+                        </label>
+                        <br />
                         <input
-                            type="radio"
-                            name="employeeIdentityType"
-                            value="IDNumber"
-                            className="mr-2"
-                            checked={indentityType === "IDNumber" ? true : false}
-                            onChange={(e) => {
-                                setIndentityType(e.target.value);
-                                handleChange(e);
-                                setFieldValue("employeeIdentityType", e.target.value);
-                            }}
+                            type="date"
+                            className="form-control"
+                            name="employeeDob"
+                            id="employeeDob"
+                            defaultValue={values.employeeDob}
+                            readOnly={true}
                         />
-                        {t("form101.id_num")}
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            name="employeeIdentityType"
-                            value="Passport"
-                            className="mr-2"
-                            checked={indentityType === "Passport" ? true : false}
-                            onChange={(e) => {
-                                setIndentityType(e.target.value);
-                                handleChange(e);
-                                setFieldValue("employeeIdentityType", e.target.value);
+                    </div>
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeCity" className="control-label font-w-500 navyblueColor">
+                            {t("form101.City")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeCity"
+                                id="employeeCity"
+                                defaultValue={values.employeeCity}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
 
-                            }}
-                        />
-                        {t("form101.passport_foreign")}
-                    </label>
-                    {touched.employeeIdentityType &&
-                        errors.employeeIdentityType && (
-                            <p className="text-danger">
-                                {errors.employeeIdentityType}
-                            </p>
-                        )}
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeHouseNo" className="control-label font-w-500 navyblueColor">
+                            {t("form101.ho_num")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeHouseNo"
+                                id="employeeHouseNo"
+                                defaultValue={values.employeeHouseNo}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="text-start form-group">
+                        <label htmlFor="employeePhoneNo" className="control-label font-w-500 navyblueColor">
+                            {t("form101.label_phNum")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeePhoneNo"
+                                id="employeePhoneNo"
+                                defaultValue={values.employeePhoneNo}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeEmail" className="control-label font-w-500 navyblueColor">
+                            {t("form101.label_email")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeEmail"
+                                id="employeeEmail"
+                                defaultValue={values.employeeEmail}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeMaritalStatus" className="control-label font-w-500 navyblueColor">
+                            {t("form101.martial_status")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeMaritalStatus"
+                                id="employeeMaritalStatus"
+                                defaultValue={values.employeeMaritalStatus}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeHealthFundMember" className="control-label font-w-500 navyblueColor">
+                            {t("form101.healthFundMem")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeHealthFundMember"
+                                id="employeeHealthFundMember"
+                                defaultValue={values.employeeHealthFundMember}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="text-start form-group">
+                        <label className="control-label">
+                            {t("form101.country_passport")}
+                            {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeecountry"
+                                id="employeecountry"
+                                defaultValue={values.employeecountry}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
                 </div>
+                <div className="col">
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeLastName" className="control-label font-w-500 navyblueColor">
+                            {t("form101.label_lastName")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeLastName"
+                                id="employeeLastName"
+                                defaultValue={values.employeeLastName}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
 
-                <div className="col-md-4 col-sm-6 col-xs-6">
-                    <SelectElement
-                        name={"employeecountry"}
-                        label={t("form101.country_passport")}
-                        value={values.employeecountry}
-                        onChange={(e) => {
-                            const selectedCountry = e.target.value;
-                            handleChange(e);
 
-                            // Set identity type based on country, but only modify the identity field
-                            if (selectedCountry === "Israel") {
-                                setIndentityType("IDNumber");
-                                setFieldValue("employeeIdentityType", "IDNumber");
-                            } else {
-                                setIndentityType("Passport");
-                                setFieldValue("employeeIdentityType", "Passport");
-                            }
-
-                            setFieldValue("employeecountry", selectedCountry); // Update country
-                        }}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeecountry && errors.employeecountry
-                                ? errors.employeecountry
-                                : ""
-                        }
-                        options={countryOption}
-                    />
-                </div>
-                {indentityType === "Passport" ? (
-                    <>
-
-                        <div className="col-sm-4 col-xs-6">
-                            <div>
-                                <TextField
+                    {indentityType === "Passport" ? (
+                        <div className="text-start form-group">
+                            <label htmlFor="employeePassportNumber" className="control-label font-w-500 navyblueColor">
+                                {t("form101.passport_num")} {"*"}
+                            </label>
+                            <br />
+                            <div className="d-flex align-items-center">
+                                <input
+                                    className={`form-control man`}
+                                    type="text"
                                     name="employeePassportNumber"
-                                    label={t("form101.passport_num")}
-                                    value={values.employeecountry !== "Israel" ? values.employeePassportNumber : ""}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={
-                                        touched.employeePassportNumber &&
-                                            errors.employeePassportNumber
-                                            ? errors.employeePassportNumber
-                                            : ""
-                                    }
-                                    required
-                                // readonly={values.employeePassportNumber === null ? false : true}
+                                    id="employeePassportNumber"
+                                    value={values.employeePassportNumber || ""}
+                                    readOnly={true}
                                 />
                             </div>
-                            <div className="col-xs-6 mb-1">
-                                <label htmlFor="employeepassportCopy">
-                                    {t("form101.passport_photo")}
+                        </div>
+                    ) : (
+                        <div className="text-start form-group">
+                            <label htmlFor="employeeIdNumber" className="control-label font-w-500 navyblueColor">
+                                {t("form101.id_num")} {"*"}
+                            </label>
+                            <br />
+                            <div className="d-flex align-items-center">
+                                <input
+                                    className={`form-control man`}
+                                    type="text"
+                                    name="employeeIdNumber"
+                                    id="employeeIdNumber"
+                                    value={values.employeeIdNumber || ""}
+                                    readOnly={true}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="form-group">
+                        {indentityType == "IDNumber" && (
+                            <>
+                                <label htmlFor="employeeDateOfAliyah" className="control-label">
+                                    {t("form101.dom")} {"*"}
                                 </label>
                                 <br />
                                 <input
-                                    type="file"
-                                    name="employeepassportCopy"
-                                    id="employeepassportCopy"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                        setFieldValue(
-                                            "employeepassportCopy",
-                                            e.target.files[0]
-                                        );
-                                        handleFileChange(e, "passport");
-                                    }
-                                    }
-                                    onBlur={handleBlur}
+                                    type="date"
+                                    className="form-control"
+                                    name="employeeDateOfAliyah"
+                                    id="employeeDateOfAliyah"
+                                    defaultValue={values.employeeDateOfAliyah}
+                                    readOnly={true}
                                 />
-                                {touched.employeepassportCopy &&
-                                    errors.employeepassportCopy && (
-                                        <p className="text-danger">
-                                            {errors.employeepassportCopy}
-                                        </p>
-                                    )}
+                            </>
+                        )}
+                        {indentityType == "Passport" && (
+                            <>
+                                <label htmlFor="Start Date Of Job" className="control-label">
+                                    {t("form101.dom")} {"*"}
+                                </label>
+                                <br />
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    name="DateOfBeginningWork"
+                                    id="DateOfBeginningWork"
+                                    defaultValue={values.DateOfBeginningWork}
+                                    readOnly={true}
+                                />
+                            </>
+                        )}
+                    </div>
+
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeStreet" className="control-label font-w-500 navyblueColor">
+                            {t("form101.street")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeStreet"
+                                id="employeeStreet"
+                                defaultValue={values.employeeStreet}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="text-start form-group">
+                        <label htmlFor="employeePostalCode" className="control-label font-w-500 navyblueColor">
+                            {t("form101.postal_code")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeePostalCode"
+                                id="employeePostalCode"
+                                defaultValue={values.employeePostalCode}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeMobileNo" className="control-label font-w-500 navyblueColor">
+                            {t("form101.mob_num")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeMobileNo"
+                                id="employeeMobileNo"
+                                defaultValue={values.employeeMobileNo}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeSex" className="control-label font-w-500 navyblueColor">
+                            {t("form101.label_sex")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeSex"
+                                id="employeeSex"
+                                defaultValue={values.employeeSex}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="text-start form-group">
+                        <label htmlFor="employeeIsraeliResident" className="control-label font-w-500 navyblueColor">
+                            {t("form101.israeli_resident")} {"*"}
+                        </label>
+                        <br />
+                        <div className="d-flex align-items-center">
+                            <input
+                                className={`form-control man`}
+                                type="text"
+                                name="employeeIsraeliResident"
+                                id="employeeIsraeliResident"
+                                defaultValue={values.employeeIsraeliResident}
+                                readOnly={true}
+                            />
+                        </div>
+                    </div>
+
+                    {values.employeeHealthFundMember === "Yes" && (
+                        <div className="text-start form-group">
+                            <label htmlFor="employeeHealthFundMember" className="control-label font-w-500 navyblueColor">
+                                {t("form101.HealthFundName")} {"*"}
+                            </label>
+                            <br />
+                            <div className="d-flex align-items-center">
+                                <input
+                                    className={`form-control man`}
+                                    type="text"
+                                    name="employeeHealthFundMember"
+                                    id="employeeHealthFundMember"
+                                    defaultValue={values.employeeHealthFundMember}
+                                    readOnly={true}
+                                />
                             </div>
                         </div>
-                        <div className="col-md-4 col-sm-6 col-xs-6">
-                            <label htmlFor="employeeResidencePermit">
-                                {t("form101.PhotoCopyResident")}
-                            </label>
-                            <br />
-                            <input
-                                type="file"
-                                name="employeeResidencePermit"
-                                id="employeeResidencePermit"
-                                accept="image/*"
-                                onChange={(e) =>
-                                    setFieldValue(
-                                        "employeeResidencePermit",
-                                        e.target.files[0]
-                                    )
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.employeeResidencePermit &&
-                                errors.employeeResidencePermit && (
-                                    <p className="text-danger">
-                                        {errors.employeeResidencePermit}
-                                    </p>
-                                )}
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div className="col-md-4 col-sm-6 col-xs-6">
-                            <TextField
-                                name="employeeIdNumber"
-                                label={t("form101.id_num")}
-                                value={values.employeecountry === "Israel" ? values.employeeIdNumber : ""}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={
-                                    touched.employeeIdNumber &&
-                                        errors.employeeIdNumber
-                                        ? errors.employeeIdNumber
-                                        : ""
-                                }
-                                required
-                            // readonly={values.employeeIdNumber === null ? false : true}
-                            />
-                        </div>
-                        <div className="col-sm-4 col-xs-6">
-                            <label htmlFor="employeeIdCardCopy">
-                                {t("form101.id_photocopy")}
-                            </label>
-                            <br />
-                            <input
-                                type="file"
-                                name="employeeIdCardCopy"
-                                id="employeeIdCardCopy"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    setFieldValue(
-                                        "employeeIdCardCopy",
-                                        e.target.files[0]
-                                    );
-                                    handleFileChange(e, "id_card");
-                                }
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.employeeIdCardCopy &&
-                                errors.employeeIdCardCopy && (
-                                    <p className="text-danger">
-                                        {errors.employeeIdCardCopy}
-                                    </p>
-                                )}
-                        </div>
-                    </>
-                )}
-            </div>
-            <div className="row">
-                <div className="col-sm-6 col-xs-6">
-                    <DateField
-                        name="employeeDob"
-                        label={t("form101.dob")}
-                        value={values.employeeDob}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeDob && errors.employeeDob
-                                ? errors.employeeDob
-                                : ""
-                        }
-                        required
-                    />
-                </div>
-                <div className="col-sm-6 col-xs-6">
-                    {values.employeeIdentityType === "IDNumber" && (
-                        <DateField
-                            name="employeeDateOfAliyah"
-                            label={t("form101.dom")}
-                            value={values.employeeDateOfAliyah}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={
-                                touched.employeeDateOfAliyah &&
-                                    errors.employeeDateOfAliyah
-                                    ? errors.employeeDateOfAliyah
-                                    : ""
-                            }
-                        />
                     )}
                 </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
-                    <TextField
-                        name="employeeCity"
-                        label={t("form101.City")}
-                        value={values.employeeCity}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeCity && errors.employeeCity
-                                ? errors.employeeCity
-                                : ""
-                        }
-                        required
-                    />
-                </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
-                    <TextField
-                        name="employeeStreet"
-                        label={t("form101.street")}
-                        value={values.employeeStreet}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeStreet && errors.employeeStreet
-                                ? errors.employeeStreet
-                                : ""
-                        }
-                        required
-                    />
-                </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
-                    <TextField
-                        name="employeeHouseNo"
-                        label={t("form101.ho_num")}
-                        value={values.employeeHouseNo}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeHouseNo && errors.employeeHouseNo
-                                ? errors.employeeHouseNo
-                                : ""
-                        }
-                        required
-                    />
-                </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
-                    <TextField
-                        name="employeePostalCode"
-                        label={t("form101.postal_code")}
-                        value={values.employeePostalCode}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeePostalCode &&
-                                errors.employeePostalCode
-                                ? errors.employeePostalCode
-                                : ""
-                        }
-                    />
-                </div>
-                <div className="col-md-6">
-                    <TextField
-                        name="employeeMobileNo"
-                        label={t("form101.mob_num")}
-                        value={values.employeeMobileNo}
-                        onChange={handleChange}
-                        readonly={true}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeMobileNo && errors.employeeMobileNo
-                                ? errors.employeeMobileNo
-                                : ""
-                        }
-                        required
-                    />
-                </div>
-                <div className="col-md-6">
-                    <TextField
-                        name="employeePhoneNo"
-                        label={t("form101.label_phNum")}
-                        value={values.employeePhoneNo}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeePhoneNo && errors.employeePhoneNo
-                                ? errors.employeePhoneNo
-                                : ""
-                        }
-                    />
-                </div>
-                <div className="col-12">
-                    <TextField
-                        name="employeeEmail"
-                        label={t("form101.label_email")}
-                        value={values.employeeEmail}
-                        onChange={handleChange}
-                        readonly={true}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeEmail && errors.employeeEmail
-                                ? errors.employeeEmail
-                                : ""
-                        }
-                        required={true}
-                    />
-                </div>
-                <div className="col-lg-2 col-sm-4 col-xs-6">
-                    <RadioButtonGroup
-                        name="employeeSex"
-                        label={t("form101.label_sex")}
-                        options={sexOptions}
-                        value={values.employeeSex}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeSex && errors.employeeSex
-                                ? errors.employeeSex
-                                : ""
-                        }
-                        required
-                    />
-                </div>
-                <div className="col-lg-2 col-sm-4 col-xs-6">
-                    <RadioButtonGroup
-                        name="employeeMaritalStatus"
-                        label={t("form101.martial_status")}
-                        options={maritalStatusOptions}
-                        value={values.employeeMaritalStatus}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeMaritalStatus &&
-                                errors.employeeMaritalStatus
-                                ? errors.employeeMaritalStatus
-                                : ""
-                        }
-                        required
-                    />
-                </div>
-                <div className="col-lg-2 col-sm-4 col-xs-6">
-                    <RadioButtonGroup
-                        name="employeeIsraeliResident"
-                        label={t("form101.israeli_resident")}
-                        options={isIsraeliResidentOptions}
-                        value={values.employeeIsraeliResident}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeIsraeliResident &&
-                                errors.employeeIsraeliResident
-                                ? errors.employeeIsraeliResident
-                                : ""
-                        }
-                        required
-                    />
-                </div>
-                <div className="col-lg-3 col-sm-4 col-xs-6">
-                    <RadioButtonGroup
-                        name="employeeCollectiveMoshavMember"
-                        label={t("form101.cop_member")}
-                        options={isKibbutzMemberOptions}
-                        value={values.employeeCollectiveMoshavMember}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeCollectiveMoshavMember &&
-                                errors.employeeCollectiveMoshavMember
-                                ? errors.employeeCollectiveMoshavMember
-                                : ""
-                        }
-                        required
-                    />
-                    {values.employeeCollectiveMoshavMember === "Yes" && (
-                        <RadioButtonGroup
-                            name="employeemyIncomeToKibbutz"
-                            label={t("form101.myIncomeTrandfer")}
-                            options={isKibbutzMemberOptions}
-                            value={values.employeemyIncomeToKibbutz}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={
-                                touched.employeemyIncomeToKibbutz &&
-                                    errors.employeemyIncomeToKibbutz
-                                    ? errors.employeemyIncomeToKibbutz
-                                    : ""
-                            }
-                            required
-                        />
-                    )}
-                </div>
-                <div className="col-lg-3 col-sm-4 col-xs-6">
-                    <RadioButtonGroup
-                        name="employeeHealthFundMember"
-                        label={t("form101.healthFundMem")}
-                        options={isHealthFundMemberOptions}
-                        value={values.employeeHealthFundMember}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                            touched.employeeHealthFundMember &&
-                                errors.employeeHealthFundMember
-                                ? errors.employeeHealthFundMember
-                                : ""
-                        }
-                        required
-                    />
-                    {values.employeeHealthFundMember === "Yes" && (
-                        <RadioButtonGroup
-                            name="employeeHealthFundname"
-                            label={t("form101.HealthFundName")}
-                            options={HealthFundname}
-                            value={values.employeeHealthFundname}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={
-                                touched.employeeHealthFundname &&
-                                    errors.employeeHealthFundname
-                                    ? errors.employeeHealthFundname
-                                    : ""
-                            }
-                            required
-                        />
-                    )}
-                </div>
+
             </div>
         </div>
     );

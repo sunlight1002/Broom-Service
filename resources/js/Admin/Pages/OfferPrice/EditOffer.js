@@ -225,8 +225,6 @@ export default function EditOffer() {
         // Flatten the formValues array to remove any nested arrays
         const flattenedFormValues = formValues.flat();
 
-        console.log("Flattened Form Data on Update", flattenedFormValues);
-
         // Rest of your validation and processing
         for (let t in flattenedFormValues) {
             if (flattenedFormValues[t].service == "" || flattenedFormValues[t].service == 0) {
@@ -313,10 +311,6 @@ export default function EditOffer() {
             });
     };
 
-
-    useEffect(() => {
-        console.log("Updated Form Values:", formValues);
-    }, [formValues]);
 
     const getOffer = () => {
         axios

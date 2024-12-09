@@ -654,7 +654,8 @@ trait JobSchedule
             ->exists();
 
         if (!$hasFutureJob) {
-            $status = LeadStatusEnum::PAST;
+            // $status = LeadStatusEnum::PAST;
+            $status = LeadStatusEnum::FREEZE_CLIENT;
         } else {
             $today = Carbon::today()->toDateString();
             $weekEndDate = Carbon::today()->endOfWeek()->toDateString();

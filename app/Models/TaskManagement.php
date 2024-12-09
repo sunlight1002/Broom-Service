@@ -21,7 +21,12 @@ class TaskManagement extends Model
         'due_date',
         'user_id',
         'user_type',
-        'sort_order'
+        'sort_order',
+        'frequency_id',
+        'repeatancy',
+        'until_date',
+        'next_start_date',
+        'cycle_counter'
     ];
 
     public function users()
@@ -51,7 +56,9 @@ class TaskManagement extends Model
         return $this->hasMany(TaskWorker::class);
     }
 
-
-
+    public function serviceSchedule()
+    {
+        return $this->belongsTo(ServiceSchedule::class, 'frequency_id');
+    }
 
 }

@@ -1,3 +1,5 @@
+//EmployerDetails
+
 import React from "react";
 import TextField from "./inputElements/TextField";
 import { useTranslation } from "react-i18next";
@@ -8,13 +10,15 @@ export default function EmployerDetails({
     touched,
     handleBlur,
     handleChange,
+    handleBubbleToggle,
+    activeBubble
 }) {
     const { t } = useTranslation();
     return (
         <div>
-            <h2>{t("form101.employer_details")}</h2>
+            <p className="navyblueColor font-24 font-w-500 mt-3 mb-2">{t("form101.employer_details")}</p>
             <div className="row">
-                <div className=" col-md-3 col-sm-6 col-xs-6">
+                <div className="col-sm">
                     <TextField
                         name="employerName"
                         label={t("form101.label_name")}
@@ -29,7 +33,7 @@ export default function EmployerDetails({
                         }
                     />
                 </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
+                <div className="col-sm">
                     <TextField
                         name="employerAddress"
                         label={t("form101.label_address")}
@@ -44,7 +48,9 @@ export default function EmployerDetails({
                         }
                     />
                 </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
+            </div>
+            <div className="row">
+                <div className="col-sm">
                     <TextField
                         name="employerPhone"
                         label={t("form101.label_phNum")}
@@ -59,7 +65,7 @@ export default function EmployerDetails({
                         }
                     />
                 </div>
-                <div className="col-md-3 col-sm-6 col-xs-6">
+                <div className="col-sm">
                     <TextField
                         name="employerDeductionsFileNo"
                         label={t("form101.label_ddfileId")}
@@ -69,7 +75,7 @@ export default function EmployerDetails({
                         readonly={true}
                         error={
                             touched.employerDeductionsFileNo &&
-                            errors.employerDeductionsFileNo
+                                errors.employerDeductionsFileNo
                                 ? errors.employerDeductionsFileNo
                                 : ""
                         }

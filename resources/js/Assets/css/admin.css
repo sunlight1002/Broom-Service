@@ -584,6 +584,10 @@ table tr td .dropdown-item {
   font-size: 40px;
 }
 
+.font-34{
+  font-size: 34px;
+}
+
 .font-30{
   font-size: 30px;
 }
@@ -603,6 +607,9 @@ table tr td .dropdown-item {
   font-size: 15px;
 }
 
+.font-w-500{
+  font-weight: 500;
+}
 
 .navyblue{
   background-color: #2F4054;
@@ -613,6 +620,15 @@ table tr td .dropdown-item {
   color: #2F4054;
 }
 
+.bluecolor{
+  background-color: #1F78BD;
+  color: white !important;
+}
+
+.lightgrey{
+  background-color: #EDF1F6;
+  color: #2F4054 !important;
+}
 .skyBorder10px{
   border: 2px solid #E9ECF2;
   border-radius: 10px;
@@ -630,6 +646,284 @@ table tr td .dropdown-item {
 /* end */
 
 
+
+/* custom input file */
+
+.input_container {
+  border: 1px solid #e5e5e5;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+
+.input_container input[type=file]::file-selector-button {
+  background-color: #2F4054;
+  color: #FFFFFF;
+  border: 0px;
+  border-radius: 10px;
+  margin-right: 5px;
+  border-right: 1px solid #e5e5e5;
+  padding: 10px 15px;
+  margin-right: 20px;
+  transition: .3s;
+}
+
+.input_container input[type=file]::file-selector-button:hover {
+  background-color: #68819c;
+}
+
+.input_container input[type=file]::placeholder {
+  color: #999;
+  background-color: #007bff;
+  opacity: 1; /* Override default opacity for older browsers */
+}
+
+
+/* custom radio button */
+
+.radio {
+  display: block;
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+}
+
+.radio + .radio {
+  margin-top: 12px;
+}
+
+.radio input {
+  display: none;
+}
+
+.radio input + span {
+  display: inline-block;
+  position: relative;
+  padding-left: 25px;
+}
+
+.radio input + span:before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  border-radius: 50%;
+  margin-right: 5px;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+.radio input + span:after {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  background: #222;
+  border: 1px solid black;
+  position: absolute;
+  border-radius: 50%;
+  top: 6px;
+  left: 6px;
+  opacity: 0;
+  transform: scale(0, 0);
+  color: #000;
+}
+
+.radio input:checked + span:after {
+  opacity: 1;
+  transform: scale(1, 1);
+} 
+
+
+
+
+/* custom checkbox */
+
+.custom-checkbox {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.custom-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #EDF1F6;
+  border: 1px solid #E5EBF1;
+  border-radius: 5px;
+}
+
+/* On mouse-over, add a grey background color */
+.custom-checkbox:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.custom-checkbox input:checked ~ .checkmark {
+  background-color: #EDF1F6;
+  border: 1px solid #E5EBF1;
+  border-radius: 5px;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.custom-checkbox input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.custom-checkbox .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: 1px solid #2F4054; /* Change this to the color you want for the checkmark */
+  border-width: 0 2px 2px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+@media screen and (max-width: 1070px){
+  .flex-dir-co-1070{
+    flex-direction: column;
+    gap: 25px;
+  }
+}
+
+@media screen and (max-width: 612px) {
+  .allform{
+    margin: 0 28px !important;
+  }
+}
+.custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.custom-select {
+    appearance: none; /* Remove default arrow in most browsers */
+    -webkit-appearance: none; /* Remove default arrow in Chrome/Safari */
+    -moz-appearance: none; /* Remove default arrow in Firefox */
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Optionally add a custom arrow */
+.custom-select-wrapper::after {
+    content: '\f078'; /* FontAwesome icon for a down arrow */
+    font-family: FontAwesome;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    pointer-events: none;
+    transform: translateY(-50%);
+    color: #333;
+}
+
+.dropdown-toggle {
+    appearance: none; /* Removes the default arrow */
+    -webkit-appearance: none; /* Removes the default arrow for WebKit browsers */
+    -moz-appearance: none; /* Removes the default arrow for Firefox */
+}
+
+
+.worker-avail1 .fc-button-group{
+  gap: 10px !important;
+}
+.worker-avail1 .fc-button-group button{
+  border-radius: 5px !important;
+}
+
+@media screen and (max-width: 917px) {
+    .worker-avail1 .fc-toolbar{
+    flex-direction: column !important;
+  }
+}
+
+
+
+/* (A) SPEECH BOX */
+.speech {
+  /* (A1) FONT & COLORS */
+  color: #2F4054;
+  background: #ffffff;
+
+  /* (A2) DIMENSIONS */
+  padding: 12px;
+  border-radius: 6px;
+  max-width: 600px;
+  /* Ensure speech box is on top */
+  z-index: 10; 
+  /* Ensure that it doesn’t affect the layout */
+  position: absolute;
+  box-shadow: 0px 9px 20px rgb(46 35 94 / 7%);
+
+}
+
+/* (B) USE ::AFTER TO CREATE THE "CALLOUT" */
+.speech::after {
+  display: block; 
+  width: 0; 
+  content: "";
+  border: 15px solid transparent;
+}
+
+/* (C) "CALLOUT" DIRECTIONS */
+.speech.up::after {
+  border-bottom-color: #ffffff;
+  border-top: 0;
+}
+
+/* (D) POSITION THE CALLOUT */
+.speech {
+  position: absolute; /* Ensure that it doesn’t push other content */
+}
+.speech.up::after {
+  position: absolute;
+  top: -14px; 
+  right: 7px;
+}
+
+
+ @media screen and (max-width: 520px) {
+  .status{
+    flex-direction: column;
+  }
+}
 
 /* DataTables Pagination Button Styling */
 .dataTables_wrapper .dataTables_paginate .paginate_button {
@@ -3919,4 +4213,51 @@ tbody tr:hover {
 }
 .tail-container.highlight{
   opacity:0;
+}
+
+
+.safety-gear-pdf-container.pdf-layout {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.safety-gear-pdf-container.pdf-layout .col-xl {
+  flex: 1;
+  margin: 5px;
+}
+
+.safety-gear-pdf-container.pdf-layout img {
+  max-width: 100%;
+  height: auto;
+}
+
+.hide-in-pdf {
+  display: none !important;
+}
+
+.pdf-container {
+  page-break-inside: avoid;
+}
+
+
+.no-break {
+  page-break-inside: avoid;
+  page-break-before: auto;
+  page-break-after: auto;
+}
+
+
+#priceOfferTable .table-bordered td, .table-bordered th{
+  border: 1px solid #E5EBF1 !important;
+} 
+
+#priceOfferTable .table-striped tbody tr:nth-of-type(odd){
+  background-color: #f2f4f7 !important;
+}
+
+.holiday {
+  background-color: #d22727 !important; 
+  color: white; 
 }

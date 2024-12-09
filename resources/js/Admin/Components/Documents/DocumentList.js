@@ -6,6 +6,9 @@ const DocumentList = ({ documents, worker, handleDelete }) => {
         return filename.split(".").pop();
     };
 
+    console.log(worker,"worker");
+    
+
     return (
         <div>
             {arr.map(

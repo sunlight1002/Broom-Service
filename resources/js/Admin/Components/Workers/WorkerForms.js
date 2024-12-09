@@ -26,6 +26,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+
     const getForm = () => {
         axios
             .get(`/api/getAllForms/${worker.id}`)
@@ -65,7 +66,6 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
     }, []);
 
 
-
     const ResetForm = async (form_id, type) => {
         
         Swal.fire({
@@ -82,17 +82,17 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     const res = await axios.post(`/api/admin/document/reset/${form_id}`, {}, { headers })
                     alert.success(res?.data?.message)
                     if(type == "form101"){
-                        window.open(`/form101/${Base64.encode(worker.id.toString())}`, "_blank");
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=1`, "_blank");
                     }else if(type == "contract"){
-                        window.open(`/worker-contract/${Base64.encode(worker.id.toString())}`, "_blank");
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=5`, "_blank");
                     }else if(type == "safety_and_gear_form"){
-                        window.open(`/worker-safe-gear/${Base64.encode(worker.id.toString())}`, "_blank");
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=4`, "_blank");
                     }else if(type == "form_insurance"){
-                        window.open(`/insurance-form/${Base64.encode(worker.id.toString())}`, "_blank");
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=7`, "_blank");
                     }else if(type == "2form101"){
-                        window.open(`/form101/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
                     }else if(type == "manpower"){
-                        window.open(`/manpower-safty-form/${Base64.encode(worker.id.toString())}`, "_blank");
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?type=manpower`, "_blank");
                     }
                     getForm();
                 } catch (error) {
@@ -104,17 +104,17 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
 
     const handleNotSigned = (form_id, type) => {
         if(type == "form101"){
-            window.open(`/form101/${Base64.encode(worker.id.toString())}`, "_blank");
+            window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=1`, "_blank");
         }else if(type == "contract"){
-            window.open(`/worker-contract/${Base64.encode(worker.id.toString())}`, "_blank");
+            window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=5`, "_blank");
         }else if(type == "safety_and_gear_form"){
-            window.open(`/worker-safe-gear/${Base64.encode(worker.id.toString())}`, "_blank");
+            window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=4`, "_blank");
         }else if(type == "form_insurance"){
-            window.open(`/insurance-form/${Base64.encode(worker.id.toString())}`, "_blank");
+            window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=7`, "_blank");
         }else if(type == "2form101"){
-            window.open(`/form101/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
+            window.open(`/worker-forms/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
         }else if(type == "manpower"){
-            window.open(`/manpower-safty-form/${Base64.encode(worker.id.toString())}`, "_blank");
+            window.open(`/worker-forms/${Base64.encode(form_id.toString())}?type=manpower`, "_blank");
         }
     }
 

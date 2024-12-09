@@ -387,7 +387,7 @@ export default function Acc() {
                     <div className="form-group d-flex align-items-center">
                         <div className="toggle-switch">
                             <div className="switch">
-                                <span className="mr-2">Two step Verification</span>
+                                <span className="mr-2">{t("client.settings.verification")}</span>
                                 <input
                                     onChange={() => setTwostepverification(prev => !prev)}
                                     type="checkbox"

@@ -55,6 +55,8 @@ export default function Document({ worker, getWorkerDetails }) {
         axios
             .get(`/api/admin/documents/${parseInt(worker.id)}`, { headers })
             .then((response) => {
+                console.log(response.data.documents);
+                
                 setDocuments(response.data.documents);
             });
     };

@@ -1,25 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 import { useNavigate, useLocation } from "react-router-dom";
-import Moment from "moment";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-import { daDK } from "rsuite/esm/locales";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
-import { Badge } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { MdOutlineEdit } from "react-icons/md";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { BsPinAngleFill } from "react-icons/bs";
 
-
-
-export default function card() {
+export default function Card() {
     const { t } = useTranslation();
-    const [card, setCard] = useState([]);
+    const [cards, setCards] = useState([]);
     const [client, setClient] = useState([]);
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswords, setShowPasswords] = useState({}); // Object to track visibility for each card
     const [isAddBtnDisabled, setIsAddBtnDisabled] = useState(false);
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -34,29 +28,18 @@ export default function card() {
     useEffect(() => {
         const _paymentStatus = queryParams.get("cps");
 
-        if (_paymentStatus == "payment-success") {
-            swal(t("work-contract.messages.card_success"), "", "success");
-            // swal(
-            //     "Thanks, card is added successfully, Now you can sign contract!",
-            //     "",
-            //     "success"
-            // );
+        if (_paymentStatus === "payment-success") {
+            Swal.fire(t("work-contract.messages.card_success"), "", "success");
             navigate(`/client/settings`);
-        } else if (_paymentStatus == "payment-cancelled") {
-            swal(t("work-contract.messages.card_adding_failed"), "", "error");
+        } else if (_paymentStatus === "payment-cancelled") {
+            Swal.fire(t("work-contract.messages.card_adding_failed"), "", "error");
             navigate(`/client/settings`);
         }
     }, [queryParams]);
 
-    const getCard = () => {
+    const getCards = () => {
         axios.get(`/api/client/get-card`, { headers }).then((res) => {
-            setCard(res.data.res);
-        });
-    };
-
-    const getClient = () => {
-        axios.get("/api/client/my-account", { headers }).then((response) => {
-            setClient(response.data.account);
+            setCards(res.data.res);
         });
     };
 
@@ -78,16 +61,15 @@ export default function card() {
     };
 
     useEffect(() => {
-        getCard();
-        getClient();
+        getCards();
     }, []);
 
     const handleMarkDefault = (id) => {
         axios
             .put(`/api/client/cards/${id}/mark-default`, {}, { headers })
-            .then((re) => {
-                swal(t("work-contract.messages.card_updated"), "", "success");
-                getCard();
+            .then(() => {
+                Swal.fire(t("work-contract.messages.card_updated"), "", "success");
+                getCards();
             })
             .catch((e) => {
                 Swal.fire({
@@ -111,15 +93,13 @@ export default function card() {
             if (result.isConfirmed) {
                 axios
                     .delete(`/api/client/cards/${id}`, { headers })
-                    .then((response) => {
+                    .then(() => {
                         Swal.fire(
                             t("global.deleted"),
                             t("work-contract.cardDeleted"),
                             "success"
                         );
-                        setTimeout(() => {
-                            getCard();
-                        }, 1000);
+                        getCards();
                     })
                     .catch((e) => {
                         Swal.fire({
@@ -132,191 +112,91 @@ export default function card() {
         });
     };
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
+    const togglePasswordVisibility = (id) => {
+        setShowPasswords((prev) => ({
+            ...prev,
+            [id]: !prev[id],
+        }));
     };
-
-    // console.log(card);
 
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center m-3">
-                <p className=""
-                    style={{ fontWeight: "bolder" }}
-                >{t("client.settings.card_tab")}</p>
+                <p style={{ fontWeight: "bolder" }}>{t("client.settings.card_tab")}</p>
                 <button
                     type="button"
-                    className="btn navyblue float-right "
+                    className="btn navyblue float-right"
                     disabled={isAddBtnDisabled}
-                    onClick={() => handleCard()}
+                    onClick={handleCard}
                 >
                     {t("work-contract.add_card")}
                 </button>
             </div>
-            {card?.length > 0 ? (
-                card.map((card, index) => (
-                    <div className="card" key={index}
-                    style={{
-                        background: "#FAFBFC",
-                        boxShadow: "none",
-                        border: "1px solid #E5EBF1",
-                        borderRadius: "10px"
-                    }}>
+            {cards.length > 0 ? (
+                cards.map((card, index) => (
+                    <div
+                        className="card"
+                        key={index}
+                        style={{
+                            background: "#FAFBFC",
+                            boxShadow: "none",
+                            border: "1px solid #E5EBF1",
+                            borderRadius: "10px",
+                        }}
+                    >
                         <div className="card-body">
-
-                            {/* <div className="table-responsive">
-                            <Table className="table table-bordered">
-                                <Thead>
-                                    <Tr>
-                                        <Th>{t("work-contract.card_type")}</Th>
-                                        <Th>{t("work-contract.card_number")}</Th>
-                                        <Th scope="col">
-                                            {t("work-contract.card_expiry")}
-                                        </Th>
-                                        <Th scope="col">{t("work-contract.action")}</Th>
-                                    </Tr>
-                                </Thead>
-                                <Tbody>
-                                    {card?.length > 0 ? (
-                                        card.map((card, index) => {
-                                            return (
-                                                <Tr key={index}>
-                                                    <Td>
-                                                        {card.card_type}
-                                                        {card.is_default && (
-                                                            <Badge bg="success ml-3">
-                                                                {t(
-                                                                    "client.settings.default"
-                                                                )}
-                                                            </Badge>
-                                                        )}
-                                                    </Td>
-                                                    <Td>{card.card_number}</Td>
-                                                    <Td className="pl-3">
-                                                        {card.valid}
-                                                    </Td>
-                                                    <Td
-                                                        className="pl-3 "
-                                                        style={{ width: "10%" }}
-                                                    >
-                                                        <div className="d-flex mx-2">
-                                                            {!card.is_default && (
-                                                                <>
-                                                                    <button
-                                                                        className="btn btn-sm btn-info mr-2"
-                                                                        onClick={() =>
-                                                                            handleMarkDefault(
-                                                                                card.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        {t(
-                                                                            "client.settings.markAsDefault"
-                                                                        )}
-                                                                    </button>
-                                                                    <button
-                                                                        className="btn btn-sm btn-danger ms-2"
-                                                                        onClick={() =>
-                                                                            handleDelete(
-                                                                                card.id
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        <i className="fa fa-trash"></i>
-                                                                    </button>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    </Td>
-                                                </Tr>
-                                            );
-                                        })
-                                    ) : (
-                                        <Tr>
-                                            <Td colSpan="3">
-                                                {t("work-contract.NoCardAdded")}
-                                            </Td>
-                                        </Tr>
-                                    )}
-                                </Tbody>
-                            </Table>
-                        </div> */}
-                            <div className="item">
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <div className="d-flex justify-content-between align-items-center w-100">
-                                    <p className=""
-                                        style={{ fontWeight: "bolder" }}
-                                        >Card {index}</p>
-                                        {card.is_default?(
-                                            <span><BsPinAngleFill /></span>
-                                            ): ""}
-                                    </div>
-
-                                     {!card.is_default && (
-                                        <div className="action d-flex align-content-center justify-content-center">
-                                        <button className="d-flex align-content-center justify-content-center p-1"
-                                        onClick={() =>
-                                            handleMarkDefault(
-                                                card.id
-                                            )
-                                        }
+                            <div className="d-flex justify-content-between align-items-center">
+                                <p style={{ fontWeight: "bolder" }}>Card {index + 1}</p>
+                                {card.is_default && <BsPinAngleFill />}
+                                {!card.is_default && (
+                                    <div className="action">
+                                        <button
+                                            onClick={() => handleMarkDefault(card.id)}
                                             style={{ fontSize: "20px", borderRadius: "5px" }}
-                                        ><MdOutlineEdit /></button>
-                                        <button className="d-flex align-content-center justify-content-center ml-2 pt-1"
-                                        onClick={() =>
-                                            handleDelete(
-                                                card.id
-                                            )
-                                        }
+                                        >
+                                            <MdOutlineEdit />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(card.id)}
                                             style={{ fontSize: "20px", borderRadius: "5px" }}
-                                        ><RiDeleteBin6Line /></button>
+                                        >
+                                            <RiDeleteBin6Line />
+                                        </button>
                                     </div>
-                                     )}
-                                    
-                                </div>
-                                <div className="">
-                                    <div className="d-flex align-items-center mt-2 mb-2">
-                                        <label htmlFor="" style={{ width: "5.5rem" }}>{t("work-contract.card_type")}</label>
-                                        <input type="text" value={card.card_type} className="custom-input" style={{ width: "98%" }} />
-                                    </div>
-                                    <div className="form-group d-flex align-items-center mt-2 mb-2">
-                                        <label htmlFor="" className="control-label" style={{ width: "5.5rem" }}>{t("work-contract.card_number")}</label>
-                                        <div className="input-wrapper" style={{ position: "relative " }}>
-                                            <input type={showPassword ? "text" : "password"} value={card.card_number} className="custom-input" style={{ paddingRight: "2.5rem", width: "98%" }} />
-                                            <span
-                                                onClick={() => togglePasswordVisibility("current")}
-                                                style={{
-                                                    position: "absolute",
-                                                    right: "0.75rem",
-                                                    top: "50%",
-                                                    transform: "translateY(-50%)",
-                                                    cursor: "pointer",
-                                                    // width: "98%"
-
-                                                }}
-                                            >
-                                                {showPassword ? <FaEyeSlash /> : <FaEye />}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center mt-2 mb-2">
-                                        <label htmlFor="" style={{ width: "5.5rem" }}>{t("work-contract.card_expiry")}</label>
-                                        <input type="text" value={card.valid} className="custom-input" style={{ width: "98%" }} />
-                                    </div>
+                                )}
+                            </div>
+                            <div className="form-group d-flex align-items-center mt-2 mb-2">
+                                <label htmlFor="" style={{ width: "5.5rem" }}>
+                                    {t("work-contract.card_number")}
+                                </label>
+                                <div className="input-wrapper" style={{ position: "relative", width: "100%" }}>
+                                    <input
+                                        type={showPasswords[card.id] ? "text" : "password"}
+                                        value={card.card_number}
+                                        className="custom-input"
+                                        readOnly
+                                        style={{ paddingRight: "2.5rem" }}
+                                    />
+                                    <span
+                                        onClick={() => togglePasswordVisibility(card.id)}
+                                        style={{
+                                            position: "absolute",
+                                            right: "0.75rem",
+                                            top: "50%",
+                                            transform: "translateY(-50%)",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {showPasswords[card.id] ? <FaEyeSlash /> : <FaEye />}
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 ))
-
             ) : (
-                <div className="card-item">
-                    <div className="d-flex justify-content-between align-items-centem">
-                        <p className="">Card Not Found</p>
-                    </div>
-                </div>
+                <p>{t("work-contract.no_cards_found")}</p>
             )}
-
         </div>
     );
 }

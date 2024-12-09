@@ -4,13 +4,13 @@
         "continue": "Continue"
     },
     "global": {
-        "search":"Search",
-        "all":"All",
-        "alltime":"All time",
-        "name":"Name",
-        "document_name":"Document name",
-        "enter_document_name":"Enter document name",
-        "Email":"Email",
+        "search": "Search",
+        "all": "All",
+        "alltime": "All time",
+        "name": "Name",
+        "document_name": "Document name",
+        "enter_document_name": "Enter document name",
+        "Email": "Email",
         "cycle": "Cycle",
         "open": "Open",
         "openDays": "Open Days",
@@ -39,7 +39,7 @@
         "rejected": "Rejected",
         "day": "Day",
         "week": "Week",
-        "month" :"Month",
+        "month": "Month",
         "year": "Year",
         "today": "Today",
         "tomorrow": "Tomorrow",
@@ -108,7 +108,7 @@
         "noCard": "No Card added",
         "addComment": "Add Comment",
         "company": "Company",
-        "Type":"Type",
+        "Type": "Type",
         "send": "Send",
         "sendForm101": "Send Form101",
         "viewForm": "View Form",
@@ -449,6 +449,35 @@
                 "p11": "469",
                 "p12": "549"
             }
+        },
+        "our_packages": {
+            "th1": "Assignments",
+            "th2": "Packages",
+            "th3": "Floor",
+            "th4": "Dust",
+            "th5": "Kitchens",
+            "th6": "Toilet Showers",
+            "th7": "Bedding",
+            "th8": "Replacing Garbage Bin",
+            "th9": "Deep Cleaning Assignments",
+            "th10": "Closet Organizing Assignments",
+            "th11": "Deep Windows Cleaning",
+            "tr1": {
+                "tc1": "2 Stars - Refresh Visit",
+                "basic": "Basic"
+            },
+            "tr2": "3 Stars",
+            "tr3": "4 Stars",
+            "tr4": "5 Stars",
+            "tr5": "Deluxe",
+            "tr6": {
+                "tc1": "Weekly Cleaning Assignment (4 Star Up)",
+                "tc2": "<strong>1st Week</strong>: Deep cleaning; <strong>2nd Week</strong>: Basic windows cleaning; <strong>3rd Week</strong>: Doors + Electricity pugs; <strong>4th Week</strong>: Fridge, Freezer, Side panels; <strong>5th Week</strong>: Lamps, A/Cs, Vents."
+            },
+            "tr7": {
+                "tc1": "Weekly Organizing Assignment (5 Star Up)",
+                "tc2": "<strong>1st Week:</strong> Deep cleaning;  <strong>2nd Week:</strong> Kitchen cabinets;   <strong>3rd Week:</strong> Wardrobes; <strong>4th-5th Week:</strong> General cabinets in the house."
+            }
         }
     },
     "work-contract": {
@@ -539,6 +568,7 @@
         "the_company": "The Company",
         "accept_contract": "Accept Contract",
         "please_select": "Please select",
+        "no_cards_found": "Card not found",
         "messages": {
             "card_err": "Please add card",
             "card_type_err": "Please select card type",
@@ -598,11 +628,13 @@
         "search": "search",
         "next": "Next",
         "previous": "Previous",
+        "change_password": "Change Password",
         "common": {
             "offers": "Offers",
             "meetings": "Meetings",
             "services": "Services",
-            "payments": "Payments"
+            "payments": "Payments",
+            "property_addresses": "Property addresses"
         },
         "sidebar": {
             "dashboard": "Dashboard",
@@ -928,7 +960,8 @@
             "cardDeleted": "card has been deleted.",
             "default": "default",
             "markAsDefault": "Mark as Default",
-            "NoCardAdded": "No card added"
+            "NoCardAdded": "No card added",
+            "verification": "Two step Verification"
         },
         "other": {
             "change_or_request": "Send a message regarding a change or request:",
@@ -950,7 +983,7 @@
             "payments": "Payments"
         },
         "global": {
-            "Action":"Action",
+            "Action": "Action",
             "Document": "Document",
             "addTeamMember": "Add Team member",
             "NameEn": "Name - En",
@@ -966,9 +999,9 @@
             "Export": "Export to CSV",
             "Import": "Import",
             "All": "All",
-            "Date":"Date",
+            "Date": "Date",
             "done": "Done",
-            "visits":"Visits",
+            "visits": "Visits",
             "cancel": "Cancel",
             "undone": "Undone",
             "AddNew": "Add New",
@@ -1012,11 +1045,12 @@
             "leads": "Leads",
             "messengerChat": "Messenger Chat",
             "submit": "Submit",
-            "Address":"Address",
+            "Address": "Address",
             "if_job_was_done": "If Job Was Done",
             "time_for_job": "Time For Job",
             "time_worker_actually": "Time Worker Actually",
-            "client_review": "Client Review"
+            "client_review": "Client Review",
+            "change_password": "Change Password"
         },
         "dashboard": {
             "jobPosted": "Job Posted",
@@ -1080,6 +1114,7 @@
             "Pending_client": "Pending client",
             "Freeze_client": "Freeze client",
             "Active_client": "Active client",
+            "Reschedule_call": "Reschedule call",
             "MeetingSet": "Meeting set",
             "PriceOfferSent": "Price offer sent",
             "DeclinedPriceOffer": "Declined price offer",
@@ -1106,11 +1141,11 @@
             "work_sunday_to_thursday_fit_schedule_8_10am_12_2pm": "Work Sunday to Thursday fit schedule 8-10am or 12-2pm",
             "full_or_part_time": "FullTime or PartTime",
             "AddLead": {
-                "both":"Both",
-                "email":"Email",
-                "whatsapp":"Whatsapp",
-                "hebrew":"Hebrew",
-                "english":"English",
+                "both": "Both",
+                "email": "Email",
+                "whatsapp": "Whatsapp",
+                "hebrew": "Hebrew",
+                "english": "English",
                 "AddLead": "Add Lead",
                 "FirstName": "First name",
                 "LastName": "Last name",
@@ -1152,7 +1187,7 @@
                         "title": "Type",
                         "Fixed": "Fixed",
                         "Hourly": "Hourly",
-                        "Squaremeter":"Squaremeter"
+                        "Squaremeter": "Squaremeter"
                     },
                     "addPayment": "Add Payment",
                     "addInvoice": "Add Invoice",
@@ -1555,7 +1590,7 @@
             }
         },
         "hearing": {
-            "title":"Hearings",
+            "title": "Hearings",
             "scheduleHearing": "Schedule Hearing",
             "reSchedule": "Re-schedule Hearing",
             "schedule": "Schedule",
@@ -1677,12 +1712,17 @@
             }
         },
         "holidays": {
-            "addNewHoliday":"Add New Holiday",
-            "holidayName":"Holiday Name",
-            "startDate":"Start Date",
-            "endDate" : "End Date",
-            "editHoliday":"Edit Holiday",
-            "update":"Update"
+            "addNewHoliday": "Add New Holiday",
+            "holidayName": "Holiday Name",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "day": "Day",
+            "fullDay": "Full Day",
+            "halfDay": "Half Day",
+            "firstHalf": "First Half",
+            "secondHalf": "Second Half",
+            "editHoliday": "Edit Holiday",
+            "update": "Update"
         },
         "sidebar": {
             "dashboard": "Dashboard",
@@ -1698,8 +1738,8 @@
             "payments": "Payments",
             "earnings": "Earnings",
             "notification": "Notitfications",
-            "workerLeave":"Workers Leave",
-            "workerHearing":"Workers Hearing",
+            "workerLeave": "Workers Leave",
+            "workerHearing": "Workers Hearing",
             "settings": {
                 "title": "Settings",
                 "manage_team": "Manage team",
@@ -1722,22 +1762,22 @@
                 "myProfile": "My Profile",
                 "myProfilePicture": "My Profile Picture",
                 "color": "Color",
-                "selectLang":"--- Select language ---",
-                "selectCurrency":"--- Select currency ---",
+                "selectLang": "--- Select language ---",
+                "selectCurrency": "--- Select currency ---",
                 "uploadProfile": "Upload profile image",
                 "verification": "Two step Verification",
-                "holidays":"Holidays",
-                "payslip_settings":"Payslip Settings"
+                "holidays": "Holidays",
+                "payslip_settings": "Payslip Settings"
             },
             "logout": "Logout"
         },
-        "leaves":{
+        "leaves": {
             "confirmation": "Reason for rejected",
             "confirmationText": "comment for reject",
-            "rejectionReason" : "reason for reject",
-            "confirm" : "Confirm",
-            "cancel" :"Cancel",
-            "approveConfirm":"Are you sure to approve?"
+            "rejectionReason": "reason for reject",
+            "confirm": "Confirm",
+            "cancel": "Cancel",
+            "approveConfirm": "Are you sure to approve?"
         }
     },
     "worker": {
@@ -1748,20 +1788,20 @@
         "search": "search",
         "next": "Next",
         "previous": "Previous",
-        "workerName":"Worker Name",
-        "endDate":"End Date",
-        "doctorReport":"Doctor Report",
-        "form101":"Form 101",
-        "reason":"Reason",
-        "refund_request":"Refund",
-        "status":"Status",
-        "leaveRequest":"Leads",
-        "action":"Action",
-        "approve":"Approve",
-        "reject":"Reject",
-        "statusPending":"Pending",
-        "statusApproved":"Approved",
-        "statusRejected":"Rejected",
+        "workerName": "Worker Name",
+        "endDate": "End Date",
+        "doctorReport": "Doctor Report",
+        "form101": "Form 101",
+        "reason": "Reason",
+        "refund_request": "Refund",
+        "status": "Status",
+        "leaveRequest": "Leads",
+        "action": "Action",
+        "approve": "Approve",
+        "reject": "Reject",
+        "statusPending": "Pending",
+        "statusApproved": "Approved",
+        "statusRejected": "Rejected",
         "worker_refund": "Worker Refund",
         "thankyou": "Thank you for your confirmation...",
         "common": {
@@ -1774,8 +1814,11 @@
             "protocol": "Protocol",
             "schedule": "Schedule",
             "not_available": "Not Available Dates",
+            "advance_loan": "Advance/Loan",
+            "tasks": "Tasks",
+            "refund_claim": "Refund Claim",
             "workingHours": "Hours",
-            "leaves":"Leaves"
+            "leaves": "Leaves"
         },
         "dashboard": {
             "past_jobs": "Past Jobs",
@@ -1926,6 +1969,7 @@
             "document_type": "Document type",
             "document_name": "Document name",
             "paymentMethod":"Payment Method",
+            "please_Select": "--- please select ---",
             "cheque":"Cheque",
             "moneyTrasnfer":"Money Transfer",
             "fullName":"Full Name",
@@ -1955,7 +1999,8 @@
             "hourly":"Hourly",
             "salary":"Salary",
             "termination":"Termination",
-            "invitation_for_hearing":"Schedule Hearing"
+            "invitation_for_hearing":"Schedule Hearing",
+            "verification": "Two step Verification"
         }
     },
     "worker_contract": {
@@ -2064,6 +2109,7 @@
     },
     "form101": {
         "title": "Form 101",
+        "step": "Step",
         "employee_card": "Employee card - and a request for tax relief and coordination by the employer according to the Income Tax Regulations (deduction from salary and wages), 1993",
         "declare_week": "This form will be filled out by each employee upon starting his job, as well as at the beginning of each tax year (unless the manager has approved otherwise). The form is a reference for the employer to provide tax relief and to make tax adjustments in the calculation of the employee's salary. If there is a change in the details - this must be declared within a week.",
         "notes_1": "Fill out the form and at the bottom of the page you can Download a PDF file with the details you filled out. The file you will receive is a normal and standard Form 101.",
@@ -2263,6 +2309,38 @@
         "taxDeducted": "Tax deducted",
         "photoCopyPayslip": " Photocopy of payslip",
         "addEmployerPayer": "+ ADD EMPLOYER/PAYER OF SALARY",
+        "step1": {
+            "validation": {
+                "first_name": "Enter your full first name as it appears on your identification document.",
+                "last_name": "Enter your full last name as it appears on your identification document.",
+                "identification": "Select the type of identification you are providing (e.g., ID card, passport).",
+                "passport": "If applicable, enter your passport number and country of issue.",
+                "id_number": "If applicable, enter your ID number and country of issue.",
+                "photocopy_id": "Attach a clear photocopy of your identification card.",
+                "dob": "Enter your date of birth in DD/MM/YYYY format.",
+                "date_of_immigration": "If you are an immigrant, enter the date of your immigration to Israel in DD/MM/YYYY format.",
+                "city": "Enter the city of your current residence.",
+                "street": "Enter the street name of your current residence.",
+                "house_number": "Enter the house or building number of your current residence.",
+                "postal_code": " Enter the postal code of your current address.",
+                "Phone_Number": "Enter your landline phone number, if applicable.",
+                "Mobile_Number": "Enter your mobile phone number.",
+                "Email": "Enter your active email address for contact purposes.",
+                "Start_Date_Of_Job": " Enter the date you started working for your current employer in DD/MM/YYYY format.",
+                "Role": "Specify your current job role or position.",
+                "Sex": "Select your gender (Male/Female).",
+                "Israeli_Resident": "Indicate whether you are an Israeli resident (Yes/No).",
+                "Member_Of_Kibbutz": "Mark if you are a member of a kibbutz or cooperative association.",
+                "Health_Fund_Number": " Enter your health fund membership number, if applicable.",
+                "Marital_Status": " Select your marital status (e.g., Single, Married, Divorced)."
+            },
+            "heading": "We are glad that you chose to work in our company. We will do everything to make you happy and satisfied with your work, and of course take care of everything you need just like a family. The job is full-time approximately 8 hours a day and Fridays are optional",
+            "info": "Employee General Information",
+            "broom": "Welcome to Broom Service!"
+        },
+        "step2(1)": "Employee card and a request for tax relief and coordination by the employer according to the Income Tax Regulations (deduction from salary and wages), 1993.",
+        "step2(2)": "This form will be filled out by each employee upon starting his job, as well as at the beginning of each tax year (unless the manager has approved otherwise). The form is a reference for the employer to provide tax relief and to make tax adjustments in the calculation of the employee's salary. If there is a change in the details this must be declared within a week.",
+        "step2(3)": "2024 (The form can only be filled out for the current tax year. Except in the month of December, when the form can also be filled out for the next tax year and in the month of january, when the form can be filled out also for the previous tax year, for the benefit of employees who did not have time to fill out the form in time.)",
         "errorMsg": {
             "invalidPhone": "Invalid phone number",
             "deductionsFileNumber": "Deductions file number must be a number",
@@ -2758,12 +2836,12 @@
         "enter_your_address": "Enter your address",
         "auto_complete": "auto complete from google address",
         "submit": "Submit",
-        "add":"Add",
-        "update":"Update"
+        "add": "Add",
+        "update": "Update"
     },
     "manpower_safty_form": {
         "title": "Absence of Claims Statement",
-        "date" : "date: {{date}}",
+        "date": "date: {{date}}",
         "to": "To:",
         "salutation": "Broom Service L.M Ltd – Company Registration Number 515184208 (here in after referred to as: \"the Company\")",
         "subject": "Subject:",

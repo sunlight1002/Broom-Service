@@ -369,13 +369,14 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {formValues.flat().map((item, innerIndex) => (
-                                <Tr key={innerIndex}>
+                            {formValues.flat().map((item, innerIndex) => {
+                                return (
+                                    <Tr key={innerIndex}>
                                     <Td>
                                     {item && item.address && addresses.length > 0
-                                            ? addresses.find(
+                                            ? ( addresses.find(
                                                 (a) => a.id.toString() === item.address.toString()
-                                            )?.address_name
+                                            )?.geo_address)
                                             : "NA"}
                                     </Td>
                                     <Td>{item.name}</Td>
@@ -419,7 +420,8 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                         </div>
                                     </Td>
                                 </Tr>
-                            ))}
+                                )
+                                })}
                         </Tbody>
                     </Table>
                 ) : (

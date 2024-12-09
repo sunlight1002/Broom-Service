@@ -7,14 +7,19 @@ use App\Models\TaskManagement;
 use App\Models\Admin;
 use App\Models\Phase;
 use App\Models\User;
+use App\Models\ServiceSchedule;
+use App\Models\ManageTime;
 use App\Models\TaskComment;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Traits\JobSchedule; // Import the trait
 
 class TaskController extends Controller
 {
+    use JobSchedule; // Declare the trait
     /**
      * Display a listing of the resource.
      *
@@ -170,15 +175,30 @@ class TaskController extends Controller
         if (!Auth::check()) {
             return response()->json(['error' => 'User is not authenticated'], 401);
         }
-    
+
+        if(isset($request->frequency_id)){
+            $service = ServiceSchedule::where('id', $request->frequency_id)
+                        ->where('status', 1)
+                        ->first();
+        }
+
+        $manageTime = ManageTime::first();
+        $workingWeekDays = json_decode($manageTime->days);
+        $repeat_value = $service->period;
+
+        $start_date = Carbon::parse($request->due_date);
+        $preferredWeekDay = strtolower($start_date->format('l'));
+        $next_start_date = $this->scheduleNextJobDate($request->due_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+
         $user = Auth::user();
         $userType = get_class($user);
-        \Log::info('Authenticated User:', ['user' => $user, 'user_type' => $userType]);
     
         // Create a new task
         $task = new TaskManagement($request->all());
         $task->user_id = $user->id;
-        $task->user_type = $userType;  
+        $task->user_type = $userType;
+        $task->next_start_date = $next_start_date;  
         $task->save();
     
         // Handle worker_ids sync

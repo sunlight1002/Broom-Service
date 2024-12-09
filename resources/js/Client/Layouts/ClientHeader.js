@@ -55,7 +55,7 @@ export default function ClientHeader() {
     return (
         <>
             <div className="AdminHeader hidden-xs">
-                <div className="container-fluid">
+                {/* <div className="container-fluid">
                     <div className="d-flex justify-content-end">
                         <div className="">
                             <div className="float-right" style={{marginTop: "20px", marginBottom: "20px"}}>
@@ -90,6 +90,31 @@ export default function ClientHeader() {
                                             {t("client.logout")}
                                         </Link>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> */}
+                <div className="container-fluid">
+                    <div className="d-flex justify-content-end">
+                        <div className="float-right" style={{ marginTop: "20px", marginBottom: "20px" }}>
+                            <div className="dropdown show">
+                                <button
+                                    className="dropdown-toggle btn"
+                                    id="dropdownMenuLink"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                >
+                                    <img src={User} className="img-fluid" alt="Ajay" />
+                                </button>
+                                <div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                                    <Link className="dropdown-item" to="/client/settings">
+                                        {t("client.my_account")}
+                                    </Link>
+                                    <Link className="dropdown-item" onClick={HandleLogout}>
+                                        {t("client.logout")}
+                                    </Link>
                                 </div>
                             </div>
                         </div>

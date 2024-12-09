@@ -1,3 +1,5 @@
+//TaxExemption
+
 import { useTranslation } from "react-i18next";
 import CheckBox from "./inputElements/CheckBox";
 import DateField from "./inputElements/DateField";
@@ -12,14 +14,17 @@ export default function TaxExemption({
     handleBlur,
     handleChange,
     setFieldValue,
+    handleBubbleToggle,
+    activeBubble
 }) {
     const { t } = useTranslation();
 
     return (
-        <div>
-            <h2>{t("form101.taxExemption")}</h2>
+        <div className="mt-4">
+            <p className="navyblueColor font-24  font-w-500">{t("form101.taxExemption")}</p>
+
             {/* 1 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.isIsraelResident"}
                     label={t("form101.exm1")}
@@ -30,7 +35,7 @@ export default function TaxExemption({
                 />
             </div>
             {/* 2 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.disabled"}
                     label={t("form101.exm2")}
@@ -39,9 +44,9 @@ export default function TaxExemption({
                     onBlur={handleBlur}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.disabled &&
-                        errors.TaxExemption.disabled
+                            errors.TaxExemption &&
+                            touched.TaxExemption.disabled &&
+                            errors.TaxExemption.disabled
                             ? errors.TaxExemption.disabled
                             : ""
                     }
@@ -56,30 +61,34 @@ export default function TaxExemption({
                                 {t("form101.disabledCertificate")}
                             </label>
                             <br />
-                            <input
-                                type="file"
-                                name="TaxExemption.disabledCertificate"
-                                id="employeepassportCopy"
-                                accept="image/*"
-                                onChange={(e) =>
-                                    setFieldValue(
-                                        "TaxExemption.disabledCertificate",
-                                        e.target.files[0]
-                                    )
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.TaxExemption &&
-                                errors.TaxExemption &&
-                                touched.TaxExemption.disabledCertificate &&
-                                errors.TaxExemption.disabledCertificate && (
-                                    <p className="text-danger">
-                                        {
-                                            errors.TaxExemption
-                                                .disabledCertificate
+                            <div className="ml-5">
+                                <div className="input_container">
+                                    <input
+                                        type="file"
+                                        name="TaxExemption.disabledCertificate"
+                                        id="employeepassportCopy"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "TaxExemption.disabledCertificate",
+                                                e.target.files[0]
+                                            )
                                         }
-                                    </p>
-                                )}
+                                        onBlur={handleBlur}
+                                    />
+                                </div>
+                                {touched.TaxExemption &&
+                                    errors.TaxExemption &&
+                                    touched.TaxExemption.disabledCertificate &&
+                                    errors.TaxExemption.disabledCertificate && (
+                                        <p className="text-danger">
+                                            {
+                                                errors.TaxExemption
+                                                    .disabledCertificate
+                                            }
+                                        </p>
+                                    )}
+                            </div>
                             <div className="pt-2">
                                 <CheckBox
                                     name={"TaxExemption.disabledCompensation"}
@@ -91,12 +100,12 @@ export default function TaxExemption({
                                     onBlur={handleBlur}
                                     error={
                                         touched.TaxExemption &&
-                                        errors.TaxExemption &&
-                                        touched.TaxExemption
-                                            .disabledCompensation &&
-                                        errors.TaxExemption.disabledCompensation
+                                            errors.TaxExemption &&
+                                            touched.TaxExemption
+                                                .disabledCompensation &&
+                                            errors.TaxExemption.disabledCompensation
                                             ? errors.TaxExemption
-                                                  .disabledCompensation
+                                                .disabledCompensation
                                             : ""
                                     }
                                 />
@@ -109,33 +118,36 @@ export default function TaxExemption({
                                                 "form101.disabledCompensationCertificate"
                                             )}
                                         </label>
-                                        <input
-                                            type="file"
-                                            className="col-12"
-                                            name="TaxExemption.disabledCompensationCertificate"
-                                            id="disabledCompensationCertificate"
-                                            accept="image/*"
-                                            onChange={(e) =>
-                                                setFieldValue(
-                                                    "TaxExemption.disabledCompensationCertificate",
-                                                    e.target.files[0]
-                                                )
-                                            }
-                                            onBlur={handleBlur}
-                                        />
-                                        {touched.TaxExemption &&
-                                            errors.TaxExemption &&
-                                            touched.TaxExemption
-                                                .disabledCompensationCertificate &&
-                                            errors.TaxExemption
-                                                .disabledCompensationCertificate && (
-                                                <p className="text-danger">
-                                                    {
-                                                        errors.TaxExemption
-                                                            .disabledCompensationCertificate
+                                        <div className="ml-2">
+                                            <div className="input_container">
+                                                <input
+                                                    type="file"
+                                                    name="TaxExemption.disabledCompensationCertificate"
+                                                    id="disabledCompensationCertificate"
+                                                    accept="image/*"
+                                                    onChange={(e) =>
+                                                        setFieldValue(
+                                                            "TaxExemption.disabledCompensationCertificate",
+                                                            e.target.files[0]
+                                                        )
                                                     }
-                                                </p>
-                                            )}
+                                                    onBlur={handleBlur}
+                                                />
+                                            </div>
+                                            {touched.TaxExemption &&
+                                                errors.TaxExemption &&
+                                                touched.TaxExemption
+                                                    .disabledCompensationCertificate &&
+                                                errors.TaxExemption
+                                                    .disabledCompensationCertificate && (
+                                                    <p className="text-danger">
+                                                        {
+                                                            errors.TaxExemption
+                                                                .disabledCompensationCertificate
+                                                        }
+                                                    </p>
+                                                )}
+                                        </div>
                                     </div>
                                 )}
                         </div>
@@ -143,7 +155,7 @@ export default function TaxExemption({
                 )}
             </div>
             {/* 3 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm3"}
                     label={t("form101.exm3")}
@@ -152,9 +164,9 @@ export default function TaxExemption({
                     onBlur={handleBlur}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm3 &&
-                        errors.TaxExemption.exm3
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm3 &&
+                            errors.TaxExemption.exm3
                             ? errors.TaxExemption.exm3
                             : ""
                     }
@@ -170,9 +182,9 @@ export default function TaxExemption({
                                 onBlur={handleBlur}
                                 error={
                                     touched.TaxExemption &&
-                                    errors.TaxExemption &&
-                                    touched.TaxExemption.exm3Date &&
-                                    errors.TaxExemption.exm3Date
+                                        errors.TaxExemption &&
+                                        touched.TaxExemption.exm3Date &&
+                                        errors.TaxExemption.exm3Date
                                         ? errors.TaxExemption.exm3Date
                                         : ""
                                 }
@@ -188,9 +200,9 @@ export default function TaxExemption({
                                 onBlur={handleBlur}
                                 error={
                                     touched.TaxExemption &&
-                                    errors.TaxExemption &&
-                                    touched.TaxExemption.exm3Locality &&
-                                    errors.TaxExemption.exm3Locality
+                                        errors.TaxExemption &&
+                                        touched.TaxExemption.exm3Locality &&
+                                        errors.TaxExemption.exm3Locality
                                         ? errors.TaxExemption.exm3Locality
                                         : ""
                                 }
@@ -203,33 +215,37 @@ export default function TaxExemption({
                                 {t("form101.exm3Certificate")}
                             </label>
                             <br />
-                            <input
-                                type="file"
-                                name="TaxExemption.exm3Certificate"
-                                id="exm3Certificate"
-                                accept="image/*"
-                                onChange={(e) =>
-                                    setFieldValue(
-                                        "TaxExemption.exm3Certificate",
-                                        e.target.files[0]
-                                    )
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.TaxExemption &&
-                                errors.TaxExemption &&
-                                touched.TaxExemption.exm3Certificate &&
-                                errors.TaxExemption.exm3Certificate && (
-                                    <p className="text-danger">
-                                        {errors.TaxExemption.exm3Certificate}
-                                    </p>
-                                )}
+                            <div className="ml-5">
+                                <div className="input_container">
+                                    <input
+                                        type="file"
+                                        name="TaxExemption.exm3Certificate"
+                                        id="exm3Certificate"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "TaxExemption.exm3Certificate",
+                                                e.target.files[0]
+                                            )
+                                        }
+                                        onBlur={handleBlur}
+                                    />
+                                </div>
+                                {touched.TaxExemption &&
+                                    errors.TaxExemption &&
+                                    touched.TaxExemption.exm3Certificate &&
+                                    errors.TaxExemption.exm3Certificate && (
+                                        <p className="text-danger">
+                                            {errors.TaxExemption.exm3Certificate}
+                                        </p>
+                                    )}
+                            </div>
                         </div>
                     </div>
                 )}
             </div>
             {/* 4 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm4"}
                     label={t("form101.exm4")}
@@ -238,9 +254,9 @@ export default function TaxExemption({
                     onBlur={handleBlur}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm4 &&
-                        errors.TaxExemption.exm4
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm4 &&
+                            errors.TaxExemption.exm4
                             ? errors.TaxExemption.exm4
                             : ""
                     }
@@ -257,9 +273,9 @@ export default function TaxExemption({
                                 onBlur={handleBlur}
                                 error={
                                     touched.TaxExemption &&
-                                    errors.TaxExemption &&
-                                    touched.TaxExemption.exm4FromDate &&
-                                    errors.TaxExemption.exm4FromDate
+                                        errors.TaxExemption &&
+                                        touched.TaxExemption.exm4FromDate &&
+                                        errors.TaxExemption.exm4FromDate
                                         ? errors.TaxExemption.exm4FromDate
                                         : ""
                                 }
@@ -271,32 +287,36 @@ export default function TaxExemption({
                                 {t("form101.exm4ImmigrationCertificate")}
                             </label>
                             <br />
-                            <input
-                                type="file"
-                                name="TaxExemption.exm4ImmigrationCertificate"
-                                id="exm4ImmigrationCertificate"
-                                accept="image/*"
-                                onChange={(e) =>
-                                    setFieldValue(
-                                        "TaxExemption.exm4ImmigrationCertificate",
-                                        e.target.files[0]
-                                    )
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.TaxExemption &&
-                                errors.TaxExemption &&
-                                touched.TaxExemption
-                                    .exm4ImmigrationCertificate &&
-                                errors.TaxExemption
-                                    .exm4ImmigrationCertificate && (
-                                    <p className="text-danger">
-                                        {
-                                            errors.TaxExemption
-                                                .exm4ImmigrationCertificate
+                            <div className="">
+                                <div className="input_container">
+                                    <input
+                                        type="file"
+                                        name="TaxExemption.exm4ImmigrationCertificate"
+                                        id="exm4ImmigrationCertificate"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "TaxExemption.exm4ImmigrationCertificate",
+                                                e.target.files[0]
+                                            )
                                         }
-                                    </p>
-                                )}
+                                        onBlur={handleBlur}
+                                    />
+                                </div>
+                                {touched.TaxExemption &&
+                                    errors.TaxExemption &&
+                                    touched.TaxExemption
+                                        .exm4ImmigrationCertificate &&
+                                    errors.TaxExemption
+                                        .exm4ImmigrationCertificate && (
+                                        <p className="text-danger">
+                                            {
+                                                errors.TaxExemption
+                                                    .exm4ImmigrationCertificate
+                                            }
+                                        </p>
+                                    )}
+                            </div>
                         </div>
                         <div className="col-12">
                             <DateField
@@ -308,9 +328,9 @@ export default function TaxExemption({
                                 onBlur={handleBlur}
                                 error={
                                     touched.TaxExemption &&
-                                    errors.TaxExemption &&
-                                    touched.TaxExemption.exm4NoIncomeDate &&
-                                    errors.TaxExemption.exm4NoIncomeDate
+                                        errors.TaxExemption &&
+                                        touched.TaxExemption.exm4NoIncomeDate &&
+                                        errors.TaxExemption.exm4NoIncomeDate
                                         ? errors.TaxExemption.exm4NoIncomeDate
                                         : ""
                                 }
@@ -322,7 +342,7 @@ export default function TaxExemption({
                 )}
             </div>
             {/* 5 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm5"}
                     label={t("form101.exm5")}
@@ -332,9 +352,9 @@ export default function TaxExemption({
                     disabled={values.employeeMaritalStatus !== "Married"}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm5 &&
-                        errors.TaxExemption.exm5
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm5 &&
+                            errors.TaxExemption.exm5
                             ? errors.TaxExemption.exm5
                             : ""
                     }
@@ -350,39 +370,43 @@ export default function TaxExemption({
                                     {t("form101.exm5disabledCirtificate")}
                                 </label>
                                 <br />
-                                <input
-                                    type="file"
-                                    name="TaxExemption.exm5disabledCirtificate"
-                                    id="exm5disabledCirtificate"
-                                    accept="image/*"
-                                    onChange={(e) =>
-                                        setFieldValue(
-                                            "TaxExemption.exm5disabledCirtificate",
-                                            e.target.files[0]
-                                        )
-                                    }
-                                    onBlur={handleBlur}
-                                />
-                                {touched.TaxExemption &&
-                                    errors.TaxExemption &&
-                                    touched.TaxExemption
-                                        .exm5disabledCirtificate &&
-                                    errors.TaxExemption
-                                        .exm5disabledCirtificate && (
-                                        <p className="text-danger">
-                                            {
-                                                errors.TaxExemption
-                                                    .exm5disabledCirtificate
+                                <div className="ml-5">
+                                    <div className="input_container">
+                                        <input
+                                            type="file"
+                                            name="TaxExemption.exm5disabledCirtificate"
+                                            id="exm5disabledCirtificate"
+                                            accept="image/*"
+                                            onChange={(e) =>
+                                                setFieldValue(
+                                                    "TaxExemption.exm5disabledCirtificate",
+                                                    e.target.files[0]
+                                                )
                                             }
-                                        </p>
-                                    )}
+                                            onBlur={handleBlur}
+                                        />
+                                    </div>
+                                    {touched.TaxExemption &&
+                                        errors.TaxExemption &&
+                                        touched.TaxExemption
+                                            .exm5disabledCirtificate &&
+                                        errors.TaxExemption
+                                            .exm5disabledCirtificate && (
+                                            <p className="text-danger">
+                                                {
+                                                    errors.TaxExemption
+                                                        .exm5disabledCirtificate
+                                                }
+                                            </p>
+                                        )}
+                                </div>
                             </div>
                         </div>
                     </div>
                 )}
             </div>
             {/* 6 remaining*/}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm6"}
                     label={t("form101.exm6")}
@@ -396,9 +420,9 @@ export default function TaxExemption({
                     }
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm6 &&
-                        errors.TaxExemption.exm6
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm6 &&
+                            errors.TaxExemption.exm6
                             ? errors.TaxExemption.exm6
                             : ""
                     }
@@ -458,7 +482,7 @@ export default function TaxExemption({
                     )} */}
             </div>
             {/* 7*/}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm7"}
                     label={t("form101.exm7")}
@@ -472,9 +496,9 @@ export default function TaxExemption({
                     }
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm7 &&
-                        errors.TaxExemption.exm7
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm7 &&
+                            errors.TaxExemption.exm7
                             ? errors.TaxExemption.exm7
                             : ""
                     }
@@ -487,95 +511,95 @@ export default function TaxExemption({
                     values.TaxExemption &&
                     values.TaxExemption.exm7) ||
                     (!errors?.children && values.children?.length > 0)) && (
-                    <div>
-                        <div className="row mt-3">
-                            <div className="col-4">
-                                <TextField
-                                    name="TaxExemption.exm7NoOfChild"
-                                    label={t("form101.exm7NoOfChild")}
-                                    value={values.TaxExemption.exm7NoOfChild}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={
-                                        touched.TaxExemption &&
-                                        errors.TaxExemption &&
-                                        touched.TaxExemption.exm7NoOfChild &&
-                                        errors.TaxExemption.exm7NoOfChild
-                                            ? errors.TaxExemption.exm7NoOfChild
-                                            : ""
-                                    }
-                                    required
-                                />
-                            </div>
-                            <div className="col-4">
-                                <TextField
-                                    name="TaxExemption.exm7NoOfChild1to5"
-                                    label={t("form101.exm7NoOfChild1to5")}
-                                    value={
-                                        values.TaxExemption.exm7NoOfChild1to5
-                                    }
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={
-                                        touched.TaxExemption &&
-                                        errors.TaxExemption &&
-                                        touched.TaxExemption
-                                            .exm7NoOfChild1to5 &&
-                                        errors.TaxExemption.exm7NoOfChild1to5
-                                            ? errors.TaxExemption
-                                                  .exm7NoOfChild1to5
-                                            : ""
-                                    }
-                                    required
-                                />
-                            </div>
-                            <div className="col-4">
-                                <TextField
-                                    name="TaxExemption.exm7NoOfChild6to17"
-                                    label={t("form101.exm7NoOfChild6to17")}
-                                    value={
-                                        values.TaxExemption.exm7NoOfChild6to17
-                                    }
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={
-                                        touched.TaxExemption &&
-                                        errors.TaxExemption &&
-                                        touched.TaxExemption
-                                            .exm7NoOfChild6to17 &&
-                                        errors.TaxExemption.exm7NoOfChild6to17
-                                            ? errors.TaxExemption
-                                                  .exm7NoOfChild6to17
-                                            : ""
-                                    }
-                                    required
-                                />
-                            </div>
-                            <div className="col-4">
-                                <TextField
-                                    name="TaxExemption.exm7NoOfChild18"
-                                    label={t("form101.exm7NoOfChild18")}
-                                    value={values.TaxExemption.exm7NoOfChild18}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={
-                                        touched.TaxExemption &&
-                                        errors.TaxExemption &&
-                                        touched.TaxExemption.exm7NoOfChild18 &&
-                                        errors.TaxExemption.exm7NoOfChild18
-                                            ? errors.TaxExemption
-                                                  .exm7NoOfChild18
-                                            : ""
-                                    }
-                                    required
-                                />
+                        <div>
+                            <div className="row mt-3">
+                                <div className="col-4">
+                                    <TextField
+                                        name="TaxExemption.exm7NoOfChild"
+                                        label={t("form101.exm7NoOfChild")}
+                                        value={values.TaxExemption.exm7NoOfChild}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        error={
+                                            touched.TaxExemption &&
+                                                errors.TaxExemption &&
+                                                touched.TaxExemption.exm7NoOfChild &&
+                                                errors.TaxExemption.exm7NoOfChild
+                                                ? errors.TaxExemption.exm7NoOfChild
+                                                : ""
+                                        }
+                                        required
+                                    />
+                                </div>
+                                <div className="col-4">
+                                    <TextField
+                                        name="TaxExemption.exm7NoOfChild1to5"
+                                        label={t("form101.exm7NoOfChild1to5")}
+                                        value={
+                                            values.TaxExemption.exm7NoOfChild1to5
+                                        }
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        error={
+                                            touched.TaxExemption &&
+                                                errors.TaxExemption &&
+                                                touched.TaxExemption
+                                                    .exm7NoOfChild1to5 &&
+                                                errors.TaxExemption.exm7NoOfChild1to5
+                                                ? errors.TaxExemption
+                                                    .exm7NoOfChild1to5
+                                                : ""
+                                        }
+                                        required
+                                    />
+                                </div>
+                                <div className="col-4">
+                                    <TextField
+                                        name="TaxExemption.exm7NoOfChild6to17"
+                                        label={t("form101.exm7NoOfChild6to17")}
+                                        value={
+                                            values.TaxExemption.exm7NoOfChild6to17
+                                        }
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        error={
+                                            touched.TaxExemption &&
+                                                errors.TaxExemption &&
+                                                touched.TaxExemption
+                                                    .exm7NoOfChild6to17 &&
+                                                errors.TaxExemption.exm7NoOfChild6to17
+                                                ? errors.TaxExemption
+                                                    .exm7NoOfChild6to17
+                                                : ""
+                                        }
+                                        required
+                                    />
+                                </div>
+                                <div className="col-4">
+                                    <TextField
+                                        name="TaxExemption.exm7NoOfChild18"
+                                        label={t("form101.exm7NoOfChild18")}
+                                        value={values.TaxExemption.exm7NoOfChild18}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        error={
+                                            touched.TaxExemption &&
+                                                errors.TaxExemption &&
+                                                touched.TaxExemption.exm7NoOfChild18 &&
+                                                errors.TaxExemption.exm7NoOfChild18
+                                                ? errors.TaxExemption
+                                                    .exm7NoOfChild18
+                                                : ""
+                                        }
+                                        required
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
             </div>
             {/* 8*/}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm8"}
                     label={t("form101.exm8")}
@@ -585,9 +609,9 @@ export default function TaxExemption({
                     disabled={values.TaxExemption.exm7}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm8 &&
-                        errors.TaxExemption.exm8
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm8 &&
+                            errors.TaxExemption.exm8
                             ? errors.TaxExemption.exm8
                             : ""
                     }
@@ -600,76 +624,76 @@ export default function TaxExemption({
                     values.TaxExemption &&
                     values.TaxExemption.exm8) ||
                     (!errors?.children && values.children?.length > 0)) && (
-                    <div>
-                        <div className="row mt-3">
-                            <div className="col-4">
-                                <TextField
-                                    name="TaxExemption.exm8NoOfChild"
-                                    label={t("form101.exm7NoOfChild")}
-                                    value={values.TaxExemption.exm8NoOfChild}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={
-                                        touched.TaxExemption &&
-                                        errors.TaxExemption &&
-                                        touched.TaxExemption.exm8NoOfChild &&
-                                        errors.TaxExemption.exm8NoOfChild
-                                            ? errors.TaxExemption.exm8NoOfChild
-                                            : ""
-                                    }
-                                    required
-                                />
-                            </div>
-                            <div className="col-4">
-                                <TextField
-                                    name="TaxExemption.exm8NoOfChild1to5"
-                                    label={t("form101.exm7NoOfChild1to5")}
-                                    value={
-                                        values.TaxExemption.exm8NoOfChild1to5
-                                    }
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={
-                                        touched.TaxExemption &&
-                                        errors.TaxExemption &&
-                                        touched.TaxExemption
-                                            .exm8NoOfChild1to5 &&
-                                        errors.TaxExemption.exm8NoOfChild1to5
-                                            ? errors.TaxExemption
-                                                  .exm8NoOfChild1to5
-                                            : ""
-                                    }
-                                    required
-                                />
-                            </div>
-                            <div className="col-4">
-                                <TextField
-                                    name="TaxExemption.exm8NoOfChild6to17"
-                                    label={t("form101.exm7NoOfChild6to17")}
-                                    value={
-                                        values.TaxExemption.exm8NoOfChild6to17
-                                    }
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={
-                                        touched.TaxExemption &&
-                                        errors.TaxExemption &&
-                                        touched.TaxExemption
-                                            .exm8NoOfChild6to17 &&
-                                        errors.TaxExemption.exm8NoOfChild6to17
-                                            ? errors.TaxExemption
-                                                  .exm8NoOfChild6to17
-                                            : ""
-                                    }
-                                    required
-                                />
+                        <div>
+                            <div className="row mt-3">
+                                <div className="col-4">
+                                    <TextField
+                                        name="TaxExemption.exm8NoOfChild"
+                                        label={t("form101.exm7NoOfChild")}
+                                        value={values.TaxExemption.exm8NoOfChild}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        error={
+                                            touched.TaxExemption &&
+                                                errors.TaxExemption &&
+                                                touched.TaxExemption.exm8NoOfChild &&
+                                                errors.TaxExemption.exm8NoOfChild
+                                                ? errors.TaxExemption.exm8NoOfChild
+                                                : ""
+                                        }
+                                        required
+                                    />
+                                </div>
+                                <div className="col-4">
+                                    <TextField
+                                        name="TaxExemption.exm8NoOfChild1to5"
+                                        label={t("form101.exm7NoOfChild1to5")}
+                                        value={
+                                            values.TaxExemption.exm8NoOfChild1to5
+                                        }
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        error={
+                                            touched.TaxExemption &&
+                                                errors.TaxExemption &&
+                                                touched.TaxExemption
+                                                    .exm8NoOfChild1to5 &&
+                                                errors.TaxExemption.exm8NoOfChild1to5
+                                                ? errors.TaxExemption
+                                                    .exm8NoOfChild1to5
+                                                : ""
+                                        }
+                                        required
+                                    />
+                                </div>
+                                <div className="col-4">
+                                    <TextField
+                                        name="TaxExemption.exm8NoOfChild6to17"
+                                        label={t("form101.exm7NoOfChild6to17")}
+                                        value={
+                                            values.TaxExemption.exm8NoOfChild6to17
+                                        }
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        error={
+                                            touched.TaxExemption &&
+                                                errors.TaxExemption &&
+                                                touched.TaxExemption
+                                                    .exm8NoOfChild6to17 &&
+                                                errors.TaxExemption.exm8NoOfChild6to17
+                                                ? errors.TaxExemption
+                                                    .exm8NoOfChild6to17
+                                                : ""
+                                        }
+                                        required
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
             </div>
             {/* 9*/}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm9"}
                     label={t("form101.exm9")}
@@ -679,16 +703,16 @@ export default function TaxExemption({
                     disabled={values.TaxExemption.exm7}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm9 &&
-                        errors.TaxExemption.exm9
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm9 &&
+                            errors.TaxExemption.exm9
                             ? errors.TaxExemption.exm9
                             : ""
                     }
                 />
             </div>
             {/* 10 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm10"}
                     label={t("form101.exm10")}
@@ -697,9 +721,9 @@ export default function TaxExemption({
                     onBlur={handleBlur}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm10 &&
-                        errors.TaxExemption.exm10
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm10 &&
+                            errors.TaxExemption.exm10
                             ? errors.TaxExemption.exm10
                             : ""
                     }
@@ -715,33 +739,37 @@ export default function TaxExemption({
                                 {t("form101.employeepassportCopy")}
                             </label>
                             <br />
-                            <input
-                                type="file"
-                                name="TaxExemption.exm10Certificate"
-                                id="employeepassportCopy"
-                                accept="image/*"
-                                onChange={(e) =>
-                                    setFieldValue(
-                                        "TaxExemption.exm10Certificate",
-                                        e.target.files[0]
-                                    )
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.TaxExemption &&
-                                errors.TaxExemption &&
-                                touched.TaxExemption.exm10Certificate &&
-                                errors.TaxExemption.exm10Certificate && (
-                                    <p className="text-danger">
-                                        {errors.TaxExemption.exm10Certificate}
-                                    </p>
-                                )}
+                            <div className="ml-5">
+                                <div className="input_container">
+                                    <input
+                                        type="file"
+                                        name="TaxExemption.exm10Certificate"
+                                        id="employeepassportCopy"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "TaxExemption.exm10Certificate",
+                                                e.target.files[0]
+                                            )
+                                        }
+                                        onBlur={handleBlur}
+                                    />
+                                </div>
+                                {touched.TaxExemption &&
+                                    errors.TaxExemption &&
+                                    touched.TaxExemption.exm10Certificate &&
+                                    errors.TaxExemption.exm10Certificate && (
+                                        <p className="text-danger">
+                                            {errors.TaxExemption.exm10Certificate}
+                                        </p>
+                                    )}
+                            </div>
                         </div>
                     </>
                 )}
             </div>
             {/* 11 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm11"}
                     label={t("form101.exm11")}
@@ -750,9 +778,9 @@ export default function TaxExemption({
                     onBlur={handleBlur}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm11 &&
-                        errors.TaxExemption.exm11
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm11 &&
+                            errors.TaxExemption.exm11
                             ? errors.TaxExemption.exm11
                             : ""
                     }
@@ -772,12 +800,12 @@ export default function TaxExemption({
                             onBlur={handleBlur}
                             error={
                                 touched.TaxExemption &&
-                                errors.TaxExemption &&
-                                touched.TaxExemption
-                                    .exm11NoOfChildWithDisibility &&
-                                errors.TaxExemption.exm11NoOfChildWithDisibility
+                                    errors.TaxExemption &&
+                                    touched.TaxExemption
+                                        .exm11NoOfChildWithDisibility &&
+                                    errors.TaxExemption.exm11NoOfChildWithDisibility
                                     ? errors.TaxExemption
-                                          .exm11NoOfChildWithDisibility
+                                        .exm11NoOfChildWithDisibility
                                     : ""
                             }
                             required
@@ -790,33 +818,37 @@ export default function TaxExemption({
                                 {t("form101.exm11Certificate")}
                             </label>
                             <br />
-                            <input
-                                type="file"
-                                name="TaxExemption.exm11Certificate"
-                                id="TaxExemption.exm11Certificate"
-                                accept="image/*"
-                                onChange={(e) =>
-                                    setFieldValue(
-                                        "TaxExemption.exm11Certificate",
-                                        e.target.files[0]
-                                    )
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.TaxExemption &&
-                                errors.TaxExemption &&
-                                touched.TaxExemption.exm11Certificate &&
-                                errors.TaxExemption.exm11Certificate && (
-                                    <p className="text-danger">
-                                        {errors.TaxExemption.exm11Certificate}
-                                    </p>
-                                )}
+                            <div className="ml-5">
+                                <div className="input_container">
+                                    <input
+                                        type="file"
+                                        name="TaxExemption.exm11Certificate"
+                                        id="TaxExemption.exm11Certificate"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "TaxExemption.exm11Certificate",
+                                                e.target.files[0]
+                                            )
+                                        }
+                                        onBlur={handleBlur}
+                                    />
+                                </div>
+                                {touched.TaxExemption &&
+                                    errors.TaxExemption &&
+                                    touched.TaxExemption.exm11Certificate &&
+                                    errors.TaxExemption.exm11Certificate && (
+                                        <p className="text-danger">
+                                            {errors.TaxExemption.exm11Certificate}
+                                        </p>
+                                    )}
+                            </div>
                         </div>
                     </>
                 )}
             </div>
             {/* 12 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm12"}
                     label={t("form101.exm12")}
@@ -825,9 +857,9 @@ export default function TaxExemption({
                     onBlur={handleBlur}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm12 &&
-                        errors.TaxExemption.exm12
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm12 &&
+                            errors.TaxExemption.exm12
                             ? errors.TaxExemption.exm12
                             : ""
                     }
@@ -843,33 +875,37 @@ export default function TaxExemption({
                                 {t("form101.exm12Certificate")}
                             </label>
                             <br />
-                            <input
-                                type="file"
-                                name="TaxExemption.exm12Certificate"
-                                id="TaxExemption.exm12Certificate"
-                                accept="image/*"
-                                onChange={(e) =>
-                                    setFieldValue(
-                                        "TaxExemption.exm12Certificate",
-                                        e.target.files[0]
-                                    )
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.TaxExemption &&
-                                errors.TaxExemption &&
-                                touched.TaxExemption.exm12Certificate &&
-                                errors.TaxExemption.exm12Certificate && (
-                                    <p className="text-danger">
-                                        {errors.TaxExemption.exm12Certificate}
-                                    </p>
-                                )}
+                            <div className="ml-5">
+                                <div className="input_container">
+                                    <input
+                                        type="file"
+                                        name="TaxExemption.exm12Certificate"
+                                        id="TaxExemption.exm12Certificate"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "TaxExemption.exm12Certificate",
+                                                e.target.files[0]
+                                            )
+                                        }
+                                        onBlur={handleBlur}
+                                    />
+                                </div>
+                                {touched.TaxExemption &&
+                                    errors.TaxExemption &&
+                                    touched.TaxExemption.exm12Certificate &&
+                                    errors.TaxExemption.exm12Certificate && (
+                                        <p className="text-danger">
+                                            {errors.TaxExemption.exm12Certificate}
+                                        </p>
+                                    )}
+                            </div>
                         </div>
                     </>
                 )}
             </div>
             {/* 13 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm13"}
                     label={t("form101.exm13")}
@@ -883,9 +919,9 @@ export default function TaxExemption({
                     }
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm13 &&
-                        errors.TaxExemption.exm13
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm13 &&
+                            errors.TaxExemption.exm13
                             ? errors.TaxExemption.exm13
                             : ""
                     }
@@ -893,7 +929,7 @@ export default function TaxExemption({
                 <p className="text-secondary">{t("form101.exm12Note")}</p>
             </div>
             {/* 14 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm14"}
                     label={t("form101.exm14")}
@@ -902,9 +938,9 @@ export default function TaxExemption({
                     onBlur={handleBlur}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm14 &&
-                        errors.TaxExemption.exm14
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm14 &&
+                            errors.TaxExemption.exm14
                             ? errors.TaxExemption.exm14
                             : ""
                     }
@@ -921,9 +957,9 @@ export default function TaxExemption({
                                 onBlur={handleBlur}
                                 error={
                                     touched.TaxExemption &&
-                                    errors.TaxExemption &&
-                                    touched.TaxExemption.exm14BeginingDate &&
-                                    errors.TaxExemption.exm14BeginingDate
+                                        errors.TaxExemption &&
+                                        touched.TaxExemption.exm14BeginingDate &&
+                                        errors.TaxExemption.exm14BeginingDate
                                         ? errors.TaxExemption.exm14BeginingDate
                                         : ""
                                 }
@@ -939,9 +975,9 @@ export default function TaxExemption({
                                 onBlur={handleBlur}
                                 error={
                                     touched.TaxExemption &&
-                                    errors.TaxExemption &&
-                                    touched.TaxExemption.exm14EndDate &&
-                                    errors.TaxExemption.exm14EndDate
+                                        errors.TaxExemption &&
+                                        touched.TaxExemption.exm14EndDate &&
+                                        errors.TaxExemption.exm14EndDate
                                         ? errors.TaxExemption.exm14EndDate
                                         : ""
                                 }
@@ -956,33 +992,37 @@ export default function TaxExemption({
                                 {t("form101.exm14Certificate")}
                             </label>
                             <br />
-                            <input
-                                type="file"
-                                name="TaxExemption.exm14Certificate"
-                                id="TaxExemption.exm14Certificate"
-                                accept="image/*"
-                                onChange={(e) =>
-                                    setFieldValue(
-                                        "TaxExemption.exm14Certificate",
-                                        e.target.files[0]
-                                    )
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.TaxExemption &&
-                                errors.TaxExemption &&
-                                touched.TaxExemption.exm14Certificate &&
-                                errors.TaxExemption.exm14Certificate && (
-                                    <p className="text-danger">
-                                        {errors.TaxExemption.exm14Certificate}
-                                    </p>
-                                )}
+                            <div className="">
+                                <div className="input_container">
+                                    <input
+                                        type="file"
+                                        name="TaxExemption.exm14Certificate"
+                                        id="TaxExemption.exm14Certificate"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "TaxExemption.exm14Certificate",
+                                                e.target.files[0]
+                                            )
+                                        }
+                                        onBlur={handleBlur}
+                                    />
+                                </div>
+                                {touched.TaxExemption &&
+                                    errors.TaxExemption &&
+                                    touched.TaxExemption.exm14Certificate &&
+                                    errors.TaxExemption.exm14Certificate && (
+                                        <p className="text-danger">
+                                            {errors.TaxExemption.exm14Certificate}
+                                        </p>
+                                    )}
+                            </div>
                         </div>
                     </div>
                 )}
             </div>
             {/* 15 */}
-            <div className="border rounded p-3 m-2">
+            <div className="pt-3">
                 <CheckBox
                     name={"TaxExemption.exm15"}
                     label={t("form101.exm15")}
@@ -991,9 +1031,9 @@ export default function TaxExemption({
                     onBlur={handleBlur}
                     error={
                         touched.TaxExemption &&
-                        errors.TaxExemption &&
-                        touched.TaxExemption.exm15 &&
-                        errors.TaxExemption.exm15
+                            errors.TaxExemption &&
+                            touched.TaxExemption.exm15 &&
+                            errors.TaxExemption.exm15
                             ? errors.TaxExemption.exm15
                             : ""
                     }
@@ -1009,27 +1049,31 @@ export default function TaxExemption({
                                 {t("form101.exm15Certificate")}
                             </label>
                             <br />
-                            <input
-                                type="file"
-                                name="TaxExemption.exm15Certificate"
-                                id="TaxExemption.exm15Certificate"
-                                accept="image/*"
-                                onChange={(e) =>
-                                    setFieldValue(
-                                        "TaxExemption.exm15Certificate",
-                                        e.target.files[0]
-                                    )
-                                }
-                                onBlur={handleBlur}
-                            />
-                            {touched.TaxExemption &&
-                                errors.TaxExemption &&
-                                touched.TaxExemption.exm15Certificate &&
-                                errors.TaxExemption.exm15Certificate && (
-                                    <p className="text-danger">
-                                        {errors.TaxExemption.exm15Certificate}
-                                    </p>
-                                )}
+                            <div className="ml-5">
+                                <div className="input_container">
+                                    <input
+                                        type="file"
+                                        name="TaxExemption.exm15Certificate"
+                                        id="TaxExemption.exm15Certificate"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setFieldValue(
+                                                "TaxExemption.exm15Certificate",
+                                                e.target.files[0]
+                                            )
+                                        }
+                                        onBlur={handleBlur}
+                                    />
+                                </div>
+                                {touched.TaxExemption &&
+                                    errors.TaxExemption &&
+                                    touched.TaxExemption.exm15Certificate &&
+                                    errors.TaxExemption.exm15Certificate && (
+                                        <p className="text-danger">
+                                            {errors.TaxExemption.exm15Certificate}
+                                        </p>
+                                    )}
+                            </div>
                         </div>
                     </>
                 )}

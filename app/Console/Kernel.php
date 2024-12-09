@@ -61,6 +61,10 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('notify:team-and-worker-for-visa-renewal')->weeklyOn(1, '8:00'); // Every Monday at 8:00 AM
 
+        $schedule->command('Notify:UnansweredClients')->hourly();
+
+        $schedule->command('notify:team-reschedule-call-today')->dailyAt('08:00');
+
     }
 
     /**

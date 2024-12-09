@@ -11,6 +11,8 @@ export default function AddHoliday() {
     const [holidayName, setHolidayName] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [dayType, setDayType] = useState("fullDay"); // Single state for day selection
+    const [halfType, setHalfType] = useState(""); // State for half-day type
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState(null);
 
@@ -30,6 +32,8 @@ export default function AddHoliday() {
             holiday_name: holidayName,
             start_date: startDate,
             end_date: endDate,
+            day_type: dayType,
+            half_type: halfType,
         };
 
         axios
@@ -100,6 +104,63 @@ export default function AddHoliday() {
                                         onChange={(e) => setEndDate(e.target.value)}
                                         required
                                     />
+                                </div>
+                                <div className="form-group">
+                                    <label className="control-label d-block">{t("admin.holidays.day")} *</label>
+                                    <div className="">
+                                        <label className="radio">
+                                            <input
+                                                type="radio"
+                                                name="day"
+                                                value="fullDay"
+                                                checked={dayType === "fullDay"}
+                                                onChange={(e) => setDayType(e.target.value)} 
+                                                className="mr-2"
+                                            />
+                                            <span className="">{t("admin.holidays.fullDay")}</span>
+                                        </label>
+                                        <label className="radio mt-0">
+                                            <input
+                                                type="radio"
+                                                name="day"
+                                                value="halfDay"
+                                                checked={dayType === "halfDay"}
+                                                onChange={(e) => setDayType(e.target.value)} 
+                                                className="mr-2"
+                                            />
+                                            <span className="">{t("admin.holidays.halfDay")}</span>
+                                        </label>
+                                        {dayType === "halfDay" && ( 
+                                            <div className="form-group">
+                                                <div className="d-flex">
+                                                    <label className="radio">
+                                                        <input
+                                                            type="radio"
+                                                            name="half"
+                                                            value="firstHalf"
+                                                            checked={halfType === "firstHalf"}
+                                                            onChange={(e) => setHalfType(e.target.value)} 
+                                                            className="mr-2"
+                                                        />
+                                                        <span className="">{t("admin.holidays.firstHalf")}</span>
+                                                    </label>
+                                                    <label className="radio mt-0 mx-1">
+                                                        <input
+                                                            type="radio"
+                                                            name="half"
+                                                            value="secondHalf"
+                                                            checked={halfType === "secondHalf"}
+                                                            onChange={(e) => setHalfType(e.target.value)} 
+                                                            className="mr-2"
+                                                        />
+                                                        <span className="">{t("admin.holidays.secondHalf")}</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+
                                 </div>
                                 <button type="submit" className="btn btn-primary">
                                     {t("global.Submit")}

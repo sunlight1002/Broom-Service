@@ -36,7 +36,7 @@ export default function Schedule() {
     ];
 
 
-    const initializeDataTable = () => {
+    const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             $(tableRef.current).DataTable({
@@ -88,7 +88,7 @@ export default function Schedule() {
                     {
                         title: t("admin.dashboard.pending.contact"),
                         data: "phone",
-                        render: function(data) {
+                        render: function (data) {
                             return `+${data}`;
                         }
                     },
@@ -163,13 +163,32 @@ export default function Schedule() {
                             $(td).addClass('custom-cell-class ');
                         }
                     }
-                ]
+                ],
+                initComplete: function () {
+                    // Explicitly set the initial page after table initialization
+                    const table = $(tableRef.current).DataTable();
+                    table.page(initialPage).draw("page");
+                },
             });
+        } else {
+            // Reuse the existing table and set the page directly
+            const table = $(tableRef.current).DataTable();
+            table.page(initialPage).draw("page");
         }
     };
 
+    const getCurrentPageNumber = () => {
+        const table = $(tableRef.current).DataTable();
+        const pageInfo = table.page.info();
+        return pageInfo.page + 1; // Adjusted to return 1-based page number
+    };
+
     useEffect(() => {
-        initializeDataTable();
+        const searchParams = new URLSearchParams(location.search);
+        const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+        const initialPage = pageFromUrl - 1;
+
+        initializeDataTable(initialPage);
 
         // Customize the search input
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
@@ -212,6 +231,18 @@ export default function Schedule() {
             }
         });
 
+        // Event listener for pagination
+        $(tableRef.current).on("page.dt", function () {
+            const currentPageNumber = getCurrentPageNumber();
+
+            // Update the URL with the page number
+            const url = new URL(window.location);
+            url.searchParams.set("page", currentPageNumber);
+
+            // Use replaceState to avoid adding new history entry
+            window.history.replaceState({}, "", url);
+        });
+
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             const _clientID = $(this).data("client-id");
@@ -227,7 +258,7 @@ export default function Schedule() {
         // Handle language changes
         i18n.on("languageChanged", () => {
             $(tableRef.current).DataTable().destroy(); // Destroy the table
-            initializeDataTable(); // Reinitialize the table with updated language
+            initializeDataTable(initialPage);
         });
 
         // Cleanup event listeners and destroy DataTable when unmounting
@@ -235,188 +266,11 @@ export default function Schedule() {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
                 $(tableRef.current).off("click");
+                $(tableRef.current).off("page.dt");
             }
         };
-    }, []);
+    }, [location.search]);
 
-    // useEffect(() => {
-    //     $(tableRef.current).DataTable({
-    //         processing: true,
-    //         serverSide: true,
-    //         ajax: {
-    //             url: "/api/admin/schedule",
-    //             type: "GET",
-    //             beforeSend: function (request) {
-    //                 request.setRequestHeader(
-    //                     "Authorization",
-    //                     `Bearer ` + localStorage.getItem("admin-token")
-    //                 );
-    //             },
-    //         },
-    //         order: [[0, "desc"]],
-    //         columns: [
-    //             {
-    //                 title:  t("admin.dashboard.pending.scheduled"),
-    //                 data: "start_date",
-    //                 render: function (data, type, row, meta) {
-    //                     let _html = "";
-
-    //                     if (row.start_date) {
-    //                         _html += `<span class="text-blue"> ${Moment(
-    //                             row.start_date
-    //                         ).format("DD/MM/Y")} </span>`;
-
-    //                         _html += `<br /> <span class="text-blue"> ${Moment(
-    //                             row.start_date
-    //                         ).format("dddd")} </span>`;
-
-    //                         if (row.start_time && row.end_time) {
-    //                             _html += `<br /> <span class="text-green"> Start : ${row.start_time} </span>`;
-    //                             _html += `<br /> <span class="text-danger"> End : ${row.end_time} </span>`;
-    //                         }
-    //                     }
-
-    //                     return _html;
-    //                 },
-    //             },
-    //             {
-    //                 title:  t("admin.global.Name"),
-    //                 data: "name",
-    //                 render: function (data, type, row, meta) {
-    //                     return `<a href="/admin/clients/view/${row.client_id}" target="_blank" class="dt-client-link"> ${data} </a>`;
-    //                 },
-    //             },
-    //             {
-    //                 title:  t("admin.dashboard.pending.contact"),
-    //                 data: "phone",
-    //             },
-    //             {
-    //                 title:  t("admin.global.Address"),
-    //                 data: "address_name",
-    //                 render: function (data, type, row, meta) {
-    //                     if (data) {
-    //                         return `<a href="https://maps.google.com?q=${row.geo_address}" target="_blank" class="" style="color: black; text-decoration: underline;"> ${data} </a>`;
-    //                     } else {
-    //                         return "NA";
-    //                     }
-    //                 },
-    //             },
-    //             {
-    //                 title: t("client.meeting.attender"),
-    //                 data: "attender_name",
-    //             },
-    //             {
-    //                 title:  t("admin.global.Status"),
-    //                 data: "booking_status",
-    //                 render: function (data, type, row, meta) {
-    //                     let color = "";
-    //                     if (data == "pending") {
-    //                         color = "purple";
-    //                     } else if (data == "confirmed" || data == "completed") {
-    //                         color = "green";
-    //                     } else {
-    //                         color = "red";
-    //                     }
-
-    //                     // return `<span style="color: ${color};">${data}</span>`;
-    //                     return `<p style="background-color: #efefef; color: ${color}; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-    //                                 ${data}
-    //                             </p>`;
-    //                 },
-    //             },
-    //             {
-    //                 title: t("admin.global.Action"),
-    //                 data: "action",
-    //                 orderable: false,
-    //                 responsivePriority: 1,
-    //                 render: function (data, type, row, meta) {
-    //                     let _html =
-    //                         '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-    //                     _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}" data-client-id="${row.client_id}">${t("admin.leads.view")}</button>`;
-
-    //                     _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
-
-    //                     _html += "</div> </div>";
-
-    //                     return _html;
-    //                 },
-    //             },
-    //         ],
-    //         ordering: true,
-    //         searching: true,
-    //         responsive: true,
-    //         createdRow: function (row, data, dataIndex) {
-    //             $(row).addClass("dt-row custom-row-class");
-    //             $(row).attr("data-id", data.id);
-    //             $(row).attr("data-client-id", data.client_id);
-    //         },
-    //         columnDefs: [
-    //             {
-    //                 targets: '_all',
-    //                 createdCell: function (td, cellData, rowData, row, col) {
-    //                     $(td).addClass('custom-cell-class ');
-    //                 }
-    //             }
-    //         ]
-    //     });
-
-    //        // Customize the search input
-    //        const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
-    //        $("div.dt-search").append(searchInputWrapper);
-    //        $("div.dt-search").addClass("position-relative");
-
-
-    //     $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
-    //         let _id = null;
-    //         let _clientID = null;
-    //         if (e.target.closest("tr.dt-row")) {
-    //             if (
-    //                 !e.target.closest(".dropdown-toggle") &&
-    //                 !e.target.closest(".dropdown-menu") &&
-    //                 !e.target.closest(".dt-client-link") &&
-    //                 !e.target.closest(".dt-address-link") &&
-    //                 (!tableRef.current.classList.contains("collapsed") ||
-    //                     !e.target.closest(".dtr-control"))
-    //             ) {
-    //                 _id = $(this).data("id");
-    //                 _clientID = $(this).data("client-id");
-    //             }
-    //         } else {
-    //             if (
-    //                 !e.target.closest(".dropdown-toggle") &&
-    //                 !e.target.closest(".dropdown-menu") &&
-    //                 !e.target.closest(".dt-client-link") &&
-    //                 !e.target.closest(".dt-address-link")
-    //             ) {
-    //                 _id = $(e.target).closest("tr.child").prev().data("id");
-    //                 _clientID = $(e.target)
-    //                     .closest("tr.child")
-    //                     .prev()
-    //                     .data("client-id");
-    //             }
-    //         }
-
-    //         if (_id) {
-    //             navigate(`/admin/schedule/view/${_clientID}?sid=${_id}`);
-    //         }
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-view-btn", function () {
-    //         const _id = $(this).data("id");
-    //         const _clientID = $(this).data("client-id");
-    //         navigate(`/admin/schedule/view/${_clientID}?sid=${_id}`);
-    //     });
-
-    //     $(tableRef.current).on("click", ".dt-delete-btn", function () {
-    //         const _id = $(this).data("id");
-    //         handleDelete(_id);
-    //     });
-
-    //     return function cleanup() {
-    //         $(tableRef.current).DataTable().destroy(true);
-    //     };
-    // }, []);
 
     const handleDelete = (id) => {
         Swal.fire({

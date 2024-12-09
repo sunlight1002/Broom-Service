@@ -11,6 +11,7 @@ final class LeadStatusEnum extends AbstractEnum
     public const IRRELEVANT = 'irrelevant';
     public const UNINTERESTED = 'uninterested';
     public const UNANSWERED = 'unanswered';
+    public const UNANSWERED_FINAL = 'unanswered_final';
     public const POTENTIAL_CLIENT = 'potential client';
     public const PENDING_CLIENT = 'pending client';
     public const FREEZE_CLIENT = 'freeze client';
@@ -20,4 +21,5 @@ final class LeadStatusEnum extends AbstractEnum
     public const MOVED = 'moved';
     public const ONE_TIME = 'one-time';
     public const PAST = 'past';
+    public const RESCHEDULE_CALL = 'reschedule call';
 }

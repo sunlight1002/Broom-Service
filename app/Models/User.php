@@ -75,6 +75,7 @@ class User extends Authenticatable
         'employment_type',
         'salary',
         'contactId',
+        'step'
     ];
 
     /**

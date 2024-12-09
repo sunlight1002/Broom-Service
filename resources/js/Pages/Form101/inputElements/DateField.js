@@ -19,7 +19,7 @@ export default function DateField({
             <br />
             <input
                 type="date"
-                className="form-control"
+                className={`form-control ${error ? 'is-invalid' : ''}`}
                 name={name}
                 id={id}
                 value={value}
