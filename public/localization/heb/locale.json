@@ -1184,6 +1184,7 @@
             "PriceOfferSent": "הצעת מחיר נשלחה",
             "DeclinedPriceOffer": "הצעת מחיר נדחתה",
             "AddNew": "הוסף חדש",
+            "leave_request": "עזוב בקשה",
             "Options": {
                 "sortBy": "-- מיין לפי --",
                 "ID": "מזהה",

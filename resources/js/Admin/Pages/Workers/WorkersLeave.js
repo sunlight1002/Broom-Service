@@ -128,7 +128,7 @@ const WorkerLeave = () => {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-12">
-                            <h1 className="page-title">Leave Request</h1>
+                            <h1 className="page-title">{t("admin.leads.leave_request")}</h1>
                         </div>
                     </div>
                 </div>

@@ -1154,6 +1154,7 @@
             "PriceOfferSent": "Price offer sent",
             "DeclinedPriceOffer": "Declined price offer",
             "AddNew": "Add New",
+            "leave_request": "Leave Request",
             "Options": {
                 "sortBy": "-- Sort By--",
                 "ID": "ID",
