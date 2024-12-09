@@ -37,6 +37,9 @@ const App = () => {
     const [selectedTaskId, setSelectedTaskId] = useState(null);
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [selectedWorkers, setSelectedWorkers] = useState([]);
+    const [selectedFrequency, setSelectedFrequency] = useState(1);
+    const [repeatancy, setRepeatancy] = useState('');
+    const [untilDate, setUntilDate] = useState('');
 
     const admin_id = localStorage.getItem("admin-id");
 
@@ -111,20 +114,6 @@ const App = () => {
         getTasks();
     }, []);
 
-
-    const handleDrop = async (taskId, newPhaseId) => {
-
-        try {
-            // Update the task's phase in the backend
-            const res = await axios.put(`/api/admin/tasks/${14}`, { phase_id: newPhaseId }, { headers });
-
-            getTasks(); // Refresh the tasks after moving
-        } catch (error) {
-            console.error(error);
-            alert.error('Failed to move task.');
-        }
-    };
-
     const handleSort = async (sortedTaskIds) => {
         try {
             await axios.post('/api/admin/tasks/sort', { ids: sortedTaskIds }, { headers });
@@ -134,7 +123,6 @@ const App = () => {
             alert.error('Failed to reorder tasks.');
         }
     };
-
 
     const handleAddCard = async () => {
         if (!taskName || !status || !priority || !dueDate || !selectedPhaseId) {
@@ -152,6 +140,9 @@ const App = () => {
             status: status,
             priority: priority,
             description: description,
+            frequency_id: selectedFrequency,
+            repeatancy: repeatancy,
+            until_date: untilDate,
             ...(userIds.length > 0 && { user_ids: userIds }),
             ...(workerIds.length > 0 && { worker_ids: workerIds })
         };
@@ -292,6 +283,9 @@ const App = () => {
         setSelectedPhaseId(task.phase_id);
         setSelectedOptions(task ? task?.users?.map(user => ({ value: user.id, label: user.name })) : []);
         setSelectedWorkers(task ? task?.workers?.map(worker => ({ value: worker.id, label: worker.firstname })) : []);
+        setSelectedFrequency(task.frequency_id);
+        setRepeatancy(task.repeatancy);
+        setUntilDate(task.until_date);
         setIsEditing(true);
         setIsOpen(true);
     };
@@ -304,6 +298,9 @@ const App = () => {
         setDescription("");
         setSelectedOptions([]);
         setSelectedWorkers([]);
+        setSelectedFrequency(1);
+        setRepeatancy('');
+        setUntilDate('');
     };
 
     const handleUpdateTask = async () => {
@@ -566,6 +563,12 @@ const App = () => {
                 worker={worker}
                 description={description}
                 setDescription={setDescription}
+                setSelectedFrequency={setSelectedFrequency}
+                selectedFrequency={selectedFrequency}
+                setRepeatancy={setRepeatancy}
+                repeatancy={repeatancy}
+                setUntilDate={setUntilDate}
+                untilDate={untilDate}
             />
 
 

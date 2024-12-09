@@ -1032,7 +1032,7 @@ class ClientController extends Controller
             $rescheduleDate = isset($data['reschedule_date']) ? Carbon::parse($data['reschedule_date']) : Carbon::today();
             $rescheduleTime = Carbon::createFromFormat('H:i', $data['reschedule_time']);
             $endTime = $rescheduleTime->copy()->addMinutes(30);
-    
+        
             $notificationData = [
                 "schedule" => [
                     "id" => $activity->id,
@@ -1048,34 +1048,35 @@ class ClientController extends Controller
                     ],
                 ]
             ];
-    
+        
             // Check if today is a holiday or Saturday
             $today = Carbon::today();
             $holidays = Holiday::whereDate('start_date', '<=', $today)
                 ->whereDate('end_date', '>=', $today)
                 ->get();
-    
+        
             // Ensure $today is a Carbon instance
             $today = Carbon::today();
-            
-            if ($today->isSaturday()) {
-                // Move notification to the next day (Saturday)
+        
+            // Check if today is a holiday or Saturday
+            if ($today->isSaturday() || $holidays->contains(fn($holiday) => $today->between($holiday->start_date, $holiday->end_date))) {
+                // Move notification to the next day (Saturday or holiday)
                 $notificationDate = $today->addDay();
-            } elseif ($holidays->contains(fn($holiday) => $today->between($holiday->start_date, $holiday->end_date))) {
-                // If today is a holiday, move notification to the day after the holiday ends
-                $latestHolidayEndDate = $holidays->max('end_date');
-                $notificationDate = Carbon::parse($latestHolidayEndDate)->addDay();
+            } elseif ($rescheduleDate->isSaturday() || $holidays->contains(fn($holiday) => $rescheduleDate->between($holiday->start_date, $holiday->end_date))) {
+                // If reschedule date is a holiday, do not dispatch any job
+                Log::info('Both today and reschedule date are holidays. Skipping job dispatch.');
+                return; // Skip dispatching the job if both dates are holidays
             } else {
                 $notificationDate = Carbon::now();
             }
-                
-    
+        
             // Dispatch the jobs to save Google calendar event and send notification
             SaveGoogleCalendarCallJob::dispatch($notificationData);
-    
+        
             NotifyClientForCallAfterHoliday::dispatch($client, $activity)
-                ->delay($notificationDate->diffInSeconds(now())); 
+                ->delay($notificationDate->diffInSeconds(now()));
         }
+        
     
         return response()->json([
             'message' => 'Status has been changed successfully!',

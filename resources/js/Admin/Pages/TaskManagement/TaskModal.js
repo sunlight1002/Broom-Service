@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button, Modal } from "react-bootstrap";
 import Select from "react-select";
 import { useTranslation } from 'react-i18next';
@@ -27,12 +27,39 @@ function TaskModal({
     worker,
     setDescription,
     description,
-    type = 'admin'
+    type = 'admin',
+    setSelectedFrequency,
+    selectedFrequency,
+    setRepeatancy,
+    repeatancy,
+    setUntilDate,
+    untilDate,
 }) {
     const { t } = useTranslation();
+    const [frequencies, setFrequencies] = useState([]);
     function onChange(e) {
         setDescription(e.target.value);
     }
+
+    const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+    };
+
+
+    const getFrequency = (lng = "en") => {
+        axios
+            .post("/api/admin/all-service-schedule", { lng }, { headers })
+            .then((res) => {
+                setFrequencies(res.data.schedules);
+            });
+    };
+
+    useEffect(() => {
+        getFrequency();
+    }, [])
+
 
     return (
         <div>
@@ -104,6 +131,82 @@ function TaskModal({
                                 </div>
                             )
                         }
+                        {
+                            type === "admin" && (
+                                <div className="row form-group mt-3">
+                                    {/* Frequency Input */}
+                                    <div className="col-sm">
+                                        <div className="form-group m-0">
+                                            <label className="control-label">{t("client.offer.view.frequency")}</label>
+                                            <select
+                                                name="frequency"
+                                                className="form-control mb-2"
+                                                value={selectedFrequency}
+                                                onChange={(e) => setSelectedFrequency(e.target.value)}
+                                            >
+                                                {/* <option value={0}>{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option> */}
+                                                {frequencies.map((s, i) => (
+                                                    <option cycle={s.cycle} period={s.period} name={s.name} value={s.id} key={i}>
+                                                        {s.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {
+                                        selectedFrequency != 1 && (
+                                            <>
+                                                <div className="col-sm">
+                                                    <label className="control-label">
+                                                        {t(
+                                                            "admin.schedule.jobs.CancelModal.Repeatancy"
+                                                        )}
+                                                    </label>
+
+                                                    <select
+                                                        name="repeatancy"
+                                                        onChange={(e) => setRepeatancy(e.target.value)}
+                                                        value={repeatancy}
+                                                        className="form-control mb-3"
+                                                    >
+                                                        <option value="">
+                                                            -- Please select --
+                                                        </option>
+                                                        <option value="forever">
+                                                            {t(
+                                                                "admin.schedule.jobs.CancelModal.options.Forever"
+                                                            )}
+                                                        </option>
+                                                        <option value="until_date">
+                                                            {t(
+                                                                "admin.schedule.jobs.CancelModal.options.UntilDate"
+                                                            )}
+                                                        </option>
+                                                    </select>
+                                                </div>
+
+                                                {repeatancy == "until_date" && (
+                                                    <div className="col-sm">
+                                                        <label className="control-label">
+                                                            {t(
+                                                                "admin.schedule.jobs.CancelModal.options.UntilDate"
+                                                            )}
+                                                        </label>
+                                                        <input
+                                                            type="date"
+                                                            className="form-control"
+                                                            value={untilDate}
+                                                            onChange={(e) => setUntilDate(e.target.value)}
+                                                            required
+                                                        />
+                                                    </div>
+                                                )}
+                                            </>
+                                        )
+                                    }
+                                </div>
+                            )
+                        }
                         <div className="row form-group mt-3">
                             <div className="col-sm">
                                 <div className="d-flex flex-column">
@@ -129,7 +232,7 @@ function TaskModal({
                                         type="date"
                                         className="form-control"
                                         value={dueDate}
-                                        disabled={type === 'worker'}    
+                                        disabled={type === 'worker'}
                                         onChange={(e) => setDueDate(e.target.value)}
                                         required
                                     />
@@ -151,7 +254,9 @@ function TaskModal({
                                     </select>
                                 </div>
                             </div>
+
                         </div>
+
                     </div>
                 </Modal.Body>
 
