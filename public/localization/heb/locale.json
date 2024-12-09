@@ -245,6 +245,8 @@
         "type": "סוּג",
         "amount_txt": "מחיר לביקור (לפני מע'מ)",
         "offer_title": "מה יש לנו להציע?",
+        "subservice": "שירות משנה",
+        "select_subservice": "---בחר שירותי משנה---",
         "thorough_cleaning": {
             "premium": "חבילת פרמיום ,הכוללת:",
             "s1_1": "אבק יסודי",

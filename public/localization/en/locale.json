@@ -251,6 +251,8 @@
         "type": "Type",
         "amount_txt": "Price per visit (Before VAT)",
         "offer_title": "What Do We Have To Offer?",
+        "subservice": "Sub Service",
+        "select_subservice": "---Select Sub Services---",
         "thorough_cleaning": {
             "premium": "Premium package which includes:",
             "s1_1": "Thorough dust.",
