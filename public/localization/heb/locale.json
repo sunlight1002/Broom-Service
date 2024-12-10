@@ -245,6 +245,8 @@
         "type": "סוּג",
         "amount_txt": "מחיר לביקור (לפני מע'מ)",
         "offer_title": "מה יש לנו להציע?",
+        "subservice": "שירות משנה",
+        "select_subservice": "---בחר שירותי משנה---",
         "thorough_cleaning": {
             "premium": "חבילת פרמיום ,הכוללת:",
             "s1_1": "אבק יסודי",
@@ -1050,7 +1052,35 @@
             "time_worker_actually": "הזמן שהעובד עבד בפועל",
             "client_review": "ביקורת לקוח",
             "visits": "ביקורים",
-            "change_password": "שנה סיסמה"
+            "change_password": "שנה סיסמה",
+            "add_phase": "הוסף שלב",
+            "add_another_task": "הוסף עוד משימה",
+            "add_task": "הוסף משימה",
+            "edit_task": "ערוך משימה",
+            "task_name": "שם המשימה",
+            "no_task": "אין משימה זמינה",
+            "add": "הוסף",
+            "description": "תיאור",
+            "team_members": "חברי צוות",
+            "Workers": "עובדים",
+            "priority": "עדיפות",
+            "due_date": "תאריך יעד",
+            "select_priority": "---בחר עדיפות---",
+            "select_status": "---בחר סטטוס---",
+            "select_worker": "---בחר עובד---",
+            "select_client": "---בחר לקוח---",
+            "select_service": "---בחר שירות---",
+            "please_select": "--- אנא בחר ---",
+            "update_task": "עדכון משימה",
+            "update": "עדכון",
+            "delete": "מחק",
+            "delete_task": "מחק משימה",
+            "delete_worker": "מחק עובד",
+            "in_progress": "בעיצומה",
+            "completed": "הושלם",
+            "high": "גבוה",
+            "medium": "בינוני",
+            "low": "נמוך"
         },
         "modal": {
             "title": "מודל",
@@ -1154,6 +1184,7 @@
             "PriceOfferSent": "הצעת מחיר נשלחה",
             "DeclinedPriceOffer": "הצעת מחיר נדחתה",
             "AddNew": "הוסף חדש",
+            "leave_request": "עזוב בקשה",
             "Options": {
                 "sortBy": "-- מיין לפי --",
                 "ID": "מזהה",
@@ -1775,6 +1806,16 @@
             "notification": "התראות",
             "workerLeave": "עובדים עוזבים",
             "workerHearing": "שימועי עובדים",
+            "task_management": "ניהול משימות",
+            "worker_lead": "ראש עובד",
+            "pending_request": "בקשה ממתינה",
+            "templates": "תבניות",
+            "client": {
+                "waiting": "מחכה",
+                "active_client": "לקוח פעיל",
+                "past_client": "לקוח עבר",
+                "freeze_client": "הקפא לקוח"
+            },
             "settings": {
                 "title": "הגדרות",
                 "manage_team": "ניהול צוות",
@@ -1801,7 +1842,11 @@
                 "selectCurrency": "--- בחר מטבע ---",
                 "uploadProfile": "העלאת תמונת פרופיל",
                 "verification": "אימות דו-שלבי",
-                "holidays": "חגים"
+                "holidays": "חגים",
+                "payslip_settings": "הגדרות תלוש שכר",
+                "bank_detail": "פרטי בנק",
+                "integration": "אינטגרציה",
+                "submit": "שלח"
             },
             "logout": "התנתק"
         },

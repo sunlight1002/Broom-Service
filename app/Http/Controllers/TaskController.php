@@ -198,6 +198,7 @@ class TaskController extends Controller
         $task = new TaskManagement($request->all());
         $task->user_id = $user->id;
         $task->user_type = $userType;
+        $task->frequency_id = $request->frequency_id != 1 ? $request->frequency_id : null;
         $task->next_start_date = $next_start_date;  
         $task->save();
     

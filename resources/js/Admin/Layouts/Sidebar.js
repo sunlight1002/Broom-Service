@@ -162,22 +162,22 @@ export default function Sidebar() {
                                     </li> */}
                                     <li className={`list-group-item ${isActive(routes.pendingClient) ? "active" : ""}`}>
                                         <Link to={routes.pendingClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pendingClient) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i> Waiting
+                                            <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.activeClient) ? "active" : ""}`}>
                                         <Link to={routes.activeClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.activeClient) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i> Active Client
+                                            <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.active_client")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.freezeClient) ? "active" : ""}`}>
                                         <Link to={routes.freezeClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.freezeClient) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i> Freeze Client
+                                            <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.freeze_client")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.pastClient) ? "active" : ""}`}>
                                         <Link to={routes.pastClient} onClick={(e) => e.stopPropagation()} style={isActive(routes.pastClient) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i> Past Client
+                                            <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.past_client")}
                                         </Link>
                                     </li>
                                 </ul>
@@ -204,14 +204,14 @@ export default function Sidebar() {
                     <NavLink to="/admin/task"
                         className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-list-check"></i>Task Management
+                        <i className="fa-solid fa-list-check"></i>{t("admin.sidebar.task_management")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
                     <NavLink to="/admin/worker-leads"
                         className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-users font-20"></i>Worker Lead
+                        <i className="fa-solid fa-users font-20"></i>{t("admin.sidebar.worker_lead")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
@@ -260,7 +260,7 @@ export default function Sidebar() {
                     <NavLink to="/admin/schedule-requests"
                         className="d-flex align-items-center"
                     >
-                        <i className="fa-solid fa-hand font-20"></i>Pending Request
+                        <i className="fa-solid fa-hand font-20"></i>{t("admin.sidebar.pending_request")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
@@ -365,7 +365,7 @@ export default function Sidebar() {
                                     <li className={`list-group-item ${isActive(routes.waTemplates) ? "active text-white" : ""}`}>
                                         <Link to={routes.waTemplates} style={isActive(routes.waTemplates) ? { color: "white" } : { color: "#757589" }}>
                                             <i className="fa fa-angle-right"></i>{" "}
-                                            Templates
+                                            {t("admin.sidebar.templates")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.payslipSettings) ? "active" : ""}`}>

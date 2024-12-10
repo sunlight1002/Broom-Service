@@ -63,35 +63,36 @@ export default function Setting() {
                             </a>
                         </li>
                         {role && role === "superadmin" && (
-                        <li className="nav-item" role="presentation">
-                            <a
-                                id="integration-tab"
-                                className="nav-link"
-                                data-toggle="tab"
-                                href="#tab-integration"
-                                aria-selected="false"
-                                role="tab"
-                            >
-                                {t("client.settings.integration")}
-                            </a>
-                        </li>
-                        )}
-                      {
-                        role !== "superadmin" && (
                             <li className="nav-item" role="presentation">
-                            <a
-                                id="bank-tab"
-                                className="nav-link"
-                                data-toggle="tab"
-                                href="#tab-bank"
-                                aria-selected="false"
-                                role="tab"
-                            >
-                                Bank details
-                            </a>
-                        </li>
-                        )
-                      }
+                                <a
+                                    id="integration-tab"
+                                    className="nav-link"
+                                    data-toggle="tab"
+                                    href="#tab-integration"
+                                    aria-selected="false"
+                                    role="tab"
+                                >
+                                    {t("admin.sidebar.settings.integration")}
+                                </a>
+                            </li>
+                        )}
+                        {
+                            role !== "superadmin" && (
+                                <li className="nav-item" role="presentation">
+                                    <a
+                                        id="bank-tab"
+                                        className="nav-link"
+                                        data-toggle="tab"
+                                        href="#tab-bank"
+                                        aria-selected="false"
+                                        role="tab"
+                                    >
+                                        {t("admin.sidebar.settings.bank_detail")}
+
+                                    </a>
+                                </li>
+                            )
+                        }
                     </ul>
                     <div className="tab-content">
                         <div

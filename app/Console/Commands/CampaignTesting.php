@@ -58,24 +58,37 @@ class CampaignTesting extends Command
         $businessId = config('services.facebook.business_id');
         $adAccountId = config('services.facebook.app_id');
         // Base URL for the Facebook Graph API
-        $baseUrl = "https://graph.facebook.com/v21.0/act_$adAccountId/campaigns"; // Use the latest API version
-        // \Log::info($baseUrl);
-        $queryParams = [
-        'effective_status' => '["ACTIVE","PAUSED"]', // Filter campaigns by status
-        'fields' => 'name,objective' // Fields to retrieve
-        ];
+        $baseUrl = "https://graph.facebook.com/v21.0/"; // Use the latest API version
 
         try {
             // Make the GET request
-            $response = Http::withToken($accessToken)->get($baseUrl, $queryParams);
-
-            if ($response->successful()) {
-                $campaigns = $response->json();
-                $this->info('Fetched campaigns successfully:');
-                $this->line(json_encode($campaigns, JSON_PRETTY_PRINT));
-            } else {
-                $this->error('Failed to fetch campaigns: ' . $response->body());
+            $accResponse = Http::withToken($accessToken)->get($baseUrl."me/adaccounts?access_token=$accessToken");
+            if ($accResponse->successful()) {
+                $acc_data = $accResponse->json();
+                \Log::info($acc_data);
             }
+
+            if ($accResponse->failed()) {
+                $this->error('Error fetching campaigns: ' . $accResponse->body());
+                return 1; // Indicate failure
+            };
+
+            $campaignId = $acc_data['data'][2]['id'];
+
+            $this->info("Fetching insights for campaign ID: $campaignId");
+
+            // Fetching insights for the campaign
+            $campaignResponse = Http::withToken($accessToken)
+                ->get($baseUrl . "$campaignId/insights", [
+                    'fields' => 'campaign_name,actions,cost_per_conversion,cost_per_action_type,conversion_values,clicks,cpc,cpm,ctr,cpp,date_start,date_stop,cost_per_unique_outbound_click,cost_per_unique_inline_link_click,cost_per_unique_click,cost_per_unique_action_type,spend,reach,cost_per_ad_click',
+                    'limit' => 10, // Limit to the top 10 insights
+                ]);
+
+
+            $campaignData = $campaignResponse->json();
+            \Log::info('Insights for Campaign ID ' . $campaignId, $campaignData);
+
+
         } catch(Facebook\Exceptions\FacebookResponseException $e) {
             echo 'Graph returned an error: ' . $e->getMessage();
             exit;
