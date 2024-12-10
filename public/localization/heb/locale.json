@@ -2525,6 +2525,8 @@
         "sign": "חתימת עובד",
         "Clear": "נקה",
         "Submit": "שלח",
+        "submitted": "נשלח",
+        "Next": "הבא",
         "Accept": "אשר",
         "errorMsg": "נדרשת חתימה",
         "successfullySigned": "נחתמה בהצלחה",

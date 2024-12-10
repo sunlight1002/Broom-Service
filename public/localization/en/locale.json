@@ -2505,6 +2505,8 @@
         "sign": "Employee signature",
         "Clear": "Clear",
         "Submit": "Submit",
+        "submitted": "Submitted",
+        "Next": "Next",
         "Accept": "Accept",
         "errorMsg": "Signature is required",
         "successfullySigned": "Successfuly signed",
