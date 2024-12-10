@@ -85,6 +85,9 @@ export default function Acc() {
                 if (rtlLink) {
                     rtlLink.remove();
                 }
+        }else {
+            import("../../../Assets/css/rtl.css");
+            document.querySelector("html").setAttribute("dir", "rtl");
         }
 
         // for (const [key, value] of formData.entries()) {
@@ -232,6 +235,7 @@ export default function Acc() {
                             type="submit"
                             onClick={handleSubmit}
                             className="btn navyblue saveBtn"
+                            value={t("admin.sidebar.settings.submit")}
                         />
                     </div>
                 </form>
