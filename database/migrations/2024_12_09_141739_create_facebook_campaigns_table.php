@@ -15,17 +15,17 @@ class CreateFacebookCampaignsTable extends Migration
     {
         Schema::create('facebook_campaigns', function (Blueprint $table) {
             $table->id();
-            $table->string('campaign_name');
-            $table->string('campaign_id'); // Facebook campaign ID
-            $table->string('date_start');
-            $table->string('date_stop');
-            $table->decimal('spend', 10, 2);
-            $table->integer('reach');
-            $table->integer('clicks');
-            $table->decimal('cpc', 10, 2);
-            $table->decimal('cpm', 10, 2);
-            $table->decimal('ctr', 10, 2);
-            $table->decimal('cpp', 10, 2);
+            $table->string('campaign_name')->nullable();
+            $table->string('campaign_id')->unique();
+            $table->string('date_start')->nullable();
+            $table->string('date_stop')->nullable();
+            $table->decimal('spend', 10, 2)->default(0);
+            $table->integer('reach')->default(0);
+            $table->integer('clicks')->default(0);
+            $table->decimal('cpc', 10, 2)->nullable();
+            $table->decimal('cpm', 10, 2)->nullable();
+            $table->decimal('ctr', 10, 2)->nullable();
+            $table->decimal('cpp', 10, 2)->nullable();
             $table->timestamps();
         });
     }

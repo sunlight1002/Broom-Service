@@ -212,7 +212,7 @@ function ScheduleChange() {
                 <div className="titleBox customer-title">
                     <div className="d-flex justify-content-between">
                         <div className="">
-                            <h1 className="page-title">Pending Request</h1>
+                            <h1 className="page-title">{t("admin.sidebar.pending_request")}</h1>
                         </div>
                     </div>
                 </div>

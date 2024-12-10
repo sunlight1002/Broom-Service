@@ -79,7 +79,10 @@ export default function AddLeadClient() {
             services: JSON.stringify(formValues),
         };
 
-        const sanitizedPhone = formValues.phone.replace(
+        console.log(formValues);
+        
+
+        const sanitizedPhone = phone?.replace(
             /(?<=^\+?\d+)\s*0+/,
             ""
         );
@@ -100,6 +103,7 @@ export default function AddLeadClient() {
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
         };
+
 
         axios
             .put(

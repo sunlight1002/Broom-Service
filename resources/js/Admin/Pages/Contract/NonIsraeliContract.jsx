@@ -12,6 +12,7 @@ import DateField from "../../../Pages/Form101/inputElements/DateField";
 import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 import { GrFormNextLink, GrFormPreviousLink } from "react-icons/gr";
+import useWindowWidth from "../../../Hooks/useWindowWidth";
 
 export function NonIsraeliContract({
     handleFormSubmit,
@@ -33,7 +34,8 @@ export function NonIsraeliContract({
     const { t } = useTranslation();
     const [formValues, setFormValues] = useState(null);
     const [savingType, setSavingType] = useState("submit");
-
+    const windowWidth = useWindowWidth();
+    const [mobileView, setMobileView] = useState(false);
     const currentDate = moment().format("YYYY-MM-DD");
 
     const initialValues = {
@@ -54,6 +56,14 @@ export function NonIsraeliContract({
         role: "",
     };
 
+
+    useEffect(() => {
+        if (windowWidth < 767) {
+            setMobileView(true)
+        } else {
+            setMobileView(false)
+        }
+    }, [windowWidth])
 
     const scrollToError = (errors) => {
         const errorFields = Object.keys(errors);
@@ -230,9 +240,6 @@ export function NonIsraeliContract({
             handleSubmit();
         }
     };
-    
-    
-
 
     return (
         <div className="mt-5 contracttargetDiv" ref={contentRef}>
@@ -254,7 +261,7 @@ export function NonIsraeliContract({
                                             {t("nonIsrailContract.nic1")}
                                         </strong>
                                         <div className="row gap-3">
-                                            <div className="col-6">
+                                            <div className="col-sm">
                                                 <TextField
                                                     name={"fullName"}
                                                     onBlur={handleBlur}
@@ -271,7 +278,7 @@ export function NonIsraeliContract({
                                                     }
                                                 />
                                             </div>
-                                            <div className="col-6">
+                                            <div className="col-sm">
                                                 <TextField
                                                     name={"passport"}
                                                     onBlur={handleBlur}
@@ -370,7 +377,7 @@ export function NonIsraeliContract({
                                                     )}
                                                 </p>
                                             )}
-                                            <div className="d-flex align-items-center">
+                                            <div className={`d-flex ${mobileView ? "flex-column" : "align-items-center"}`}>
                                                 <div
                                                     className={
                                                         " " +
@@ -404,7 +411,9 @@ export function NonIsraeliContract({
                                                             ? "col-4"
                                                             : "")
                                                     }
-                                                    style={{ marginLeft: "180px" }}
+                                                    style={{ 
+                                                        marginLeft: mobileView ? "0px" : "180px" 
+                                                    }}
                                                 >
                                                     {workerDetail?.is_existing_worker ? "" : (
                                                         <p>

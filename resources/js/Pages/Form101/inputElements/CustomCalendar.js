@@ -124,9 +124,13 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
         start_time: selectedTime,
       })
       .then((response) => {
+        console.log(response.data);
+        
         setIsLoading(false);
-        alert.error(response.data.message);
-        window.location.reload(true);
+        alert.success(response.data.message);
+        setTimeout(() => {
+          window.location.reload(true);
+        }, 1000);
       })
       .catch((e) => {
         setIsLoading(false);
@@ -139,6 +143,8 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
       });
   };
   const currentLanguage = meeting?.client?.lng === "heb" ? "he" : "en";
+  const today = moment().format("DD-MM-YYYY");
+
   moment.locale(currentLanguage);
 
   const formattedSelectedDate = useMemo(() => {
@@ -152,7 +158,7 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
     }
     return "";
   }, [selectedDate, currentLanguage]);
-  
+
   const selectDate = moment(selectedDate).format("DD-MM-YYYY");
 
   const res = moment(start_time, "hh:mm A").format("HH:mm");
@@ -161,16 +167,16 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
     const filteredTimeOptions = selectedDate !== meetingDate
       ? startTimeOptions.filter((i) => moment(i, "kk:mm").format("HH:mm") !== res)
       : startTimeOptions;
-  
+
     return filteredTimeOptions.map((i) => moment(i, "kk:mm").format("hh:mm A"));
   }, [startTimeOptions, selectedDate, meetingDate, res]);
-  
+
 
   const filteredTimeSlots = timeSlots.filter((t) => {
     const slotTime = moment(t, "hh:mm A");
 
-    if (selectDate === meetingDate) {
-      return slotTime.isAfter(moment()); 
+    if (meetingDate === today) {
+      return slotTime.isAfter(moment());
     }
     return true;
   });
@@ -197,26 +203,28 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
               <h6 className="time-slot-date">{formattedSelectedDate}</h6>
               <ul className="list-unstyled mt-4 timeslot">
                 {filteredTimeSlots.length > 0 ? (
-                  filteredTimeSlots.map((t, index) => (
-                    <li
-                      className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"
-                        }`}
-                      style={{
-                        backgroundColor: selectDate === meetingDate && start_time === t ? "#dbdbdb" : undefined,
-                      }}
-                      disabled={selectDate === meetingDate && start_time === t}
-                      key={index}
-                      onClick={() => {
-                        if (selectDate === meetingDate && start_time === t) {
-                          alert.error("You can't select the same time");
-                          return;
-                        }
-                        setSelectedTime(t);
-                      }}
-                    >
-                      {t}
-                    </li>
-                  ))
+                  filteredTimeSlots.map((t, index) => {
+                    return (
+                      <li
+                        className={`py-2 px-3 border mb-2 text-center border-primary ${selectedTime === t ? "bg-primary text-white" : "text-primary"
+                          }`}
+                        style={{
+                          backgroundColor: selectDate === meetingDate && start_time === t ? "#dbdbdb" : undefined,
+                        }}
+                        disabled={selectDate === meetingDate && start_time === t}
+                        key={index}
+                        onClick={() => {
+                          if (selectDate === meetingDate && start_time === t) {
+                            alert.error("You can't select the same time");
+                            return;
+                          }
+                          setSelectedTime(t);
+                        }}
+                      >
+                        {t}
+                      </li>
+                    )
+                  })
                 ) : (
                   <li className="py-2 px-3 border mb-2 text-center border-secondary text-secondary bg-light">
                     {t("global.noTimeSlot")} {t("global.available")}

@@ -228,6 +228,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('add-comment', [LeadController::class, 'addComment']);
     Route::post('delete-comment', [LeadController::class, 'deleteComment']);
 
+    Route::get('/facebook-campaigns', [LeadController::class, 'getFacebookInsights']);
+
+
     // Meeting Schedules
     Route::resource('schedule', ScheduleController::class)->except(['create', 'edit']);
     Route::post('schedule/{id}/create-event', [ScheduleController::class, 'createScheduleCalendarEvent']);

@@ -226,7 +226,9 @@
         "address": "Address",
         "   ": "Client",
         "team_name": "Team name",
-        "meet_link": "Meet Link"
+        "meet_link": "Meet Link",
+        "purpose": "Purpose of the meeting:",
+        "no_file": "No file added for this meeting"
     },
     "price_offer": {
         "button": "Accept Offer",
@@ -249,6 +251,7 @@
         "hours": "hour(s)",
         "amount": "Amount",
         "type": "Type",
+        "price_offno": "Price Offer No.",
         "amount_txt": "Price per visit (Before VAT)",
         "offer_title": "What Do We Have To Offer?",
         "subservice": "Sub Service",
@@ -1780,6 +1783,8 @@
             "worker_lead": "Worker Lead",
             "pending_request": "Pending Request",
             "templates": "Templates",
+            "fb_insights": "Facebook Insights",
+            "fb_campaigns": "Facebook Campaigns",
             "client": {
                 "waiting": "Waiting",
                 "active_client": "Active client",
@@ -2158,6 +2163,7 @@
     },
     "form101": {
         "title": "Form 101",
+        "tax_year": "Tax year",
         "step": "Step",
         "employee_card": "Employee card - and a request for tax relief and coordination by the employer according to the Income Tax Regulations (deduction from salary and wages), 1993",
         "declare_week": "This form will be filled out by each employee upon starting his job, as well as at the beginning of each tax year (unless the manager has approved otherwise). The form is a reference for the employer to provide tax relief and to make tax adjustments in the calculation of the employee's salary. If there is a change in the details - this must be declared within a week.",
@@ -2383,6 +2389,7 @@
                 "Health_Fund_Number": " Enter your health fund membership number, if applicable.",
                 "Marital_Status": " Select your marital status (e.g., Single, Married, Divorced)."
             },
+            "tips_title": "Tips For Filling Out The Form",
             "heading": "We are glad that you chose to work in our company. We will do everything to make you happy and satisfied with your work, and of course take care of everything you need just like a family. The job is full-time approximately 8 hours a day and Fridays are optional",
             "info": "Employee General Information",
             "broom": "Welcome to Broom Service!"

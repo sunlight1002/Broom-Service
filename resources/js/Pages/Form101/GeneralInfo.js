@@ -115,10 +115,10 @@ export default function GeneralInfo({
             <div className="row mt-3">
                 <section className="col-xl">
                     <p className="font-w-500">
-                    {t("form101.step1.heading")}
+                        {t("form101.step1.heading")}
                     </p>
                     <div className="mt-3 lightgrey p-4" style={{ borderRadius: "3px" }}>
-                        <p className="mb-3 font-w-500 font-20">Tips For Filling Out The Form</p>
+                        <p className="mb-3 font-w-500 font-20">{t("form101.step1.tips_title")}</p>
                         <div>
                             {Object.entries(tips).map(([key, value], index) => (
                                 <p className="mb-1" key={index}>
@@ -348,6 +348,7 @@ export default function GeneralInfo({
                                             <br />
                                             <div className="input_container">
                                                 <input
+                                                    className="w-100"
                                                     type="file"
                                                     name="employeepassportCopy"
                                                     id="employeepassportCopy"
@@ -443,6 +444,7 @@ export default function GeneralInfo({
                                             <br />
                                             <div className="input_container">
                                                 <input
+                                                    className="w-100"
                                                     type="file"
                                                     name="employeeIdCardCopy"
                                                     id="employeeIdCardCopy"

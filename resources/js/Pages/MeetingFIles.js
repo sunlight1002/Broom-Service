@@ -165,12 +165,12 @@ export default function MeetingFiles() {
                     setLoader(false);
                     setAllFiles(res.data.files);
                     if (!res.data.files.length) {
-                        setLoading("No file added for this meeting");
+                        setLoading(t("meet_stat.no_file"));
                     }
                 });
         } else {
             setAllFiles([]);
-            setLoading("No file added for this meeting");
+            setLoading(t("meet_stat.no_file"));
         }
     };
     useEffect(() => {
@@ -235,7 +235,7 @@ export default function MeetingFiles() {
                                     target="_blank"
                                     to={`https://maps.google.com?q=${address.geo_address}`}
                                 >
-                                    {address.address_name}
+                                    {address.geo_address}
                                 </Link>
                             </span>
                         </li>
@@ -379,7 +379,7 @@ export default function MeetingFiles() {
                                             </table>
                                         ) : (
                                             <p className="text-center mt-5">
-                                                {loading}
+                                                {t("meet_stat.no_file")}
                                             </p>
                                         )}
                                     </div>
