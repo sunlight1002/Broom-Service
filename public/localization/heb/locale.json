@@ -1,7 +1,19 @@
 {
     "common": {
         "loading": "טוען...",
-        "continue": "לְהַמשִׁיך"
+        "continue": "לְהַמשִׁיך",
+        "delete": {
+            "title": "אתה בטוח?",
+            "message": "לא תוכל לבטל את זה!",
+            "yes": "כן",
+            "no": "לא",
+            "confirm": "כן, מחק קובץ",
+            "deleted": "נמחק!",
+            "file_deleted": "הקובץ נמחק.",
+            "cancel": "ביטול",
+            "success": "הצלחה"
+        },
+        "uploading": "מעלה..."
     },
     "global": {
         "alltime": "כל הזמנים",

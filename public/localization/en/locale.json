@@ -1,7 +1,19 @@
 {
     "common": {
         "loading": "Loading...",
-        "continue": "Continue"
+        "continue": "Continue",
+        "delete":{
+            "title": "Are you sure?",
+            "message": "You won't be able to revert this!",
+            "yes": "Yes",
+            "no": "No",
+            "confirm": "Yes, Delete File",
+            "deleted": "Deleted!",
+            "file_deleted": "File has been deleted.",
+            "cancel": "Cancel",
+            "success": "Success"
+        },
+        "uploading": "Uploading..."
     },
     "global": {
         "search": "Search",

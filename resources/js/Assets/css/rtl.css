@@ -8,7 +8,7 @@ ul, ol {
     text-align: right;
     padding-right: 20px; /* Adjust as needed */
 }
-h5, h6 {
+h4,h5, h6 ,p {
     text-align: right;
 }
 li {
@@ -199,6 +199,10 @@ li {
     left: 10px !important;
 }
 
+.rtldiv{
+    text-align: right !important;
+}
+
 .switch input:checked + label > .slider.round {
     transform: translateX(calc(100% - 43px)) !important;
 }
@@ -335,4 +339,6 @@ li {
     padding-right: 0;
     direction: rtl;
 }
+
+
 }
