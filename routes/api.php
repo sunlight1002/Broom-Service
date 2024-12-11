@@ -14,6 +14,7 @@ use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\PayrollReportController;
 use App\Http\Controllers\SickLeaveController;
 use App\Http\Controllers\Admin\AdvanceLoanController;
+use App\Http\Controllers\Admin\ServicesController;
 use App\Http\Controllers\User\SkippedCommentController;
 use App\Http\Controllers\RefundClaimController;
 use App\Http\Controllers\User\DashboardController;
@@ -94,6 +95,7 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::get('job-comments/skipped-comments', [SkippedCommentController::class, 'index']);
     Route::post('job-comments/update-status', [SkippedCommentController::class, 'updateStatus']);
 
+
     Route::get('/schedule', [DashboardController::class, 'index']);
 
     Route::get('/protocol', [HearingProtocolController::class, 'show']);
@@ -141,6 +143,7 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
 
 });
+Route::get('get-sub-services/{id}', [ServicesController::class, 'getSubServices']);
 
 Route::post('/twilio/initiate-call', [LeadTwilioController::class, 'initiateCall']);
 Route::post('/twilio/handle-call', [LeadTwilioController::class, 'handleCall'])->name('twilio.handleCall');

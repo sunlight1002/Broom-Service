@@ -73,9 +73,11 @@ export default function PriceOffer() {
             let _services = JSON.parse(data.services);
 
             setServices(_services);
+            console.log(_services, "services");
+            
             setAirbnb({
                 id: _services[0].service,
-                subServiceId: _services[0].subService
+                subServiceId: _services[0].sub_services
             });
 
             if (data.client.lng === "heb") {
@@ -102,7 +104,7 @@ export default function PriceOffer() {
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+        Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
 
     useEffect(() => {
@@ -113,10 +115,9 @@ export default function PriceOffer() {
 
     const handleGetSubServices = async (id) => {
         try {
-            const res = await axios.get(`/api/admin/get-sub-services/${id}`, { headers });
-            const allSubServices = res.data.subServices;
-
-            const filteredSubServices = allSubServices.filter(sub => airbnb.subServiceId.includes(sub.id));
+            const res = await axios.get(`/api/get-sub-services/${id}`);
+            const allSubServices = res.data?.subServices;
+            const filteredSubServices = allSubServices.filter(sub => airbnb?.subServiceId?.includes(sub.id));
 
             setSubService(filteredSubServices);
         } catch (error) {
@@ -225,6 +226,9 @@ export default function PriceOffer() {
             ))}
         </tr>
     );
+
+    console.log(allTemplates);
+    
 
     return (
         <div className="navyblueColor parent">

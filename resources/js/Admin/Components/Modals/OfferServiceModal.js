@@ -119,6 +119,9 @@ export default function OfferServiceModal({
         );
     };
 
+    console.log(offerServiceTmp);
+    
+
 
     const handleInputChange = (index, field, value) => {
         setOfferServiceTmp((prevState) =>
