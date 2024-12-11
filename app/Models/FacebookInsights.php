@@ -23,7 +23,12 @@ class FacebookInsights extends Model
         'cpm', 
         'ctr', 
         'cpp',
+        'lead_count'
     ];
 
+   // To ensure that lead_count gets incremented
+   protected $casts = [
+    'lead_count' => 'integer',
+    ];
 
 }

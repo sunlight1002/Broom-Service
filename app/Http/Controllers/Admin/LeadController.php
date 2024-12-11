@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Fblead;
 use App\Models\Client;
 use App\Models\LeadComment;
+use App\Models\FacebookInsights;
 use App\Models\Offer;
 use App\Models\ClientPropertyAddress;
 use App\Models\Schedule;
@@ -602,6 +603,11 @@ class LeadController extends Controller
             }
             die('received');
         }
+    }
+
+    public function getFacebookInsights()
+    {
+        return response()->json(FacebookInsights::all());
     }
 
     public function getLeadData($leadgen_id, $pageAccessToken)

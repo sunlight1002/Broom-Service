@@ -3,99 +3,113 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Facebook\Facebook;
-use App\Models\Client;
 use Illuminate\Support\Facades\Http;
-use App\Enums\LeadStatusEnum;
-use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
-use App\Models\WhatsAppBotClientState;
-use App\Models\WebhookResponse;
-use App\Events\NewLeadArrived;
-use App\Models\Notification;
-use App\Enums\NotificationTypeEnum;
-use App\Enums\WhatsappMessageTemplateEnum;
-use App\Events\WhatsappNotificationEvent;
+use App\Models\FacebookInsights;
 
 class CampaignTesting extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'campaign:testing';
+    protected $description = 'Fetch and store Facebook campaign insights for all campaigns';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'campaign testing';
-
-    public $fbleads = [];
-    public $pa_token;
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
     public function handle()
     {
-        // Fetch credentials from config or .env
         $accessToken = config('services.facebook.access_token');
-        $businessId = config('services.facebook.business_id');
-        $adAccountId = config('services.facebook.app_id');
-        // Base URL for the Facebook Graph API
-        $baseUrl = "https://graph.facebook.com/v21.0/"; // Use the latest API version
+        $baseUrl = "https://graph.facebook.com/v21.0/";
 
         try {
-            // Make the GET request
-            $accResponse = Http::withToken($accessToken)->get($baseUrl."me/adaccounts?access_token=$accessToken");
-            if ($accResponse->successful()) {
-                $acc_data = $accResponse->json();
-                \Log::info($acc_data);
+            $accResponse = Http::withToken($accessToken)->get($baseUrl . "me/adaccounts");
+            if ($accResponse->failed()) {
+                $this->error('Error fetching ad accounts: ' . $accResponse->body());
+                return 1;
             }
 
-            if ($accResponse->failed()) {
-                $this->error('Error fetching campaigns: ' . $accResponse->body());
-                return 1; // Indicate failure
-            };
+            $accounts = $accResponse->json()['data'];
 
-            $campaignId = $acc_data['data'][2]['id'];
+            // Iterate over all ad accounts to fetch campaigns
+            foreach ($accounts as $account) {
+                $accountId = $account['id'];
 
-            $this->info("Fetching insights for campaign ID: $campaignId");
+                $this->info("Fetching campaigns for ad account ID: $accountId");
 
-            // Fetching insights for the campaign
-            $campaignResponse = Http::withToken($accessToken)
-                ->get($baseUrl . "$campaignId/insights", [
-                    'fields' => 'campaign_name,actions,cost_per_conversion,cost_per_action_type,conversion_values,clicks,cpc,cpm,ctr,cpp,date_start,date_stop,cost_per_unique_outbound_click,cost_per_unique_inline_link_click,cost_per_unique_click,cost_per_unique_action_type,spend,reach,cost_per_ad_click',
-                    'limit' => 10, // Limit to the top 10 insights
-                ]);
+                // Fetch campaigns for the account
+                $campaignsResponse = Http::withToken($accessToken)
+                    ->get($baseUrl . "$accountId/campaigns", [
+                        'fields' => 'id,name',
+                        'limit' => 10,
+                    ]);
 
+                if ($campaignsResponse->failed()) {
+                    $this->error('Error fetching campaigns: ' . $campaignsResponse->body());
+                    continue;
+                }
 
-            $campaignData = $campaignResponse->json();
-            \Log::info('Insights for Campaign ID ' . $campaignId, $campaignData);
+                $campaigns = $campaignsResponse->json()['data'];
 
+                // Step 1: Insert campaigns into the database
+                foreach ($campaigns as $campaign) {
+                    $campaignId = $campaign['id'];
+                    $campaignName = $campaign['name'];
 
-        } catch(Facebook\Exceptions\FacebookResponseException $e) {
-            echo 'Graph returned an error: ' . $e->getMessage();
-            exit;
-        } catch(Facebook\Exceptions\FacebookSDKException $e) {
-            echo 'Facebook SDK returned an error: ' . $e->getMessage();
-            exit;
+                    $this->info("Inserting campaign ID: $campaignId");
+
+                    FacebookInsights::updateOrCreate(
+                        ['campaign_id' => $campaignId],
+                        [
+                            'campaign_name' => $campaignName,
+                        ]
+                    );
+                }
+
+                // Step 2: Fetch insights for each campaign
+                foreach ($campaigns as $campaign) {
+                    $campaignId = $campaign['id'];
+
+                    $this->info("Fetching insights for campaign ID: $campaignId");
+
+                    $insightsResponse = Http::withToken($accessToken)
+                        ->get($baseUrl . "$campaignId/insights", [
+                            'fields' => 'campaign_id,campaign_name,actions,cost_per_conversion,cost_per_action_type,conversion_values,clicks,cpc,cpm,ctr,cpp,date_start,date_stop,spend,reach',
+                            'limit' => 10,
+                        ]);
+
+                    if ($insightsResponse->failed()) {
+                        $this->error('Error fetching insights for campaign ID ' . $campaignId . ': ' . $insightsResponse->body());
+                        continue;
+                    }
+
+                    $insightsData = $insightsResponse->json()['data'];
+
+                    if (count($insightsData) > 0) {
+                        \Log::info('Insights for campaign ID ' . $campaignId, $insightsData);
+
+                        foreach ($insightsData as $campaignData) {
+                            FacebookInsights::updateOrCreate(
+                                ['campaign_id' => $campaignData['campaign_id']],
+                                [
+                                    'campaign_name' => $campaignData['campaign_name'] ?? null,
+                                    'date_start' => $campaignData['date_start'] ?? null,
+                                    'date_stop' => $campaignData['date_stop'] ?? null,
+                                    'spend' => $campaignData['spend'] ?? 0,
+                                    'reach' => $campaignData['reach'] ?? 0,
+                                    'clicks' => $campaignData['clicks'] ?? 0,
+                                    'cpc' => $campaignData['cpc'] ?? null,
+                                    'cpm' => $campaignData['cpm'] ?? null,
+                                    'ctr' => $campaignData['ctr'] ?? null,
+                                    'cpp' => $campaignData['cpp'] ?? null,
+                                ]
+                            );
+                        }
+                    } else {
+                        $this->info("No insights data available for campaign ID: $campaignId");
+                    }
+                }
+            }
+
+            $this->info('All campaigns processed successfully.');
+        } catch (\Exception $e) {
+            $this->error('Error: ' . $e->getMessage());
         }
+
         return 0;
     }
 }

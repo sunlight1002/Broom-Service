@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Facebook\Facebook;
 use App\Models\Client;
+use App\Models\FacebookInsights;
 use Illuminate\Support\Facades\Http;
 use App\Enums\LeadStatusEnum;
 use Illuminate\Support\Facades\Hash;
@@ -116,6 +117,7 @@ class FetchFacebookLeads extends Command
                 }
 
                 $formsData = $formsResponse->json();
+                // \Log::info($formsData);
 
                 if (empty($formsData['data'])) {
                     $this->info("No lead forms found for Page: $pageName");
@@ -159,6 +161,62 @@ class FetchFacebookLeads extends Command
                         foreach ($leadsData['data'] as $lead) {
                             $fieldData = $lead['field_data'];
                             $createdTime = $lead['created_time'];
+                            $leadId = $lead['id']; // Lead ID from Facebook
+
+                            // Fetch lead details including ad_id
+                            $leadDetailsResponse = Http::withToken($accessToken)
+                                ->get($baseUrl . "$leadId", [
+                                    'fields' => 'ad_id', // We are fetching only the ad_id
+                                ]);
+
+                            if ($leadDetailsResponse->failed()) {
+                                $this->error('Error fetching details for lead ID ' . $leadId);
+                                continue;
+                            }
+
+                            $leadDetails = $leadDetailsResponse->json();
+                            $adId = $leadDetails['ad_id'] ?? null;
+
+                            if (!$adId) {
+                                $this->error("No ad ID for lead ID $leadId");
+                                continue;
+                            }
+
+                            // Step 2: Fetch campaign ID by querying the ad details
+                            $adDetailsResponse = Http::withToken($accessToken)
+                                ->get($baseUrl . "$adId", [
+                                    'fields' => 'campaign_id', // Fetch the campaign_id associated with the ad
+                                ]);
+
+                            if ($adDetailsResponse->failed()) {
+                                $this->error('Error fetching details for ad ID ' . $adId);
+                                continue;
+                            }
+
+                            $adDetails = $adDetailsResponse->json();
+                            $campaignId = $adDetails['campaign_id'] ?? null;
+
+                            if (!$campaignId) {
+                                $this->error("No campaign ID for ad ID $adId");
+                                continue;
+                            }
+
+                            // Step 3: Fetch the full campaign details to ensure it’s the main campaign
+                            $campaignDetailsResponse = Http::withToken($accessToken)
+                                ->get($baseUrl . "$campaignId", [
+                                    'fields' => 'id,name', // Fetch campaign name and id for storing purposes
+                                ]);
+
+                            if ($campaignDetailsResponse->failed()) {
+                                $this->error('Error fetching campaign details for campaign ID ' . $campaignId);
+                                continue;
+                            }
+
+                            $campaignDetails = $campaignDetailsResponse->json();
+                            $mainCampaignId = $campaignDetails['id'] ?? null;
+                            \Log::info($mainCampaignId);
+                            $campaignName = $campaignDetails['name'] ?? 'Unknown Campaign';
+
 
                             $leadInfo = [
                                 'page_id' => $pageId,
@@ -213,8 +271,11 @@ class FetchFacebookLeads extends Command
                                     'firstname'      => $name[0] ?? null,
                                     'lastname'       => $name[1] ?? null,
                                     'phone'          => $phone,
+                                    'campaign_id'    => $mainCampaignId,
                                     'source'         => 'fblead',
                                 ]);
+
+
 
                                 try {
                                     if (!empty($phone)) {
@@ -267,7 +328,18 @@ class FetchFacebookLeads extends Command
                                     'read'          => 1,
                                     'flex'          => 'A',
                                 ]);
+
+                              // Step 4: Update or Create the FacebookInsights entry for the campaign
+                                $facebookInsight = FacebookInsights::firstOrCreate(
+                                    ['campaign_id' => $mainCampaignId],
+                                    ['campaign_name' => $campaignName] // Replace with actual campaign name
+                                );
+
+                                // Update lead_count for the campaign
+                                $facebookInsight->increment('lead_count', 1);
                             }
+
+                     
                         }
 
                         // Check for pagination

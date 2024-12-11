@@ -90,13 +90,11 @@ export default function MeetingSchedule() {
                             {timeFormat(meeting.end_time)}
                         </span>
                     </li>
-                    {meeting.team ? (
+                    {meeting.purpose ? (
                         <li>
-                            {t("meet_stat.team_name")}:{" "}
+                            {t("meet_stat.purpose")}{" "}
                             <span>
-                                {meeting.client.lng === "en"
-                                    ? meeting.team.name
-                                    : meeting.team.heb_name}
+                                {meeting?.purpose}
                             </span>
                         </li>
                     ) : (
@@ -122,7 +120,7 @@ export default function MeetingSchedule() {
                                     target="_blank"
                                     to={`https://maps.google.com?q=${address.geo_address}`}
                                 >
-                                    {address.address_name}
+                                    {address.geo_address}
                                 </Link>
                             </span>
                         </li>

@@ -189,6 +189,7 @@ import AllForms from "./Pages/Form101/AllForms";
 import ChangePassword from "./Client/Auth/ChangePassword";
 import ClientPropertyAdress from "./Client/ClientPropertyAdress";
 import ViewPropertyAddress from "./Client/ViewPropertyAddress";
+import FacebookInsights from "./Admin/Components/Dashboard/FacebookInsights";
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
 
@@ -603,6 +604,11 @@ export default function MyRoutes() {
                                 exact
                                 path="schedule-requests"
                                 element={<ScheduleChange />}
+                            />
+                            <Route
+                                exact
+                                path="facebook-insights"
+                                element={<FacebookInsights />}
                             />
                             <Route
                                 exact

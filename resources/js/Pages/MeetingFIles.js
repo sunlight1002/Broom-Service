@@ -28,6 +28,8 @@ export default function MeetingFiles() {
     const [filetype, setFiletype] = useState("image")
     const [loader, setLoader] = useState(false);
     const meetId = Base64.decode(param.id);
+    const [uploadProgress, setUploadProgress] = useState(0);
+
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -82,11 +84,22 @@ export default function MeetingFiles() {
     const handleFile = (e) => {
         e.preventDefault();
         setLoader(true);
-        if (file.length == 0) {
-            window.alert("Please add file");
+        setUploadProgress(0); // Reset progress bar
+
+        if (file.length === 0) {
+            window.alert("Please add a file");
+            setLoader(false);
             return;
         }
+
         toggleValue(true);
+
+        // Close modal programmatically
+        const modal = document.getElementById("exampleModal");
+        if (modal) {
+            $(modal).modal('hide'); // Using jQuery to hide the modal
+        }
+
         const type = document.querySelector('select[name="filetype"]').value;
         const fd = new FormData();
         fd.append("user_id", meeting.client_id);
@@ -100,9 +113,14 @@ export default function MeetingFiles() {
             Accept: "application/octet-stream, text/plain, */*",
             "Content-Type": "application/octet-stream",
         };
+
         axios
             .post(`/api/client/add-file`, fd, {
-                headers: type == "image" ? headers : videoHeader,
+                headers: type === "image" ? headers : videoHeader,
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(percentCompleted);
+                },
             })
             .then((res) => {
                 setLoader(false);
@@ -121,29 +139,36 @@ export default function MeetingFiles() {
                     document.querySelector('input[type="file"]').value = "";
                 }
                 toggleValue(false);
-
+                setTimeout(() => setUploadProgress(0), 500); // Hide progress bar after short delay
+            })
+            .catch(() => {
+                setLoader(false);
+                toggleValue(false);
+                setUploadProgress(0); // Ensure progress bar hides on error
             });
     };
+
 
     const handleDelete = (e, id) => {
         e.preventDefault();
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: t("common.delete.title"),
+            text: t("common.delete.message"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete File",
+            cancelButtonText: t("common.delete.cancel"),
+            confirmButtonText: t("common.delete.confirm"),
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
                     .post(`/api/client/delete-file/`, { id: id }, { headers })
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
-                            "File has been deleted.",
-                            "success"
+                            t("common.delete.deleted"),
+                            t("common.delete.file_deleted"),
+                            t("common.delete.success")
                         );
                         setTimeout(() => {
                             getFiles();
@@ -165,12 +190,12 @@ export default function MeetingFiles() {
                     setLoader(false);
                     setAllFiles(res.data.files);
                     if (!res.data.files.length) {
-                        setLoading("No file added for this meeting");
+                        setLoading(t("meet_stat.no_file"));
                     }
                 });
         } else {
             setAllFiles([]);
-            setLoading("No file added for this meeting");
+            setLoading(t("meet_stat.no_file"));
         }
     };
     useEffect(() => {
@@ -235,7 +260,7 @@ export default function MeetingFiles() {
                                     target="_blank"
                                     to={`https://maps.google.com?q=${address.geo_address}`}
                                 >
-                                    {address.address_name}
+                                    {address.geo_address}
                                 </Link>
                             </span>
                         </li>
@@ -259,13 +284,29 @@ export default function MeetingFiles() {
                                             data-toggle="modal"
                                             data-target="#exampleModal"
                                         >
-                                            <i className="btn-icon fas fa-plus-circle"></i>
+                                            <i className="mx-1 fas fa-plus-circle"></i>
                                             {t("client.meeting.cfiles.button")}
                                         </Link>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        {uploadProgress > 0 && uploadProgress <= 100 && (
+                        <div className="progress mb-2">
+                            <div
+                                className="progress-bar"
+                                role="progressbar"
+                                style={{ width: `${uploadProgress}%` }}
+                                aria-valuenow={uploadProgress}
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            >
+                                <div className="d-flex justify-content-center align-items-center">
+                                    <span className="mx-1">{t("common.uploading")}</span> <span className="mx-1">{uploadProgress}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        )}
                         <div className="card">
                             <div className="card-body">
                                 <div className="boxPanel">
@@ -300,6 +341,7 @@ export default function MeetingFiles() {
                                                                         key={
                                                                             index
                                                                         }
+                                                                        className=""
                                                                     >
                                                                         <td>
                                                                             {Moment(
@@ -315,7 +357,7 @@ export default function MeetingFiles() {
                                                                                 : "NA"}
                                                                         </td>
 
-                                                                        <td>
+                                                                        <td >
                                                                             <a
                                                                                 onClick={(
                                                                                     e
@@ -353,12 +395,12 @@ export default function MeetingFiles() {
                                                                                 }}
                                                                                 data-toggle="modal"
                                                                                 data-target="#exampleModalFile"
-                                                                                className="btn bg-yellow"
+                                                                                className="btn bg-yellow mt-0"
                                                                             >
                                                                                 <i className="fa fa-eye"></i>
                                                                             </a>
                                                                             <button
-                                                                                className="ml-2 btn bg-red"
+                                                                                className="mx-2 btn bg-red"
                                                                                 onClick={(
                                                                                     e
                                                                                 ) =>
@@ -379,7 +421,7 @@ export default function MeetingFiles() {
                                             </table>
                                         ) : (
                                             <p className="text-center mt-5">
-                                                {loading}
+                                                {t("meet_stat.no_file")}
                                             </p>
                                         )}
                                     </div>
@@ -487,6 +529,7 @@ export default function MeetingFiles() {
                                                                 />
                                                             </div>
                                                         </div>
+
                                                     </div>
                                                 </div>
                                                 <div className="modal-footer">
@@ -516,6 +559,7 @@ export default function MeetingFiles() {
                                 </div>
                             </div>
                         </div>
+
                     </div>
                     <div
                         className="modal fade"
@@ -566,7 +610,7 @@ export default function MeetingFiles() {
                     </div>
                 </div>
             </div>
-            { loader && <FullPageLoader visible={loader} />}
+            {/* {loader && <FullPageLoader visible={loader} />} */}
         </div>
     );
 }

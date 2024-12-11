@@ -7,6 +7,7 @@ import i18next from "i18next";
 import { useTranslation } from "react-i18next";
 import { IoIosLogOut } from "react-icons/io";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
+import { CgInsights } from "react-icons/cg";
 
 import logo from "../../Assets/image/sample.svg";
 import { NavLink } from "react-router-dom";
@@ -261,6 +262,13 @@ export default function Sidebar() {
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-hand font-20"></i>{t("admin.sidebar.pending_request")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
+                    <NavLink to="/admin/facebook-insights"
+                        className="d-flex align-items-center"
+                    >
+                       <i className="fa-brands fa-facebook font-20 mr-0"></i><CgInsights className="font-20 mr-2"/>{t("admin.sidebar.fb_insights")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">

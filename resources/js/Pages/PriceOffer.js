@@ -241,7 +241,7 @@ export default function PriceOffer() {
                 </div>
                 <div>
                     <section className="d-flex align-items-center" style={{ gap: "20px" }}>
-                        <p className="navyblueColor font-34 mt-4 font-w-500">Price Offer No. #{id}</p>
+                        <p className="navyblueColor font-34 mt-4 font-w-500">{t("price_offer.price_offno")} #{id}</p>
                         {status == "sent" ? (
                             <div className="headBtns mt-3">
                                 <button
@@ -307,7 +307,7 @@ export default function PriceOffer() {
                         {allTemplates.includes("airbnb") && (
                             <div className="mt-3" style={{ lineHeight: "2.3" }}>
                                 <h5>{getNextNumber()}. {t("price_offer.airbnb.title")}</h5>
-                                <ul className="mt-2">
+                                <ul className="mt-2 ">
                                     <li>{t("price_offer.airbnb.subtitle")}</li>
                                     <li>{t("price_offer.airbnb.air1")}</li>
                                     <li>{t("price_offer.airbnb.air2")}</li>
@@ -662,13 +662,15 @@ export default function PriceOffer() {
                                         </h5>
                                     </>
                                 )}
-                                <img
-                                    src={t(
-                                        "price_offer.office_cleaning.oc2_img"
-                                    )}
-                                    className="img-fluid mt-2"
-                                    alt="Room Services"
-                                />
+                                <div className="mt-3 rtldiv">
+                                    <img
+                                        src={t(
+                                            "price_offer.office_cleaning.oc2_img"
+                                        )}
+                                        className="img-fluid mt-2"
+                                        alt="Room Services"
+                                    />
+                                </div>
                             </div>
                         )}
 
@@ -701,13 +703,15 @@ export default function PriceOffer() {
                                 <h5 className="mt-3">
                                     {getNextNumber()}. {t("price_offer.renovation.rn2")}
                                 </h5>
-                                <img
-                                    src={t(
-                                        "price_offer.renovation.rn2_img"
-                                    )}
-                                    className="img-fluid m-2"
-                                    alt="Room Services"
-                                />
+                                <div className="mt-3 rtldiv">
+                                    <img
+                                        src={t(
+                                            "price_offer.renovation.rn2_img"
+                                        )}
+                                        className="img-fluid m-2"
+                                        alt="Room Services"
+                                    />
+                                </div>
                             </div>
                         )}
 
@@ -766,7 +770,7 @@ export default function PriceOffer() {
                         {/* Window Any Height */}
                         <div className="mt-3" style={{ lineHeight: "2.3" }}>
                             <h5>{getNextNumber()}. {t("price_offer.window_any_height.title")}</h5>
-                            <ul>
+                            <ul className="">
                                 <li>{t("price_offer.window_any_height.p1")}</li>
                                 <li>{t("price_offer.window_any_height.p2")}</li>
                                 <li>{t("price_offer.window_any_height.p3")}</li>

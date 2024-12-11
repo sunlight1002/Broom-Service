@@ -62,7 +62,7 @@ class ClientCardController extends Controller
                     'Amount'        => $amount,
                     'Currency'      => "ILS",
                     'Name'          => (($client->lng == 'heb') ? "הוספת כרטיס - " : "Add a Card - ") . $client->firstname . " " . $client->lastname,
-                    "Description"   => 'card validation transaction',
+                    "Description"   => (($client->lng == 'heb') ? 'הוספת כ"א באופן מאובטח' : 'card validation transaction'),
                     'Quantity'      => 1,
                     "Image"         => "https://i.ibb.co/m8fr72P/sample.png",
                     "IsTaxFree"     => "false",

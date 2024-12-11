@@ -205,8 +205,8 @@ function AllForms() {
                 .string()
                 .required(t("form101.errorMsg.HouseNoReq")),
             employeePostalCode: yup
-                .string(),
-            // .required(t("form101.errorMsg.PostalCodeReq")),
+                .string()
+                .required(t("form101.errorMsg.PostalCodeReq")),
             employeeMobileNo: yup
                 .string()
                 .required(t("form101.errorMsg.MobileNoReq")),
@@ -1253,9 +1253,7 @@ function AllForms() {
         sigRef.current.clear();
         setFieldValue("signature", "");
     };
-    useEffect(() => {
-        getForm();
-    }, [values]);
+
 
     const disableInputs = () => {
         // Disable inputs within the div with the id "targetDiv"
@@ -1287,6 +1285,8 @@ function AllForms() {
             }
 
             if (res.data.form) {
+                console.log(res.data.form, "form");
+                
                 setFormValues(res.data.form.data);
 
                 if (res.data.form.submitted_at) {
@@ -1338,6 +1338,10 @@ function AllForms() {
             }
         });
     };
+
+    useEffect(() => {
+        getForm();
+    }, [id, formId, page]);
 
     const handleSaveAsDraft = async () => {
         if (nextStep === 3) {
@@ -1475,7 +1479,7 @@ function AllForms() {
                 {
                     nextStep === 2 && !isManpower ? (
                         <>
-                            <p className="navyblueColor font-34 mt-4 font-w-500">Form 101</p>
+                            <p className="navyblueColor font-34 mt-4 font-w-500">{t("form101.title")}</p>
                             <div className="row mt-3">
                                 <section className="col-xl ">
                                     <p className="font-w-500">
@@ -1484,7 +1488,7 @@ function AllForms() {
                                     <p className="font-w-500 mt-2">
                                         {t("form101.step2(2)")}
                                     </p>
-                                    <p className="navyblueColor mt-4 font-24 font-w-500">Tax year</p>
+                                    <p className="navyblueColor mt-4 font-24 font-w-500">{t("form101.tax_year")}</p>
                                     <p className="font-w-500 mt-2">
                                         {t("form101.step2(3)")}
                                     </p>
