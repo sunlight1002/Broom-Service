@@ -342,20 +342,21 @@ export default function OfferServiceModal({
                                             onChange={(e) => {
                                                 handleServiceChange(index, e);
                                                 const updatedToggleState = [...toggleOtherService];
+                                                const selectedIndex = e.target.selectedIndex;
+                                                const selectedOptionName = e.target.options[selectedIndex].getAttribute("name");
 
-                                                if (e.target.value === "10") {
+                                                if (selectedOptionName === "others") {
                                                     updatedToggleState[index] = true;
                                                 } else {
                                                     updatedToggleState[index] = false;
                                                 }
 
                                                 setToggleOtherService(updatedToggleState);
-
-                                                // Update toggle state for Airbnb service for the specific index
                                                 const updatedAirbnbState = [...toggleAirbnbService];
-                                                if (e.target.value === "29") {
+
+                                                if (selectedOptionName === "airbnb") {
                                                     updatedAirbnbState[index] = true;
-                                                    handleGetSubServices(29);
+                                                    handleGetSubServices(e.target.value);
                                                 } else {
                                                     updatedAirbnbState[index] = false;
                                                 }
@@ -367,7 +368,7 @@ export default function OfferServiceModal({
                                                 <option
                                                     key={i}
                                                     value={service.id}
-                                                    name={service.name}
+                                                    name={service.template}
                                                     template={service.template}
                                                 >
                                                     {service.name}

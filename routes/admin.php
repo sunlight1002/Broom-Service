@@ -115,6 +115,9 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('update-job-time', [JobController::class, 'updateJobTime']);
     Route::delete('delete-job-time/{id}', [JobController::class, 'deleteJobTime']);
     Route::get('jobs/{id}/worker-to-switch', [JobController::class, 'workersToSwitch']);
+
+    Route::get('jobs/{id}', [JobController::class, 'show']);
+
     Route::post('jobs/{id}/switch-worker', [JobController::class, 'switchWorker']);
     Route::post('jobs/{id}/update-worker-actual-time', [JobController::class, 'updateWorkerActualTime']);
     Route::post('jobs/{id}/update-job-done', [JobController::class, 'updateJobDone']);

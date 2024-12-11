@@ -1,11 +1,11 @@
-import { useEffect, useState, useMemo, useRef } from "react";
-import { Button, Modal } from "react-bootstrap";
-import { useAlert } from "react-alert";
-import moment from "moment";
-import Swal from "sweetalert2";
-import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import moment from "moment";
+import { useEffect, useRef, useState } from "react";
+import { useAlert } from "react-alert";
+import { Button, Modal } from "react-bootstrap";
+import Flatpickr from "react-flatpickr";
 import { useTranslation } from "react-i18next";
+import Swal from "sweetalert2";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function SwitchWorkerModal({
@@ -17,6 +17,7 @@ export default function SwitchWorkerModal({
     const { t } = useTranslation();
     const alert = useAlert();
     const [workers, setWorkers] = useState([]);
+    const [singleJob, setSingleJob] = useState({});
     const [formValues, setFormValues] = useState({
         worker_id: "",
         repeatancy: "one_time",
@@ -34,9 +35,6 @@ export default function SwitchWorkerModal({
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    console.log(formValues);
-    
-
     const checkValidation = () => {
         if (!formValues.worker_id) {
             alert.error("The worker is missing");
@@ -52,12 +50,6 @@ export default function SwitchWorkerModal({
             alert.error("The Until Date is missing");
             return false;
         }
-
-        // if (!formValues.fee) {
-        //     alert.error("The fee is missing");
-        //     return false;
-        // }
-
         return true;
     };
 
@@ -69,16 +61,22 @@ export default function SwitchWorkerModal({
         setFormValues({ ...newFormValues });
     };
 
-    const getWorkerToSwitch = () => {
+    const getAllWorkers = () => {
         axios
-            .get(`/api/admin/jobs/${job.id}/worker-to-switch`, {
+            .get(`/api/admin/all-workers`, {
                 headers,
             })
             .then((response) => {
-                console.log(response.data);
-                
-                setWorkers(response.data.data);
+                setWorkers(response.data?.workers);
             });
+    };
+
+
+    const getJob = async() => {
+       const res = await axios.get(`/api/admin/jobs/${job.id}`, { headers })
+       console.log(res.data);
+       
+  
     };
 
     const handleSubmit = () => {
@@ -115,30 +113,16 @@ export default function SwitchWorkerModal({
     };
 
     useEffect(() => {
-        getWorkerToSwitch();
-    }, [job.id]);
+        getAllWorkers();
+        getJob();
+    }, []);
 
-    const handleFeeChange = (_value) => {
-        if (formValues.fee == _value) {
-            setFormValues((values) => {
-                return { ...values, fee: "0" };
-            });
-        } else {
-            setFormValues((values) => {
-                return { ...values, fee: _value };
-            });
-        }
-    };
 
     useEffect(() => {
         setMinUntilDate(
             moment().startOf("day").add(1, "day").format("YYYY-MM-DD")
         );
     }, []);
-
-    const feeInAmount = useMemo(() => {
-        return job.total_amount * (formValues.fee / 100);
-    }, [formValues.fee]);
 
     return (
         <Modal
@@ -230,64 +214,6 @@ export default function SwitchWorkerModal({
                             </div>
                         </div>
                     )}
-
-                    {/* <div className="col-sm-12">
-                        <div className="form-group">
-                            <label className="control-label">
-                                {t(
-                                    "admin.schedule.jobs.CancelModal.CancellationFee"
-                                )}
-                            </label>
-                            <div className="form-check">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    name="fee"
-                                    id="fee50"
-                                    value={50}
-                                    checked={formValues.fee == 50}
-                                    onChange={(e) => {
-                                        handleFeeChange(e.target.value);
-                                    }}
-                                />
-                                <label
-                                    className="form-check-label"
-                                    htmlFor="fee50"
-                                >
-                                    50%
-                                </label>
-                            </div>
-                            <div className="form-check">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    name="fee"
-                                    id="fee100"
-                                    value={100}
-                                    checked={formValues.fee == 100}
-                                    onChange={(e) => {
-                                        handleFeeChange(e.target.value);
-                                    }}
-                                />
-                                <label
-                                    className="form-check-label"
-                                    htmlFor="fee100"
-                                >
-                                    100%
-                                </label>
-                            </div>
-
-                            {feeInAmount > 0 ? (
-                                <p>{feeInAmount} ILS will be charged.</p>
-                            ) : (
-                                <p>
-                                    {t(
-                                        "admin.schedule.jobs.CancelModal.NoCharge"
-                                    )}
-                                </p>
-                            )}
-                        </div>
-                    </div> */}
                 </div>
             </Modal.Body>
 
