@@ -5,10 +5,8 @@ import moment from "moment";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
-
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeWorkerCalender from "../../Components/Job/ChangeWorkerCalender";
-import { convertMinsToDecimalHrs, getShiftsDetails } from "../../../Utils/common.utils";
 
 export default function ChangeWorker() {
     const { t } = useTranslation();
@@ -25,14 +23,12 @@ export default function ChangeWorker() {
         axios
             .get(`/api/admin/jobs/${params.id}`, { headers })
             .then((res) => {
-                console.log(res);
-                
-                setJob(res.data.job);
+                setJob(res.data?.job);
             })
             .catch((e) => {
                 Swal.fire({
                     title: "Error!",
-                    text: e.response.data.message,
+                    text: e.response?.data?.message,
                     icon: "error",
                 });
             });
@@ -41,8 +37,6 @@ export default function ChangeWorker() {
     useEffect(() => {
         getJob();
     }, []);
-
-    const {durationInHours, startTime, endTime} = getShiftsDetails(job);
 
     return (
         <div id="container">
@@ -84,7 +78,7 @@ export default function ChangeWorker() {
                                             <div className="form-group">
                                                 <label>{t("client.jobs.change.time_to_complete")}</label>
                                                 <p>
-                                                    {durationInHours}{" "}
+                                                    {job.jobservice.duration_minutes / 60}{" "}
                                                     {t("client.jobs.review.hours")}
                                                 </p>
                                             </div>
@@ -95,7 +89,7 @@ export default function ChangeWorker() {
                                                 <p>
                                                     {
                                                         job.property_address
-                                                            .address_name
+                                                            .geo_address
                                                     }
                                                 </p>
                                             </div>
@@ -164,7 +158,7 @@ export default function ChangeWorker() {
                                         <div className="col-sm-4 col-12 col-lg-2">
                                             <div className="form-group">
                                                 <label>{t("client.jobs.change.shift")}</label>
-                                                <p>{startTime+"-"+endTime}</p>
+                                                <p>{job.shifts}</p>
                                             </div>
                                         </div>
                                     </div>

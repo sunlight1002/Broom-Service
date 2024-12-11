@@ -182,6 +182,9 @@ const ManpowerSaftyForm = ({
         });
     };
 
+    console.log(values);
+    
+
 
     return (
         <div id="container" className="targetDiv rtlcon pdf-container" ref={contentRef}>
@@ -312,9 +315,11 @@ const ManpowerSaftyForm = ({
                                         <button
                                             type="submit"
                                             className="btn navyblue"
-                                            // disabled={isSubmitting}
+                                            disabled={(country != "Israel") && isSubmitted ? false: isSubmitted}
                                         >
-                                            {!isSubmitted ? t("safeAndGear.Accept") : <> Next <GrFormNextLink /></>}
+                                            {/* {!isSubmitted ? t("safeAndGear.Accept") : <> Next <GrFormNextLink /></>} */}
+                                            {!isSubmitted ? t("safeAndGear.Accept") : country != "Israel" ? t("safeAndGear.Next") : t("safeAndGear.submitted")}
+
                                         </button>
 
                                 </div>

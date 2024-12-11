@@ -79,6 +79,14 @@ export default function AddLeadClient() {
             services: JSON.stringify(formValues),
         };
 
+        console.log(formValues);
+        
+
+        const sanitizedPhone = phone?.replace(
+            /(?<=^\+?\d+)\s*0+/,
+            ""
+        );
+
         const data = {
             firstname: firstname,
             lastname: lastname == null ? "" : lastname,
@@ -88,13 +96,14 @@ export default function AddLeadClient() {
             lng: lng ? lng : "heb",
             color: !color ? "#fff" : color,
             email: email,
-            phone: phone,
+            phone: sanitizedPhone,
             password: passcode,
             vat_number: vatNumber,
             payment_method: paymentMethod,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
         };
+
 
         axios
             .put(

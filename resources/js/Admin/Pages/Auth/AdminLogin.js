@@ -12,7 +12,7 @@ export default function AdminLogin() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        const adminLogin =  localStorage.getItem("admin-id")
+        const adminLogin =  localStorage.getItem("admin-token")
         // console.log(adminLogin);
         if(adminLogin) {
             navigate("/admin/dashboard");

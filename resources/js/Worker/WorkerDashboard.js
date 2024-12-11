@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import WorkerSidebar from "./Layouts/WorkerSidebar";
 import ChangeJobStatusModal from "./Components/Modals/ChangeJobStatusModal";
 import { getShiftsDetails } from "../Utils/common.utils";
+import { use } from "i18next";
 
 export default function WorkerDashboard() {
     const [pastJobCount, setPastJobCount] = useState(0);
@@ -134,9 +135,14 @@ export default function WorkerDashboard() {
     };
 
     useEffect(() => {
-        GetDashboardData();
-        getTodayJobs();
-    }, []);
+        const token = localStorage.getItem("worker-token")
+        if (!token) {
+            window.location.href = "/worker/login";
+        } else {
+            GetDashboardData();
+            getTodayJobs();
+        }
+    }, [])
 
     return (
         <div id="container">

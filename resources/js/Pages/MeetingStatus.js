@@ -20,6 +20,8 @@ export default function MeetingStatus() {
         axios
             .post(`/api/client/meeting`, { id: Base64.decode(param.id) })
             .then((res) => {
+                console.log(res.data, "getMeeting");
+                
                 setMeeting(res.data.schedule);
                 setTeamName(res.data.schedule.team.name);
                 const lng = res.data.schedule.client.lng;
@@ -99,7 +101,7 @@ export default function MeetingStatus() {
                         )}
                         <li>
                             {t("meet_stat.address")}:{" "}
-                            <span>{meeting.property_address.address_name}</span>
+                            <span>{meeting.property_address.geo_address}</span>
                         </li>
                     </ul>
 

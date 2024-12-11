@@ -37,7 +37,12 @@ export default function ClientDashboard() {
     };
 
     useEffect(() => {
-        GetDashboardData();
+        const token = localStorage.getItem("client-token");
+        if (!token) {
+            window.location.href = "/client/login";
+        }else {
+            GetDashboardData();
+        }
     }, []);
 
     return (

@@ -18,7 +18,7 @@ export default function WorkerLogin() {
 
 
     useEffect(() => {
-        const workerLogin = localStorage.getItem("worker-id")
+        const workerLogin = localStorage.getItem("worker-token")
         // console.log(adminLogin);
         if (workerLogin) {
             navigate("/worker/dashboard");
