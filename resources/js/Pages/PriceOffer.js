@@ -246,7 +246,7 @@ export default function PriceOffer() {
                             <div className="headBtns mt-3">
                                 <button
                                     type="button"
-                                    className="btn bluecolor acpt"
+                                    className="btn ml-2 bluecolor acpt"
                                     disabled={loading}
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>

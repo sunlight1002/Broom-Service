@@ -4263,3 +4263,33 @@ tbody tr:hover {
 }
 
 
+
+/* .page-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #343a40;
+} */
+
+.facebook .card {
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.facebook .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.facebook .card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.facebook .card-text {
+  font-size: 0.95rem;
+  color: #495057;
+  line-height: 1.5;
+}
+

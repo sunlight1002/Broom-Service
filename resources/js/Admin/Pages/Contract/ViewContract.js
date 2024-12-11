@@ -56,6 +56,8 @@ export default function ViewContract() {
         axios
             .post(`/api/admin/get-contract/${params.id}`, {}, { headers })
             .then((res) => {
+                console.log(res.data);
+
                 const _contract = res.data.contract;
                 setOffer(_contract.offer);
                 setServices(JSON.parse(_contract.offer.services));
@@ -75,6 +77,7 @@ export default function ViewContract() {
                     );
                 }
                 i18next.changeLanguage(_contract.client.lng);
+                setLng(_contract.client.lng);
 
                 if (_contract?.client?.lng == "heb") {
                     import("../../../Assets/css/rtl.css").then(() => {
@@ -152,9 +155,9 @@ export default function ViewContract() {
 
     return (
         <div className="parent"
-        style={{
-            margin: mobileView ? "0 20px" : "0 100px"
-        }}
+            style={{
+                margin: mobileView ? "0 20px" : "0 100px"
+            }}
         >
             <div className="send-offer client-contract sendOfferRtl">
                 <div className="navyblueColor mb-5">
@@ -205,7 +208,7 @@ export default function ViewContract() {
                                                             className="btn btn-sm navyblue"
                                                             onClick={handleVerify}
                                                         >
-                                                            Verify
+                                                            {t("common.verify")}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -218,7 +221,8 @@ export default function ViewContract() {
                                                             type="button"
                                                             className="btn btn-sm navyblue"
                                                         >
-                                                            Verified
+                                                            {t("common.verified")}
+
                                                         </button>
                                                     </div>
 
@@ -227,7 +231,8 @@ export default function ViewContract() {
                                                             to={`/admin/create-job/${contract.id}`}
                                                             className="btn btn-sm navyblue no-hover"
                                                         >
-                                                            Create Job
+                                                            {t("common.create_job")}
+
                                                         </Link>
                                                     </div>
                                                 </React.Fragment>
@@ -287,6 +292,8 @@ export default function ViewContract() {
                                                         </thead>
                                                         <tbody>
                                                             {services.map((s, i) => {
+                                                                console.log(s);
+
                                                                 return (
                                                                     <tr key={i}>
                                                                         <td>
@@ -608,7 +615,7 @@ export default function ViewContract() {
                                     name="prev"
                                     style={{ borderRadius: "5px" }}
                                 >
-                                    <GrFormPreviousLink /> Prev
+                                    <GrFormPreviousLink /> {t("common.prev")}
                                 </button>
                             )
                         }
@@ -621,7 +628,7 @@ export default function ViewContract() {
                                     className="navyblue py-2 px-4"
                                     style={{ borderRadius: "5px" }}
                                 >
-                                    Next <GrFormNextLink />
+                                    {t("common.next")} <GrFormNextLink />
                                 </button>
                             )
                         }

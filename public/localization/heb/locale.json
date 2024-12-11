@@ -13,7 +13,13 @@
             "cancel": "ביטול",
             "success": "הצלחה"
         },
-        "uploading": "מעלה..."
+        "uploading": "מעלה...",
+        "verify": "אמת",
+        "verified": "מאומת",
+        "create_job": "צור עבודה",
+        "next": "הבא",
+        "prev": "הקודם",
+        "submit": "שלח"
     },
     "global": {
         "alltime": "כל הזמנים",

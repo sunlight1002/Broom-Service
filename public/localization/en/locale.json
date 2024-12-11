@@ -13,7 +13,13 @@
             "cancel": "Cancel",
             "success": "Success"
         },
-        "uploading": "Uploading..."
+        "uploading": "Uploading...",
+        "verify": "Verify",
+        "verified": "Verified",
+        "create_job": "Create Job",
+        "next": "Next",
+        "prev": "Prev",
+        "submit": "Submit"
     },
     "global": {
         "search": "Search",

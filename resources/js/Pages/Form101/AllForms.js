@@ -1761,7 +1761,7 @@ function AllForms() {
                                 name="prev"
                                 style={{ borderRadius: "5px" }}
                             >
-                                <GrFormPreviousLink /> Prev
+                                <GrFormPreviousLink /> {t("common.prev")}
                             </button>
                         )}
                         {!(param.formId && nextStep === 3) && nextStep < 7 && !isManpower && (
@@ -1776,7 +1776,7 @@ function AllForms() {
                                 style={{ borderRadius: "5px" }}
                             // disabled={isSubmitted}
                             >
-                                Next <GrFormNextLink />
+                                {t("common.next")} <GrFormNextLink />
                             </button>
                         )}
                         {
@@ -1789,7 +1789,7 @@ function AllForms() {
                                     style={{ borderRadius: "5px" }}
                                     disabled={isSubmitted}
                                 >
-                                    Submit
+                                    {t("common.submit")}
                                 </button>
                             )
                         }

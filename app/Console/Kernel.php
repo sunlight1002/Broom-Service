@@ -64,6 +64,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('Notify:UnansweredClients')->hourly();
 
         $schedule->command('notify:team-reschedule-call-today')->dailyAt('08:00');
+        $schedule->command('making:task')->dailyAt('08:00');
+
 
     }
 

@@ -837,7 +837,7 @@ export function IsrailContact({
                                 className="navyblue py-2 px-4 mr-2"
                                 style={{ borderRadius: "5px" }}
                             >
-                                <GrFormPreviousLink /> Prev
+                                <GrFormPreviousLink /> {t("common.prev")}
                             </button>
                         )}
 
@@ -846,7 +846,7 @@ export function IsrailContact({
                             className="navyblue py-2 px-4"
                             style={{ borderRadius: "5px" }}
                         >
-                            {nextStep === 6 && !isSubmitted ? "Submit" : "Next"} <GrFormNextLink />
+                            {nextStep === 6 && !isSubmitted ? t("common.submit") : t("common.next")} <GrFormNextLink />
                         </button>
                     </div>
                 )}

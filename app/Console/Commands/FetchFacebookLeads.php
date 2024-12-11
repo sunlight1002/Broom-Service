@@ -247,6 +247,15 @@ class FetchFacebookLeads extends Command
                                 ->first();
 
                             if ($client) {
+
+                                 // Check if the client has a "verified" contract
+                                $hasVerifiedContract = $client->contract()->where('status', 'verified')->exists();
+
+                                if ($hasVerifiedContract) {
+                                    FacebookInsights::where('campaign_id', $mainCampaignId)
+                                        ->increment('client_count', 1);
+                                }
+
                                 // Update the existing client
                                 // $client->update([
                                 //     'payment_method' => 'cc',

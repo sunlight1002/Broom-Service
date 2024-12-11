@@ -332,7 +332,7 @@ const SafeAndGear = ({
                                     name="prev"
                                     style={{ borderRadius: "5px" }}
                                 >
-                                    <GrFormPreviousLink />Prev
+                                    <GrFormPreviousLink /> {t("common.prev")}
                                 </button>
                             )}
                             {nextStep < 6 && (
@@ -343,7 +343,7 @@ const SafeAndGear = ({
                                     className="navyblue py-2 px-4"
                                     style={{ borderRadius: "5px" }}
                                 >
-                                    Next<GrFormNextLink />
+                                    {t("common.next")} <GrFormNextLink />
                                 </button>
                             )}
                         </div>

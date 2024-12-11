@@ -902,6 +902,12 @@ class JobController extends Controller
             $jobData['previous_shifts_after'] = NULL;
         }
 
+        $feePercentage = $request->fee;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        $jobData['cancellation_fee_percentage'] = $feePercentage;
+        $jobData['cancellation_fee_amount'] = $feeAmount;
+
         $job->update($jobData);
 
         $job->jobservice()->update([
@@ -917,9 +923,6 @@ class JobController extends Controller
         foreach ($mergedContinuousTime as $key => $shift) {
             $job->workerShifts()->create($shift);
         }
-
-        $feePercentage = $request->fee;
-        $feeAmount = ($feePercentage / 100) * $job->total_amount;
 
         JobCancellationFee::create([
             'job_id' => $job->id,

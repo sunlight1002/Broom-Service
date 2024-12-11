@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Modal, Table } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import Sidebar from "../../Layouts/Sidebar";
+import { Card, Row, Col } from "react-bootstrap";
 
 function FacebookInsights() {
     const { t, i18n } = useTranslation();
@@ -30,47 +31,38 @@ function FacebookInsights() {
     return (
         <div id="container">
             <Sidebar />
-            <div id="content">
-                <div className="titleBox customer-title">
-                    <div className="d-flex justify-content-between">
-                        <div className="">
-                            <h1 className="page-title">{t("admin.sidebar.fb_insights")}</h1>
+            <div id="content" className="facebook">
+                <div className=" m-0">
+                    <div className="titleBox customer-title">
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                            <h1 className="page-title navyblueColor">{t("admin.sidebar.fb_insights")}</h1>
                         </div>
                     </div>
-                </div>
-                <div className="dashBox pt-4 pb-4" style={{ backgroundColor: "inherit", border: "none" }}>
-                    <Table responsive>
-                        <thead>
-                            <tr>
-                                <th>{t("Campaign ID")}</th>
-                                <th>{t("Campaign Name")}</th>
-                                <th>{t("Start Date")}</th>
-                                <th>{t("End Date")}</th>
-                                <th>{t("Lead Count")}</th>
-                                <th>{t("Client Count")}</th>
-                                <th>{t("Reach")}</th>
-                                <th>{t("Spend")}</th>
-                                <th>{t("CTR")}</th>
-                                <th>{t("CPC")}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {insightsData.map((campaign) => (
-                                <tr key={campaign.id}>
-                                    <td>{campaign.campaign_id}</td>
-                                    <td>{campaign.campaign_name}</td>
-                                    <td>{new Date(campaign.date_start).toLocaleDateString()}</td>
-                                    <td>{new Date(campaign.date_stop).toLocaleDateString()}</td>
-                                    <td>{campaign.lead_count}</td>
-                                    <td>{campaign.client_count}</td>
-                                    <td>{campaign.reach}</td>
-                                    <td>${campaign.spend}</td>
-                                    <td>{campaign.ctr}%</td>
-                                    <td>${campaign.cpc}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+
+                    <Row className="gy-4">
+                        {insightsData.map((campaign) => (
+                            <Col md={6} lg={4} key={campaign.id} className="mb-2">
+                                <Card className="shadow-sm h-100 mb-2">
+                                    <Card.Body>
+                                        <Card.Title className="text-primary">{campaign.campaign_name}</Card.Title>
+                                        <Card.Subtitle className="mb-3 text-muted">{t("Campaign ID")}: {campaign.campaign_id}</Card.Subtitle>
+                                        <Card.Text>
+                                            <strong>{t("Start Date")}:</strong> {new Date(campaign.date_start).toLocaleDateString()}<br />
+                                            <strong>{t("End Date")}:</strong> {new Date(campaign.date_stop).toLocaleDateString()}<br />
+                                            <strong>{t("Lead Count")}:</strong> {campaign.lead_count}<br />
+                                            <strong>{t("Client Count")}:</strong> {campaign.client_count}<br />
+                                            <strong>{t("Reach")}:</strong> {campaign.reach}<br />
+                                            <strong>{t("Spend")}:</strong> ${campaign.spend}<br />
+                                            <strong>{t("CTR")}:</strong> {campaign.ctr}%<br />
+                                            <strong>{t("CPC")}:</strong> {campaign.cpc}<br />
+                                            <strong>{t("CPM")}:</strong> {campaign.cpm}<br />
+                                            <strong>{t("CPP")}:</strong> {campaign.cpp}
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
                 </div>
             </div>
         </div>
