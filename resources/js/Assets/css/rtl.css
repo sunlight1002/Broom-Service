@@ -12,7 +12,11 @@ h4,h5, h6 ,p {
     text-align: right;
 }
 li {
-    text-align: right;
+    text-align: right ;
+}
+
+.dropdown-menu{
+    transform: translate3d(65px, 55px, 0px) !important;
 }
 
 .adminDash .dashBox p:dir(rtl){

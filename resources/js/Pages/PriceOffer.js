@@ -73,8 +73,6 @@ export default function PriceOffer() {
             let _services = JSON.parse(data.services);
 
             setServices(_services);
-            console.log(_services, "services");
-            
             setAirbnb({
                 id: _services[0].service,
                 subServiceId: _services[0].sub_services
@@ -226,9 +224,6 @@ export default function PriceOffer() {
             ))}
         </tr>
     );
-
-    console.log(allTemplates);
-    
 
     return (
         <div className="navyblueColor parent">

@@ -13,11 +13,10 @@ export default function SwitchWorkerModal({
     isOpen,
     job,
     onSuccess,
+    AllWorkers,
 }) {
     const { t } = useTranslation();
     const alert = useAlert();
-    const [workers, setWorkers] = useState([]);
-    const [singleJob, setSingleJob] = useState({});
     const [formValues, setFormValues] = useState({
         worker_id: "",
         repeatancy: "one_time",
@@ -61,23 +60,6 @@ export default function SwitchWorkerModal({
         setFormValues({ ...newFormValues });
     };
 
-    const getAllWorkers = () => {
-        axios
-            .get(`/api/admin/all-workers`, {
-                headers,
-            })
-            .then((response) => {
-                setWorkers(response.data?.workers);
-            });
-    };
-
-
-    const getJob = async() => {
-       const res = await axios.get(`/api/admin/jobs/${job.id}`, { headers })
-       console.log(res.data);
-       
-  
-    };
 
     const handleSubmit = () => {
         let hasError = false;
@@ -111,11 +93,6 @@ export default function SwitchWorkerModal({
                 });
         }
     };
-
-    useEffect(() => {
-        getAllWorkers();
-        getJob();
-    }, []);
 
 
     useEffect(() => {
@@ -152,7 +129,7 @@ export default function SwitchWorkerModal({
                                 }}
                             >
                                 <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
-                                {workers.map((w, i) => (
+                                {AllWorkers.map((w, i) => (
                                     <option value={w.id} key={i}>
                                         {w.firstname} {w.lastname}
                                     </option>
