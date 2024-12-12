@@ -15,6 +15,9 @@ use App\Models\Setting;
 use App\Traits\PaymentAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Events\WhatsappNotificationEvent;
+use App\Enums\WhatsappMessageTemplateEnum;
+
 
 class iCountController extends Controller
 {
@@ -191,54 +194,72 @@ class iCountController extends Controller
                                             ->where('invoice_id', $data['docnum'])
                                             ->first();
 
-                                        if (!$invoice) {
-                                            $invoice = Invoices::create([
-                                                'invoice_id'            => $data['docnum'],
-                                                'order_id'              => $order->id,
-                                                'type'                  => 'invrec',
-                                                'client_id'             => $client->id,
-                                                'doc_url'               => $invrecData['doc_info']['doc_url'],
-                                                'response'              => $webhookJson,
-                                                'amount'                => $invrecData['doc_info']['totalsum'],
-                                                'discount_amount'       => isset($invrecData['doc_info']['discount'])
-                                                    ? $invrecData['doc_info']['discount']
-                                                    : 0,
-                                                'total_amount'          => $invrecData['doc_info']['afterdiscount'],
-                                                'paid_amount'           => $paid_amount,
-                                                'amount_with_tax'       => $invrecData['doc_info']['totalwithvat'],
-                                                // 'pay_method' => ,
-                                                // 'txn_id' => ,
-                                                'status'                => $status,
-                                                'invoice_icount_status' => $invoice_icount_status,
-                                                'is_webhook_created'    => true
-                                            ]);
-
-                                            if ($invoice->status == InvoiceStatusEnum::PAID) {
-                                                event(new ClientPaymentPaid($client, $paid_amount));
-                                            }
-                                        } else {
-                                            if ($invoice->is_webhook_created) {
-                                                $invoice->update([
+                                            \Log::info(["orderData" => $orderData]);
+                                            
+                                            $clientData = [
+                                                'client' => [
+                                                    'id'       => $orderData['doc_info']['client_id'] ?? null,
+                                                    'phone'    => $client->phone ?? null,
+                                                    'lng'      => $client->lng ?? 'heb',
+                                                    'client_name'     => $orderData['doc_info']['client_name'] ?? null,
+                                                    'client_address'  => $orderData['doc_info']['client_address'] ?? null,
+                                                ]
+                                            ];                                            
+                                            
+                                            \Log::info(["data" => $clientData]);
+                                            if (!$invoice) {
+                                                $invoice = Invoices::create([
+                                                    'invoice_id'            => $data['docnum'],
+                                                    'order_id'              => $order->id,
+                                                    'type'                  => 'invrec',
+                                                    'client_id'             => $client->id,
                                                     'doc_url'               => $invrecData['doc_info']['doc_url'],
                                                     'response'              => $webhookJson,
                                                     'amount'                => $invrecData['doc_info']['totalsum'],
-                                                    'discount_amount'       => isset($invrecData['doc_info']['discount'])
-                                                        ? $invrecData['doc_info']['discount']
-                                                        : 0,
+                                                    'discount_amount'       => $invrecData['doc_info']['discount'] ?? 0,
                                                     'total_amount'          => $invrecData['doc_info']['afterdiscount'],
                                                     'paid_amount'           => $paid_amount,
                                                     'amount_with_tax'       => $invrecData['doc_info']['totalwithvat'],
-                                                    // 'pay_method' => ,
-                                                    // 'txn_id' => ,
                                                     'status'                => $status,
                                                     'invoice_icount_status' => $invoice_icount_status,
+                                                    'is_webhook_created'    => true
                                                 ]);
-
-                                                if ($invoice->status == InvoiceStatusEnum::PAID) {
-                                                    event(new ClientPaymentPaid($client, $paid_amount));
+                                            } else {
+                                                if ($invoice->is_webhook_created) {
+                                                    $invoice->update([
+                                                        'doc_url'               => $invrecData['doc_info']['doc_url'],
+                                                        'response'              => $webhookJson,
+                                                        'amount'                => $invrecData['doc_info']['totalsum'],
+                                                        'discount_amount'       => $invrecData['doc_info']['discount'] ?? 0,
+                                                        'total_amount'          => $invrecData['doc_info']['afterdiscount'],
+                                                        'paid_amount'           => $paid_amount,
+                                                        'amount_with_tax'       => $invrecData['doc_info']['totalwithvat'],
+                                                        'status'                => $status,
+                                                        'invoice_icount_status' => $invoice_icount_status,
+                                                    ]);
                                                 }
                                             }
-                                        }
+                                            
+                                            // Trigger event if invoice is paid
+                                            if ($invoice->status == InvoiceStatusEnum::PAID) {
+                                                Notification::create([
+                                                    'user_id' => $client->id ?? null,
+                                                    'user_type' => get_class($client),
+                                                    'type' => NotificationTypeEnum::PAYMENT_PAID,
+                                                    'data' => [
+                                                        'amount' => $paid_amount
+                                                    ],
+                                                    'status' => 'paid'
+                                                ]);
+                                        
+                                                event(new WhatsappNotificationEvent([
+                                                    "type" => WhatsappMessageTemplateEnum::PAYMENT_PAID,
+                                                    "notificationData" => [
+                                                        'client' => $clientData['client'],
+                                                        'amount' => $paid_amount
+                                                    ]
+                                                ]));
+                                            }                                            
 
                                         if ($invoice) {
                                             $order->update([
