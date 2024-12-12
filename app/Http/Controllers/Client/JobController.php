@@ -261,6 +261,10 @@ class JobController extends Controller
             ]);
             $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
 
+            if($repeatancy == 'forever' && $key == 0) {
+                GenerateJobInvoice::dispatch(null, $job->client->id);
+            }
+
             CreateJobOrder::dispatch($job->id);
 
             ScheduleNextJobOccurring::dispatch($job->id,null);
@@ -350,7 +354,7 @@ class JobController extends Controller
 
             foreach ($completedJobs as $key => $completedJob) {
                 if($completedJob->order->paid_status != OrderPaidStatusEnum::PAID) {
-                    GenerateJobInvoice::dispatch($completedJob->order->id);
+                    GenerateJobInvoice::dispatch(null, $completedJob->order->id);
                 }
             }
         }

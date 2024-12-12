@@ -9,7 +9,8 @@ export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
     const { t } = useTranslation();
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
-        extra_amount: job.extra_amount ?? 0,
+        extra_amount_type: job.extra_amount_type ?? "fixed",
+        extra_amount_value: job.extra_amount_value ?? 0,
     });
     const [loading, setLoading] = useState(false);
 
@@ -20,7 +21,7 @@ export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
     };
 
     const handleSave = () => {
-        if (!formValues.extra_amount) {
+        if (!formValues.extra_amount_value) {
             alert.error("The amount value is missing");
             return false;
         }
@@ -60,19 +61,40 @@ export default function JobExtraModal({ setIsOpen, isOpen, job, onSuccess }) {
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">
-                            {t("admin.global.extraAmount")}
+                                Type
+                            </label>
+
+                            <select
+                                name="extra_amount_type"
+                                onChange={(e) => {
+                                    setFormValues({
+                                        ...formValues,
+                                        extra_amount_type: e.target.value,
+                                    });
+                                }}
+                                value={formValues.extra_amount_type}
+                                className="form-control mb-3"
+                            >
+                                <option value="">--- Please Select ---</option>
+                                <option value="fixed">Fixed</option>
+                                <option value="percentage">Percentage</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label className="control-label">
+                                {t("admin.global.extraAmount")}
                             </label>
 
                             <input
                                 type="number"
-                                name="extra_amount"
+                                name="extra_amount_value"
                                 onChange={(e) => {
                                     setFormValues({
                                         ...formValues,
-                                        extra_amount: e.target.value,
+                                        extra_amount_value: e.target.value,
                                     });
                                 }}
-                                value={formValues.extra_amount}
+                                value={formValues.extra_amount_value}
                                 className="form-control mb-3"
                             />
                         </div>

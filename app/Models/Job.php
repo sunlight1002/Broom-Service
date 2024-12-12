@@ -26,6 +26,8 @@ class Job extends Model
         'is_extended',
         'shifts',
         'comment',
+        'extra_amount_type',
+        'extra_amount_value',
         'extra_amount',
         'subtotal_amount',
         'discount_type',

@@ -459,22 +459,22 @@ trait JobSchedule
     private function updateJobAmount($jobID)
     {
         $job = Job::with(['offer', 'jobservice'])->find($jobID);
-
+    
         if ($job) {
             $offerServices = $this->formatServices($job->offer, false);
             $filtered = Arr::where($offerServices, function ($value, $key) use ($job) {
                 return $value['service'] == $job->schedule_id;
             });
-
+    
             $selectedService = head($filtered);
-
+    
             if ($selectedService['type'] == 'hourly') {
                 if ($job->actual_time_taken_minutes > 0) {
                     $minutes = $job->actual_time_taken_minutes;
                 } else {
                     $minutes = $job->jobservice->duration_minutes;
                 }
-
+    
                 $hours = ($minutes / 60);
                 $subtotal_amount = $selectedService['rateperhour'] * $hours;
             } else if ($selectedService['type'] == 'squaremeter') {
@@ -482,12 +482,20 @@ trait JobSchedule
             } else {
                 $subtotal_amount = $selectedService['fixed_price'];
             }
-
-            if ($job->extra_amount) {
-                $subtotal_amount = $subtotal_amount + $job->extra_amount;
+    
+            // Calculate extra amount
+            $extra_amount = 0;
+            if ($job->extra_amount_type == 'fixed') {
+                $extra_amount = $job->extra_amount_value;
+            } else if ($job->extra_amount_type == 'percentage') {
+                $extra_amount = ($job->extra_amount_value / 100) * $subtotal_amount;
             }
-
-            $discount_amount = NULL;
+    
+            // Add extra amount to subtotal
+            $subtotal_amount += $extra_amount;
+    
+            // Calculate discount amount
+            $discount_amount = null;
             if ($job->discount_type == 'percentage') {
                 $discount_amount = (($job->discount_value / 100) * $subtotal_amount);
             } else if ($job->discount_type == 'fixed') {
@@ -495,20 +503,24 @@ trait JobSchedule
             } else {
                 $discount_amount = 0;
             }
-
+    
+            // Calculate total amount
             $total_amount = $subtotal_amount - $discount_amount;
-
+    
+            // Update job and job service
             $job->update([
+                'extra_amount' => $extra_amount,
                 'subtotal_amount' => $subtotal_amount,
                 'discount_amount' => $discount_amount,
                 'total_amount' => $total_amount
             ]);
-
+    
             $job->jobservice()->update([
-                'total'  => $total_amount,
+                'total' => $total_amount,
             ]);
         }
     }
+    
 
     private function copyDefaultCommentsToJob($job)
     {

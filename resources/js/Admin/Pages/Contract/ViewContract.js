@@ -1,12 +1,13 @@
 import axios from "axios";
+import i18next from "i18next";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
-import i18next from "i18next";
 
 import companySign from "../../../Assets/image/company-sign.png";
 import logo from "../../../Assets/image/sample.svg";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function ViewContract() {
     const [lng, setLng] = useState("en");
@@ -26,6 +27,7 @@ export default function ViewContract() {
     const [isCardAdded, setIsCardAdded] = useState(false);
     const [consentToAds, setConsentToAds] = useState(true);
     const [signDate, setSignDate] = useState(moment().format("DD/MM/YYYY"));
+    const [loading, setLoading] = useState(false);
 
     const { t } = useTranslation();
     const params = useParams();
@@ -79,15 +81,18 @@ export default function ViewContract() {
 
     const handleVerify = (e) => {
         e.preventDefault();
+        setLoading(true);
         axios
             .post(`/api/admin/verify-contract`, { id: params.id }, { headers })
             .then((res) => {
+                setLoading(false);
                 swal(res.data.message, "", "success");
                 setTimeout(() => {
                     window.location.reload(true);
                 }, 1000);
             })
             .catch((e) => {
+                setLoading(false);
                 Swal.fire({
                     title: "Error!",
                     text: e.response.data.message,
@@ -631,6 +636,7 @@ export default function ViewContract() {
                     </div>
                 </div>
             </div>
+            <FullPageLoader visible={loading} />
         </div>
     );
 }

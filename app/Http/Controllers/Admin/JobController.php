@@ -1949,37 +1949,39 @@ class JobController extends Controller
     public function saveExtraAmount(Request $request, $id)
     {
         $job = Job::find($id);
-
+    
         if (!$job) {
             return response()->json([
                 'message' => 'Job not found',
             ], 404);
         }
-
+    
         if ($job->status == JobStatusEnum::CANCEL) {
             return response()->json([
                 'message' => 'Job already cancelled'
             ], 403);
         }
-
+    
         if ($job->is_paid) {
             return response()->json([
                 'message' => 'Job is already paid'
             ], 403);
         }
-
+    
         $data = $request->all();
-
+    
         $job->update([
-            'extra_amount' => $data['extra_amount'],
+            'extra_amount_type' => $data['extra_amount_type'],
+            'extra_amount_value' => $data['extra_amount_value'],
         ]);
-
+    
         $this->updateJobAmount($job->id);
-
+    
         return response()->json([
             'message' => 'Extra amount saved successfully'
         ]);
     }
+    
 
     public function getOpenJobAmountByGroup(Request $request, $id)
     {

@@ -32,7 +32,7 @@ class GenerateJobInvoice implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($orderID, $clientID)
+    public function __construct($orderID = null, $clientID = null)
     {
         $this->orderID = $orderID;
         $this->clientID = $clientID;
@@ -55,17 +55,24 @@ class GenerateJobInvoice implements ShouldQueue
     {
         // Fetch orders for the client with the specified conditions
         $orders = Order::query()
-            ->with('client') // Eager load client relationship
-            ->where(function ($q) {
-                $q
-                    ->where('invoice_status', '0')
+                ->with('client') // Eager load client relationship
+                ->where(function ($q) {
+                    $q->where('invoice_status', '0')
                     ->orWhere('invoice_status', '1');
-            })
-            ->where('client_id', $this->clientID)
-            ->where('status', 'Open')
-            ->get();
+                })
+                ->where('client_id', $this->clientID)
+                ->where('status', 'Open');
     
-        // \Log::info(['Orders: ' => $orders]);
+        // Add this condition only if $this->orderID is present
+        if (!empty($this->orderID)) {
+            \Log::info('Order ID: ' . $this->orderID);
+            $orders->where('id', $this->orderID);
+        }
+        
+        $orders = $orders->get();
+    
+    
+        \Log::info(['Orders: ' => $orders??[]]);
     
         // Ensure orders exist
         if ($orders->isNotEmpty()) {
