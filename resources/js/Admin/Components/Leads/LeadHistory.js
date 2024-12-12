@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Contract from "./Contract";
 import OfferedPrice from "./offers";
 import ScheduledMeeting from "./schedules";
@@ -11,7 +11,6 @@ export default function LeadHistory({ client }) {
     const [Contracts, setContracts] = useState([]);
     const [latestContract, setLatestContract] = useState([])
     const params = useParams();
-    const { hash } = useLocation();
     const [activeTab, setActiveTab] = useState("#tab-schedule");
 
 
@@ -125,6 +124,7 @@ export default function LeadHistory({ client }) {
                             `nav-link d-flex align-items-center ` +
                             (activeTab === "#tab-contract" ? "active" : "")
                         }
+                        style={{ padding: "21px"}}
                         href="#tab-contract"
                         role="tab"
                         onClick={(e) => {

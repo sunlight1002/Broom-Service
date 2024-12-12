@@ -164,22 +164,36 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
   const res = moment(start_time, "hh:mm A").format("HH:mm");
 
   const timeSlots = useMemo(() => {
-    const filteredTimeOptions = selectedDate !== meetingDate
-      ? startTimeOptions.filter((i) => moment(i, "kk:mm").format("HH:mm") !== res)
-      : startTimeOptions;
-
-    return filteredTimeOptions.map((i) => moment(i, "kk:mm").format("hh:mm A"));
+    const filteredTimeOptions = startTimeOptions.filter((timeOption) => {
+      const formattedTime = moment(timeOption, "kk:mm").format("HH:mm");
+  
+      // Exclude `start_time` only if the selected date matches the `meetingDate`
+      if (moment(selectedDate).isSame(moment(meetingDate, "DD-MM-YYYY"), "day") && formattedTime === res) {
+        return true;
+      }
+  
+      return true; // Include other times
+    });
+  
+    return filteredTimeOptions.map((timeOption) =>
+      moment(timeOption, "kk:mm").format("hh:mm A")
+    );
   }, [startTimeOptions, selectedDate, meetingDate, res]);
+  
 
 
   const filteredTimeSlots = timeSlots.filter((t) => {
     const slotTime = moment(t, "hh:mm A");
-
-    if (meetingDate === today) {
+  
+    // Check if the selected date is today
+    if (moment(selectedDate).isSame(moment(), "day")) {
+      // Show only future time slots
       return slotTime.isAfter(moment());
     }
-    return true;
+  
+    return true; // Otherwise, show all slots
   });
+  
 
 
   return (

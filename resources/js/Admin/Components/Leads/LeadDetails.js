@@ -1,12 +1,11 @@
-import React, { useMemo } from "react";
-import { Link } from "react-router-dom";
-import { useParams } from "react-router-dom";
 import Moment from "moment";
-import Notes from "./Notes";
-import Files from "../Clients/Files";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { Link, useParams } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 import LeadActivityList from "../../Pages/LeadActivity/ViewLeadActivity";
+import Files from "../Clients/Files";
+import Notes from "./Notes";
 
 export default function LeadDetails({ lead }) {
 
