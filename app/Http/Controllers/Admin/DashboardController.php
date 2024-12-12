@@ -308,13 +308,14 @@ class DashboardController extends Controller
             $noticeAll[$k]->data = "<a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
               "</a> have been converted to client";
           } else if ($notice->type == NotificationTypeEnum::PAYMENT_FAILED) {
-            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->client->id . "'>" . $notice->client->firstname . " " . $notice->client->lastname .
               "</a> has been failed";
           } else if ($notice->type == NotificationTypeEnum::PAYMENT_PAID) {
-            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            \Log::info(['notice' => $notice]);
+            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->client->id . "'>" . $notice->client->firstname . " " . $notice->client->lastname .
               "</a> has been paid";
           } else if ($notice->type == NotificationTypeEnum::PAYMENT_PARTIAL_PAID) {
-            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .
+            $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->client->id . "'>" . $notice->client->firstname . " " . $notice->client->lastname .
               "</a> has been paid partially";
           } else if ($notice->type == NotificationTypeEnum::WORKER_NOT_APPROVED_JOB) {
             $job = Job::with('worker')->where('id', $notice->job_id)->first();
