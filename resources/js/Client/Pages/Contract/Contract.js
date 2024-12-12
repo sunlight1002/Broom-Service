@@ -34,11 +34,11 @@ export default function Contract() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "Date",
+                    title: t("client.contract.c_date"),
                     data: "created_at",
                 },
                 {
-                    title: "Service",
+                    title: t("client.contract.services"),
                     data: "services",
                     name: "offers.services",
                     orderable: false,
@@ -57,11 +57,11 @@ export default function Contract() {
                     },
                 },
                 {
-                    title: "Status",
+                    title: t("client.contract.status"),
                     data: "status",
                 },
                 {
-                    title: "Action",
+                    title: t("client.contract.action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,

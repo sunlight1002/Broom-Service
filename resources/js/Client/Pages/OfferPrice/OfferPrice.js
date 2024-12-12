@@ -33,11 +33,11 @@ export default function ClientOfferPrice() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "Date",
+                    title: t("client.offer.ofr_date"),
                     data: "created_at",
                 },
                 {
-                    title: "Service",
+                    title: t("client.offer.services"),
                     data: "services",
                     orderable: false,
                     render: function (data, type, row, meta) {
@@ -55,11 +55,11 @@ export default function ClientOfferPrice() {
                     },
                 },
                 {
-                    title: "Status",
+                    title: t("client.offer.status"),
                     data: "status",
                 },
                 {
-                    title: "Action",
+                    title: t("client.offer.action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,

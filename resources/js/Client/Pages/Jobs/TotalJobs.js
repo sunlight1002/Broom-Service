@@ -38,11 +38,11 @@ export default function TotalJobs() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "Date",
+                    title: t("client.jobs.date"),
                     data: "start_date",
                 },
                 {
-                    title: "Service",
+                    title: t("client.jobs.service"),
                     data: "service_name",
                     render: function (data, type, row, meta) {
                         let _html = `<span class="service-name-badge" style="background-color: ${
@@ -57,7 +57,7 @@ export default function TotalJobs() {
                     },
                 },
                 {
-                    title: "Arrival Time",
+                    title: t("client.jobs.arrival_time"),
                     data: "start_time",
                     render: function (data, type, row, meta) {
                         const startTime = data.split(' - ')[0];
@@ -65,7 +65,7 @@ export default function TotalJobs() {
                     },
                 },
                 {
-                    title: "Address",
+                    title: t("client.jobs.address"),
                     data: "address_name",
                     render: function (data, type, row, meta) {
                         if (data) {
@@ -76,7 +76,7 @@ export default function TotalJobs() {
                     },
                 },
                 {
-                    title: "Status",
+                    title: t("client.jobs.status"),
                     data: "status",
                     render: function (data, type, row, meta) {
                         return `<p style="background-color: #2F4054; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
@@ -85,7 +85,7 @@ export default function TotalJobs() {
                     }
                 },
                 {
-                    title: "Action",
+                    title: t("client.jobs.action"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,

@@ -45,7 +45,7 @@ export default function Clients() {
     const leadStatuses = [
         t("admin.client.Potential"),
         t("admin.client.Waiting_client"),
-        "active client",
+        t("admin.client.Active_client"),
         t("admin.client.Freeze_client"),
         t("admin.client.Past_client"),
     ];
