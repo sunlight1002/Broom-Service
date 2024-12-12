@@ -46,7 +46,7 @@ const ManpowerSaftyForm = () => {
         sigRef.current.clear();
         setFieldValue("signature", "");
     };
-    
+
     const {
         errors,
         touched,
@@ -65,7 +65,7 @@ const ManpowerSaftyForm = () => {
                 filename: "my-document.pdf",
                 margin: [5, 5, 0, 5],
                 image: { type: "jpeg", quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 1.5 },
                 jsPDF: {
                     unit: "mm",
                     format: "a4",
@@ -116,7 +116,7 @@ const ManpowerSaftyForm = () => {
 
     useEffect(() => {
         axios.get(`/api/getManpowerSafteyForm/${id}`).then((res) => {
-            
+
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../Assets/css/rtl.css");
@@ -136,10 +136,10 @@ const ManpowerSaftyForm = () => {
                 setFieldValue("manpower_company_name", res.data.manpower_company_name);
                 if (res.data.worker.country == "israel") {
                     setFieldValue("idNumber", res.data.worker.worker_id);
-                }else{
+                } else {
                     setFieldValue("passport", res.data.worker.passport);
                 }
-                
+
             }
 
             if (res.data.form) {
@@ -171,8 +171,8 @@ const ManpowerSaftyForm = () => {
 
     return (
         <div id="container" className="targetDiv rtlcon" ref={contentRef}>
-            <div id="content" style={{paddingLeft: "25px"}}>
-                <div className="mx-5 mt-5">
+            <div id="content" style={{ paddingLeft: "25px" }}>
+                <div className="mx-5 mt-4">
                     <div className="text-center">
                         <p className="mb-4 badge badge-primary" style={{ fontSize: "25px" }}>
                             <strong>{t("safeAndGear.welcomeToBroom")}</strong>
@@ -201,12 +201,12 @@ const ManpowerSaftyForm = () => {
                                 full_name: values.workerName + " " + values.workerName2,
                                 number: values.passport ? values.passport : values.idNumber,
                                 address: values.address ?? "",
-                                })}<br />
+                            })}<br />
                         </p>
                     </div>
 
                     <ol className="mt-3 lh-lg " style={{ fontSize: "16px" }}>
-                        <li>{t("manpower_safty_form.ms1",{ company_name: values.manpower_company_name })}</li>
+                        <li>{t("manpower_safty_form.ms1", { company_name: values.manpower_company_name })}</li>
                         <li>{t("manpower_safty_form.ms2")}</li>
                         <li>{t("manpower_safty_form.ms3")}</li>
                         <li>{t("manpower_safty_form.ms4")}</li>
@@ -232,20 +232,25 @@ const ManpowerSaftyForm = () => {
                                         <img src={formValues.signature} />
                                     ) : (
                                         <div>
-                                            <SignatureCanvas
-                                                penColor="black"
-                                                canvasProps={{
-                                                    width: 250,
-                                                    height: 100,
-                                                    className:
-                                                        "sign101 border mt-1",
-                                                }}
-                                            ref={sigRef}
-                                            onEnd={handleSignatureEnd}
-                                            />
+                                            <div className="d-flex flex-column">
+                                                <SignatureCanvas
+                                                    penColor="black"
+                                                    canvasProps={{
+                                                        width: 250,
+                                                        height: 100,
+                                                        className:
+                                                            "sign101 border mt-1",
+                                                    }}
+                                                    ref={sigRef}
+                                                    onEnd={handleSignatureEnd}
+                                                />
+                                                <span className="text-danger">
+                                                    {touched.signature && errors.signature}
+                                                </span>
+                                            </div>
 
                                             {!isGeneratingPDF && (
-                                                <div className="d-block">
+                                                <div className="d-block mt-1">
                                                     <button
                                                         type="button"
                                                         className="btn btn-warning mb-2"
@@ -271,8 +276,8 @@ const ManpowerSaftyForm = () => {
                                 </div>
                                 <div className="text-left">
                                     <p className="mb-4" style={{ fontSize: "17px" }}>
-                                        {t("manpower_safty_form.confirm_subject",{ 
-                                            worker_name: values.workerName + " " + values.workerName2, number: values.passport ? values.passport : values.idNumber ,
+                                        {t("manpower_safty_form.confirm_subject", {
+                                            worker_name: values.workerName + " " + values.workerName2, number: values.passport ? values.passport : values.idNumber,
                                             number: values.passport ? values.passport : values.idNumber
                                         })}<br />
                                     </p>

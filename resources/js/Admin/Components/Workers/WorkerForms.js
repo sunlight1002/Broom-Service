@@ -25,6 +25,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+
     const getForm = () => {
         axios
             .get(`/api/getAllForms/${worker.id}`)
