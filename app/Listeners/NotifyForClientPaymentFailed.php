@@ -60,11 +60,11 @@ class NotifyForClientPaymentFailed implements ShouldQueue
                 'admin' => $admin
             ];
 
-            Mail::send('Mails.admin.client-payment-failed', $emailData, function ($messages) use ($emailData) {
-                $messages->to($emailData['admin']['email']);
-                $sub = __('mail.admin.client-payment-failed.subject');
-                $messages->subject($sub);
-            });
+            // Mail::send('Mails.admin.client-payment-failed', $emailData, function ($messages) use ($emailData) {
+            //     $messages->to($emailData['admin']['email']);
+            //     $sub = __('mail.admin.client-payment-failed.subject');
+            //     $messages->subject($sub);
+            // });
         }
 
         $emailData = [
