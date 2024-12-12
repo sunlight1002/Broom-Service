@@ -207,6 +207,14 @@ li {
     text-align: right !important;
 }
 
+.checkmark{
+    left: unset !important;
+}
+
+.table-responsive{
+    direction: rtl;
+}
+
 .switch input:checked + label > .slider.round {
     transform: translateX(calc(100% - 43px)) !important;
 }

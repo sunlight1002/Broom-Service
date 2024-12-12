@@ -176,8 +176,6 @@ class WhatsappNotification
             }
         }
 
-        \Log::info(Carbon::parse($eventData['start_date'] ?? "00-00-0000")->format('M d Y') . " " . ($eventData['start_time'] ?? ''));
-
         $placeholders = [
             ':meeting_team_member_name' => isset($eventData['team']) && !empty($eventData['team']['name'])
                 ? $eventData['team']['name']
@@ -223,8 +221,8 @@ class WhatsappNotification
             $placeholders = [
                 ':offer_service_names' => $offerData['service_names'] ?? '',
                 ':offer_pending_since' => $offerData['offer_pending_since'] ?? '',
-                ':offer_detail_url' => url("admin/offered-price/edit/" . ($offerData['id'] ?? '')),
-                ':client_price_offer_link' => url("price-offer/" . base64_encode($offerData['id'])),
+                ':offer_detail_url' => isset($offerData['id']) ? url("admin/offered-price/edit/" . ($offerData['id'] ?? '')) : '',
+                ':client_price_offer_link' => isset($offerData['id']) ? url("price-offer/" . base64_encode($offerData['id'])) : '',
                 ':price_offer_services' => $serviceNamesString,
                 ':offer_sent_date' => isset($offerData['created_at']) ? Carbon::parse($offerData['created_at'])->format('M d Y H:i') : '',
             ];
@@ -239,7 +237,7 @@ class WhatsappNotification
         $placeholders = [];
         if($contractData) {
             $placeholders = [
-                ':client_contract_link' => url("work-contract/" . $contractData['id'] ?? ''),
+                ':client_contract_link' => isset($contractData['id']) ? url("work-contract/" . $contractData['id'] ?? '') : '',
                 ':team_contract_link' => isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '',
                 ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at'])->format('M d Y H:i') : '',
                 ':create_job' => isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : " ",

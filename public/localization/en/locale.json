@@ -248,7 +248,7 @@
         "sendToWorkerAndCustomer": "Send To Worker And Customer",
         "sendToWorkerAndCompany": "Send To Worker And Company",
         "signed": "Signed",
-        "notSigned": "Not Signed",
+        "notSigned": "not-signed",
         "uploadVisa": "Upload Visa",
         "uploadInsurance": "Upload Insurance",
         "uploadSafetyAndGear": "Upload Safety and Gear",
@@ -349,7 +349,11 @@
         "team_name": "Team name",
         "meet_link": "Meet Link",
         "purpose": "Purpose of the meeting:",
-        "no_file": "No file added for this meeting"
+        "no_file": "No file added for this meeting",
+        "price_offer": "Price Offer",
+        "quality_check": "Quality Check",
+        "other": "Other",
+        "no_record": "No record found"
     },
     "price_offer": {
         "button": "Accept Offer",

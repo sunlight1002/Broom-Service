@@ -250,7 +250,7 @@ export default function PriceOffer() {
                             <div className="headBtns mt-3">
                                 <button
                                     type="button"
-                                    className="btn ml-2 bluecolor acpt"
+                                    className="btn m-1 bluecolor acpt"
                                     disabled={loading}
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
@@ -261,7 +261,7 @@ export default function PriceOffer() {
                                 </button>
                                 <button
                                     type="button"
-                                    className="ml-2 btn bluecolor rjct"
+                                    className="m-1 btn bluecolor rjct"
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
                                         RejectOffer(offer.id)

@@ -28,12 +28,6 @@ export default function AddOffer() {
     const [loading, setLoading] = useState(false);
 
     const handleSave = (indexKey, tmpJobData) => {
-        // let newFormValues = [...formValues];
-        // if (indexKey > -1) {
-        //     newFormValues[indexKey] = tmpJobData;
-        // } else {
-        //     newFormValues.push(tmpJobData);
-        // }
         setFormValues(tmpJobData);
     };
 

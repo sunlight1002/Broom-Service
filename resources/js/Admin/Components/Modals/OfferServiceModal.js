@@ -40,15 +40,13 @@ export default function OfferServiceModal({
     frequencies,
     tmpFormValues,
     handleSaveForm,
+    formValues,
     isAdd,
     editIndex,
 }) {
+
     const { t } = useTranslation();
     const alert = useAlert();
-    // const [offerServiceTmp, setOfferServiceTmp] = useState(
-    //     isAdd ? [initialValues] : tmpFormValues || []
-    // );
-
     const [offerServiceTmp, setOfferServiceTmp] = useState(
         isAdd ? [initialValues] : tmpFormValues && Array.isArray(tmpFormValues) ? tmpFormValues : [initialValues]
     );
@@ -118,9 +116,6 @@ export default function OfferServiceModal({
             }))
         );
     };
-
-    console.log(offerServiceTmp);
-    
 
 
     const handleInputChange = (index, field, value) => {
@@ -226,9 +221,11 @@ export default function OfferServiceModal({
     };
 
     const handleSubmit = () => {
+        const combinedArray = isAdd ? ([...formValues,...offerServiceTmp]) : offerServiceTmp;
+
         const valid = offerServiceTmp.every((formValues) => checkValidation(formValues));
         if (valid) {
-            handleSaveForm(isAdd ? -1 : editIndex, offerServiceTmp);
+            handleSaveForm(isAdd ? -1 : editIndex, combinedArray);
             setIsOpen(false);
         }
     };

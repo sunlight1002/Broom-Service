@@ -9,7 +9,9 @@ export default function WorkerHeader() {
   const alert = useAlert();
   const navigate = useNavigate();
   const [avatar, setAvatar] = useState("");
-  const {t} = useTranslation();
+  const { t } = useTranslation();
+
+  const lng = localStorage.getItem("worker-lng");
   const HandleLogout = (e) => {
     fetch("/api/logout", {
       method: "POST",
@@ -38,23 +40,30 @@ export default function WorkerHeader() {
         }
       })
       .then((res) => {
-        //setAvatar(res.data.account.avatar);
         i18next.changeLanguage(res.data.success.lng);
 
-        if (es.data.success.lng == "heb") {
-            import("../../Assets/css/rtl.css");
-            document
-                .querySelector("html")
-                .setAttribute("dir", "rtl");
-        } else {
-            document.querySelector("html").removeAttribute("dir");
-            const rtlLink = document.querySelector('link[href*="rtl.css"]');
-            if (rtlLink) {
-                rtlLink.remove();
-            }
-        }
+        setAvatar(res.data.account.avatar);
       })
   }
+
+
+  useEffect(() => {
+
+    if (lng == "heb") {
+      import("../../Assets/css/rtl.css");
+      document
+        .querySelector("html")
+        .setAttribute("dir", "rtl");
+    } else {
+      document.querySelector("html").removeAttribute("dir");
+      const rtlLink = document.querySelector('link[href*="rtl.css"]');
+      if (rtlLink) {
+        rtlLink.remove();
+      }
+    }
+  }, [])
+
+
   useEffect(() => {
     getAvatar();
   }, []);

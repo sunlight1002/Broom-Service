@@ -21,12 +21,12 @@ export default function MeetingSchedule() {
             .post(`/api/client/meeting`, { id: Base64.decode(param.id) })
             .then((res) => {
                 const { schedule } = res.data;
+                const lng = schedule.client.lng;
                 setMeeting(schedule);
-                setTeamName(schedule.team?.name);
+                setTeamName(lng == "heb" ? schedule.team.heb_name : schedule.team?.name);
                 setAddress(
                     schedule.property_address ? schedule.property_address : null
                 );
-                const lng = schedule.client.lng;
                 i18next.changeLanguage(lng);
                 if (lng == "heb") {
                     import("../Assets/css/rtl.css");
@@ -94,7 +94,10 @@ export default function MeetingSchedule() {
                         <li>
                             {t("meet_stat.purpose")}{" "}
                             <span>
-                                {meeting?.purpose}
+                                {meeting?.purpose == "Price offer"
+                                    ? t("meet_stat.price_offer")
+                                    : meeting?.purpose == "Quality check"
+                                    ? t("meet_stat.quality_check"): meeting?.purpose}
                             </span>
                         </li>
                     ) : (

@@ -551,7 +551,7 @@ export default function WorkContract() {
 
                                                 {clientCards.map((_card, _index) => {
                                                     return (
-                                                        <div className="my-3" key={_index}>
+                                                        <div className="my-3 d-flex" key={_index}>
                                                             <label className="custom-checkbox">
                                                                 <input
                                                                     type="checkbox"

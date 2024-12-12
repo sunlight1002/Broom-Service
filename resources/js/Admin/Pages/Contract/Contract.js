@@ -24,11 +24,18 @@ export default function Contract() {
 
     const [filter, setFilter] = useState("All");
 
+    // const contractStatuses = [
+    //     t("global.verified"),
+    //     t("global.unverified"),
+    //     t("global.notSigned"),
+    //     t("admin.schedule.options.meetingStatus.Declined"),
+    // ];
+
     const contractStatuses = [
-        t("global.verified"),
-        t("global.unverified"),
-        t("global.notSigned"),
-        t("admin.schedule.options.meetingStatus.Declined"),
+        "verified",
+        "un-verified",
+        "not-signed",
+        "declined",
     ];
 
     const headers = {
@@ -416,7 +423,7 @@ export default function Contract() {
                         </div>
                         <div>
                             <FilterButtons
-                                text={t("admin.global.All")}
+                                text="All"
                                 className="px-3 mr-1 ml-4"
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}
