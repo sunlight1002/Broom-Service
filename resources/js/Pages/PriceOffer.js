@@ -73,10 +73,15 @@ export default function PriceOffer() {
             let _services = JSON.parse(data.services);
 
             setServices(_services);
-            setAirbnb({
-                id: _services[0].service,
-                subServiceId: _services[0].sub_services
-            });
+            const airbnbService = _services.find(service => service.name === "airbnb");
+
+            if (airbnbService) {
+                setAirbnb({
+                    id: airbnbService.service,
+                    subServiceId: airbnbService.sub_services
+                });
+            }
+
 
             if (data.client.lng === "heb") {
                 import("../Assets/css/rtl.css");
@@ -114,9 +119,9 @@ export default function PriceOffer() {
     const handleGetSubServices = async (id) => {
         try {
             const res = await axios.get(`/api/get-sub-services/${id}`);
+
             const allSubServices = res.data?.subServices;
             const filteredSubServices = allSubServices.filter(sub => airbnb?.subServiceId?.includes(sub.id));
-
             setSubService(filteredSubServices);
         } catch (error) {
             console.log("Error fetching sub-services:", error);
