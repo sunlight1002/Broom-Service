@@ -463,6 +463,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM:
+                    case WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED:
                     // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.lead_client');
                         $lng = 'heb';
