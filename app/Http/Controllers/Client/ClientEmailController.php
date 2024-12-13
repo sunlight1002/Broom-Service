@@ -314,24 +314,37 @@ class ClientEmailController extends Controller
     public function rescheduleMeeting(Request $request, $id)
     {
         $data = $request->all();
-
+    
+        \Log::info(["data" => $data]);
+    
         $schedule = Schedule::find($id);
         if (!$schedule) {
             return response()->json([
                 'message' => 'Meeting not found'
             ], 404);
         }
-
+    
         $client = $schedule->client;
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found'
             ], 404);
         }
-
-        $data['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])->addMinutes(30)->format('h:i A');
-        $data['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])->toTimeString();
-
+    
+        // Map Hebrew meridian to English
+        $hebrewMeridianMap = [
+            'לפנה"צ' => 'AM',
+            'אחרי הצהריים' => 'PM',
+        ];
+        $data['start_time'] = str_replace(array_keys($hebrewMeridianMap), array_values($hebrewMeridianMap), $data['start_time']);
+    
+        // Parse and calculate times
+        $data['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])
+            ->addMinutes(30)
+            ->format('h:i A');
+        $data['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $data['start_time'])
+            ->toTimeString();
+    
         $schedule->update([
             'start_date' => $data['start_date'],
             'start_time' => $data['start_time'],
@@ -339,23 +352,24 @@ class ClientEmailController extends Controller
             'start_time_standard_format' => $data['start_time_standard_format'],
             'booking_status' => 'rescheduled'
         ]);
-
+    
         // Initializes Google Client object
         $googleClient = $this->getClient();
-
+    
         $this->saveGoogleCalendarEvent($schedule);
-
+    
         $schedule->load(['client', 'team', 'propertyAddress']);
         event(new ReScheduleMeetingJob($schedule));
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE,
             "notificationData" => $schedule->toArray()
         ]));
-
+    
         return response()->json([
             'message' => 'Thanks, your meeting is rescheduled'
         ]);
     }
+    
 
     public function AcceptContract(Request $request)
     {
