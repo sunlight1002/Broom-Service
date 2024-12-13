@@ -542,11 +542,11 @@ export default function OfferServiceModal({
                     <p>{t("global.noServicesAvailable")}</p>
                 )
                 }
-                <div className="mt-4 text-right">
+                {/* <div className="mt-4 text-right">
                     <Button onClick={handleAddService} className="navyblue btn">
                         {t("global.addService")}
                     </Button>
-                </div>
+                </div> */}
             </Modal.Body>
 
             <Modal.Footer>

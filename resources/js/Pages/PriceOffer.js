@@ -848,7 +848,7 @@ export default function PriceOffer() {
                                                     <td>
                                                         {s.service == 10
                                                             ? s.other_title
-                                                            : s.name}
+                                                            : clientLng === 'heb' ? s.service_name_heb : s.service_name_en}
                                                     </td>
                                                     <td>
                                                         {clientLng === 'heb' ? (
@@ -860,7 +860,7 @@ export default function PriceOffer() {
                                                         )}
                                                     </td>
                                                     <td>
-                                                        {s.freq_name}{" "}
+                                                        {clientLng === 'heb' ? s.frequency_name_heb : s.frequency_name_en}{" "}
                                                         {/* <p>
                                                                 {frequencyDescription(
                                                                     s
@@ -1056,7 +1056,7 @@ export default function PriceOffer() {
                                 </button>
                                 <button
                                     type="button"
-                                    className="ml-2 btn bluecolor rjct"
+                                    className="mx-2 btn bluecolor rjct"
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
                                         RejectOffer(offer.id)

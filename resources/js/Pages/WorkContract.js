@@ -428,10 +428,10 @@ export default function WorkContract() {
                                                                 <td>
                                                                     {s.service == 10
                                                                         ? s.other_title
-                                                                        : s.name}
+                                                                        : client?.lng == "heb" ? s.service_name_heb : s.service_name_en}
                                                                 </td>
                                                                 <td>{s.type == "fixed" ? t("admin.leads.AddLead.Options.Type.Fixed") : s.type == "hourly" ? t("admin.leads.AddLead.Options.Type.Hourly") : t("admin.leads.AddLead.Options.Type.Squaremeter")}</td>
-                                                                <td>{s.freq_name} </td>
+                                                                <td>{client?.lng == "heb" ? s.frequency_name_heb : s.frequency_name_en} </td>
                                                                 {showWorkerHours && (
                                                                     <td>
                                                                         {workerHours(s)}
@@ -547,7 +547,6 @@ export default function WorkContract() {
                                                 </div>
 
                                                 <p>{t("client.contract-form.add_cc_click_here")} </p>
-                                                <p> {t("client.contract-form.add_cc_click_here1")} </p>
 
                                                 {clientCards.map((_card, _index) => {
                                                     return (
@@ -582,6 +581,7 @@ export default function WorkContract() {
                                                         </div>
                                                     );
                                                 })}
+                                                <p> {t("client.contract-form.add_cc_click_here1")} </p>
 
                                                 {!isCardAdded && (
                                                     <button

@@ -25,12 +25,14 @@ trait PriceOffered
                 if (!empty($service['service'])) {
                     $jobService = JobService::find($service['service']);
                     $services[$key]['service_name_heb'] = $jobService->heb_name ?? 'לא ידוע';
+                    $services[$key]['service_name_en'] = $jobService->name ?? "not found";
                 }
     
                 // Fetch ServiceSchedule details
                 if (!empty($service['frequency'])) {
                     $serviceSchedule = ServiceSchedule::find($service['frequency']);
-                    $services[$key]['frequency_name_heb'] = $serviceSchedule->name_heb ?? 'ddcd';
+                    $services[$key]['frequency_name_heb'] = $serviceSchedule->name_heb ?? 'לא ידוע';
+                    $services[$key]['frequency_name_en'] = $serviceSchedule->name ?? "not found";
                 }
             }
         }
