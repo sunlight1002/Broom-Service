@@ -124,6 +124,10 @@
             "schedule_deleted": "לוח הזמנים נמחק."
         }
     },
+    "swal": {
+        "not_interested": "לא מעוניין בשירות",
+        "contact_me": "צרו איתי קשר לתיאום מחדש"
+      },
     "global": {
         "alltime": "כל הזמנים",
         "name": "שם",
@@ -347,7 +351,10 @@
         "price_offer": "הצעת מחיר",
         "quality_check": "בדיקת איכות",
         "אחר": "אחר",
-        "no_record": "לא נמצאה רשומה"
+        "no_record": "לא נמצאה רשומה",
+        "date_not_selected": "תאריך לא נבחר",
+        "time_not_selected": "זמן לא נבחר",
+        "cant_select_time": "אי אפשר לבחור באותו זמן"
     },
     "price_offer": {
         "button": "קבל הצעה",

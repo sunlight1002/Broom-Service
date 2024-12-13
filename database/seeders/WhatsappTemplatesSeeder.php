@@ -677,6 +677,35 @@ office@broomservice.co.il
 
 
             [
+                'key' => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING,
+                'description' => 'Reminder to Team - Client Contact Me to Reschedule meeting',
+                'message_en' => '',
+                'message_heb' => 'שלום צוות,
+
+הפגישה המתוכננת עבור :client_name תוזמנה מחדש.
+
+נא ליצור קשר עם הלקוח לקביעת מועד מחדש של הפגישה במועד מתאים.
+
+פרטי לקוח:
+
+שם: :client_name
+טלפון: :client_phone_number
+אימייל: :client_email
+
+פרטי הפגישה המקוריים:
+
+תאריך: :meeting_date
+זמן: :meeting_start_time - :meeting_end_time
+כתובת: :meeting_address
+
+בברכה,
+צוות ברום סרוויס🌹',
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
+
+            [
                 'key' => WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING,
                 'description' => 'Reminder to Client - Admin Reschedule meeting',
                 'message_en' => "Hello, *:client_name*
@@ -2123,7 +2152,11 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
                 'message_heb' => "שלום, *:client_name*
 
-נקבע עבורך שירות *:service_name* בשעה *:job_start_date* בתאריך *:job_start_time*.ר את ההסכם.
+נקבע עבורך שירות :service_name בתאריך :job_start_date בשעה :job_start_time.
+
+לתשומת לבך, זמן ההגעה המשוער של הצוות יכול להיות עד שעה וחצי מזמן ההתחלה שתואם.
+
+לכל שאלה או בקשה, נשמח לעמוד לשירותך.
 
 צפה בעבודה :client_view_job_link
 

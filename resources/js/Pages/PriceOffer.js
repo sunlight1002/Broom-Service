@@ -233,7 +233,7 @@ export default function PriceOffer() {
     return (
         <div className="navyblueColor parent">
             <div className=" mt-4 mb-5 bg-transparent " style={{
-                margin: mobileView ? "0 20px" : "0 100px"
+                margin: mobileView ? "0 10px" : "0 100px"
             }}>
                 <div className="d-flex align-items-center justify-content-between flex-dir-co-1070">
                     <img
@@ -243,7 +243,7 @@ export default function PriceOffer() {
                         style={{ height: "100px" }}
                     />
                 </div>
-                <div>
+                <div className="mt-3">
                     <section className="d-flex align-items-center" style={{ gap: "20px" }}>
                         <p className="navyblueColor font-34 mt-4 font-w-500">{t("price_offer.price_offno")} #{id}</p>
                         {status == "sent" ? (
@@ -297,7 +297,7 @@ export default function PriceOffer() {
                             </span>{" "}</p>
                     </section>
                 </div>
-                <div className="row mt-3">
+                <div className="mt-3">
                     <section className="col-xl">
                         <div className="abt">
                             <h5 className="mb-2">{t("price_offer.about_title")}</h5>
@@ -411,7 +411,8 @@ export default function PriceOffer() {
                                             </tr>
                                         </tbody>
                                     </table>
-                                </div>                            </div>
+                                </div>
+                            </div>
                         )}
 
                         {/* Other Services */}
@@ -671,7 +672,7 @@ export default function PriceOffer() {
                                         src={t(
                                             "price_offer.office_cleaning.oc2_img"
                                         )}
-                                        className="img-fluid mt-2"
+                                        className={`img-fluid mt-2 ${mobileView ? "mx-0" : "mx-3"}`}
                                         alt="Room Services"
                                     />
                                 </div>

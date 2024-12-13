@@ -89,7 +89,7 @@ export default function WorkerSidebar() {
                     </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/tasks">
-                    <i class="fa-solid fa-list-check"></i>
+                    <i className="fa-solid fa-list-check"></i>
                         {t("worker.sidebar.tasks")}
                     </NavLink>
                 </li>

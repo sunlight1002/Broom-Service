@@ -21,10 +21,11 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [bookedSlots, setBookedSlots] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
   const { t } = useTranslation();
   const alert = useAlert();
 
+  const currentLanguage = meeting?.client?.lng === "heb" ? "he" : "en";
+  moment.locale(currentLanguage);
 
   const getTeamAvailibality = (date) => {
     const _date = moment(date).format("Y-MM-DD");
@@ -107,16 +108,15 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
 
   const handleSubmit = () => {
     if (!selectedDate) {
-      alert.error("Date not selected");
+      alert.error(t("meet_stat.date_not_selected"));
       return false;
     }
 
     if (!selectedTime) {
-      alert.error("Time not selected");
+      alert.error(t("meet_stat.time_not_selected"));
       return false;
     }
     setIsLoading(true);
-
 
     axios
       .post(`/api/client/meeting/${meeting.id}/reschedule`, {
@@ -124,8 +124,6 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
         start_time: selectedTime,
       })
       .then((response) => {
-        console.log(response.data);
-        
         setIsLoading(false);
         alert.success(response.data.message);
         setTimeout(() => {
@@ -142,10 +140,10 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
         });
       });
   };
-  const currentLanguage = meeting?.client?.lng === "heb" ? "he" : "en";
+
+
   const today = moment().format("DD-MM-YYYY");
 
-  moment.locale(currentLanguage);
 
   const formattedSelectedDate = useMemo(() => {
     if (selectedDate) {
@@ -160,41 +158,33 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
   }, [selectedDate, currentLanguage]);
 
   const selectDate = moment(selectedDate).format("DD-MM-YYYY");
-
   const res = moment(start_time, "hh:mm A").format("HH:mm");
 
   const timeSlots = useMemo(() => {
     const filteredTimeOptions = startTimeOptions.filter((timeOption) => {
       const formattedTime = moment(timeOption, "kk:mm").format("HH:mm");
-  
       // Exclude `start_time` only if the selected date matches the `meetingDate`
       if (moment(selectedDate).isSame(moment(meetingDate, "DD-MM-YYYY"), "day") && formattedTime === res) {
         return true;
       }
-  
       return true; // Include other times
     });
   
     return filteredTimeOptions.map((timeOption) =>
       moment(timeOption, "kk:mm").format("hh:mm A")
     );
-  }, [startTimeOptions, selectedDate, meetingDate, res]);
-  
-
+  }, [startTimeOptions, selectedDate, meetingDate, res, currentLanguage]);
 
   const filteredTimeSlots = timeSlots.filter((t) => {
     const slotTime = moment(t, "hh:mm A");
-  
     // Check if the selected date is today
     if (moment(selectedDate).isSame(moment(), "day")) {
       // Show only future time slots
       return slotTime.isAfter(moment());
     }
-  
     return true; // Otherwise, show all slots
   });
   
-
 
   return (
     <>
@@ -249,14 +239,13 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
           </div>
         </div>
       </div>
-
       <button
         type="button"
         className="btn btn-primary mt-2"
         onClick={handleSubmit}
         disabled={isLoading}
       >
-        Submit
+        {t("common.submit")}
       </button>
       {isLoading && <FullPageLoader visible={isLoading} />}
     </>

@@ -124,6 +124,10 @@
             "schedule_deleted": "Schedule has been deleted."
         }
     },
+    "swal": {
+      "not_interested": "Im not interested",
+      "contact_me": "Contact Me to reschedule the meeting"
+    },
     "global": {
         "search": "Search",
         "all": "All",
@@ -353,7 +357,10 @@
         "price_offer": "Price Offer",
         "quality_check": "Quality Check",
         "other": "Other",
-        "no_record": "No record found"
+        "no_record": "No record found",
+        "date_not_selected": "Date not selected",
+        "time_not_selected": "Time not selected",
+        "cant_select_time": "You can't select the same time"
     },
     "price_offer": {
         "button": "Accept Offer",
@@ -364,7 +371,7 @@
         "company_text": "Company Name",
         "address_text": "Address",
         "about_title": "About us",
-        "about": "Broom Service was founder by Lidor Mamou on 2013\nThe company employs a team of professionals in a wide variety of house cleaning\nand maintenance jobs.\nOur staff are regular and experienced employees\nOur staff are regular and experienced employees who receive a fair and proper reward and all the\nbeneﬁts they receive according to the law\nOur clients are accustomed and well acquainted with the high standard of service used in the best\nluxury and boutique hotels in Israel and worldwide and we strive to meet this high quality standard.\nOur customer satisfaction, high level of service, attention to detail and personal attitude are the\nfoundations on which we base our services.\n\nThe company is registered as a legal cleaning company in the Ministry of Industry. License number: 4569",
+        "about": "Broom Service was founder by Lidor Mamou on 2013\nThe company employs a team of professionals in a wide variety of house cleaning and maintenance jobs.\nOur staff are regular and experienced employees\nOur staff are regular and experienced employees who receive a fair and proper reward and all the beneﬁts they receive according to the law.\nOur clients are accustomed and well acquainted with the high standard of service used in the best luxury and boutique hotels in Israel and worldwide and we strive to meet this high quality standard.\nOur customer satisfaction, high level of service, attention to detail and personal attitude are the foundations on which we base our services.\n\nThe company is registered as a legal cleaning company in the Ministry of Industry. License number: 4569",
         "service_title": "Price Summary",
         "service_txt": "Service Name",
         "freq_s_txt": "Frequency of Services",

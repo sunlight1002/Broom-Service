@@ -46,6 +46,7 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
     handleSaveForm,
     handleRemoveFormFields,
 }) {
+    const urlPath = window.location.pathname;
 
     const { t } = useTranslation();
 
@@ -103,13 +104,17 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
     return (
         <div>
             <div className="text-right" style={{ marginBottom: "5px" }}>
-                <button
-                    type="button"
-                    onClick={handleAddService}
-                    className="btn btn-success"
-                >
-                    + {t("global.addService")}
-                </button>
+                {
+                    !urlPath.includes("edit") && (
+                        <button
+                            type="button"
+                            onClick={handleAddService}
+                            className="btn btn-success"
+                        >
+                            + {t("global.addService")}
+                        </button>
+                    )
+                }
             </div>
             <div className="table-responsive">
                 {formValues.length > 0 ? (
@@ -130,56 +135,56 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                             {formValues.map((item, innerIndex) => {
                                 return (
                                     <Tr key={innerIndex}>
-                                    <Td>
-                                    {item && item.address && addresses.length > 0
-                                            ? ( addresses.find(
-                                                (a) => a.id.toString() === item.address.toString()
-                                            )?.geo_address)
-                                            : "NA"}
-                                    </Td>
-                                    <Td>{item.name}</Td>
-                                    <Td>{item.type}</Td>
-                                    <Td>{item.workers ? item.workers.length : 0}</Td>
-                                    <Td>{workerJobHours(item)}</Td>
-                                    <Td>{calcPrice(item)}</Td>
-                                    <Td>{item.freq_name}</Td>
-                                    <Td>
-                                        <div className="action-dropdown dropdown">
-                                            <button
-                                                type="button"
-                                                className="btn btn-default dropdown-toggle"
-                                                data-toggle="dropdown"
-                                            >
-                                                <i className="fa fa-ellipsis-vertical"></i>
-                                            </button>
-                                            <div className="dropdown-menu">
-                                                {jobActions.map((menu) => (
-                                                    <button
-                                                        type="button"
-                                                        className="dropdown-item"
-                                                        key={menu.key}
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            if (menu.key === "edit") {
-                                                                indexRef.current = innerIndex;
-                                                                isAdd.current = false;
-                                                                // console.log(formValues);
-                                                                setTmpFormValues(formValues);
-                                                                setIsOpen(true);
-                                                            } else {
-                                                                handleRemoveFormFields(innerIndex);
-                                                            }
-                                                        }}
-                                                    >
-                                                        {menu.label}
-                                                    </button>
-                                                ))}
+                                        <Td>
+                                            {item && item.address && addresses.length > 0
+                                                ? (addresses.find(
+                                                    (a) => a.id.toString() === item.address.toString()
+                                                )?.geo_address)
+                                                : "NA"}
+                                        </Td>
+                                        <Td>{item.name}</Td>
+                                        <Td>{item.type}</Td>
+                                        <Td>{item.workers ? item.workers.length : 0}</Td>
+                                        <Td>{workerJobHours(item)}</Td>
+                                        <Td>{calcPrice(item)}</Td>
+                                        <Td>{item.freq_name}</Td>
+                                        <Td>
+                                            <div className="action-dropdown dropdown">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-default dropdown-toggle"
+                                                    data-toggle="dropdown"
+                                                >
+                                                    <i className="fa fa-ellipsis-vertical"></i>
+                                                </button>
+                                                <div className="dropdown-menu">
+                                                    {jobActions.map((menu) => (
+                                                        <button
+                                                            type="button"
+                                                            className="dropdown-item"
+                                                            key={menu.key}
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                if (menu.key === "edit") {
+                                                                    indexRef.current = innerIndex;
+                                                                    isAdd.current = false;
+                                                                    // console.log(formValues);
+                                                                    setTmpFormValues(formValues);
+                                                                    setIsOpen(true);
+                                                                } else {
+                                                                    handleRemoveFormFields(innerIndex);
+                                                                }
+                                                            }}
+                                                        >
+                                                            {menu.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </Td>
-                                </Tr>
+                                        </Td>
+                                    </Tr>
                                 )
-                                })}
+                            })}
                         </Tbody>
                     </Table>
                 ) : (

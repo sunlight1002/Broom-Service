@@ -82,7 +82,7 @@ class PaymentController extends Controller
                                     'client_id'   => $client->id,
                                     'card_number' => $ZCreditTrx['CardNumber'],
                                     'card_type'   => $cardType,
-                                    'card_holder_id' => $ZCreditTrx['HolderID'],
+                                    // 'card_holder_id' => $ZCreditTrx['HolderID'],
                                     'card_holder_name' => $ZCreditTrx['CustomerName'],
                                     'valid'       => $ZCreditTrx['ExpDate_MMYY'],
                                     'cc_charge'   => $ZCreditTrx['TransactionSum'],

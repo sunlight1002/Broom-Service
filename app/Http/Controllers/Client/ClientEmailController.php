@@ -261,55 +261,132 @@ class ClientEmailController extends Controller
         ]);
     }
 
+    // public function rejectMeeting(Request $request)
+    // {
+    //     $schedule = Schedule::find($request->id);
+    //     if (!$schedule) {
+    //         return response()->json([
+    //             'message' => 'Meeting not found'
+    //         ], 404);
+    //     }
+
+    //     $client = $schedule->client;
+    //     if (!$client) {
+    //         return response()->json([
+    //             'message' => 'Client not found'
+    //         ], 404);
+    //     }
+
+    //     $schedule->update([
+    //         'booking_status' => 'declined'
+    //     ]);
+
+    //     $client->update(['status' => 0]);
+
+    //     $schedule->load(['client', 'team', 'propertyAddress']);
+
+    //     if ($schedule->is_calendar_event_created) {
+    //         // Initializes Google Client object
+    //         $googleClient = $this->getClient();
+
+    //         $this->deleteGoogleCalendarEvent($schedule);
+    //     }
+
+    //     Notification::create([
+    //         'user_id' => $schedule->client_id,
+    //         'user_type' => get_class($client),
+    //         'type' => NotificationTypeEnum::REJECT_MEETING,
+    //         'meet_id' => $request->id,
+    //         'status' => 'declined'
+    //     ]);
+
+    //     event(new WhatsappNotificationEvent([
+    //         "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED,
+    //         "notificationData" => $schedule->toArray()
+    //     ]));
+
+    //     return response()->json([
+    //         'message' => 'Thanks, your meeting is declined'
+    //     ]);
+    // }
+
+
     public function rejectMeeting(Request $request)
     {
-        \Log::info("ferfr");
         $schedule = Schedule::find($request->id);
         if (!$schedule) {
             return response()->json([
                 'message' => 'Meeting not found'
             ], 404);
         }
-
+    
         $client = $schedule->client;
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found'
             ], 404);
         }
-
+    
         $schedule->update([
             'booking_status' => 'declined'
         ]);
-
-        $client->update(['status' => 0]);
-
-        $schedule->load(['client', 'team', 'propertyAddress']);
-
+    
+        $schedule->load(['client.offers', 'team', 'propertyAddress']);
+    
         if ($schedule->is_calendar_event_created) {
             // Initializes Google Client object
             $googleClient = $this->getClient();
-
+    
             $this->deleteGoogleCalendarEvent($schedule);
         }
 
-        Notification::create([
-            'user_id' => $schedule->client_id,
-            'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::REJECT_MEETING,
-            'meet_id' => $request->id,
-            'status' => 'declined'
-        ]);
+    
+        if ($request->type == "contact_me") {
 
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED,
-            "notificationData" => $schedule->toArray()
-        ]));
+            $client->update(['status' => 0]);
+            $newLeadStatus = LeadStatusEnum::PENDING;
+    
+            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
+            }
+    
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING,
+                "notificationData" => $schedule->toArray()
+            ]));
+        } else if ($request->type == "not_interested") {
 
+            $hasAcceptedOffer = $client->offers->contains(function ($offer) {
+                return $offer->status === 'accepted';
+            });
+    
+            if (!$hasAcceptedOffer) {
+
+                $client->update(['status' => 0]);
+                $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+    
+                if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => $newLeadStatus]
+                    );
+    
+                    event(new ClientLeadStatusChanged($client, $newLeadStatus));
+                }
+            }else{
+                \Log::info("hasAcceptedOffer");
+            }
+        }
+    
         return response()->json([
             'message' => 'Thanks, your meeting is declined'
         ]);
     }
+    
+
 
     public function rescheduleMeeting(Request $request, $id)
     {
