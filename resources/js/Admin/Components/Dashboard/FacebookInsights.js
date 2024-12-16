@@ -17,7 +17,6 @@ function FacebookInsights() {
     const handleGetInsights = async () => {
         try {
             const response = await axios.get(`/api/admin/facebook-campaigns`, { headers });
-            console.log(response.data);
             setInsightsData(response.data); // Set data to state
         } catch (error) {
             console.error(error);
@@ -43,14 +42,18 @@ function FacebookInsights() {
                         {insightsData.map((campaign) => (
                             <Col md={6} lg={4} key={campaign.id} className="mb-2">
                                 <Card className="shadow-sm h-100 mb-2">
-                                    <Card.Body>
+                                    <Card.Body className="p-4">
                                         <Card.Title className="text-primary">{campaign.campaign_name}</Card.Title>
                                         <Card.Subtitle className="mb-3 text-muted">{t("Campaign ID")}: {campaign.campaign_id}</Card.Subtitle>
                                         <Card.Text>
                                             <strong>{t("Start Date")}:</strong> {new Date(campaign.date_start).toLocaleDateString()}<br />
                                             <strong>{t("End Date")}:</strong> {new Date(campaign.date_stop).toLocaleDateString()}<br />
                                             <strong>{t("Lead Count")}:</strong> {campaign.lead_count}<br />
+                                            <strong>{t("Cost per Lead")}:</strong>
+                                            {campaign.lead_count > 0 ? ` $${(campaign.spend / campaign.lead_count).toFixed(2)}` : t("admin.global.no_leads")}<br />
                                             <strong>{t("Client Count")}:</strong> {campaign.client_count}<br />
+                                            <strong>{t("Cost per Client")}:</strong>
+                                            {campaign.client_count > 0 ? ` $${(campaign.spend / campaign.client_count).toFixed(2)}` : t("admin.global.no_clients")}<br />
                                             <strong>{t("Reach")}:</strong> {campaign.reach}<br />
                                             <strong>{t("Spend")}:</strong> ${campaign.spend}<br />
                                             <strong>{t("CTR")}:</strong> {campaign.ctr}%<br />

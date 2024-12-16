@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from "react";
-import ReactPaginate from "react-paginate";
-import { Table, Thead, Tbody, Tr, Th, Td } from "react-super-responsive-table";
-import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Moment from "moment";
-import { Base64 } from "js-base64";
-import Swal from "sweetalert2";
-import { render } from "react-dom";
+import React, { useEffect, useState } from "react";
 import AceEditor from "react-ace";
 import { useTranslation } from "react-i18next";
+import ReactPaginate from "react-paginate";
+import { Link, useParams } from "react-router-dom";
+import { Table, Tbody, Td, Th, Thead, Tr } from "react-super-responsive-table";
+import Swal from "sweetalert2";
 
+import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-github";
-import "ace-builds/src-noconflict/ext-language_tools";
 
-import AddCreditCardModal from "../Modals/AddCreditCardModal";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import AddCreditCardModal from "../Modals/AddCreditCardModal";
 
 export default function Invoice() {
     const { t } = useTranslation();
@@ -334,7 +332,7 @@ export default function Invoice() {
                             className="col-sm-2 bg-secondary p-1 m-1 text-white rounded text-center"
                         >
                             <div className="card-body">
-                                <p className="lead">{res.all} - Total</p>
+                                <p className="lead">{res.all} - {t("admin.global.total")}</p>
                                 <hr />
                                 <p className="lead"> {res.ta} ILS</p>
                             </div>
@@ -351,7 +349,7 @@ export default function Invoice() {
                             className="col-sm-3 bg-success p-1 m-1 text-white rounded text-center"
                         >
                             <div className="card-body">
-                                <p className="lead">{res.paid} - Paid</p>
+                                <p className="lead">{res.paid} - {t("admin.global.paid")}</p>
                                 <hr />
                                 <p className="lead"> {res.pa} ILS</p>
                             </div>
@@ -368,7 +366,7 @@ export default function Invoice() {
                             className="col-sm-3 bg-dark p-1 m-1 text-white rounded text-center"
                         >
                             <div className="card-body">
-                                <p className="lead">{res.unpaid} - Unpaid</p>
+                                <p className="lead">{res.unpaid} - {t("admin.global.unpaid")}</p>
                                 <hr />
                                 <p className="lead"> {res.ua} ILS</p>
                             </div>
@@ -386,7 +384,7 @@ export default function Invoice() {
                         >
                             <div className="card-body">
                                 <p className="lead">
-                                    {res.partial} - Partial Paid
+                                    {res.partial} - {t("admin.global.partial_paid")}
                                 </p>
                                 <hr />
                                 <p className="lead">{res.ppa} ILS</p>
@@ -397,9 +395,9 @@ export default function Invoice() {
 
                 <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
                     <div className="d-flex align-items-center">
-                        <div style={{ fontWeight: "bold" }}>Filter</div>
+                        <div style={{ fontWeight: "bold" }}>{t("admin.global.filter")}</div>
                         <div className="mx-3 d-flex align-items-center border rounded">
-                            <div className="mx-2 text-nowrap">By Type</div>
+                            <div className="mx-2 text-nowrap">{t("admin.global.by_type")}</div>
                             <select
                                 className="form-control"
                                 value={filters.type}
@@ -410,9 +408,9 @@ export default function Invoice() {
                                     });
                                 }}
                             >
-                                <option value="">All</option>
-                                <option value="invoice">Invoice</option>
-                                <option value="invrec">Receipt</option>
+                                <option value="">{t("admin.global.all")}</option>
+                                <option value="invoice">{t("admin.global.invoice")}</option>
+                                <option value="invrec">{t("admin.global.receipt")}</option>
                             </select>
                         </div>
                     </div>
@@ -437,7 +435,7 @@ export default function Invoice() {
                                 });
                             }}
                         >
-                            All - {res.all}
+                            {t("admin.global.all")} - {res.all}
                         </button>
                         <button
                             className="dropdown-item"
@@ -449,7 +447,7 @@ export default function Invoice() {
                                 });
                             }}
                         >
-                            Open - {res.open}
+                            {t("admin.global.open")} - {res.open}
                         </button>
                         <button
                             className="dropdown-item"
@@ -461,7 +459,7 @@ export default function Invoice() {
                                 });
                             }}
                         >
-                            Closed - {res.closed}
+                            {t("admin.global.closed")} - {res.closed}
                         </button>
                         <button
                             className="dropdown-item"
@@ -473,7 +471,7 @@ export default function Invoice() {
                                 });
                             }}
                         >
-                            Paid - {res.paid}
+                            {t("admin.global.paid")} - {res.paid}
                         </button>
                         <button
                             className="dropdown-item"
@@ -485,7 +483,7 @@ export default function Invoice() {
                                 });
                             }}
                         >
-                            Unpaid - {res.unpaid}{" "}
+                            {t("admin.global.unpaid")} - {res.unpaid}{" "}
                         </button>
                         <button
                             className="dropdown-item"
@@ -497,7 +495,7 @@ export default function Invoice() {
                                 });
                             }}
                         >
-                            Partial paid - {res.partial}{" "}
+                            {t("admin.global.unpaid")}- {res.partial}{" "}
                         </button>
                     </div>
                 </div>
@@ -515,7 +513,7 @@ export default function Invoice() {
                                         }}
                                     >
                                         {" "}
-                                        #Invoice ID{" "}
+                                        #{t("admin.global.invoice_id")}{" "}
                                         <span className="arr"> &darr;</span>
                                     </Th>
                                     <Th
@@ -525,7 +523,7 @@ export default function Invoice() {
                                             sortTable(e, "amount");
                                         }}
                                     >
-                                        Total Amount{" "}
+                                        {t("admin.global.total_amount")}{" "}
                                         <span className="arr"> &darr;</span>
                                     </Th>
                                     <Th
@@ -535,7 +533,7 @@ export default function Invoice() {
                                             sortTable(e, "amount");
                                         }}
                                     >
-                                        Paid Amount{" "}
+                                        {t("admin.global.paid_amount")}{" "}
                                         <span className="arr"> &darr;</span>
                                     </Th>
                                     <Th
@@ -545,7 +543,7 @@ export default function Invoice() {
                                             sortTable(e, "created_at");
                                         }}
                                     >
-                                        Created Date{" "}
+                                        {t("admin.global.created_date")}{" "}
                                         <span className="arr"> &darr;</span>
                                     </Th>
                                     <Th
@@ -555,10 +553,10 @@ export default function Invoice() {
                                             sortTable(e, "due_date");
                                         }}
                                     >
-                                        Due Date{" "}
+                                        {t("admin.global.due_date")}{" "}
                                         <span className="arr"> &darr;</span>
                                     </Th>
-                                    <Th scope="col">Customer </Th>
+                                    <Th scope="col">{t("admin.global.coustomer")} </Th>
                                     <Th
                                         scope="col"
                                         style={{ cursor: "pointer" }}
@@ -566,12 +564,12 @@ export default function Invoice() {
                                             sortTable(e, "status");
                                         }}
                                     >
-                                        Status{" "}
+                                        {t("admin.global.status")}{" "}
                                         <span className="arr"> &darr;</span>
                                     </Th>
-                                    <Th scope="col">Transaction ID/Ref.</Th>
-                                    <Th scope="col">Payment Mode</Th>
-                                    <Th scope="col">Action</Th>
+                                    <Th scope="col">{t("admin.global.trasa_id_ref")}</Th>
+                                    <Th scope="col">{t("admin.global.payment_mode")}</Th>
+                                    <Th scope="col">{t("admin.global.action")}</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
@@ -649,7 +647,7 @@ export default function Invoice() {
                                                             href={item.doc_url}
                                                             className="dropdown-item"
                                                         >
-                                                            View Invoice
+                                                            {t("admin.global.view_invoice")}
                                                         </a>
                                                         {item.status !=
                                                             "Paid" && (
@@ -668,7 +666,7 @@ export default function Invoice() {
                                                                 data-target="#exampleModaPaymentAdd"
                                                                 className="dropdown-item"
                                                             >
-                                                                Add Payment
+                                                                {t("admin.global.add_payment")}
                                                             </button>
                                                         )}
 
@@ -685,7 +683,7 @@ export default function Invoice() {
                                                                 }}
                                                                 className="dropdown-item"
                                                             >
-                                                                Close Doc
+                                                                {t("admin.global.close_doc")}
                                                             </button>
                                                         )}
                                                         {item.invoice_icount_status !=
@@ -707,7 +705,7 @@ export default function Invoice() {
                                                                     data-target="#exampleModalCancel"
                                                                     className="dropdown-item"
                                                                 >
-                                                                    Cancel Doc
+                                                                    {t("admin.global.refund")}
                                                                 </button>
                                                             )}
                                                         {item.receipt && (
@@ -719,7 +717,7 @@ export default function Invoice() {
                                                                 }
                                                                 className="dropdown-item"
                                                             >
-                                                                View Receipt
+                                                                {t("admin.global.view_receipt")}
                                                             </a>
                                                         )}
                                                     </div>
@@ -732,7 +730,7 @@ export default function Invoice() {
                         </Table>
                     ) : (
                         <div className="form-control text-center">
-                            No record found
+                            {t("admin.global.no_record_found")}
                         </div>
                     )}
 
@@ -780,7 +778,7 @@ export default function Invoice() {
                                     className="modal-title"
                                     id="exampleModaPaymentAdd"
                                 >
-                                    Add Payment
+                                    {t("admin.global.add_payment")}
                                 </h5>
                                 <button
                                     type="button"
@@ -796,7 +794,7 @@ export default function Invoice() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Amount
+                                            {t("admin.global.amount")}
                                             </label>
                                             <input
                                                 type="text"
@@ -812,7 +810,7 @@ export default function Invoice() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Transaction / Reference ID
+                                            {t("admin.global.trans_referId")}
                                                 <small>
                                                     {" "}
                                                     (Optional in credit card
@@ -837,7 +835,7 @@ export default function Invoice() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                Payment Mode
+                                            {t("admin.global.payment_mode")}
                                             </label>
                                             <select
                                                 name="mode"
@@ -847,16 +845,16 @@ export default function Invoice() {
                                                 }
                                             >
                                                 <option value="mt">
-                                                    Bank Transfer
+                                                {t("admin.global.bank_transfer")}
                                                 </option>
                                                 <option value="cash">
-                                                    By Cash
+                                                {t("admin.global.by_cash")}
                                                 </option>
                                                 <option value="cc">
-                                                    Credit Card
+                                                {t("admin.global.cc")}
                                                 </option>
                                                 <option value="cheque">
-                                                    By Cheque
+                                                {t("admin.global.by_cheque")}
                                                 </option>
                                             </select>
                                         </div>
@@ -868,7 +866,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                        Bank Transfer Date
+                                                    {t("admin.global.bank_tra_date")}
                                                     </label>
                                                     <input
                                                         type="date"
@@ -903,7 +901,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                        Cheque Date
+                                                    {t("admin.global.cheque_date")}
                                                     </label>
                                                     <input
                                                         type="date"
@@ -918,7 +916,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                        Cheque Bank
+                                                    {t("admin.global.cheque_bank")}
                                                     </label>
                                                     <input
                                                         type="text"
@@ -934,7 +932,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                        Cheque Branch
+                                                    {t("admin.global.cheque_branch")}
                                                     </label>
                                                     <input
                                                         type="text"
@@ -950,7 +948,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                        Cheque account
+                                                    {t("admin.global.cheque_account")}
                                                     </label>
                                                     <input
                                                         type="number"
@@ -966,7 +964,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                        Cheque number
+                                                    {t("admin.global.cheque_number")}
                                                     </label>
                                                     <input
                                                         type="number"
@@ -994,7 +992,7 @@ export default function Invoice() {
                                     disabled={isSubmitting}
                                     className="btn btn-primary sbtn"
                                 >
-                                    Save Payment
+                                    {t("admin.global.save_payment")}
                                 </button>
                             </div>
                         </div>
@@ -1016,7 +1014,7 @@ export default function Invoice() {
                                     className="modal-title"
                                     id="exampleModalCancel"
                                 >
-                                    Cancel Reason
+                                    {t("admin.global.cancel_reason")}
                                 </h5>
                                 <button
                                     type="button"
@@ -1075,7 +1073,7 @@ export default function Invoice() {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title" id="callBack">
-                                    Payment Response
+                                {t("admin.global.payment_res")}
                                 </h5>
                                 <button
                                     type="button"

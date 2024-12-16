@@ -1938,7 +1938,7 @@ Broom Service Team",
 You have successfully registered on our portal. Please sign the below forms to start working.
 Click the below button to fill forms.
 
-Check Forms :check_form
+Check Forms: :check_form
 
 Best regards,
 Broom Service Team",
@@ -1948,7 +1948,7 @@ Broom Service Team",
 נרשמת בהצלחה לפורטל שלנו. אנא חתום על הטפסים למטה כדי להתחיל לעבוד בעבודה.
 לחץ על הכפתור למטה כדי למלא את הטפסים.
 
-בדוק טפסים :check_form
+בדוק טפסים: :check_form
 
 בברכה,
 ברום סרוויס צוות",
@@ -1958,7 +1958,7 @@ Broom Service Team",
 Te has registrado exitosamente en nuestro portal. Por favor, firma los siguientes formularios para comenzar a trabajar.
 Haz clic en el botón de abajo para completar los formularios.
 
-Consultar formularios :check_form
+Consultar formularios: :check_form
 
 Saludos cordiales,
 Equipo de Broom Service",
@@ -1967,7 +1967,7 @@ Equipo de Broom Service",
 Вы успешно зарегистрировались на нашем портале. Пожалуйста, подпишите приведенные ниже формы, чтобы начать работу.
 Нажмите кнопку ниже, чтобы заполнить формы.
 
-Проверить формы :check_form
+Проверить формы: :check_form
 
 С уважением,
 Команда Broom Service",
@@ -2100,7 +2100,7 @@ Greetings from Broom Service.
 
 A work agreement for digital signature is attached. The credit card must be added to the payment, together with the cardholder's signature confirming that it will be charged on the billing date. The card will be charged NIS 1 and then credited, to verify its integrity. The details will be stored in a secure system. In addition, you must sign the last page and confirm the agreement.
 
-Check Contract :client_contract_link
+Check Contract: :client_contract_link
 
 contact us: 03-525-70-60 or reply to this email.
 
@@ -2116,7 +2116,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 מצורף בזאת הסכם התקשרות לחתימה דיגיטלית. יש להוסיף את כרטיס האשראי לתשלום, בצירוף חתימת בעל הכרטיס המאשר לחייבו במועד החיוב. הכרטיס יחויב בסכום של 1 ש\"ח ולאחר מכן יזוכה, זאת כדי לוודא את תקינותו. הפרטים יישמרו במערכת מאובטחת. בנוסף, יש לחתום בעמוד האחרון ולאשר את ההסכם.
 
-בדוק חוזה :client_contract_link
+בדוק חוזה: :client_contract_link
 
 בברכה,
 צוות ברום סרוויס🌹
@@ -2140,7 +2140,7 @@ Please note that the estimated arrival time of our team can be up to an hour and
 
 For any questions or requests, feel free to contact us.
 
-View Job :client_view_job_link
+View Job: :client_view_job_link
 
 Best regards,
 Broom Service Team 🌹
@@ -2158,7 +2158,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 לכל שאלה או בקשה, נשמח לעמוד לשירותך.
 
-צפה בעבודה :client_view_job_link
+צפה בעבודה: :client_view_job_link
 
 בברכה,
 צוות ברום סרוויס🌹

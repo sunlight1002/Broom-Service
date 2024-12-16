@@ -12,6 +12,8 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\iCountController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Webhook\TwilioController;
+use App\Models\ShortUrl;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +42,51 @@ Route::get('/thanks/{id}', [InvoiceController::class, 'displayThanks']);
 Route::get('ads-leads', [LeadController::class, 'fbAdsLead'])->name('adsLead');
 Route::get('response-import', [ChatController::class, 'responseImport']);
 Route::post('/newlead', [LeadWebhookController::class, 'saveLeadFromContactForm']);
+
+
+Route::get('/brmsrvc.1/{token}', function ($token) {
+    $shortUrl = ShortUrl::where('token', $token)->first();
+
+    if ($shortUrl) {
+        return redirect($shortUrl->url);
+    }
+
+    return abort(404);
+});
+
+Route::get('/brmsrvc.1/a/{token}', function ($token) {
+    \Log::info("token: " . $token);
+    $shortUrl = ShortUrl::where('token', $token)->first();
+
+    if ($shortUrl) {
+        return redirect($shortUrl->url);
+    }
+
+    return abort(404);
+});
+
+
+Route::get('/brmsrvc.c/{token}', function ($token) {
+    $shortUrl = ShortUrl::where('token', $token)->first();
+
+    if ($shortUrl) {
+        return redirect($shortUrl->url);
+    }
+
+    return abort(404);
+});
+
+Route::get('/{token}', function ($token) {
+    $shortUrl = ShortUrl::where('token', $token)->first();
+
+    if ($shortUrl) {
+        return redirect($shortUrl->url);
+    }
+
+    return abort(404);
+});
+
+
 
 // Auth::routes();
 Route::any('/{path?}', function () {

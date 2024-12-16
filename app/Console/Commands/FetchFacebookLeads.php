@@ -338,11 +338,11 @@ class FetchFacebookLeads extends Command
                                     'flex'          => 'A',
                                 ]);
 
-                              // Step 4: Update or Create the FacebookInsights entry for the campaign
-                                $facebookInsight = FacebookInsights::firstOrCreate(
-                                    ['campaign_id' => $mainCampaignId],
-                                    ['campaign_name' => $campaignName] // Replace with actual campaign name
-                                );
+                            //   // Step 4: Update or Create the FacebookInsights entry for the campaign
+                            //     $facebookInsight = FacebookInsights::firstOrCreate(
+                            //         ['campaign_id' => $mainCampaignId],
+                            //         ['campaign_name' => $campaignName] // Replace with actual campaign name
+                            //     );
 
                                 // Update lead_count for the campaign
                                 $facebookInsight->increment('lead_count', 1);

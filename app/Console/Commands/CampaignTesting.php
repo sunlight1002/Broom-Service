@@ -45,20 +45,20 @@ class CampaignTesting extends Command
 
                 $campaigns = $campaignsResponse->json()['data'];
 
-                // Step 1: Insert campaigns into the database
-                foreach ($campaigns as $campaign) {
-                    $campaignId = $campaign['id'];
-                    $campaignName = $campaign['name'];
+                // // Step 1: Insert campaigns into the database
+                // foreach ($campaigns as $campaign) {
+                //     $campaignId = $campaign['id'];
+                //     $campaignName = $campaign['name'];
 
-                    $this->info("Inserting campaign ID: $campaignId");
+                //     $this->info("Inserting campaign ID: $campaignId");
 
-                    FacebookInsights::updateOrCreate(
-                        ['campaign_id' => $campaignId],
-                        [
-                            'campaign_name' => $campaignName,
-                        ]
-                    );
-                }
+                //     FacebookInsights::updateOrCreate(
+                //         ['campaign_id' => $campaignId],
+                //         [
+                //             'campaign_name' => $campaignName,
+                //         ]
+                //     );
+                // }
 
                 // Step 2: Fetch insights for each campaign
                 foreach ($campaigns as $campaign) {

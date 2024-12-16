@@ -94,4 +94,10 @@ return [
         'twilio_number' => env('TWILIO_NUMBER'),
     ],
 
+    'short_url' => [
+        'worker' => env('WORKER_SHORT_URL'),
+        'admin' => env('ADMIN_SHORT_URL'),
+        'client' => env('CLIENT_SHORT_URL'),
+    ],
+
 ];
