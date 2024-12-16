@@ -467,6 +467,7 @@ trait JobSchedule
             });
     
             $selectedService = head($filtered);
+            \Log::info($selectedService);
     
             if ($selectedService['type'] == 'hourly') {
                 if ($job->actual_time_taken_minutes > 0) {

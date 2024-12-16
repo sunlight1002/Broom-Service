@@ -345,12 +345,13 @@ trait PaymentAPI
     // Same API but different configuration for 'order' doctype.
     private function generateOrderDocument($client, $items, $duedate, $data, $jobId = null, $serviceDate)
     {
-        \Log::info($serviceDate);
-        \Log::info("generateOrderDocument");
+        // \Log::info($serviceDate);
+        // \Log::info("generateOrderDocument");
         $requestData = [
             'data' => [
-                'firstname' => $client['firstname'] ?? null,
-                'lastname' => $client['lastname'] ?? null,
+                'client_name' => $input['firstname'] ?? null,
+                'first_name' => $input['firstname'] ?? null,
+                'last_name' => $input['lastname'] ?? null,
                 'id' => $client['id'] ?? null,
                 'phone' => $client['phone'] ?? null,
                 'email' => $client['email'] ?? null,
@@ -413,7 +414,7 @@ trait PaymentAPI
             "pass" => $iCountPassword,
             "email" => $client->email,
             "doctype" => 'order',
-            "client_name" => $client->invoicename ? $client->invoicename : $client->firstname . ' ' . $client->lastname,
+            "client_name" => $client->invoicename ? $client->invoicename : ($client->firstname . ' ' . $client->lastname),
             "client_address" => $address ? $address->geo_address : '',
             "currency_code" => "ILS",
             "doc_lang" => ($client->lng == 'heb') ? 'he' : 'en',
@@ -442,8 +443,6 @@ trait PaymentAPI
 
         $json = $response->json();
         $http_code = $response->status();
-
-        \Log::info([$json]);
 
         if ($http_code != 200) {
             throw new Exception('Error : Failed to create order document');

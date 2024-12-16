@@ -345,7 +345,7 @@ export default function OfferServiceModal({
                                                 const selectedIndex = e.target.selectedIndex;
                                                 const selectedOptionName = e.target.options[selectedIndex].getAttribute("name");
 
-                                                if (selectedOptionName === "others") {
+                                                if (selectedOptionName === "Others") {
                                                     updatedToggleState[index] = true;
                                                 } else {
                                                     updatedToggleState[index] = false;
@@ -354,7 +354,7 @@ export default function OfferServiceModal({
                                                 setToggleOtherService(updatedToggleState);
                                                 const updatedAirbnbState = [...toggleAirbnbService];
 
-                                                if (selectedOptionName === "airbnb") {
+                                                if (selectedOptionName === "AirBnb") {
                                                     updatedAirbnbState[index] = true;
                                                     handleGetSubServices(e.target.value);
                                                 } else {
@@ -368,7 +368,7 @@ export default function OfferServiceModal({
                                                 <option
                                                     key={i}
                                                     value={service.id}
-                                                    name={service.template}
+                                                    name={service.name}
                                                     template={service.template}
                                                 >
                                                     {service.name}

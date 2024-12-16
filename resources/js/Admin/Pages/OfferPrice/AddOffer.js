@@ -28,6 +28,8 @@ export default function AddOffer() {
     const [loading, setLoading] = useState(false);
 
     const handleSave = (indexKey, tmpJobData) => {
+        console.log(tmpJobData, indexKey);
+        
         setFormValues(tmpJobData);
     };
 

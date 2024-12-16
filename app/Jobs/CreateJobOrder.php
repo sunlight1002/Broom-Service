@@ -109,7 +109,7 @@ class CreateJobOrder implements ShouldQueue
 
             if ($job->is_job_done) {
                 $items[] = [
-                    'description' => $client->lng == 'heb' ? $service->heb_name : $service->name,
+                    'description' => $client->lng == 'heb' ? $service->heb_name : $service->name . " - " . Carbon::parse($service->created_at)->format('d-m-Y'),
                     'unitprice' => $job->subtotal_amount,
                     'quantity' => 1
                 ];
