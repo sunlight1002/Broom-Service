@@ -41,11 +41,9 @@ class WhatsappNotification
     private function generateShortUrl($urlData, $type = null)
     {
 
-        \Log::info($urlData. " urlData");
         if (empty($urlData)) {
-            return null;  // or you could return false or an empty string depending on your preference
+            return null;  
         }
-    
         $token = substr(md5(uniqid()), 0, 12);
         
         $shortUrl = ShortUrl::create([
@@ -53,15 +51,18 @@ class WhatsappNotification
             'token' => $token,
         ]);
 
-        // Return the appropriate short URL based on the type
         if ($type == 'worker') {
-            return $this->workerBaseUrl . $token;
+            // return $this->workerBaseUrl . $token;
+            return $urlData;
         } elseif ($type == 'client') {
-            return $this->clientBaseUrl . $token;
+            // return $this->clientBaseUrl . $token;
+            return $urlData;
         } elseif ($type == 'admin') {
-            return $this->adminBaseUrl . $token;
+            // return $this->adminBaseUrl . $token;
+            return $urlData;
         } else {
-            return $shortUrl->token;
+            // return $shortUrl->token;
+            return $urlData;
         }
     }
     
