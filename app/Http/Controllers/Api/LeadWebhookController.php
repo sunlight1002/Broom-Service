@@ -152,6 +152,7 @@ class LeadWebhookController extends Controller
         
         // Check if the messageId exists in cache and matches
         if (Cache::get('processed_message_' . $messageId) === $messageId) {
+        \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
         
@@ -172,70 +173,78 @@ class LeadWebhookController extends Controller
             if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
 
                 if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')) {
-            
+                    
                     $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
             
-                    if (preg_match('/^name:\s*([a-zA-Z\s]+)\s*phone:\s*([\d\s\-+()]+)(?:\s*email:\s*([^\s]+))?$/i', $messageBody, $matches)) {
-                        $fullName = $matches[1] ?? null;
-                        $phone = $matches[2] ?? null;
-                        $email = $matches[3] ?? null;
+                    // Split the message body into lines
+                    $lines = explode("\n", trim($messageBody));
             
-                        if ($fullName) {
-                            // Split full name into first and last name
-                            $nameParts = explode(' ', trim($fullName));
-                            $firstName = $nameParts[0] ?? null;
-                            $lastName = $nameParts[1] ?? null;
+                    $new = trim($lines[0] ?? '');
+                    $fullName = trim($lines[1] ?? '');
+                    $phone = trim($lines[2] ?? '');    
+                    $email = trim($lines[3] ?? '');   
+
+                    if (stripos($new, 'חדש') !== false) {
+                        $lng = 'heb'; 
+                    } elseif (stripos($new, 'New') !== false) {
+                        $lng = 'en'; 
+                    } else {
+                        $lng = 'heb'; 
+                    }
+            
+                    // Validate name and split into first and last name
+                    if ($fullName) {
+                        $nameParts = explode(' ', $fullName);
+                        $firstName = $nameParts[0] ?? '';
+                        $lastName = isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : '';
+                    }
+            
+                    // Validate and format the phone number
+                    if ($phone) {
+                        // Remove all special characters from the phone number
+                        $phone = preg_replace('/[^0-9+]/', '', $phone);
+            
+                        // Adjust phone number formatting
+                        if (strpos($phone, '0') === 0) {
+                            $phone = '972' . substr($phone, 1);
+                        }
+                        if (strpos($phone, '+') === 0) {
+                            $phone = substr($phone, 1);
                         }
             
-                        // Validate and format the phone number
-                        if ($phone) {
-                            // 1. Remove all special characters from the phone number
-                            $phone = preg_replace('/[^0-9+]/', '', $phone);
-            
-                            // 2. Extract digits if necessary
-                            if (preg_match('/\d+/', $phone, $phoneMatches)) {
-                                $phone = $phoneMatches[0];
-            
-                                // Reapply rules on the extracted phone number
-                                if (strpos($phone, '0') === 0) {
-                                    $phone = '972' . substr($phone, 1);
-                                }
-            
-                                if (strpos($phone, '+') === 0) {
-                                    $phone = substr($phone, 1);
-                                }
-                            }
-            
-                            // Ensure phone number length and format
-                            $phoneLength = strlen($phone);
-                            if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
-                                $phone = '972' . $phone;
-                            }
-            
-                            $client = Client::where('phone', $phone)->first();
-            
-                            if (!$client) {
-                                $client = new Client;
-                                $client->phone = $phone;
-            
-                                $client->firstname     = $firstName ?? '';
-                                $client->lastname      = $lastName ?? '';
-                                $client->phone         = $phone;
-                                $client->email         = filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : ($phone . '@lead.com');
-                                $client->status        = 0;
-                                $client->password      = Hash::make($phone);
-                                $client->passcode      = $phone;
-                                $client->geo_address   = '';
-                                $client->lng           = ($lng == 'heb' ? 'heb' : 'en');
-                                $client->save();
-            
-                                $m = $lng == 'heb' ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id) : "New lead created successfully\n" . url("admin/leads/view/" . $client->id);
-                            } else {
-                                $m = $lng == 'heb' ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id) : "lead is already exist\n" . url("admin/leads/view/" . $client->id);
-                            }
-            
-                            $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), array('name' => '', 'message' => $m));
+                        // Ensure phone starts with '972'
+                        if (strlen($phone) === 9 || strlen($phone) === 10) {
+                            $phone = '972' . $phone;
                         }
+            
+                        // Check if the client already exists
+                        $client = Client::where('phone', $phone)->first();
+                        \Log::info($lng. " lng");
+            
+                        if (!$client) {
+                            $client = new Client;
+                            $client->phone = $phone;
+                            $client->firstname = $firstName ?? '';
+                            $client->lastname = $lastName ?? '';
+                            $client->email = filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : ($phone . '@lead.com');
+                            $client->status = 0;
+                            $client->password = Hash::make($phone);
+                            $client->passcode = $phone;
+                            $client->geo_address = '';
+                            $client->lng = ($lng);
+                            $client->save();
+            
+                            $m = $lng == 'heb' 
+                                ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id) 
+                                : "New lead created successfully\n" . url("admin/leads/view/" . $client->id);
+                        } else {
+                            $m = $lng == 'heb' 
+                                ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id) 
+                                : "Lead already exists\n" . url("admin/leads/view/" . $client->id);
+                        }
+            
+                        // Send WhatsApp message
+                        $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $m]);
                     }
                 }
             
@@ -1066,8 +1075,8 @@ If you would like to speak to a human representative, please send a message with
                                     'client_id'     => $client->id,
                                     'meet_via'      => 'on-site',
                                     'purpose'       => 'Price offer',
-                                    // 'start_date'    => $nextAvailableSlot['date'],
-                                    // 'start_time_standard_format' => $nextAvailableSlot['start_time'],
+                                    // 'start_date'    =>  $nextAvailableSlot['date'],
+                                    // 'start_time_standard_format' =>  $nextAvailableSlot['start_time'],
                                     'team_id'       => $nextAvailableSlot['team_member_id']
                                 ];
 

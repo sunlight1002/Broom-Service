@@ -7,11 +7,13 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import Sidebar from "../../Layouts/Sidebar";
 import ChangeWorkerCalender from "../../Components/Job/ChangeWorkerCalender";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function ChangeWorker() {
     const { t } = useTranslation();
     const params = useParams();
     const [job, setJob] = useState(null);
+    const [loader, setLoader] = useState(false)
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -20,12 +22,15 @@ export default function ChangeWorker() {
     };
 
     const getJob = () => {
+        setLoader(true)
         axios
             .get(`/api/admin/jobs/${params.id}`, { headers })
             .then((res) => {
+                setLoader(false)
                 setJob(res.data?.job);
             })
             .catch((e) => {
+                setLoader(false)
                 Swal.fire({
                     title: "Error!",
                     text: e.response?.data?.message,
@@ -174,6 +179,7 @@ export default function ChangeWorker() {
                     </div>
                 </div>
             </div>
+            <FullPageLoader visible={loader} />
         </div>
     );
 }

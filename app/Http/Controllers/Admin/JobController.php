@@ -14,6 +14,7 @@ use App\Models\Admin;
 use App\Models\Problems;
 use App\Models\Job;
 use App\Models\ParentJobs;
+use App\Models\ClientPropertyAddress;
 use App\Models\User;
 use App\Models\Contract;
 use App\Models\Services;
@@ -902,6 +903,12 @@ class JobController extends Controller
             $jobData['previous_shifts_after'] = NULL;
         }
 
+        $feePercentage = $request->fee;
+        $feeAmount = ($feePercentage / 100) * $job->total_amount;
+
+        $jobData['cancellation_fee_percentage'] = $feePercentage;
+        $jobData['cancellation_fee_amount'] = $feeAmount;
+
         $job->update($jobData);
 
         $job->jobservice()->update([
@@ -917,9 +924,6 @@ class JobController extends Controller
         foreach ($mergedContinuousTime as $key => $shift) {
             $job->workerShifts()->create($shift);
         }
-
-        $feePercentage = $request->fee;
-        $feeAmount = ($feePercentage / 100) * $job->total_amount;
 
         JobCancellationFee::create([
             'job_id' => $job->id,
@@ -1579,53 +1583,67 @@ class JobController extends Controller
         ]);
     }
 
-    public function workersToSwitch(Request $request, $id)
+    public function workersToSwitch($id)
     {
-        $job = Job::find($id);
-        $prefer_type = $request->get('prefer_type');
-
+        // Find the job with jobservice relationship
+        $job = Job::with(['jobservice'])->find($id);
+    
         if (!$job) {
-            return response()->json([
-                'message' => 'Job not found',
-            ], 404);
+            return response()->json(['message' => 'Job not found'], 404);
         }
-
-        if (
-            $job->status == JobStatusEnum::COMPLETED ||
-            $job->is_job_done
-        ) {
-            return response()->json([
-                'message' => 'Job already completed',
-            ], 403);
+    
+        $jobService = $job->jobservice;
+    
+        if (!$jobService) {
+            return response()->json(['message' => 'Job service not found'], 404);
         }
-
-        if ($job->status == JobStatusEnum::CANCEL) {
-            return response()->json([
-                'message' => 'Job already cancelled',
-            ], 403);
-        }
-
-        $workers = User::query()
-            ->whereIn('id', function ($q) use ($job) {
-                $q->from('jobs')
-                    ->whereNotIn('status', [
-                        JobStatusEnum::COMPLETED,
-                        JobStatusEnum::CANCEL
-                    ])
-                    ->where('worker_id', '!=', $job->worker_id)
-                    ->where('start_date', $job->start_date)
-                    ->where('shifts', $job->shifts)
-                    ->select('worker_id');
+    
+        // Get job details
+        $startDate = $job->start_date;
+        $startStime = $job->start_time;
+        $endTime = $job->end_time;
+    
+        $jobWorkerId = $job->worker_id;
+        $serviceId = $jobService->service_id;
+    
+        // Check address conditions
+        $address = ClientPropertyAddress::find($job->address_id);
+    
+     
+        $workers = User::where('id', '!=', $jobWorkerId)
+            ->whereJsonContains('skill', $serviceId) 
+            ->whereHas('availabilities', function ($query) use ($startDate) {
+                $query->where('date', $startDate); 
             })
-            ->when(in_array($prefer_type, ['male', 'female']), function ($q) use ($prefer_type) {
-                return $q->where('gender', $prefer_type);
+            ->whereDoesntHave('jobs', function ($query) use ($startDate, $startStime, $endTime) {
+                $query->where('start_date', $startDate) 
+                    ->where(function ($timeQuery) use ($startStime, $endTime) {
+                        $timeQuery->whereBetween('start_time', [$startStime, $endTime]) 
+                            ->orWhereBetween('end_time', [$startStime, $endTime]) 
+                            ->orWhere(function ($innerQuery) use ($startStime, $endTime) {
+                                $innerQuery->where('start_time', '<=', $startStime) 
+                                    ->where('end_time', '>=', $endTime);
+                            });
+                    });
             })
-            ->get(['id', 'firstname', 'lastname']);
-
+            ->when($address, function ($query) use ($address) {
+                // Add condition to exclude users afraid of cats/dogs if the address has cats/dogs
+                if ($address->is_cat_avail) {
+                    $query->where('is_afraid_by_cat', false);
+                }
+                if ($address->is_dog_avail) {
+                    $query->where('is_afraid_by_dog', false);
+                }
+            })
+            ->get();
+    
+        // Return filtered workers
         return response()->json([
-            'data' => $workers,
+            'workers' => $workers,
         ]);
     }
+    
+    
 
     public function switchWorker(Request $request, $id)
     {

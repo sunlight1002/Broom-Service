@@ -6,9 +6,11 @@ import axios from "axios";
 import moment from "moment";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
+import { useTranslation } from "react-i18next";
 
 export default function CancelJobModal({ setIsOpen, isOpen, job }) {
     const alert = useAlert();
+    const { t } = useTranslation();
     const [formValues, setFormValues] = useState({
         repeatancy: "one_time",
         until_date: null,
@@ -39,17 +41,17 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
             .then((response) => {
                 setTotalAmount(response.data.total_amount);
             })
-            .catch((e) => {});
+            .catch((e) => { });
     };
 
     const handleConfirmCancel = () => {
         if (!formValues.repeatancy) {
-            alert.error("The Repeatancy is missing");
+            alert.error(t("alert.errors.repeatancy_missing"));
             return false;
         }
 
         if (formValues.repeatancy == "until_date" && !formValues.until_date) {
-            alert.error("The Until Date is missing");
+            alert.error(t("alert.errors.until_date_missing"));
             return false;
         }
 
@@ -59,7 +61,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
             .put(`/api/client/jobs/${job.id}/cancel`, formValues, { headers })
             .then((response) => {
                 setLoading(false);
-                alert.success("Job cancelled successfully");
+                alert.success(t("alert.success.job_cancelled"));
                 navigate(`/client/jobs`);
             })
             .catch((e) => {
@@ -78,16 +80,49 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
         getOpenedJobAmountByGroup();
     }, [formValues.repeatancy, formValues.until_date]);
 
-    const feeInAmount = useMemo(() => {
-        const diffInDays = moment(job.start_date).diff(
-            moment().startOf("day"),
-            "days"
-        );
+    // const feePercentage = useMemo(() => {
+    //     const currentDay = moment().format("dddd"); // e.g., "Wednesday"
+    //     const endOfWeek = moment().endOf("week");
+    //     const endOfNextWeek = moment().add(1, "week").endOf("week");
+    //     const jobStartDate = moment(job.start_date);
+    //     const timeDifference = jobStartDate.diff(moment(), "hours", true); // Difference in hours
 
-        const _feePercentage = diffInDays >= 1 ? 50 : 100;
+    //     let _feePercentage = 0;
 
-        return totalAmount * (_feePercentage / 100);
-    }, [job, totalAmount]);
+    //     if (currentDay === "Wednesday") {
+    //         if (timeDifference <= 24) {
+    //             // If cancellation is within 24 hours, charge 100%
+    //             _feePercentage = 100;
+    //         } else if (jobStartDate.isSameOrBefore(endOfWeek)) {
+    //             // Charge 50% for jobs canceled till the end of this week
+    //             _feePercentage = 50;
+    //         } else {
+    //             // No charge for jobs after this week
+    //             _feePercentage = 0;
+    //         }
+    //     } else {
+    //         if (timeDifference <= 24) {
+    //             // If cancellation is within 24 hours, charge 100%
+    //             _feePercentage = 100;
+    //         } else if (jobStartDate.isSameOrBefore(endOfNextWeek)) {
+    //             // Charge 50% for jobs till the end of next week
+    //             _feePercentage = 50;
+    //         } else {
+    //             // No charge for jobs after next week
+    //             _feePercentage = 0;
+    //         }
+    //     }
+
+    //     return _feePercentage;
+    // }, [job.start_date]);
+
+    // console.log(feePercentage, totalAmount);
+
+
+    // const feeInAmount = useMemo(() => {
+    //     return totalAmount * (feePercentage / 100);
+    // }, [feePercentage, totalAmount]);
+
 
     useEffect(() => {
         if (formValues.repeatancy == "until_date") {
@@ -113,19 +148,18 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
             }}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Cancel Job</Modal.Title>
+                <Modal.Title>{t("admin.global.cancelJob")}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
                 <div className="row">
                     <div className="col-sm-12">
                         <p className="mb-4">
-                            Cancellation fee of {feeInAmount} ILS will be
-                            charged.
+                            {t("client.jobs.change.Cancellationfee", { feeInAmount: totalAmount })}
                         </p>
 
                         <div className="form-group">
-                            <label className="control-label">Repeatancy</label>
+                            <label className="control-label">{t("client.jobs.change.Repeatancy")}</label>
 
                             <select
                                 name="repeatancy"
@@ -140,17 +174,17 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                             >
                                 {/* <option value=""> --- Please select ---</option> */}
                                 <option value="one_time">
-                                    One Time ( for single job )
+                                    {t("client.jobs.change.oneTime")}
                                 </option>
-                                <option value="forever">Forever</option>
-                                <option value="until_date">Until Date</option>
+                                <option value="forever">{t("client.jobs.change.Forever")}</option>
+                                <option value="until_date">{t("client.jobs.change.UntilDate")}</option>
                             </select>
                         </div>
 
                         {formValues.repeatancy == "until_date" && (
                             <div className="form-group">
                                 <label className="control-label">
-                                    Until Date
+                                    {t("client.jobs.change.UntilDate")}
                                 </label>
                                 <Flatpickr
                                     name="date"
@@ -192,7 +226,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                         setIsOpen(false);
                     }}
                 >
-                    Close
+                    {t("modal.close")}
                 </Button>
                 <Button
                     type="button"
@@ -200,7 +234,7 @@ export default function CancelJobModal({ setIsOpen, isOpen, job }) {
                     className="btn btn-danger"
                     disabled={loading}
                 >
-                    Cancel
+                    {t("modal.cancel")}
                 </Button>
             </Modal.Footer>
         </Modal>

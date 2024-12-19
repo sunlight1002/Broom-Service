@@ -42,26 +42,26 @@ export function IsrailContact({
         const errorFields = Object.keys(errors);
         if (errorFields.length > 0) {
             const firstErrorField = errorFields[0];
-    
+
             const errorElement = document.getElementById(firstErrorField);
             if (errorElement) {
                 const offset = 100;
                 const elementPosition = errorElement.getBoundingClientRect().top + window.scrollY;
                 const offsetPosition = elementPosition - offset;
-    
+
                 window.scrollTo({
                     top: offsetPosition,
                     behavior: "smooth",
                 });
-    
+
                 // Focus the element after scrolling
                 setTimeout(() => {
                     errorElement.focus();
-                }, 500); 
+                }, 500);
             }
         }
     };
-    
+
 
     const formSchema = {
         step5: yup.object({
@@ -127,12 +127,12 @@ export function IsrailContact({
                 "fullName",
                 workerDetail.firstname + " " + workerDetail.lastname
             );
-            setFieldValue("IdNumber", workerDetail.worker_id);
+            setFieldValue("IdNumber", workerDetail.id_number);
             setFieldValue("Address", workerDetail.address);
             setFieldValue("MobileNo", workerDetail.phone);
             setFieldValue("role", workerDetail.role);
             setFieldValue("startDate", workerDetail.first_date);
-    
+
         }
 
 
@@ -173,6 +173,7 @@ export function IsrailContact({
             handleSubmit();
         }
     };
+
 
     return (
         <div className="mt-5 contracttargetDiv rtlcon" ref={contentRef}>
@@ -228,7 +229,7 @@ export function IsrailContact({
                                                         "israilContract.IDNumber"
                                                     )}
                                                     value={values.IdNumber}
-                                                    readonly={true}
+                                                    // readonly={true}
                                                     error={
                                                         touched.IdNumber &&
                                                         errors.IdNumber
@@ -261,7 +262,7 @@ export function IsrailContact({
                                                 touched.startDate &&
                                                 errors.startDate
                                             }
-                                            readOnly={values.startDate === null ? false : true}
+                                            required={true}
                                         />
                                         <div className="row">
                                             <div
@@ -757,7 +758,7 @@ export function IsrailContact({
                                 <ol>
                                     <li>{t("israilContract.is14")}</li>
                                 </ol>
-                                <div className="d-flex mt-3 align-items-center" style={{ marginLeft: "40px", gap: "20px" }}>
+                                <div className="d-flex mt-3 align-items-center flex-wrap" style={{ marginLeft: "40px", gap: "20px" }}>
                                     <div className="">
                                         <DateField
                                             name={"signatureDate"}
@@ -773,7 +774,7 @@ export function IsrailContact({
                                             }
                                         />
                                     </div>
-                                    <div className="d-flex align-items-center">
+                                    <div className="d-flex align-items-center flex-column">
                                         <p className="mr-2">
                                             <strong>
                                                 {t("israilContract.sign")}
@@ -837,20 +838,40 @@ export function IsrailContact({
                                 className="navyblue py-2 px-4 mr-2"
                                 style={{ borderRadius: "5px" }}
                             >
-                                <GrFormPreviousLink /> Prev
+                                <GrFormPreviousLink /> {t("common.prev")}
                             </button>
                         )}
 
-                        <button
-                            type="submit"
-                            className="navyblue py-2 px-4"
-                            style={{ borderRadius: "5px" }}
-                        >
-                            {nextStep === 6 && !isSubmitted ? "Submit" : "Next"} <GrFormNextLink />
-                        </button>
+                        {workerDetail?.country == "Israel" && nextStep == 6 ? (
+                            < button
+                                type="submit"
+                                className="navyblue py-2 px-4"
+                                style={{ 
+                                    borderRadius: "5px",
+                                    display: isSubmitted ? "none" : "block" 
+                                }}
+                            >
+
+                                {t("common.submit")}
+
+                            </button>
+                        ) : (
+                            <button
+                                type="submit"
+                                className="navyblue py-2 px-4"
+                                style={{ borderRadius: "5px" }}
+                            >
+
+                                {t("common.next")}
+                                <GrFormNextLink />
+                            </button>
+                        )
+                        }
+
                     </div>
-                )}
-            </form>
-        </div>
+                )
+                }
+            </form >
+        </div >
     );
 }

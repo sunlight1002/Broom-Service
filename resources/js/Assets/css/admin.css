@@ -3569,7 +3569,10 @@ button.time-counter, span.time-counter {
     padding: 0px !important;
   }
   .client-view .client-view-div1 a{
-    margin: 5px 2px !important;
+    margin: 5px 4px 0px ;
+  }
+  .client-view .edit{
+    margin: 0px 4px 4px !important;
   }
   .ClientHistory .client-div1 .client-div1-div1 {
     margin: 12px 0px !important;
@@ -4262,4 +4265,34 @@ tbody tr:hover {
   color: white; 
 }
 
+
+
+/* .page-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #343a40;
+} */
+
+.facebook .card {
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.facebook .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.facebook .card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.facebook .card-text {
+  font-size: 0.95rem;
+  color: #495057;
+  line-height: 1.5;
+}
 

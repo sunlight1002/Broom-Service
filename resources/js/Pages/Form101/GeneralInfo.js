@@ -23,12 +23,19 @@ export default function GeneralInfo({
     useEffect(() => {
         if (values.employeecountry === "Israel") {
             setIndentityType("IDNumber");
+            setFieldValue("employeeIdentityType", "IDNumber");
+            setFieldValue("employeeIsraeliResident", "Yes");
         }
         // Only update identity type if it's not yet set or country changes to Israel
         if (values.employeeIdentityType === "" || values.employeecountry !== "Israel") {
             setIndentityType("Passport");
+            setFieldValue("employeeIdentityType", "Passport");
+            setFieldValue("employeeIsraeliResident", "No");
         }
     }, [values.employeecountry]);
+
+    console.log(values.employeeIsraeliResident);
+    
 
 
     const { t } = useTranslation();
@@ -91,23 +98,6 @@ export default function GeneralInfo({
         "Health Fund Number": t("form101.step1.validation.first_name"),
         "Marital Status": t("form101.step1.validation.Marital_Status")
     }
-
-    const save = (data) => {
-        axios
-            .post(`/api/admin/document/save`, data, { headers })
-            .then((res) => {
-                if (res.data.errors) {
-                    for (let e in res.data.errors) {
-                        alert.error(res.data.errors[e][0]);
-                    }
-                } else {
-                    alert.success(res.data.message);
-                }
-            })
-            .catch((err) => {
-                alert.error("Error!");
-            });
-    };
 
     return (
         <div className="">
@@ -372,15 +362,13 @@ export default function GeneralInfo({
                                                 )}
                                         </div>
                                     </div>
-                                    <div className="row mt-3 mb-4 ">
+                                    <div className="row mt-3 mb-4 d-flex align-items-end">
                                         <div className="col-sm">
                                             <label htmlFor="employeeResidencePermit"
                                                 style={{ marginBottom: "0", width: "100%" }}
                                             >
                                                 {t("form101.PhotoCopyResident")}
                                             </label>
-                                        </div>
-                                        <div className="col-sm">
                                             <div className="input_container" style={{ height: "42px" }}>
                                                 <input
                                                     type="file"
@@ -389,12 +377,13 @@ export default function GeneralInfo({
                                                     className="form-control man p-0 border-0"
                                                     style={{ fontSize: "unset", backgroundColor: "unset", }}
                                                     accept="image/*"
-                                                    onChange={(e) =>
+                                                    onChange={(e) =>{
                                                         setFieldValue(
                                                             "employeeResidencePermit",
                                                             e.target.files[0]
                                                         )
-                                                    }
+                                                        handleFileChange(e, "visa");
+                                                    }}
                                                     onBlur={handleBlur}
                                                 />
                                             </div>

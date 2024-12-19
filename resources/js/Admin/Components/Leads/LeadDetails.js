@@ -1,12 +1,11 @@
-import React, { useMemo } from "react";
-import { Link } from "react-router-dom";
-import { useParams } from "react-router-dom";
 import Moment from "moment";
-import Notes from "./Notes";
-import Files from "../Clients/Files";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { Link, useParams } from "react-router-dom";
 import { Tooltip } from "react-tooltip";
 import LeadActivityList from "../../Pages/LeadActivity/ViewLeadActivity";
+import Files from "../Clients/Files";
+import Notes from "./Notes";
 
 export default function LeadDetails({ lead }) {
 
@@ -29,13 +28,8 @@ export default function LeadDetails({ lead }) {
                         <span>#{lead.id}</span>{" "}
                         {lead.firstname + " " + lead.lastname}
                     </h1>
-                    <div className=" p-4 d-flex align-items-center client-view-div1">
-                        <div className="">
-                            {/* <label className="d-block">
-                                {t(
-                                    "admin.leads.leadDetails.convertToClient"
-                                )}
-                            </label> */}
+                    <div className=" p-4 d-flex align-items-center client-view-div1 flex-wrap">
+                        <div className="m-1">
                             <Link
                                 to={`/admin/add-lead-client/${param.id}`}
                                 // to={`/admin/leads/${param.id}/edit`}
@@ -47,20 +41,41 @@ export default function LeadDetails({ lead }) {
                                 )}
                             </Link>
                         </div>
-                        <div className="">
-                            <div className="search-data">
-                                <Link
-                                    // to={`/admin/add-lead-client/${param.id}`}
-                                    to={`/admin/leads/${param.id}/edit`}
-                                    className="btn navyblue no-hover addButton"
-                                >
-                                    <i className="btn-icon fas fa-pencil"></i>
-                                    {t("admin.global.Edit")}
-                                </Link>
-                            </div>
+                        <div className="m-1">
+                            <Link to={`/admin/schedule/view/${lead.id}`}
+                                className="btn navyblue no-hover addButton "
+                            >
+                                <i className="fas fa-hand-point-right"></i>
+
+                                {lead.meetings?.length == 0
+                                    ? t(
+                                        "admin.leads.leadDetails.ScheduleMeeting"
+                                    )
+                                    : t(
+                                        "admin.leads.leadDetails.ReScheduleMeeting"
+                                    )}
+                            </Link>
+                        </div>
+                        <div className="m-1">
+                            <Link to={`/admin/offers/create?c=${lead.id}`}
+                                className="btn navyblue no-hover addButton "
+                            >
+                                <i className="fas fa-hand-point-right"></i>
+                                {lead.offers?.length == 0
+                                    ? t("admin.leads.leadDetails.SendOffer")
+                                    : t("admin.leads.leadDetails.ReSendOffer")}
+                            </Link>
+                        </div>
+                        <div className="m-1">
+                            <Link
+                                to={`/admin/leads/${param.id}/edit`}
+                                className="btn navyblue no-hover addButton mt-0"
+                            >
+                                <i className="btn-icon fas fa-pencil"></i>
+                                {t("admin.global.Edit")}
+                            </Link>
                         </div>
                     </div>
-
                 </div>
                 <div className="row d-inline">
                     <div className="">

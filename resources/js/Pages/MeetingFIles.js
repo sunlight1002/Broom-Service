@@ -159,7 +159,7 @@ export default function MeetingFiles() {
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             cancelButtonText: t("common.delete.cancel"),
-            confirmButtonText: t("common.delete.confirm"),
+            confirmButtonText: t("common.delete.confirm_file"),
         }).then((result) => {
             if (result.isConfirmed) {
                 axios

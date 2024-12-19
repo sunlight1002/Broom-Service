@@ -40,15 +40,13 @@ export default function OfferServiceModal({
     frequencies,
     tmpFormValues,
     handleSaveForm,
+    formValues,
     isAdd,
     editIndex,
 }) {
+
     const { t } = useTranslation();
     const alert = useAlert();
-    // const [offerServiceTmp, setOfferServiceTmp] = useState(
-    //     isAdd ? [initialValues] : tmpFormValues || []
-    // );
-
     const [offerServiceTmp, setOfferServiceTmp] = useState(
         isAdd ? [initialValues] : tmpFormValues && Array.isArray(tmpFormValues) ? tmpFormValues : [initialValues]
     );
@@ -223,9 +221,11 @@ export default function OfferServiceModal({
     };
 
     const handleSubmit = () => {
+        const combinedArray = isAdd ? ([...formValues,...offerServiceTmp]) : offerServiceTmp;
+
         const valid = offerServiceTmp.every((formValues) => checkValidation(formValues));
         if (valid) {
-            handleSaveForm(isAdd ? -1 : editIndex, offerServiceTmp);
+            handleSaveForm(isAdd ? -1 : editIndex, combinedArray);
             setIsOpen(false);
         }
     };
@@ -342,20 +342,21 @@ export default function OfferServiceModal({
                                             onChange={(e) => {
                                                 handleServiceChange(index, e);
                                                 const updatedToggleState = [...toggleOtherService];
+                                                const selectedIndex = e.target.selectedIndex;
+                                                const selectedOptionName = e.target.options[selectedIndex].getAttribute("name");
 
-                                                if (e.target.value === "10") {
+                                                if (selectedOptionName === "Others") {
                                                     updatedToggleState[index] = true;
                                                 } else {
                                                     updatedToggleState[index] = false;
                                                 }
 
                                                 setToggleOtherService(updatedToggleState);
-
-                                                // Update toggle state for Airbnb service for the specific index
                                                 const updatedAirbnbState = [...toggleAirbnbService];
-                                                if (e.target.value === "29") {
+
+                                                if (selectedOptionName === "AirBnb") {
                                                     updatedAirbnbState[index] = true;
-                                                    handleGetSubServices(29);
+                                                    handleGetSubServices(e.target.value);
                                                 } else {
                                                     updatedAirbnbState[index] = false;
                                                 }

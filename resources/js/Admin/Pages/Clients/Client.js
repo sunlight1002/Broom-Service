@@ -38,8 +38,10 @@ export default function Clients() {
     const alert = useAlert();
     const { t, i18n } = useTranslation();
 
-    const [filter, setFilter] = useState('All');
+    const [filter, setFilter] = useState('');
 
+    console.log(filter);
+    
     const leadStatuses = [
         t("admin.client.Potential"),
         t("admin.client.Waiting_client"),
@@ -326,12 +328,16 @@ export default function Clients() {
     useEffect(() => {
         if (type == "past") {
             $(tableRef.current).DataTable().column(4).search(filters.action).draw();
-        } else if (type == "all") {
-            $(tableRef.current).DataTable().column(4).search('').draw();
+        } else if (type == null) {
+            // $(tableRef.current).DataTable().column(4).search('').draw();
+            $(tableRef.current).DataTable().column(4).search(filter).draw();
         } else {
             $(tableRef.current).DataTable().column(4).search(type).draw();
         }
     }, [type, filters]);
+
+    console.log(type, filters,);
+    
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -629,7 +635,7 @@ export default function Clients() {
                     )
                 }
                 {/* Integrating new FilterButtons section here */}
-                {
+                {/* {
                     type != "past" && (
                         <div className="col-sm-12">
                             <FilterButtons
@@ -655,7 +661,7 @@ export default function Clients() {
                             })}
                         </div>
                     )
-                }
+                } */}
                 <div className="card" style={{ boxShadow: "none" }}>
                     <div className="card-body px-0">
                         <div className="boxPanel">

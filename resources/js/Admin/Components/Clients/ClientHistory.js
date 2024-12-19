@@ -25,7 +25,7 @@ export default function ClientHistory({
     const { t } = useTranslation();
     const query = new URLSearchParams(location.search);
     const type = query.get("q");
-    console.log(type);
+    console.log(scheduleStatus, "scheduleStatus");
 
     return (
 

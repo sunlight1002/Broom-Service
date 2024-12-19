@@ -73,10 +73,15 @@ export default function PriceOffer() {
             let _services = JSON.parse(data.services);
 
             setServices(_services);
-            setAirbnb({
-                id: _services[0].service,
-                subServiceId: _services[0].subService
-            });
+            const airbnbService = _services.find(service => service.name === "airbnb");
+
+            if (airbnbService) {
+                setAirbnb({
+                    id: airbnbService.service,
+                    subServiceId: airbnbService.sub_services
+                });
+            }
+
 
             if (data.client.lng === "heb") {
                 import("../Assets/css/rtl.css");
@@ -102,7 +107,7 @@ export default function PriceOffer() {
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
-        Authorization: `Bearer ` + localStorage.getItem("admin-token"),
+        Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
 
     useEffect(() => {
@@ -113,11 +118,10 @@ export default function PriceOffer() {
 
     const handleGetSubServices = async (id) => {
         try {
-            const res = await axios.get(`/api/admin/get-sub-services/${id}`, { headers });
-            const allSubServices = res.data.subServices;
+            const res = await axios.get(`/api/get-sub-services/${id}`);
 
-            const filteredSubServices = allSubServices.filter(sub => airbnb.subServiceId.includes(sub.id));
-
+            const allSubServices = res.data?.subServices;
+            const filteredSubServices = allSubServices.filter(sub => airbnb?.subServiceId?.includes(sub.id));
             setSubService(filteredSubServices);
         } catch (error) {
             console.log("Error fetching sub-services:", error);
@@ -229,7 +233,7 @@ export default function PriceOffer() {
     return (
         <div className="navyblueColor parent">
             <div className=" mt-4 mb-5 bg-transparent " style={{
-                margin: mobileView ? "0 20px" : "0 100px"
+                margin: mobileView ? "0 10px" : "0 100px"
             }}>
                 <div className="d-flex align-items-center justify-content-between flex-dir-co-1070">
                     <img
@@ -239,14 +243,14 @@ export default function PriceOffer() {
                         style={{ height: "100px" }}
                     />
                 </div>
-                <div>
+                <div className="mt-3">
                     <section className="d-flex align-items-center" style={{ gap: "20px" }}>
                         <p className="navyblueColor font-34 mt-4 font-w-500">{t("price_offer.price_offno")} #{id}</p>
                         {status == "sent" ? (
                             <div className="headBtns mt-3">
                                 <button
                                     type="button"
-                                    className="btn bluecolor acpt"
+                                    className="btn m-1 bluecolor acpt"
                                     disabled={loading}
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
@@ -257,7 +261,7 @@ export default function PriceOffer() {
                                 </button>
                                 <button
                                     type="button"
-                                    className="ml-2 btn bluecolor rjct"
+                                    className="m-1 btn bluecolor rjct"
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
                                         RejectOffer(offer.id)
@@ -293,7 +297,7 @@ export default function PriceOffer() {
                             </span>{" "}</p>
                     </section>
                 </div>
-                <div className="row mt-3">
+                <div className="mt-3">
                     <section className="col-xl">
                         <div className="abt">
                             <h5 className="mb-2">{t("price_offer.about_title")}</h5>
@@ -407,7 +411,8 @@ export default function PriceOffer() {
                                             </tr>
                                         </tbody>
                                     </table>
-                                </div>                            </div>
+                                </div>
+                            </div>
                         )}
 
                         {/* Other Services */}
@@ -667,7 +672,7 @@ export default function PriceOffer() {
                                         src={t(
                                             "price_offer.office_cleaning.oc2_img"
                                         )}
-                                        className="img-fluid mt-2"
+                                        className={`img-fluid mt-2 ${mobileView ? "mx-0" : "mx-3"}`}
                                         alt="Room Services"
                                     />
                                 </div>
@@ -844,7 +849,7 @@ export default function PriceOffer() {
                                                     <td>
                                                         {s.service == 10
                                                             ? s.other_title
-                                                            : s.name}
+                                                            : clientLng === 'heb' ? s.service_name_heb : s.service_name_en}
                                                     </td>
                                                     <td>
                                                         {clientLng === 'heb' ? (
@@ -856,7 +861,7 @@ export default function PriceOffer() {
                                                         )}
                                                     </td>
                                                     <td>
-                                                        {s.freq_name}{" "}
+                                                        {clientLng === 'heb' ? s.frequency_name_heb : s.frequency_name_en}{" "}
                                                         {/* <p>
                                                                 {frequencyDescription(
                                                                     s
@@ -1052,7 +1057,7 @@ export default function PriceOffer() {
                                 </button>
                                 <button
                                     type="button"
-                                    className="ml-2 btn bluecolor rjct"
+                                    className="mx-2 btn bluecolor rjct"
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
                                         RejectOffer(offer.id)

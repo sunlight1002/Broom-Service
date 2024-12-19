@@ -48,6 +48,7 @@ export default function TotalJobs() {
     const endDateRef = useRef(null);
     const actualTimeExceedFilterRef = useRef(null);
     const hasNoWorkerFilterRef = useRef(null);
+    const [AllWorkers, setAllWorkers] = useState([]);
 
     const alert = useAlert();
     const navigate = useNavigate();
@@ -521,8 +522,6 @@ export default function TotalJobs() {
             const _id = $(this).data("id");
             const _totalAmount = $(this).data("total-amount");
 
-            console.log(_id, _totalAmount);
-
 
             handleSwitchWorker({
                 id: _id,
@@ -667,8 +666,19 @@ export default function TotalJobs() {
     };
 
     const handleSwitchWorker = (_job) => {
+        getWorkerToSwitch(_job.id);
         setSelectedJob(_job);
         setIsOpenSwitchWorker(true);
+    };
+
+    const getWorkerToSwitch = (id) => {
+        axios
+            .get(`/api/admin/jobs/${id}/worker-to-switch`, {
+                headers,
+            })
+            .then((response) => {
+                setAllWorkers(response.data.workers);
+            });
     };
 
     const handleCancel = (_job) => {
@@ -1107,6 +1117,7 @@ export default function TotalJobs() {
                     setIsOpen={setIsOpenSwitchWorker}
                     isOpen={isOpenSwitchWorker}
                     job={selectedJob}
+                    AllWorkers={AllWorkers}
                     onSuccess={() => $(tableRef.current).DataTable().draw()}
                 />
             )}

@@ -68,7 +68,7 @@ export default function ChangePass() {
             </p>
 
             <div className="card-body">
-                <form>
+                <form onSubmit={handleSubmit}>
                     <div className="form-group d-flex align-items-center">
                         <label className="control-label " style={{ width: "55%" }}>
                             {t("client.settings.change_pass")} *
@@ -166,7 +166,7 @@ export default function ChangePass() {
                     <div className="form-group text-right">
                         <button
                             type="submit"
-                            onClick={handleSubmit}
+                            // onClick={handleSubmit}
                             className="btn navyblue saveBtn"
                         >
                             <span className="d-flex align-items-center">

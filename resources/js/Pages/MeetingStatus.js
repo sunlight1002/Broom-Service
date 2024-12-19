@@ -20,11 +20,9 @@ export default function MeetingStatus() {
         axios
             .post(`/api/client/meeting`, { id: Base64.decode(param.id) })
             .then((res) => {
-                console.log(res.data, "getMeeting");
-                
                 setMeeting(res.data.schedule);
-                setTeamName(res.data.schedule.team.name);
                 const lng = res.data.schedule.client.lng;
+                setTeamName(lng == "heb" ? res.data.schedule.team.heb_name : res.data.schedule.team.name);
                 i18next.changeLanguage(lng);
                 if (lng == "heb") {
                     import("../Assets/css/rtl.css");

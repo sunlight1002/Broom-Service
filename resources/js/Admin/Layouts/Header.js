@@ -123,7 +123,7 @@ export default function AdminHeader() {
                                     >
                                         <i className="mt-1"><LuBellRing /></i>  
                                     </button>
-                                    <ul className="dropdown-menu">
+                                    <ul className="dropdown-menu adminIconDropdown">
                                         {notices.map((n, i) => {
                                             return (
                                                 <li

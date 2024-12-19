@@ -31,6 +31,8 @@ export default function ViewJob() {
             .get(`/api/client/jobs/${Base64.decode(params.id)}`, { headers })
             .then((res) => {
                 const r = res.data.job;
+                console.log(r);
+                
                 if (r) {
                     setJob(r);
                     setJobStatus(r.status);
