@@ -159,62 +159,76 @@ class ClientEmailController extends Controller
                 'message' => 'Offer not found'
             ], 404);
         }
-
+    
         $client = $offer->client;
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found'
             ], 404);
         }
-
+    
         $offer->update([
             'status' => 'declined'
         ]);
-
+    
         $offerArr = $offer->toArray();
 
-        Notification::create([
-            'user_id' => $offerArr['client']['id'],
-            'user_type' => get_class($client),
-            'type' => NotificationTypeEnum::LEAD_DECLINED_PRICE_OFFER,
-            'offer_id' => $offer->id,
-            'status' => 'declined'
-        ]);
+        // Check if the client has any accepted offers
+        $hasAcceptedOffer = $client->offers()->where('status', 'accepted')->exists();
+    
+        if (!$hasAcceptedOffer) {
 
-        // Trigger WhatsApp Notification
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER,
-            "notificationData" => [
-                'client' => $client->toArray(),
-            ]
-        ]));
+            Notification::create([
+                'user_id' => $offerArr['client']['id'],
+                'user_type' => get_class($client),
+                'type' => NotificationTypeEnum::LEAD_DECLINED_PRICE_OFFER,
+                'offer_id' => $offer->id,
+                'status' => 'declined'
+            ]);
+        
+            // // Trigger WhatsApp Notification
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::LEAD_DECLINED_PRICE_OFFER,
+            //     "notificationData" => [
+            //         'client' => $client->toArray(),
+            //     ]
+            // ]));
 
-        $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+            $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+    
+            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            }
+    
+            return response()->json([
+                'message' => 'Thanks, your offer has been rejected and the client is marked as uninterested.'
+            ]);
+         } else {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                ]
+            ]));
 
-        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
-            $client->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => $newLeadStatus]
-            );
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
-
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::UNINTERESTED,
+                "notificationData" => [
+                    'client' => $client->toArray(),
+                ]
+            ]));
+    
+            return response()->json([
+                'message' => 'The offer has been rejected. The client already has an accepted offer.'
+            ]);
         }
-
-        //   $emailData = [
-        //     'client' => $client->toArray(),
-        //     'status' => $newLeadStatus,
-        // ];
-
-        //   Mail::send('Mails.LeadDeclinePriceOffer', ['client' => $emailData['client']], function ($messages) use ($emailData) {
-        //     $messages->to($emailData['client']['email']);
-        //     $sub = __('mail.price_offer_decline.header');
-        //     $messages->subject($sub);
-        // });
-
-        return response()->json([
-            'message' => 'Thanks, your offer has been rejected'
-        ]);
     }
+
+    
 
 
     public function acceptMeeting(Request $request)
@@ -354,16 +368,23 @@ class ClientEmailController extends Controller
             }
     
             event(new WhatsappNotificationEvent([
-                "type" => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING,
+                "type" => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_TEAM,
                 "notificationData" => $schedule->toArray()
             ]));
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT,
+                "notificationData" => $schedule->toArray()
+            ]));
+
+
         } else if ($request->type == "not_interested") {
 
-            $hasAcceptedOffer = $client->offers->contains(function ($offer) {
-                return $offer->status === 'accepted';
+            $hasUnVerifiedContract = $client->contract->contains(function ($contract) {
+                return $contract->status === 'un-verified';
             });
     
-            if (!$hasAcceptedOffer) {
+            if (!$hasUnVerifiedContract) {
 
                 $client->update(['status' => 0]);
                 $newLeadStatus = LeadStatusEnum::UNINTERESTED;

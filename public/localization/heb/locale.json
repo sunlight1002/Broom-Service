@@ -766,7 +766,7 @@
             "meetings": "פגישות",
             "services": "שירותים",
             "payments": "תשלומים",
-            "property address": "כתובת נכס"
+            "property_addresses": "כתובות נכס"
         },
         "sidebar": {
             "dashboard": "דף הבית",
@@ -1287,7 +1287,11 @@
             "by_date": "לפי תאריך",
             "by_client": "לפי לקוח",
             "filter": "מסנן",
-            "total": "סה'כ"
+            "total": "סה'כ",
+            "refund_percentage": "אחוז ההחזר",
+            "refund_amount": "סכום ההחזר",
+            "percentage_error": "האחוז לא יכול להיות יותר מ-100",
+            "refund_invoice": "חשבונית החזר"
         },
         "modal": {
             "title": "מודל",
@@ -2687,7 +2691,8 @@
             "employerEmail": "דואר אלקטרוני של המעסיק נדרש",
             "sign": "חתימה נדרשת",
             "incomeReq": "הכנסה נדרשת",
-            "pleaseSelectOneIncomeType": "אנא בחר לפחות סוג הכנסה אחד"
+            "pleaseSelectOneIncomeType": "אנא בחר לפחות סוג הכנסה אחד",
+            "residencePermitReq": "נדרש היתר שהייה"
         }
     },
     "credit-card": {

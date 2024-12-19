@@ -110,55 +110,6 @@ export default function TeamButtons() {
         }
     };
 
-
-
-    // const startTimer = () => {
-
-    //     axios
-    //         .post(`/api/jobs/${params.id}/start-time`, {}, { headers })
-    //         .then((res) => {
-    //             getTime();
-    //             setTimeout(() => {
-    //                 setIsSubmitting(false);
-    //             }, 500);
-    //         });
-    // };
-    // const stopTimer = () => {
-    //     axios
-    //         .post(`/api/jobs/${params.id}/end-time`, {}, { headers })
-    //         .then((res) => {
-    //             getTimes();
-    //             setTimeout(() => {
-    //                 setIsSubmitting(false);
-    //             }, 500);
-    //         });
-    // };
-
-    const handleSpeakToManager = async (e) => {
-        e.preventDefault();
-
-        const data = {
-            job_id: params.id,
-            client_id: clientID,
-            worker_id: workerID,
-            problem: problem
-        };
-
-        try {
-            const res = await axios.post(`/api/client/jobs/speak-to-manager`, data, { headers });
-            getJob();
-            alert.success(res?.data?.message)
-        } catch (error) {
-            if (error.response) {
-                console.error("Error response: ", error.response.data);
-            } else if (error.request) {
-                console.error("No response received: ", error.request);
-            } else {
-                console.error("Error in request setup: ", error.message);
-            }
-        }
-    };
-
     return (
         <div className="container meeting" style={{ display: "block" }}>
             <div className="thankyou meet-status dashBox maxWidthControl p-4">

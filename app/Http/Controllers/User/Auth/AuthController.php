@@ -717,11 +717,13 @@ class AuthController extends Controller
         $savingType = $data['savingType'];
         $formId = $data['formId'];
         $step = $data['step'] ?? 1;  // Retrieve 'step' from the request (if exists)
+        $idNumber = $data['employeeIdNumber'];
         unset($data['savingType']);
     
         // Save the 'step' value to the worker's record
         if ($step) {
             $worker->step = $step;  // Assuming the 'step' field exists on the worker model
+            $worker->id_number = $idNumber;
             $worker->save();
         }
 

@@ -24,7 +24,7 @@ export function NonIsraeliContract({
     nextStep,
     setNextStep
 }) {
-    
+
     const sigRef1 = useRef();
     const sigRef2 = useRef();
     const sigRef3 = useRef();
@@ -80,9 +80,9 @@ export function NonIsraeliContract({
     const formSchema = {
         step5: yup.object({
             fullName: yup
-            .string()
-            .trim()
-            .required(t("nonIsrailContract.errorMsg.FullName")),
+                .string()
+                .trim()
+                .required(t("nonIsrailContract.errorMsg.FullName")),
             passport: yup
                 .string()
                 .trim()
@@ -130,7 +130,7 @@ export function NonIsraeliContract({
         initialValues: formValues ?? initialValues,
         enableReinitialize: true,
         validationSchema: formSchema[`step${nextStep}`], // Use dynamic schema based on current step
-        onSubmit: (values) => {            
+        onSubmit: (values) => {
             handleFormSubmit(values);
             // setNextStep(prev => prev+1)
             // if (workerDetail?.is_existing_worker) {
@@ -138,7 +138,7 @@ export function NonIsraeliContract({
             // }
         },
     });
-    
+
 
     useEffect(() => {
         if (isSubmitted) {
@@ -166,12 +166,17 @@ export function NonIsraeliContract({
     };
 
     const handleSignatureEnd1 = () => {
+        if (sigRef1.current) {
         setFieldValue("signature1", sigRef1.current.toDataURL());
+        }
     };
-    const clearSignature1 = () => {
+   // Clear the signature canvas
+   const clearSignature1 = () => {
+    if (sigRef1.current) {
         sigRef1.current.clear();
-        setFieldValue("signature1", "");
-    };
+        setSignature1Data(null);
+    }
+};
     const handleSignatureEnd2 = () => {
         setFieldValue("signature2", sigRef2.current.toDataURL());
     };
@@ -210,13 +215,13 @@ export function NonIsraeliContract({
 
     const handleNextPrev = async (e) => {
         e.preventDefault();
-        
+
         // Validate the current step
         const validationErrors = await validateForm(); // This will populate the `errors` object
-        
+
         // Check if page 7 exists based on the conditions
         const pageSevenExists = (workerDetail.country !== "Israel" && workerDetail.is_existing_worker !== 1);
-        
+
         // If there are no validation errors
         if (!Object.keys(validationErrors).length) {
             if (nextStep === 5) {
@@ -241,15 +246,18 @@ export function NonIsraeliContract({
         }
     };
 
+    console.log(sigRef1);
+    
+
     return (
-        <div className="mt-5 contracttargetDiv" ref={contentRef}>
+        <div className="mt-5 contracttargetDiv pdf-wrapper" ref={contentRef}>
             <div className="">
                 <p className="navyblueColor font-30 mt-4 font-w-500">{t("nonIsrailContract.title1")}</p>
                 <p className="mt-2">{t("nonIsrailContract.title2")}</p>
             </div>
             <form onSubmit={handleNextPrev}>
                 {
-                    nextStep === 5 && (
+                    (isGeneratingPDF ? nextStep === 6 : nextStep === 5) && (
                         <div className="row">
                             <section className="col pl-0">
                                 <ol
@@ -411,8 +419,8 @@ export function NonIsraeliContract({
                                                             ? "col-4"
                                                             : "")
                                                     }
-                                                    style={{ 
-                                                        marginLeft: mobileView ? "0px" : "180px" 
+                                                    style={{
+                                                        marginLeft: mobileView ? "0px" : "180px"
                                                     }}
                                                 >
                                                     {workerDetail?.is_existing_worker ? "" : (
@@ -848,7 +856,7 @@ export function NonIsraeliContract({
                                         "nonIsrailContract.nic8Sub.nic8Sub_3"
                                     )}
                                 </p>
-                                <div className="d-flex justify-content-between mt-3 gap-3">
+                                <div className={`d-flex flex-wrap ${mobileView ? "justify-content-center" : "justify-content-between"}  mt-3 gap-3`}>
                                     <div
                                         className={
                                             " " +
@@ -1039,7 +1047,7 @@ export function NonIsraeliContract({
                                         <p>
                                             {t("nonIsrailContract.supervisor.supervisor2")}
                                         </p>
-                                        <div className="d-flex justify-content-between mt-5 gap-3">
+                                        <div className={`d-flex  ${mobileView ? "flex-wrap justify-content-center" : "justify-content-between"}  mt-3 gap-3`}>
                                             <div
                                                 className={
                                                     "" +
@@ -1175,7 +1183,7 @@ export function NonIsraeliContract({
                     )
                 }
                 {[5, 6].includes(nextStep) && (
-                    <div className="d-flex justify-content-end">
+                    <div className={`d-flex justify-content-end ${isGeneratingPDF ? "hide-in-pdf" : ""}`}>
                         <button
                             type="button"
                             onClick={() => setNextStep(prev => prev - 1)}
@@ -1190,7 +1198,7 @@ export function NonIsraeliContract({
                             className="navyblue py-2 px-4"
                             style={{ borderRadius: "5px" }}
                         >
-                            {nextStep === 6 && !isSubmitted? t("common.submit") : t("common.next")} <GrFormNextLink />
+                            {nextStep === 6 && !isSubmitted ? t("common.submit") : t("common.next")} <GrFormNextLink />
                         </button>
                     </div>
                 )}

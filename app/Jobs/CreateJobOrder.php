@@ -162,8 +162,8 @@ class CreateJobOrder implements ShouldQueue
                     'is_one_time_in_month' => $job->is_one_time_in_month_job,
                     'discount_amount' => $job->discount_amount
                 ],
-                $this->jobID,
-                $serviceDate
+                $serviceDate,
+                $this->jobID
                 
             );
 

@@ -82,7 +82,7 @@ const SafeAndGear = ({
                     .from(content)
                     .outputPdf("blob", "Safety-And-Gear.pdf");
 
-                    setIsGeneratingPDF(false); // Reset PDF mode
+                setIsGeneratingPDF(false); // Reset PDF mode
 
                 // Convert JSON object to FormData
                 let formData = objectToFormData(values);
@@ -178,7 +178,7 @@ const SafeAndGear = ({
         <div id="container" className={`pdf-wrapper targetDiv rtlcon ${isGeneratingPDF ? "pdf-layout" : ""}`} ref={contentRef}>
             <p className="navyblueColor font-34 mt-4 font-w-500">Safety And Gear Form</p>
             <form onSubmit={handleSaveAsDraft}>
-                <div className="row">
+                <div className={`${isGeneratingPDF ? "" : "row"}`}>
                     <section className="col-xl">
                         <div className="">
                             <p className="mb-4 mt-2" style={{ fontSize: "17px" }}>
@@ -265,62 +265,58 @@ const SafeAndGear = ({
                                     <p>{t("safeAndGear.eq6")}</p>
                                 </div>
                                 <div className="row">
-                                    <div className="col d-flex justify-content-center align-items-center">
-                                        <span
-                                            className="navyblueColor font-w-500"
-                                        >
-                                            {values.workerName +
-                                                " " +
-                                                values.workerName2}
+                                    {/* Worker Name Section */}
+                                    <div className="col-12 col-md-4 d-flex justify-content-center align-items-center mb-3 mb-md-0">
+                                        <span className="navyblueColor font-w-500 text-center">
+                                            {values.workerName + " " + values.workerName2}
                                         </span>
                                     </div>
-                                    <div className="col mt-3">
-                                        <p>
-                                            <strong>
-                                                {t("safeAndGear.sign")}
-                                            </strong>
+
+                                    {/* Signature Section */}
+                                    <div className="col-12 col-md-4 mt-3 d-flex flex-column align-items-center">
+                                        <p className="text-center mb-2">
+                                            <strong>{t("safeAndGear.sign")}</strong>
                                         </p>
-                                        {formValues &&
-                                            formValues.signature != null ? (
-                                            <img src={formValues.signature} />
+                                        {formValues && formValues.signature != null ? (
+                                            <img
+                                                src={formValues.signature}
+                                                alt="Signature"
+                                                style={{ maxWidth: "100%", height: "auto" }}
+                                            />
                                         ) : (
-                                            <div>
+                                            <div className="w-100 d-flex justify-content-center">
                                                 <SignatureCanvas
                                                     penColor="black"
                                                     canvasProps={{
-                                                        width: 250,
-                                                        height: 100,
-                                                        className: `sign101 mt-1 form-control  ${touched.signature && errors.signature && 'is-invalid'}`,
-                                                        style: { background: "#f1f1f1" }
+                                                        width: 300,
+                                                        height: 150,
+                                                        className: `sign101 mt-1 form-control ${touched.signature && errors.signature && 'is-invalid'}`,
+                                                        style: { background: "#f1f1f1", width: "310px" }
                                                     }}
                                                     ref={sigRef}
                                                     onEnd={handleSignatureEnd}
                                                 />
-                                                <span className="text-danger">
-                                                    {touched.signature && errors.signature}
-                                                </span>
                                             </div>
-
                                         )}
+                                        <span className="text-danger mt-2">
+                                            {touched.signature && errors.signature}
+                                        </span>
                                     </div>
-                                    <div className="col d-flex align-items-end">
+
+                                    {/* Clear Signature Button */}
+                                    <div className="col-12 col-md-4 d-flex justify-content-center align-items-center mt-3 mt-md-0">
                                         {!isGeneratingPDF && !isSubmitted && (
-                                            <div className="d-block">
-                                                <button
-                                                    type="button"
-                                                    className="btn navyblue px-4 mb-2"
-                                                    onClick={
-                                                        clearSignature
-                                                    }
-                                                >
-                                                    {t(
-                                                        "safeAndGear.Clear"
-                                                    )}
-                                                </button>
-                                            </div>
+                                            <button
+                                                type="button"
+                                                className="btn navyblue px-4"
+                                                onClick={clearSignature}
+                                            >
+                                                {t("safeAndGear.Clear")}
+                                            </button>
                                         )}
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                         <div className={`d-flex justify-content-end ${isGeneratingPDF ? "hide-in-pdf" : ""}`} style={{ margin: "20px 10px" }}>

@@ -1253,7 +1253,7 @@
             "amount": "Amount",
             "payment_mode": "Payment Mode",
             "bank_transfer": "Bank Transfer",
-            "by_checque": "By Checque",
+            "by_cheque": "By Cheque",
             "cc": "Credit Card",
             "by_cash": "By Cash",
             "bank_tra_date": "Bank Transfer Date",
@@ -1292,7 +1292,11 @@
             "by_date": "By Date",
             "by_client": "By Client",
             "filter": "Filter",
-            "total": "Total"
+            "total": "Total",
+            "refund_percentage": "Refund Percentage",
+            "refund_amount": "Refund Amount",
+            "percentage_error": "Percentage cannot be greater than 100",
+            "refund_invoice": "Refund Invoice"
         },
         "dashboard": {
             "jobPosted": "Job Posted",
@@ -2667,7 +2671,8 @@
             "employerEmail": "Employer email is required",
             "sign": "Signature is required",
             "incomeReq": "Income is required",
-            "pleaseSelectOneIncomeType": "Please select at least one income type"
+            "pleaseSelectOneIncomeType": "Please select at least one income type",
+            "residancePermitReq": "Residence permit is required"
         }
     },
     "credit-card": {

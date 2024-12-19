@@ -303,6 +303,7 @@ trait PaymentAPI
         if ($amount) {
             $postData['TransactionSum'] = $amount;
         }
+        \Log::info([$postData]);
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -343,7 +344,7 @@ trait PaymentAPI
     }
 
     // Same API but different configuration for 'order' doctype.
-    private function generateOrderDocument($client, $items, $duedate, $data, $jobId = null, $serviceDate)
+    private function generateOrderDocument($client, $items, $duedate, $data, $serviceDate, $jobId = null)
     {
         // \Log::info($serviceDate);
         // \Log::info("generateOrderDocument");
@@ -651,7 +652,135 @@ trait PaymentAPI
             throw new Exception('Error : Failed to close document');
         }
 
+        $doc_info = $this->getIcountDocUrl($data['cancellation_docnum'], $data['cancellation_doctype']);
+
+        $data['cancel_doc_url'] = $doc_info['doc_url'] ?? null;
+
         return $data;
+    }
+    
+
+    private function refundICountDocument($doc_data, $percentage)
+    {
+        // Fetch iCount credentials
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+    
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+    
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+    
+        $url = 'https://api.icount.co.il/api/v3.php/doc/create';
+    
+        // Adjust totals based on the percentage
+        $totalsum = $doc_data['doc_info']['totalsum'] ?? 0;
+        $afterdiscount = $doc_data['doc_info']['afterdiscount'] ?? 0;
+        $total_with_vat = $doc_data['doc_info']['totalwithvat'] ?? 0;
+    
+        // Calculate new amounts
+        $adjusted_totalsum = $totalsum * ($percentage / 100);
+        $adjusted_afterdiscount = $afterdiscount * ($percentage / 100);
+        $adjusted_total_with_vat = $total_with_vat * ($percentage / 100);
+    
+        // Update item prices proportionally
+        $items = $doc_data['doc_info']['items'] ?? [];
+        foreach ($items as &$item) {
+            $item['unitprice'] = $item['unitprice'] * ($percentage / 100);
+        }
+    
+        // Prepare the postData
+        $postData = [
+            "cid"            => $iCountCompanyID,
+            "lang"           => $doc_data['doc_info']['lang'],
+            "user"           => $iCountUsername,
+            "pass"           => $iCountPassword,
+            "doctype"        => 'refund',
+            "client_id"      => $doc_data['doc_info']['client_id'] ?? null,
+            "client_name"    => $doc_data['doc_info']['client_name'] ?? '',
+            "client_address" => $doc_data['doc_info']['client_address'] ?? '',
+            "currency_code"  => $doc_data['doc_info']['currency_code'] ?? 'ILS',
+            "doc_lang"       => ($doc_data['doc_info']['lang'] == 'heb') ? 'he' : 'en',
+            "items"          => $items,
+            "totalsum"       => $adjusted_totalsum,
+            "roundup"        => $doc_data['doc_info']['roundup'] ?? '',
+            "afterdiscount"  => $adjusted_afterdiscount,
+            "vat_id"         => $doc_data['doc_info']['vat_id'] ?? '',
+            "based_on"       => $doc_data['doc_info']['based_on'] ?? [],
+            "send_email"     => 1,
+            "email_to_client" => 1,
+            "email_to"       => $doc_data['email'] ?? '',
+            "cc"             => $doc_data['doc_info']['cc'] ?? [],
+            "banktransfer"   => $doc_data['doc_info']['banktransfer'] ?? [],
+            "cheques"        => $doc_data['doc_info']['cheques'] ?? [],
+            "cash"           => $doc_data['doc_info']['cash'] ?? [],
+            "comment"        => $doc_data['doc_info']['comment'] ?? '',
+        ];
+    
+        // Make the POST request
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+    
+        $json = $response->json();
+    
+        // Handle the response
+        if ($response->status() !== 200) {
+            throw new Exception('Error creating refund document: ' . ($json['reason'] ?? 'Unknown error'));
+        }
+    
+        return $json;
+    }
+    
+
+
+    private function getIcountDocUrl($docnum, $doctype) {
+
+        $iCountCompanyID = Setting::query()
+        ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+        ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/doc/get_doc_url';
+
+        $postData = [
+            "cid"  => $iCountCompanyID,
+            "user" => $iCountUsername,
+            "pass" => $iCountPassword,
+            "doctype"   => $doctype,
+            "docnum"    => $docnum,
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(
+            $url,
+            $postData
+        );
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error : Failed to close document');
+        }
+
+        return $data;
+        
     }
 
     private function generateInvoiceDocument(

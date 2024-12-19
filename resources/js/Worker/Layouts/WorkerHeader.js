@@ -25,6 +25,7 @@ export default function WorkerHeader() {
         localStorage.removeItem("worker-token");
         localStorage.removeItem("worker-name");
         localStorage.removeItem("worker-id");
+        localStorage.removeItem("worker-lng");
         navigate("/worker/login");
         alert.success(t("global.Logout"));
       }
@@ -69,8 +70,6 @@ if (lng === "en") {
     // Reset affected inline styles or inherited styles
     document.body.style.textAlign = ""; // Example for body text alignment
     const rtlElements = document.querySelectorAll("[dir='rtl']");
-    console.log(rtlElements);
-
     rtlElements.forEach((el) => el.removeAttribute("dir"));
   };
 

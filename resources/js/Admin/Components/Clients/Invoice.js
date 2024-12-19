@@ -7,17 +7,18 @@ import ReactPaginate from "react-paginate";
 import { Link, useParams } from "react-router-dom";
 import { Table, Tbody, Td, Th, Thead, Tr } from "react-super-responsive-table";
 import Swal from "sweetalert2";
-
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-github";
 
-import FullPageLoader from "../../../Components/common/FullPageLoader";
 import AddCreditCardModal from "../Modals/AddCreditCardModal";
+import { useAlert } from "react-alert";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 export default function Invoice() {
     const { t } = useTranslation();
-    
+    const alert = useAlert();
+
     const [invoices, setInvoices] = useState([]);
     const [pageCount, setPageCount] = useState(0);
     const [res, setRes] = useState("");
@@ -39,6 +40,7 @@ export default function Invoice() {
         type: "",
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [percentage, setPercentage] = useState(0);
 
     const params = useParams();
     const id = params.id;
@@ -224,7 +226,7 @@ export default function Invoice() {
         setAddCardModalOpen(true);
     };
 
-    const closeDoc = (id, type) => {
+    const closeDoc = (id, type, txn_id) => {
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -260,24 +262,73 @@ export default function Invoice() {
         });
     };
 
+    // const handleCancel = (e) => {
+    //     e.preventDefault();
+    //     if (percentage > 100) {
+    //         alert.error(t("admin.global.percentage_error"));
+    //         return;
+    //     }
+    //     setIsLoading(true);
+
+    //     const data = {
+    //         doctype: dtype,
+    //         docnum: cancelDoc,
+    //         reason: reason,
+    //         percentage: percentage,
+    //     };
+
+    //     axios
+    //         .post(`/api/admin/cancel-doc`, data, { headers })
+    //         .then((res) => {
+    //             setIsLoading(false);
+
+    //             $(".closeb11").click();
+    //             Swal.fire(res.data.message, "", "info");
+    //             getInvoices();
+    //             setPercentage(0);
+    //             setDtype("");
+    //             setCancelDoc("");
+    //             setReason("");
+    //         })
+    //         .catch((e) => {
+    //             setIsLoading(false);
+
+    //             Swal.fire({
+    //                 title: "Error!",
+    //                 text: e.response.data.message,
+    //                 icon: "error",
+    //             });
+    //         });
+    // };
+
+
     const handleCancel = (e) => {
         e.preventDefault();
+        if (percentage > 100) {
+            alert.error(t("admin.global.percentage_error"));
+            return;
+        }
         setIsLoading(true);
 
         const data = {
             doctype: dtype,
-            docnum: cancelDoc,
             reason: reason,
+            docnum: cancelDoc,
+            percentage: percentage,
         };
 
         axios
-            .post(`/api/admin/cancel-doc`, data, { headers })
+            .post(`/api/admin/refund-doc`, data, { headers })
             .then((res) => {
                 setIsLoading(false);
 
                 $(".closeb11").click();
                 Swal.fire(res.data.message, "", "info");
                 getInvoices();
+                setPercentage(0);
+                setDtype("");
+                setCancelDoc("");
+                setReason("");
             })
             .catch((e) => {
                 setIsLoading(false);
@@ -312,6 +363,7 @@ export default function Invoice() {
     useEffect(() => {
         getInvoices();
     }, [currentPage, filters]);
+
 
     return (
         <>
@@ -574,6 +626,8 @@ export default function Invoice() {
                             </Thead>
                             <Tbody>
                                 {invoices.map((item, index) => {
+                                    console.log(item);
+
                                     return (
                                         <Tr key={index}>
                                             <Td>#{item.invoice_id}</Td>
@@ -587,23 +641,22 @@ export default function Invoice() {
                                             <Td>
                                                 {item.due_date != null
                                                     ? Moment(
-                                                          item.due_date
-                                                      ).format("DD, MMM Y")
+                                                        item.due_date
+                                                    ).format("DD, MMM Y")
                                                     : "NA"}
                                             </Td>
                                             <Td>
                                                 <Link
-                                                    to={`/admin/clients/view/${
-                                                        item.client
-                                                            ? item.client.id
-                                                            : "NA"
-                                                    }`}
+                                                    to={`/admin/clients/view/${item.client
+                                                        ? item.client.id
+                                                        : "NA"
+                                                        }`}
                                                 >
                                                     {item.client
                                                         ? item.client
-                                                              .firstname +
-                                                          " " +
-                                                          item.client.lastname
+                                                            .firstname +
+                                                        " " +
+                                                        item.client.lastname
                                                         : "NA"}
                                                 </Link>
                                             </Td>
@@ -649,47 +702,82 @@ export default function Invoice() {
                                                         >
                                                             {t("admin.global.view_invoice")}
                                                         </a>
+                                                        {
+                                                            (item?.refund_doc_url || item?.cancel_doc_url) && (
+                                                                <a
+                                                                    target="_blank"
+                                                                    href={item?.refund_doc_url ? item?.refund_doc_url : item?.cancel_doc_url}
+                                                                    className="dropdown-item"
+                                                                >
+                                                                    {t("admin.global.refund_invoice")}
+                                                                </a>
+                                                            )
+                                                        }
+
                                                         {item.status !=
                                                             "Paid" && (
-                                                            <button
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    setPayID(
-                                                                        item.id
-                                                                    );
-                                                                    setAmount(
-                                                                        item.amount
-                                                                    );
-                                                                }}
-                                                                data-toggle="modal"
-                                                                data-target="#exampleModaPaymentAdd"
-                                                                className="dropdown-item"
-                                                            >
-                                                                {t("admin.global.add_payment")}
-                                                            </button>
-                                                        )}
+                                                                <button
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        setPayID(
+                                                                            item.id
+                                                                        );
+                                                                        setAmount(
+                                                                            item.amount
+                                                                        );
+                                                                    }}
+                                                                    data-toggle="modal"
+                                                                    data-target="#exampleModaPaymentAdd"
+                                                                    className="dropdown-item"
+                                                                >
+                                                                    {t("admin.global.add_payment")}
+                                                                </button>
+                                                            )}
 
                                                         {item.invoice_icount_status ==
                                                             "Open" && (
-                                                            <button
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    closeDoc(
-                                                                        item.invoice_id,
-                                                                        item.type
-                                                                    );
-                                                                }}
-                                                                className="dropdown-item"
-                                                            >
-                                                                {t("admin.global.close_doc")}
-                                                            </button>
-                                                        )}
+                                                                <button
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        closeDoc(
+                                                                            item.invoice_id,
+                                                                            item.type,
+                                                                            item.txn_id
+                                                                        );
+                                                                    }}
+                                                                    className="dropdown-item"
+                                                                >
+                                                                    {t("admin.global.close_doc")}
+                                                                </button>
+                                                            )}
                                                         {item.invoice_icount_status !=
                                                             "Cancelled" &&
                                                             item.invoice_icount_status !=
-                                                                "Closed" && (
+                                                            "Closed" && (
+                                                                <button
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        setCancelDoc(
+                                                                            item.invoice_id
+                                                                        );
+                                                                        setDtype(
+                                                                            item.type
+                                                                        );
+                                                                    }}
+                                                                    data-toggle="modal"
+                                                                    data-target="#exampleModalCancel"
+                                                                    className="dropdown-item"
+                                                                >
+                                                                    {t("admin.global.cancel_doc")}
+                                                                </button>
+                                                            )}
+                                                        {/* {item.invoice_icount_status !=
+                                                            "Cancelled" &&
+                                                            item.invoice_icount_status !=
+                                                            "Closed" && (
                                                                 <button
                                                                     onClick={(
                                                                         e
@@ -707,7 +795,7 @@ export default function Invoice() {
                                                                 >
                                                                     {t("admin.global.refund")}
                                                                 </button>
-                                                            )}
+                                                            )} */}
                                                         {item.receipt && (
                                                             <a
                                                                 target="_blank"
@@ -794,7 +882,7 @@ export default function Invoice() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("admin.global.amount")}
+                                                {t("admin.global.amount")}
                                             </label>
                                             <input
                                                 type="text"
@@ -810,7 +898,7 @@ export default function Invoice() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("admin.global.trans_referId")}
+                                                {t("admin.global.trans_referId")}
                                                 <small>
                                                     {" "}
                                                     (Optional in credit card
@@ -835,7 +923,7 @@ export default function Invoice() {
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("admin.global.payment_mode")}
+                                                {t("admin.global.payment_mode")}
                                             </label>
                                             <select
                                                 name="mode"
@@ -845,16 +933,16 @@ export default function Invoice() {
                                                 }
                                             >
                                                 <option value="mt">
-                                                {t("admin.global.bank_transfer")}
+                                                    {t("admin.global.bank_transfer")}
                                                 </option>
                                                 <option value="cash">
-                                                {t("admin.global.by_cash")}
+                                                    {t("admin.global.by_cash")}
                                                 </option>
                                                 <option value="cc">
-                                                {t("admin.global.cc")}
+                                                    {t("admin.global.cc")}
                                                 </option>
                                                 <option value="cheque">
-                                                {t("admin.global.by_cheque")}
+                                                    {t("admin.global.by_cheque")}
                                                 </option>
                                             </select>
                                         </div>
@@ -866,7 +954,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                    {t("admin.global.bank_tra_date")}
+                                                        {t("admin.global.bank_tra_date")}
                                                     </label>
                                                     <input
                                                         type="date"
@@ -901,7 +989,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                    {t("admin.global.cheque_date")}
+                                                        {t("admin.global.cheque_date")}
                                                     </label>
                                                     <input
                                                         type="date"
@@ -916,7 +1004,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                    {t("admin.global.cheque_bank")}
+                                                        {t("admin.global.cheque_bank")}
                                                     </label>
                                                     <input
                                                         type="text"
@@ -932,7 +1020,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                    {t("admin.global.cheque_branch")}
+                                                        {t("admin.global.cheque_branch")}
                                                     </label>
                                                     <input
                                                         type="text"
@@ -948,7 +1036,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                    {t("admin.global.cheque_account")}
+                                                        {t("admin.global.cheque_account")}
                                                     </label>
                                                     <input
                                                         type="number"
@@ -964,7 +1052,7 @@ export default function Invoice() {
                                             <div className="col-sm-12">
                                                 <div className="form-group">
                                                     <label className="control-label">
-                                                    {t("admin.global.cheque_number")}
+                                                        {t("admin.global.cheque_number")}
                                                     </label>
                                                     <input
                                                         type="number"
@@ -1014,7 +1102,8 @@ export default function Invoice() {
                                     className="modal-title"
                                     id="exampleModalCancel"
                                 >
-                                    {t("admin.global.cancel_reason")}
+                                    {t("admin.global.refund")}
+
                                 </h5>
                                 <button
                                     type="button"
@@ -1028,16 +1117,39 @@ export default function Invoice() {
                             <div className="modal-body">
                                 <div className="row">
                                     <div className="col-sm-12">
-                                        <div className="form-group">
-                                            <textarea
-                                                onChange={(e) =>
-                                                    setReason(e.target.value)
-                                                }
-                                                className="form-control"
-                                                required
-                                                placeholder="Enter Reason(optional)"
-                                            ></textarea>
-                                        </div>
+                                        {
+                                            ((dtype == "invrec") || (dtype == "invoice")) && (
+                                                <div className="form-group">
+                                                    <label className="control-label">
+                                                        {t("admin.global.refund_percentage")} %
+                                                    </label>
+
+                                                    <input
+                                                        type="number"
+                                                        name="refund_percentage"
+                                                        onChange={(e) => setPercentage(e.target.value)}
+                                                        value={percentage}
+                                                        max={100}
+                                                        min={0}
+                                                        className="form-control mb-3"
+                                                    />
+                                                </div>
+                                            )
+                                        }
+                                        {
+                                           percentage == 100 && (
+                                                <div className="form-group">
+                                                    <textarea
+                                                        onChange={(e) =>
+                                                            setReason(e.target.value)
+                                                        }
+                                                        className="form-control"
+                                                        required
+                                                        placeholder="Enter Reason(optional)"
+                                                    ></textarea>
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -1054,7 +1166,7 @@ export default function Invoice() {
                                     onClick={(e) => handleCancel(e)}
                                     className="btn btn-primary sbtn1"
                                 >
-                                    Cancel Doc
+                                    {t("admin.global.refund")}
                                 </button>
                             </div>
                         </div>
@@ -1073,7 +1185,7 @@ export default function Invoice() {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title" id="callBack">
-                                {t("admin.global.payment_res")}
+                                    {t("admin.global.payment_res")}
                                 </h5>
                                 <button
                                     type="button"
@@ -1099,12 +1211,12 @@ export default function Invoice() {
                                                     value={
                                                         cbvalue
                                                             ? JSON.stringify(
-                                                                  JSON.parse(
-                                                                      cbvalue
-                                                                  ),
-                                                                  null,
-                                                                  2
-                                                              )
+                                                                JSON.parse(
+                                                                    cbvalue
+                                                                ),
+                                                                null,
+                                                                2
+                                                            )
                                                             : ""
                                                     }
                                                     editorProps={{

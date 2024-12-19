@@ -1,22 +1,58 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../../Assets/image/sample.svg";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IoIosLogOut } from "react-icons/io";
+import axios from "axios";
 
 
 export default function WorkerSidebar() {
     const alert = useAlert();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const [protocol, setProtocol] = useState(false)
+    const [hearing, setHearing] = useState(false)
+
+    const workerId = localStorage.getItem("worker-id");
 
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
+
+    const getProtocol = async () => {
+        try {
+            const res = await axios.get(`/api/protocol?worker_id=${workerId}`, { headers });
+            // console.log(res.data, "res");
+            if (res.status === 200) {
+                setProtocol(true);
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                setProtocol(false);
+            } else {
+                setProtocol(false);
+            }
+        }
+    };
+
+    const getHiring = async () => {
+        const res2 = await axios.get(`/api/schedule`, { headers });
+        if (res2.data?.data?.length > 0) {
+            setHearing(true);
+        } else {
+            setHearing(false)
+        }
+    }
+
+
+    useEffect(() => {
+        getProtocol();
+        getHiring();
+    }, [workerId]);
 
     const HandleLogout = async (e) => {
         await axios.post("/api/logout", {}, { headers }).then((res) => {
@@ -57,18 +93,26 @@ export default function WorkerSidebar() {
                         {t("worker.sidebar.jobs")}
                     </NavLink>
                 </li>
-                <li className="list-group-item">
-                    <NavLink to="/worker/hearing">
-                        <i className="fa-solid fa-calendar-check font-12"></i>
-                        {t("worker.sidebar.hearing")}
-                    </NavLink>
-                </li>
-                <li className="list-group-item">
-                    <NavLink to="/worker/protocol">
-                        <i className="fa-solid fa-file-alt"></i>
-                        {t("worker.sidebar.protocol")}
-                    </NavLink>
-                </li>
+                {
+                    hearing && (
+                        <li className="list-group-item">
+                            <NavLink to="/worker/hearing">
+                                <i className="fa-solid fa-calendar-check font-12"></i>
+                                {t("worker.sidebar.hearing")}
+                            </NavLink>
+                        </li>
+                    )
+                }
+                {
+                    protocol && (
+                        <li className="list-group-item">
+                            <NavLink to="/worker/protocol">
+                                <i className="fa-solid fa-file-alt"></i>
+                                {t("worker.sidebar.protocol")}
+                            </NavLink>
+                        </li>
+                    )
+                }
                 <li className="list-group-item">
                     <NavLink to="/worker/schedule">
                         <i className="fa-solid fa-calendar-days"></i>
@@ -86,7 +130,7 @@ export default function WorkerSidebar() {
                         <i className="fa-solid fa-hand-holding-usd"></i>
                         {t("worker.sidebar.advance_loan")}
                     </NavLink>
-                    </li>
+                </li>
                 <li className="list-group-item">
                     <NavLink to="/worker/tasks">
                     <i className="fa-solid fa-list-check"></i>
@@ -115,7 +159,7 @@ export default function WorkerSidebar() {
             <div className="sideLogout">
                 <div className="logoutBtn">
                     <button className="btn btn-white d-flex justify-content-center align-items-center" onClick={HandleLogout}>
-                    <IoIosLogOut className="mr-1 font-28" />
+                        <IoIosLogOut className="mr-1 font-28" />
                         {t("worker.logout")}
                     </button>
                 </div>

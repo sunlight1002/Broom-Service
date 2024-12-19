@@ -297,10 +297,8 @@ Your job at *:job_full_address* has started. You have *:job_remaining_hours hour
 
 Please review and complete the following tasks:
 - *Service:* :job_service_name
-- *Special Instructions:* :job_comments
-
-When you’re finished, please confirm:
-- *Click Here to Confirm Comments are Done* :worker_job_link
+:job_comments
+When you’re finished, please confirm::comment_worker_job_link
 - *Contact Manager* :job_contact_manager_link if you have any issues with the tasks.
 
 Best regards,
@@ -311,10 +309,8 @@ Broom Service Team',
 
 אנא עיין ובצע את המשימות הבאות:
 - *שירות:* :job_service_name
-- *הוראות מיוחדות:* :job_comments
-
-כשתסיים, נא אשר:
-- *לחץ כאן לאישור שהמשימות בוצעו* :worker_job_link
+:job_comments
+כשתסיים, נא אשר::comment_worker_job_link
 - *צור קשר עם המנהל* :job_contact_manager_link אם יש בעיות בביצוע המשימות.
 
 בברכה,
@@ -325,10 +321,8 @@ Su trabajo en *:job_full_address* ha comenzado. Usted tiene *:job_remaining_hour
 
 Por favor, revise y complete las siguientes tareas:
 - *Servicio:* :job_service_name
-- *Instrucciones especiales:* :job_comments
-
-Cuando haya terminado, por favor confirme:
-- *Haga clic aquí para confirmar que las tareas están completadas* :worker_job_link
+:job_comments
+Cuando haya terminado, por favor confirme::comment_worker_job_link
 - *Contactar al gerente* :job_contact_manager_link si tiene algún problema con las tareas.
 
 Atentamente,
@@ -339,10 +333,8 @@ Equipo de Broom Service',
 
 Пожалуйста, ознакомьтесь и выполните следующие задачи:
 - *Услуга:* :job_service_name
-- *Особые инструкции:* :job_comments
-
-Когда закончите, пожалуйста, подтвердите:
-- *Нажмите здесь, чтобы подтвердить выполнение задач* :worker_job_link
+:job_comments
+Когда закончите, пожалуйста, подтвердите::comment_worker_job_link
 - *Связаться с менеджером*, :job_contact_manager_link если у вас есть проблемы с задачами.
 
 С уважением,
@@ -677,29 +669,60 @@ office@broomservice.co.il
 
 
             [
-                'key' => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING,
+                'key' => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_TEAM,
                 'description' => 'Reminder to Team - Client Contact Me to Reschedule meeting',
                 'message_en' => '',
                 'message_heb' => 'שלום צוות,
 
-הפגישה המתוכננת עבור :client_name תוזמנה מחדש.
+לקוח בשם :client_name ביקש לתאם מחדש את הפגישה שנקבעה.
+הסטטוס שונה ל"ממתין" יש לפנות אליו בהקדם לתיאום מועד חדש לפגישה.
 
-נא ליצור קשר עם הלקוח לקביעת מועד מחדש של הפגישה במועד מתאים.
+נא לעדכן לאחר קביעת הפגישה החדשה.
 
-פרטי לקוח:
+תודה,
+צוות ברום סרוויס 🌹',
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
 
-שם: :client_name
-טלפון: :client_phone_number
-אימייל: :client_email
 
-פרטי הפגישה המקוריים:
+            [
+                'key' => WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT,
+                'description' => 'Reminder to Client - that asked to reschedule meeting',
+                'message_en' => 'Hello :client_name,
 
-תאריך: :meeting_date
-זמן: :meeting_start_time - :meeting_end_time
-כתובת: :meeting_address
+We received your request to reschedule the meeting.
+A representative from our team will contact you shortly to set a new date and time that works for you.
+
+In the meantime, feel free to read about the experiences of our satisfied customers here:
+https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl
+
+We look forward to assisting you.
+
+Best regards,
+The Broom Service Team 🌹
+www.broomservice.co.il
+Phone: 03-525-70-60
+office@broomservice.co.i
+
+If you no longer wish to receive messages from us, please reply with "STOP" at any time.',
+                'message_heb' => 'שלום :client_name,
+
+קיבלנו את בקשתך לתיאום מחדש של הפגישה.
+נציג מטעמנו יצור איתך קשר בהקדם על מנת לקבוע מועד חדש.
+
+בינתיים, אנו מזמינים אותך לקרוא על חוויות של לקוחות מרוצים מהשירות המעולה שלנו:
+https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl
+
+נשמח לעמוד לשירותך,
 
 בברכה,
-צוות ברום סרוויס🌹',
+צוות ברום סרוויס 🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח "הפסק" בכל עת.',
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -1354,6 +1377,48 @@ Broom Service Team",
 
 תודה,
 צוות שירות ברום",
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER,
+                'description' => 'notify client, Already accepted price offer, then declined price offer',
+                'message_en' => "Hello :client_name,
+
+We have received your response regarding the price offer sent to you.
+If there is anything else we can do for you or if you have any additional questions, we are here to assist.
+
+Please feel free to contact us for any inquiries.
+
+We look forward to assisting you.
+
+Best regards,
+The Broom Service Team 🌹
+www.broomservice.co.il
+Phone: 03-525-70-60
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום :client_name,
+
+קיבלנו את תגובתך בהמשך להצעת המחיר שנשלחה אליך.
+נשמח לדעת אם יש משהו נוסף שנוכל לעשות עבורך או אם יש לך שאלות נוספות שנוכל לסייע בהן.
+
+אנו כאן לשירותך ומזמינים אותך ליצור איתנו קשר בכל נושא.
+
+נשמח לעמוד לשירותך.
+
+בברכה,
+צוות ברום סרוויס 🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+
                 'message_spa' => '',
                 'message_ru' => '',
             ],
