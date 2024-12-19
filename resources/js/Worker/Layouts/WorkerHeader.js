@@ -9,7 +9,9 @@ export default function WorkerHeader() {
   const alert = useAlert();
   const navigate = useNavigate();
   const [avatar, setAvatar] = useState("");
-  const {t} = useTranslation();
+  const { t } = useTranslation();
+
+  const lng = localStorage.getItem("worker-lng");
   const HandleLogout = (e) => {
     fetch("/api/logout", {
       method: "POST",
@@ -23,11 +25,54 @@ export default function WorkerHeader() {
         localStorage.removeItem("worker-token");
         localStorage.removeItem("worker-name");
         localStorage.removeItem("worker-id");
+        localStorage.removeItem("worker-lng");
         navigate("/worker/login");
         alert.success(t("global.Logout"));
       }
     });
   };
+
+
+// Only proceed if language is Hebrew
+if (lng === "en") {
+  const allElements = document.querySelectorAll('*');
+  allElements.forEach(element => {
+    const dirAttr = element.getAttribute('dir');
+    const computedDirection = window.getComputedStyle(element).direction;
+
+    if (dirAttr || computedDirection === 'rtl' || computedDirection === 'ltr') {
+
+      // If computed direction is 'rtl', remove it
+      if (computedDirection === 'rtl') {
+        if (dirAttr) {
+          element.removeAttribute('dir');
+        }
+
+        // Option 2: If there's inline style, reset the direction
+        element.style.removeProperty('direction');
+      }
+    }
+  });
+}
+  
+
+  const resetRTL = () => {
+    // Remove `dir="rtl"` from the <html> tag
+    const htmlElement = document.querySelector("html");
+    if (htmlElement.getAttribute("dir") === "rtl") {
+      htmlElement.setAttribute("dir", "ltr");
+    }
+
+    // Remove any existing RTL-specific styles
+    const rtlLink = document.querySelector('link[href*="rtl.css"]');
+    if (rtlLink) rtlLink.remove();
+
+    // Reset affected inline styles or inherited styles
+    document.body.style.textAlign = ""; // Example for body text alignment
+    const rtlElements = document.querySelectorAll("[dir='rtl']");
+    rtlElements.forEach((el) => el.removeAttribute("dir"));
+  };
+
   const getAvatar = () => {
     axios
       .get('/api/details', {
@@ -38,23 +83,32 @@ export default function WorkerHeader() {
         }
       })
       .then((res) => {
-        //setAvatar(res.data.account.avatar);
-        i18next.changeLanguage(res.data.success.lng);
+        const lang = res.data.success.lng;
+        i18next.changeLanguage(lang);
 
-        if (es.data.success.lng == "heb") {
-            import("../../Assets/css/rtl.css");
-            document
-                .querySelector("html")
-                .setAttribute("dir", "rtl");
+        if (lang === "heb") {
+          import("../../Assets/css/rtl.css").then(() => {
+            document.querySelector("html").setAttribute("dir", "rtl");
+          });
         } else {
-            document.querySelector("html").removeAttribute("dir");
-            const rtlLink = document.querySelector('link[href*="rtl.css"]');
-            if (rtlLink) {
-                rtlLink.remove();
-            }
+          resetRTL(); // Call resetRTL function to clean up
         }
-      })
-  }
+      });
+  };
+
+  useEffect(() => {
+    if (lng === "heb") {
+      import("../../Assets/css/rtl.css").then(() => {
+        document.querySelector("html").setAttribute("dir", "rtl");
+      });
+    } else {
+      resetRTL(); // Reset styles and direction
+    }
+  }, [lng]);
+
+
+
+
   useEffect(() => {
     getAvatar();
   }, []);

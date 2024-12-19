@@ -35,11 +35,11 @@ export default function Schedule() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "Attender",
+                    title: t("client.meeting.attender_title"),
                     data: "attender_name",
                 },
                 {
-                    title: "Address",
+                    title: t("client.meeting.address_txt"),
                     data: "address_name",
                     render: function (data, type, row, meta) {
                         if (data) {
@@ -50,7 +50,7 @@ export default function Schedule() {
                     },
                 },
                 {
-                    title: "Scheduled",
+                    title: t("client.meeting.scheduled"),
                     data: "start_date",
                     render: function (data, type, row, meta) {
                         let _html = "";
@@ -74,11 +74,11 @@ export default function Schedule() {
                     },
                 },
                 {
-                    title: "Purpose",
+                    title: t("client.meeting.purpose"),
                     data: "purpose",
                 },
                 {
-                    title: "Status",
+                    title: t("client.meeting.status"),
                     data: "booking_status",
                     render: function (data, type, row, meta) {
                         return `<p style="background-color: #2F4054; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
@@ -88,7 +88,7 @@ export default function Schedule() {
                 },
 
                 {
-                    title: "Files",
+                    title: t("client.meeting.files"),
                     data: "action",
                     orderable: false,
                     responsivePriority: 1,

@@ -669,6 +669,119 @@ class InvoiceController extends Controller
         return response()->json(['message' => 'Doc cancelled successfully!']);
     }
 
+
+    public function refundDoc(Request $request)
+    {
+        $data = $request->all();
+
+        $doctype = $data['doctype'];
+        $docnum = $data['docnum'];
+        $reason = $data['reason'];
+        $percentage = isset($data['percentage']) ? floatval($data['percentage']) : 100; 
+
+        if ($doctype == 'invrec' || $doctype == 'invoice') {
+
+            if($percentage == 100){
+
+                $canceDocResponse = $this->cancelDocument($docnum, $doctype, $data);
+                return response()->json(['message' => 'Doc cancelled successfully!']);
+
+            }else{
+                
+                $doc_data = $this->getICountDocument($docnum, $doctype);
+
+                $refundDocResponse = $this->refundICountDocument($doc_data,$percentage);
+
+                $invoice = Invoices::where('invoice_id', $docnum)->first();
+     
+                 if ($invoice->txn_id != null && $invoice->callback != null) {
+     
+                     $refundAmount = ($invoice->amount_with_tax * $percentage) / 100;
+                     $refundResponse = $this->refundByReferenceID($invoice->txn_id, $refundAmount);
+     
+                     if ($refundResponse && !$refundResponse['HasError']) {
+                         Refunds::create([
+                             'invoice_id' => $invoice->id,
+                             'invoice_icount_id' => $invoice->invoice_id,
+                             'refrence' => $refundResponse['ReferenceNumber'],
+                             'message' => $refundResponse['ReturnMessage']
+                         ]);
+                     }
+                 }
+     
+                 if ($refundDocResponse['status'] == true) {
+                     $invoice->update([
+                         'invoice_icount_status' => 'Partial Refunded',
+                         'refund_doc_url' => $refundDocResponse['doc_url']
+                     ]);
+                 }
+                 return response()->json(['message' => 'Refunded successfully!']);
+
+            }
+        } 
+         
+
+
+         // Handle orders
+         if ($doctype == 'order') {
+            $order = Order::where('order_id', $docnum)->first();
+            if ($order->status == 'Closed') {
+                return response()->json([
+                    'message' => 'Order is already closed',
+                ], 403);
+            }
+
+            $order->jobs()->update([
+                'isOrdered' => 'c',
+                'order_id' => NULL,
+                'is_order_generated' => false
+            ]);
+            $order->update(['status' => 'Cancelled']);
+
+            event(new ClientOrderCancelled($order->client, $order));
+
+            return response()->json(['message' => 'Order cancelled successfully!']);
+        }
+
+    }
+
+
+    public function cancelDocument($docnum, $doctype, $data)
+    {
+        $closeDocResponse = $this->cancelICountDocument($docnum, $doctype, $data['reason']);
+
+        if ($closeDocResponse['status'] != true) {
+            return response()->json([
+                'message' => $closeDocResponse['reason']
+            ], 500);
+        }
+
+        if ($doctype == 'invoice' || $doctype == 'invrec') {
+
+            //initiate refund 
+            $invoice = Invoices::where('invoice_id', $docnum)->first();
+            if ($invoice->txn_id != null && $invoice->callback != null) {
+                $refundResponse = $this->refundByReferenceID($invoice->txn_id, $invoice->amount_with_tax);
+                \Log::info([$refundResponse]);
+
+                if ($refundResponse && !$refundResponse['HasError']) {
+                    Refunds::create([
+                        'invoice_id' => $invoice->id,
+                        'invoice_icount_id' => $invoice->invoice_id,
+                        'refrence' => $refundResponse['ReferenceNumber'],
+                        'message' => $refundResponse['ReturnMessage']
+                    ]);
+                }
+            }
+
+            $invoice->update([
+                'invoice_icount_status' => 'Cancelled',
+                'cancel_doc_url' => $closeDocResponse['cancel_doc_url']
+            ]);
+        }
+
+    }
+
     public function manualInvoice($id)
     {
         $order = Order::find($id);
@@ -789,6 +902,10 @@ class InvoiceController extends Controller
         }
 
         $items = $request->services;
+
+        $service = $job->jobservice;
+        $serviceDate = Carbon::parse($service->created_at)->format('d-m-Y');
+
         $dueDate = Carbon::today()->endOfMonth()->toDateString();
 
         $order = $this->generateOrderDocument(
@@ -799,7 +916,8 @@ class InvoiceController extends Controller
                 'job_ids' => [$job->id],
                 'is_one_time_in_month' => $job->is_one_time_in_month_job,
                 'discount_amount' => $job->discount_amount
-            ]
+            ],
+            $serviceDate
         );
 
         if ($job->extra_amount) {
@@ -861,6 +979,8 @@ class InvoiceController extends Controller
         $discount_amount = 0;
         foreach ($notOneTimeJobs as $job) {
             $service = $job->jobservice;
+            $serviceDate = Carbon::parse($service->created_at)->format('d-m-Y');
+
 
             $not_one_time_job_ids[] = $job->id;
             $items[] = [
@@ -882,7 +1002,8 @@ class InvoiceController extends Controller
                     'job_ids' => [$not_one_time_job_ids],
                     'is_one_time_in_month' => false,
                     'discount_amount' => $discount_amount
-                ]
+                ],
+                $serviceDate
             );
 
             if ($extra_amount) {
@@ -896,6 +1017,8 @@ class InvoiceController extends Controller
 
         foreach ($oneTimeJobs as $job) {
             $service = $job->jobservice;
+            $serviceDate = Carbon::parse($service->created_at)->format('d-m-Y');
+
 
             $item = [
                 "description" => ($lang == 'en') ?  $service->name : $service->heb_name . " - " . Carbon::today()->format('d, M Y'),
@@ -911,7 +1034,8 @@ class InvoiceController extends Controller
                     'job_ids' => [$job->id],
                     'is_one_time_in_month' => $job->is_one_time_in_month_job,
                     'discount_amount' => $job->discount_amount
-                ]
+                ],
+                $serviceDate
             );
 
             if ($job->extra_amount) {

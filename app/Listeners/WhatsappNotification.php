@@ -103,7 +103,7 @@ class WhatsappNotification
     {
         $placeholders = [];
         if(isset($jobData) && !empty($jobData)) {
-            $commentsText = "";
+            $commentsText = null;
             if (!empty($jobData['comments'])) {
                 foreach ($jobData['comments'] as $comment) {
                     $commentsText .= "- " . $comment['comment'] . " (by " . $comment['name'] . ") \n";
@@ -115,6 +115,26 @@ class WhatsappNotification
             $diffInHours = $currentTime->diffInHours($endTime, false);
             $diffInMinutes = $currentTime->diffInMinutes($endTime, false) % 60;
 
+            $specialInstruction = "";
+            $commentLinkText = "";
+
+            $instructions = [
+                "en" => "- *Special Instructions:*",
+                "heb" => "- *הוראות מיוחדות:*",
+                "spa" => "- *Instrucciones especiales:*",
+                "rus" => "- *Особые инструкции:*",
+            ];
+
+            $commentInstructions = [
+                "en" => "- *Click Here to Confirm Comments are Done*",
+                "heb" => "- *לחץ כאן לאישור שהמשימות בוצעו*",
+                "spa" => "- *Haga clic aquí para confirmar que las tareas están completadas*",
+                "rus" => "- *Нажмите здесь, чтобы подтвердить выполнение задач*",
+            ];
+
+            $specialInstruction = $instructions[isset($workerData['lng']) ? $workerData['lng'] : 'en'] ?? "";
+            $commentLinkText = $commentInstructions[isset($workerData['lng']) ? $workerData['lng'] : 'en'] ?? "";
+
             $placeholders = [
                 ':job_full_address' => $jobData['property_address']['geo_address'] ?? '',
                 ':job_start_date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00')->format('H:i'),
@@ -122,12 +142,13 @@ class WhatsappNotification
                 ':job_start_time' => Carbon::today()->setTimeFromTimeString($jobData['start_time'] ?? '00:00:00')->format('H:i'),
                 ':job_end_time' => Carbon::today()->setTimeFromTimeString($jobData['end_time'] ?? '00:00:00')->format('H:i'),
                 ':job_remaining_hours' => $diffInHours . ':' . $diffInMinutes,
-                ':job_comments' => $commentsText,
+                ':job_comments' => $commentsText ? $specialInstruction . " " . $commentsText : '',
                 ':team_skip_comment_link' => url("action-comment/" . ($commentData['id'] ?? '')),
                 ':job_service_name' => (($workerData['lng'] ?? 'heb') == 'heb' && isset($jobData['jobservice'])) ? $jobData['jobservice']['heb_name'] : ($jobData['jobservice']['name'] ?? ''),
                 ':team_job_link' => url("admin/jobs/view/" . $jobData['id']),
                 ':team_action_btns_link' => url("team-btn/" . base64_encode($jobData['id'])),
                 ':worker_job_link' => url("worker/jobs/view/" . $jobData['id']),
+                ':comment_worker_job_link' => $commentsText ? "\n".$commentLinkText . " " . url("worker/jobs/view/" . $jobData['id']) : '',
                 ':client_view_job_link' => url("client/jobs/view/" . base64_encode($jobData['id'])),
                 ':team_job_action_link' => url("admin/jobs/" . $jobData['id'] . "/change-worker"),
                 ':job_status' => ucfirst($jobData['status']) ?? '',

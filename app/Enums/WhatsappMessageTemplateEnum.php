@@ -85,6 +85,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const BOOK_CLIENT_AFTER_SIGNED_CONTRACT = "book-client-after-signed-contract";
     public const LEAD_ACCEPTED_PRICE_OFFER = "lead-accepted-price-offer";
     public const LEAD_DECLINED_CONTRACT = "lead-declined-contract";
+    public const CLIENT_DECLINED_PRICE_OFFER = "client-declined-price-offer";
     public const LEAD_DECLINED_PRICE_OFFER = "lead-declined-price-offer";
     public const CLIENT_IN_FREEZE_STATUS = "client-in-freeze-status";
     public const STATUS_NOT_UPDATED = "status-not-updated";
@@ -163,5 +164,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const NOTIFY_UNANSWERED_AFTER_8_DAYS = "notify-unanswered-after-8-days";
     public const RESCHEDULE_CALL_FOR_CLIENT = "reschedule-call-for-client";
     public const RESCHEDULE_CALL_FOR_TEAM = "reschedule-call-for-team";
+    public const CONTACT_ME_TO_RESCHEDULE_THE_MEETING_TEAM = "contact-me-to-reschedule-the-meeting-team";
+    public const CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT = "contact-me-to-reschedule-the-meeting-client";
     
 }

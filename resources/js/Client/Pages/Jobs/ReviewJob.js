@@ -10,6 +10,8 @@ import { useAlert } from "react-alert";
 import ClientSidebar from "../../Layouts/ClientSidebar";
 import { convertMinsToDecimalHrs } from "../../../Utils/common.utils";
 import { useTranslation } from "react-i18next";
+import 'moment/locale/he';
+    
 
 export default function ReviewJob() {
     const params = useParams();
@@ -105,7 +107,7 @@ export default function ReviewJob() {
                                                         "client.jobs.review.Services"
                                                     )}
                                                 </label>
-                                                <p>{job.jobservice.name}</p>
+                                                <p>{lng == "heb" ? job.jobservice.heb_name : job.jobservice.name}</p>
                                             </div>
                                         </div>
                                         <div className="col-sm-3 col-lg-2">
@@ -130,7 +132,7 @@ export default function ReviewJob() {
                                                 <p>
                                                     {
                                                         job.property_address
-                                                            .address_name
+                                                            .geo_address
                                                     }
                                                 </p>
                                             </div>
@@ -184,9 +186,10 @@ export default function ReviewJob() {
                                                 </label>
                                                 <p>
                                                     {moment(job.start_date)
-                                                        .toString()
-                                                        .slice(0, 15)}
+                                                        .locale(lng === "heb" ? "he" : "en") // Set the locale
+                                                        .format(lng === "heb" ? "dddd, D MMMM YYYY" : "ddd, MMM D YYYY")} {/* Localized format */}
                                                 </p>
+
                                             </div>
                                         </div>
                                         <div className="col-sm-4 col-md-2">

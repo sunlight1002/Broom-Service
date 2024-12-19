@@ -194,7 +194,7 @@ function AllForms() {
             employeeResidencePermit: yup.mixed().when("employeeIdentityType", {
                 is: "Passport",
                 then: () =>
-                    yup.mixed().required(t("form101.errorMsg.residancePermit")),
+                    yup.mixed().required(t("form101.errorMsg.residancePermitReq")),
                 otherwise: () => yup.mixed().nullable(),
             }),
             employeeDob: yup.date().required(t("form101.errorMsg.dobReq")),
@@ -1632,7 +1632,7 @@ function AllForms() {
                                             <img src={formValues.signature} />
                                         ) : (
                                             <div className="col-sm">
-                                                <p className="navyblueColor font-w-500"> Employee Signature *</p>
+                                                <p className="navyblueColor font-w-500">{t("israilContract.sign")} *</p>
                                                 <div id="signature">
                                                     <SignatureCanvas
                                                         penColor="black"
@@ -1761,7 +1761,7 @@ function AllForms() {
                                 name="prev"
                                 style={{ borderRadius: "5px" }}
                             >
-                                <GrFormPreviousLink /> Prev
+                                <GrFormPreviousLink /> {t("common.prev")}
                             </button>
                         )}
                         {!(param.formId && nextStep === 3) && nextStep < 7 && !isManpower && (
@@ -1776,7 +1776,7 @@ function AllForms() {
                                 style={{ borderRadius: "5px" }}
                             // disabled={isSubmitted}
                             >
-                                Next <GrFormNextLink />
+                                {t("common.next")} <GrFormNextLink />
                             </button>
                         )}
                         {
@@ -1789,7 +1789,7 @@ function AllForms() {
                                     style={{ borderRadius: "5px" }}
                                     disabled={isSubmitted}
                                 >
-                                    Submit
+                                    {t("common.submit")}
                                 </button>
                             )
                         }

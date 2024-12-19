@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Contract from "./Contract";
 import OfferedPrice from "./offers";
 import ScheduledMeeting from "./schedules";
@@ -11,6 +11,8 @@ export default function LeadHistory({ client }) {
     const [Contracts, setContracts] = useState([]);
     const [latestContract, setLatestContract] = useState([])
     const params = useParams();
+    const [activeTab, setActiveTab] = useState("#tab-schedule");
+
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -29,132 +31,132 @@ export default function LeadHistory({ client }) {
     useEffect(() => {
         getContract();
     }, []);
+
+    const handleTabClick = (tab) => {
+        setActiveTab(tab); 
+    };
+
     return (
         <div className="ClientHistory">
-            <div className="nav-item d-flex justify-content-between client-div1" role="presentation">
-                <div className="d-flex align-items-center client-div1-div1">
-
-                    <h5
+            <ul className="nav nav-tabs" role="tablist">
+                <li className="nav-item" role="presentation">
+                    <a
                         id="schedule-meeting"
-                        className="navyblueColor"
+                        className={
+                            `nav-link d-flex align-items-center ` +
+                            (activeTab === "#tab-schedule" ? "active" : "")
+                        }
+                        href="#tab-schedule"
+                        role="tab"
+                        onClick={(e) => {
+                            e.preventDefault(); // Prevent default link behavior
+                            handleTabClick("#tab-schedule");
+                        }}
                     >
-                        {t("admin.leads.viewLead.ScheduledMeeting")}
-                    </h5>
-
-                    <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "10px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
-                        <span
-                            id="ms"
-                            className="dashStatus d-flex align-items-center mr-2"
-                            style={{
-                                color: "#C83939",
-                                fontWeight: "500",
-                                cursor: "pointer",
-                                fontSize: "16px"
-                            }}
-                        >
-                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
-                            {client.latest_meeting
-                                ? client.latest_meeting.booking_status
-                                : t("admin.leads.leadDetails.NotSend")}
-                        </span>
-                        <label className="d-block mb-0">
-                            {t("admin.leads.leadDetails.MeetingStatus")}
-                        </label>
-                    </div>
-                </div>
-
-                <Link to={`/admin/schedule/view/${client.id}`}
-                    className="text-white navyblue text-center"
-                    style={{ padding: "10px", borderRadius: "5px" }}
-                >
-                    <i className="fas fa-hand-point-right"></i>
-
-                    {client.meetings?.length == 0
-                        ? t(
-                            "admin.leads.leadDetails.ScheduleMeeting"
-                        )
-                        : t(
-                            "admin.leads.leadDetails.ReScheduleMeeting"
-                        )}
-                </Link>
-            </div>
-
-            <div className="tab-content border-0">
-                <div
-                    id="tab-schedule"
-                    className="tab-panel"
-                >
-                    <ScheduledMeeting />
-                </div>
-            </div>
-            <div className="nav-item d-flex justify-content-between mt-5 client-div1" role="presentation">
-                <div className="d-flex align-items-center client-div1-div1">
-                    <h5
-                        id="offers"
-                        className="nav-link navyblueColor"
+                        {t("admin.schedule.scheduleMetting")}
+                        <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "10px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
+                            <span
+                                id="os"
+                                className="dashStatus d-flex align-items-center mr-2"
+                                style={{
+                                    color: "#C83939",
+                                    fontWeight: "500",
+                                    cursor: "pointer",
+                                    fontSize: "16px"
+                                }}
+                            >
+                                <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
+                                {client.latest_offer
+                                    ? client.latest_offer.status
+                                    : t("admin.leads.leadDetails.NotSend")}
+                            </span>
+                            <label className="d-block mb-0">
+                                {" "}
+                                {t("admin.leads.leadDetails.PriceOffer")}
+                            </label>
+                        </div>
+                    </a>
+                </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="offered-price"
+                        className={
+                            `nav-link d-flex align-items-center ` +
+                            (activeTab === "#tab-offered" ? "active" : "")
+                        }
+                        href="#tab-offered"
+                        role="tab"
+                        onClick={(e) => {
+                            e.preventDefault(); // Prevent default link behavior
+                            handleTabClick("#tab-offered");
+                        }}
                     >
-                        {t("admin.leads.viewLead.Offers")}
-                    </h5>
-                    <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "10px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
-                        <span
-                            id="os"
-                            className="dashStatus d-flex align-items-center mr-2"
-                            style={{
-                                color: "#C83939",
-                                fontWeight: "500",
-                                cursor: "pointer",
-                                fontSize: "16px"
+                        {t("admin.schedule.offeredPrice")}
+                        <div className="form-group ml-3 mb-0 d-flex" style={{ padding: "10px", borderRadius: "7px", border: "1px solid #E5EBF1", backgroundColor: "#FAFBFC" }}>
+                            <span
+                                id="os"
+                                className="dashStatus d-flex align-items-center mr-2"
+                                style={{
+                                    color: "#C83939",
+                                    fontWeight: "500",
+                                    cursor: "pointer",
+                                    fontSize: "16px"
 
-                            }}
-                        >
-                            <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
+                                }}
+                            >
+                                <p className="mr-2" style={{ width: "7px", height: "7px", backgroundColor: "#C83939", borderRadius: "100px" }}></p>
 
-                            {client.latest_offer
-                                ? client.latest_offer.status
-                                : t("admin.leads.leadDetails.NotSend")}
-                        </span>
-                        <label className="d-block mb-0">
-                            {" "}
-                            {t("admin.leads.leadDetails.PriceOffer")}
-                        </label>
+                                {client.latest_offer
+                                    ? client.latest_offer.status
+                                    : t("admin.leads.leadDetails.NotSend")}
+                            </span>
+                            <label className="d-block mb-0">
+                                {" "}
+                                {t("admin.leads.leadDetails.PriceOffer")}
+                            </label>
+                        </div>
+                    </a>
+                </li>
+                <li className="nav-item" role="presentation">
+                    <a
+                        id="contract"
+                        className={
+                            `nav-link d-flex align-items-center ` +
+                            (activeTab === "#tab-contract" ? "active" : "")
+                        }
+                        style={{ padding: "21px"}}
+                        href="#tab-contract"
+                        role="tab"
+                        onClick={(e) => {
+                            e.preventDefault(); // Prevent default link behavior
+                            handleTabClick("#tab-contract");
+                        }}
+                    >
+                        {t("admin.schedule.contract")}
+                    </a>
+                </li>
+            </ul>
+
+            <div className="tab-content border-0">
+                {activeTab === "#tab-schedule" && (
+                    <div id="tab-schedule" className="tab-panel">
+                        <ScheduledMeeting />
                     </div>
-                </div>
-
-                <Link to={`/admin/offers/create?c=${client.id}`}
-                    className="text-white  navyblue text-center"
-                    style={{ padding: "10px", borderRadius: "5px" }}
-                >
-                    <i className="fas fa-hand-point-right"></i>
-                    {client.offers?.length == 0
-                        ? t("admin.leads.leadDetails.SendOffer")
-                        : t("admin.leads.leadDetails.ReSendOffer")}
-                </Link>
-            </div>
-            <div className="tab-content border-0">
-                <div
-                    id="tab-offered"
-                    className=""
-                >
-                    <OfferedPrice />
-                </div>
-            </div>
-            <h5
-                id="offers"
-                className="nav-link navyblueColor"
-            >
-                Contracts
-            </h5>
-            <div className="tab-content border-0">
-                <div
-                    id="tab-contract"
-                    className=""
-                >
-                    <Contract
-                        contracts={Contracts}
-                        setContracts={setContracts}
-                        fetchContract={getContract}
-                    />
-                </div>
+                )}
+                {activeTab === "#tab-offered" && (
+                    <div id="tab-offered" className="tab-panel">
+                        <OfferedPrice />
+                    </div>
+                )}
+                {activeTab === "#tab-contract" && (
+                    <div id="tab-contract" className="tab-panel">
+                        <Contract
+                            contracts={Contracts}
+                            setContracts={setContracts}
+                            fetchContract={getContract}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

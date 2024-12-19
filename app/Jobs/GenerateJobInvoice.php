@@ -65,14 +65,10 @@ class GenerateJobInvoice implements ShouldQueue
     
         // Add this condition only if $this->orderID is present
         if (!empty($this->orderID)) {
-            \Log::info('Order ID: ' . $this->orderID);
             $orders->where('id', $this->orderID);
         }
         
         $orders = $orders->get();
-    
-    
-        \Log::info(['Orders: ' => $orders??[]]);
     
         // Ensure orders exist
         if ($orders->isNotEmpty()) {

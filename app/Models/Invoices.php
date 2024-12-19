@@ -15,6 +15,8 @@ class Invoices extends Model
         'paid_amount',
         'amount_with_tax',
         'doc_url',
+        'cancel_doc_url',
+        'refund_doc_url',
         'type',
         'client_id',
         'due_date',

@@ -82,6 +82,7 @@ trait ICountDocument
         if ($payment_method == 'cc') {
             \Log::info('Payment IcountDoc commitInvoicePayment Initiate');
             $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $total);
+            // \Log::info(['paymentResponse' => $paymentResponse]);
     
             \Log::info('Payment IcountDoc commitInvoicePayment Finish');
     
@@ -114,6 +115,7 @@ trait ICountDocument
                 "exp_year" => explode('/', $card->valid)[0],
                 "exp_month" => explode('/', $card->valid)[1],
                 "holder_id" => $card->card_holder_id,
+                "confirmation_code" => $paymentResponse['ApprovalNumber'],
             ];
         }
     

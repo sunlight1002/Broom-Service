@@ -54,13 +54,14 @@ export default function CardDetails({ client }) {
 
     const handleDelete = async (id) => {
         Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: t("common.delete.title"),
+            text: t("common.delete.message"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete Card!",
+            cancelButtonText: t("common.delete.cancel"),
+            confirmButtonText: t("common.delete.confirm_card"),
         }).then(async (result) => {
             if (result.isConfirmed) {
                 await axios
@@ -69,9 +70,9 @@ export default function CardDetails({ client }) {
                     })
                     .then((response) => {
                         Swal.fire(
-                            "Deleted!",
-                            "Card has been deleted.",
-                            "success"
+                            t("common.delete.deleted"),
+                            t("common.delete.card_deleted"),
+                            t("common.delete.success")
                         );
                         setTimeout(() => {
                             getCards();

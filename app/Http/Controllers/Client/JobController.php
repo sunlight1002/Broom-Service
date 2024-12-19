@@ -692,9 +692,17 @@ class JobController extends Controller
         $groupID = $request->get('group_id');
         $repeatancy = $request->get('repeatancy');
         $until_date = $request->get('until_date');
-
+    
+        // Get the current day and end of week details
+        $currentDay = now()->format('l');
+        $endOfWeek = now()->endOfWeek();
+        $endOfNextWeek = now()->addWeek()->endOfWeek();
+        
+        // Initialize fee percentage to 0
+        $feePercentage = 0;
+    
+        // Loop through the jobs to apply the fee calculation logic
         $jobs = Job::query()
-            ->where('client_id', Auth::user()->id)
             ->whereIn('status', [
                 JobStatusEnum::SCHEDULED,
                 JobStatusEnum::UNSCHEDULED,
@@ -706,13 +714,53 @@ class JobController extends Controller
                 return $q->where('id', $id);
             })
             ->where('job_group_id', $groupID)
-            ->selectRaw("SUM(total_amount) as total_amount")
-            ->first();
-
+            ->select('id', 'start_date', 'total_amount')
+            ->get();
+    
+        // Process each job to calculate the fee percentage
+        $totalAmount = 0;
+    
+        foreach ($jobs as $job) {
+            $jobStartDate = Carbon::parse($job->start_date);
+            $timeDifference = $jobStartDate->diffInHours(now(), true);
+            
+            // Determine the fee percentage based on the job start date and current day
+            if ($currentDay === 'Wednesday') {
+                if ($timeDifference <= 24) {
+                    // If cancellation is within 24 hours, charge 100%
+                    $feePercentage = 100;
+                } elseif ($jobStartDate->lte($endOfWeek)) {
+                    // Charge 50% for jobs canceled till the end of this week
+                    $feePercentage = 50;
+                } else {
+                    // No charge for jobs after this week
+                    $feePercentage = 0;
+                }
+            } else {
+                // Handle non-Wednesday conditions
+                if ($timeDifference <= 24) {
+                    // If cancellation is within 24 hours, charge 100%
+                    $feePercentage = 100;
+                } elseif ($jobStartDate->lte($endOfNextWeek)) {
+                    // Charge 50% for jobs till the end of next week
+                    $feePercentage = 50;
+                } else {
+                    // No charge for jobs after next week
+                    $feePercentage = 0;
+                }
+            }
+    
+            // Calculate the fee amount for each job
+            $feeAmount = ($feePercentage / 100) * $job->total_amount;
+            $totalAmount += $feeAmount;
+        }
+    
+        // Return the total amount with fees applied
         return response()->json([
-            'total_amount' => $jobs->total_amount
+            'total_amount' => $totalAmount
         ]);
     }
+    
 
     public function addProblems(Request $request)
     {

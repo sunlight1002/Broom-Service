@@ -247,6 +247,15 @@ class FetchFacebookLeads extends Command
                                 ->first();
 
                             if ($client) {
+
+                                 // Check if the client has a "verified" contract
+                                $hasVerifiedContract = $client->contract()->where('status', 'verified')->exists();
+
+                                if ($hasVerifiedContract) {
+                                    FacebookInsights::where('campaign_id', $mainCampaignId)
+                                        ->increment('client_count', 1);
+                                }
+
                                 // Update the existing client
                                 // $client->update([
                                 //     'payment_method' => 'cc',
@@ -329,11 +338,11 @@ class FetchFacebookLeads extends Command
                                     'flex'          => 'A',
                                 ]);
 
-                              // Step 4: Update or Create the FacebookInsights entry for the campaign
-                                $facebookInsight = FacebookInsights::firstOrCreate(
-                                    ['campaign_id' => $mainCampaignId],
-                                    ['campaign_name' => $campaignName] // Replace with actual campaign name
-                                );
+                            //   // Step 4: Update or Create the FacebookInsights entry for the campaign
+                            //     $facebookInsight = FacebookInsights::firstOrCreate(
+                            //         ['campaign_id' => $mainCampaignId],
+                            //         ['campaign_name' => $campaignName] // Replace with actual campaign name
+                            //     );
 
                                 // Update lead_count for the campaign
                                 $facebookInsight->increment('lead_count', 1);

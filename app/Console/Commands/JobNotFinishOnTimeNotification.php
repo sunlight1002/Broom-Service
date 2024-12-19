@@ -12,6 +12,8 @@ use App\Models\WorkerMetas;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
 class JobNotFinishOnTimeNotification extends Command
 {
     /**
@@ -26,7 +28,7 @@ class JobNotFinishOnTimeNotification extends Command
      *
      * @var string
      */
-    protected $description = 'Notification to Worker (sent 1 minute after scheduled job completion time)';
+    protected $description = 'Notification to Worker (sent 30 minute after scheduled job completion time)';
 
     /**
      * Create a new command instance.

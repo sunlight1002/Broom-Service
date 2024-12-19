@@ -33,7 +33,7 @@ export default function Sidebar() {
     };
 
     const toggleClientDropdown = () => {
-        navigate("/admin/clients?type=all");
+        navigate("/admin/clients");
         setClientDropdownOpen(!isClientDropdownOpen);
     };
 
@@ -74,7 +74,7 @@ export default function Sidebar() {
         waTemplates: "/admin/templates",
         payslipSettings:"/admin/payslip-settings",
         // Client routes
-        clients: "/admin/clients?type=all",
+        clients: "/admin/clients",
         pendingClient: "/admin/clients?type=pending%20client",
         activeClient: "/admin/clients?type=active%20client",
         freezeClient: "/admin/clients?type=freeze%20client",

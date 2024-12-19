@@ -246,7 +246,7 @@ const ClientPropertyAdress = () => {
                     <div className="row">
                         <div className="col-sm-6">
                             <h1 className="page-title">
-                                {t("client.common.property_addresses")}
+                                {t("client.property_address.title")}
                             </h1>
                         </div>
                         <div className="col-sm-6 d-flex justify-content-end align-items-center">
@@ -267,12 +267,12 @@ const ClientPropertyAdress = () => {
                                 <Table className="table table-bordered responsiveTable">
                                     <Thead>
                                         <Tr>
-                                            <Th>Address Name</Th>
-                                            <Th>Geo Address</Th>
-                                            <Th>City</Th>
-                                            <Th>Floor</Th>
-                                            <Th>ZipCode</Th>
-                                            <Th>Actions</Th>
+                                            <Th>{t("client.property_address.address_name")}</Th>
+                                            <Th>{t("client.property_address.geo_address")}</Th>
+                                            <Th>{t("client.property_address.city")}</Th>
+                                            <Th>{t("client.property_address.floor")}</Th>
+                                            <Th>{t("client.property_address.zipcode")}</Th>
+                                            <Th>{t("client.property_address.actions")}</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -299,14 +299,14 @@ const ClientPropertyAdress = () => {
                                                                     className="dropdown-item"
                                                                     onClick={() => handleEditAddress(address)}
                                                                 >
-                                                                    Edit
+                                                                    {t("client.property_address.edit")}
                                                                 </button>
                                                                 <button
                                                                     type="button"
                                                                     className="dropdown-item"
                                                                     onClick={() => removeAddress(address.id)}
                                                                 >
-                                                                    Delete
+                                                                    {t("client.property_address.delete")}
                                                                 </button>
                                                             </div>
                                                         </div>

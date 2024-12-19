@@ -201,7 +201,7 @@ class iCountController extends Controller
                                                     'id'       => $orderData['doc_info']['client_id'] ?? null,
                                                     'phone'    => $client->phone ?? null,
                                                     'lng'      => $client->lng ?? 'heb',
-                                                    'client_name'     => $orderData['doc_info']['client_name'] ?? null,
+                                                    'firstname'     => $orderData['doc_info']['client_name'] ?? null,
                                                     'client_address'  => $orderData['doc_info']['client_address'] ?? null,
                                                 ]
                                             ];                                            
