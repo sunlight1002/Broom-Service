@@ -2020,7 +2020,6 @@
             "task_management": "ניהול משימות",
             "worker_lead": "ראש עובד",
             "pending_request": "בקשה ממתינה",
-            "templates": "תבניות",
             "fb_insights": "תובנות בפייסבוק",
             "fb_campaigns": "קמפיינים בפייסבוק",
             "client": {
@@ -2061,6 +2060,17 @@
                 "integration": "אינטגרציה",
                 "submit": "שלח"
             },
+            "templates": {
+                "title": "תבניות",
+                "all_templates": "כל התבניות",
+                "add_template": "הוסף תבנית",
+                "edit_template": "ערוך תבנית",
+                "template_name": "שם התבנית",
+                "description": "תיאור",
+                "action": "פעולה",
+                "edit": "ערוך",
+                "no_templates_found": "לא נמצאו תבניות."
+            },
             "logout": "התנתק"
         },
         "leaves": {
@@ -2070,6 +2080,22 @@
             "confirm": "לְאַשֵׁר",
             "cancel": "לְבַטֵל",
             "approveConfirm": "אתה בטוח שאתה מאשר?"
+        },
+        "payslip": {
+            "overtime_rate9to10": "תעריף שעות נוספות (9 עד 10 שעות)",
+            "overtime_rate10to11": "תעריף שעות נוספות (10 עד 11 שעות)",
+            "overtime_rate11to12": "תעריף שעות נוספות (11 עד 12 שעות)",
+            "holiday_pay2": "דמי חגים (שעתיים)",
+            "holiday_pay3": "דמי חגים (3 שעות)",
+            "bonus_after1": "בונוס לאחר שנה אחת (לשעה)",
+            "public_holiday_bonus": "בונוס לחג הציבורי",
+            "public_holiday": "חג ציבורי",
+            "bonus_after3": "בונוס לאחר שלוש שנים (לשעה)",
+            "bonus_after6": "בונוס לאחר שש שנים (לשעה)",
+            "worker_deduction": "ניכוי עובדים",
+            "recorvery_fee": "עמלת שחזור (שנת שירות)",
+            "driving_fee_perDay": "עמלת נהיגה (ליום)",
+            "driving_fee_perMonth": "עמלת נהיגה (לחודש)"
         }
     },
     "worker": {

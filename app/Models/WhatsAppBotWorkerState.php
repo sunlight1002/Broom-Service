@@ -13,5 +13,8 @@ class WhatsAppBotWorkerState extends Model
         'worker_lead_id',
         'step',
         'language',
+        'first_reminder',
+        'second_reminder',
+        'final_reminder',
     ];
 }

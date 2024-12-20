@@ -373,7 +373,7 @@ export default function Sidebar() {
                                     <li className={`list-group-item ${isActive(routes.waTemplates) ? "active text-white" : ""}`}>
                                         <Link to={routes.waTemplates} style={isActive(routes.waTemplates) ? { color: "white" } : { color: "#757589" }}>
                                             <i className="fa fa-angle-right"></i>{" "}
-                                            {t("admin.sidebar.templates")}
+                                            {t("admin.sidebar.templates.title")}
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.payslipSettings) ? "active" : ""}`}>

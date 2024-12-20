@@ -1990,7 +1990,6 @@
             "task_management": "Task Management",
             "worker_lead": "Worker Lead",
             "pending_request": "Pending Request",
-            "templates": "Templates",
             "fb_insights": "Facebook Insights",
             "fb_campaigns": "Facebook Campaigns",
             "client": {
@@ -2031,6 +2030,17 @@
                 "integration": "Integration",
                 "submit": "Submit"
             },
+            "templates": {
+                "title": "Templates",
+                "all_templates": "All Templates",
+                "add_template": "Add Template",
+                "edit_template": "Edit Template",
+                "template_name": "Template Name",
+                "description": "Description",
+                "action": "Action",
+                "edit": "Edit",
+                "no_templates_found": "No templates found."
+            },
             "logout": "Logout"
         },
         "leaves": {
@@ -2040,6 +2050,22 @@
             "confirm": "Confirm",
             "cancel": "Cancel",
             "approveConfirm": "Are you sure to approve?"
+        },
+        "payslip": {
+            "overtime_rate9to10": "Overtime rate (9 to 10 hours)",
+            "overtime_rate10to11": "Overtime rate (10 to 11 hours)",
+            "overtime_rate11to12": "Overtime rate (11 to 12 hours)",
+            "holiday_pay2": "Holiday pay (2 hours)",
+            "holiday_pay3": "Holiday pay (3 hours)",
+            "bonus_after1": "Bonus After One Year (per hour)",
+            "public_holiday_bonus": "Public Holiday Bonus",
+            "public_holiday": "Public Holiday",
+            "bonus_after3": "Bonus After Three Years (per hour)",
+            "bonus_after6": "Bonus After Six Years (per hour)",
+            "worker_deduction": "Worker Deduction",
+            "recorvery_fee": "Recovery Fee (year of service)",
+            "driving_fee_perDay": "Driving Fee (per day)",
+            "driving_fee_perMonth": "Driving Fee (per month)"
         }
     },
     "worker": {

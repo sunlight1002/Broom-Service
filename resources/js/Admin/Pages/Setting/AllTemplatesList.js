@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import Sidebar from "../../Layouts/Sidebar";
 import { Base64 } from "js-base64";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 function AllTemplatesList() {
     const [templates, setTemplates] = useState([]);
+    const { t } = useTranslation();
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -33,7 +35,7 @@ function AllTemplatesList() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">All Templates</h1>
+                            <h1 className="page-title">{t("admin.sidebar.templates.all_templates")}</h1>
                         </div>
                     </div>
                 </div>
@@ -44,9 +46,9 @@ function AllTemplatesList() {
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Template Name</th>
-                                    <th scope="col">Description</th>
-                                    <th scope="col">Action</th>
+                                    <th scope="col">{t("admin.sidebar.templates.template_name")}</th>
+                                    <th scope="col">{t("admin.sidebar.templates.description")}</th>
+                                    <th scope="col">{t("admin.sidebar.templates.action")}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -60,7 +62,7 @@ function AllTemplatesList() {
                                                 <Link
                                                     to={`edit/template/${Base64.encode(String(template.id))}`}
                                                     className="btn btn-primary">
-                                                    Edit
+                                                    {t("admin.sidebar.templates.edit")}
                                                 </Link>
                                             </td>
                                         </tr>
@@ -68,7 +70,7 @@ function AllTemplatesList() {
                                 ) : (
                                     <tr>
                                         <td colSpan="3" className="text-center">
-                                            No templates found.
+                                            {t("admin.sidebar.templates.no_templates_found")}.
                                         </td>
                                     </tr>
                                 )}

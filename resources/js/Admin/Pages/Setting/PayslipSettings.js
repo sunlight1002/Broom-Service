@@ -89,7 +89,7 @@ export default function PayslipSettings() {
                 <div className="titleBox customer-title">
                     <div className="row">
                         <div className="col-sm-6">
-                            <h1 className="page-title">{t('payslipSettings.title')}</h1>
+                            <h1 className="page-title">{t('admin.sidebar.settings.payslip_settings')}</h1>
                         </div>
                     </div>
                 </div>
@@ -98,7 +98,7 @@ export default function PayslipSettings() {
                         {/* Column 1 */}
                         <div className="col-md-6">
                             <div className="form-group">
-                                <label htmlFor="overtimeRate125">Overtime Rate (9 to 10 hours):</label>
+                                <label htmlFor="overtimeRate125">{t("admin.payslip.overtime_rate9to10")}:</label>
                                 <input
                                     type="number"
                                     name="overtimeRate125"
@@ -110,7 +110,7 @@ export default function PayslipSettings() {
                                 {errors.overtimeRate125 && <div className="invalid-feedback">{errors.overtimeRate125[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="overtimeRate150">Overtime Rate (11 to 12 hours):</label>
+                                <label htmlFor="overtimeRate150">{t("admin.payslip.overtime_rate11to12")}:</label>
                                 <input
                                     type="number"
                                     name="overtimeRate150"
@@ -122,7 +122,7 @@ export default function PayslipSettings() {
                                 {errors.overtimeRate150 && <div className="invalid-feedback">{errors.overtimeRate150[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="holidayPay175">Holiday Pay (2 hours):</label>
+                                <label htmlFor="holidayPay175">{t("admin.payslip.holiday_pay2")}:</label>
                                 <input
                                     type="number"
                                     name="holidayPay175"
@@ -134,7 +134,7 @@ export default function PayslipSettings() {
                                 {errors.holidayPay175 && <div className="invalid-feedback">{errors.holidayPay175[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="bonusAfterOneYear">Bonus After One Year (per hour):</label>
+                                <label htmlFor="bonusAfterOneYear">{t("admin.payslip.bonus_after1")}:</label>
                                 <input
                                     type="number"
                                     name="bonusAfterOneYear"
@@ -146,7 +146,7 @@ export default function PayslipSettings() {
                                 {errors.bonusAfterOneYear && <div className="invalid-feedback">{errors.bonusAfterOneYear[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="publicHolidayBonus">Public Holiday Bonus:</label>
+                                <label htmlFor="publicHolidayBonus">{t("admin.payslip.public_holiday_bonus")}:</label>
                                 <input
                                     type="number"
                                     name="publicHolidayBonus"
@@ -162,7 +162,7 @@ export default function PayslipSettings() {
                         {/* Column 2 */}
                         <div className="col-md-6">
                             <div className="form-group">
-                                <label htmlFor="holidayPay200">Holiday Pay (3 hours):</label>
+                                <label htmlFor="holidayPay200">{t("admin.payslip.holiday_pay3")}:</label>
                                 <input
                                     type="number"
                                     name="holidayPay200"
@@ -174,7 +174,7 @@ export default function PayslipSettings() {
                                 {errors.holidayPay200 && <div className="invalid-feedback">{errors.holidayPay200[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="bonusAfterSixYears">Bonus After Six Years (per hour):</label>
+                                <label htmlFor="bonusAfterSixYears">{t("admin.payslip.bonus_after6")}:</label>
                                 <input
                                     type="number"
                                     name="bonusAfterSixYears"
@@ -186,7 +186,7 @@ export default function PayslipSettings() {
                                 {errors.bonusAfterSixYears && <div className="invalid-feedback">{errors.bonusAfterSixYears[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="workerDeduction">Worker Deduction:</label>
+                                <label htmlFor="workerDeduction">{t("admin.payslip.worker_deduction")}:</label>
                                 <input
                                     type="number"
                                     name="workerDeduction"
@@ -198,7 +198,7 @@ export default function PayslipSettings() {
                                 {errors.workerDeduction && <div className="invalid-feedback">{errors.workerDeduction[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="recoveryFee">Recovery Fee (year of service):</label>
+                                <label htmlFor="recoveryFee">{t("admin.payslip.recovery_fee")}:</label>
                                 <input
                                     type="number"
                                     name="recoveryFee"
@@ -210,7 +210,7 @@ export default function PayslipSettings() {
                                 {errors.recoveryFee && <div className="invalid-feedback">{errors.recoveryFee[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="drivingFeeDay">Driving Fee (per day):</label>
+                                <label htmlFor="drivingFeeDay">{t("admin.payslip.driving_fee_perDay")}:</label>
                                 <input
                                     type="number"
                                     name="drivingFeeDay"
@@ -222,7 +222,7 @@ export default function PayslipSettings() {
                                 {errors.drivingFeeDay && <div className="invalid-feedback">{errors.drivingFeeDay[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="drivingFeeMonth">Driving Fee (per month):</label>
+                                <label htmlFor="drivingFeeMonth">{t("admin.payslip.driving_fee_perMonth")}:</label>
                                 <input
                                     type="number"
                                     name="drivingFeeMonth"

@@ -45,6 +45,7 @@ use App\Http\Controllers\HearingProtocolController;
 use App\Http\Controllers\ScheduleChangeController;
 use App\Http\Controllers\HearingCommentController;
 use App\Http\Controllers\ClaimController;
+use App\Http\Controllers\WhapiController;
 // use App\Http\Controllers\Admin\ChangeWorkerController;
 
 /*
@@ -441,7 +442,15 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // Route::post('jobs/change-worker-requests/{id}/accept', [ChangeWorkerController::class, 'accept']);
     // Route::post('jobs/change-worker-requests/{id}/reject', [ChangeWorkerController::class, 'reject']);
 
+    //whapi routes
+    Route::get('/get-all-chats', [WhapiController::class, 'getAllChats']);
+    Route::get('/get-chat/{chatId}', [WhapiController::class, 'getChatById']);
+    Route::get('/get-conversations/{chatId}', [WhapiController::class, 'getConversationsByNumber']);
+
+
 });
+
+
 
 Route::post('/hearing', [WorkerHearingController::class, 'getHearingDetails']);
 Route::post('/accept-hearing', [WorkerHearingController::class, 'acceptHearing']);

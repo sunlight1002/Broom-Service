@@ -179,27 +179,26 @@ class ChatController extends Controller
     
         // Accessing the result's message id properly, assuming it may be an object
   
-    // Accessing the result's message id properly, assuming it may be an object or array
-    $messageId = is_array($result) ? ($result['message']['id'] ?? null) : ($result->message->id ?? null);
+        // Accessing the result's message id properly, assuming it may be an object or array
+        $messageId = is_array($result) ? ($result['message']['id'] ?? null) : ($result->message->id ?? null);
 
-    // Log the response and create a webhook response entry
-    $response = WebhookResponse::create([
-        'status' => 1,
-        'name' => 'whatsapp',
-        'message' => $request->message,
-        'number' => $request->number,
-        'read' => !is_null(Auth::guard('admin')) ? 1 : 0,
-        'flex' => !is_null(Auth::guard('admin')) ? 'A' : 'C',
-        'wa_id' => $replyId ? $replyId : null,
-        'res_id' => $messageId,
-        'video' => (strpos($mimeType, 'video') !== false) ? basename($mediaPath) : null, // Store video file name if it's a video
-        'image' => (strpos($mimeType, 'image') !== false) ? basename($mediaPath) : null, // Store image file name if it's an image
-    ]);
+        // Log the response and create a webhook response entry
+        $response = WebhookResponse::create([
+            'status' => 1,
+            'name' => 'whatsapp',
+            'message' => $request->message,
+            'number' => $request->number,
+            'read' => !is_null(Auth::guard('admin')) ? 1 : 0,
+            'flex' => !is_null(Auth::guard('admin')) ? 'A' : 'C',
+            'wa_id' => $replyId ? $replyId : null,
+            'res_id' => $messageId,
+            'video' => (strpos($mimeType, 'video') !== false) ? basename($mediaPath) : null, // Store video file name if it's a video
+            'image' => (strpos($mimeType, 'image') !== false) ? basename($mediaPath) : null, // Store image file name if it's an image
+        ]);
 
-    return response()->json([
-        'msg' => 'Message sent successfully',
-        // 'response' => $result['message'],
-    ]);
+        return response()->json([
+            'msg' => 'Message sent successfully',
+        ]);
     }
     
 

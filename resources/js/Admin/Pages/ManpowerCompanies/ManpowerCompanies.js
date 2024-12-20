@@ -43,16 +43,16 @@ export default function ManpowerCompanies() {
             order: [[0, "desc"]],
             columns: [
                 {
-                    title: "ID",
+                    title: t("global.id"),
                     data: "id",
                     visible: false,
                 },
                 {
-                    title: "Name",
+                    title: t("global.name"),
                     data: "name",
                 },
                 {
-                    title: "Action",
+                    title: t("global.action"),
                     data: "action",
                     orderable: false,
                     render: function (data, type, row, meta) {
@@ -157,7 +157,7 @@ export default function ManpowerCompanies() {
                         <div className="col-sm-6">
                             <h1 className="page-title">{t("admin.sidebar.settings.manpower")}</h1>
                         </div>
-                        <div className="col-sm-6">
+                        <div className="col-sm-6 d-flex justify-content-end">
                             <button
                                 type="button"
                                 className="ml-2 btn navyblue addButton"
