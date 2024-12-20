@@ -73,6 +73,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $action = $request->get('action');
+        \Log::info('action: ' . $action);
     
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
@@ -93,12 +94,14 @@ class ClientController extends Controller
             ->filter(function ($query) use ($request) {
                 if ($request->has('search')) {
                     $keyword = $request->get('search')['value'];
+                    \Log::info('keyword: ' . $keyword);
     
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
                                 ->orWhere('clients.email', 'like', "%" . $keyword . "%")
                                 ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
+                                ->orWhere('clients.invoicename', 'like', "%" . $keyword . "%")
                                 ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%");
                         });
                     }

@@ -12,9 +12,11 @@ use App\Models\Offer;
 use App\Models\ClientPropertyAddress;
 use App\Models\Schedule;
 use App\Models\WebhookResponse;
+use App\Models\WhatsAppBotClientState;
 use App\Models\WhatsappLastReply;
-use App\Traits\ICountDocument;
-use Carbon\Carbon;
+use App\Traits\JobSchedule;
+use App\Traits\PaymentAPI;
+use App\Traits\ICountDocument;use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -28,10 +30,19 @@ use App\Events\WhatsappNotificationEvent;
 use App\Rules\ValidPhoneNumber;
 use App\Models\LeadActivity;
 use App\Jobs\AddGoogleContactJob;
+use Illuminate\Support\Str;
+
 
 class LeadController extends Controller
 {
-    use ICountDocument;
+    use JobSchedule, PaymentAPI, ICountDocument;
+
+    protected $botMessages = [
+        'main-menu' => [
+            'heb' => 'היי, אני בר, הנציגה הדיגיטלית של ברום סרוויס. איך אוכל לעזור לך היום? 😊' . "\n\n" . 'בכל שלב תוכלו לחזור לתפריט הראשי ע"י שליחת המס 9 או לחזור תפריט אחד אחורה ע"י שליחת הספרה 0' . "\n\n" . '1. פרטים על השירות' . "\n" . '2. אזורי שירות' . "\n" . '3. קביעת פגישה לקבלת הצעת מחיר' . "\n" . '4. שירות ללקוחות קיימים' . "\n" . '5. מעבר לנציג אנושי (בשעות הפעילות)' . "\n" . '6. English menu'
+        ]
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -58,6 +69,7 @@ class LeadController extends Controller
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])
                                 ->orWhere('clients.email', 'like', "%" . $keyword . "%")
                                 ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
+                                ->orWhere('clients.invoicename', 'like', "%" . $keyword . "%")
                                 ->orWhere('leadstatus.lead_status', 'like', $keyword);
                         });
                     }
@@ -141,6 +153,33 @@ class LeadController extends Controller
             foreach ($property_address_data as $key => $address) {
                 $address['client_id'] = $client->id;
                 ClientPropertyAddress::create($address);
+            }
+        }
+
+        if($data["send_bot_message"] == 1) {
+            try {
+                $m = $this->botMessages['main-menu']['heb'];
+                
+                $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
+                \Log::info(['result' => $result]);
+
+                WhatsAppBotClientState::updateOrCreate([
+                    'client_id' => $client->id,
+                ], [
+                    'menu_option' => 'main_menu',
+                    'language' => 'he',
+                ]);
+
+                $response = WebhookResponse::create([
+                    'status'        => 1,
+                    'name'          => 'whatsapp',
+                    'message'       => $m,
+                    'number'        => $client->phone,
+                    'read'          => 1,
+                    'flex'          => 'A',
+                ]);
+            } catch (\Throwable $th) {
+                logger($th);
             }
         }
 

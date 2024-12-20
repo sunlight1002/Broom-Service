@@ -343,9 +343,9 @@ export default function OfferServiceModal({
                                                 handleServiceChange(index, e);
                                                 const updatedToggleState = [...toggleOtherService];
                                                 const selectedIndex = e.target.selectedIndex;
-                                                const selectedOptionName = e.target.options[selectedIndex].getAttribute("name");
+                                                const selectedOptionName = e.target.options[selectedIndex].getAttribute("template");
 
-                                                if (selectedOptionName === "Others") {
+                                                if (selectedOptionName === "others") {
                                                     updatedToggleState[index] = true;
                                                 } else {
                                                     updatedToggleState[index] = false;
@@ -354,7 +354,7 @@ export default function OfferServiceModal({
                                                 setToggleOtherService(updatedToggleState);
                                                 const updatedAirbnbState = [...toggleAirbnbService];
 
-                                                if (selectedOptionName === "AirBnb") {
+                                                if (selectedOptionName === "airbnb") {
                                                     updatedAirbnbState[index] = true;
                                                     handleGetSubServices(e.target.value);
                                                 } else {
