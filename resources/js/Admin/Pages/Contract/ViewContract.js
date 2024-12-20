@@ -3,13 +3,12 @@ import i18next from "i18next";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import companySign from "../../../Assets/image/company-sign.png";
 import logo from "../../../Assets/image/sample.svg";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
 import useWindowWidth from "../../../Hooks/useWindowWidth";
-import { GrFormNextLink, GrFormPreviousLink } from "react-icons/gr";
 
 export default function ViewContract() {
     const [lng, setLng] = useState("en");

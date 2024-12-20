@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\WorkerLeadWebhookController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\iCountController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\WhapiController;
 use App\Http\Controllers\Webhook\TwilioController;
 use App\Models\ShortUrl;
 
