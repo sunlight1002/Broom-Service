@@ -31,6 +31,7 @@ class WhatsappNotification
     {
         $this->whapiApiEndpoint = config('services.whapi.url');
         $this->whapiApiToken = config('services.whapi.token');
+        $this->whapiWorkerApiToken = config('services.whapi.worker_token');
         
         // Initialize short URL base URLs
         $this->workerBaseUrl = config('services.short_url.worker');
@@ -145,6 +146,8 @@ class WhatsappNotification
             }
             $placeholders = [
                 ':worker_name' => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                ':worker_lead_name' => trim($workerData['name'] ?? ''),
+                ':worker_lead_phone' => isset($workerData['phone']) ? $workerData['phone'] : $workerData['phone'],
                 ':worker_phone_number' => '+' . ($workerData['phone'] ?? ''),
                 ':request_change_schedule' => $requestToChangeLink ?? '',
                 ':request_details' => isset($eventData['request_details']) ? $eventData['request_details'] : '',
@@ -341,10 +344,11 @@ class WhatsappNotification
     {
         $placeholders = [];
         if($contractData) {
-            
-            if($contractData["contract_id"]) {
-                $teamViewContract = $this->generateShortUrl(isset($contractData['contract_id']) ? url("admin/view-contract/" . $contractData['contract_id'] ?? '') : '', 'admin');
-                $createJobLink = $this->generateShortUrl(isset($contractData['contract_id']) ? url("admin/create-job/" . ($contractData['contract_id'] ?? "")) : "", 'admin');
+
+            if(isset($contractData["contract_id"]) || $contractData["id"]) {
+                \Log::info([$contractData]);
+                $teamViewContract = $this->generateShortUrl(isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '', 'admin');
+                $createJobLink = $this->generateShortUrl(isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : "", 'admin');
                 $clientContractLink = $this->generateShortUrl(isset($contractData['contract_id']) ? url("work-contract/" . $contractData['contract_id']) : '');
             }
 
@@ -465,6 +469,9 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED:
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED:
                     case WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED:
+                    case WhatsappMessageTemplateEnum::DAILY_REMINDER_TO_LEAD:
+                    case WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
@@ -475,6 +482,14 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER:
                     case WhatsappMessageTemplateEnum::WORKER_NOT_FINISHED_JOB_ON_TIME:
                         $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+                        $lng = 'heb';
+                        break;
+
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_24HOUR_TO_TEAM:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM:
+                        $receiverNumber = config('services.whatsapp_groups.relevant_with_workers');
                         $lng = 'heb';
                         break;
 
@@ -675,7 +690,9 @@ class WhatsappNotification
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 Log::info($text);
-                $response = Http::withToken($this->whapiApiToken)
+
+                $token = $receiverNumber == config('services.whatsapp_groups.relevant_with_workers') ? $this->whapiWorkerApiToken : $this->whapiApiToken;
+                $response = Http::withToken($token)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
                         'body' => $text

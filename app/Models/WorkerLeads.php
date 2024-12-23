@@ -13,6 +13,7 @@ class WorkerLeads extends Model
         'name',
         'phone',
         'email',
+        'lng',
         'status',
         'ready_to_get_best_job',
         'ready_to_work_in_house_cleaning',

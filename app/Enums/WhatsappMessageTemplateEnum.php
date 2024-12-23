@@ -166,5 +166,11 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const RESCHEDULE_CALL_FOR_TEAM = "reschedule-call-for-team";
     public const CONTACT_ME_TO_RESCHEDULE_THE_MEETING_TEAM = "contact-me-to-reschedule-the-meeting-team";
     public const CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT = "contact-me-to-reschedule-the-meeting-client";
-    
+    public const NEW_LEAD_FOR_HIRING_TO_TEAM = "new-lead-for-hiring-to-team";
+    public const NEW_LEAD_FOR_HIRING_24HOUR_TO_TEAM = "new-lead-for-hiring-24hour-to-team";
+    public const NEW_LEAD_HIRIED_TO_TEAM = "new-lead-hiried-to-team";
+    public const NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM = "new-lead-in-hiring-daily-reminder-to-team";
+    public const NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED = "new-lead-hiring-alex-reply-unanswered";
+    public const DAILY_REMINDER_TO_LEAD = "daily-reminder-to-lead";
+    public const FINAL_MESSAGE_IF_NO_TO_LEAD = "final-message-if-no-to-lead";
 }
