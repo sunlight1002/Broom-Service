@@ -164,7 +164,7 @@ class WhatsappNotification
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
 
-    private function replaceJobFields($text, $jobData,$eventData, $workerData = null, $commentData = null)
+    private function replaceJobFields($text, $jobData, $workerData = null, $commentData = null)
     {
         $placeholders = [];
         if(isset($jobData) && !empty($jobData)) {
@@ -176,6 +176,7 @@ class WhatsappNotification
             }
 
             if(isset($jobData['id']) && !empty($jobData['id'])) {
+                \Log::info($jobData['id']. " - " . isset($workerData['id'])? $workerData['id'] : '');
                 $adminJobViewLink = $this->generateShortUrl(url("admin/job/view/" . $jobData['id']), 'admin');
                 $clientJobsReviewLink = $this->generateShortUrl(url("client/jobs/" . base64_encode($jobData['id']) . "/review"), 'client');
                 $teamJobActionLink = $this->generateShortUrl(url("admin/jobs/" . $jobData['id'] . "/change-worker"), 'admin');
@@ -183,7 +184,10 @@ class WhatsappNotification
                 $workerJobViewLink = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']), 'worker');
                 $teamBtns = $this->generateShortUrl(url("team-btn/" . base64_encode($jobData['id'])), 'admin');
                 $contactManager = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']."?q=contact_manager"), 'worker');
-                $workerApproveJob = $this->generateShortUrl(isset($workerData['id']) ?? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve"), 'worker');
+                $workerApproveJob = $this->generateShortUrl(
+                    isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : null,
+                    'worker'
+                );
                 $teamSkipComment = $this->generateShortUrl(url("action-comment/" . ($commentData['id'] ?? '')), 'admin');
             }
 
@@ -346,7 +350,6 @@ class WhatsappNotification
         if($contractData) {
 
             if(isset($contractData["contract_id"]) || $contractData["id"]) {
-                \Log::info([$contractData]);
                 $teamViewContract = $this->generateShortUrl(isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '', 'admin');
                 $createJobLink = $this->generateShortUrl(isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : "", 'admin');
                 $clientContractLink = $this->generateShortUrl(isset($contractData['contract_id']) ? url("work-contract/" . $contractData['contract_id']) : '');
