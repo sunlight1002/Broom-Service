@@ -389,7 +389,7 @@ export default function Sidebar() {
                 </li>
             </ul>
             <div className="sideLogout">
-                <div className="logoutBtn">
+                <div className="logoutBtn mb-3">
                     <button className="btn d-flex justify-content-center align-items-center" onClick={HandleLogout}>
                         <IoIosLogOut className="mr-1 font-28" />
                         {t("admin.sidebar.logout")}

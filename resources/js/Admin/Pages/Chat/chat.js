@@ -959,7 +959,8 @@ export default function chat() {
                                                             >
                                                                 {Object.keys(groupedMessages).map((date, idx) => (
                                                                     <div key={idx}>
-                                                                        <div
+                                                                        <div className="text-center">
+                                                                        <span
                                                                             className="date-header"
                                                                             style={{
                                                                                 textAlign: "center",
@@ -971,10 +972,11 @@ export default function chat() {
                                                                                 boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
                                                                                 display: "inline-block", 
                                                                                 width: "auto",
-                                                                                marginLeft: "320px"
+                                                                                // marginLeft: "320px"
                                                                             }}
                                                                         >
                                                                             {date}
+                                                                        </span>
                                                                         </div>
 
                                                                         {groupedMessages[date].map((m, i) => {

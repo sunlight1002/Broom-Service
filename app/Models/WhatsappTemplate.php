@@ -16,5 +16,6 @@ class WhatsappTemplate extends Model
         'message_heb',
         'message_spa',
         'message_ru',
+        'suggestions'
     ];
 }

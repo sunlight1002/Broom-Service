@@ -1688,6 +1688,7 @@
             "Waiting_client": "Waiting",
             "Active_client": "Active client",
             "Past_client": "Past client",
+            "past": "Past",
             "Unhappy": "Unhappy",
             "Price_issue": "Price issue",
             "Moved": "Moved",

@@ -67,6 +67,14 @@ Equipo de Broom Service',
 
 С уважением,
 Команда Broom Service',
+
+                'suggestions' => [
+                    ':worker_name' => 'Worker Name',
+                    ':job_accept_url' => 'Accept Address',  
+                    ':job_contact_manager_link' => 'Contact Manager',
+                    ':job_full_address' => 'Address',
+                    ':job_start_date_time' => 'Date/Time',
+                ]
             ],
 
             [
@@ -122,6 +130,14 @@ Equipo de Broom Service
 
 С уважением,
 Команда Broom Service',
+
+    'suggestions' => [
+        ':worker_name' => 'Worker Name',
+        ':job_accept_url' => 'Accept Address',  
+        ':job_contact_manager_link' => 'Contact Manager',
+        ':job_full_address' => 'Address',
+        ':job_start_date_time' => 'Date/Time',
+    ]
             ],
 
             [
@@ -145,6 +161,17 @@ Equipo de Broom Service
 צוות ברום סרוויס',
                 'message_spa' => '',
                 'message_ru' => '',
+
+                'suggestions' => [
+                    ':worker_name' => 'Worker Name',
+                    ':client_name' => 'Client Name',
+                    ':client_phone_number' => 'Client Phone Number',
+                    ':worker_phone_number' => 'Worker Phone Number',
+                    ':job_full_address' => 'Address',
+                    ':job_start_date_time' => 'Date/Time',
+                    ':team_action_btns_link' => 'job Acctions buttons behalf of worker',
+                    ':team_job_action_link' => 'admin change worker link',
+                ]
             ],
 
             [

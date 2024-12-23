@@ -24,7 +24,7 @@ class TwimlController extends Controller
         // Gather input for the user's selection
         $gather = $response->gather([
             'numDigits' => 1,
-            'action' => url('https://67a9-49-43-33-151.ngrok-free.app/api/twiml/handlelanguage'),
+            'action' => url('https://9d64-2405-201-2022-1089-1d9c-b636-d976-31b1.ngrok-free.app/api/twiml/handlelanguage'),
             'timeout' => 10
         ]);
     

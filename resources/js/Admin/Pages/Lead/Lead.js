@@ -47,6 +47,7 @@ export default function Lead() {
         t("admin.leads.Uninterested"),
         t("admin.leads.Unanswered"),
         t("admin.leads.Potential_client"),
+        t("admin.leads.Reschedule_call"),
     ];
 
     const headers = {
