@@ -183,6 +183,7 @@
         "time": "Time",
         "noTimeSlotAvailable": "No time slot available",
         "custom_date": "Custom Date Range",
+        "date_range": "Date Range",
         "from": "From",
         "filter": "Filter",
         "previous_week": "Previous Week",

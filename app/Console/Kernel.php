@@ -46,6 +46,7 @@ class Kernel extends ConsoleKernel
 
         // Facebook Leads
         $schedule->command('lead:fetch-facebook-leads')->everyFiveMinutes();
+        $schedule->command('campaign:create')->hourly();
 
         $schedule->command('client:review-job-request')->dailyAt('08:00');
 
