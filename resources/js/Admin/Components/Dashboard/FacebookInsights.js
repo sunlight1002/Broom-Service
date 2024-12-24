@@ -68,11 +68,11 @@ function FacebookInsights() {
             <Sidebar />
             <div id="content" className="facebook">
                 <div className=" m-0">
-                    <div className="titleBox customer-title d-flex justify-content-between">
+                    <div className="titleBox customer-title d-flex justify-content-between flex-wrap">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h1 className="page-title navyblueColor">{t("admin.sidebar.fb_insights")}</h1>
                         </div>
-                        <div className="d-flex align-items-center">
+                        <div className="d-flex align-items-center flex-wrap">
                             <div
                                 className="mr-3"
                                 style={{ fontWeight: "bold" }}
@@ -80,35 +80,37 @@ function FacebookInsights() {
                                 {t("global.date_range")}
                             </div>
 
-                            <input
-                                className="form-control"
-                                type="date"
-                                placeholder="From date"
-                                name="from filter"
-                                style={{ width: "fit-content" }}
-                                value={dateRange.start_date}
-                                onChange={(e) => {
-                                    setDateRange({
-                                        start_date: e.target.value,
-                                        end_date: dateRange.end_date,
-                                    });
-                                }}
-                            />
-                            <div className="mx-2">{t("global.to")}</div>
-                            <input
-                                className="form-control"
-                                type="date"
-                                placeholder="To date"
-                                name="to filter"
-                                style={{ width: "fit-content" }}
-                                value={dateRange.end_date}
-                                onChange={(e) => {
-                                    setDateRange({
-                                        start_date: dateRange.start_date,
-                                        end_date: e.target.value,
-                                    });
-                                }}
-                            />
+                            <div className="d-flex align-items-center flex-wrap">
+                                <input
+                                    className="form-control my-1"
+                                    type="date"
+                                    placeholder="From date"
+                                    name="from filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.start_date}
+                                    onChange={(e) => {
+                                        setDateRange({
+                                            start_date: e.target.value,
+                                            end_date: dateRange.end_date,
+                                        });
+                                    }}
+                                />
+                                <div className="mx-2">{t("global.to")}</div>
+                                <input
+                                    className="form-control my-1"
+                                    type="date"
+                                    placeholder="To date"
+                                    name="to filter"
+                                    style={{ width: "fit-content" }}
+                                    value={dateRange.end_date}
+                                    onChange={(e) => {
+                                        setDateRange({
+                                            start_date: dateRange.start_date,
+                                            end_date: e.target.value,
+                                        });
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
                     {/* <div className="d-flex justify-content-between align-items-center mb-4">
