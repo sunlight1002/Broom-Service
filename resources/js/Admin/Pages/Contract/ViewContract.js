@@ -155,7 +155,8 @@ export default function ViewContract() {
     return (
         <div className="parent"
             style={{
-                margin: mobileView ? "0 10px" : "0 60px"
+                margin: mobileView ? "0 10px" : "auto",
+                maxWidth: "800px"
             }}
         >
             <div className="send-offer client-contract sendOfferRtl">
@@ -211,7 +212,7 @@ export default function ViewContract() {
                                                     <div className="mt-2 float-right">
                                                         <button
                                                             type="button"
-                                                            className="btn btn-sm navyblue"
+                                                            className="btn px-3 py-2 navyblue"
                                                             onClick={handleVerify}
                                                         >
                                                             {t("common.verify")}
@@ -225,7 +226,7 @@ export default function ViewContract() {
                                                     <div className="mt-2 mx-2">
                                                         <button
                                                             type="button"
-                                                            className="btn btn-sm navyblue"
+                                                            className="btn px-3 py-2 navyblue"
                                                         >
                                                             {t("common.verified")}
 
@@ -235,7 +236,7 @@ export default function ViewContract() {
                                                     <div className="mt-2 mx-2">
                                                         <a
                                                             href={`/admin/create-job/${contract.id}`}
-                                                            className="btn btn-sm navyblue no-hover"
+                                                            className="btn px-3 py-2 navyblue no-hover"
                                                         >
                                                             {t("common.create_job")}
 

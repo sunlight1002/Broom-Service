@@ -309,7 +309,8 @@ export default function WorkContract() {
     return (
         <div className="navyblueColor parent mb-5" style={{ display: "none" }}>
             <div className=" mt-4 mb-5 bg-transparent " style={{
-                margin: mobileView ? "0 20px" : "0 100px"
+                margin: mobileView ? "0 20px" : "auto",
+                maxWidth: mobileView ? "unset" : "800px"
             }}>
                 <div className="d-flex align-items-center justify-content-between flex-dir-co-1070">
                     <img
@@ -319,32 +320,70 @@ export default function WorkContract() {
                         style={{ height: "100px" }}
                     />
                 </div>
+
                 <div className="mt-3">
                     <section className="d-flex align-items-center">
                         <p className="navyblueColor font-34 mt-4 font-w-500"> {t("client.contract-form.business_name_value")}</p>
                     </section>
-                    <section className="d-flex flex-column ">
-                        <div className="d-flex align-items-center" style={{ gap: "30px" }}>
-                            <p className="navyblueColor font-15">
-                                {t("client.contract-form.name")}:&nbsp;
-                                <b>{clientName}</b>
-                            </p>
-                            <p className="navyblueColor font-15 m-0">
-                                {t("client.contract-form.hp_em_tz")}:&nbsp;
-                                <b>{client ? client.vat_number : ""}</b>
-                            </p>
-                        </div>
-                        <div className="d-flex align-items-center" style={{ gap: "30px" }}>
-                            <p className="navyblueColor font-15">
-                                {t("client.contract-form.phone")}:&nbsp;
-                                <b>{client ? client.phone : ""}</b>
-                            </p>
-                            <p className="navyblueColor font-15 m-0">
-                                {t("client.contract-form.email")}:&nbsp;
-                                <b>{client ? client.email : ""}</b>
-                            </p>
-                        </div>
-                    </section>
+                    <div className="d-flex align-items-center justify-content-between flex-wrap">
+                        <section className="d-flex flex-column ">
+                            <div className="d-flex align-items-center" style={{ gap: "30px" }}>
+                                <p className="navyblueColor font-15">
+                                    {t("client.contract-form.name")}:&nbsp;
+                                    <b>{clientName}</b>
+                                </p>
+                                <p className="navyblueColor font-15 m-0">
+                                    {t("client.contract-form.hp_em_tz")}:&nbsp;
+                                    <b>{client ? client.vat_number : ""}</b>
+                                </p>
+                            </div>
+                            <div className="d-flex align-items-center" style={{ gap: "30px" }}>
+                                <p className="navyblueColor font-15">
+                                    {t("client.contract-form.phone")}:&nbsp;
+                                    <b>{client ? client.phone : ""}</b>
+                                </p>
+                                <p className="navyblueColor font-15 m-0">
+                                    {t("client.contract-form.email")}:&nbsp;
+                                    <b>{client ? client.email : ""}</b>
+                                </p>
+                            </div>
+                        </section>
+                        <section className="d-flex align-items-center" style={{ gap: "20px" }}>
+                            {status == "not-signed" ? (
+                                <div className="col-sm-12 mt-4 d-flex justify-content-end">
+                                    <button
+                                        type="button"
+                                        className="btn btn-success"
+                                        onClick={handleAccept}
+                                    >
+                                        {t("work-contract.accept_contract")}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger ml-2"
+                                        onClick={(e) =>
+                                            RejectContract(e, contract.id)
+                                        }
+                                    >
+                                        {t("work-contract.button_reject")}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="col-sm-12 mt-4 d-flex justify-content-end">
+                                    {status == "un-verified" ||
+                                        status == "verified" ? (
+                                        <h4 className="btn btn-success">
+                                            {t("global.accepted")}
+                                        </h4>
+                                    ) : (
+                                        <h4 className="btn btn-danger">
+                                            {t("global.rejected")}
+                                        </h4>
+                                    )}
+                                </div>
+                            )}
+                        </section>
+                    </div>
                 </div>
                 <div className="mt-3">
                     <section className="col-xl">
@@ -559,14 +598,14 @@ export default function WorkContract() {
                                         <p> {t("client.contract-form.add_cc_click_here1")} </p>
 
                                         {/* {!isCardAdded && ( */}
-                                            <button
-                                                type="button"
-                                                className="btn navyblue ac mb-3"
-                                                onClick={(e) => handleCard(e)}
-                                                disabled={addCardBtnDisabled}
-                                            >
-                                                {t("client.contract-form.add_credit_card")}
-                                            </button>
+                                        <button
+                                            type="button"
+                                            className="btn navyblue ac mb-3"
+                                            onClick={(e) => handleCard(e)}
+                                            disabled={addCardBtnDisabled}
+                                        >
+                                            {t("client.contract-form.add_credit_card")}
+                                        </button>
                                         {/* )} */}
                                     </div>
                                 </div>
@@ -807,14 +846,14 @@ export default function WorkContract() {
                                     <div className="col-sm-12 mt-4 d-flex justify-content-end">
                                         <button
                                             type="button"
-                                            className="btn navyblue"
+                                            className="btn btn-success"
                                             onClick={handleAccept}
                                         >
                                             {t("work-contract.accept_contract")}
                                         </button>
                                         <button
                                             type="button"
-                                            className="btn navyblue ml-2"
+                                            className="btn btn-danger ml-2"
                                             onClick={(e) =>
                                                 RejectContract(e, contract.id)
                                             }
@@ -826,11 +865,11 @@ export default function WorkContract() {
                                     <div className="col-sm-12 mt-4 d-flex justify-content-end">
                                         {status == "un-verified" ||
                                             status == "verified" ? (
-                                            <h4 className="btn navyblue">
+                                            <h4 className="btn btn-success">
                                                 {t("global.accepted")}
                                             </h4>
                                         ) : (
-                                            <h4 className="btn navyblue">
+                                            <h4 className="btn btn-danger">
                                                 {t("global.rejected")}
                                             </h4>
                                         )}

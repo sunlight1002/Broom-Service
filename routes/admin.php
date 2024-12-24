@@ -446,6 +446,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/get-all-chats', [WhapiController::class, 'getAllChats']);
     Route::get('/get-chat/{chatId}', [WhapiController::class, 'getChatById']);
     Route::get('/get-conversations/{chatId}', [WhapiController::class, 'getConversationsByNumber']);
+    Route::delete('/delete-message/{messageId}', [WhapiController::class, 'deleteMessage']);
 
 
 });

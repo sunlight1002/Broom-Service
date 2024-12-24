@@ -1820,9 +1820,7 @@ class JobController extends Controller
             ], 403);
         }
 
-        $job->update([
-            'is_job_done' => $request->checked
-        ]);
+     
 
         if ($job->is_job_done) {
             $job->status = JobStatusEnum::COMPLETED;
@@ -1888,6 +1886,9 @@ class JobController extends Controller
                 event(new ClientOrderCancelled($order->client, $order));
             }
         }
+        $job->update([
+            'is_job_done' => $request->checked
+        ]);
 
         return response()->json([
             'message' => 'Job has been updated',
