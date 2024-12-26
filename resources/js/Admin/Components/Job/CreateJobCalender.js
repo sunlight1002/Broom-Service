@@ -20,29 +20,29 @@ export default function CreateJobCalender({
     client,
     setSelectedService,
     setSelectedServiceIndex,
-    selectedService
+    selectedService,
+    currentFilter,
+    searchVal,
+    distance,
+    prevWorker
 }) {
+    
     const navigate = useNavigate();
     const alert = useAlert();
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
     const [selectedHours, setSelectedHours] = useState([]);
-    const [distance, setDistance] = useState('default')
     const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
     const [days, setDays] = useState([]);
-    const [currentFilter, setcurrentFilter] = useState("Current Week");
     const headers = {
         Accept: "application/json, text/plain, /",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    let isPrevWorker = useRef();
     const [services, setServices] = useState(clientServices);
     const [customDateRange, setCustomDateRange] = useState([]);
-    const [searchVal, setSearchVal] = useState("");
     const [loading, setLoading] = useState(false);
     const [hasFetched, setHasFetched] = useState(false);
-    const [prevWorker, setPrevWorker] = useState(true)
     const [serviceIndex, setServiceIndex] = useState(null)
 
     useEffect(() => {
@@ -63,6 +63,7 @@ export default function CreateJobCalender({
 
 
     const handleServices = (index) => {
+        
         setServiceIndex(index)
         setLoading(true)
         setSelectedServiceIndex(index);
@@ -111,11 +112,11 @@ export default function CreateJobCalender({
                 },
             });
             const workers = res.data.workers;
-            
+
             setAllWorkers(workers);
             console.time('get');
             let WorkerAvailability = getWorkerAvailabilities(workers)
-            
+
             console.timeEnd('get');
             setWorkerAvailabilities(WorkerAvailability);
         } catch (err) {
@@ -123,7 +124,7 @@ export default function CreateJobCalender({
         } finally {
             setLoading(false);
         }
-    }, [distance, headers, alert, hasFetched]);
+    }, [distance, hasFetched]);
 
     useEffect(() => {
         handleServices(serviceIndex);
@@ -133,45 +134,45 @@ export default function CreateJobCalender({
 
     const submitForm = useCallback(
         async (_data) => {
-          try {
-            setLoading(true);
-            let viewbtn = document.querySelectorAll(".viewBtn");
-            const formdata = {
-              workers: _data,
-              service_id: selectedService.service,
-              contract_id: selectedService.contract_id,
-              prevWorker: prevWorker,
-              updatedJobs: updatedJobs,
-            };
-            viewbtn[0].setAttribute("disabled", true);
-            viewbtn[0].value = "please wait ...";
-            await axios.post(`/api/admin/create-job`, formdata, { headers });
-            alert.success("Job created successfully");
-            setTimeout(() => navigate("/admin/jobs"), 1000);
-          } catch (error) {
-            Swal.fire({
-              title: "Error!",
-              text: error.response?.data?.message,
-              icon: "error",
-            });
-          } finally {
-            setLoading(false);
-          }
+            try {
+                setLoading(true);
+                let viewbtn = document.querySelectorAll(".viewBtn");
+                const formdata = {
+                    workers: _data,
+                    service_id: selectedService.service,
+                    contract_id: selectedService.contract_id,
+                    prevWorker: prevWorker,
+                    updatedJobs: updatedJobs,
+                };
+                viewbtn[0].setAttribute("disabled", true);
+                viewbtn[0].value = "please wait ...";
+                await axios.post(`/api/admin/create-job`, formdata, { headers });
+                alert.success("Job created successfully");
+                setTimeout(() => navigate("/admin/jobs"), 1000);
+            } catch (error) {
+                Swal.fire({
+                    title: "Error!",
+                    text: error.response?.data?.message,
+                    icon: "error",
+                });
+            } finally {
+                setLoading(false);
+            }
         },
-        [selectedService, updatedJobs, headers, alert, navigate]
-      );
+        [selectedService, updatedJobs, navigate]
+    );
 
     const handleSubmit = () => {
         if (selectedHours) {
             const data = [];
-    
+
             selectedHours.forEach((worker, index) => {
                 // Loop through the worker's formatted slots
                 worker?.formattedSlots?.forEach((slots) => {
                     data.push(slots);
                 });
             });
-    
+
             // You can now use the 'data' array which contains the updated shift information
             if (data.length > 0) {
                 const _getWorkersData = getWorkersData(selectedHours);
@@ -319,81 +320,6 @@ export default function CreateJobCalender({
 
     return (
         <>
-            <div className="row mb-3">
-                <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
-                    <div className="d-flex align-items-center flex-wrap justify-content-between">
-                        <div className="d-flex align-items-center flex-wrap mt-2 ">
-                            <div className="mr-3" style={{ fontWeight: "bold" }}>
-                                Worker Availability
-                            </div>
-                            <FilterButtons
-                                text="Current Week"
-                                className="px-3 mr-2 mb-2"
-                                selectedFilter={currentFilter}
-                                setselectedFilter={setcurrentFilter}
-                            />
-
-                            <FilterButtons
-                                text="Next Week"
-                                className="px-3 mr-2 mb-2"
-                                selectedFilter={currentFilter}
-                                setselectedFilter={setcurrentFilter}
-                            />
-
-                            <FilterButtons
-                                text="Next Next Week"
-                                className="px-3 mr-2 mb-2"
-                                selectedFilter={currentFilter}
-                                setselectedFilter={setcurrentFilter}
-                            />
-
-                            <FilterButtons
-                                text="Custom"
-                                className="px-3 mr-2 mb-2"
-                                selectedFilter={currentFilter}
-                                setselectedFilter={setcurrentFilter}
-                            />
-                        </div>
-
-                        <div className="d-flex" style={{gap: "10px"}}>
-                            <select
-                                className="form-control"
-                                value={distance}
-                                onChange={(e) => setDistance(e.target.value)}
-                            >
-                                <option value="">---select distance---</option>
-                                <option value="nearest">Nearest</option>
-                                <option value="farthest">farthest</option>
-                            </select>
-                            <input
-                                type="text"
-                                className="form-control form-control-sm"
-                                placeholder="Search"
-                                onChange={(e) => {
-                                    setSearchVal(e.target.value);
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                </div>
-                <div className="col-sm-12 mt-2">
-                    <div className="form-check">
-                        <label className="form-check-label">
-                        <input
-                                // ref={isPrevWorker}
-                                type="checkbox"
-                                defaultChecked={prevWorker}
-                                onChange={(prev) => setPrevWorker(!prev)}
-                                className="form-check-input"
-                                name={"is_keep_prev_worker"}
-                            />
-                            Keep previous worker
-                        </label>
-                    </div>
-                </div>
-            </div>
-
             {workerAvailabilities.length === 0 ? <Loader /> : (
                 <div className="tab-content" style={{ background: "#fff" }}>
                     <div
@@ -732,19 +658,19 @@ export default function CreateJobCalender({
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            {selectedHours && selectedHours?.map((d, i) => (
-                                                d?.formattedSlots?.map((slot, j) => {
-                                                    return (
-                                                        <tr key={j}>
-                                                        <td>{slot.worker_name}</td>
-                                                        <td>{slot.date}</td>
-                                                        <td>{slot.shifts}</td>
-                                                    </tr>
-                                                    )
-                                                })
-                                            ))}
-                                        </tbody>
-                                        
+                                                {selectedHours && selectedHours?.map((d, i) => (
+                                                    d?.formattedSlots?.map((slot, j) => {
+                                                        return (
+                                                            <tr key={j}>
+                                                                <td>{slot.worker_name}</td>
+                                                                <td>{slot.date}</td>
+                                                                <td>{slot.shifts}</td>
+                                                            </tr>
+                                                        )
+                                                    })
+                                                ))}
+                                            </tbody>
+
                                         </table>
                                     ) : (
                                         ""

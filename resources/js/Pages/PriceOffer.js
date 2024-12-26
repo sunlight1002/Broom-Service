@@ -784,7 +784,7 @@ export default function PriceOffer() {
                             </ul>
                         </div>
 
-                        {/* Laundry */}
+                        {/* Laundry
                         <div className="mt-3" style={{ lineHeight: "2.3" }}>
                             <h5>{getNextNumber()}. {t("price_offer.laundary.title")}</h5>
                             <ul>
@@ -794,7 +794,7 @@ export default function PriceOffer() {
                                 <li>{t("price_offer.laundary.p4")}</li>
                                 <li>{t("price_offer.laundary.p5")}</li>
                             </ul>
-                        </div>
+                        </div> */}
                     </section>
                     <section className="col px-3">
                         <div className="shift-20" id="priceOfferTable">
@@ -854,12 +854,15 @@ export default function PriceOffer() {
                                                     </td>
                                                     <td>
                                                         {clientLng === 'heb' ? (
-                                                            s.type === 'fixed' ? 'קָבוּעַ' :
-                                                                s.type === 'hourly' ? 'מדי שעה' :
-                                                                    s.type === 'squaremeter' ? 'מטר מרובע' : s.type
+                                                            s.type === 'fixed' ? "לביקור" :
+                                                                s.type === 'hourly' ? 'לשעה' :
+                                                                    s.type === 'squaremeter' ? 'מ\"ר' : s.type
                                                         ) : (
-                                                            s.type // Fallback to default value if ClientLng is not 'heb'
+                                                            s.type === 'fixed' ? "Fixed" :
+                                                                s.type === 'hourly' ? 'Hourly' :
+                                                                    s.type === 'squaremeter' ? 'Sqm' : s.type
                                                         )}
+
                                                     </td>
                                                     <td>
                                                         {clientLng === 'heb' ? s.frequency_name_heb : s.frequency_name_en}{" "}

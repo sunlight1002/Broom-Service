@@ -58,16 +58,24 @@ export default function WorkerAvailabilityTable({
         }
     };
 
-    const workers = () => {
+    useEffect(() => {
         setModifiedWorkers(AllWorkers);
 
+    }, []);
+    
+    const workers = () => {
+        console.log(modifiedWorkers, "worker");
+        
         const today = moment().startOf('day');
         let futureBookedSlots = [];
-
+        
         modifiedWorkers.forEach((worker) => {
+            
             if (worker.booked_slots) {
                 Object.keys(worker.booked_slots).forEach((date) => {
                     const slotDate = moment(date, "YYYY-MM-DD");
+                    console.log(slotDate, "slotDate");
+                    
 
                     // Check if the slot date is today or in the future
                     if (slotDate.isSameOrAfter(today)) {
@@ -114,9 +122,11 @@ export default function WorkerAvailabilityTable({
 
     useEffect(() => {
         workers()
-    }, [AllWorkers, sortOrder, searchKeyword, distance]);
+    }, [modifiedWorkers, sortOrder, searchKeyword, distance]);
 
     const getBookedSlotsForWorkerAndDate = (workerId, date) => {
+        // console.log(bookedSlots, workerId, date);
+        
         const bookedSlot = bookedSlots.find(
             (slot) => slot.worker_id === workerId && slot.date === date
         );
@@ -208,6 +218,7 @@ export default function WorkerAvailabilityTable({
                         searchKeyword={searchKeyword}
                         isClient={isClient}
                         selectedHours={selectedHours}
+                        distance={distance}
                     />
                 ) : (
                     <>
@@ -266,6 +277,8 @@ export default function WorkerAvailabilityTable({
                                             </td>
                                             {week?.map((element, index) => {
                                                 const alreadyBooked = getBookedSlotsForWorkerAndDate(w.id, element);
+                                                console.log(alreadyBooked, "alreadyBooked");
+                                                
 
                                                 let workerSlots =
                                                     workerAvailabilities?.find((_w) => _w.workerId === w.id) ?? [];
@@ -316,7 +329,11 @@ export default function WorkerAvailabilityTable({
                                                                     )}
                                                                     {selectedHours?.filter(slot => slot?.slots?.some(s => s.workerId === w.id)).map((slot, idx) => {
                                                                         const filteredSlots = slot.slots.filter(s => s.date === element && s.workerId === w.id);
+                                                                        // console.log(filteredSlots);
+                                                                        
                                                                         const groupedSlots = getGroupedSlots(filteredSlots);
+                                                                        // console.log(groupedSlots);
+                                                                        
 
                                                                         return (
                                                                             <div key={idx} className="slot-info ml-1">

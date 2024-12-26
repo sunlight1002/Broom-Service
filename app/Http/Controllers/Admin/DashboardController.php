@@ -399,14 +399,14 @@ class DashboardController extends Controller
 
             if (isset($worker)) {
               $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
-                "</a> availability has been changed that affect job on " . $notice->data['date'] . '.';
+                "</a> availability has been changed that affect job on " . (isset($notice->data['date']) ? $notice->data['date'] : $notice->data['last_work_date']) . '.';
             }
           } else if ($notice->type == NotificationTypeEnum::WORKER_LEAVES_JOB) {
             $worker = User::find($notice->user_id);
 
             if (isset($worker)) {
               $noticeAll[$k]->data = "<a href='/admin/workers/view/" . $worker->id . "'>" . $worker->firstname . " " . $worker->lastname .
-                "</a> leave date has been set to " . $notice->data['date'] . '.';
+                  "</a> leave date has been set to " . (isset($notice->data['date']) ? $notice->data['date'] : $notice->data['last_work_date']) . '.';
             }
           } else if ($notice->type == NotificationTypeEnum::ORDER_CANCELLED) {
             $noticeAll[$k]->data = "Payment with <a href='/admin/clients/view/" . $notice->user->id . "'>" . $notice->user->firstname . " " . $notice->user->lastname .

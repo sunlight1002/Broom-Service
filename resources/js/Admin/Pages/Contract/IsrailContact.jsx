@@ -81,10 +81,10 @@ export function IsrailContact({
             startDate: yup
                 .date()
                 .required(t("israilContract.errorMsg.StartDateOfJob")),
-            PhoneNo: yup
-                .string()
-                .trim()
-                .required(t("israilContract.errorMsg.Phone")),
+            // PhoneNo: yup
+            //     .string()
+            //     .trim()
+            //     .required(t("israilContract.errorMsg.Phone")),
         }),
         step6: yup.object({
             signatureDate: yup.date().required(t("israilContract.errorMsg.Date")),
@@ -185,7 +185,7 @@ export function IsrailContact({
                 {
                     nextStep === 5 && (
                         <div className="row">
-                            <section className="col pl-0 pr-0">
+                            <section className="col-sm pl-0 pr-3">
                                 <ol
                                     className="mt-5 lh-lg text-justify"
                                     style={{
@@ -273,20 +273,20 @@ export function IsrailContact({
                                             >
                                                 <TextField
                                                     name={"MobileNo"}
-                                                    onBlur={handleBlur}
                                                     type="number"
+                                                    onBlur={handleBlur}
                                                     onChange={handleChange}
                                                     label={t(
-                                                        "israilContract.HomePhone"
+                                                        "israilContract.mobileNumber"
                                                     )}
                                                     value={values.MobileNo}
 
-                                                    // required={true}
-                                                    readonly={true}
+                                                    required={true}
                                                     error={
                                                         touched.MobileNo &&
                                                         errors.MobileNo
                                                     }
+
                                                 />
                                             </div>
                                             <div
@@ -297,21 +297,23 @@ export function IsrailContact({
                                             >
                                                 <TextField
                                                     name={"PhoneNo"}
-                                                    type="number"
                                                     onBlur={handleBlur}
+                                                    type="number"
                                                     onChange={handleChange}
                                                     label={t(
-                                                        "israilContract.mobileNumber"
+                                                        "israilContract.HomePhone"
                                                     )}
                                                     value={values.PhoneNo}
 
-                                                    required={true}
-                                                    error={
-                                                        touched.PhoneNo &&
-                                                        errors.PhoneNo && "Mobile is required"
-                                                    }
+                                                    // required={true}
+                                                    readonly={true}
+                                                    // error={
+                                                    //     touched.PhoneNo &&
+                                                    //     errors.PhoneNo && "Mobile is required"
+                                                    // }
                                                 />
                                             </div>
+
                                         </div>
 
                                         <p className="mb-2">
@@ -369,7 +371,7 @@ export function IsrailContact({
 
                                 </ol>
                             </section>
-                            <section className="col pl-0 pr-0">
+                            <section className="col-sm pl-0 pr-3">
                                 <ol>
                                     <li>
                                         <p>{t("israilContract.is6")}</p>
@@ -818,7 +820,7 @@ export function IsrailContact({
                                     )}
                                 </div>
                                 <p className="text-center mt-4">
-                                    (What is stated in the singular and/or masculine in this document is also feminine in meaning)
+                                    {t("israilContract.singular_masculine")}
                                 </p>
                                 <div className="text-center mt-5">
                                     <p>{t("israilContract.BestRegards")}</p>
@@ -835,7 +837,7 @@ export function IsrailContact({
                             <button
                                 type="button"
                                 onClick={() => setNextStep(prev => prev - 1)}
-                                className="navyblue py-2 px-4 mr-2"
+                                className="navyblue py-2 px-4 mx-2"
                                 style={{ borderRadius: "5px" }}
                             >
                                 <GrFormPreviousLink /> {t("common.prev")}
@@ -843,12 +845,12 @@ export function IsrailContact({
                         )}
 
                         {workerDetail?.country == "Israel" && nextStep == 6 ? (
-                            < button
+                            <button
                                 type="submit"
-                                className="navyblue py-2 px-4"
-                                style={{ 
+                                className="navyblue py-2 px-4 mx-2"
+                                style={{
                                     borderRadius: "5px",
-                                    display: isSubmitted ? "none" : "block" 
+                                    display: isSubmitted ? "none" : "block"
                                 }}
                             >
 
@@ -858,7 +860,7 @@ export function IsrailContact({
                         ) : (
                             <button
                                 type="submit"
-                                className="navyblue py-2 px-4"
+                                className="navyblue py-2 px-4 mx-2"
                                 style={{ borderRadius: "5px" }}
                             >
 

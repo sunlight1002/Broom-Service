@@ -560,7 +560,7 @@ export default function WorkContract() {
                                             )}
                                         </div>
 
-                                        <p>{t("client.contract-form.add_cc_click_here")} </p>
+                                        <p> {t("client.contract-form.add_cc_click_here1")} </p>
 
                                         {clientCards.map((_card, _index) => {
                                             return (
@@ -595,12 +595,14 @@ export default function WorkContract() {
                                                 </div>
                                             );
                                         })}
-                                        <p> {t("client.contract-form.add_cc_click_here1")} </p>
+
+                                        <p>{t("client.contract-form.add_cc_click_here")} </p>
+
 
                                         {/* {!isCardAdded && ( */}
                                         <button
                                             type="button"
-                                            className="btn navyblue ac mb-3"
+                                            className="btn navyblue ac mb-3 mt-2"
                                             onClick={(e) => handleCard(e)}
                                             disabled={addCardBtnDisabled}
                                         >

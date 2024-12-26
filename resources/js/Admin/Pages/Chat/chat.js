@@ -85,7 +85,7 @@ export default function chat() {
     
       // Safely extract the message ID
       const messageId = data1.messages?.[0]?.id || 'Message ID not found';
-    //   console.log(messageId);
+    //   console.log(messageId , "messageId");
       
 
     const getWebhook = () => {
@@ -449,16 +449,27 @@ export default function chat() {
         });
     };
 
-    // const parsedData = (data) => {
-    //     if(data != null){
-    //         const jsonData = JSON.parse(data);
+    const parsedData = (data) => {
+        if (!data) {
+            // console.warn("Data is null or undefined");
+            return 'No data provided';
+        }
     
-    //         // Safely extract the message ID
-    //         const messageId = jsonData.messages?.[0]?.id || 'Message ID not found';
-    //         console.log(messageId);
-    //         return messageId
-    //     }
-    // };
+        try {
+            let jsonData = typeof data === 'string' ? JSON.parse(data) : data;
+            // Check if the parsed data is still a string (stringified JSON inside JSON)
+            if (typeof jsonData === 'string') {
+                jsonData = JSON.parse(jsonData);
+            }
+            // Safely extract the message ID
+            const messageId = jsonData?.messages?.[0]?.id || 'Message ID not found';
+            // console.log(messageId, "Extracted Message ID");
+            return messageId;
+        } catch (error) {
+            return 'Invalid data format';
+        }
+    };
+    
 
     function escapeSelectorClass(className) {
         return className.replace(/([ :#.+,])/g, '\\$1');
@@ -1045,7 +1056,12 @@ export default function chat() {
                                                                                         </div>
 
                                                                                         {groupedMessages[date].map((m, i) => {
-                                                                                                // const data = parsedData(m.data);
+                                                                                           const chatId = parsedData(m.data);
+                                                                                       
+                                                                                           if (!chatId || chatId === 'No data provided') {
+                                                                                               console.error("Failed to extract chatId from:", m.data);
+                                                                                           }
+
                                                                                             if (m.message !== "restart") {
                                                                                                 return (
                                                                                                     <li className={m.flex === "C" ? "clearfix" : "clearfix odd"} key={i}>
@@ -1059,9 +1075,9 @@ export default function chat() {
                                                                                                         >
                                                                                                             <div
                                                                                                                 className={`message-bubble ${m.flex !== "C" ? "message-outgoing" : "message-incoming"}`}
-                                                                                                            // onClick={() => {
-                                                                                                            //     deleteMessage(parsedData.messages[0].id);
-                                                                                                            // }}
+                                                                                                            onClick={() => {
+                                                                                                                deleteMessage(chatId);
+                                                                                                            }}
                                                                                                             >
                                                                                                                 <div className="message-content">
                                                                                                                     <div

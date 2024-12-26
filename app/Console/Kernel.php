@@ -72,6 +72,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:worker-in-hiring-process')->dailyAt('08:00');
         $schedule->command('send:worker-when-alex-set-unaswered')->dailyAt('08:00');
 
+        $schedule->command('terminate:worker')->dailyAt('08:00');
+
 
     }
 

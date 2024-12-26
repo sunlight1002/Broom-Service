@@ -174,6 +174,17 @@ class OfferController extends Controller
         ]);
     }
 
+    public function reopen($id){
+        $offer = Offer::find($id);
+
+        $offer->load(['client', 'service']);
+
+        $offer->update([
+            'status' => 'sent'
+        ]);
+        event(new OfferSaved($offer->toArray()));
+    }
+
     /**
      * Display the specified resource.
      *
@@ -271,8 +282,6 @@ class OfferController extends Controller
 
         // $tax_amount = ($tax_percentage / 100) * $subtotal;
 
-
-
         ////New code
         $tax_percentage = config('services.app.tax_percentage');
         $subtotal = 0;
@@ -304,7 +313,6 @@ class OfferController extends Controller
         }
 
         $tax_amount = ($tax_percentage / 100) * $subtotal;
-        //////
 
         $offer = Offer::find($id);
         $input = $request->except(['action']);

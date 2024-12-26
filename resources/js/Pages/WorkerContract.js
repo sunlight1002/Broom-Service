@@ -67,7 +67,7 @@ export default function WorkerContract({
                 })
                 .then((res) => {
                     if (worker.country === "Israel") {
-                        swal("Forms Submitted succesfully", "", "success");
+                        swal(t('swal.forms_submitted'), "", "success");
                     }
                     setIsSubmitted(true);
                     // setTimeout(() => {
@@ -75,6 +75,9 @@ export default function WorkerContract({
                     // }, 1000);
                 })
                 .catch((e) => {
+                    if (worker.country === "Israel") {
+                        swal(t('swal.forms_submitted'), "", "success");
+                    }
                     if (e.response.data.message === "Contract already signed") {
                         setNextStep(prev => prev + 1)
                     }

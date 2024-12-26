@@ -117,6 +117,11 @@
             "schedule_deleted": "График удален."
         }
     },
+    "swal": {
+        "not_interested": "No me interesa",
+        "contact_me": "Contácteme para reprogramar la reunión",
+        "forms_submitted": "Formularios enviados con éxito"
+    },
     "global": {
         "search": "Buscar",
         "all": "Todo",
@@ -2705,6 +2710,9 @@
         "Hernia": "Hernia (rotura de hernia) - de la pared abdominal, ingle, cicatrices quirúrgicas, ombligo y plexo solar. Deben adjuntarse documentos médicos",
         "womenOnly": "Solo para mujeres: ¿Padece o ha padecido alguna enfermedad femenina: menstruación irregular, problemas de fertilidad, sangrado y quistes en los senos, problemas en el útero y ovarios, hallazgos irregulares en un examen ginecológico (como PAP)? ¿Está embarazada? ¿Cuál es el número de fetos?",
         "Caesarean": "¿Ha tenido problemas en embarazos anteriores o en el embarazo actual? ¿Ha dado a luz por cesárea?",
+        "positive_finding": "Detalles de los hallazgos positivos",
+        "positive_finding_error": "Se requieren detalles porque un campo está marcado como 'sí'",
+        "enter_required": "Ingrese si es necesario...",
         "Signature": "Firma"
     },
     "israilContract": {
@@ -2784,6 +2792,7 @@
         "Submit": "Enviar",
         "Accept": "Aceptar",
         "Date": "Fecha",
+        "singular_masculine": "(Lo que se afirma en singular y/o masculino en este documento también tiene un significado femenino)",
         "errorMsg": {
             "FullName": "Nombre del empleado",
             "Role": "Rol",
@@ -2812,6 +2821,7 @@
         "join_portal": "Para unirte a nuestro portal, por favor completa los detalles a continuación."
     },
     "safeAndGear": {
+        "title": "Formulario de seguridad y equipamiento",
         "welcomeToBroom": "Bienvenido a Broom Service",
         "broomIntro": "Nos alegra que hayas elegido trabajar con nuestra empresa. Haremos todo lo posible para que estés satisfecho con tu trabajo y, por supuesto, te proporcionaremos todo lo que necesites como familia.",
         "broomIntro2": "El trabajo es de tiempo completo, aproximadamente 8 horas al día, y los viernes son opcionales.",

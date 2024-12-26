@@ -13,6 +13,7 @@ import { FaPeopleArrows } from "react-icons/fa";
 import Sidebar from "../../Layouts/Sidebar";
 import CreateJobCalender from "../../Components/Job/CreateJobCalender";
 import FullPageLoader from "../../../Components/common/FullPageLoader";
+import FilterButtons from "../../../Components/common/FilterButton";
 
 export default function CreateJob() {
     const params = useParams();
@@ -21,6 +22,12 @@ export default function CreateJob() {
     const [loading, setLoading] = useState(false);
     const [selectedService, setSelectedService] = useState(0);
     const [selectedServiceIndex, setSelectedServiceIndex] = useState(0);
+    const [currentFilter, setcurrentFilter] = useState("Current Week");
+    const [distance, setDistance] = useState('default')
+    const [searchVal, setSearchVal] = useState("");
+    const [prevWorker, setPrevWorker] = useState(true)
+
+
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -35,15 +42,24 @@ export default function CreateJob() {
             .then((res) => {
                 const r = res.data.contract;
                 setClient(r.client);
+    
                 let _services = JSON.parse(r.offer.services);
-                _services = _services.map((n) => {
-                    n["contract_id"] = parseInt(params.id);
-                    return n;
-                });
+                _services = _services
+                    .filter((n) => !n.is_one_time || n.is_one_time !== true) // Skip services with is_one_time: true
+                    .map((n) => {
+                        n["contract_id"] = parseInt(params.id);
+                        return n;
+                    });
+    
                 setServices(_services);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error fetching contract:", err);
                 setLoading(false);
             });
     };
+    
 
     useEffect(() => {
         getJob();
@@ -68,95 +84,169 @@ export default function CreateJob() {
                     <div className="card" style={{ boxShadow: "none" }}>
                         {client && (
                             <>
-                                <div className="row d-flex flex-wrap">
-                                    <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                        <div className="dashIcon d-flex align-items-center">
-                                            <i className=""><FaPeopleGroup className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                <div className="sticky-container">
+                                    <div className="row d-flex flex-wrap">
+                                        <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                            <div className="dashIcon d-flex align-items-center">
+                                                <i className=""><FaPeopleGroup className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                            </div>
+                                            <div className="dashText ml-2">
+                                                <p className="font-15 navyblueColor" style={{ fontWeight: "500" }}>{client.firstname + " " + client.lastname}</p>
+                                                <label>Client</label>
+                                            </div>
                                         </div>
-                                        <div className="dashText ml-2">
-                                            <p className="font-15 navyblueColor" style={{ fontWeight: "500" }}>{client.firstname + " " + client.lastname}</p>
-                                            <label>Client</label>
+                                        {services.length > 0 && selectedServiceIndex !== null && (
+                                            <>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><BsBuildings className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex]?.address?.address_name}
+                                                        </p>
+                                                        <label>Property</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><PiSuitcaseBold className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex].service === "10"
+                                                                ? services[selectedServiceIndex].other_title
+                                                                : services[selectedServiceIndex].name}
+                                                        </p>
+                                                        <label>Services</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><RiTimerFlashLine className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex].freq_name}
+                                                        </p>
+                                                        <label>Frequency</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><GiSandsOfTime className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        {services[selectedServiceIndex]?.workers?.map((worker, i) => (
+                                                            <p key={i} className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                                {worker.jobHours} hours (Worker {i + 1})
+                                                            </p>
+                                                        ))}
+                                                        <label>Time to Complete</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><LiaPawSolid className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex]?.address?.is_cat_avail
+                                                                ? "Cat"
+                                                                : services[selectedServiceIndex]?.address?.is_dog_avail
+                                                                    ? "Dog"
+                                                                    : "NA"}
+                                                        </p>
+                                                        <label>Pet animals</label>
+                                                    </div>
+                                                </div>
+                                                <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
+                                                    <div className="dashIcon d-flex align-items-center">
+                                                        <i className=""><FaPeopleArrows className="font-30" style={{ color: "#1F78BD" }} /></i>
+                                                    </div>
+                                                    <div className="dashText ml-2">
+                                                        <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ textTransform: "capitalize", fontWeight: "500" }}>
+                                                            {services[selectedServiceIndex]?.address?.prefer_type}
+                                                        </p>
+                                                        <label>Gender preference</label>
+                                                    </div>
+                                                </div>
+                                            </>// end here
+                                        )}
+                                    </div>
+                                    <div className="row mb-3 mt-2">
+                                        <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
+                                            <div className="d-flex align-items-center flex-wrap justify-content-between">
+                                                <div className="d-flex align-items-center flex-wrap mt-2 ">
+                                                    <div className="mr-3" style={{ fontWeight: "bold" }}>
+                                                        Worker Availability
+                                                    </div>
+                                                    <FilterButtons
+                                                        text="Current Week"
+                                                        className="px-3 mr-2 mb-2"
+                                                        selectedFilter={currentFilter}
+                                                        setselectedFilter={setcurrentFilter}
+                                                    />
+
+                                                    <FilterButtons
+                                                        text="Next Week"
+                                                        className="px-3 mr-2 mb-2"
+                                                        selectedFilter={currentFilter}
+                                                        setselectedFilter={setcurrentFilter}
+                                                    />
+
+                                                    <FilterButtons
+                                                        text="Next Next Week"
+                                                        className="px-3 mr-2 mb-2"
+                                                        selectedFilter={currentFilter}
+                                                        setselectedFilter={setcurrentFilter}
+                                                    />
+
+                                                    <FilterButtons
+                                                        text="Custom"
+                                                        className="px-3 mr-2 mb-2"
+                                                        selectedFilter={currentFilter}
+                                                        setselectedFilter={setcurrentFilter}
+                                                    />
+                                                </div>
+
+                                                <div className="d-flex" style={{ gap: "10px" }}>
+                                                    <select
+                                                        className="form-control"
+                                                        value={distance}
+                                                        onChange={(e) => setDistance(e.target.value)}
+                                                    >
+                                                        <option value="">---select distance---</option>
+                                                        <option value="nearest">Nearest</option>
+                                                        <option value="farthest">farthest</option>
+                                                    </select>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control form-control-sm"
+                                                        placeholder="Search"
+                                                        onChange={(e) => {
+                                                            setSearchVal(e.target.value);
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-12 mt-2">
+                                            <div className="form-check">
+                                                <label className="form-check-label">
+                                                    <input
+                                                        // ref={isPrevWorker}
+                                                        type="checkbox"
+                                                        defaultChecked={prevWorker}
+                                                        onChange={(prev) => setPrevWorker(!prev)}
+                                                        className="form-check-input"
+                                                        name={"is_keep_prev_worker"}
+                                                    />
+                                                    Keep previous worker
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
-                                    {services.length > 0 && selectedServiceIndex !== null && (
-                                        <>
-                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                <div className="dashIcon d-flex align-items-center">
-                                                    <i className=""><BsBuildings className="font-30" style={{ color: "#1F78BD" }} /></i>
-                                                </div>
-                                                <div className="dashText ml-2">
-                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
-                                                        {services[selectedServiceIndex]?.address?.address_name}
-                                                    </p>
-                                                    <label>Property</label>
-                                                </div>
-                                            </div>
-                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                <div className="dashIcon d-flex align-items-center">
-                                                    <i className=""><PiSuitcaseBold className="font-30" style={{ color: "#1F78BD" }} /></i>
-                                                </div>
-                                                <div className="dashText ml-2">
-                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
-                                                        {services[selectedServiceIndex].service === "10"
-                                                            ? services[selectedServiceIndex].other_title
-                                                            : services[selectedServiceIndex].name}
-                                                    </p>
-                                                    <label>Services</label>
-                                                </div>
-                                            </div>
-                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                <div className="dashIcon d-flex align-items-center">
-                                                    <i className=""><RiTimerFlashLine className="font-30" style={{ color: "#1F78BD" }} /></i>
-                                                </div>
-                                                <div className="dashText ml-2">
-                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
-                                                        {services[selectedServiceIndex].freq_name}
-                                                    </p>
-                                                    <label>Frequency</label>
-                                                </div>
-                                            </div>
-                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                <div className="dashIcon d-flex align-items-center">
-                                                    <i className=""><GiSandsOfTime className="font-30" style={{ color: "#1F78BD" }} /></i>
-                                                </div>
-                                                <div className="dashText ml-2">
-                                                    {services[selectedServiceIndex]?.workers?.map((worker, i) => (
-                                                        <p key={i} className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
-                                                            {worker.jobHours} hours (Worker {i + 1})
-                                                        </p>
-                                                    ))}
-                                                    <label>Time to Complete</label>
-                                                </div>
-                                            </div>
-                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                <div className="dashIcon d-flex align-items-center">
-                                                    <i className=""><LiaPawSolid className="font-30" style={{ color: "#1F78BD" }} /></i>
-                                                </div>
-                                                <div className="dashText ml-2">
-                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
-                                                        {services[selectedServiceIndex]?.address?.is_cat_avail
-                                                            ? "Cat"
-                                                            : services[selectedServiceIndex]?.address?.is_dog_avail
-                                                                ? "Dog"
-                                                                : "NA"}
-                                                    </p>
-                                                    <label>Pet animals</label>
-                                                </div>
-                                            </div>
-                                            <div className="col-sm dashBox d-flex mr-2 mt-2 h-100 jobcard" style={{ minWidth: "207px", maxWidth: "300px" }}>
-                                                <div className="dashIcon d-flex align-items-center">
-                                                    <i className=""><FaPeopleArrows className="font-30" style={{ color: "#1F78BD" }} /></i>
-                                                </div>
-                                                <div className="dashText ml-2">
-                                                    <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ textTransform: "capitalize", fontWeight: "500" }}>
-                                                        {services[selectedServiceIndex]?.address?.prefer_type}
-                                                    </p>
-                                                    <label>Gender preference</label>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-
                                 </div>
                                 <div className="card-body">
                                     <form>
@@ -170,6 +260,14 @@ export default function CreateJob() {
                                                     selectedService={selectedService}
                                                     setSelectedService={setSelectedService}
                                                     setSelectedServiceIndex={setSelectedServiceIndex}
+                                                    currentFilter={currentFilter}
+                                                    setcurrentFilter={setcurrentFilter}
+                                                    prevWorker={prevWorker}
+                                                    setPrevWorker={setPrevWorker}
+                                                    distance={distance}
+                                                    setDistance={setDistance}
+                                                    searchVal={searchVal}
+                                                    setSearchVal={setSearchVal}
                                                 />
                                                 <div className="mb-3">&nbsp;</div>
                                             </div>

@@ -249,7 +249,7 @@ a:hover {
 
 .dashBox {
   border: 2px solid #E5EBF1;
-  background: #e5ebf196;
+  background: #ecf3fa;
   padding: 7px;
   border-radius: 8px;
 }
@@ -4295,8 +4295,10 @@ tbody tr:hover {
   color: #495057;
   line-height: 1.5;
 }
-/* 
-#waChat {
-  ba
+.sticky-container {
+  position: sticky;
+  top: 10px; /* Adjust for desktop */
+  z-index: 10;
+  background-color: #fafbfc;
+  padding-bottom: 15px;
 }
- */

@@ -203,6 +203,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('offers', OfferController::class)->except('create');
     Route::get('clients/{id}/offers', [OfferController::class, 'ClientOffers']);
     Route::post('latest-client-offer', [OfferController::class, 'getLatestClientOffer']);
+    Route::post('offer-reopen/{id}', [OfferController::class, 'reopen']);
 
     // Contract Api
     Route::resource('contract', ContractController::class)->except(['create', 'store', 'edit', 'update']);
