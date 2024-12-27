@@ -85,6 +85,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const BOOK_CLIENT_AFTER_SIGNED_CONTRACT = "book-client-after-signed-contract";
     public const LEAD_ACCEPTED_PRICE_OFFER = "lead-accepted-price-offer";
     public const LEAD_DECLINED_CONTRACT = "lead-declined-contract";
+    public const CLIENT_DECLINED_CONTRACT = "client-declined-contract";
     public const CLIENT_DECLINED_PRICE_OFFER = "client-declined-price-offer";
     public const LEAD_DECLINED_PRICE_OFFER = "lead-declined-price-offer";
     public const CLIENT_IN_FREEZE_STATUS = "client-in-freeze-status";

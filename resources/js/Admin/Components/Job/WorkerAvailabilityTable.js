@@ -277,8 +277,6 @@ export default function WorkerAvailabilityTable({
                                             </td>
                                             {week?.map((element, index) => {
                                                 const alreadyBooked = getBookedSlotsForWorkerAndDate(w.id, element);
-                                                console.log(alreadyBooked, "alreadyBooked");
-                                                
 
                                                 let workerSlots =
                                                     workerAvailabilities?.find((_w) => _w.workerId === w.id) ?? [];

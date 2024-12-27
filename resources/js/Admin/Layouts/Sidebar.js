@@ -358,12 +358,6 @@ export default function Sidebar() {
                                             {t("admin.sidebar.settings.manageTime")}
                                         </Link>
                                     </li>
-                                    <li className={`list-group-item ${isActive(routes.accountSettings) ? "active" : ""}`}>
-                                        <Link to={routes.accountSettings} style={isActive(routes.accountSettings) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i>{" "}
-                                            {t("admin.sidebar.settings.account")}
-                                        </Link>
-                                    </li>
                                     <li className={`list-group-item ${isActive(routes.holidays) ? "active" : ""}`}>
                                         <Link to={routes.holidays} style={isActive(routes.holidays) ? { color: "white" } : { color: "#757589" }}>
                                             <i className="fa fa-angle-right"></i>{" "}
@@ -380,6 +374,12 @@ export default function Sidebar() {
                                         <Link to={routes.payslipSettings}  style={isActive(routes.payslipSettings)?{color: "white"}:{color: "#757589"}}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.payslip_settings")}
+                                        </Link>
+                                    </li>
+                                    <li className={`list-group-item ${isActive(routes.accountSettings) ? "active" : ""}`}>
+                                        <Link to={routes.accountSettings} style={isActive(routes.accountSettings) ? { color: "white" } : { color: "#757589" }}>
+                                            <i className="fa fa-angle-right"></i>{" "}
+                                            {t("admin.sidebar.settings.account")}
                                         </Link>
                                     </li>
                                 </ul>

@@ -48,10 +48,10 @@ class NotifyForForm101Signed implements ShouldQueue
             ->whereNotNull('email')
             ->get(['name', 'email', 'id', 'phone']);
 
-        App::setLocale('en');
-        foreach ($admins as $key => $admin) {
-            Mail::to($admin->email)->send(new AdminForm101SignedMail($admin, $event->worker, $event->form));
-        }
+        // App::setLocale('en');
+        // foreach ($admins as $key => $admin) {
+        //     Mail::to($admin->email)->send(new AdminForm101SignedMail($admin, $event->worker, $event->form));
+        // }
 
         App::setLocale($event->worker->lng);
 

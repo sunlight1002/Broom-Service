@@ -61,7 +61,6 @@ export default function CreateJobCalender({
         getTime();
     }, []);
 
-
     const handleServices = (index) => {
         
         setServiceIndex(index)
@@ -69,6 +68,7 @@ export default function CreateJobCalender({
         setSelectedServiceIndex(index);
 
         const _service = services[index];
+        
         setSelectedService(_service);
 
         if (!_service) return;
@@ -109,6 +109,7 @@ export default function CreateJobCalender({
                     prefer_type: _service.address.prefer_type,
                     ignore_worker_ids: _service.address.not_allowed_worker_ids,
                     client_property_id: _service.address.id,
+                    is_freelancer: _service?.is_freelancer ? true : false,
                 },
             });
             const workers = res.data.workers;

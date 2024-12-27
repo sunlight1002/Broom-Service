@@ -176,7 +176,6 @@ class WhatsappNotification
             }
 
             if(isset($jobData['id']) && !empty($jobData['id'])) {
-                \Log::info($jobData['id']. " - " . isset($workerData['id'])? $workerData['id'] : '');
                 $adminJobViewLink = $this->generateShortUrl(url("admin/job/view/" . $jobData['id']), 'admin');
                 $clientJobsReviewLink = $this->generateShortUrl(url("client/jobs/" . base64_encode($jobData['id']) . "/review"), 'client');
                 $teamJobActionLink = $this->generateShortUrl(url("admin/jobs/" . $jobData['id'] . "/change-worker"), 'admin');
@@ -558,6 +557,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_CLIENT:
                     case WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT:
                     case WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER:
+                    case WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT:
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;

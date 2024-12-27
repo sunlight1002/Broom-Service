@@ -1476,6 +1476,43 @@ Broom Service Team",
             ],
 
             [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT,
+                'description' => 'notify client, Client declined contract',
+                'message_en' => "Hello :client_name,  
+
+We have received your response regarding the agreement sent to you. Thank you for taking the time to review it.  
+
+If you have any questions or if there’s anything further we can do to assist you, please don’t hesitate to reach out to us.  
+
+We are here to help and look forward to assisting you in the future.  
+
+Best regards,  
+Broom Service 🌹  
+www.broomservice.co.il  
+Telephone: 03-525-70-60  
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום :client_name,  
+
+קיבלנו את תגובתך בנוגע להסכם ההתקשרות שנשלח אליך. 
+
+אם יש לך שאלות נוספות או אם יש משהו נוסף שנוכל לסייע בו, נשמח לעמוד לשירותך בכל עת.  
+
+
+בברכה,  
+צוות ברום סרוויס 🌹  
+www.broomservice.co.il  
+טלפון: 03-525-70-60  
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
+            [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS,
                 'description' => 'notify team, Client is in freeze status',
                 'message_en' => "Hello :client_name,

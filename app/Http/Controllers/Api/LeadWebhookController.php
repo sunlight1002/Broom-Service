@@ -309,6 +309,14 @@ class LeadWebhookController extends Controller
                 die('notification disabled');
             }
 
+            if ($client) {
+                $createdAt = $client->created_at;
+                if ($createdAt && $createdAt->lt(now()->subHours(24))) {
+                    \Log::info('Client record is older than 24 hours.');
+                    die("Client record is older than 24 hours.");
+                }
+            }
+
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
                 $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : ($message_data[0]['button']['text'] ?? "");
                 // \Log::info($message);
@@ -317,6 +325,30 @@ class LeadWebhookController extends Controller
                     ->first();
 
                 $client_menus = WhatsAppBotClientState::where('client_id', $client->id)->first();
+
+                if($message == 0){
+                    $m = $this->botMessages['main-menu'][$client->lng];
+                    $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
+
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'message'       => $m,
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($get_data)
+                    ]);
+
+                    WhatsAppBotClientState::updateOrCreate([
+                        'client_id' => $client->id,
+                    ], [
+                        'menu_option' => 'main_menu',
+                        'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                    ]);
+                    die("STOPPED");
+                }
 
                 if ($message === 'STOP' || $message === 'הפסק') {
                     if (!$client) {
@@ -546,7 +578,7 @@ To schedule an appointment for a quote press 3 or ☎️ 5 to speak with a repre
                         '3' => [
                             'title' => "Schedule an appointment for a quote",
                             'content' => [
-                                'en' => "To receive a quote, please send us messages with the following details\n\nPlease send your full name",
+                                'en' => "To receive a quote, please send us messages with the following details\n\nPlease send your first name",
                                 'he' => "כדי לקבל הצעת מחיר, אנא שלחו את הפרטים הבאים: 📝\n\nשם מלא",
                             ]
                         ],
@@ -652,23 +684,57 @@ If you would like to speak to a human representative, please send a message with
                     die("Human representative");
                 }
 
-                // Store lead full name
-                if ($last_menu == 'full_name') {
-                    $names = explode(' ', $message);
-                    if (isset($names[0])) {
-                        $client->firstname = trim($names[0]);
-                    }
-                    if (isset($names[1])) {
-                        $client->lastname = trim($names[1]);
-                    }
+                // // Store lead full name
+                // if ($last_menu == 'full_name') {
+                //     $names = explode(' ', $message);
+                //     if (isset($names[0])) {
+                //         $client->firstname = trim($names[0]);
+                //     }
+                //     if (isset($names[1])) {
+                //         $client->lastname = trim($names[1]);
+                //     }
+                //     $client->save();
+                //     // $client->refresh();
+                //     $msg = null;
+                //     if ($client->lng == 'heb') {
+                //         $msg = 'כתובת מלאה (רחוב, מספר ועיר בלבד)';
+                //     } else {
+                //         $msg = "Please send your full address (Only street, number, and city)";
+                //     }
+                //     WebhookResponse::create([
+                //         'status'        => 1,
+                //         'name'          => 'whatsapp',
+                //         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                //         'message'       => $msg,
+                //         'number'        => $from,
+                //         'flex'          => 'A',
+                //         'read'          => 1,
+                //         'data'          => json_encode($get_data)
+                //     ]);
+
+                //     $result = sendWhatsappMessage($from, array('message' => $msg));
+
+                //     $responseClientState = WhatsAppBotClientState::updateOrCreate([
+                //         'client_id' => $client->id,
+                //     ], [
+                //         'menu_option' => 'main_menu->appointment->full_address',
+                //         'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                //     ]);
+
+                //     die("Store full name");
+                // }
+
+                // Check the current menu state
+                if ($last_menu == 'first_name') {
+                    // Store first name
+                    $client->firstname = trim($message);
                     $client->save();
-                    // $client->refresh();
-                    $msg = null;
-                    if ($client->lng == 'heb') {
-                        $msg = 'כתובת מלאה (רחוב, מספר ועיר בלבד)';
-                    } else {
-                        $msg = "Please send your full address (Only street, number, and city)";
-                    }
+
+                    // Ask for last name
+                    $msg = $client->lng == 'heb' 
+                        ? 'מה שם המשפחה שלך?' 
+                        : "Please send your last name.";
+
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
@@ -682,29 +748,63 @@ If you would like to speak to a human representative, please send a message with
 
                     $result = sendWhatsappMessage($from, array('message' => $msg));
 
-                    $responseClientState = WhatsAppBotClientState::updateOrCreate([
+                    // Update client state to expect the last name
+                    WhatsAppBotClientState::updateOrCreate([
+                        'client_id' => $client->id,
+                    ], [
+                        'menu_option' => 'main_menu->appointment->last_name',
+                        'language' =>  $client->lng == 'heb' ? 'he' : 'en',
+                    ]);
+
+                    die("Store first name");
+                }
+
+                if ($last_menu == 'last_name') {
+                    // Store last name
+                    $client->lastname = trim($message);
+                    $client->save();
+
+                    // Ask for full address
+                    $msg = $client->lng == 'heb' 
+                        ? 'כתובת מלאה (רחוב, מספר ועיר בלבד)' 
+                        : "Please send your full address (Only street, number, and city).";
+
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                        'message'       => $msg,
+                        'number'        => $from,
+                        'flex'          => 'A',
+                        'read'          => 1,
+                        'data'          => json_encode($get_data)
+                    ]);
+
+                    $result = sendWhatsappMessage($from, array('message' => $msg));
+
+                    // Update client state to expect the full address
+                    WhatsAppBotClientState::updateOrCreate([
                         'client_id' => $client->id,
                     ], [
                         'menu_option' => 'main_menu->appointment->full_address',
                         'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                     ]);
 
-                    die("Store full name");
+                    die("Store last name");
                 }
 
                 if ($last_menu == 'full_address') {
 
                     $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
                         'address' => $message,
-                        'key' => config('services.google.map_key')
+                        'key' => config('services.google.map_key'),
+                        'language' => $client->lng == 'heb' ? 'he' : 'en' 
                     ]);
 
                     \Log::info($response->json());
 
 
                     if ($response->successful()) {
-                        \Log::info($result);
-                        \Log::info("address");
                         $data = $response->object();
                         $result = $data->results[0] ?? null;
                         if ($result) {
@@ -1278,15 +1378,6 @@ If you would like to speak to a human representative, please send a message with
                     // \Log::info($message);
 
                     switch ($message) {
-                        case '0':
-                            WhatsAppBotClientState::updateOrCreate([
-                                'client_id' => $client->id,
-                            ], [
-                                'menu_option' => $last_menu,
-                                'language' =>  $client->lng == 'heb' ? 'he' : 'en',
-                            ]);
-                            break;
-
                         case '1':
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
@@ -1309,7 +1400,7 @@ If you would like to speak to a human representative, please send a message with
                             WhatsAppBotClientState::updateOrCreate([
                                 'client_id' => $client->id,
                             ], [
-                                'menu_option' => 'main_menu->appointment->full_name',
+                                'menu_option' => 'main_menu->appointment->first_name',
                                 'language' =>  $client->lng == 'heb' ? 'he' : 'en',
                             ]);
                             break;
@@ -1336,8 +1427,6 @@ If you would like to speak to a human representative, please send a message with
                     die("Language switched to english");
                 }
 
-                \Log::info(['message' => $message, 'last_menu' => $last_menu]);
-                \Log::info(str_contains($message, '@'));
 
                 if (($message !== "Human Representative") || !(str_contains($message, '@'))) {
                     // Follow-up message for returning to the menu, with translation based on the client's language

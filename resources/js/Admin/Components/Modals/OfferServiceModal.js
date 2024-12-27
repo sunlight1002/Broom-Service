@@ -12,6 +12,7 @@ const initialValues = {
     freq_name: "",
     frequency: "",
     fixed_price: "",
+    freelancer_price: "",
     rateperhour: "",
     ratepersquaremeter: "",
     totalsquaremeter: "",
@@ -21,6 +22,7 @@ const initialValues = {
     period: "",
     address: "",
     weekdays: [],
+    is_freelancer: false,
     weekday_occurrence: "1",
     weekday: "sunday",
     month_occurrence: 1,
@@ -50,6 +52,8 @@ export default function OfferServiceModal({
     const [offerServiceTmp, setOfferServiceTmp] = useState(
         isAdd ? [initialValues] : tmpFormValues && Array.isArray(tmpFormValues) ? tmpFormValues : [initialValues]
     );
+
+    const [isFreelancer, setIsFreelancer] = useState(false);
 
     useEffect(() => {
         if (!isAdd && Array.isArray(tmpFormValues) && tmpFormValues.length > 0) {
@@ -221,7 +225,7 @@ export default function OfferServiceModal({
     };
 
     const handleSubmit = () => {
-        const combinedArray = isAdd ? ([...formValues,...offerServiceTmp]) : offerServiceTmp;
+        const combinedArray = isAdd ? ([...formValues, ...offerServiceTmp]) : offerServiceTmp;
 
         const valid = offerServiceTmp.every((formValues) => checkValidation(formValues));
         if (valid) {
@@ -277,6 +281,31 @@ export default function OfferServiceModal({
             return updatedServices;
         });
     };
+
+    const handleFreelancer = (serviceIndex, tmpvalue) => {
+        setOfferServiceTmp((prevState) => {
+            const updatedServices = [...prevState];
+            updatedServices[serviceIndex] = {
+                ...updatedServices[serviceIndex],
+                is_freelancer: tmpvalue,
+            };
+            return updatedServices;
+        })
+    }
+
+    const handleFreelancerPrice = (serviceIndex, tmpvalue) => {
+        setOfferServiceTmp((prevState) => {
+            const updatedServices = [...prevState];
+            updatedServices[serviceIndex] = {
+                ...updatedServices[serviceIndex],
+                freelancer_price: tmpvalue,
+            };
+            return updatedServices;
+        })
+    }
+
+    console.log(offerServiceTmp);
+
 
     return (
         <Modal
@@ -456,6 +485,45 @@ export default function OfferServiceModal({
                                         )}
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-sm-6">
+                                    <div className="form-group m-0 d-flex align-items-center my-2">
+                                        <label htmlFor="isfreelancer" className="control-label mb-0 mr-2"
+                                            style={{
+                                                userSelect: "none",
+                                                cursor: "pointer"
+                                            }}
+                                        >{t("admin.global.is_freelancer")}</label>
+                                        <input
+                                            name="isfreelancer"
+                                            id="isfreelancer"
+                                            type="checkbox"
+                                            className=""
+
+                                            value={isFreelancer}
+                                            onChange={(e) => handleFreelancer(index, e.target.checked)}
+                                        />
+                                    </div>
+                                </div>
+                                {offerServiceTmp[index].is_freelancer && (
+                                    <div className="col-sm-6">
+                                        <div className="form-group m-0">
+                                            <label className="control-label">{t("admin.global.freelancer_price")}</label>
+                                            <input
+                                                type="number"
+                                                name="freelancer_price"
+                                                value={service.freelancer_price || ""}
+                                                onChange={(e) => handleFreelancerPrice(index, e.target.value)}
+                                                className="form-control jobprice"
+                                                required
+                                                placeholder="Enter job price"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
                             </div>
 
                             {service.type === "squaremeter" && (

@@ -433,119 +433,123 @@ export default function Clients() {
                             </Link>
                         </div>
 
-                        <div className="clearfix w-100 justify-content-between align-items-center">
-                            <h1 className="page-title d-none d-lg-block float-left">
-                                {t("admin.sidebar.clients")}
-                            </h1>
-                            <div className="search-data">
-                                <div
-                                    className="App"
-                                    style={{ display: "none" }}
-                                >
-                                    <CSVLink {...csvReport} id="csv">
-                                        {t("admin.global.Export")}
-                                    </CSVLink>
-                                </div>
-                                <div className="action-dropdown dropdown mt-4 mr-2">
-                                    <button
-                                        className="btn navyblue"
-                                        onClick={handleShow}
-                                    >
-                                        {t("admin.global.Import")}
-                                    </button>
-                                </div>
-                                <div className="action-dropdown dropdown mt-4 mr-2 d-none d-lg-block">
-                                    <button
-                                        className="btn navyblue ml-2"
-                                        onClick={(e) => handleReport(e)}
-                                    >
-                                        {t("admin.client.Export")}
-                                    </button>
-                                </div>
+                        {
+                            type == "past" && (
+                                <div className="clearfix w-100 justify-content-between align-items-center">
+                                    <h1 className="page-title d-none d-lg-block float-left">
+                                        {t("admin.sidebar.clients")}
+                                    </h1>
+                                    <div className="search-data">
+                                        <div
+                                            className="App"
+                                            style={{ display: "none" }}
+                                        >
+                                            <CSVLink {...csvReport} id="csv">
+                                                {t("admin.global.Export")}
+                                            </CSVLink>
+                                        </div>
+                                        <div className="action-dropdown dropdown mt-4 mr-2">
+                                            <button
+                                                className="btn navyblue"
+                                                onClick={handleShow}
+                                            >
+                                                {t("admin.global.Import")}
+                                            </button>
+                                        </div>
+                                        <div className="action-dropdown dropdown mt-4 mr-2 d-none d-lg-block">
+                                            <button
+                                                className="btn navyblue ml-2"
+                                                onClick={(e) => handleReport(e)}
+                                            >
+                                                {t("admin.client.Export")}
+                                            </button>
+                                        </div>
 
-                                <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
-                                    <button
-                                        type="button"
-                                        className="btn navyblue dropdown-toggle"
-                                        data-toggle="dropdown"
-                                    >
-                                        <i className="fa fa-filter"></i>
-                                    </button>
-                                    <div className="dropdown-menu dropdown-menu-right">
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={(e) => {
-                                                set_Filters({
-                                                    action: "past",
-                                                });
-                                            }}
-                                        >
-                                            {t("admin.client.past")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                set_Filters({
-                                                    action: "unhappy",
-                                                });
-                                            }}
-                                        >
-                                            {t("admin.client.Unhappy")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                set_Filters({
-                                                    action: "price issue",
-                                                });
-                                            }}
-                                        >
-                                            {t("admin.client.Price_issue")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                set_Filters({
-                                                    action: "moved",
-                                                });
-                                            }}
-                                        >
-                                            {t("admin.client.Moved")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                set_Filters({
-                                                    action: "one-Time",
-                                                });
-                                            }}
-                                        >
-                                            {t("admin.client.One_Time")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={(e) => handleReport(e)}
-                                        >
-                                            {t("admin.client.Export")}
-                                        </button>
+                                        <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
+                                            <button
+                                                type="button"
+                                                className="btn navyblue dropdown-toggle"
+                                                data-toggle="dropdown"
+                                            >
+                                                <i className="fa fa-filter"></i>
+                                            </button>
+                                            <div className="dropdown-menu dropdown-menu-right">
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={(e) => {
+                                                        set_Filters({
+                                                            action: "past",
+                                                        });
+                                                    }}
+                                                >
+                                                    {t("admin.client.past")}
+                                                </button>
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={() => {
+                                                        set_Filters({
+                                                            action: "unhappy",
+                                                        });
+                                                    }}
+                                                >
+                                                    {t("admin.client.Unhappy")}
+                                                </button>
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={() => {
+                                                        set_Filters({
+                                                            action: "price issue",
+                                                        });
+                                                    }}
+                                                >
+                                                    {t("admin.client.Price_issue")}
+                                                </button>
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={() => {
+                                                        set_Filters({
+                                                            action: "moved",
+                                                        });
+                                                    }}
+                                                >
+                                                    {t("admin.client.Moved")}
+                                                </button>
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={() => {
+                                                        set_Filters({
+                                                            action: "one-Time",
+                                                        });
+                                                    }}
+                                                >
+                                                    {t("admin.client.One_Time")}
+                                                </button>
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={(e) => handleReport(e)}
+                                                >
+                                                    {t("admin.client.Export")}
+                                                </button>
 
-                                        <input
-                                            type="hidden"
-                                            value={filters.action}
-                                            ref={actionRef}
-                                        />
+                                                <input
+                                                    type="hidden"
+                                                    value={filters.action}
+                                                    ref={actionRef}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <Link
+                                            to="/admin/clients/create"
+                                            className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
+                                        >
+                                            <i className="btn-icon fas fa-plus-circle"></i>
+                                            {t("admin.client.AddNew")}
+                                        </Link>
                                     </div>
                                 </div>
-
-                                <Link
-                                    to="/admin/clients/create"
-                                    className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
-                                >
-                                    <i className="btn-icon fas fa-plus-circle"></i>
-                                    {t("admin.client.AddNew")}
-                                </Link>
-                            </div>
-                        </div>
+                            )
+                        }
                         <div className="hidden-xl mt-4">
                             <select
                                 className="form-control"
@@ -565,7 +569,7 @@ export default function Clients() {
                         <div className="row mb-2 d-none d-lg-block">
                             <div className="col-sm-12 d-flex align-items-center">
                                 <div className="mr-3" style={{ fontWeight: "bold" }}>
-                                {t("global.status")}:
+                                    {t("global.status")}:
                                 </div>
                                 <Filter_Buttons
                                     text={t("admin.client.past")}
@@ -673,7 +677,7 @@ export default function Clients() {
                 </Modal.Header>
                 <Modal.Body>
                     <a href="/api/admin/clients-sample-file">
-                    {t("admin.global.download_sample_file")}
+                        {t("admin.global.download_sample_file")}
                     </a>
                     <form encType="multipart/form-data">
                         <div className="row mt-2">
@@ -694,7 +698,7 @@ export default function Clients() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
-                    {t("global.close")}
+                        {t("global.close")}
                     </Button>
                     <Button
                         className="btn btn-pink"

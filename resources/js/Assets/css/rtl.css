@@ -220,8 +220,15 @@ li {
 }
 
 .clearfix{
+    display: flex ;
+    direction: rtl;
+    flex-direction: column ;
+    justify-content: flex-start ;
+    align-items: flex-start;
+}
+.clearfix .odd{
     display: flex !important;
-    direction: ltr;
+    direction: ltr !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
     align-items: flex-start !important;

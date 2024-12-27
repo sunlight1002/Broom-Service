@@ -174,7 +174,7 @@ export default function CreateJob() {
                                             </>// end here
                                         )}
                                     </div>
-                                    <div className="row mb-3 mt-2">
+                                    <div className="row mb-2 mt-2">
                                         <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
                                             <div className="d-flex align-items-center flex-wrap justify-content-between">
                                                 <div className="d-flex align-items-center flex-wrap mt-2 ">
