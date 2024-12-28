@@ -181,6 +181,9 @@ if ($accessToken) {
                 \Google\Service\Calendar::CALENDAR_EVENTS,
                 \Google\Service\Calendar::CALENDAR_SETTINGS_READONLY,
                 \Google\Service\Calendar::CALENDAR_READONLY,
+                \Google\Service\PeopleService::CONTACTS,                // Full access to contacts
+                \Google\Service\PeopleService::CONTACTS_READONLY,       // Read-only access to contacts
+                \Google\Service\PeopleService::CONTACTS_OTHER_READONLY, // Read-only access to "Other Contacts"
             ]
         );
         // $client->setIncludeGrantedScopes(true);
