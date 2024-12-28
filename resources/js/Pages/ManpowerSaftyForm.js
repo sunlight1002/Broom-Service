@@ -103,7 +103,7 @@ const ManpowerSaftyForm = ({
                         alert.success("Form submitted successfully");
                         if (country !== "Israel") {
                             setNextStep(prev => prev + 1);
-                        }else{
+                        } else {
                             setTimeout(() => {
                                 window.location.reload(true);
                             }, 1000);
@@ -117,7 +117,7 @@ const ManpowerSaftyForm = ({
                             icon: "error",
                         });
                     });
-            }else{
+            } else {
                 setNextStep(prev => prev + 1)
             }
         },
@@ -148,7 +148,7 @@ const ManpowerSaftyForm = ({
                 setFieldValue("workerName2", res.data.worker.lastname);
                 setFieldValue("address", res.data.worker.address);
                 setFieldValue("manpower_company_name", res.data.manpower_company_name);
-                if (res.data.worker.country == "israel") {
+                if (res.data.worker.country == "Israel") {
                     setFieldValue("idNumber", res.data.worker.worker_id);
                 } else {
                     setFieldValue("passport", res.data.worker.passport);
@@ -182,9 +182,6 @@ const ManpowerSaftyForm = ({
         });
     };
 
-    console.log(values);
-    
-
 
     return (
         <div id="container" className="targetDiv rtlcon pdf-container" ref={contentRef}>
@@ -216,7 +213,7 @@ const ManpowerSaftyForm = ({
                             <strong>{t("manpower_safty_form.subject")}</strong>{t("manpower_safty_form.subject_title")}<br />
                             {t("manpower_safty_form.sub_title", {
                                 full_name: values.workerName + " " + values.workerName2,
-                                number: values.passport ? values.passport : values.idNumber,
+                                number: values.passport ? values.passport : values.idNumber ? values.idNumber : values.worker_id,
                                 address: values.address ?? "",
                             })}<br />
                         </p>
@@ -241,7 +238,7 @@ const ManpowerSaftyForm = ({
                     <div className="mt-5">
                         <form className="mb-5" onSubmit={handleSubmit}>
                             <div className="mt-3" style={{ fontSize: "16px" }}>
-                                <div className="gap-5 d-flex justify-content-between">
+                                <div className="gap-5 d-flex flex-column">
                                     <div className="d-flex flex-column">
                                         <strong className="mb-2">{t("manpower_safty_form.sincerely")}</strong>
                                         <strong>{t("manpower_safty_form.the_worker")} {t("manpower_safty_form.signature")}</strong>
@@ -251,8 +248,13 @@ const ManpowerSaftyForm = ({
                                         formValues.signature != null ? (
                                         <img src={formValues.signature} />
                                     ) : (
-                                        <div>
-                                            <div className="d-flex flex-column">
+                                        <div className="d-flex flex-column">
+                                            <div className="d-flex flex-column"
+                                                style={{
+                                                    width: "250px",
+                                                    height: "100px",
+                                                }}
+                                            >
                                                 <SignatureCanvas
                                                     penColor="black"
                                                     canvasProps={{
@@ -270,10 +272,10 @@ const ManpowerSaftyForm = ({
                                             </div>
 
                                             {!isGeneratingPDF && (
-                                                <div className="d-block mt-1">
+                                                <div className="d-block mt-2">
                                                     <button
                                                         type="button"
-                                                        className="btn btn-warning mb-2"
+                                                        className="btn navyblue mb-2"
                                                         onClick={
                                                             clearSignature
                                                         }
@@ -302,25 +304,27 @@ const ManpowerSaftyForm = ({
                                         })}<br />
                                     </p>
                                 </div>
-                                <div className="gap-5 d-flex justify-content-between">
+                                <div className="gap-5 d-flex flex-column">
                                     <div className="d-flex flex-column">
                                         <strong className="mb-2">{t("manpower_safty_form.name")}</strong>
                                         <strong>{t("manpower_safty_form.signature")}</strong>
                                     </div>
+                                    <div style={{ width: "250px", height: "100px" }}>
                                     <img src={companySign} />
+                                    </div>
                                 </div>
                             </div>
                             <div className="row justify-content-center mt-4">
                                 <div className="col d-flex justify-content-end">
-                                        <button
-                                            type="submit"
-                                            className="btn navyblue"
-                                            disabled={(country != "Israel") && isSubmitted ? false: isSubmitted}
-                                        >
-                                            {/* {!isSubmitted ? t("safeAndGear.Accept") : <> Next <GrFormNextLink /></>} */}
-                                            {!isSubmitted ? t("safeAndGear.Accept") : country != "Israel" ? t("safeAndGear.Next") : t("safeAndGear.submitted")}
+                                    <button
+                                        type="submit"
+                                        className="btn navyblue"
+                                        disabled={(country != "Israel") && isSubmitted ? false : isSubmitted}
+                                    >
+                                        {/* {!isSubmitted ? t("safeAndGear.Accept") : <> Next <GrFormNextLink /></>} */}
+                                        {!isSubmitted ? t("safeAndGear.Accept") : country != "Israel" ? t("safeAndGear.Next") : t("safeAndGear.submitted")}
 
-                                        </button>
+                                    </button>
 
                                 </div>
                             </div>

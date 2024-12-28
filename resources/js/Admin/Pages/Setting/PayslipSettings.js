@@ -198,7 +198,7 @@ export default function PayslipSettings() {
                                 {errors.workerDeduction && <div className="invalid-feedback">{errors.workerDeduction[0]}</div>}
                             </div>
                             <div className="form-group">
-                                <label htmlFor="recoveryFee">{t("admin.payslip.recovery_fee")}:</label>
+                                <label htmlFor="recoveryFee">{t("admin.payslip.recorvery_fee")}:</label>
                                 <input
                                     type="number"
                                     name="recoveryFee"

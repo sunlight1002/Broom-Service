@@ -34,6 +34,39 @@ export default function OfferPrice() {
         setModalStatus(true);
     };
 
+    const handleReopen = async (id) => {
+
+        Swal.fire({
+            title: t("global.areYouSure"),
+            text: t("global.notAbleToRevert"),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: t("swal.button.reopen_offer"),
+        }).then(async(result) => {
+            if (result.isConfirmed) {
+                try {
+                    const res = await axios.post(`/api/admin/offer-reopen/${id}`, {}, { headers });
+                    if (res.status === 200) {
+                        Swal.fire({
+                            icon: "success",
+                            title: t("swal.offer_reopend"),
+                            showConfirmButton: false,
+                            timer: 1500,
+                        });
+                        setTimeout(() => {
+                            $(tableRef.current).DataTable().draw();
+                        }, 1000);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        });
+
+    }
+
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -115,6 +148,11 @@ export default function OfferPrice() {
                             _html += `<button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>`;
 
                             _html += `<button type="button" class="dropdown-item dt-delete-btn" data-id="${row.id}">${t("admin.leads.Delete")}</button>`;
+
+                            // Conditionally include "Reopen" button if the status is not "accepted"
+                            if (row.status === "accepted") {
+                                _html += `<button type="button" class="dropdown-item dt-reopen-btn" data-id="${row.id}">${t("admin.leads.reopen")}</button>`;
+                            }
 
                             _html += "</div> </div>";
 
@@ -226,6 +264,12 @@ export default function OfferPrice() {
             const _id = $(this).data("id");
             handleDelete(_id);
         });
+
+        $(tableRef.current).on("click", ".dt-reopen-btn", function () {
+            const _id = $(this).data("id");
+            handleReopen(_id);
+        });
+
 
         // Handle language changes
         i18n.on("languageChanged", () => {

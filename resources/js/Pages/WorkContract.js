@@ -76,7 +76,7 @@ export default function WorkContract() {
         }
 
         console.log(data);
-        
+
 
         axios
             .post(`/api/client/accept-contract`, data)

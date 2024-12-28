@@ -137,7 +137,7 @@ const InsuranceForm = ({
         canOrigin: yup.string().trim().required(t("insurance.originReq")),
         canDOB: yup.date().required(t("insurance.dobReq")),
         canFirstDateOfIns: yup.date().required(t("insurance.FDIReq")),
-        canZipcode: yup.string().trim().required(t("insurance.zipReq")),
+        // canZipcode: yup.string().trim().required(t("insurance.zipReq")),
         canTown: yup.string().trim().required(t("insurance.townReq")),
         canHouseNo: yup.string().trim().required(t("insurance.houseNumReq")),
         canStreet: yup.string().trim().required(t("insurance.streetReq")),
@@ -170,7 +170,7 @@ const InsuranceForm = ({
                     }
     
                     if (!value) {
-                        return this.createError({ message: "Details are required because a field is marked 'yes'" });
+                        return this.createError({ message: t("insurance.positive_finding_error") });
                     }
     
                     return true;
@@ -669,9 +669,9 @@ const InsuranceForm = ({
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                 />
-                                <span className="text-danger">
+                                {/* <span className="text-danger">
                                     {touched.canZipcode && errors.canZipcode}
-                                </span>
+                                </span> */}
                             </div>
                         </div>
                         <div className="col-sm">
@@ -2215,7 +2215,7 @@ const InsuranceForm = ({
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            Details of positive findings
+                                            {t("insurance.positive_finding")}
                                         </label>
                                         <div>
                                             <textarea
@@ -2226,7 +2226,7 @@ const InsuranceForm = ({
                                                     setFieldValue("details", e.target.value)
                                                 }
                                                 className="form-control"
-                                                placeholder={"Enter if it required..."}
+                                                placeholder={t("insurance.enter_required")}
                                             ></textarea>
                                             <span className="text-danger">
                                                 {touched.details && errors.details}
@@ -2288,7 +2288,7 @@ const InsuranceForm = ({
                                                 {touched.signature && errors.signature}
                                             </span>
                                         </div>
-                                        <p className="ml-2 mt-5">
+                                        <p className="mx-2 mt-5">
                                             <button
                                                 className="btn px-3 py-1 navyblue mb-2"
                                                 onClick={clearSignature}
@@ -2308,10 +2308,10 @@ const InsuranceForm = ({
                             <div className="col d-flex justify-content-end">
                                 <button
                                     type="button"
-                                    className="btn align-content-center navyblue mr-2"
+                                    className="btn align-content-center navyblue mx-2"
                                     onClick={() => setNextStep(prev => prev - 1)}
                                 >
-                                    <GrFormPreviousLink /> Prev
+                                    <GrFormPreviousLink /> {t("common.prev")}
                                 </button>
                                 {!isSubmitted && (
                                     <>

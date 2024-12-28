@@ -1,14 +1,16 @@
 const FilterButtons = ({
     text,
+    name = text,
     className,
     selectedFilter,
     setselectedFilter,
     onClick,
 }) => (
+    
     <button
         className={`btn border rounded ${className}`}
         style={
-            selectedFilter === text
+            selectedFilter === name
                 ? { background: "white" }
                 : {
                       background: "#2c3f51",
@@ -17,7 +19,7 @@ const FilterButtons = ({
         }
         onClick={() => {
             onClick?.();
-            setselectedFilter(text);
+            setselectedFilter(name);
         }}
     >
         {text}

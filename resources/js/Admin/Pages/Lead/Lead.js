@@ -47,6 +47,7 @@ export default function Lead() {
         t("admin.leads.Uninterested"),
         t("admin.leads.Unanswered"),
         t("admin.leads.Potential_client"),
+        t("admin.leads.Reschedule_call"),
     ];
 
     const headers = {
@@ -57,8 +58,6 @@ export default function Lead() {
 
 
     const initializeDataTable = (initialPage = 0) => {
-        console.log(initialPage);
-        
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             const table = $(tableRef.current).DataTable({

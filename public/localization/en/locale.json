@@ -126,7 +126,12 @@
     },
     "swal": {
       "not_interested": "Im not interested",
-      "contact_me": "Contact Me to reschedule the meeting"
+      "contact_me": "Contact Me to reschedule the meeting",
+      "forms_submitted": "Forms submitted successfully",
+      "offer_reopend": "Offer re-opened successfully",
+      "button":{
+        "reopen_offer": "Yes, Reopen Offer!"
+      }
     },
     "global": {
         "search": "Search",
@@ -183,6 +188,7 @@
         "time": "Time",
         "noTimeSlotAvailable": "No time slot available",
         "custom_date": "Custom Date Range",
+        "date_range": "Date Range",
         "from": "From",
         "filter": "Filter",
         "previous_week": "Previous Week",
@@ -1169,6 +1175,9 @@
             "inactive": "Inactive",
             "pending": "Pending",
             "past": "Past",
+            "freelancer": "Freelancer",
+            "is_freelancer": "Is Freelancer",
+            "freelancer_price": "Freelancer Price",
             "location": "Enter a location",
             "locationPlaceholder": "Search your address",
             "manpower_company": "Manpower Company",
@@ -1192,6 +1201,16 @@
             "changeWorker": "Change Worker",
             "chatHistory": "Chat History",
             "chat": "Chat",
+            "chats": "Chats",
+            "wa_chat": "WhatsApp Chat",
+            "s_and_r_message": "Send and receive messages",
+            "selected_file": "Selected File",
+            "replying_to": "Replying to",
+            "select_emoji": "Select Emoji",
+            "upload_options": "Upload Options",
+            "upload_image": "Upload Image",
+            "upload_video": "Upload Video",
+            "clients": "Clients",
             "chatPlaceholder": "Enter your message",
             "chatSend": "Send",
             "chatSendPlaceholder": "Enter your message",
@@ -1378,6 +1397,7 @@
             "Edit": "Edit",
             "view": "View",
             "Delete": "Delete",
+            "reopen": "Reopen",
             "change_status": "Change status",
             "save": "Save",
             "ready_to_get_best_job": "Ready to get best job",
@@ -1688,6 +1708,7 @@
             "Waiting_client": "Waiting",
             "Active_client": "Active client",
             "Past_client": "Past client",
+            "past": "Past",
             "Unhappy": "Unhappy",
             "Price_issue": "Price issue",
             "Moved": "Moved",
@@ -2708,6 +2729,7 @@
         "success_msg": "Job approved sucessfully"
     },
     "safeAndGear": {
+        "title": "Safety And Gear Form",
         "welcomeToBroom": "Welcome to Broom Service:",
         "broomIntro": "We are happy that you chose to work with our company. We will do everything to ensure you are satisfied with your work, and of course, we will take care of everything you need like family.",
         "broomIntro2": "The job is full-time, approximately 8 hours a day, and Fridays are optional (of course, payment is based on the schedule for that day and the actual hours worked).",
@@ -2859,6 +2881,7 @@
         "Submit": "Submit",
         "Accept": "Accept",
         "Date": "Date",
+        "singular_masculine": "(What is stated in the singular and/or masculine in this document is also feminine in meaning)",
         "errorMsg": {
             "FullName": "Employee Name",
             "Role": "Role",
@@ -3088,6 +3111,9 @@
         "Hernia": "Hernia (hernia break) - of the abdominal wall, groin, surgical scars, navel and solar plexus. Medical documents must be enclosed",
         "womenOnly": "For women only: Do you suffer or have you suffered from any women’s illnesses: irregular menstruation, fertility problems, bleeding and breast cysts, problems in the uterus and ovaries, irregular findings in a gynecological exam (such as PAP)? Are you pregnant? What is the number of fetuses?",
         "Caesarean": "Have you suffered from any problems in previous pregnancies or in the current pregnancy? Have you given birth by a Caesarean Section?",
+        "positive_finding": "Details of positive findings",
+        "positive_finding_error": "Details are required because a field is marked 'yes'",
+        "enter_required": "Enter if Required ...",
         "Signature": "Signature"
     },
     "formTxt": {

@@ -130,11 +130,15 @@ export default function Document({ worker, getWorkerDetails }) {
         if (worker.company_type === "my-company") {
             if (worker.country === "Israel") {
                 return alldocumentTypes.filter((i) =>
-                    ["israeli-id", "pension-form", "study-form" , "training-fund-form", "payslip", "others"].includes(i.slug)
+                    // ["israeli-id", "pension-form", "study-form" , "training-fund-form", "payslip", "others"].includes(i.slug)
+                    ["israeli-id", "pension-form", "study-form" , "payslip", "others"].includes(i.slug)
+
                 );
             } else {
                 return alldocumentTypes.filter((i) =>
-                    ["pension-form", "training-fund-form","study-form", "payslip" , "insurance-form", "others"].includes(i.slug)
+                    // ["pension-form", "training-fund-form","study-form", "payslip" , "insurance-form", "others"].includes(i.slug)
+                    ["payslip" , "insurance-form", "others"].includes(i.slug)
+
                 );
             }
         }

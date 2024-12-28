@@ -49,6 +49,7 @@ class WorkerController extends Controller
         $status = $request->get('status');
         $manpowerCompanyID = $request->get('manpower_company_id');
         $isMyCompany = $request->get('is_my_company');
+        $isFreelancer = $request->get('is_freelancer');
 
         $query = User::query()
             ->when($status == "active", function ($q) {
@@ -69,6 +70,9 @@ class WorkerController extends Controller
             })
             ->when($isMyCompany == 'true', function ($q) {
                 return $q->where('company_type', 'my-company');
+            })
+            ->when($isFreelancer == 'true', function ($q) {
+                return $q->where('company_type', 'freelancer');
             })
             ->when($status && !$manpowerCompanyID, function ($q) {
                 return $q->where('company_type', 'my-company');
@@ -111,6 +115,8 @@ class WorkerController extends Controller
         $service = '';
         $onlyWorkerIDArr = $request->only_worker_ids ? explode(',', $request->only_worker_ids) : [];
         $ignoreWorkerIDArr = $request->ignore_worker_ids ? explode(',', $request->ignore_worker_ids) : [];
+        $isFreelancer = $request->is_freelancer;
+        
         if ($request->service_id) {
             $service = $request->service_id;
         }
@@ -149,6 +155,12 @@ class WorkerController extends Controller
             ])
             ->where(function ($query) {
                 $query->whereNull('last_work_date')->orWhereDate('last_work_date', '>=', now());
+            })
+            ->when($isFreelancer == 'true', function ($q) {
+                return $q->where('company_type', 'freelancer');
+            })
+            ->when($isFreelancer == 'false', function ($q) {
+                return $q->where('company_type', '!=', 'freelancer');
             })
             ->when(count($onlyWorkerIDArr), function ($q) use ($onlyWorkerIDArr) {
                 return $q->whereIn('id', $onlyWorkerIDArr);
@@ -315,7 +327,7 @@ class WorkerController extends Controller
             'role'      => ['required', 'max:50'],
             'company_type'    => [
                 'required',
-                Rule::in(['my-company', 'manpower']),
+                Rule::in(['my-company', 'manpower', 'freelancer']),
             ],
             'manpower_company_id' => ['required_if:company_type,manpower']
         ], [
@@ -398,25 +410,27 @@ class WorkerController extends Controller
             ]);
         }
 
-        $formEnum = new Form101FieldEnum;
+        if($request->company_type !== "freelancer") {
+            $formEnum = new Form101FieldEnum;
 
-        $defaultFields = $formEnum->getDefaultFields();
-        $defaultFields['employeeFirstName'] = $worker->firstname;
-        $defaultFields['employeeLastName'] = $worker->lastname;
-        $defaultFields['employeeMobileNo'] = $worker->phone;
-        $defaultFields['employeeEmail'] = $worker->email;
-        $defaultFields['employeecountry'] = $worker->country;
-        $defaultFields['sender']['employeeEmail'] = $worker->email;
-        $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
-        $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
-
-        $worker->forms()->create([
-            'type' => WorkerFormTypeEnum::FORM101,
-            'data' => $formData,
-            'submitted_at' => NULL
-        ]);
-
-        event(new WorkerCreated($worker));
+            $defaultFields = $formEnum->getDefaultFields();
+            $defaultFields['employeeFirstName'] = $worker->firstname;
+            $defaultFields['employeeLastName'] = $worker->lastname;
+            $defaultFields['employeeMobileNo'] = $worker->phone;
+            $defaultFields['employeeEmail'] = $worker->email;
+            $defaultFields['employeecountry'] = $worker->country;
+            $defaultFields['sender']['employeeEmail'] = $worker->email;
+            $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
+            $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
+    
+            $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::FORM101,
+                'data' => $formData,
+                'submitted_at' => NULL
+            ]);
+    
+            event(new WorkerCreated($worker));
+        }
 
         AddGoogleContactForWorkerJob::dispatch($worker);
 
@@ -471,7 +485,7 @@ class WorkerController extends Controller
             'role'      => ['required', 'max:50'],
             'company_type'    => [
                 'required',
-                Rule::in(['my-company', 'manpower']),
+                Rule::in(['my-company', 'manpower', 'freelancer']),
             ],
            'manpower_company_id' => ['required_if:company_type,manpower'],
         ], [
@@ -884,6 +898,7 @@ class WorkerController extends Controller
         $end_date = $request->get('end_date');
         $manpowerCompanyID = $request->get('manpower_company_id');
         $isMyCompany = $request->get('is_my_company');
+        $isFreelancer = $request->get('is_freelancer');
 
         $jobHours = Job::query()
             ->when($start_date, function ($q) use ($start_date) {
@@ -906,6 +921,10 @@ class WorkerController extends Controller
             ->when($isMyCompany == 'true', function ($q) {
                 return $q->where('company_type', 'my-company');
             })
+            ->when($isFreelancer == 'true', function ($q) {
+                return $q->where('company_type', 'freelancer');
+            })
+            ->where('status', '1')
             ->where(function ($q) {
                 $q
                     ->whereNull('last_work_date')

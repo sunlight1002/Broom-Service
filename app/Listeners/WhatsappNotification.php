@@ -15,7 +15,7 @@ use App\Models\WhatsappTemplate;
 
 class WhatsappNotification
 {
-    protected $whapiApiEndpoint, $whapiApiToken;
+    protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $workerBaseUrl, $clientBaseUrl, $adminBaseUrl;
 
     /**
      * Create the event listener.
@@ -26,6 +26,12 @@ class WhatsappNotification
     {
         $this->whapiApiEndpoint = config('services.whapi.url');
         $this->whapiApiToken = config('services.whapi.token');
+        $this->whapiWorkerApiToken = config('services.whapi.worker_token');
+
+        // Initialize short URL base URLs
+        $this->workerBaseUrl = config('services.short_url.worker');
+        $this->clientBaseUrl = config('services.short_url.client');
+        $this->adminBaseUrl = config('services.short_url.admin');
     }
 
     private function replaceClientFields($text, $clientData, $eventData)
@@ -81,6 +87,8 @@ class WhatsappNotification
         if(isset($workerData) && !empty($workerData)) {
             $placeholders = [
                 ':worker_name' => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                ':worker_lead_name' => trim($workerData['name'] ?? ''),
+                ':worker_lead_phone' => isset($workerData['phone']) ? $workerData['phone'] : $workerData['phone'],
                 ':worker_phone_number' => '+' . ($workerData['phone'] ?? ''),
                 ':request_change_schedule' => url("/request-to-change/" .  (base64_encode($workerData['id']) . "?type=worker") ?? ''),
                 ':request_details' => isset($eventData['request_details']) ? $eventData['request_details'] : '',
@@ -99,7 +107,7 @@ class WhatsappNotification
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
 
-    private function replaceJobFields($text, $jobData,$eventData, $workerData = null, $commentData = null)
+    private function replaceJobFields($text, $jobData, $workerData = null, $commentData = null)
     {
         $placeholders = [];
         if(isset($jobData) && !empty($jobData)) {
@@ -109,6 +117,21 @@ class WhatsappNotification
                     $commentsText .= "- " . $comment['comment'] . " (by " . $comment['name'] . ") \n";
                 }
             }
+
+            // if(isset($jobData['id']) && !empty($jobData['id'])) {
+            //     $adminJobViewLink = $this->generateShortUrl(url("admin/job/view/" . $jobData['id']), 'admin');
+            //     $clientJobsReviewLink = $this->generateShortUrl(url("client/jobs/" . base64_encode($jobData['id']) . "/review"), 'client');
+            //     $teamJobActionLink = $this->generateShortUrl(url("admin/jobs/" . $jobData['id'] . "/change-worker"), 'admin');
+            //     $clientJobViewLink = $this->generateShortUrl(url("client/jobs/view/" . base64_encode($jobData['id'])), 'client');
+            //     $workerJobViewLink = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']), 'worker');
+            //     $teamBtns = $this->generateShortUrl(url("team-btn/" . base64_encode($jobData['id'])), 'admin');
+            //     $contactManager = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']."?q=contact_manager"), 'worker');
+            //     $workerApproveJob = $this->generateShortUrl(
+            //         isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : null,
+            //         'worker'
+            //     );
+            //     $teamSkipComment = $this->generateShortUrl(url("action-comment/" . ($commentData['id'] ?? '')), 'admin');
+            // }
 
             $currentTime = Carbon::parse($jobData['start_time'] ?? '00:00:00');
             $endTime = Carbon::parse($jobData['end_time'] ?? '00:00:00');
@@ -259,6 +282,13 @@ class WhatsappNotification
     {
         $placeholders = [];
         if($contractData) {
+
+            // if(isset($contractData["contract_id"]) || $contractData["id"]) {
+            //     $teamViewContract = $this->generateShortUrl(isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '', 'admin');
+            //     $createJobLink = $this->generateShortUrl(isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : "", 'admin');
+            //     $clientContractLink = $this->generateShortUrl(isset($contractData['contract_id']) ? url("work-contract/" . $contractData['contract_id']) : '');
+            // }
+
             $placeholders = [
                 ':client_contract_link' => isset($contractData['contract_id']) ? url("work-contract/" . $contractData['contract_id'] ?? '') : '',
                 ':team_contract_link' => isset($contractData['contract_id']) ? url("admin/view-contract/" . $contractData['contract_id'] ?? '') : '',
@@ -370,6 +400,9 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED:
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED:
                     case WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED:
+                    case WhatsappMessageTemplateEnum::DAILY_REMINDER_TO_LEAD:
+                    case WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
@@ -380,6 +413,14 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER:
                     case WhatsappMessageTemplateEnum::WORKER_NOT_FINISHED_JOB_ON_TIME:
                         $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+                        $lng = 'heb';
+                        break;
+
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_24HOUR_TO_TEAM:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM:
+                        $receiverNumber = config('services.whatsapp_groups.relevant_with_workers');
                         $lng = 'heb';
                         break;
 
@@ -443,6 +484,9 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS:
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_CLIENT:
+                    case WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT:
+                    case WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER:
+                    case WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT:
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
@@ -2138,7 +2182,9 @@ class WhatsappNotification
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 Log::info($text);
-                $response = Http::withToken($this->whapiApiToken)
+
+                $token = $receiverNumber == config('services.whatsapp_groups.relevant_with_workers') ? $this->whapiWorkerApiToken : $this->whapiApiToken;
+                $response = Http::withToken($token)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
                         'body' => $text

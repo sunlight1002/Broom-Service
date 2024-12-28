@@ -149,6 +149,7 @@ class ChatController extends Controller
     
             // Check if the media is an image
             if (strpos($mimeType, 'image') !== false) {
+                \Log::info($request->message);
                 // Send image message
                 $result = sendWhatsappImageMessage(
                     $request->number,

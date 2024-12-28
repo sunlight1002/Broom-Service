@@ -40,7 +40,10 @@ export default function Invoice() {
         type: "",
     });
     const [isLoading, setIsLoading] = useState(false);
-    const [percentage, setPercentage] = useState(0);
+    const [percentage, setPercentage] = useState(100);
+    const [originalAmount, setOriginalAmount] = useState(0); // Original amount (unchanged)
+
+
 
     const params = useParams();
     const id = params.id;
@@ -49,6 +52,7 @@ export default function Invoice() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
 
     const getInvoices = () => {
         let _filters = {};
@@ -325,10 +329,11 @@ export default function Invoice() {
                 $(".closeb11").click();
                 Swal.fire(res.data.message, "", "info");
                 getInvoices();
-                setPercentage(0);
+                setPercentage(100);
                 setDtype("");
                 setCancelDoc("");
                 setReason("");
+                setAmount(0);
             })
             .catch((e) => {
                 setIsLoading(false);
@@ -736,7 +741,7 @@ export default function Invoice() {
                                                             )}
 
                                                         {item.invoice_icount_status ==
-                                                            "Open" && (
+                                                            "Open" && item.type !== "invrec" && (
                                                                 <button
                                                                     onClick={(
                                                                         e
@@ -755,7 +760,7 @@ export default function Invoice() {
                                                         {item.invoice_icount_status !=
                                                             "Cancelled" &&
                                                             item.invoice_icount_status !=
-                                                            "Closed" && (
+                                                            "Closed" && !(item?.refund_doc_url || item?.cancel_doc_url) && (
                                                                 <button
                                                                     onClick={(
                                                                         e
@@ -766,6 +771,11 @@ export default function Invoice() {
                                                                         setDtype(
                                                                             item.type
                                                                         );
+                                                                        setAmount(
+                                                                            item.amount
+                                                                        );
+                                                                        setOriginalAmount(item.amount); // Set original amount here
+
                                                                     }}
                                                                     data-toggle="modal"
                                                                     data-target="#exampleModalCancel"
@@ -1118,26 +1128,51 @@ export default function Invoice() {
                                 <div className="row">
                                     <div className="col-sm-12">
                                         {
-                                            ((dtype == "invrec") || (dtype == "invoice")) && (
-                                                <div className="form-group">
-                                                    <label className="control-label">
-                                                        {t("admin.global.refund_percentage")} %
-                                                    </label>
+                                            ((dtype === "invrec") || (dtype === "invoice")) && (
+                                                <div className="row">
+                                                    <div className="col-sm-12">
+                                                        <label className="control-label">
+                                                            {t("admin.global.refund_percentage")} %
+                                                        </label>
 
-                                                    <input
-                                                        type="number"
-                                                        name="refund_percentage"
-                                                        onChange={(e) => setPercentage(e.target.value)}
-                                                        value={percentage}
-                                                        max={100}
-                                                        min={0}
-                                                        className="form-control mb-3"
-                                                    />
+                                                        <input
+                                                            type="number"
+                                                            name="refund_percentage"
+                                                            onChange={(e) => {
+                                                                const newPercentage = Math.min(100, Math.max(0, e.target.value));
+                                                                setPercentage(newPercentage);
+                                                                setAmount((newPercentage / 100) * originalAmount); // Calculate amount based on percentage
+                                                            }}
+                                                            value={percentage}
+                                                            max={100}
+                                                            min={0}
+                                                            className="form-control mb-3"
+                                                        />
+                                                    </div>
+                                                    <div className="col-sm-12">
+                                                        <label className="control-label">
+                                                            Amount
+                                                        </label>
+
+                                                        <input
+                                                            type="number"
+                                                            name="refund_amount"
+                                                            onChange={(e) => {
+                                                                const newAmount = Math.min(originalAmount, Math.max(0, e.target.value));
+                                                                setAmount(newAmount);
+                                                                setPercentage((newAmount / originalAmount) * 100); // Calculate percentage based on amount
+                                                            }}
+                                                            value={amount}
+                                                            max={originalAmount}
+                                                            min={0}
+                                                            className="form-control mb-3"
+                                                        />
+                                                    </div>
                                                 </div>
                                             )
                                         }
                                         {
-                                           percentage == 100 && (
+                                            percentage == 100 && (
                                                 <div className="form-group">
                                                     <textarea
                                                         onChange={(e) =>

@@ -375,7 +375,7 @@ export default function EditWorker() {
                                                 const dialCode = country.dialCode;
                                                 let formattedPhone = phone;
                                                 if (phone.startsWith(dialCode + '0')) {
-                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                    formattedPhone = dialCode + phone.slice(dialCode.length + 1);
                                                 }
                                                 handleFormValuesChange('phone', formattedPhone)
                                             }}
@@ -391,7 +391,7 @@ export default function EditWorker() {
                                                 {errors.phone}
                                             </small>
                                         ) : (
-                                             ""
+                                            ""
                                         )}
                                     </div>
                                 </div>
@@ -789,6 +789,27 @@ export default function EditWorker() {
                                             {t("admin.global.manpower")}
                                         </label>
                                     </div>
+                                    <div className="form-check-inline">
+                                        <label className="form-check-label">
+                                            <input
+                                                type="radio"
+                                                className="form-check-input"
+                                                value="freelancer"
+                                                onChange={(e) => {
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        company_type:
+                                                            e.target.value,
+                                                    });
+                                                }}
+                                                checked={
+                                                    formValues.company_type ===
+                                                    "freelancer"
+                                                }
+                                            />
+                                            {t("admin.global.freelancer")}
+                                        </label>
+                                    </div>
                                     <div>
                                         {errors.company_type ? (
                                             <small className="text-danger mb-1">
@@ -846,35 +867,35 @@ export default function EditWorker() {
                                         </div>
                                     </div>
                                 )}
+                                <div className="col-sm-6">
+                                    <div className="form-group">
+                                        <label className="control-label">{t("global.Type")}</label>
+                                        <select
+                                            className="form-control"
+                                            value={employmentType}
+                                            onChange={(e) => setEmploymentType(e.target.value)}
+                                        >
+                                            <option value="">{t("worker.settings.pleaseSelect")}</option>
+                                            <option value="fixed">{t("worker.settings.fixed")}</option>
+                                            <option value="hourly">{t("worker.settings.hourly")}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {employmentType === "fixed" && (
                                     <div className="col-sm-6">
                                         <div className="form-group">
-                                            <label className="control-label">{t("global.Type")}</label>
-                                            <select
+                                            <label className="control-label">{t("worker.settings.salary")}</label>
+                                            <input
+                                                type="number"
                                                 className="form-control"
-                                                value={employmentType}
-                                                onChange={(e) => setEmploymentType(e.target.value)}
-                                            >
-                                                <option value="">{t("worker.settings.pleaseSelect")}</option>
-                                                <option value="fixed">{t("worker.settings.fixed")}</option>
-                                                <option value="hourly">{t("worker.settings.hourly")}</option>
-                                            </select>
+                                                placeholder={t("worker.settings.salary")}
+                                                value={salary}
+                                                onChange={(e) => setSalary(e.target.value)}
+                                            />
                                         </div>
                                     </div>
-
-                                    {employmentType === "fixed" && (
-                                        <div className="col-sm-6">
-                                            <div className="form-group">
-                                                <label className="control-label">{t("worker.settings.salary")}</label>
-                                                <input
-                                                    type="number"
-                                                    className="form-control"
-                                                    placeholder={t("worker.settings.salary")}
-                                                    value={salary}
-                                                    onChange={(e) => setSalary(e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
+                                )}
                             </div>
                             <div className="form-group">
                                 <label className="control-label">

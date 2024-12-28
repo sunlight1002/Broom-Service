@@ -65,6 +65,7 @@ class WorkerNotifyNextDayJob extends Command
             ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
             ->whereDate('start_date', $tomorrow)
             ->get();
+            
         foreach ($jobs as $key => $job) {
             $worker = $job->worker;
 

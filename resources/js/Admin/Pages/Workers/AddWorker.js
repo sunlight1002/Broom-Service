@@ -772,6 +772,27 @@ export default function AddWorker() {
                                                 {t("admin.global.manpower")}
                                             </label>
                                         </div>
+                                        <div className="form-check-inline">
+                                            <label className="form-check-label">
+                                                <input
+                                                    type="radio"
+                                                    className="form-check-input"
+                                                    value="freelancer"
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            company_type:
+                                                                e.target.value,
+                                                        });
+                                                    }}
+                                                    checked={
+                                                        formValues.company_type ===
+                                                        "freelancer"
+                                                    }
+                                                />
+                                                {t("admin.global.freelancer")}
+                                            </label>
+                                        </div>
                                         <div>
                                             {errors.company_type ? (
                                                 <small className="text-danger mb-1">

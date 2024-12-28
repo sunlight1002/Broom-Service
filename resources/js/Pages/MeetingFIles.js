@@ -242,16 +242,22 @@ export default function MeetingFiles() {
                     {t("meet_stat.with")} {teamName}
                 </h1>
                 <ul className="list-unstyled">
-                    <li>
-                        {t("meet_stat.date")}: <span>{dt}</span>
-                    </li>
-                    <li>
-                        {t("meet_stat.time")}:{" "}
-                        <span>
-                            {timeFormat(meeting.start_time)} {t("meet_stat.to")}{" "}
-                            {timeFormat(meeting.end_time)}
-                        </span>
-                    </li>
+                    {
+                        meeting?.meet_via !== "off-site" && (
+                            <>
+                                <li>
+                                    {t("meet_stat.date")}: <span>{dt}</span>
+                                </li>
+                                <li>
+                                    {t("meet_stat.time")}:{" "}
+                                    <span>
+                                        {timeFormat(meeting.start_time)} {t("meet_stat.to")}{" "}
+                                        {timeFormat(meeting.end_time)}
+                                    </span>
+                                </li>
+                            </>
+                        )
+                    }
                     {address ? (
                         <li>
                             {t("meet_stat.address")}:{" "}
@@ -292,20 +298,20 @@ export default function MeetingFiles() {
                             </div>
                         </div>
                         {uploadProgress > 0 && uploadProgress <= 100 && (
-                        <div className="progress mb-2">
-                            <div
-                                className="progress-bar"
-                                role="progressbar"
-                                style={{ width: `${uploadProgress}%` }}
-                                aria-valuenow={uploadProgress}
-                                aria-valuemin="0"
-                                aria-valuemax="100"
-                            >
-                                <div className="d-flex justify-content-center align-items-center">
-                                    <span className="mx-1">{t("common.uploading")}</span> <span className="mx-1">{uploadProgress}%</span>
+                            <div className="progress mb-2">
+                                <div
+                                    className="progress-bar"
+                                    role="progressbar"
+                                    style={{ width: `${uploadProgress}%` }}
+                                    aria-valuenow={uploadProgress}
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                >
+                                    <div className="d-flex justify-content-center align-items-center">
+                                        <span className="mx-1">{t("common.uploading")}</span> <span className="mx-1">{uploadProgress}%</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         )}
                         <div className="card">
                             <div className="card-body">

@@ -31,6 +31,8 @@ use App\Rules\ValidPhoneNumber;
 use App\Models\LeadActivity;
 use App\Jobs\AddGoogleContactJob;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+
 
 
 class LeadController extends Controller
@@ -644,10 +646,48 @@ class LeadController extends Controller
         }
     }
 
-    public function getFacebookInsights()
+    public function getFacebookInsights(Request $request)
     {
-        return response()->json(FacebookInsights::all());
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $filter = $request->input('filter');
+    
+        $clientCount = 0;
+        $totalSpend = 0;
+        $costPerLead = 0;
+        $costPerClient = 0;
+    
+        // Get all Facebook Insights data
+        $insights = FacebookInsights::all();
+    
+        // Base query for clients
+        $clientQuery = Client::whereNotNull('campaign_id');
+    
+        // Apply date range filter if provided
+        if ($startDate && $endDate) {
+            $clientQuery->whereBetween('created_at', [$startDate, $endDate]);
+            $clientCount = $clientQuery->count();
+        } else {
+            $clientCount = $clientQuery->count();
+        }
+    
+        // Total count of all clients (ignoring date range)
+        $totalClients = Client::whereNotNull('campaign_id')->count();
+    
+        // Calculations
+        $totalSpend = $insights->sum('spend');
+        $costPerLead = $totalClients > 0 ? $totalSpend / $totalClients : 0;
+        $costPerClient = $insights->sum('client_count') > 0 ? $totalSpend / $insights->sum('client_count') : 0;
+    
+        return response()->json([
+            'insights' => $insights,
+            'clientCount' => $clientCount,
+            'totalSpend' => $totalSpend,
+            'costPerLead' => $costPerLead,
+            'costPerClient' => $costPerClient,
+        ]);
     }
+    
 
     public function getLeadData($leadgen_id, $pageAccessToken)
     {

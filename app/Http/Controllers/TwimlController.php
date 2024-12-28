@@ -10,7 +10,7 @@ class TwimlController extends Controller
 {
     // Set the default language (static)
     
-    protected $lang = 'he'; // Change to 'he' for Hebrew
+    protected $lang = 'en'; // Change to 'he' for Hebrew
 
     public function index()
     {
@@ -24,7 +24,7 @@ class TwimlController extends Controller
         // Gather input for the user's selection
         $gather = $response->gather([
             'numDigits' => 1,
-            'action' => url('https://67a9-49-43-33-151.ngrok-free.app/api/twiml/handlelanguage'),
+            'action' => url('https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml/handlelanguage'),
             'timeout' => 10
         ]);
     
@@ -50,7 +50,7 @@ class TwimlController extends Controller
                 $response->say($this->getServiceInfo(), $this->getLocale());
                 $gather = $response->gather([
                     'numDigits' => 1,
-                    'action' => url('https://67a9-49-43-33-151.ngrok-free.app/api/twiml/handleSelection'), // Ensure this is your correct URL
+                    'action' => url('https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml/handleSelection'), // Ensure this is your correct URL
                     'timeout' => 10
                 ]);
                 $menuPrompt = $this->lang === 'he'
@@ -64,7 +64,7 @@ class TwimlController extends Controller
                 $response->say($this->getServiceAreas(), $this->getLocale());
                 $gather = $response->gather([
                     'numDigits' => 1,
-                    'action' => url('https://67a9-49-43-33-151.ngrok-free.app/api/twiml/handleSelection'), // Ensure this is your correct URL
+                    'action' => url('https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml/handleSelection'), // Ensure this is your correct URL
                     'timeout' => 10
                 ]);
                 $menuPrompt = $this->lang === 'he'
@@ -78,7 +78,7 @@ class TwimlController extends Controller
                 $response->say($this->getAppointmentInfo(), $this->getLocale());
                 $gather = $response->gather([
                     'input' => 'speech',
-                    'action' => url('https://67a9-49-43-33-151.ngrok-free.app/api/twiml/handleName'), // URL to handle the speech input
+                    'action' => url('https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml/handleName'), // URL to handle the speech input
                     'timeout' => 10,
                     'hints' => 'name',
                     'speechTimeout' => 'auto', // Allow for automatic timeout
@@ -98,10 +98,10 @@ class TwimlController extends Controller
                 $response->say($this->getLangMenu(), $this->getLocale());
                 break;
             case '9':
-                $response->redirect(url('https://67a9-49-43-33-151.ngrok-free.app/api/twiml'));
+                $response->redirect(url('https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml'));
                 break;
             case '0':
-                $response->redirect(url('https://67a9-49-43-33-151.ngrok-free.app/api/twiml'));
+                $response->redirect(url('https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml'));
                 break;
             default:
 
@@ -109,7 +109,7 @@ class TwimlController extends Controller
                 ? 'בבקשה, לא הבנתי את הבחירה שלך.' : 'Sorry, I did not understand that choice.';
      
                 $response->say($menuPrompt, $this->getLocale());
-                $response->redirect(url('https://67a9-49-43-33-151.ngrok-free.app/api/twiml'));
+                $response->redirect(url('https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml'));
                 break;
         }
     
@@ -147,7 +147,7 @@ class TwimlController extends Controller
 
                     $response->say($menuPrompt, $this->getLocale());
 
-                $response->redirect(url('https://67a9-49-43-33-151.ngrok-free.app/api/twiml'));
+                $response->redirect(url('https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml'));
                 break;
         }
     

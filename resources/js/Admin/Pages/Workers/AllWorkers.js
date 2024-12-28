@@ -25,24 +25,24 @@ export default function AllWorkers() {
         status: "",
         manpower_company_id: "",
         is_my_company: false,
+        is_freelancer: false
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
-
     const alert = useAlert();
     const navigate = useNavigate();
     const tableRef = useRef(null);
     const statusRef = useRef(null);
     const manpowerCompanyRef = useRef(null);
     const isMyCompanyRef = useRef(null);
+    const isFreelancerRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-
 
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
@@ -63,6 +63,7 @@ export default function AllWorkers() {
                         d.status = statusRef.current.value;
                         d.manpower_company_id = manpowerCompanyRef.current.value;
                         d.is_my_company = isMyCompanyRef.current.value;
+                        d.is_freelancer = isFreelancerRef.current.value;
                     },
                 },
                 order: [[0, "desc"]],
@@ -507,6 +508,7 @@ export default function AllWorkers() {
                                         ...filters,
                                         manpower_company_id: "",
                                         is_my_company: true,
+                                        is_freelancer: false
                                     });
                                 }}
                             >
@@ -515,7 +517,28 @@ export default function AllWorkers() {
                             <button
                                 className={`btn border rounded px-3 mx-1`}
                                 style={
-                                    filters.is_my_company !== true &&
+                                    filters.is_freelancer === true
+                                        ? { background: "white" }
+                                        : {
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
+                                }
+                                onClick={() => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: "",
+                                        is_freelancer: true,
+                                        is_my_company: false
+                                    });
+                                }}
+                            >
+                                {t("admin.global.freelancer")}
+                            </button>
+                            <button
+                                className={`btn border rounded px-3 mx-1`}
+                                style={
+                                    (filters.is_my_company !== true) && (filters.is_freelancer !== true) &&
                                         filters.manpower_company_id === ""
                                         ? { background: "white" }
                                         : {
@@ -528,6 +551,7 @@ export default function AllWorkers() {
                                         ...filters,
                                         manpower_company_id: "",
                                         is_my_company: false,
+                                        is_freelancer: false,
                                     });
                                 }}
                             >
@@ -551,6 +575,11 @@ export default function AllWorkers() {
                             type="hidden"
                             value={filters.is_my_company}
                             ref={isMyCompanyRef}
+                        />
+                        <input
+                            type="hidden"
+                            value={filters.is_freelancer}
+                            ref={isFreelancerRef}
                         />
                     </div>
                 </div>

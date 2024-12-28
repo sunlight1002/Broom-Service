@@ -32,7 +32,7 @@ class TwilioCall extends Command
         // $twiml = "<Response><Say>{$text}</Say></Response>";
 
         // Use a temporary endpoint to serve TwiML
-        $twimlUrl = 'https://67a9-49-43-33-151.ngrok-free.app/api/twiml';
+        $twimlUrl = 'https://dc22-2405-201-2022-1089-7a1c-f46c-b00f-9d7f.ngrok-free.app/api/twiml';
 
         try {
             // Make the call
@@ -48,7 +48,7 @@ class TwilioCall extends Command
             $this->info('Call initiated successfully with SID: ' . $call->sid);
         } catch (\Exception $e) {
             // Handle exceptions
-            $this->error('Error making call: ' . $e->get);
+            $this->error('Error making call: ' . $e->getMessage());
         }
     }
 }
