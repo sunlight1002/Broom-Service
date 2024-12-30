@@ -41,7 +41,7 @@ class WorkerDefaultAvailability extends Command
     public function handle()
     {
         $todayDay = Carbon::today();
-        $lastDate = Carbon::today()->endOfWeek(Carbon::SATURDAY)->addWeeks(2);
+        $lastDate = Carbon::today()->endOfWeek(Carbon::SATURDAY)->addMonths(6);
 
         $lastFriday = $lastDate->clone()->subDay();
 
@@ -63,7 +63,7 @@ class WorkerDefaultAvailability extends Command
                         $dateInString = $currentDay->toDateString();
 
                         if (!$worker->availabilities->where('date', $dateInString)->count()) {
-                            $worker->availabilities()->create([
+                            $worker->availabilities()->updateOrCreate(['date' => $dateInString], [
                                 'date' => $dateInString,
                                 'start_time' => '08:00:00',
                                 'end_time' => '17:00:00',
@@ -82,7 +82,7 @@ class WorkerDefaultAvailability extends Command
                     if ($currentDay->dayOfWeek <= 5) {
                         $dateInString = $currentDay->toDateString();
 
-                        $worker->availabilities()->create([
+                        $worker->availabilities()->updateOrCreate(['date' => $dateInString],[
                             'date' => $dateInString,
                             'start_time' => '08:00:00',
                             'end_time' => '17:00:00',
