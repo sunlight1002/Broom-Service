@@ -80,6 +80,8 @@ export default function ChangeWorkerCalender({ job }) {
 
     const getWorkers = (_calendarStartDate, _calendarEndDate) => {
         setMiniLoader(true);
+        console.log(job, "job");
+        
         axios
             .get(`/api/admin/all-workers`, {
                 headers,
@@ -98,6 +100,7 @@ export default function ChangeWorkerCalender({ job }) {
                         ? job.worker_id
                         : "",
                     job_id: job.id,
+                    is_freelancer: job?.is_freelancer ? true : false,
                 },
             })
             .then((res) => {
@@ -133,7 +136,7 @@ export default function ChangeWorkerCalender({ job }) {
     }, [calendarStartDate, calendarEndDate]);
 
     useEffect(() => {
-        console.log(week);
+        // console.log(week);
         if (week.length > 0) {
             handleWorkerList();
         }
@@ -387,6 +390,9 @@ export default function ChangeWorkerCalender({ job }) {
                 break;
         }
     }, [currentFilter, customDateRange]);
+
+    console.log(currentFilter, "currentFilter");
+    
 
     return (
         <>
