@@ -433,6 +433,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('/whatsapp-templates', [WhatsappTemplateController::class, 'store']);
     Route::put('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'update']);
     Route::delete('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'destroy']);
+    Route::post('custom-message-send', [WhatsappTemplateController::class, 'customMessageSend']);
 
     Route::get('/schedule-changes', [ScheduleChangeController::class, 'index'])->name('schedule-changes.index');
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);

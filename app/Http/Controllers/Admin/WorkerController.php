@@ -65,6 +65,10 @@ class WorkerController extends Controller
                     ->whereNotNull('last_work_date')
                     ->whereDate('last_work_date', '<', today()->toDateString());
             })
+            ->when($status == "inactive", function ($q) {
+                return $q
+                    ->where('status', '==', 0);
+            })
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);
             })

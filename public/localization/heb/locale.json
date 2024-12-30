@@ -1309,7 +1309,10 @@
             "refund_percentage": "אחוז ההחזר",
             "refund_amount": "סכום ההחזר",
             "percentage_error": "האחוז לא יכול להיות יותר מ-100",
-            "refund_invoice": "חשבונית החזר"
+            "refund_invoice": "חשבונית החזר",
+            "save_templates": "שמור תבניות",
+            "worker_includes": "עובד כולל",
+            "client_includes": "לקוחות כוללים"
         },
         "modal": {
             "title": "מודל",
@@ -2042,6 +2045,7 @@
             "pending_request": "בקשה ממתינה",
             "fb_insights": "תובנות בפייסבוק",
             "fb_campaigns": "קמפיינים בפייסבוק",
+            "custom_message": "הודעה מותאמת אישית",
             "client": {
                 "waiting": "מחכה",
                 "active_client": "לקוח פעיל",

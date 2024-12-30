@@ -555,7 +555,7 @@ export default function Clients() {
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
-                                <option value="">{t("admin.client.Options")}</option>
+                                <option value="">{t("admin.client.Options.sortBy")}</option>
                                 <option value="0">{t("admin.client.Options.ID")}</option>
                                 <option value="1">{t("admin.client.Options.Name")}</option>
                                 <option value="2">{t("admin.client.Options.Email")}</option>

@@ -2784,6 +2784,10 @@ tbody tr:hover{
   width: 100% !important;
 }
 
+.boxPanel tbody tr:hover {
+  background-color: inherit;
+}
+
 .conversation-list .odd .ctext-wrap {
   background-color: #DCF8C6;
 }

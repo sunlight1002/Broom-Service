@@ -47,7 +47,7 @@ export default function AllWorkers() {
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-           const table = $(tableRef.current).DataTable({
+            const table = $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -407,6 +407,58 @@ export default function AllWorkers() {
                             </Link>
                         </div>
                     </div>
+
+                    <div className="col-sm-6 mt-2 pl-0">
+                        <div className="search-data">
+                            <div className="action-dropdown dropdown mt-md-4 mr-2 d-lg-none">
+                                <button
+                                    type="button"
+                                    className="btn btn-default navyblue dropdown-toggle"
+                                    data-toggle="dropdown"
+                                >
+                                    <i className="fa fa-filter"></i>
+                                </button>
+
+                                <div className="dropdown-menu dropdown-menu-right">
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                status: "active",
+                                            });
+                                        }}
+                                    >
+                                        {t("admin.global.active")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                status: "inactive",
+                                            });
+                                        }}
+                                    >
+                                        {t("admin.global.inactive")}
+
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                status: "past",
+                                            });
+                                        }}
+                                    >
+                                        {t("admin.global.past")}
+
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div className="col-sm-6 hidden-xl mt-4">
                         <select
                             className="form-control"
@@ -444,6 +496,25 @@ export default function AllWorkers() {
                             }}
                         >
                             {t("admin.global.active")}
+                        </button>
+                        <button
+                            className={`btn border rounded px-3 mr-1`}
+                            style={
+                                filters.status === "inactive"
+                                    ? { background: "white" }
+                                    : {
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }
+                            }
+                            onClick={() => {
+                                setFilters({
+                                    ...filters,
+                                    status: "inactive",
+                                });
+                            }}
+                        >
+                            {t("admin.global.inactive")}
                         </button>
                         <button
                             className={`btn border rounded px-3 mr-1`}

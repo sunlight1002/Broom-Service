@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\WhatsappTemplate;
 use Illuminate\Http\Request;
-
+use App\Models\Client;
+use App\Models\User;
+use App\Models\CustomMessages;
+use App\Jobs\SendCustomMessage;
 class WhatsappTemplateController extends Controller
 {
     public function index()
@@ -73,4 +76,69 @@ class WhatsappTemplateController extends Controller
 
         return response()->json(['message' => 'Template deleted successfully!'], 200);
     }
+
+    public function customMessageSend(Request $request)
+    {
+        $type = $request->input('type'); // leads, clients, or workers
+        $status = $request->input('status'); // status filter
+        $workerIds = $request->input('worker_ids', []); // Get worker IDs
+        $clientIds = $request->input('client_ids', []); // Get client IDs
+        $templates = $request->input('templates', []); // Get templates (messages)
+    
+        $data = [];
+    
+        if ($type === 'leads' || $type === 'clients') {
+            $query = Client::query()->with('lead_status');
+    
+            $query->where(function ($q) use ($status, $clientIds) {
+                if ($status !== 'all') {
+                    $q->whereHas('lead_status', function ($subQuery) use ($status) {
+                        $subQuery->where('lead_status', $status);
+                    });
+                }
+        
+                if (!empty($clientIds)) {
+                    $q->orWhereIn('id', $clientIds);
+                }
+            });
+        
+            $data = $query->get();
+    
+        } elseif ($type === 'workers') {
+            $query = User::query();
+        
+            $query->where(function($q) use ($status, $workerIds) {
+                if ($status !== 'all') {
+                    $statusValue = strtolower($status) === 'active' ? 1 : (strtolower($status) === 'inactive' ? 0 : null);
+                    if ($statusValue !== null) {
+                        $q->where('status', $statusValue);
+                    }
+                }
+        
+                if (!empty($workerIds)) {
+                    $q->orWhereIn('id', $workerIds);
+                }
+            });
+            $data = $query->get();
+        }
+    
+        if (!empty($templates)) {
+            CustomMessages::create([
+                'type' => $type,
+                'status' => $status,
+                'message_en' => $templates['message_en'] ?? '',
+                'message_heb' => $templates['message_heb'] ?? '',
+            ]);
+        }
+    
+        foreach ($data as $item) {
+            $message = $item->lng === 'heb' ? $templates['message_heb'] : $templates['message_en'];
+            $phone = $item->phone; 
+            SendCustomMessage::dispatch($phone, $message);
+        }
+    
+        return response()->json(['data' => $data]);
+    }
+    
+    
 }

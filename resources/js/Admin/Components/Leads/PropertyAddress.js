@@ -8,6 +8,8 @@ import Swal from "sweetalert2";
 
 import Map from "../Map/map";
 import { useTranslation } from "react-i18next";
+import AddCommentModal from "../Modals/AddCommentModal";
+import CommentsModal from "../Modals/CommentsModal";
 
 const addressMenu = [
     {
@@ -26,7 +28,8 @@ const PropertyAddress = memo(function PropertyAddress({
     addresses,
     setAddresses,
     setErrors,
-    language
+    language,
+    newClient = true,
 }) {
     const params = useParams();
     const { t } = useTranslation();
@@ -44,6 +47,10 @@ const PropertyAddress = memo(function PropertyAddress({
     const [libraries] = useState(["places", "geometry"]);
     const [allWorkers, setAllWorkers] = useState([]);
     const [workers, setWorkers] = useState([]);
+
+    const [isOpenAddComment, setIsOpenAddComment] = useState(false);
+    const [isOpenCommentList, setIsOpenCommentList] = useState(false);
+    const [selectedPropertyID, setSelectedPropertyID] = useState(null);
 
     let isAdd = useRef(true);
     let fullAddress = useRef();
@@ -338,6 +345,17 @@ const PropertyAddress = memo(function PropertyAddress({
     useEffect(() => {
         getWorkers();
     }, []);
+
+
+    const handleAddComment = (_propertyID) => {
+        setSelectedPropertyID(_propertyID);
+        setIsOpenAddComment(true);
+    };
+
+    const handleShowComments = (_propertyID) => {
+        setSelectedPropertyID(_propertyID);
+        setIsOpenCommentList(true);
+    };
 
     return (
         <div>
@@ -816,12 +834,12 @@ const PropertyAddress = memo(function PropertyAddress({
                                         </Th>
 
                                         <Th>
-                                        {t(
+                                            {t(
                                                 "admin.leads.AddLead.addAddress.Cat"
                                             )}
                                         </Th>
                                         <Th>
-                                        {t(
+                                            {t(
                                                 "admin.leads.AddLead.addAddress.Dog"
                                             )}
                                         </Th>
@@ -845,7 +863,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                     {addresses &&
                                         addresses.map((item, index) => {
                                             return (
-                                                <Tr key={index}>
+                                                <Tr key={index} >
                                                     <Td className="my-3">
                                                         {"  "}
                                                         {item.address_name
@@ -898,7 +916,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                                                 ref={is_cat_avail}
                                                                 className="form-check-input"
                                                                 type="checkbox"
-                                                                defaultChecked={item?.is_cat_avail != 0 ? true: false}
+                                                                defaultChecked={item?.is_cat_avail != 0 ? true : false}
                                                             />
                                                             <span className="checkmark"></span>
                                                         </label>
@@ -914,7 +932,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                                                 ref={is_dog_avail}
                                                                 className="form-check-input"
                                                                 type="checkbox"
-                                                                defaultChecked={item?.is_dog_avail != 0 ? true: false}
+                                                                defaultChecked={item?.is_dog_avail != 0 ? true : false}
                                                             />
                                                             <span className="checkmark"></span>
                                                         </label>
@@ -937,7 +955,7 @@ const PropertyAddress = memo(function PropertyAddress({
 
                                                     </Td> */}
 
-                                                    <Td className="my-3">
+                                                    <Td className="mb-3 d-flex">
                                                         {" "}
                                                         <div className="action-dropdown dropdown">
                                                             <button
@@ -987,6 +1005,37 @@ const PropertyAddress = memo(function PropertyAddress({
                                                                 )}
                                                             </div>
                                                         </div>
+                                                        {
+                                                            !newClient && (
+                                                                <>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            handleAddComment(
+                                                                                item.id
+                                                                            );
+                                                                        }}
+                                                                        className="mx-1"
+                                                                        data-tooltip-id="address-tooltip"
+                                                                        data-tooltip-content="Add Comment"
+                                                                    >
+                                                                        <i className="fa fa-comment-medical"></i>
+                                                                    </button>
+
+                                                                    <button
+                                                                        className="mx-1"
+                                                                        onClick={() => {
+                                                                            handleShowComments(
+                                                                                item.id
+                                                                            );
+                                                                        }}
+                                                                        data-tooltip-id="address-tooltip"
+                                                                        data-tooltip-content="Comment List"
+                                                                    >
+                                                                        <i className="fa fa-comments"></i>
+                                                                    </button>
+                                                                </>
+                                                            )
+                                                        }
                                                     </Td>
                                                 </Tr>
                                             );
@@ -1003,6 +1052,26 @@ const PropertyAddress = memo(function PropertyAddress({
                     </div>
                 </div>
             </div>
+            {isOpenAddComment && selectedPropertyID && !newClient && (
+                <AddCommentModal
+                    relationID={selectedPropertyID}
+                    routeType="property-addresses"
+                    isOpen={isOpenAddComment}
+                    setIsOpen={setIsOpenAddComment}
+                    onSuccess={() => { }}
+                />
+            )}
+
+            {isOpenCommentList && selectedPropertyID && !newClient && (
+                <CommentsModal
+                    relationID={selectedPropertyID}
+                    routeType="property-addresses"
+                    isOpen={isOpenCommentList}
+                    setIsOpen={setIsOpenCommentList}
+                    canAddComment={false}
+                    size="lg"
+                />
+            )}
         </div>
     );
 });

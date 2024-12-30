@@ -73,7 +73,6 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $action = $request->get('action');
-        \Log::info('action: ' . $action);
     
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
@@ -94,7 +93,7 @@ class ClientController extends Controller
             ->filter(function ($query) use ($request) {
                 if ($request->has('search')) {
                     $keyword = $request->get('search')['value'];
-                    \Log::info('keyword: ' . $keyword);
+                    \Log::info($keyword);
     
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
