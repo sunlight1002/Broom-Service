@@ -5,17 +5,20 @@ import FilterButtons from '../../../Components/common/FilterButton';
 import useWindowWidth from '../../../Hooks/useWindowWidth';
 import { useAlert } from "react-alert";
 import Select from "react-select";
+import { setSeconds } from 'date-fns';
 
 const CustomMessage = () => {
     const { t, i18n } = useTranslation();
     const [type, setType] = useState("")
-    const [filter, setFilter] = useState("all");
-    const [status, setStatus] = useState("all");
+    const [filter, setFilter] = useState("All");
+    const [status, setStatus] = useState("All");
     const [show, setShow] = useState(false)
     const [allWorkers, setAllWorkers] = useState([]);
     const [allClients, setAllClients] = useState([])
-    const [workers, setWorkers] = useState([]);
-    const [clients, setClients] = useState([])
+    const [workersInclude, setWorkersInclude] = useState([]);
+    const [workersExclude, setWorkersExclude] = useState([]);
+    const [clientsInclude, setClientsInclude] = useState([])
+    const [clientsExclude, setClientsExclude] = useState([])
     const [dateRange, setDateRange] = useState({
         start_date: "",
         end_date: "",
@@ -24,7 +27,12 @@ const CustomMessage = () => {
     const [templates, setTemplates] = useState({
         message_heb: "",
         message_en: "",
+        message_spa: "",
+        message_ru: "",
     });
+
+    console.log(status, "status");
+
 
     useEffect(() => {
         if (windowWidth < 768) {
@@ -35,15 +43,15 @@ const CustomMessage = () => {
     }, [windowWidth])
 
 
-    const leadStatuses = [
-        t("admin.leads.Pending"),
-        t("admin.leads.Potential"),
-        t("admin.leads.Irrelevant"),
-        t("admin.leads.Uninterested"),
-        t("admin.leads.Unanswered"),
-        t("admin.leads.Potential_client"),
-        t("admin.leads.Reschedule_call"),
-    ];
+    const leadStatuses = {
+        "pending": t("admin.leads.Pending"),
+        "potential": t("admin.leads.Potential"),
+        "irrelevant": t("admin.leads.Irrelevant"),
+        "uninterested": t("admin.leads.Uninterested"),
+        "unanswered": t("admin.leads.Unanswered"),
+        "potential client": t("admin.leads.Potential_client"),
+        "reschedule call": t("admin.leads.Reschedule_call"),
+    };
 
     const clientStatuses = [
         t("admin.client.Potential"),
@@ -66,14 +74,19 @@ const CustomMessage = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const selectedWorkerIds = workers.map(worker => worker.value);
-        const selectedClientsIds = clients.map(client => client.value);
+        const selectedWorkerInculdeIds = workersInclude.map(worker => worker.value);
+        const selectedWorkerExculdeIds = workersExclude.map(worker => worker.value);
+        const selectedClientsInculdeIds = clientsInclude.map(client => client.value);
+        const selectedClientsExculdeIds = clientsExclude.map(client => client.value);
+
 
         const data = {
             type, // 'leads', 'clients', or 'workers'
             status: status !== "Past client" ? status.toLowerCase() : "past",
-            worker_ids: selectedWorkerIds, // Include selected workers
-            client_ids: selectedClientsIds,
+            worker_inculde_ids: selectedWorkerInculdeIds, // Include selected workers
+            worker_exclude_ids: selectedWorkerExculdeIds,
+            client_include_ids: selectedClientsInculdeIds,
+            client_exclude_ids: selectedClientsExculdeIds,
             templates
         };
 
@@ -86,14 +99,14 @@ const CustomMessage = () => {
                 Swal.fire({
                     icon: 'success',
                     title: t("global.success"),
-                    text: t("global.data_fetched"),
+                    text: t("swal.message_send"),
                 });
             }
         } catch (error) {
             Swal.fire({
                 icon: 'error',
-                title: t("global.error"),
-                text: error.response?.data?.message || t("global.fetch_failed"),
+                title: "error",
+                text: "something went wrong",
             });
         }
     };
@@ -139,17 +152,19 @@ const CustomMessage = () => {
         });
     };
 
-    const reset =() =>[
+    const reset = () => [
         setTemplates({
             message_heb: "",
             message_en: "",
+            message_spa: "",
+            message_ru: "",
         }),
-        setWorkers([]),
-        setClients([]),
-        setAllClients([]),
-        setAllWorkers([]),
-        setType("all"),
-        setStatus("all"),
+        setWorkersInclude([]),
+        setWorkersExclude([]),
+        setClientsInclude([]),
+        setClientsExclude([]),
+        setType("All"),
+        setStatus("All"),
     ]
 
 
@@ -203,6 +218,8 @@ const CustomMessage = () => {
                             </div>
                         </div> */}
 
+
+
                         <div className="d-flex align-items-center flex-wrap">
                             <div
                                 className="mr-3"
@@ -240,9 +257,174 @@ const CustomMessage = () => {
                                 />
                             </div>
                         </div>
+
+                        {
+                            type != "" && (
+                                <div className="col-sm-6 mt-2 pl-0 d-flex">
+                                    <div className="search-data">
+                                        <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 d-lg-none">
+                                            <div
+                                                className=" mr-3"
+                                                style={{ fontWeight: "bold" }}
+                                            >
+                                                {t("admin.global.status")}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                className="btn btn-default navyblue dropdown-toggle"
+                                                data-toggle="dropdown"
+                                            >
+                                                <i className="fa fa-filter"></i>
+                                            </button>
+                                            <span className="ml-2" style={{
+                                                padding: "6px",
+                                                border: "1px solid #ccc",
+                                                borderRadius: "5px"
+                                            }}>{status}</span>
+
+                                            <div className="dropdown-menu dropdown-menu-right">
+                                                {
+                                                    type == "leads" && (
+                                                        <>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("pending");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Pending")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("potential");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Potential")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("irrelevant");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Irrelevant")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("uninterested");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Uninterested")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("unanswered");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Unanswered")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("potential client");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Potential_client")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("reschedule call");
+                                                                }}
+                                                            >
+                                                                {t("admin.leads.Reschedule_call")}
+                                                            </button>
+                                                        </>
+                                                    )
+                                                }
+
+                                                {
+                                                    type == "workers" && (
+                                                        <>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("active");
+                                                                }}
+                                                            >
+                                                                {t("admin.global.active")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("inactive");
+                                                                }}
+                                                            >
+                                                                {t("admin.global.inactive")}
+                                                            </button>
+                                                        </>
+                                                    )
+                                                }
+
+                                                {
+                                                    type == "clients" && (
+                                                        <>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("potentail");
+                                                                }}
+                                                            >
+                                                                {t("admin.client.Potential")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("pending client");
+                                                                }}
+                                                            >
+                                                                {t("admin.client.Pending_client")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("active client");
+                                                                }}
+                                                            >
+                                                                {t("admin.client.Active_client")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("freeze client");
+                                                                }}
+                                                            >
+                                                                {t("admin.client.Freeze_client")}
+                                                            </button>
+                                                            <button
+                                                                className="dropdown-item"
+                                                                onClick={() => {
+                                                                    setStatus("past client");
+                                                                }}
+                                                            >
+                                                                {t("admin.client.Past_client")}
+                                                            </button>
+                                                        </>
+                                                    )
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        }
+
                         {
                             type === "leads" && (
-                                <div className=" mb-2 d-flex align-items-center mt-2">
+                                <div className=" mb-2  mt-2 d-none d-lg-flex align-items-center">
                                     <div
                                         className=" mr-3"
                                         style={{ fontWeight: "bold" }}
@@ -256,12 +438,13 @@ const CustomMessage = () => {
                                             selectedFilter={status}
                                             setselectedFilter={setStatus}
                                         />
-                                        {leadStatuses.map((_status, _index) => {
+                                        {Object.entries(leadStatuses).map(([key, value]) => {
                                             return (
                                                 <FilterButtons
-                                                    text={_status}
+                                                    text={value}
+                                                    name={key} 
                                                     className="px-3 mr-1"
-                                                    key={_index}
+                                                    key={key} 
                                                     selectedFilter={status}
                                                     setselectedFilter={setStatus}
                                                 />
@@ -274,7 +457,7 @@ const CustomMessage = () => {
 
                         {
                             type === "clients" && (
-                                <div className=" mb-2 d-flex align-items-center mt-2">
+                                <div className=" mb-2 d-none d-lg-flex align-items-center mt-2">
                                     <div
                                         className=" mr-3"
                                         style={{ fontWeight: "bold" }}
@@ -306,29 +489,56 @@ const CustomMessage = () => {
 
                         {
                             (type == "leads" || type == "clients") && (
-                                <div className=" mb-2 d-flex align-items-center mt-2">
-                                    <div
-                                        className=" mr-3"
-                                        style={{ fontWeight: "bold" }}
-                                    >
-                                        {t("admin.global.client_includes")}
+                                <div className='row my-2'>
+                                    <div className="col-sm-4 d-flex align-items-center">
+                                        <div
+                                            className=" mr-3"
+                                            style={{ fontWeight: "bold" }}
+                                        >
+                                            {t("admin.global.client_includes")}
+                                        </div>
+                                        <div className="d-flex align-items-center flex-wrap">
+                                            <Select
+                                                value={clientsInclude}
+                                                name="clients"
+                                                isMulti
+                                                options={allClients}
+                                                className="basic-multi-single skyBorder"
+                                                isClearable={true}
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.addAddress.Options.pleaseSelect"
+                                                )}
+                                                classNamePrefix="select"
+                                                onChange={(newValue) =>
+                                                    setClientsInclude(newValue)
+                                                }
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="d-flex align-items-center flex-wrap">
-                                        <Select
-                                            value={clients}
-                                            name="clients"
-                                            isMulti
-                                            options={allClients}
-                                            className="basic-multi-single skyBorder"
-                                            isClearable={true}
-                                            placeholder={t(
-                                                "admin.leads.AddLead.addAddress.Options.pleaseSelect"
-                                            )}
-                                            classNamePrefix="select"
-                                            onChange={(newValue) =>
-                                                setClients(newValue)
-                                            }
-                                        />
+                                    <div className="col-sm-4 d-flex align-items-center">
+                                        <div
+                                            className=" mr-3"
+                                            style={{ fontWeight: "bold" }}
+                                        >
+                                            {t("admin.global.client_excludes")}
+                                        </div>
+                                        <div className="d-flex align-items-center flex-wrap">
+                                            <Select
+                                                value={clientsExclude}
+                                                name="clients"
+                                                isMulti
+                                                options={allClients}
+                                                className="basic-multi-single skyBorder"
+                                                isClearable={true}
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.addAddress.Options.pleaseSelect"
+                                                )}
+                                                classNamePrefix="select"
+                                                onChange={(newValue) =>
+                                                    setClientsExclude(newValue)
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             )
@@ -337,7 +547,7 @@ const CustomMessage = () => {
                         {
                             type === "workers" && (
                                 <>
-                                    <div className=" mb-2 d-flex align-items-center mt-2">
+                                    <div className=" mb-2 d-none d-lg-flex align-items-center mt-2">
                                         <div
                                             className=" mr-3"
                                             style={{ fontWeight: "bold" }}
@@ -364,29 +574,58 @@ const CustomMessage = () => {
                                             })}
                                         </div>
                                     </div>
-                                    <div className=" mb-2 d-flex align-items-center mt-2">
-                                        <div
-                                            className=" mr-3"
-                                            style={{ fontWeight: "bold" }}
-                                        >
-                                            {t("admin.global.worker_includes")}
+                                    <div className='row my-2'>
+                                        <div className="col-sm-4 d-flex align-items-center">
+                                            <div
+                                                className=" mr-3"
+                                                style={{ fontWeight: "bold" }}
+                                            >
+                                                {t("admin.global.worker_includes")}
+                                            </div>
+                                            <div className="d-flex align-items-center flex-wrap">
+                                                <Select
+                                                    value={workersInclude}
+                                                    name="workers"
+                                                    isMulti
+                                                    options={allWorkers}
+                                                    className="basic-multi-single skyBorder"
+                                                    isClearable={true}
+                                                    placeholder={t(
+                                                        "admin.leads.AddLead.addAddress.Options.pleaseSelect"
+                                                    )}
+                                                    classNamePrefix="select"
+                                                    onChange={(newValue) =>
+                                                        setWorkersInclude(newValue)
+                                                    }
+                                                />
+                                            </div>
+                                            {/* </div> */}
                                         </div>
-                                        <div className="d-flex align-items-center flex-wrap">
-                                            <Select
-                                                value={workers}
-                                                name="workers"
-                                                isMulti
-                                                options={allWorkers}
-                                                className="basic-multi-single skyBorder"
-                                                isClearable={true}
-                                                placeholder={t(
-                                                    "admin.leads.AddLead.addAddress.Options.pleaseSelect"
-                                                )}
-                                                classNamePrefix="select"
-                                                onChange={(newValue) =>
-                                                    setWorkers(newValue)
-                                                }
-                                            />
+                                        <div className='col-sm-4 d-flex align-items-center'>
+                                            <div
+                                                className=" mr-3"
+                                                style={{ fontWeight: "bold" }}
+                                            >
+                                                {t("admin.global.worker_excludes")}
+                                            </div>
+                                            <div className="d-flex align-items-center flex-wrap">
+                                                <Select
+                                                    value={workersExclude}
+                                                    name="workers"
+                                                    isMulti
+                                                    options={allWorkers}
+                                                    className="basic-multi-single skyBorder"
+                                                    isClearable={true}
+                                                    placeholder={t(
+                                                        "admin.leads.AddLead.addAddress.Options.pleaseSelect"
+                                                    )}
+                                                    classNamePrefix="select"
+                                                    onChange={(newValue) =>
+                                                        setWorkersExclude(newValue)
+                                                    }
+                                                />
+                                            </div>
+                                            {/* </div> */}
                                         </div>
                                     </div>
                                 </>
@@ -407,7 +646,7 @@ const CustomMessage = () => {
                                         id="message_heb"
                                         className="form-control"
                                         maxLength={1000}
-                                        rows="5"
+                                        rows="4"
                                         value={templates.message_heb}
                                         onChange={handleChange('message_heb')}
                                     />
@@ -418,9 +657,31 @@ const CustomMessage = () => {
                                         id="message_en"
                                         className="form-control"
                                         maxLength={1000}
-                                        rows="5"
+                                        rows="4"
                                         value={templates.message_en}
                                         onChange={handleChange('message_en')}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="spanish">Spanish</label>
+                                    <textarea
+                                        id="message_spa"
+                                        className="form-control"
+                                        maxLength={1000}
+                                        rows="4"
+                                        value={templates.message_spa}
+                                        onChange={handleChange('message_spa')}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="russian">Russian</label>
+                                    <textarea
+                                        id="message_ru"
+                                        className="form-control"
+                                        maxLength={1000}
+                                        rows="4"
+                                        value={templates.message_ru}
+                                        onChange={handleChange('message_ru')}
                                     />
                                 </div>
                                 <div className='d-flex align-items-center justify-content-end'>
