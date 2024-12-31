@@ -129,12 +129,14 @@
       "contact_me": "Contact Me to reschedule the meeting",
       "forms_submitted": "Forms submitted successfully",
       "offer_reopend": "Offer re-opened successfully",
+      "message_send": "Message send Successfully",
       "button":{
         "reopen_offer": "Yes, Reopen Offer!"
       }
     },
     "global": {
         "search": "Search",
+        "success":"Success",
         "all": "All",
         "alltime": "All time",
         "name": "Name",
@@ -1318,7 +1320,9 @@
             "refund_invoice": "Refund Invoice",
             "save_templates": "Save Templates",
             "worker_includes": "Worker Includes",
-            "client_includes": "Clients Includes"
+            "client_includes": "Clients Includes",
+            "worker_excludes": "Worker Excludes",
+            "client_excludes": "Clients Excludes"
         },
         "dashboard": {
             "jobPosted": "Job Posted",

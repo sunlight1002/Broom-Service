@@ -129,6 +129,7 @@
         "contact_me": "צרו איתי קשר לתיאום מחדש",
         "forms_submitted": "טפסים נשלחו בהצלחה",
         "offer_reopend": "ההצעה נפתחה מחדש בהצלחה",
+        "message_send": "ההודעה נשלחה בהצלחה",
         "button": {
             "reopen_offer": "מול, הצעה פתוחה!"
         }
@@ -136,6 +137,7 @@
     "global": {
         "alltime": "כל הזמנים",
         "name": "שם",
+        "success": "הצלחה",
         "document_name": "שם המסמך",
         "enter_document_name": "הזן את שם המסמך",
         "Email": "אימייל",
@@ -1312,7 +1314,9 @@
             "refund_invoice": "חשבונית החזר",
             "save_templates": "שמור תבניות",
             "worker_includes": "עובד כולל",
-            "client_includes": "לקוחות כוללים"
+            "client_includes": "לקוחות כוללים",
+            "worker_excludes": "עובד לא כולל",
+            "client_excludes": "לא כולל לקוחות"
         },
         "modal": {
             "title": "מודל",

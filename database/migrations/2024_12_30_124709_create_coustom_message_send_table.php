@@ -19,6 +19,8 @@ class CreateCoustomMessageSendTable extends Migration
             $table->string('status');
             $table->longText('message_en')->nullable();
             $table->longText('message_heb')->nullable();
+            $table->longText('message_ru')->nullable();
+            $table->longText('message_spa')->nullable();
             $table->timestamps();
         });
     }

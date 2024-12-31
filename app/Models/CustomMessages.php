@@ -14,6 +14,9 @@ class CustomMessages extends Model
         'type', 
         'status',
         'message_en',
-        'message_heb'
+        'message_heb',
+        'message_ru',
+        'message_spa'
+
     ];
 }

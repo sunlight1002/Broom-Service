@@ -81,8 +81,10 @@ class WhatsappTemplateController extends Controller
     {
         $type = $request->input('type'); // leads, clients, or workers
         $status = $request->input('status'); // status filter
-        $workerIds = $request->input('worker_ids', []); // Get worker IDs
-        $clientIds = $request->input('client_ids', []); // Get client IDs
+        $workerInculdeIds = $request->input('worker_inculde_ids', []); 
+        $workerExcludeIds = $request->input('worker_exclude_ids', []); 
+        $clientIncludeIds = $request->input('client_include_ids', []); 
+        $clientExcludeIds = $request->input('client_exclude_ids', []); 
         $templates = $request->input('templates', []); // Get templates (messages)
     
         $data = [];
@@ -90,7 +92,7 @@ class WhatsappTemplateController extends Controller
         if ($type === 'leads' || $type === 'clients') {
             $query = Client::query()->with('lead_status');
     
-            $query->where(function ($q) use ($status, $clientIds) {
+            $query->where(function ($q) use ($status, $clientIncludeIds, $clientExcludeIds) {
                 if ($status !== 'all') {
                     $q->whereHas('lead_status', function ($subQuery) use ($status) {
                         $subQuery->where('lead_status', $status);
@@ -98,7 +100,11 @@ class WhatsappTemplateController extends Controller
                 }
         
                 if (!empty($clientIds)) {
-                    $q->orWhereIn('id', $clientIds);
+                    $q->orWhereIn('id', $clientIncludeIds);
+                }
+        
+                if (!empty($clientExcludeIds)) {
+                    $q->whereNotIn('id', $clientExcludeIds);
                 }
             });
         
@@ -107,7 +113,7 @@ class WhatsappTemplateController extends Controller
         } elseif ($type === 'workers') {
             $query = User::query();
         
-            $query->where(function($q) use ($status, $workerIds) {
+            $query->where(function($q) use ($status, $workerInculdeIds, $workerExcludeIds) {
                 if ($status !== 'all') {
                     $statusValue = strtolower($status) === 'active' ? 1 : (strtolower($status) === 'inactive' ? 0 : null);
                     if ($statusValue !== null) {
@@ -116,7 +122,11 @@ class WhatsappTemplateController extends Controller
                 }
         
                 if (!empty($workerIds)) {
-                    $q->orWhereIn('id', $workerIds);
+                    $q->orWhereIn('id', $workerInculdeIds);
+                }
+        
+                if (!empty($workerExcludeIds)) {
+                    $q->whereNotIn('id', $workerExcludeIds);
                 }
             });
             $data = $query->get();
@@ -128,17 +138,25 @@ class WhatsappTemplateController extends Controller
                 'status' => $status,
                 'message_en' => $templates['message_en'] ?? '',
                 'message_heb' => $templates['message_heb'] ?? '',
+                'message_ru' => $templates['message_ru'] ?? '',
+                'message_spa' => $templates['message_spa'] ?? ''
             ]);
         }
     
         foreach ($data as $item) {
-            $message = $item->lng === 'heb' ? $templates['message_heb'] : $templates['message_en'];
+            if($item->lng === 'heb'){
+                $message = $templates['message_heb'];
+            }elseif($item->lng === 'spa'){
+                $message = $templates['message_spa'];
+            }elseif($item->lng === 'ru'){
+                $message = $templates['message_ru'];
+            }else{
+                $message = $templates['message_en'];
+            }
             $phone = $item->phone; 
             SendCustomMessage::dispatch($phone, $message);
         }
     
         return response()->json(['data' => $data]);
     }
-    
-    
 }
