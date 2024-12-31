@@ -144,25 +144,31 @@ class OfferController extends Controller
         $offer = Offer::create($input);
         $offer->load(['client', 'service']);
 
-        $newLeadStatus = LeadStatusEnum::POTENTIAL_CLIENT;
-
-        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
-            $client->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => $newLeadStatus]
-            );
-
-            LeadActivity::create([
-                'client_id' => $client->id,
-                'created_date' => " ",
-                'status_changed_date' => now(),
-                'changes_status' => $newLeadStatus,
-                'reason' => "New price offered",
+        if ($client->status != 2) {
+            $client->update([
+                'status' => 1
             ]);
-
-
+    
+            $newLeadStatus = LeadStatusEnum::POTENTIAL_CLIENT;
+    
+            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
+    
+                LeadActivity::create([
+                    'client_id' => $client->id,
+                    'created_date' => " ",
+                    'status_changed_date' => now(),
+                    'changes_status' => $newLeadStatus,
+                    'reason' => "New price offered",
+                ]);
+    
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+    
+            }
         }
-        event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
         if ($request->action == 'Save and Send') {
             event(new OfferSaved($offer->toArray()));
@@ -172,6 +178,17 @@ class OfferController extends Controller
             'message' => 'Offer created successfully',
             'offer' => $offer->toArray(),
         ]);
+    }
+
+    public function reopen($id){
+        $offer = Offer::find($id);
+
+        $offer->load(['client', 'service']);
+
+        $offer->update([
+            'status' => 'sent'
+        ]);
+        event(new OfferSaved($offer->toArray()));
     }
 
     /**
@@ -271,8 +288,6 @@ class OfferController extends Controller
 
         // $tax_amount = ($tax_percentage / 100) * $subtotal;
 
-
-
         ////New code
         $tax_percentage = config('services.app.tax_percentage');
         $subtotal = 0;
@@ -304,7 +319,6 @@ class OfferController extends Controller
         }
 
         $tax_amount = ($tax_percentage / 100) * $subtotal;
-        //////
 
         $offer = Offer::find($id);
         $input = $request->except(['action']);

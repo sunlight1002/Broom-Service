@@ -25,17 +25,18 @@ export default function AllWorkers() {
         status: "",
         manpower_company_id: "",
         is_my_company: false,
+        is_freelancer: false
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
-
     const alert = useAlert();
     const navigate = useNavigate();
     const tableRef = useRef(null);
     const statusRef = useRef(null);
     const manpowerCompanyRef = useRef(null);
     const isMyCompanyRef = useRef(null);
+    const isFreelancerRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -43,11 +44,10 @@ export default function AllWorkers() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-           const table = $(tableRef.current).DataTable({
+            const table = $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -63,6 +63,7 @@ export default function AllWorkers() {
                         d.status = statusRef.current.value;
                         d.manpower_company_id = manpowerCompanyRef.current.value;
                         d.is_my_company = isMyCompanyRef.current.value;
+                        d.is_freelancer = isFreelancerRef.current.value;
                     },
                 },
                 order: [[0, "desc"]],
@@ -406,6 +407,58 @@ export default function AllWorkers() {
                             </Link>
                         </div>
                     </div>
+
+                    <div className="col-sm-6 mt-2 pl-0">
+                        <div className="search-data">
+                            <div className="action-dropdown dropdown mt-md-4 mr-2 d-lg-none">
+                                <button
+                                    type="button"
+                                    className="btn btn-default navyblue dropdown-toggle"
+                                    data-toggle="dropdown"
+                                >
+                                    <i className="fa fa-filter"></i>
+                                </button>
+
+                                <div className="dropdown-menu dropdown-menu-right">
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                status: "active",
+                                            });
+                                        }}
+                                    >
+                                        {t("admin.global.active")}
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                status: "inactive",
+                                            });
+                                        }}
+                                    >
+                                        {t("admin.global.inactive")}
+
+                                    </button>
+                                    <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                            setFilters({
+                                                ...filters,
+                                                status: "past",
+                                            });
+                                        }}
+                                    >
+                                        {t("admin.global.past")}
+
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div className="col-sm-6 hidden-xl mt-4">
                         <select
                             className="form-control"
@@ -443,6 +496,25 @@ export default function AllWorkers() {
                             }}
                         >
                             {t("admin.global.active")}
+                        </button>
+                        <button
+                            className={`btn border rounded px-3 mr-1`}
+                            style={
+                                filters.status === "inactive"
+                                    ? { background: "white" }
+                                    : {
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }
+                            }
+                            onClick={() => {
+                                setFilters({
+                                    ...filters,
+                                    status: "inactive",
+                                });
+                            }}
+                        >
+                            {t("admin.global.inactive")}
                         </button>
                         <button
                             className={`btn border rounded px-3 mr-1`}
@@ -507,6 +579,7 @@ export default function AllWorkers() {
                                         ...filters,
                                         manpower_company_id: "",
                                         is_my_company: true,
+                                        is_freelancer: false
                                     });
                                 }}
                             >
@@ -515,7 +588,28 @@ export default function AllWorkers() {
                             <button
                                 className={`btn border rounded px-3 mx-1`}
                                 style={
-                                    filters.is_my_company !== true &&
+                                    filters.is_freelancer === true
+                                        ? { background: "white" }
+                                        : {
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
+                                }
+                                onClick={() => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: "",
+                                        is_freelancer: true,
+                                        is_my_company: false
+                                    });
+                                }}
+                            >
+                                {t("admin.global.freelancer")}
+                            </button>
+                            <button
+                                className={`btn border rounded px-3 mx-1`}
+                                style={
+                                    (filters.is_my_company !== true) && (filters.is_freelancer !== true) &&
                                         filters.manpower_company_id === ""
                                         ? { background: "white" }
                                         : {
@@ -528,6 +622,7 @@ export default function AllWorkers() {
                                         ...filters,
                                         manpower_company_id: "",
                                         is_my_company: false,
+                                        is_freelancer: false,
                                     });
                                 }}
                             >
@@ -551,6 +646,11 @@ export default function AllWorkers() {
                             type="hidden"
                             value={filters.is_my_company}
                             ref={isMyCompanyRef}
+                        />
+                        <input
+                            type="hidden"
+                            value={filters.is_freelancer}
+                            ref={isFreelancerRef}
                         />
                     </div>
                 </div>

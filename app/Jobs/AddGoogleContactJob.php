@@ -75,6 +75,7 @@ class AddGoogleContactJob implements ShouldQueue
                 }
             }
         } catch (\Throwable $th) {
+            Log::warning($th->getMessage());
             //throw $th;
         }
     }
@@ -95,6 +96,7 @@ class AddGoogleContactJob implements ShouldQueue
             $this->refreshAccessToken($googleAccessToken);
             return $this->createGoogleContact($contactData, $googleAccessToken);
         } elseif ($http_code != 200) {
+            Log::debug($response->body());
             throw new Exception('Error: Failed to create contact in Google Contacts');
         }
 

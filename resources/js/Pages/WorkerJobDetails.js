@@ -9,11 +9,10 @@ import Swal from "sweetalert2";
 import { useAlert } from "react-alert";
 
 import logo from "../Assets/image/sample.svg";
-import { getShiftsDetails } from "../Utils/common.utils";
-
 export default function WorkerJobDetails() {
     const { t } = useTranslation();
     const [job, setJob] = useState(null);
+    const [approved, setApproved] = useState(false);
     const param = useParams();
 
     const alert = useAlert();
@@ -26,6 +25,7 @@ export default function WorkerJobDetails() {
                 )}/approve`
             )
             .then((response) => {
+                setApproved(true);
                 alert.success(t("job_approval.success_msg"));
             })
             .catch((e) => {
@@ -56,6 +56,8 @@ export default function WorkerJobDetails() {
 
                 if (!response.data.data.worker_approved_at) {
                     approveWorkerJob();
+                }else{
+                    setApproved(true);
                 }
 
                 setJob(response.data.data);
@@ -76,8 +78,6 @@ export default function WorkerJobDetails() {
 
         return "-";
     }, [job]);
-
-    const {durationInHours, startTime, endTime} = getShiftsDetails(job)
 
     return (
         <div className="container">
@@ -113,11 +113,22 @@ export default function WorkerJobDetails() {
                             </li>
                             <li>
                                 {t("worker.jobs.shift")}:{" "}
-                                <span>{startTime} - {endTime}</span>
+                                <span>{job.shifts}</span>
                             </li>
                         </ul>
                     </>
                 )}
+                {/* {approved && (
+                    <div className="cta">
+                        <div id="content">
+                            <div className="row">
+                                <div className="col">
+                                   {t("worker.jobs.approved")}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )} */}
             </div>
         </div>
     );

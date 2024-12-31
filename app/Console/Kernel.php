@@ -46,6 +46,7 @@ class Kernel extends ConsoleKernel
 
         // Facebook Leads
         $schedule->command('lead:fetch-facebook-leads')->everyFiveMinutes();
+        $schedule->command('campaign:create')->hourly();
 
         $schedule->command('client:review-job-request')->dailyAt('08:00');
 
@@ -67,6 +68,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('making:task')->dailyAt('08:00');
 
         $schedule->command('send:worker-lead-reminders')->hourly();
+
+        $schedule->command('send:worker-in-hiring-process')->dailyAt('08:00');
+        $schedule->command('send:worker-when-alex-set-unaswered')->dailyAt('08:00');
+
+        $schedule->command('terminate:worker')->dailyAt('08:00');
+
 
     }
 

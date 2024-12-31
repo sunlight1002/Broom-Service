@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\WorkerLeads;
 use App\Models\WhatsAppBotWorkerState;
+use App\Models\WorkerWebhookResponse;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use Illuminate\Http\Request;
@@ -12,6 +13,15 @@ use Illuminate\Support\Facades\Log;
 
 class WorkerLeadsController extends Controller
 {
+
+    protected $botMessages = [
+        'step0' => [
+            'en' => "🌟 Thank you for contacting Job4Service! 🌟\n\nWe are hiring house cleaning professionals for part-time and full-time positions in the Tel Aviv area.\n\n✅ To apply, you must have one of the following:\n- Israeli ID\n- B1 Work Visa\n- Refugee (blue) visa\n\nPlease answer these questions to proceed:\n1. Do you have experience in house cleaning?\n(Please reply with 'Yes' or 'No')\n\n if you want change language then for עיתונות עברית 4 for русская пресса 2 and for prensa española 3",
+            'heb' => "🌟 תודה שפנית ל- Job4Service! 🌟\n\nאנחנו מגייסים אנשי מקצוע לניקיון בתים למשרה חלקית ומלאה באזור תל אביב.\n\n✅ להגשת מועמדות יש להצטייד באחד מהבאים:\n- תעודת זהות ישראלית\n- עבודת ויזה (B1)\n- אשרת פליט (כחול)\n\nענה על השאלות הבאות כדי להמשיך:\n1. האם יש לך ניסיון בניקיון בתים?\n(ענה 'כן' או 'לא')\n\nאם אתה רוצה לשנות שפה, עבור English Press 1 עבור русская пресса 2 ועבור prensa española 3",
+            'spa' => "🌟 ¡Gracias por contactar a Job4Service! 🌟\n\nEstamos contratando profesionales de limpieza de casas para puestos de tiempo parcial y completo en el área de Tel Aviv.\n\n✅ Para postularte, debes tener uno de los siguientes:\n- Identificación israelí\n- Visa de trabajo B1\n- Visa de refugiado (azul)\n\nResponde estas preguntas para continuar:\n1. ¿Tienes experiencia en limpieza de casas?\n(Responde 'Sí' o 'No')\n\nsi desea cambiar el idioma, entonces para עיתונות עברית 4 para русская пресса 3 y para English press 1",
+            'rus' => "🌟 Спасибо, что обратились в Job4Service! 🌟\n\nМы ищем уборщиков домов на полный и неполный рабочий день в районе Тель-Авива.\n✅ Для подачи заявки вам необходимо иметь один из следующих документов:\n- Израильское удостоверение личности\n- Рабочая виза B1\n- Статус беженца (синяя виза)\n\nПожалуйста, ответьте на два вопроса:\n1. Есть ли у вас опыт уборки домов?\n(Пожалуйста, ответьте «Да» или «Нет»)\n\nЕсли вы хотите изменить язык, для עיתונות עברית 4 для English press 1 и для prensa española 3",
+       ],
+    ];
 
     public function index(Request $request)
     {
@@ -95,9 +105,6 @@ class WorkerLeadsController extends Controller
     public function store(Request $request)
     {
         try {
-            // Log the incoming request data
-            Log::info('Incoming Worker Lead Data:', $request->all());
-            Log::info('areas_aviv_herzliya_ramat_gan_kiryat_ono_good:', ['value' => $request->areas_aviv_herzliya_ramat_gan_kiryat_ono_good]);
 
             // Validate the request
             $request->validate([
@@ -105,17 +112,42 @@ class WorkerLeadsController extends Controller
                 'email' => 'required|email|max:255|unique:worker_leads,email',
                 'phone' => 'required|string|max:15', // Adjust max length as needed
                 'status' => 'required|string',
-                'ready_to_get_best_job' => 'boolean',
-                'ready_to_work_in_house_cleaning' => 'boolean',
-                'areas_aviv_herzliya_ramat_gan_kiryat_ono_good' => 'boolean',
-                'none_id_visa' => 'required|string',
-                'you_have_valid_work_visa' => 'boolean',
-                'work_sunday_to_thursday_fit_schedule_8_10am_12_2pm' => 'boolean',
-                'full_or_part_time' => 'required|string',
+                // 'ready_to_get_best_job' => 'boolean',
+                // 'ready_to_work_in_house_cleaning' => 'boolean',
+                // 'areas_aviv_herzliya_ramat_gan_kiryat_ono_good' => 'boolean',
+                // 'none_id_visa' => 'required|string',
+                // 'you_have_valid_work_visa' => 'boolean',
+                // 'work_sunday_to_thursday_fit_schedule_8_10am_12_2pm' => 'boolean',
+                // 'full_or_part_time' => 'required|string',
             ]);
     
             // Create a new worker lead
             $workerLead = WorkerLeads::create($request->all());
+
+            if($request->send_bot_message) {
+                try {
+                    $m = $this->botMessages['step0']['heb'];
+    
+                    $result = sendWorkerWhatsappMessage($workerLead->phone, array('name' => ucfirst($workerLead->name), 'message' => $m));
+
+                    WhatsAppBotWorkerState::updateOrCreate(
+                        ['worker_lead_id' => $workerLead->id],
+                        ['step' => 0, 'language' => 'heb']
+                    );
+    
+                    WorkerWebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $m,
+                        'number' => $workerLead->phone,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+
+                } catch (\Throwable $th) {
+                    logger($th);
+                }
+            }
     
             return response()->json([
                 'message' => 'Worker Lead created successfully',
@@ -156,7 +188,7 @@ class WorkerLeadsController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'status' => 'required|string',
-            // Add other fields as necessary
+            'phone' => 'required|string|max:15', // Adjust max length as needed
         ]);
 
         // Update the worker lead

@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Models\Setting;
 use App\Enums\SettingKeyEnum;
+use App\Traits\GoogleAPI;
 use Exception;
 
 class GoogleCalendarController extends Controller
 {
+    use GoogleAPI;
     public function getGoogleCalendarList()
     {
         try {

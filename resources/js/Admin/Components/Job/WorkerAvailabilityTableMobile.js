@@ -16,6 +16,7 @@ export default function WorkerAvailabilityTableMobile({
     searchKeyword = "",
     isClient = false,
     selectedHours,
+    distance
 }) {
 
     console.log(isClient);

@@ -81,6 +81,8 @@ class WhatsappNotification
         if(isset($workerData) && !empty($workerData)) {
             $placeholders = [
                 ':worker_name' => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
+                ':worker_lead_name' => trim($workerData['name'] ?? ''),
+                ':worker_lead_phone' => isset($workerData['phone']) ? $workerData['phone'] : $workerData['phone'],
                 ':worker_phone_number' => '+' . ($workerData['phone'] ?? ''),
                 ':request_change_schedule' => url("/request-to-change/" .  (base64_encode($workerData['id']) . "?type=worker") ?? ''),
                 ':request_details' => isset($eventData['request_details']) ? $eventData['request_details'] : '',
@@ -99,7 +101,7 @@ class WhatsappNotification
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
 
-    private function replaceJobFields($text, $jobData,$eventData, $workerData = null, $commentData = null)
+    private function replaceJobFields($text, $jobData, $workerData = null, $commentData = null)
     {
         $placeholders = [];
         if(isset($jobData) && !empty($jobData)) {
@@ -370,6 +372,9 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_APPROVED:
                     case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE_REJECTED:
                     case WhatsappMessageTemplateEnum::NOTIFY_WORKER_ONE_WEEK_BEFORE_HIS_VISA_RENEWAL:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED:
+                    case WhatsappMessageTemplateEnum::DAILY_REMINDER_TO_LEAD:
+                    case WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
@@ -380,6 +385,14 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::WORKER_CONTACT_TO_MANAGER:
                     case WhatsappMessageTemplateEnum::WORKER_NOT_FINISHED_JOB_ON_TIME:
                         $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
+                        $lng = 'heb';
+                        break;
+
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_24HOUR_TO_TEAM:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM:
+                    case WhatsappMessageTemplateEnum::NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM:
+                        $receiverNumber = config('services.whatsapp_groups.relevant_with_workers');
                         $lng = 'heb';
                         break;
 
@@ -443,6 +456,9 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS:
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_CLIENT:
+                    case WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT:
+                    case WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER:
+                    case WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT:
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
@@ -2138,7 +2154,9 @@ class WhatsappNotification
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 Log::info($text);
-                $response = Http::withToken($this->whapiApiToken)
+
+                $token = $receiverNumber == config('services.whatsapp_groups.relevant_with_workers') ? $this->whapiWorkerApiToken : $this->whapiApiToken;
+                $response = Http::withToken($token)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,
                         'body' => $text

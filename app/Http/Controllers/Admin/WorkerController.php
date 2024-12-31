@@ -49,6 +49,7 @@ class WorkerController extends Controller
         $status = $request->get('status');
         $manpowerCompanyID = $request->get('manpower_company_id');
         $isMyCompany = $request->get('is_my_company');
+        $isFreelancer = $request->get('is_freelancer');
 
         $query = User::query()
             ->when($status == "active", function ($q) {
@@ -64,11 +65,18 @@ class WorkerController extends Controller
                     ->whereNotNull('last_work_date')
                     ->whereDate('last_work_date', '<', today()->toDateString());
             })
+            ->when($status == "inactive", function ($q) {
+                return $q
+                    ->where('status', '==', 0);
+            })
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);
             })
             ->when($isMyCompany == 'true', function ($q) {
                 return $q->where('company_type', 'my-company');
+            })
+            ->when($isFreelancer == 'true', function ($q) {
+                return $q->where('company_type', 'freelancer');
             })
             ->when($status && !$manpowerCompanyID, function ($q) {
                 return $q->where('company_type', 'my-company');
@@ -111,6 +119,8 @@ class WorkerController extends Controller
         $service = '';
         $onlyWorkerIDArr = $request->only_worker_ids ? explode(',', $request->only_worker_ids) : [];
         $ignoreWorkerIDArr = $request->ignore_worker_ids ? explode(',', $request->ignore_worker_ids) : [];
+        $isFreelancer = $request->is_freelancer;
+
         if ($request->service_id) {
             $service = $request->service_id;
         }
@@ -125,7 +135,9 @@ class WorkerController extends Controller
         $has_cat = $request->get('has_cat');
         $has_dog = $request->get('has_dog');
         $prefer_type = $request->get('prefer_type');
-    
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+
         $client_latitude = null;
         $client_longitude = null;
         if ($request->client_property_id) {
@@ -135,20 +147,36 @@ class WorkerController extends Controller
                 $client_longitude = $client_property->longitude;
             }
         }
-    
+
         $workers = User::query()
             ->with([
-                'availabilities:user_id,day,date,start_time,end_time',
-                'defaultAvailabilities:user_id,weekday,start_time,end_time,until_date',
-                'jobs' => function ($q) {
-                    $q->where('id', '!=', request()->job_id)
-                        ->select('worker_id', 'start_date', 'shifts', 'client_id');
+                'availabilities' => function ($query) {
+                    $query->whereBetween('date', [request()->start_date, request()->end_date])
+                        ->select('user_id', 'day', 'date', 'start_time', 'end_time');
+                },
+                'defaultAvailabilities' => function ($query) {
+                    $query->whereBetween('until_date', [request()->start_date, request()->end_date])
+                        ->select('user_id', 'weekday', 'start_time', 'end_time', 'until_date');
+                },
+                'jobs' => function ($query) {
+                    $query->where('id', '!=', request()->job_id)
+                        ->whereBetween('start_date', [request()->start_date, request()->end_date])
+                        ->select('worker_id', 'start_date', 'shifts', 'client_id', 'start_date', 'end_date');
                 },
                 'jobs.client:id,firstname,lastname',
-                'notAvailableDates:user_id,date,start_time,end_time'
+                'notAvailableDates' => function ($query) {
+                    $query->whereBetween('date', [request()->start_date, request()->end_date])
+                        ->select('user_id', 'date', 'start_time', 'end_time');
+                }
             ])
             ->where(function ($query) {
                 $query->whereNull('last_work_date')->orWhereDate('last_work_date', '>=', now());
+            })
+            ->when($isFreelancer == 'true', function ($q) {
+                return $q->where('company_type', 'freelancer');
+            })
+            ->when($isFreelancer == 'false', function ($q) {
+                return $q->where('company_type', '!=', 'freelancer');
             })
             ->when(count($onlyWorkerIDArr), function ($q) use ($onlyWorkerIDArr) {
                 return $q->whereIn('id', $onlyWorkerIDArr);
@@ -156,15 +184,32 @@ class WorkerController extends Controller
             ->when(count($ignoreWorkerIDArr), function ($q) use ($ignoreWorkerIDArr) {
                 return $q->whereNotIn('id', $ignoreWorkerIDArr);
             })
-            ->when($service != '', function ($q) use ($service) {
+            ->when($service != '', function ($q) use ($service, $start_date, $end_date) {
                 return $q
-                    ->where(function ($qu) {
-                        $qu->whereHas('availabilities', function ($query) {
-                            $query->where('date', '>=', Carbon::now()->toDateString());
+                    ->where(function ($qu) use ($start_date, $end_date) {
+                        $qu->whereHas('availabilities', function ($query) use ($start_date, $end_date) {
+                            if ($start_date) {
+                                $query->where('date', '>=', $start_date);
+                            } else {
+                                $query->where('date', '>=', Carbon::now()->toDateString());
+                            }
+
+                            if ($end_date) {
+                                $query->where('date', '<=', $end_date);
+                            }
                         });
-                        $qu->orWhereHas('defaultAvailabilities', function ($query) {
-                            $query->where('until_date', '>=', Carbon::now()->toDateString())
-                                ->orWhereNull('until_date');
+                        $qu->orWhereHas('defaultAvailabilities', function ($query) use ($start_date, $end_date) {
+                            $query->where(function ($que) use ($start_date, $end_date) {
+                                if ($start_date) {
+                                    $que->where('until_date', '>=', $start_date);
+                                } else {
+                                    $que->where('until_date', '>=', Carbon::now()->toDateString());
+                                }
+
+                                if ($end_date) {
+                                    $que->where('until_date', '<=', $end_date);
+                                }
+                            })->orWhereNull('until_date');
                         });
                     })
                     ->where('skill', 'like', '%' . $service . '%');
@@ -189,26 +234,50 @@ class WorkerController extends Controller
             ->when($request->distance === 'farthest' && $client_latitude && $client_longitude, function ($q) use ($client_latitude, $client_longitude) {
                 $haversine = "(6371 * acos(cos(radians($client_latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians($client_longitude)) + sin(radians($client_latitude)) * sin(radians(latitude))))";
                 return $q->selectRaw("* , {$haversine} AS distance")
-                    ->orderBy('distance', 'desc'); 
+                    ->orderBy('distance', 'desc');
             })
             ->where('status', 1)
             ->get();
 
         if (isset($request->filter)) {
-            $workers = $workers->map(function ($worker, $key) {
+            $workers = $workers->map(function ($worker, $key) use ($start_date, $end_date) {
                 $workerArr = $worker->toArray();
 
                 $defaultAvailabilities = $worker->defaultAvailabilities()
-                    ->where(function ($q) {
+                    ->where(function ($q) use ($start_date, $end_date) {
                         $q
                             ->whereNull('until_date')
-                            ->orWhereDate('until_date', '>=', date('Y-m-d'));
+                            ->orWhere(function ($qu) use ($start_date, $end_date) {
+                                if ($start_date) {
+                                    $qu->whereDate('until_date', '>=', $start_date);
+                                } else {
+                                    $qu->whereDate('until_date', '>=', date('Y-m-d'));
+                                }
+                                if ($end_date) {
+                                    $qu->whereDate('until_date', '<=', $end_date);
+                                }
+                            });
                     })
                     ->get()
                     ->groupBy('weekday');
 
                 $workerAvailabilitiesByDate = $worker
-                    ->availabilities
+                    ->availabilities()
+                    ->where(function ($q) use ($start_date, $end_date) {
+                        $q
+                            ->whereNull('date')
+                            ->orWhere(function ($qu) use ($start_date, $end_date) {
+                                if ($start_date) {
+                                    $qu->whereDate('date', '>=', $start_date);
+                                } else {
+                                    $qu->whereDate('date', '>=', date('Y-m-d'));
+                                }
+                                if ($end_date) {
+                                    $qu->whereDate('date', '<=', $end_date);
+                                }
+                            });
+                    })
+                    ->get()
                     ->sortBy([
                         ['date', 'asc'],
                         ['start_time', 'asc'],
@@ -227,15 +296,15 @@ class WorkerController extends Controller
                 $available_dates = array_keys($availabilities);
                 $dates = [];
 
-                $currentDate = Carbon::now();
+                $startDate = Carbon::parse($start_date);
+                $endDate = Carbon::parse($end_date);
 
-                // Loop through the next 4 weeks (28 days)
-                for ($i = 0; $i < 28; $i++) {
-                    // Add the current date to the array
-                    $date_ = $currentDate->toDateString();
+                // Loop through the date range
+                while ($startDate->lte($endDate)) {
+                    $date_ = $startDate->toDateString();
 
                     if (!in_array($date_, $available_dates)) {
-                        $weekDay = $currentDate->weekday();
+                        $weekDay = $startDate->weekday();
                         if (isset($defaultAvailabilities[$weekDay])) {
                             if (is_null($worker->last_work_date) || Carbon::parse($worker->last_work_date)->gte(Carbon::parse($date_))) {
                                 $availabilities[$date_] = $defaultAvailabilities[$weekDay]->map(function ($item, $key) {
@@ -246,7 +315,7 @@ class WorkerController extends Controller
                     }
 
                     // Move to the next day
-                    $currentDate->addDay();
+                    $startDate->addDay();
                 }
 
                 $workerArr['availabilities'] = $availabilities;
@@ -262,11 +331,37 @@ class WorkerController extends Controller
                     $dates[$job->start_date][] = $slotInfo;
                 }
 
-                $freezeDates = $worker->freezeDates()->whereDate('date', '>=', Carbon::now())->get();
+                $freezeDates = $worker->freezeDates()->where(function ($q) use ($start_date, $end_date) {
+                    $q
+                        ->where(function ($qu) use ($start_date, $end_date) {
+                            if ($start_date) {
+                                $qu->whereDate('date', '>=', $start_date);
+                            } else {
+                                $qu->whereDate('date', '>=', date('Y-m-d'));
+                            }
+                            if ($end_date) {
+                                $qu->whereDate('date', '<=', $end_date);
+                            }
+                        });
+                })->get();
                 $workerArr['freeze_dates'] = $freezeDates;
                 $workerArr['booked_slots'] = $dates;
                 $workerArr['not_available_on'] = $worker
-                    ->notAvailableDates
+                    ->notAvailableDates()
+                    ->where(function ($q) use ($start_date, $end_date) {
+                        $q
+                            ->where(function ($qu) use ($start_date, $end_date) {
+                                if ($start_date) {
+                                    $qu->whereDate('date', '>=', $start_date);
+                                } else {
+                                    $qu->whereDate('date', '>=', date('Y-m-d'));
+                                }
+                                if ($end_date) {
+                                    $qu->whereDate('date', '<=', $end_date);
+                                }
+                            });
+                    })
+                    ->get()
                     ->map(function ($item) {
                         return $item->only([
                             'date',
@@ -275,7 +370,19 @@ class WorkerController extends Controller
                         ]);
                     })
                     ->toArray();
-                $workerArr['not_available_dates'] = $worker->notAvailableDates->pluck('date')->toArray();
+                $workerArr['not_available_dates'] = $worker->notAvailableDates()->where(function ($q) use ($start_date, $end_date) {
+                    $q
+                        ->where(function ($qu) use ($start_date, $end_date) {
+                            if ($start_date) {
+                                $qu->whereDate('date', '>=', $start_date);
+                            } else {
+                                $qu->whereDate('date', '>=', date('Y-m-d'));
+                            }
+                            if ($end_date) {
+                                $qu->whereDate('date', '<=', $end_date);
+                            }
+                        });
+                })->get()->pluck('date')->toArray();
 
                 return $workerArr;
             });
@@ -289,7 +396,7 @@ class WorkerController extends Controller
             'workers' => $workers,
         ]);
     }
-        /**
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -315,7 +422,7 @@ class WorkerController extends Controller
             'role'      => ['required', 'max:50'],
             'company_type'    => [
                 'required',
-                Rule::in(['my-company', 'manpower']),
+                Rule::in(['my-company', 'manpower', 'freelancer']),
             ],
             'manpower_company_id' => ['required_if:company_type,manpower']
         ], [
@@ -364,9 +471,9 @@ class WorkerController extends Controller
             'manpower_company_id'       => $request->company_type == "manpower"
                 ? $request->manpower_company_id
                 : NULL,
-            'driving_fees' =>$request->driving_fees,
+            'driving_fees' => $request->driving_fees,
             'employment_type' => $request->employment_type,
-            'salary' =>$request->salary
+            'salary' => $request->salary
         ]);
 
         $i = 1;
@@ -392,31 +499,33 @@ class WorkerController extends Controller
             }
         }
 
-        if($worker->company_type == 'manpower' && $worker->country != 'Israel') {
+        if ($worker->company_type == 'manpower' && $worker->country != 'Israel') {
             return response()->json([
                 'message' => 'Worker created successfully',
             ]);
         }
 
-        $formEnum = new Form101FieldEnum;
+        if ($request->company_type !== "freelancer") {
+            $formEnum = new Form101FieldEnum;
 
-        $defaultFields = $formEnum->getDefaultFields();
-        $defaultFields['employeeFirstName'] = $worker->firstname;
-        $defaultFields['employeeLastName'] = $worker->lastname;
-        $defaultFields['employeeMobileNo'] = $worker->phone;
-        $defaultFields['employeeEmail'] = $worker->email;
-        $defaultFields['employeecountry'] = $worker->country;
-        $defaultFields['sender']['employeeEmail'] = $worker->email;
-        $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
-        $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
+            $defaultFields = $formEnum->getDefaultFields();
+            $defaultFields['employeeFirstName'] = $worker->firstname;
+            $defaultFields['employeeLastName'] = $worker->lastname;
+            $defaultFields['employeeMobileNo'] = $worker->phone;
+            $defaultFields['employeeEmail'] = $worker->email;
+            $defaultFields['employeecountry'] = $worker->country;
+            $defaultFields['sender']['employeeEmail'] = $worker->email;
+            $defaultFields['employeeSex'] = Str::ucfirst($worker->gender);
+            $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
 
-        $worker->forms()->create([
-            'type' => WorkerFormTypeEnum::FORM101,
-            'data' => $formData,
-            'submitted_at' => NULL
-        ]);
+            $worker->forms()->create([
+                'type' => WorkerFormTypeEnum::FORM101,
+                'data' => $formData,
+                'submitted_at' => NULL
+            ]);
 
-        event(new WorkerCreated($worker));
+            event(new WorkerCreated($worker));
+        }
 
         AddGoogleContactForWorkerJob::dispatch($worker);
 
@@ -471,9 +580,9 @@ class WorkerController extends Controller
             'role'      => ['required', 'max:50'],
             'company_type'    => [
                 'required',
-                Rule::in(['my-company', 'manpower']),
+                Rule::in(['my-company', 'manpower', 'freelancer']),
             ],
-           'manpower_company_id' => ['required_if:company_type,manpower'],
+            'manpower_company_id' => ['required_if:company_type,manpower'],
         ], [
             'payment_type.required' => 'The payment type is required.',
             'full_name.required_if' => 'The full name is required.',
@@ -526,7 +635,7 @@ class WorkerController extends Controller
             'is_afraid_by_cat'          => $request->is_afraid_by_cat,
             'is_afraid_by_dog'          => $request->is_afraid_by_dog,
             'manpower_company_id'       => $request->company_type == "manpower" ? $request->manpower_company_id : NULL,
-            'driving_fees' =>$request->driving_fees,
+            'driving_fees' => $request->driving_fees,
         ]);
 
         AddGoogleContactForWorkerJob::dispatch($worker);
@@ -884,6 +993,7 @@ class WorkerController extends Controller
         $end_date = $request->get('end_date');
         $manpowerCompanyID = $request->get('manpower_company_id');
         $isMyCompany = $request->get('is_my_company');
+        $isFreelancer = $request->get('is_freelancer');
 
         $jobHours = Job::query()
             ->when($start_date, function ($q) use ($start_date) {
@@ -906,6 +1016,10 @@ class WorkerController extends Controller
             ->when($isMyCompany == 'true', function ($q) {
                 return $q->where('company_type', 'my-company');
             })
+            ->when($isFreelancer == 'true', function ($q) {
+                return $q->where('company_type', 'freelancer');
+            })
+            ->where('status', '1')
             ->where(function ($q) {
                 $q
                     ->whereNull('last_work_date')
@@ -959,27 +1073,27 @@ class WorkerController extends Controller
 
     public function generateWorkerHoursPDF(Request $request)
     {
-        
+
         $worker_ids = $request->get('worker_ids', []);
         $start_date = $request->get('start_date', null);
         $end_date = $request->get('end_date', null);
         $manpowerCompanyID = $request->get('manpower_company_id', '');
         $isMyCompany = $request->get('is_my_company', '');
-    
+
         $startDate = Carbon::parse($start_date);
         $endDate = Carbon::parse($end_date);
-    
+
         // Generate the date range
         $dates = [];
         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
             $dates[] = $date->format('Y-m-d');
         }
-    
+
         $allPdfData = []; // Initialize an array to store data for all workers
-    
+
         foreach ($worker_ids as $worker_id) {
             $worker = User::find($worker_id);
-           
+
             if ($worker) {
                 //Determine the company name based on the worker's manpower_company_id and isMyCompany flag
                 if ($worker->manpower_company_id) {
@@ -994,49 +1108,49 @@ class WorkerController extends Controller
                 $workerName = $worker->firstname . ' ' . $worker->lastname;
                 $department = $worker->role; // Fetch department name based on role
                 $pdfData = []; // Reset the pdfData array for each worker
-            
-            foreach ($dates as $date) {
-                // Fetch all records for the current worker and date
-                $data = Job::where('jobs.worker_id', $worker_id)
-                    ->whereDate('jobs.start_date', $date)
-                    ->when($worker->manpower_company_id, function ($q) use ($worker) {
-                        return $q->where('users.manpower_company_id',$worker->manpower_company_id);
-                    })
-                    ->where(function ($q) {
-                        $q->whereNull('users.last_work_date')
-                            ->orWhereDate('users.last_work_date', '>=', today()->toDateString());
-                    })
-                    ->when($isMyCompany == 'true' && !$worker->manpower_company_id, function ($q) {
-                        return $q->where('company_type', 'my-company');
-                    })
-                    ->join('users', 'jobs.worker_id', '=', 'users.id')
-                    ->select(
-                        DB::raw('MIN(jobs.start_time) as entry_time'), 
-                        DB::raw('MAX(jobs.end_time) as exit_time'),    
-                        DB::raw('SUM(jobs.actual_time_taken_minutes) as total_minutes') // Sum of working hours
-                    )
-                    ->groupBy('jobs.worker_id', 'jobs.start_date')
-                    ->get();
-    
+
+                foreach ($dates as $date) {
+                    // Fetch all records for the current worker and date
+                    $data = Job::where('jobs.worker_id', $worker_id)
+                        ->whereDate('jobs.start_date', $date)
+                        ->when($worker->manpower_company_id, function ($q) use ($worker) {
+                            return $q->where('users.manpower_company_id', $worker->manpower_company_id);
+                        })
+                        ->where(function ($q) {
+                            $q->whereNull('users.last_work_date')
+                                ->orWhereDate('users.last_work_date', '>=', today()->toDateString());
+                        })
+                        ->when($isMyCompany == 'true' && !$worker->manpower_company_id, function ($q) {
+                            return $q->where('company_type', 'my-company');
+                        })
+                        ->join('users', 'jobs.worker_id', '=', 'users.id')
+                        ->select(
+                            DB::raw('MIN(jobs.start_time) as entry_time'),
+                            DB::raw('MAX(jobs.end_time) as exit_time'),
+                            DB::raw('SUM(jobs.actual_time_taken_minutes) as total_minutes') // Sum of working hours
+                        )
+                        ->groupBy('jobs.worker_id', 'jobs.start_date')
+                        ->get();
+
                     // Initialize daily data with null and 0 values
                     $dailyData = [
                         'entry_time' => null,
                         'exit_time' => null,
                         'total_hours' => 0,
                     ];
-    
+
                     // Process each record to aggregate data
                     foreach ($data as $record) {
                         $dailyData['entry_time'] = $record->entry_time ?: $dailyData['entry_time'];
                         $dailyData['exit_time'] = $record->exit_time ?: $dailyData['exit_time'];
                         $dailyData['total_hours'] += $record->total_minutes / 60; // Convert minutes to hours
                     }
-    
-                // Store daily data for the specific date
-                $pdfData[$date] = $dailyData;
-            }
-    
-            // Store the data for this worker
+
+                    // Store daily data for the specific date
+                    $pdfData[$date] = $dailyData;
+                }
+
+                // Store the data for this worker
                 $allPdfData[$workerName] = [
                     'dates' => $dates,
                     'pdfData' => $pdfData,
@@ -1045,16 +1159,16 @@ class WorkerController extends Controller
                 ];
             }
         }
-    
+
         if (empty($allPdfData)) {
             return response()->json(['message' => 'No data found for the given criteria'], 404);
         }
-    
+
         $pdf = new Mpdf(['mode' => 'rtl']);
         $pdf->WriteHTML(view('pdf.workers_hours_report', [
             'allPdfData' => $allPdfData,
         ])->render());
-        
+
         $pdfFileName = 'worker_hours_report_' . time() . '.pdf';
         $pdfFilePath = 'pdfs/' . $pdfFileName;
         $pdfOutput = $pdf->Output('', 'S');
@@ -1069,9 +1183,8 @@ class WorkerController extends Controller
         return response($pdfOutput, 200)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'attachment; filename="' . $pdfFileName . '"');
-
     }
-    
+
 
 
     public function formSend(Request $request, Form101FieldEnum $formEnum)

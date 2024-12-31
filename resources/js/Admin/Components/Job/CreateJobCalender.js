@@ -20,30 +20,50 @@ export default function CreateJobCalender({
     client,
     setSelectedService,
     setSelectedServiceIndex,
-    selectedService
+    selectedService,
+    currentFilter,
+    searchVal,
+    distance,
+    prevWorker,
 }) {
     const navigate = useNavigate();
     const alert = useAlert();
     const [workerAvailabilities, setWorkerAvailabilities] = useState([]);
     const [selectedHours, setSelectedHours] = useState([]);
-    const [distance, setDistance] = useState('default')
     const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
+    const [calendarStartDate, setCalendarStartDate] = useState(null);
+    const [calendarEndDate, setCalendarEndDate] = useState(null);
     const [days, setDays] = useState([]);
-    const [currentFilter, setcurrentFilter] = useState("Current Week");
     const headers = {
         Accept: "application/json, text/plain, /",
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
-    let isPrevWorker = useRef();
     const [services, setServices] = useState(clientServices);
     const [customDateRange, setCustomDateRange] = useState([]);
-    const [searchVal, setSearchVal] = useState("");
     const [loading, setLoading] = useState(false);
     const [hasFetched, setHasFetched] = useState(false);
-    const [prevWorker, setPrevWorker] = useState(true)
-    const [serviceIndex, setServiceIndex] = useState(null)
+    const [serviceIndex, setServiceIndex] = useState(null);
+
+    const generateWeek = (startDate) => {
+        let week = [];
+        let today = moment().startOf("day"); // Get the current date at the start of the day
+        days.forEach((d) => {
+            let day = moment(startDate).add(d, "days");
+            if (day.isSameOrAfter(today)) {
+                // Check if the day is greater than or equal to today
+                week.push(day.format("YYYY-MM-DD"));
+            }
+        });
+        return week;
+    };
+
+    const sundayOfCurrentWeek = moment().startOf("week");
+
+    let week = generateWeek(sundayOfCurrentWeek);
+    let nextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
+    let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     useEffect(() => {
         setServices(clientServices);
@@ -61,20 +81,21 @@ export default function CreateJobCalender({
         getTime();
     }, []);
 
-
     const handleServices = (index) => {
-        setServiceIndex(index)
-        setLoading(true)
+        setServiceIndex(index);
+        setLoading(true);
         setSelectedServiceIndex(index);
 
         const _service = services[index];
+
         setSelectedService(_service);
 
         if (!_service) return;
 
         const hours = [];
         if (_service?.workers && _service?.workers.length > 0) {
-            const iterations = parseInt(_service?.cycle) > 0 ? parseInt(_service?.cycle) : 1;
+            const iterations =
+                parseInt(_service?.cycle) > 0 ? parseInt(_service?.cycle) : 1;
             for (let i = 0; i < iterations; i++) {
                 _service?.workers?.forEach((worker) => {
                     hours.push({
@@ -87,91 +108,112 @@ export default function CreateJobCalender({
         }
 
         setSelectedHours(hours);
-        getWorkers(_service);
+        let _calendarStartDate = calendarStartDate;
+        let _calendarEndDate = calendarEndDate;
+        if(_calendarStartDate == null && week.length > 0) {
+            console.log(week[0], week[week.length - 1]);
+            _calendarStartDate = week[0];
+            _calendarEndDate = week[week.length - 1];
+            setCalendarStartDate(week[0]);
+            setCalendarEndDate(week[week.length - 1]);
+        }
+        getWorkers(_service, _calendarStartDate, _calendarEndDate);
         $("#edit-work-time").modal("hide");
-        setLoading(false)
+        setLoading(false);
     };
 
-    const getWorkers = useCallback(async (_service) => {
-        if (hasFetched) return;
-        setHasFetched(true);
-        try {
-            setLoading(true);
-            const res = await axios.get(`/api/admin/all-workers`, {
-                headers,
-                params: {
-                    filter: true,
-                    distance,
-                    service_id: _service.service,
-                    has_cat: _service.address.is_cat_avail,
-                    has_dog: _service.address.is_dog_avail,
-                    prefer_type: _service.address.prefer_type,
-                    ignore_worker_ids: _service.address.not_allowed_worker_ids,
-                    client_property_id: _service.address.id,
-                },
-            });
-            const workers = res.data.workers;
-            
-            setAllWorkers(workers);
-            console.time('get');
-            let WorkerAvailability = getWorkerAvailabilities(workers)
-            
-            console.timeEnd('get');
-            setWorkerAvailabilities(WorkerAvailability);
-        } catch (err) {
-            alert.error("Failed to fetch workers");
-        } finally {
-            setLoading(false);
-        }
-    }, [distance, headers, alert, hasFetched]);
+    const getWorkers = useCallback(
+        async (_service, _calendarStartDate, _calendarEndDate) => {
+            if (hasFetched) return;
+
+            setHasFetched(true);
+            try {
+                setLoading(true);
+                const res = await axios.get(`/api/admin/all-workers`, {
+                    headers,
+                    params: {
+                        filter: true,
+                        start_date: calendarStartDate ?? _calendarStartDate,
+                        end_date: calendarEndDate ?? _calendarEndDate,
+                        distance,
+                        service_id: _service.service,
+                        has_cat: _service.address.is_cat_avail,
+                        has_dog: _service.address.is_dog_avail,
+                        prefer_type: _service.address.prefer_type,
+                        ignore_worker_ids:
+                            _service.address.not_allowed_worker_ids,
+                        client_property_id: _service.address.id,
+                        is_freelancer: _service?.is_freelancer ? true : false,
+                    },
+                });
+                const workers = res.data.workers;
+
+                setAllWorkers(workers);
+                console.time("get");
+                let WorkerAvailability = getWorkerAvailabilities(workers);
+
+                console.timeEnd("get");
+                setWorkerAvailabilities(WorkerAvailability);
+            } catch (err) {
+                alert.error("Failed to fetch workers");
+            } finally {
+                setLoading(false);
+            }
+        },
+        [distance, hasFetched, calendarStartDate, calendarEndDate]
+    );
 
     useEffect(() => {
         handleServices(serviceIndex);
-    }, [serviceIndex, distance])
+    }, [serviceIndex, distance]);
 
-
+    useEffect(() => {
+        handleServices(serviceIndex);
+    }, [serviceIndex, calendarStartDate, calendarEndDate])
 
     const submitForm = useCallback(
         async (_data) => {
-          try {
-            setLoading(true);
-            let viewbtn = document.querySelectorAll(".viewBtn");
-            const formdata = {
-              workers: _data,
-              service_id: selectedService.service,
-              contract_id: selectedService.contract_id,
-              prevWorker: prevWorker,
-              updatedJobs: updatedJobs,
-            };
-            viewbtn[0].setAttribute("disabled", true);
-            viewbtn[0].value = "please wait ...";
-            await axios.post(`/api/admin/create-job`, formdata, { headers });
-            alert.success("Job created successfully");
-            setTimeout(() => navigate("/admin/jobs"), 1000);
-          } catch (error) {
-            Swal.fire({
-              title: "Error!",
-              text: error.response?.data?.message,
-              icon: "error",
-            });
-          } finally {
-            setLoading(false);
-          }
+            try {
+                setLoading(true);
+                let viewbtn = document.querySelectorAll(".viewBtn");
+                const formdata = {
+                    workers: _data,
+                    service_id: selectedService.service,
+                    contract_id: selectedService.contract_id,
+                    prevWorker: prevWorker,
+                    updatedJobs: updatedJobs,
+                };
+                viewbtn[0].setAttribute("disabled", true);
+                viewbtn[0].value = "please wait ...";
+                await axios.post(`/api/admin/create-job`, formdata, {
+                    headers,
+                });
+                alert.success("Job created successfully");
+                setTimeout(() => navigate("/admin/jobs"), 1000);
+            } catch (error) {
+                Swal.fire({
+                    title: "Error!",
+                    text: error.response?.data?.message,
+                    icon: "error",
+                });
+            } finally {
+                setLoading(false);
+            }
         },
-        [selectedService, updatedJobs, headers, alert, navigate]
-      );
+        [selectedService, updatedJobs, navigate]
+    );
 
     const handleSubmit = () => {
         if (selectedHours) {
             const data = [];
-    
+
             selectedHours.forEach((worker, index) => {
                 // Loop through the worker's formatted slots
                 worker?.formattedSlots?.forEach((slots) => {
                     data.push(slots);
                 });
             });
-    
+
             // You can now use the 'data' array which contains the updated shift information
             if (data.length > 0) {
                 const _getWorkersData = getWorkersData(selectedHours);
@@ -200,24 +242,6 @@ export default function CreateJobCalender({
         }
     };
 
-    const generateWeek = (startDate) => {
-        let week = [];
-        let today = moment().startOf("day"); // Get the current date at the start of the day
-        days.forEach((d) => {
-            let day = moment(startDate).add(d, "days");
-            if (day.isSameOrAfter(today)) {
-                // Check if the day is greater than or equal to today
-                week.push(day.format("YYYY-MM-DD"));
-            }
-        });
-        return week;
-    };
-
-    const sundayOfCurrentWeek = moment().startOf("week");
-
-    let week = generateWeek(sundayOfCurrentWeek);
-    let nextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
-    let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const changeShift = (w_id, date, e) => {
         const selectedSlotTimes = new Set(); // Track already selected slot times
@@ -237,15 +261,21 @@ export default function CreateJobCalender({
                 );
 
                 // Filter out slots that have already been selected
-                const filteredSlots = slots.filter(slot => !selectedSlotTimes.has(slot.time.time));
+                const filteredSlots = slots.filter(
+                    (slot) => !selectedSlotTimes.has(slot.time.time)
+                );
 
                 // Add current slot times to the set
-                filteredSlots.forEach(slot => selectedSlotTimes.add(slot.time.time));
+                filteredSlots.forEach((slot) =>
+                    selectedSlotTimes.add(slot.time.time)
+                );
                 return {
                     jobHours: worker.jobHours,
                     slots: filteredSlots.length > 0 ? filteredSlots : null,
                     formattedSlots:
-                        filteredSlots.length > 0 ? convertShiftsFormat(filteredSlots) : null,
+                        filteredSlots.length > 0
+                            ? convertShiftsFormat(filteredSlots)
+                            : null,
                 };
             }
             return worker;
@@ -316,207 +346,73 @@ export default function CreateJobCalender({
         return false;
     };
 
+    useEffect(() => {
+        setHasFetched(false);
+        switch (currentFilter) {
+            case "Current Week":
+                if(week.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(week[0]);
+                    setCalendarEndDate(week[week.length - 1]);
+                }
+                break;
+
+            case "Next Week":
+                if(nextweek.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(nextweek[0]);
+                    setCalendarEndDate(nextweek[nextweek.length - 1]);
+                }
+                break;
+
+            case "Next Next Week":
+                if(nextnextweek.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(nextnextweek[0]);
+                    setCalendarEndDate(nextnextweek[nextnextweek.length - 1]);
+                }
+                break;
+
+            case "Custom":
+                if(customDateRange.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(customDateRange[0]);
+                    setCalendarEndDate(customDateRange[customDateRange.length - 1]);
+                }
+                break;
+
+            default:
+                if(week.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(week[0]);
+                    setCalendarEndDate(week[week.length - 1]);
+                }
+                break;
+        }
+    }, [currentFilter, customDateRange]);
 
     return (
         <>
-            <div className="row mb-3">
-                <div className="col-sm-12" style={{ rowGap: "0.5rem" }}>
-                    <div className="d-flex align-items-center flex-wrap justify-content-between">
-                        <div className="d-flex align-items-center flex-wrap mt-2 ">
-                            <div className="mr-3" style={{ fontWeight: "bold" }}>
-                                Worker Availability
-                            </div>
-                            <FilterButtons
-                                text="Current Week"
-                                className="px-3 mr-2 mb-2"
-                                selectedFilter={currentFilter}
-                                setselectedFilter={setcurrentFilter}
-                            />
-
-                            <FilterButtons
-                                text="Next Week"
-                                className="px-3 mr-2 mb-2"
-                                selectedFilter={currentFilter}
-                                setselectedFilter={setcurrentFilter}
-                            />
-
-                            <FilterButtons
-                                text="Next Next Week"
-                                className="px-3 mr-2 mb-2"
-                                selectedFilter={currentFilter}
-                                setselectedFilter={setcurrentFilter}
-                            />
-
-                            <FilterButtons
-                                text="Custom"
-                                className="px-3 mr-2 mb-2"
-                                selectedFilter={currentFilter}
-                                setselectedFilter={setcurrentFilter}
-                            />
-                        </div>
-
-                        <div className="d-flex" style={{gap: "10px"}}>
-                            <select
-                                className="form-control"
-                                value={distance}
-                                onChange={(e) => setDistance(e.target.value)}
-                            >
-                                <option value="">---select distance---</option>
-                                <option value="nearest">Nearest</option>
-                                <option value="farthest">farthest</option>
-                            </select>
-                            <input
-                                type="text"
-                                className="form-control form-control-sm"
-                                placeholder="Search"
-                                onChange={(e) => {
-                                    setSearchVal(e.target.value);
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                </div>
-                <div className="col-sm-12 mt-2">
-                    <div className="form-check">
-                        <label className="form-check-label">
-                        <input
-                                // ref={isPrevWorker}
-                                type="checkbox"
-                                defaultChecked={prevWorker}
-                                onChange={(prev) => setPrevWorker(!prev)}
-                                className="form-check-input"
-                                name={"is_keep_prev_worker"}
-                            />
-                            Keep previous worker
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            {workerAvailabilities.length === 0 ? <Loader /> : (
+            {workerAvailabilities.length === 0 ? (
+                <Loader />
+            ) : (
                 <div className="tab-content" style={{ background: "#fff" }}>
-                    <div
-                        style={{
-                            display:
-                                currentFilter === "Current Week" ? "block" : "none",
-                        }}
-                        id="tab-worker-availability"
-                        className="tab-pane active show  table-responsive"
-                        role="tab-panel"
-                        aria-labelledby="current-job"
-                    >
-                        <div className="crt-jb-table-scrollable">
-                            <WorkerAvailabilityTable
-                                workerAvailabilities={workerAvailabilities}
-                                week={week}
-                                AllWorkers={AllWorkers}
-                                hasActive={hasActive}
-                                changeShift={changeShift}
-                                removeShift={removeShift}
-                                selectedHours={selectedHours}
-                                searchKeyword={searchVal}
-                                distance={distance}
-                            />
-                        </div>
-                    </div>
-
-                    <div
-                        style={{
-                            display:
-                                currentFilter === "Next Week" ? "block" : "none",
-                        }}
-                        id="tab-current-job"
-                        className="tab-pane"
-                        role="tab-panel"
-                        aria-labelledby="current-job"
-                    >
-                        <div className="crt-jb-table-scrollable">
-                            <WorkerAvailabilityTable
-                                workerAvailabilities={workerAvailabilities}
-                                week={nextweek}
-                                AllWorkers={AllWorkers}
-                                hasActive={hasActive}
-                                changeShift={changeShift}
-                                removeShift={removeShift}
-                                selectedHours={selectedHours}
-                                searchKeyword={searchVal}
-                                distance={distance}
-                            />
-                        </div>
-                    </div>
-                    <div
-                        style={{
-                            display:
-                                currentFilter === "Next Next Week"
-                                    ? "block"
-                                    : "none",
-                        }}
-                        id="tab-current-next-job"
-                        className="tab-pane"
-                        role="tab-panel"
-                        aria-labelledby="current-job"
-                    >
-                        <div className="crt-jb-table-scrollable">
-                            <WorkerAvailabilityTable
-                                workerAvailabilities={workerAvailabilities}
-                                week={nextnextweek}
-                                AllWorkers={AllWorkers}
-                                hasActive={hasActive}
-                                changeShift={changeShift}
-                                removeShift={removeShift}
-                                selectedHours={selectedHours}
-                                searchKeyword={searchVal}
-                                distance={distance}
-                            />
-                        </div>
-                    </div>
-                    <div
-                        style={{
-                            display: currentFilter === "Custom" ? "block" : "none",
-                        }}
-                        id="tab-current-next-job"
-                        className="tab-pane"
-                        role="tab-panel"
-                        aria-labelledby="current-job"
-                    >
-                        <div className="form-group">
-                            <label className="control-label">
-                                Select Date Range
-                            </label>
-                            <Flatpickr
-                                name="date"
-                                className="form-control"
-                                onChange={(selectedDates, dateStr, instance) => {
-                                    let start = moment(selectedDates[0]);
-                                    let end = moment(selectedDates[1]);
-                                    const datesArray = [];
-
-                                    for (
-                                        let date = start.clone();
-                                        date.isSameOrBefore(end);
-                                        date.add(1, "day")
-                                    ) {
-                                        datesArray.push(date.format("YYYY-MM-DD"));
-                                    }
-                                    setCustomDateRange(datesArray);
-                                }}
-                                options={{
-                                    disableMobile: true,
-                                    minDate: moment(
-                                        nextnextweek[nextnextweek.length - 1]
-                                    )
-                                        .add(1, "days")
-                                        .format("YYYY-MM-DD"),
-                                    mode: "range",
-                                }}
-                            />
-                        </div>
-                        {customDateRange.length > 0 && (
+                    {currentFilter === "Current Week" && (
+                        <div
+                            id="tab-worker-availability"
+                            className="tab-pane active show  table-responsive"
+                            role="tab-panel"
+                            aria-labelledby="current-job"
+                        >
                             <div className="crt-jb-table-scrollable">
                                 <WorkerAvailabilityTable
                                     workerAvailabilities={workerAvailabilities}
-                                    week={customDateRange}
+                                    week={week}
                                     AllWorkers={AllWorkers}
                                     hasActive={hasActive}
                                     changeShift={changeShift}
@@ -526,8 +422,118 @@ export default function CreateJobCalender({
                                     distance={distance}
                                 />
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
+                    {currentFilter === "Next Week" && (
+                        <div
+                            id="tab-current-job"
+                            className="tab-pane active show  table-responsive"
+                            role="tab-panel"
+                            aria-labelledby="current-job"
+                        >
+                            <div className="crt-jb-table-scrollable">
+                                <WorkerAvailabilityTable
+                                    workerAvailabilities={workerAvailabilities}
+                                    week={nextweek}
+                                    AllWorkers={AllWorkers}
+                                    hasActive={hasActive}
+                                    changeShift={changeShift}
+                                    removeShift={removeShift}
+                                    selectedHours={selectedHours}
+                                    searchKeyword={searchVal}
+                                    distance={distance}
+                                />
+                            </div>
+                        </div>
+                    )}
+                    {currentFilter === "Next Next Week" && (
+                        <div
+                            id="tab-current-next-job"
+                            className="tab-pane active show  table-responsive"
+                            role="tab-panel"
+                            aria-labelledby="current-job"
+                        >
+                            <div className="crt-jb-table-scrollable">
+                                <WorkerAvailabilityTable
+                                    workerAvailabilities={workerAvailabilities}
+                                    week={nextnextweek}
+                                    AllWorkers={AllWorkers}
+                                    hasActive={hasActive}
+                                    changeShift={changeShift}
+                                    removeShift={removeShift}
+                                    selectedHours={selectedHours}
+                                    searchKeyword={searchVal}
+                                    distance={distance}
+                                />
+                            </div>
+                        </div>
+                    )}
+                    {currentFilter === "Custom" && (
+                        <div
+                            id="tab-current-next-job"
+                            className="tab-pane active show  table-responsive"
+                            role="tab-panel"
+                            aria-labelledby="current-job"
+                        >
+                            <div className="form-group">
+                                <label className="control-label">
+                                    Select Date Range
+                                </label>
+                                <Flatpickr
+                                    name="date"
+                                    className="form-control"
+                                    onChange={(
+                                        selectedDates,
+                                        dateStr,
+                                        instance
+                                    ) => {
+                                        let start = moment(selectedDates[0]);
+                                        let end = moment(selectedDates[1]);
+                                        const datesArray = [];
+
+                                        for (
+                                            let date = start.clone();
+                                            date.isSameOrBefore(end);
+                                            date.add(1, "day")
+                                        ) {
+                                            datesArray.push(
+                                                date.format("YYYY-MM-DD")
+                                            );
+                                        }
+                                        setCustomDateRange(datesArray);
+                                    }}
+                                    options={{
+                                        disableMobile: true,
+                                        minDate: moment(
+                                            nextnextweek[
+                                                nextnextweek.length - 1
+                                            ]
+                                        )
+                                            .add(1, "days")
+                                            .format("YYYY-MM-DD"),
+                                        mode: "range",
+                                    }}
+                                />
+                            </div>
+                            {customDateRange.length > 0 && (
+                                <div className="crt-jb-table-scrollable">
+                                    <WorkerAvailabilityTable
+                                        workerAvailabilities={
+                                            workerAvailabilities
+                                        }
+                                        week={customDateRange}
+                                        AllWorkers={AllWorkers}
+                                        hasActive={hasActive}
+                                        changeShift={changeShift}
+                                        removeShift={removeShift}
+                                        selectedHours={selectedHours}
+                                        searchKeyword={searchVal}
+                                        distance={distance}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -701,17 +707,17 @@ export default function CreateJobCalender({
                                                                     ?.is_cat_avail
                                                                     ? "Cat ,"
                                                                     : item
-                                                                        ?.address
-                                                                        ?.is_dog_avail
-                                                                        ? "Dog"
-                                                                        : !item
-                                                                            ?.address
-                                                                            ?.is_cat_avail &&
-                                                                            !item
-                                                                                ?.address
-                                                                                ?.is_dog_avail
-                                                                            ? "NA"
-                                                                            : ""}
+                                                                          ?.address
+                                                                          ?.is_dog_avail
+                                                                    ? "Dog"
+                                                                    : !item
+                                                                          ?.address
+                                                                          ?.is_cat_avail &&
+                                                                      !item
+                                                                          ?.address
+                                                                          ?.is_dog_avail
+                                                                    ? "NA"
+                                                                    : ""}
                                                             </p>
                                                         )
                                                     )}
@@ -721,8 +727,7 @@ export default function CreateJobCalender({
                                     </table>
                                 </div>
                                 <div className="table-responsive">
-                                    {selectedHours.length >
-                                        0 ? (
+                                    {selectedHours.length > 0 ? (
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
@@ -732,19 +737,33 @@ export default function CreateJobCalender({
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            {selectedHours && selectedHours?.map((d, i) => (
-                                                d?.formattedSlots?.map((slot, j) => {
-                                                    return (
-                                                        <tr key={j}>
-                                                        <td>{slot.worker_name}</td>
-                                                        <td>{slot.date}</td>
-                                                        <td>{slot.shifts}</td>
-                                                    </tr>
-                                                    )
-                                                })
-                                            ))}
-                                        </tbody>
-                                        
+                                                {selectedHours &&
+                                                    selectedHours?.map((d, i) =>
+                                                        d?.formattedSlots?.map(
+                                                            (slot, j) => {
+                                                                return (
+                                                                    <tr key={j}>
+                                                                        <td>
+                                                                            {
+                                                                                slot.worker_name
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            {
+                                                                                slot.date
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            {
+                                                                                slot.shifts
+                                                                            }
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            }
+                                                        )
+                                                    )}
+                                            </tbody>
                                         </table>
                                     ) : (
                                         ""
@@ -802,18 +821,19 @@ export default function CreateJobCalender({
                                         <option value="">
                                             --- Please Select Service ---
                                         </option>
-                                        {services && services.map((item, index) => {
-                                            return (
-                                                <option
-                                                    value={index}
-                                                    key={index}
-                                                >
-                                                    {item.service != "10"
-                                                        ? item.name
-                                                        : item.other_title}
-                                                </option>
-                                            );
-                                        })}
+                                        {services &&
+                                            services.map((item, index) => {
+                                                return (
+                                                    <option
+                                                        value={index}
+                                                        key={index}
+                                                    >
+                                                        {item.service != "10"
+                                                            ? item.name
+                                                            : item.other_title}
+                                                    </option>
+                                                );
+                                            })}
                                     </select>
                                 </div>
                             </div>
@@ -838,15 +858,15 @@ const FilterButtons = ({
         style={
             selectedFilter !== text
                 ? {
-                    background: "#EDF1F6",
-                    color: "#2c3f51",
-                    borderRadius: "6px",
-                }
+                      background: "#EDF1F6",
+                      color: "#2c3f51",
+                      borderRadius: "6px",
+                  }
                 : {
-                    background: "#2c3f51",
-                    color: "white",
-                    borderRadius: "6px",
-                }
+                      background: "#2c3f51",
+                      color: "white",
+                      borderRadius: "6px",
+                  }
         }
         onClick={() => {
             onClick?.();

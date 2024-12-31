@@ -598,7 +598,33 @@ class ClientEmailController extends Controller
             $contract->update(['status' => ContractStatusEnum::DECLINED]);
 
             $client = Client::find($contract->client_id);
-            $client->update(['status' => 1]);
+
+            $hasUnVerifiedContract = $client->contract->contains(function ($contract) {
+                return $contract->status === 'un-verified';
+            });
+
+            if($hasUnVerifiedContract){
+                \Log::info('Client Declined Contract');
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                    ]
+                ]));
+            }else{
+                \Log::info("Lead Declined Contract");
+                
+                $client->update(['status' => 1]);
+                $newLeadStatus = LeadStatusEnum::UNINTERESTED;
+                if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                    $client->lead_status()->updateOrCreate(
+                        [],
+                        ['lead_status' => $newLeadStatus]
+                    );
+                    event(new ClientLeadStatusChanged($client, $newLeadStatus));
+                }
+            }
+
             Notification::create([
                 'user_id' => $contract->client_id,
                 'user_type' => get_class($client),
@@ -615,15 +641,6 @@ class ClientEmailController extends Controller
             ]));
 
 
-        $newLeadStatus = LeadStatusEnum::UNINTERESTED;
-
-        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
-            $client->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => $newLeadStatus]
-            );
-            event(new ClientLeadStatusChanged($client, $newLeadStatus));
-        }
 
             return response()->json([
                 'message' => "Contract has been rejected"

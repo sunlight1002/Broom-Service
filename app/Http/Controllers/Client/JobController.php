@@ -128,7 +128,7 @@ class JobController extends Controller
 
     public function cancel(Request $request, $id)
     {
-        $job = Job::with('client')
+        $job = Job::with(['client', 'offer'])
             ->where('client_id', Auth::user()->id)
             ->find($id);
 
@@ -145,6 +145,23 @@ class JobController extends Controller
             return response()->json([
                 'message' => 'Client not found'
             ], 404);
+        }
+
+        // Check and remove `is_one_time` field from offer services
+        if ($job->offer && $job->offer->services) {
+            $services = json_decode($job->offer->services, true); 
+
+            // Remove `is_one_time` field if it exists in any service
+            $services = array_map(function ($service) {
+                if (isset($service['is_one_time'])) {
+                    unset($service['is_one_time']);
+                }
+                return $service;
+            }, $services);
+
+            // Save the updated services back to the offer
+            $job->offer->services = json_encode($services);
+            $job->offer->save();
         }
 
         if (

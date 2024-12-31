@@ -389,6 +389,29 @@ class JobController extends Controller
             ], 404);
         }
 
+        // Fetch the offer
+        $offer = $contract->offer;
+        if (!$offer) {
+            return response()->json([
+                'message' => 'Offer not found'
+            ], 404);
+        }
+
+        // Decode services (if stored as JSON)
+        $services = is_string($offer->services) ? json_decode($offer->services, true) : $offer->services;
+
+        // Locate the service and add is_one_time field
+        foreach ($services as &$service) {
+            if (($service['service'] == 1) || (in_array($service['freq_name'], ['One Time', 'חד פעמי']))) {
+                $service['is_one_time'] = true; // Add the field
+            }
+        }
+
+        // Save updated services back to the offer
+        $offer->services = json_encode($services);
+        $offer->save();
+
+
         $manageTime = ManageTime::first();
         $workingWeekDays = json_decode($manageTime->days);
 
@@ -484,6 +507,7 @@ class JobController extends Controller
         });
 
         $selectedService = head($filtered);
+        \Log::info($selectedService);
 
         $service = Services::find($data['service_id']);
         $serviceSchedule = ServiceSchedule::find($selectedService['frequency']);
@@ -1820,9 +1844,7 @@ class JobController extends Controller
             ], 403);
         }
 
-        $job->update([
-            'is_job_done' => $request->checked
-        ]);
+     
 
         if ($job->is_job_done) {
             $job->status = JobStatusEnum::COMPLETED;
@@ -1888,6 +1910,9 @@ class JobController extends Controller
                 event(new ClientOrderCancelled($order->client, $order));
             }
         }
+        $job->update([
+            'is_job_done' => $request->checked
+        ]);
 
         return response()->json([
             'message' => 'Job has been updated',

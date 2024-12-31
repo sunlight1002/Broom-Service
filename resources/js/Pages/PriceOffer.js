@@ -73,12 +73,12 @@ export default function PriceOffer() {
             let _services = JSON.parse(data.services);
 
             setServices(_services);
-            const airbnbService = _services.find(service => service.name === "airbnb");
+            const airbnbService = _services.find(service => service.template === "airbnb");
 
             if (airbnbService) {
                 setAirbnb({
                     id: airbnbService.service,
-                    subServiceId: airbnbService.sub_services
+                    subServiceId: airbnbService.sub_services,
                 });
             }
 
@@ -233,7 +233,8 @@ export default function PriceOffer() {
     return (
         <div className="navyblueColor parent">
             <div className=" mt-4 mb-5 bg-transparent " style={{
-                margin: mobileView ? "0 10px" : "0 100px"
+                margin: mobileView ? "0 10px" : "auto",
+                maxWidth: "800px"
             }}>
                 <div className="d-flex align-items-center justify-content-between flex-dir-co-1070">
                     <img
@@ -250,7 +251,7 @@ export default function PriceOffer() {
                             <div className="headBtns mt-3">
                                 <button
                                     type="button"
-                                    className="btn m-1 bluecolor acpt"
+                                    className="btn m-1 btn-success acpt"
                                     disabled={loading}
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
@@ -261,7 +262,7 @@ export default function PriceOffer() {
                                 </button>
                                 <button
                                     type="button"
-                                    className="m-1 btn bluecolor rjct"
+                                    className="m-1 btn btn-danger rjct"
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
                                         RejectOffer(offer.id)
@@ -273,11 +274,11 @@ export default function PriceOffer() {
                         ) : (
                             <div className="mt-3 headMsg">
                                 {status == "accepted" ? (
-                                    <h4 className="btn bluecolor px-3" style={{ lineHeight: "1.3" }}>
+                                    <h4 className="btn btn-success px-3" style={{ lineHeight: "1.3" }}>
                                         {t("global.accepted")}
                                     </h4>
                                 ) : (
-                                    <h4 className="btn bluecolor px-3" style={{ lineHeight: "1.3" }}>
+                                    <h4 className="btn btn-danger px-3" style={{ lineHeight: "1.3" }}>
                                         {t("global.rejected")}
                                     </h4>
                                 )}
@@ -783,7 +784,7 @@ export default function PriceOffer() {
                             </ul>
                         </div>
 
-                        {/* Laundry */}
+                        {/* Laundry
                         <div className="mt-3" style={{ lineHeight: "2.3" }}>
                             <h5>{getNextNumber()}. {t("price_offer.laundary.title")}</h5>
                             <ul>
@@ -793,7 +794,7 @@ export default function PriceOffer() {
                                 <li>{t("price_offer.laundary.p4")}</li>
                                 <li>{t("price_offer.laundary.p5")}</li>
                             </ul>
-                        </div>
+                        </div> */}
                     </section>
                     <section className="col px-3">
                         <div className="shift-20" id="priceOfferTable">
@@ -853,12 +854,15 @@ export default function PriceOffer() {
                                                     </td>
                                                     <td>
                                                         {clientLng === 'heb' ? (
-                                                            s.type === 'fixed' ? 'קָבוּעַ' :
-                                                                s.type === 'hourly' ? 'מדי שעה' :
-                                                                    s.type === 'squaremeter' ? 'מטר מרובע' : s.type
+                                                            s.type === 'fixed' ? "לביקור" :
+                                                                s.type === 'hourly' ? 'לשעה' :
+                                                                    s.type === 'squaremeter' ? 'מ\"ר' : s.type
                                                         ) : (
-                                                            s.type // Fallback to default value if ClientLng is not 'heb'
+                                                            s.type === 'fixed' ? "Fixed" :
+                                                                s.type === 'hourly' ? 'Hourly' :
+                                                                    s.type === 'squaremeter' ? 'Sqm' : s.type
                                                         )}
+
                                                     </td>
                                                     <td>
                                                         {clientLng === 'heb' ? s.frequency_name_heb : s.frequency_name_en}{" "}
@@ -1046,7 +1050,7 @@ export default function PriceOffer() {
                             <div className="headBtns mt-3 d-flex justify-content-end">
                                 <button
                                     type="button"
-                                    className="btn bluecolor acpt"
+                                    className="btn btn-success acpt"
                                     disabled={loading}
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
@@ -1057,7 +1061,7 @@ export default function PriceOffer() {
                                 </button>
                                 <button
                                     type="button"
-                                    className="mx-2 btn bluecolor rjct"
+                                    className="mx-2 btn btn-danger rjct"
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
                                         RejectOffer(offer.id)
@@ -1069,11 +1073,11 @@ export default function PriceOffer() {
                         ) : (
                             <div className="mt-3 headMsg d-flex justify-content-end">
                                 {status == "accepted" ? (
-                                    <h4 className="btn bluecolor px-3" style={{ lineHeight: "1.3" }}>
+                                    <h4 className="btn btn-success px-3" style={{ lineHeight: "1.3" }}>
                                         {t("global.accepted")}
                                     </h4>
                                 ) : (
-                                    <h4 className="btn bluecolor px-3" style={{ lineHeight: "1.3" }}>
+                                    <h4 className="btn btn-danger px-3" style={{ lineHeight: "1.3" }}>
                                         {t("global.rejected")}
                                     </h4>
                                 )}

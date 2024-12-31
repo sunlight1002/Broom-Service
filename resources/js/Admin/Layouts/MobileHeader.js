@@ -5,9 +5,11 @@ import { useAlert } from "react-alert";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./mobile.css"
+import { useTranslation } from "react-i18next";
 
 
 export default function MobileHeader() {
+    const { t } = useTranslation();
     const alert = useAlert();
     const navigate = useNavigate();
     const [role, setRole] = useState();
@@ -85,12 +87,12 @@ export default function MobileHeader() {
                     <ul className="navbar-nav mr-auto">
                         <li className="nav-item">
                             <a href="/admin/dashboard" onClick={(e) => handleClick(e, "/admin/dashboard")}>
-                                <i className="fa-solid fa-gauge"></i>Dashboard
+                                <i className="fa-solid fa-gauge"></i>{t("admin.sidebar.dashboard")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/admin/leads" onClick={(e) => handleClick(e, "/admin/leads")}>
-                                <i className="fa-solid fa-poll-h"></i>Leads
+                                <i className="fa-solid fa-poll-h"></i>{t("admin.sidebar.leads")}
                             </a>
                         </li>
                         {/* Client Dropdown */}
@@ -105,7 +107,7 @@ export default function MobileHeader() {
                                         aria-expanded="true"
                                         aria-controls="clientDropdownMenu"
                                     >
-                                        <i className="fa-solid fa-user-tie"></i> Clients{" "}
+                                        <i className="fa-solid fa-user-tie"></i> {t("admin.sidebar.clients")}{" "}
                                         <i className="fa-solid fa-angle-down"></i>
                                     </a>
                                 </div>
@@ -132,7 +134,7 @@ export default function MobileHeader() {
                                                         handleClick(e, "/admin/clients?type=pending%20client")
                                                     }
                                                 >
-                                                    <i className="fa fa-angle-right"></i> Waiting
+                                                    <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.waiting")}
                                                 </a>
                                             </li>
                                             <li className="list-group-item">
@@ -142,7 +144,7 @@ export default function MobileHeader() {
                                                         handleClick(e, "/admin/clients?type=active%20client")
                                                     }
                                                 >
-                                                    <i className="fa fa-angle-right"></i> Active Clients
+                                                    <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.active_client")}
                                                 </a>
                                             </li>
                                             <li className="list-group-item">
@@ -152,7 +154,7 @@ export default function MobileHeader() {
                                                         handleClick(e, "/admin/clients?type=freeze%20client")
                                                     }
                                                 >
-                                                    <i className="fa fa-angle-right"></i> Freeze Clients
+                                                    <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.freeze_client")}
                                                 </a>
                                             </li>
                                             <li className="list-group-item">
@@ -160,7 +162,7 @@ export default function MobileHeader() {
                                                     href="/admin/clients?type=past"
                                                     onClick={(e) => handleClick(e, "/admin/clients?type=past")}
                                                 >
-                                                    <i className="fa fa-angle-right"></i> Past Clients
+                                                    <i className="fa fa-angle-right"></i> {t("admin.sidebar.client.past_client")}
                                                 </a>
                                             </li>
                                         </ul>
@@ -170,36 +172,70 @@ export default function MobileHeader() {
                         </li>
                         <li className="nav-item">
                             <a href="/admin/workers" onClick={(e) => handleClick(e, "/admin/workers")}>
-                                <i className="fa-solid fa-users"></i>Workers
+                                <i className="fa-solid fa-users"></i>{t("admin.sidebar.workers")}
+                            </a>
+                        </li>
+                        <li className="nav-item">
+                            <a href="/admin/workers-leaves" onClick={(e) => handleClick(e, "/admin/workers-leaves")}>
+                                <i className="fa-solid fa-calendar-minus"></i>{t("admin.sidebar.workerLeave")}
+                            </a>
+                        </li>
+                        <li className="nav-item">
+                            <a href="/admin/task" onClick={(e) => handleClick(e, "/admin/task")}>
+                                <i className="fa-solid fa-list-check"></i>{t("admin.sidebar.task_management")}
+                            </a>
+                        </li>
+                        <li className="nav-item">
+                            <a href="/admin/worker-leads" onClick={(e) => handleClick(e, "/admin/worker-leads")}>
+                                <i className="fa-solid fa-users"></i>{t("admin.sidebar.worker_lead")}
+                            </a>
+                        </li>
+                        <li className="nav-item">
+                            <a href="/admin/workers-refund" onClick={(e) => handleClick(e, "/admin/workers-refund")}>
+                                <i className="fa-solid fa-undo-alt"></i>{t("worker.worker_refund")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/admin/schedule" onClick={(e) => handleClick(e, "/admin/schedule")}>
-                                <i className="fa-solid fa-video"></i>Meetings
+                                <i className="fa-solid fa-video"></i>{t("admin.sidebar.meetings")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/admin/offered-price" onClick={(e) => handleClick(e, "/admin/offered-price")}>
-                                <i className="fa-solid fa-tags"></i>Offers
+                                <i className="fa-solid fa-tags"></i>{t("admin.sidebar.offers")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/admin/contracts" onClick={(e) => handleClick(e, "/admin/contracts")}>
                                 <i className="fa-solid fa-clipboard-list"></i>
-                                Contracts
+                                {t("admin.sidebar.contracts")}
                             </a>
                         </li>
                         <li className="nav-item">
                             <a href="/admin/jobs" onClick={(e) => handleClick(e, "/admin/jobs")}>
                                 <i className="fa-solid fa-briefcase"></i>
-                                Schedule
+                                {t("admin.sidebar.schedule_meet")}
+                            </a>
+                        </li>
+
+                        <li className="nav-item">
+                            <a href="/admin/schedule-requests" onClick={(e) => handleClick(e, "/admin/schedule-requests")}>
+                                <i className="fa-solid fa-hand"></i>
+                                {t("admin.sidebar.pending_request")}
+                            </a>
+                        </li>
+
+                        <li className="nav-item">
+                            <a href="/admin/facebook-insights" onClick={(e) => handleClick(e, "/admin/facebook-insights")}>
+                                <i className="fa-brands fa-facebook"></i>
+                                {t("admin.sidebar.fb_insights")}
                             </a>
                         </li>
 
                         <li className="nav-item">
                             <a href="/admin/chat" onClick={(e) => handleClick(e, "/admin/chat")}>
                                 <i className="fa-solid fa-message"></i>
-                                Whatsapp chat
+                                {t("admin.sidebar.whatsapp")}
                             </a>
                         </li>
 
@@ -299,23 +335,30 @@ export default function MobileHeader() {
                             </div>
                         </li> */}
                         <li className="nav-item">
+                            <a href="/admin/messenger" onClick={(e) => handleClick(e, "/admin/messenger")}>
+                                <i className="fa-solid fa-comment"></i>
+                                {t("admin.sidebar.messenger")}
+                            </a>
+                        </li>
+
+                        <li className="nav-item">
                             <a href="/admin/payments" onClick={(e) => handleClick(e, "/admin/payments")}>
                                 <i className="fa-solid fa-cart-shopping"></i>
-                                Payments
+                                {t("admin.sidebar.payments")}
                             </a>
                         </li>
 
                         {role !== "member" && (
                             <li className="nav-item">
                                 <a href="/admin/income" onClick={(e) => handleClick(e, "/admin/income")}>
-                                    <i className="fa-solid fa-ils"></i>Earnings
+                                    <i className="fa-solid fa-ils"></i>{t("admin.sidebar.earnings")}
                                 </a>
                             </li>
                         )}
                         <li className="nav-item">
                             <a href="/admin/notifications" onClick={(e) => handleClick(e, "/admin/notifications")}>
                                 <i className="fa-solid fa-bullhorn"></i>
-                                Notifications
+                                {t("admin.sidebar.notification")}
                             </a>
                         </li>
                     <li className="nav-item">
@@ -330,7 +373,7 @@ export default function MobileHeader() {
                                     aria-controls="fence1"
                                 >
                                     <i className="fa-solid fa-gear"></i>{" "}
-                                    Settings{" "}
+                                    {t("admin.sidebar.settings.title")}{" "}
                                     <i className="fa-solid fa-angle-down"></i>
                                 </a>
                             </div>
@@ -346,26 +389,50 @@ export default function MobileHeader() {
                                             <li className="list-group-item">
                                                 <a href="/admin/manage-team">
                                                     <i className="fa fa-angle-right"></i>{" "}
-                                                    Manage team
+                                                    {t("admin.sidebar.settings.manage_team")}
                                                 </a>
                                             </li>
                                         )}
                                         <li className="list-group-item">
                                             <a href="/admin/services">
                                                 <i className="fa fa-angle-right"></i>{" "}
-                                                Services
+                                                {t("admin.sidebar.settings.services")}
+                                            </a>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <a href="/admin/manpower-companies">
+                                                <i className="fa fa-angle-right"></i>{" "}
+                                                {t("admin.sidebar.settings.manpower")}
                                             </a>
                                         </li>
                                         <li className="list-group-item">
                                             <a href="/admin/manage-time">
                                                 <i className="fa fa-angle-right"></i>{" "}
-                                                Manage Time
+                                                {t("admin.sidebar.settings.manageTime")}
+                                            </a>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <a href="/admin/holidays">
+                                                <i className="fa fa-angle-right"></i>{" "}
+                                                {t("admin.sidebar.settings.holidays")}
+                                            </a>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <a href="/admin/templates">
+                                                <i className="fa fa-angle-right"></i>{" "}
+                                                {t("admin.sidebar.templates.title")}
+                                            </a>
+                                        </li>
+                                        <li className="list-group-item">
+                                            <a href="/admin/payslip-settings">
+                                                <i className="fa fa-angle-right"></i>{" "}
+                                                {t("admin.sidebar.settings.payslip_settings")}
                                             </a>
                                         </li>
                                         <li className="list-group-item">
                                             <a href="/admin/settings">
                                                 <i className="fa fa-angle-right"></i>{" "}
-                                                My Account
+                                                {t("admin.sidebar.settings.account")}
                                             </a>
                                         </li>
                                     </ul>
@@ -380,7 +447,7 @@ export default function MobileHeader() {
                             className="btn btn-danger"
                             onClick={HandleLogout}
                         >
-                            Logout
+                            {t("admin.sidebar.logout")}
                         </button>
                     </div>
                 </div>

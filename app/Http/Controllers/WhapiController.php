@@ -113,4 +113,44 @@ class WhapiController extends Controller
         }
     }
 
+
+    public function deleteMessage(Request $request, $messageId)
+    {
+        \Log::info("Deleting message with ID: $messageId");
+    
+        try {
+            // Construct the URL for the DELETE request
+            $url = $this->whapiApiEndpoint . "/messages/" . $messageId;
+    
+            // Send DELETE request with necessary headers
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->whapiApiToken,
+                'Accept' => 'application/json',
+            ])->delete($url);
+    
+            // Check for a successful response
+            if ($response->successful()) {
+                \Log::info("Message deleted successfully: " . json_encode($response->json()));
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $response->json(),
+                ]);
+            }
+    
+            // Handle non-successful responses
+            \Log::error("Failed to delete message: " . $response->body());
+            return response()->json([
+                'status' => 'error',
+                'message' => $response->json()['message'] ?? 'Failed to delete the message.',
+            ], $response->status());
+        } catch (\Exception $e) {
+            \Log::error("Exception while deleting message: " . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+
 }

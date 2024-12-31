@@ -81,7 +81,7 @@ class PayrollReportController extends Controller
 
         // Fetch all users regardless of whether they have jobs in the specified month
         $users = User::select('users.id', 'users.firstname', 'users.lastname', 'users.role',
-                            'users.payment_per_hour', 'users.worker_id', 'users.created_at', 'users.address', 'users.driving_fees','users.country','users.employment_type', 'users.salary')
+                            'users.payment_per_hour', 'users.worker_id', 'users.created_at', 'users.address', 'users.driving_fees','users.country','users.employment_type', 'users.salary', 'users.company_type')
                     ->leftJoin('jobs', function($join) use ($startDate, $endDate) {
                         $join->on('users.id', '=', 'jobs.worker_id')
                         ->whereBetween('jobs.start_date', [$startDate, $endDate]);
@@ -89,23 +89,62 @@ class PayrollReportController extends Controller
                     ->groupBy('users.id')
                     ->get();
 
-        $reportData = [];
+            $reportData = [];
+            $salary = null;
 
-        foreach ($users as $user) {
-            $workerDay = Job::where('worker_id', $user->id)
+            foreach ($users as $user) {
+                $freelancerJob = Job::with('offer')->where('worker_id', $user->id)
                 ->whereBetween('start_date', [$startDate, $endDate])
-                ->pluck('start_date')
-                ->map(function ($date) {
-                    return Carbon::parse($date)->startOfDay();
+                ->whereHas('worker', function ($query) {
+                    $query->where('company_type', 'freelancer');
                 })
-                ->unique()
-                ->count();
+                ->get();
+
+                // \Log::info([$freelancerJob]);
+
+                $totalSalary = $freelancerJob->reduce(function ($carry, $job) {
+                    $jobTotalSalary = 0;
+                
+                    if (isset($job->offer->services)) {
+                        $services = json_decode($job->offer->services, true);
+                
+                        if (is_array($services)) {
+                            foreach ($services as $service) {
+                                if (isset($service['is_freelancer']) && $service['is_freelancer'] === true) {
+                                    $freelancerPrice = $service['freelancer_price'] ?? 0;
+                                    $jobHours = $service['workers'][0]['jobHours'] ?? 0;
+                                    $type = $service['type'] ?? null;
+                
+                                    if ($type === 'fixed') {
+                                        $jobTotalSalary += $freelancerPrice;
+                                    } elseif ($type === 'hourly') {
+                                        $jobTotalSalary += $freelancerPrice * $jobHours;
+                                    } elseif ($type === 'squaremeter') {
+                                        $jobTotalSalary += ($service['ratepersquaremeter'] ?? 0) * ($service['totalsquaremeter'] ?? 0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                
+                    return $carry + $jobTotalSalary;
+                }, 0);
+                
+                // Log the total salary for all jobs
+                \Log::info('Total Salary for All Jobs: ' . $totalSalary);
+                
 
             $totalMinutesWorked = Job::where('worker_id', $user->id)
                 ->whereBetween('start_date', [$startDate, $endDate])
                 ->sum('actual_time_taken_minutes');
 
-            $salary = ($user->employment_type == 'fixed') ? $user->salary : null;
+                if(!$freelancerJob){
+                    $salary = ($user->employment_type == 'fixed') ? $user->salary : null;
+                }else{
+                    $salary = $totalSalary;
+                }
+                \Log::info('Salary: ' . $salary);
+                
             $normalPayment = 0;
             $holidayPayment175=0;
             $holidayPayment200=0;
@@ -290,7 +329,7 @@ class PayrollReportController extends Controller
             $form101 = Form::where('user_id', $user->id)
             ->where('type', 'form101')
             ->whereNotNull('pdf_name') 
-            ->orderBy('pdf_name', 'asc')
+            ->orderBy('created_at', 'desc')
             ->first();
                         
             $form101Display = 'Not available';

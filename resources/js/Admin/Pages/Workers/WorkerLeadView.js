@@ -14,19 +14,22 @@ export default function WorkerLeadView({ mode }) {
     const alert = useAlert();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({}); // State to store validation errors
     const [formValues, setFormValues] = useState({
         name: "",
         email: "",
         phone: "",
+        lng: "heb",
         status: "pending",
-        ready_to_get_best_job: null,
-        ready_to_work_in_house_cleaning: null,
-        experience_in_house_cleaning: null,
-        areas_aviv_herzliya_ramat_gan_kiryat_ono_good: null,
+        ready_to_get_best_job: false,
+        ready_to_work_in_house_cleaning: false,
+        experience_in_house_cleaning: false,
+        areas_aviv_herzliya_ramat_gan_kiryat_ono_good: false,
         none_id_visa: "none",
-        you_have_valid_work_visa: null,
-        work_sunday_to_thursday_fit_schedule_8_10am_12_2pm: null,
-        full_or_part_time: "full time"
+        you_have_valid_work_visa: false,
+        work_sunday_to_thursday_fit_schedule_8_10am_12_2pm: false,
+        full_or_part_time: "full time",
+        send_bot_message: false
     });
 
 
@@ -79,20 +82,33 @@ export default function WorkerLeadView({ mode }) {
         }
     }
 
+
     const handleAdd = async (e) => {
         e.preventDefault();
+        console.log(formValues);
+
         try {
             await axios.post(`/api/admin/worker-leads/add`, formValues, { headers });
             alert.success("Worker lead added successfully");
             navigate('/admin/worker-leads');
         } catch (error) {
-            console.log(error);
-            alert.error("Error adding worker lead");
+            if (error.response && error.response.data && error.response.data.errors) {
+                const errors = error.response.data.errors; // Extract errors
+                Object.keys(errors).forEach((key) => {
+                    errors[key].forEach((message) => {
+                        alert.error(message); // Show each error message in an alert
+                    });
+                });
+            } else {
+                alert.error("An unexpected error occurred.");
+            }
         }
-    }
+    };
+
+
 
     useEffect(() => {
-            handleGetWorkerLead();
+        handleGetWorkerLead();
     }, []);
 
 
@@ -148,7 +164,7 @@ export default function WorkerLeadView({ mode }) {
                                                 const dialCode = country.dialCode;
                                                 let formattedPhone = phone;
                                                 if (phone.startsWith(dialCode + '0')) {
-                                                  formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                    formattedPhone = dialCode + phone.slice(dialCode.length + 1);
                                                 }
                                                 setFormValues({ ...formValues, phone: formattedPhone });
                                             }}
@@ -168,7 +184,7 @@ export default function WorkerLeadView({ mode }) {
                                         </label>
                                         <select
                                             className="form-control"
-                                            value={ formValues.ready_to_get_best_job}  // Handle boolean to string conversion
+                                            value={formValues.ready_to_get_best_job}  // Handle boolean to string conversion
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
@@ -188,7 +204,7 @@ export default function WorkerLeadView({ mode }) {
                                         </label>
                                         <select
                                             className="form-control"
-                                            value={ formValues.ready_to_work_in_house_cleaning}
+                                            value={formValues.ready_to_work_in_house_cleaning}
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
@@ -209,7 +225,7 @@ export default function WorkerLeadView({ mode }) {
                                         </label>
                                         <select
                                             className="form-control"
-                                            value={ formValues.experience_in_house_cleaning}
+                                            value={formValues.experience_in_house_cleaning}
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
@@ -250,7 +266,7 @@ export default function WorkerLeadView({ mode }) {
                                         </label>
                                         <select
                                             className="form-control"
-                                            value={ formValues.you_have_valid_work_visa }
+                                            value={formValues.you_have_valid_work_visa}
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
@@ -270,7 +286,7 @@ export default function WorkerLeadView({ mode }) {
                                         </label>
                                         <select
                                             className="form-control"
-                                            value={ formValues.work_sunday_to_thursday_fit_schedule_8_10am_12_2pm}
+                                            value={formValues.work_sunday_to_thursday_fit_schedule_8_10am_12_2pm}
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
@@ -304,6 +320,31 @@ export default function WorkerLeadView({ mode }) {
                                         </select>
                                     </div>
                                 </div>
+                                {
+                                    mode == "add" && (
+                                        <div className="col-sm-6">
+                                            <div className="form-group d-flex align-items-center">
+                                                <label htmlFor="waBot" className="control-label navyblueColor" style={{ width: "10rem" }}>
+                                                    {t(
+                                                        "admin.leads.AddLead.SendWPBotMessage"
+                                                    )}
+                                                </label>
+                                                <input
+                                                    type="checkbox"
+                                                    id="waBot"
+                                                    value={formValues.send_bot_message}
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            send_bot_message:
+                                                                e.target.checked,
+                                                        });
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )
+                                }
                                 <div className="col-sm-12">
                                     <div className="form-group">
                                         <label className="control-label">Status</label>
@@ -333,7 +374,7 @@ export default function WorkerLeadView({ mode }) {
                                     <button
                                         type="submit"
                                         className="btn px-3 text-center navyblue"
-                                    > {mode === "add" ? <span>{t("workerInviteForm.add")} <i className="btn-icon fas fa-plus-circle"></i></span>: t("workerInviteForm.update")}</button>
+                                    > {mode === "add" ? <span>{t("workerInviteForm.add")} <i className="btn-icon fas fa-plus-circle"></i></span> : t("workerInviteForm.update")}</button>
                                 </div>
                             )}
                         </form>

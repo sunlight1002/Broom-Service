@@ -231,7 +231,7 @@ export default function ProfileDetails({
                                     </a>
                                 </li>
                             </ul>
-                            <div className="tab-content border-0">
+                            <div className="tab-content border-0 px-0 pt-2">
                                 <div
                                     id="tab-client-details"
                                     className="tab-pane active show"

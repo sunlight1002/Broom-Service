@@ -249,7 +249,7 @@ a:hover {
 
 .dashBox {
   border: 2px solid #E5EBF1;
-  background: #e5ebf196;
+  background: #ecf3fa;
   padding: 7px;
   border-radius: 8px;
 }
@@ -2770,7 +2770,7 @@ tbody tr:hover{
   float: left;
   font-size: 13px;
   margin-left: 12px;
-  width: 70%;
+  width: 100%;
 }
 
 .conversation-list .odd .chat-avatar {
@@ -2781,7 +2781,11 @@ tbody tr:hover{
   float: right !important;
   margin-right: 12px;
   text-align: right;
-  width: 70% !important;
+  width: 100% !important;
+}
+
+.boxPanel tbody tr:hover {
+  background-color: inherit;
 }
 
 .conversation-list .odd .ctext-wrap {
@@ -4295,4 +4299,9 @@ tbody tr:hover {
   color: #495057;
   line-height: 1.5;
 }
-
+.sticky-container {
+  position: sticky;
+  top: 10px; /* Adjust for desktop */
+  z-index: 10;
+  background-color: #fafbfc;
+}

@@ -5,17 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WhatsappTemplate extends Model
+class CustomMessages extends Model
 {
     use HasFactory;
+    protected $table = "custom_message_send";
 
     protected $fillable = [
-        'key',
-        'description',
+        'type', 
+        'status',
         'message_en',
         'message_heb',
-        'message_spa',
         'message_ru',
-        'suggestions'
+        'message_spa'
+
     ];
 }

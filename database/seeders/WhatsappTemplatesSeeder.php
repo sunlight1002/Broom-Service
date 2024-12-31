@@ -67,6 +67,14 @@ Equipo de Broom Service',
 
 С уважением,
 Команда Broom Service',
+
+                'suggestions' => [
+                    ':worker_name' => 'Worker Name',
+                    ':job_accept_url' => 'Accept Address',  
+                    ':job_contact_manager_link' => 'Contact Manager',
+                    ':job_full_address' => 'Address',
+                    ':job_start_date_time' => 'Date/Time',
+                ]
             ],
 
             [
@@ -122,6 +130,14 @@ Equipo de Broom Service
 
 С уважением,
 Команда Broom Service',
+
+    'suggestions' => [
+        ':worker_name' => 'Worker Name',
+        ':job_accept_url' => 'Accept Address',  
+        ':job_contact_manager_link' => 'Contact Manager',
+        ':job_full_address' => 'Address',
+        ':job_start_date_time' => 'Date/Time',
+    ]
             ],
 
             [
@@ -145,6 +161,17 @@ Equipo de Broom Service
 צוות ברום סרוויס',
                 'message_spa' => '',
                 'message_ru' => '',
+
+                'suggestions' => [
+                    ':worker_name' => 'Worker Name',
+                    ':client_name' => 'Client Name',
+                    ':client_phone_number' => 'Client Phone Number',
+                    ':worker_phone_number' => 'Worker Phone Number',
+                    ':job_full_address' => 'Address',
+                    ':job_start_date_time' => 'Date/Time',
+                    ':team_action_btns_link' => 'job Acctions buttons behalf of worker',
+                    ':team_job_action_link' => 'admin change worker link',
+                ]
             ],
 
             [
@@ -1444,6 +1471,43 @@ Broom Service Team",
 
 תודה,
 צוות שירות ברום",
+                'message_spa' => '',
+                'message_ru' => '',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT,
+                'description' => 'notify client, Client declined contract',
+                'message_en' => "Hello :client_name,  
+
+We have received your response regarding the agreement sent to you. Thank you for taking the time to review it.  
+
+If you have any questions or if there’s anything further we can do to assist you, please don’t hesitate to reach out to us.  
+
+We are here to help and look forward to assisting you in the future.  
+
+Best regards,  
+Broom Service 🌹  
+www.broomservice.co.il  
+Telephone: 03-525-70-60  
+office@broomservice.co.il
+
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+                'message_heb' => "שלום :client_name,  
+
+קיבלנו את תגובתך בנוגע להסכם ההתקשרות שנשלח אליך. 
+
+אם יש לך שאלות נוספות או אם יש משהו נוסף שנוכל לסייע בו, נשמח לעמוד לשירותך בכל עת.  
+
+
+בברכה,  
+צוות ברום סרוויס 🌹  
+www.broomservice.co.il  
+טלפון: 03-525-70-60  
+office@broomservice.co.il
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
+
                 'message_spa' => '',
                 'message_ru' => '',
             ],
@@ -3486,6 +3550,299 @@ office@broomservice.co.il
 צוות ברום סרוויס🌹",
                 'message_spa' => '',
                 'message_ru' => "",
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM,
+                'description' => 'Send notification to team for new lead for hiring',
+                'message_en' => "🌟 New Lead for Hiring! 🌟
+Name: :worker_lead_name  
+Contact: :worker_lead_phone  
+Status: ✅ Suitable for house cleaning job
+
+Alex, please contact the lead and update the status with:  
+1. 'Hire' – If hired  
+2. 'No' – If not suitable  
+3. 'Unanswered' – If the lead didn’t respond  
+
+⚠️ Please reply within 24 hours with the lead’s number and status.  
+Example: +972 52-123-4567 – Hire
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "🌟 ליד חדש להעסקה! 🌟
+שם: :worker_lead_name
+איש קשר: :worker_lead_phone
+סטטוס: ✅ מתאים לעבודת ניקיון הבית
+
+אלכס, אנא צור קשר עם המוביל ועדכן את הסטטוס באמצעות:
+1. 'השכרה' - אם התקבל לעבודה
+2. 'לא' - אם לא מתאים
+3. 'לא נענה' - אם המוביל לא הגיב
+
+⚠️ אנא השב תוך 24 שעות עם מספר הליד והסטטוס.
+דוגמה: +972 52-123-4567 - השכרה
+
+בברכה,
+צוות שירות מטאטא 🌹",
+                'message_spa' => '',
+                'message_ru' => "🌟 Новый кандидат для найма! 🌟  
+Имя: worker_lead_name
+Контакт: worker_lead_phone  
+Статус: ✅ Подходит для работы по уборке  
+
+Алекс, пожалуйста, свяжитесь с кандидатом и обновите статус:  
+1. 'Hire' – Принят на работу  
+2. 'No' – Не подходит  
+3. 'Unanswered' – Не ответил  
+
+⚠️ Обновите статус в течение 24 часов с номером кандидата.  
+Пример: +972 52-123-4567 – Hire  
+
+С наилучшими пожеланиями,
+Команда Broom Service 🌹",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_24HOUR_TO_TEAM,
+                'description' => 'Send notification to team for new lead for hiring',
+                'message_en' => "⏰ No update received for: :worker_lead_phone  
+
+Alex, please provide the status for this lead:  
+1. 'Hire'  
+2. 'No'  
+3. 'Unanswered'  
+
+Thank you! 🌟  
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "⏰ לא התקבל עדכון עבור: :worker_lead_phone
+
+אלכס, אנא ספק את הסטטוס לליד זה:
+1. 'השכרה'
+2. 'לא'
+3. 'ללא מענה'
+
+תודה לך! 🌟
+
+בברכה,
+צוות שירות מטאטא 🌹",
+                'message_spa' => "⏰ No se recibió ninguna actualización para: :worker_lead_phone
+
+Alex, proporciona el estado de este cliente potencial:
+1. 'Contratar'
+2. 'No'
+3. 'Sin respuesta'
+
+¡Gracias! 🌟
+
+Saludos cordiales,
+Equipo de servicio de escobas 🌹",
+                'message_ru' => "⏰ Нет обновления для номера: :worker_lead_phone 
+
+Алекс, пожалуйста, обновите статус:  
+1. 'Hire'  
+2. 'No'  
+3. 'Unanswered'  
+
+Спасибо! 🌟
+
+С наилучшими пожеланиями,
+Команда Broom Service 🌹",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM,
+                'description' => 'new lead hiried to team',
+                'message_en' => "🚀 Action Required: New Hire 🚀  
+Please proceed to hire the following candidate:  
+
+Name: :worker_lead_name  
+Contact: :worker_lead_phone  
+Status: ✅ Hire confirmed by Alex  
+
+⚠️ Reminder will be sent daily until hiring is completed.  
+
+Thank you for your cooperation! 🌟   
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "🚀 נדרשת פעולה: גיוס חדש 🚀
+אנא המשיכו להעסיק את המועמד הבא:
+
+שם: :worker_lead_name
+איש קשר: :worker_lead_phone
+סטטוס: ✅ השכרה באישור אלכס
+
+⚠️ תזכורת תישלח מדי יום עד להשלמת הגיוס.
+
+תודה על שיתוף הפעולה! 🌟
+
+בברכה,
+צוות שירות מטאטא 🌹",
+
+                'message_spa' => "🚀 Acción requerida: Nuevo empleado 🚀
+Por favor, proceda a contratar al siguiente candidato:
+
+Nombre: :worker_lead_name
+Contacto: :worker_lead_phone
+Estado: ✅ Contratación confirmada por Alex
+
+⚠️ Se enviará un recordatorio todos los días hasta que se complete la contratación.
+
+¡Gracias por su cooperación! 🌟
+
+Saludos cordiales,
+Equipo de Broom Service 🌹",
+
+                'message_ru' => "🚀 Требуется действие: Новый сотрудник 🚀  
+Пожалуйста, завершите процесс найма кандидата:  
+
+Имя: :worker_lead_name  
+Контакт: :worker_lead_phone 
+Статус: ✅ Принят на работу  
+
+⚠️ Напоминание будет отправляться ежедневно, пока процесс не будет завершен.  
+
+Спасибо! 🌟
+
+С наилучшими пожеланиями,
+Команда Broom Service 🌹",
+            ],
+
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM,
+                'description' => 'new lead not hiried daily reminder to team',
+                'message_en' => "⚠️ Reminder: Please confirm completion of hiring for: :worker_lead_phone.  
+Thank you! 😊     
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "⚠️ תזכורת: אנא אשר את השלמת הגיוס עבור: :worker_lead_phone.
+תודה לך! 😊
+
+בברכה,
+צוות שירות מטאטא 🌹",
+                'message_spa' => "⚠️ Recordatorio: Confirme la finalización de la contratación para: :worker_lead_phone.
+¡Gracias! 😊
+
+Saludos cordiales,
+Broom Service Team 🌹",
+
+                'message_ru' => "⚠️ Напоминание: Пожалуйста, подтвердите завершение найма: +972 52-123-4567.  
+Спасибо! 😊  
+
+С наилучшими пожеланиями,
+Команда Broom Service 🌹",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED,
+                'description' => 'Alex reply lead UNANSWERED to lead',
+                'message_en' => "🌟 Hi again!  
+
+Alex, our manager, tried contacting you but couldn’t reach you.  
+Please call him back at: +972 52-848-0808.  
+
+We look forward to hearing from you! 😊  
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "🌟 היי שוב!
+
+אלכס, המנהל שלנו, ניסה ליצור איתך קשר אך לא הצליח להשיג אותך.
+נא להתקשר אליו בחזרה למספר: +972 52-848-0808.
+
+נשמח לשמוע ממך! 😊
+
+בברכה,
+צוות שירות מטאטא 🌹",
+                'message_spa' => "🌟 ¡Hola de nuevo!
+
+Alex, nuestro gerente, intentó comunicarse contigo pero no pudo comunicarse contigo.
+Por favor, vuelve a llamarlo al: +972 52-848-0808.
+
+¡Esperamos tener noticias tuyas! 😊
+
+Saludos cordiales,
+Equipo de Broom Service 🌹",
+                'message_ru' => "🌟 Привет снова!  
+
+Алекс, наш менеджер, пытался с вами связаться.  
+Пожалуйста, перезвоните ему по номеру: +972 52-848-0808.  
+
+Ждем вашего ответа! 😊  
+
+С наилучшими пожеланиями,
+Команда Broom Service 🌹",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::DAILY_REMINDER_TO_LEAD,
+                'description' => 'daily reminder to lead',
+                'message_en' => "📞 Reminder: Alex is waiting to hear from you.  
+Please call him back at: +972 52-848-0808.  
+
+Let’s finalize your job application! 🌟   
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "📞 תזכורת: אלכס מחכה לשמוע ממך.
+נא להתקשר אליו בחזרה למספר: +972 52-848-0808.
+
+בואו לסיים את מועמדותכם לעבודה! 🌟
+
+בברכה,
+צוות שירות מטאטא 🌹",
+                'message_spa' => '',
+                'message_ru' => "📞 Напоминание: Пожалуйста, свяжитесь с Алексом по номеру: +972 52-848-0808.  
+Давайте завершим вашу заявку! 🌟  
+
+С наилучшими пожеланиями,
+Команда Broom Service 🌹",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD,
+                'description' => 'final message to lead',
+                'message_en' => "🌟 Thank you for your time!  
+
+Unfortunately, we are unable to move forward with your application at this time.  
+If you are interested in future opportunities, feel free to reach out again.  
+
+We wish you all the best! 🌟 
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "🌟 תודה על הזמן שהקדשת!
+
+למרבה הצער, איננו יכולים להתקדם עם הבקשה שלך בשלב זה.
+אם אתה מעוניין בהזדמנויות עתידיות, אל תהסס לפנות שוב.
+
+אנו מאחלים לך כל טוב! 🌟
+
+בברכה,
+צוות שירות מטאטא 🌹",
+                'message_spa' => '',
+                'message_ru' => "🌟 Спасибо за ваше время!  
+
+К сожалению, мы не можем продолжить вашу заявку на данный момент.  
+Если вас заинтересуют будущие возможности, не стесняйтесь обращаться снова.  
+
+Желаем вам всего наилучшего! 🌟  
+
+С наилучшими пожеланиями,
+Команда Broom Service 🌹",
             ],
         ];
 

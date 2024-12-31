@@ -22,13 +22,15 @@ export default function WorkerHours() {
     const [filters, setFilters] = useState({
         manpower_company_id: "",
         is_my_company: false,
+        is_freelancer: false,
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
     const [selectedWorkerIDs, setSelectedWorkerIDs] = useState([]);
     const [selectedDateRange, setSelectedDateRange] = useState("Week");
     const [selectedDateStep, setSelectedDateStep] = useState("Current");
     const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
-    
+    const [error, setError] = useState('');
+
     const handleMonthChange = (e) => {
         setMonth(e.target.value);
     };
@@ -38,6 +40,7 @@ export default function WorkerHours() {
     const endDateRef = useRef(null);
     const manpowerCompanyRef = useRef(null);
     const isMyCompanyRef = useRef(null);
+    const isFreelancerRef = useRef(null);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -63,6 +66,7 @@ export default function WorkerHours() {
                     d.start_date = startDateRef.current.value;
                     d.end_date = endDateRef.current.value;
                     d.is_my_company = isMyCompanyRef.current.value;
+                    d.is_freelancer = isFreelancerRef.current.value;
                 },
             },
             order: [[1, "desc"]],
@@ -250,7 +254,7 @@ export default function WorkerHours() {
                 URL.revokeObjectURL(href);
             });
     }
-    
+
     const handlepayslip = async () => {
         try {
             const response = await axios.get('/api/admin/generate-monthly-report', {
@@ -258,17 +262,17 @@ export default function WorkerHours() {
                 params: { month },
                 responseType: 'blob',
             });
-    
+
             const fileName = `Monthly_Report_${month}.xlsx`;
-    
+
             const href = URL.createObjectURL(new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
-    
+
             const link = document.createElement("a");
             link.href = href;
             link.setAttribute("download", fileName);
             document.body.appendChild(link);
             link.click();
-    
+
             document.body.removeChild(link);
             URL.revokeObjectURL(href);
         } catch (err) {
@@ -276,7 +280,7 @@ export default function WorkerHours() {
             console.error(err);
         }
     };
-    
+
 
     useEffect(() => {
         $(tableRef.current).DataTable().draw();
@@ -446,6 +450,11 @@ export default function WorkerHours() {
                                 value={filters.is_my_company}
                                 ref={isMyCompanyRef}
                             />
+                            <input
+                                type="hidden"
+                                value={filters.is_freelancer}
+                                ref={isFreelancerRef}
+                            />
                         </div>
                     </div>
                     <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
@@ -506,7 +515,7 @@ export default function WorkerHours() {
                                     color: "white",
                                 }}
                             >
-                               Export Pdf
+                                Export Pdf
                             </button>
                         </div>
                     </div>
@@ -554,7 +563,7 @@ export default function WorkerHours() {
                             className="mr-3 align-items-center"
                             style={{ fontWeight: "bold" }}
                         >
-                              {t("admin.global.manpower_company")}
+                            {t("admin.global.manpower_company")}
                         </div>
                         <div className="d-flex">
                             <select
@@ -583,40 +592,64 @@ export default function WorkerHours() {
                                     filters.is_my_company === true
                                         ? { background: "white" }
                                         : {
-                                              background: "#2c3f51",
-                                              color: "white",
-                                          }
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
                                 }
                                 onClick={() => {
                                     setFilters({
                                         ...filters,
                                         manpower_company_id: "",
                                         is_my_company: true,
+                                        is_freelancer: false,
                                     });
                                 }}
                             >
-                                 {t("admin.global.myCompany")}
+                                {t("admin.global.myCompany")}
                             </button>
                             <button
                                 className={`btn border rounded px-3 mx-1`}
                                 style={
-                                    filters.is_my_company !== true &&
-                                    filters.manpower_company_id === ""
+                                    filters.is_freelancer === true
                                         ? { background: "white" }
                                         : {
-                                              background: "#2c3f51",
-                                              color: "white",
-                                          }
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
+                                }
+                                onClick={() => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: "",
+                                        is_freelancer: true,
+                                        is_my_company: false
+                                    });
+                                }}
+                            >
+                                {t("admin.global.freelancer")}
+                            </button>
+                            <button
+                                className={`btn border rounded px-3 mx-1`}
+                                style={
+                                    (filters.is_my_company !== true) && (filters.is_freelancer !== true) &&
+                                        filters.manpower_company_id === ""
+                                        ? { background: "white" }
+                                        : {
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
                                 }
                                 onClick={() => {
                                     setFilters({
                                         ...filters,
                                         manpower_company_id: "",
                                         is_my_company: false,
+                                        is_freelancer: false,
+
                                     });
                                 }}
                             >
-                               {t("admin.global.All")}
+                                {t("admin.global.All")}
                             </button>
                         </div>
                     </div>

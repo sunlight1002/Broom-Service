@@ -72,7 +72,7 @@ export default function Sidebar() {
         accountSettings: "/admin/settings",
         holidays: "/admin/holidays",
         waTemplates: "/admin/templates",
-        payslipSettings:"/admin/payslip-settings",
+        payslipSettings: "/admin/payslip-settings",
         // Client routes
         clients: "/admin/clients",
         pendingClient: "/admin/clients?type=pending%20client",
@@ -146,7 +146,7 @@ export default function Sidebar() {
                             >
                                 <i className={`fa-solid fa-user-tie font-20 ${isClientDropdownOpen ? "text-white" : ""}`}></i> {t("admin.sidebar.clients")}{" "}
                                 <i className={`fa-solid fa-angle-down ${isClientDropdownOpen ? "text-white rotate-180" : ""}`}
-                                style={{ rotate: isClientDropdownOpen ? "180deg" : "" }}></i>
+                                    style={{ rotate: isClientDropdownOpen ? "180deg" : "" }}></i>
                             </a>
                         </div>
                         <div
@@ -221,7 +221,7 @@ export default function Sidebar() {
                     >
                         <i className="fa-solid fa-undo-alt font-20"></i>{t("worker.worker_refund")}
                     </NavLink>
-                </li>   
+                </li>
                 {/* <li className="list-group-item">
                     <NavLink to="/admin/workers-hearing"
                         className="d-flex align-items-center"
@@ -268,7 +268,7 @@ export default function Sidebar() {
                     <NavLink to="/admin/facebook-insights"
                         className="d-flex align-items-center"
                     >
-                       <i className="fa-brands fa-facebook font-20 mr-0"></i><CgInsights className="font-20 mr-2"/>{t("admin.sidebar.fb_insights")}
+                        <i className="fa-brands fa-facebook font-20 mr-0"></i><CgInsights className="font-20 mr-2" />{t("admin.sidebar.fb_insights")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">
@@ -282,6 +282,12 @@ export default function Sidebar() {
                 <li className="list-group-item">
                     <NavLink to="/admin/messenger">
                         <i className="fa-solid fa-comment font-20"></i>{t("admin.sidebar.messenger")}
+                    </NavLink>
+                </li>
+
+                <li className="list-group-item">
+                    <NavLink to="/admin/custom-message">
+                        <i class="fa-solid fa-paper-plane font-20"></i>{t("admin.sidebar.custom_message")}
                     </NavLink>
                 </li>
 
@@ -318,9 +324,9 @@ export default function Sidebar() {
                             >
                                 <i className="fa-solid fa-gear font-20"></i> {t("admin.sidebar.settings.title")}{" "}
                                 <i className={`fa-solid fa-angle-down ${isDropdownOpen ? "text-white rotate-180" : ""}`}
-                                style={{
-                                    rotate: isDropdownOpen ? "180deg" : ""
-                                }}
+                                    style={{
+                                        rotate: isDropdownOpen ? "180deg" : ""
+                                    }}
                                 ></i>
                             </a>
                         </div>
@@ -358,12 +364,6 @@ export default function Sidebar() {
                                             {t("admin.sidebar.settings.manageTime")}
                                         </Link>
                                     </li>
-                                    <li className={`list-group-item ${isActive(routes.accountSettings) ? "active" : ""}`}>
-                                        <Link to={routes.accountSettings} style={isActive(routes.accountSettings) ? { color: "white" } : { color: "#757589" }}>
-                                            <i className="fa fa-angle-right"></i>{" "}
-                                            {t("admin.sidebar.settings.account")}
-                                        </Link>
-                                    </li>
                                     <li className={`list-group-item ${isActive(routes.holidays) ? "active" : ""}`}>
                                         <Link to={routes.holidays} style={isActive(routes.holidays) ? { color: "white" } : { color: "#757589" }}>
                                             <i className="fa fa-angle-right"></i>{" "}
@@ -377,9 +377,15 @@ export default function Sidebar() {
                                         </Link>
                                     </li>
                                     <li className={`list-group-item ${isActive(routes.payslipSettings) ? "active" : ""}`}>
-                                        <Link to={routes.payslipSettings}  style={isActive(routes.payslipSettings)?{color: "white"}:{color: "#757589"}}>
+                                        <Link to={routes.payslipSettings} style={isActive(routes.payslipSettings) ? { color: "white" } : { color: "#757589" }}>
                                             <i className="fa fa-angle-right"></i>{" "}
                                             {t("admin.sidebar.settings.payslip_settings")}
+                                        </Link>
+                                    </li>
+                                    <li className={`list-group-item ${isActive(routes.accountSettings) ? "active" : ""}`}>
+                                        <Link to={routes.accountSettings} style={isActive(routes.accountSettings) ? { color: "white" } : { color: "#757589" }}>
+                                            <i className="fa fa-angle-right"></i>{" "}
+                                            {t("admin.sidebar.settings.account")}
                                         </Link>
                                     </li>
                                 </ul>
@@ -389,7 +395,7 @@ export default function Sidebar() {
                 </li>
             </ul>
             <div className="sideLogout">
-                <div className="logoutBtn">
+                <div className="logoutBtn mb-3">
                     <button className="btn d-flex justify-content-center align-items-center" onClick={HandleLogout}>
                         <IoIosLogOut className="mr-1 font-28" />
                         {t("admin.sidebar.logout")}

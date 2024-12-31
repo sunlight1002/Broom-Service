@@ -71,7 +71,13 @@ if (!function_exists('sendWhatsappMessage')) {
 }
 
 if (!function_exists('sendWhatsappMediaMessage')) {
-    function sendWhatsappMediaMessage($number, $mediaPath, $caption = '', $lang = 'he', $replyId = null)
+    function sendWhatsappMediaMessage(
+        $number, 
+        $mediaPath,
+         $caption = '', 
+         $lang = 'he', 
+         $replyId = null
+        )
     {
         $mobile_no = str_replace("-", "", $number);
         if (strlen($mobile_no) <= 10) {
@@ -82,8 +88,6 @@ if (!function_exists('sendWhatsappMediaMessage')) {
             Log::error("File not found at path: $mediaPath");
             return ['error' => 'File not found'];
         }
-
-        // \Log::info(basename($mediaPath));
 
         try {
             $fileMimeType = mime_content_type($mediaPath); 
@@ -154,16 +158,15 @@ if (!function_exists('sendWhatsappImageMessage')) {
         $fullMediaPath,
         $caption = '',
         $mimeType = 'image/jpeg', // Adjust based on the image type (e.g., 'image/png')
-        $quoted = null,
-        $ephemeral = null,
-        $edit = null,
-        $preview = null,
-        $width = 0,
-        $height = 0,
-        $mentions = [],
-        $viewOnce = false
+        // $quoted = null,
+        // $ephemeral = null,
+        // $edit = null,
+        // $preview = null,
+        // $width = 0,
+        // $height = 0,
+        // $mentions = [],
+        // $viewOnce = false
     ) {
-
         $mobile_no = str_replace("-", "", $number);
         if (strlen($mobile_no) <= 10) {
             $mobile_no = '972' . $mobile_no;
@@ -215,8 +218,8 @@ if (!function_exists('sendWhatsappImageMessage')) {
                 'to' => $mobile_no,
                 'media' => $mediaId, // Encode the image as base64
                 'mime_type' => $fileMimeType,
+                'caption' => $caption,
                 'no_encode' => true, // Specify if encoding should be disabled
-                'view_once' => $viewOnce,
             ]);
 
             // Log the message response for debugging
@@ -239,7 +242,7 @@ if (!function_exists('sendWhatsappImageMessage')) {
 }
 
 if (!function_exists('sendWorkerWhatsappMessage')) {
-    function sendWorkerWhatsappMessage($number, $data = array(), $lang = 'he')
+    function sendWorkerWhatsappMessage($number, $data = array())
     {
         // Normalize the phone number
         $mobile_no = str_replace("-", "", $number);
@@ -354,96 +357,6 @@ if (!function_exists('sendWhatsappMediaMessage')) {
     }
 }
 
-
-if (!function_exists('sendWhatsappImageMessage')) {
-    function sendWhatsappImageMessage(
-        $number,
-        $fullMediaPath,
-        $caption = '',
-        $mimeType = 'image/jpeg', // Adjust based on the image type (e.g., 'image/png')
-        $quoted = null,
-        $ephemeral = null,
-        $edit = null,
-        $preview = null,
-        $width = 0,
-        $height = 0,
-        $mentions = [],
-        $viewOnce = false
-    ) {
-
-        $mobile_no = str_replace("-", "", $number);
-        if (strlen($mobile_no) <= 10) {
-            $mobile_no = '972' . $mobile_no;
-        }
-
-        if (!file_exists($fullMediaPath)) {
-            Log::error("File not found at path: $fullMediaPath");
-            return ['error' => 'File not found'];
-        }
-        $fileMimeType = mime_content_type($fullMediaPath); 
-
-        try {
-
-            $fileName = basename($fullMediaPath); // Get the filename
-
-            // Upload the file as binary using withBody() and correct content type
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . config('services.whapi.token'),
-                'accept' => 'application/json',
-                'Content-Type' => $fileMimeType,
-            ])->withBody(file_get_contents($fullMediaPath), $fileMimeType)
-              ->post(config('services.whapi.url') . 'media');
-
-            Log::info('WhatsApp media upload response: ', $response->json());
-
-            if (!$response->successful()) {
-                Log::error('Error uploading WhatsApp media: ', $response->json());
-                return ['error' => $response->json()];
-            }
-
-            $media = $response->json()['media'][0] ?? null;
-            if (!$media || !isset($media['id'])) {
-                Log::error('Media ID not found in response.');
-                return ['error' => 'Media ID not found'];
-            }
-
-            $mediaId = $media['id'];
-
-        } catch (\Exception $e) {
-            Log::error('Exception during WhatsApp media upload: ' . $e->getMessage());
-            return ['error' => 'An error occurred while uploading the media.'];
-        }
-
-        try {
-            $messageResponse = Http::withHeaders([
-                'Authorization' => 'Bearer ' . config('services.whapi.token'),
-                'Content-Type' => 'application/json',
-             ])->post(config('services.whapi.url') . 'messages/image', [
-                'to' => $mobile_no,
-                'media' => $mediaId, // Encode the image as base64
-                'mime_type' => $fileMimeType,
-                'no_encode' => true, // Specify if encoding should be disabled
-                'view_once' => $viewOnce,
-            ]);
-
-            // Log the message response for debugging
-            Log::info('WhatsApp send message response: ', $messageResponse->json());
-
-            // Check the response status
-            if ($messageResponse->successful()) {
-                return $messageResponse->json();
-            } else {
-                Log::error('Error sending WhatsApp message: ', $messageResponse->json());
-                return ['error' => $messageResponse->json()];
-            }
-        } catch (\Exception $e) {
-            Log::error('Exception during WhatsApp message send: ' . $e->getMessage());
-            return ['error' => 'An error occurred while sending the message.'];
-        }
-
-        
-    }
-}
 
 if (!function_exists('sendJobWANotification')) {
     function sendJobWANotification($emailData)

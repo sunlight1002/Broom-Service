@@ -6,9 +6,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use App\Models\FacebookInsights;
 
-class CampaignTesting extends Command
+class CampaignCreate extends Command
 {
-    protected $signature = 'campaign:testing';
+    protected $signature = 'campaign:create';
     protected $description = 'Fetch and store Facebook campaign insights for all campaigns';
 
     public function handle()

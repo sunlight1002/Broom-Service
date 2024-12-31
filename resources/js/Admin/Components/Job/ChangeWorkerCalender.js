@@ -22,6 +22,8 @@ export default function ChangeWorkerCalender({ job }) {
     const [selectedHours, setSelectedHours] = useState([]);
     const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
+    const [calendarStartDate, setCalendarStartDate] = useState(null);
+    const [calendarEndDate, setCalendarEndDate] = useState(null);
     const [days, setDays] = useState([]);
     const [formValues, setFormValues] = useState({
         fee: "0",
@@ -48,6 +50,25 @@ export default function ChangeWorkerCalender({ job }) {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
+    const generateWeek = (startDate) => {
+        let week = [];
+        let today = moment().startOf("day"); // Get the current date at the start of the day
+        days.forEach((d) => {
+            let day = moment(startDate).add(d, "days");
+            if (day.isSameOrAfter(today)) {
+                // Check if the day is greater than or equal to today
+                week.push(day.format("YYYY-MM-DD"));
+            }
+        });
+        return week;
+    };
+
+    const sundayOfCurrentWeek = moment().startOf("week");
+
+    let week = generateWeek(sundayOfCurrentWeek);
+    let nextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
+    let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
+
     const getTime = () => {
         axios.get(`/api/admin/get-time`, { headers }).then((res) => {
             if (res.data.data) {
@@ -57,13 +78,17 @@ export default function ChangeWorkerCalender({ job }) {
         });
     };
 
-    const getWorkers = () => {
+    const getWorkers = (_calendarStartDate, _calendarEndDate) => {
         setMiniLoader(true);
+        console.log(job, "job");
+        
         axios
             .get(`/api/admin/all-workers`, {
                 headers,
                 params: {
                     filter: true,
+                    start_date: calendarStartDate ?? _calendarStartDate,
+                    end_date: calendarEndDate ?? _calendarEndDate,
                     service_id: job.jobservice.service_id,
                     has_cat: job.property_address.is_cat_avail,
                     has_dog: job.property_address.is_dog_avail,
@@ -75,6 +100,7 @@ export default function ChangeWorkerCalender({ job }) {
                         ? job.worker_id
                         : "",
                     job_id: job.id,
+                    is_freelancer: job?.is_freelancer ? true : false,
                 },
             })
             .then((res) => {
@@ -96,8 +122,25 @@ export default function ChangeWorkerCalender({ job }) {
     }, []);
 
     useEffect(() => {
-        getWorkers();
-    }, [])
+        let _calendarStartDate = calendarStartDate;
+        let _calendarEndDate = calendarEndDate;
+        if (_calendarStartDate == null && week.length > 0) {
+            _calendarStartDate = week[0];
+            _calendarEndDate = week[week.length - 1];
+            setCalendarStartDate(week[0]);
+            setCalendarEndDate(week[week.length - 1]);
+        }
+        if (_calendarStartDate && _calendarEndDate) {
+            getWorkers(_calendarStartDate, _calendarEndDate);
+        }
+    }, [calendarStartDate, calendarEndDate]);
+
+    useEffect(() => {
+        // console.log(week);
+        if (week.length > 0) {
+            handleWorkerList();
+        }
+    }, [JSON.stringify(week)]);
 
     useEffect(() => {
         setMinUntilDate(
@@ -186,25 +229,6 @@ export default function ChangeWorkerCalender({ job }) {
             }
         }
     };
-
-    const generateWeek = (startDate) => {
-        let week = [];
-        let today = moment().startOf("day"); // Get the current date at the start of the day
-        days.forEach((d) => {
-            let day = moment(startDate).add(d, "days");
-            if (day.isSameOrAfter(today)) {
-                // Check if the day is greater than or equal to today
-                week.push(day.format("YYYY-MM-DD"));
-            }
-        });
-        return week;
-    };
-
-    const sundayOfCurrentWeek = moment().startOf("week");
-
-    let week = generateWeek(sundayOfCurrentWeek);
-    let nextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
-    let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const changeShift = (w_id, date, e) => {
         let added = false;
@@ -311,13 +335,64 @@ export default function ChangeWorkerCalender({ job }) {
     };
 
     const handleWorkerList = () => {
-        getWorkers();
-
+        let _calendarStartDate = calendarStartDate;
+        let _calendarEndDate = calendarEndDate;
+        if (_calendarStartDate == null && week.length > 0) {
+            _calendarStartDate = week[0];
+            _calendarEndDate = week[week.length - 1];
+            setCalendarStartDate(week[0]);
+            setCalendarEndDate(week[week.length - 1]);
+        }
+        getWorkers(_calendarStartDate, _calendarEndDate);
     };
 
     const feeInAmount = useMemo(() => {
         return job.total_amount * (formValues.fee / 100);
     }, [formValues.fee]);
+
+    useEffect(() => {
+        switch (currentFilter) {
+            case "Current Week":
+                if (week.length > 0) {
+                    setCalendarStartDate(week[0]);
+                    setCalendarEndDate(week[week.length - 1]);
+                }
+                break;
+
+            case "Next Week":
+                if (nextweek.length > 0) {
+                    setCalendarStartDate(nextweek[0]);
+                    setCalendarEndDate(nextweek[nextweek.length - 1]);
+                }
+                break;
+
+            case "Next Next Week":
+                if (nextnextweek.length > 0) {
+                    setCalendarStartDate(nextnextweek[0]);
+                    setCalendarEndDate(nextnextweek[nextnextweek.length - 1]);
+                }
+                break;
+
+            case "Custom":
+                if (customDateRange.length > 0) {
+                    setCalendarStartDate(customDateRange[0]);
+                    setCalendarEndDate(
+                        customDateRange[customDateRange.length - 1]
+                    );
+                }
+                break;
+
+            default:
+                if (week.length > 0) {
+                    setCalendarStartDate(week[0]);
+                    setCalendarEndDate(week[week.length - 1]);
+                }
+                break;
+        }
+    }, [currentFilter, customDateRange]);
+
+    console.log(currentFilter, "currentFilter");
+    
 
     return (
         <>
@@ -381,16 +456,12 @@ export default function ChangeWorkerCalender({ job }) {
                     </div>
                 </div>
             </div>
-            {
-                miniLoader !== true ? (
-                    <div className="tab-content" style={{ background: "#fff" }}>
+            {miniLoader !== true ? (
+                <div className="tab-content" style={{ background: "#fff" }}>
+                    {currentFilter === "Current Week" && (
                         <div
-                            style={{
-                                display:
-                                    currentFilter === "Current Week" ? "block" : "none",
-                            }}
                             id="tab-worker-availability"
-                            className="tab-pane active show  table-responsive"
+                            className="tab-pane active show table-responsive"
                             role="tab-panel"
                             aria-labelledby="current-job"
                         >
@@ -407,13 +478,11 @@ export default function ChangeWorkerCalender({ job }) {
                                 />
                             </div>
                         </div>
+                    )}
+                    {currentFilter === "Next Week" && (
                         <div
-                            style={{
-                                display:
-                                    currentFilter === "Next Week" ? "block" : "none",
-                            }}
                             id="tab-current-job"
-                            className="tab-pane"
+                            className="tab-pane active show table-responsive"
                             role="tab-panel"
                             aria-labelledby="current-job"
                         >
@@ -430,15 +499,11 @@ export default function ChangeWorkerCalender({ job }) {
                                 />
                             </div>
                         </div>
+                    )}
+                    {currentFilter === "Next Next Week" && (
                         <div
-                            style={{
-                                display:
-                                    currentFilter === "Next Next Week"
-                                        ? "block"
-                                        : "none",
-                            }}
                             id="tab-current-next-job"
-                            className="tab-pane"
+                            className="tab-pane active show table-responsive"
                             role="tab-panel"
                             aria-labelledby="current-job"
                         >
@@ -455,12 +520,11 @@ export default function ChangeWorkerCalender({ job }) {
                                 />
                             </div>
                         </div>
+                    )}
+                    {currentFilter === "Custom" && (
                         <div
-                            style={{
-                                display: currentFilter === "Custom" ? "block" : "none",
-                            }}
                             id="tab-current-next-job"
-                            className="tab-pane"
+                            className="tab-pane active show table-responsive"
                             role="tab-panel"
                             aria-labelledby="current-job"
                         >
@@ -471,7 +535,11 @@ export default function ChangeWorkerCalender({ job }) {
                                 <Flatpickr
                                     name="date"
                                     className="form-control"
-                                    onChange={(selectedDates, dateStr, instance) => {
+                                    onChange={(
+                                        selectedDates,
+                                        dateStr,
+                                        instance
+                                    ) => {
                                         let start = moment(selectedDates[0]);
                                         let end = moment(selectedDates[1]);
                                         const datesArray = [];
@@ -481,14 +549,18 @@ export default function ChangeWorkerCalender({ job }) {
                                             date.isSameOrBefore(end);
                                             date.add(1, "day")
                                         ) {
-                                            datesArray.push(date.format("YYYY-MM-DD"));
+                                            datesArray.push(
+                                                date.format("YYYY-MM-DD")
+                                            );
                                         }
                                         setCustomDateRange(datesArray);
                                     }}
                                     options={{
                                         disableMobile: true,
                                         minDate: moment(
-                                            nextnextweek[nextnextweek.length - 1]
+                                            nextnextweek[
+                                                nextnextweek.length - 1
+                                            ]
                                         )
                                             .add(1, "days")
                                             .format("YYYY-MM-DD"),
@@ -499,7 +571,9 @@ export default function ChangeWorkerCalender({ job }) {
                             {customDateRange.length > 0 && (
                                 <div className="crt-jb-table-scrollable">
                                     <WorkerAvailabilityTable
-                                        workerAvailabilities={workerAvailabilities}
+                                        workerAvailabilities={
+                                            workerAvailabilities
+                                        }
                                         week={customDateRange}
                                         AllWorkers={AllWorkers}
                                         hasActive={hasActive}
@@ -511,8 +585,13 @@ export default function ChangeWorkerCalender({ job }) {
                                 </div>
                             )}
                         </div>
-                    </div>
-                ) : <div className="d-flex justify-content-center"><MiniLoader /></div>}
+                    )}
+                </div>
+            ) : (
+                <div className="d-flex justify-content-center">
+                    <MiniLoader />
+                </div>
+            )}
 
             <div className="form-group text-center mt-3">
                 <input
@@ -552,17 +631,38 @@ export default function ChangeWorkerCalender({ job }) {
                                     <table className="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th scope="col">{t("worker.jobs.client")}</th>
-                                                <th scope="col">{t("worker.jobs.service")}</th>
-                                                <th scope="col">{t("client.offer.view.frequency")}</th>
                                                 <th scope="col">
-                                                    {t("client.jobs.change.time_to_complete")}
+                                                    {t("worker.jobs.client")}
                                                 </th>
-                                                <th scope="col">{t("client.jobs.change.propert")}</th>
                                                 <th scope="col">
-                                                    {t("client.jobs.change.gender_preference")}
+                                                    {t("worker.jobs.service")}
                                                 </th>
-                                                <th scope="col"> {t("client.jobs.change.pet_animals")}</th>
+                                                <th scope="col">
+                                                    {t(
+                                                        "client.offer.view.frequency"
+                                                    )}
+                                                </th>
+                                                <th scope="col">
+                                                    {t(
+                                                        "client.jobs.change.time_to_complete"
+                                                    )}
+                                                </th>
+                                                <th scope="col">
+                                                    {t(
+                                                        "client.jobs.change.propert"
+                                                    )}
+                                                </th>
+                                                <th scope="col">
+                                                    {t(
+                                                        "client.jobs.change.gender_preference"
+                                                    )}
+                                                </th>
+                                                <th scope="col">
+                                                    {" "}
+                                                    {t(
+                                                        "client.jobs.change.pet_animals"
+                                                    )}
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -588,7 +688,9 @@ export default function ChangeWorkerCalender({ job }) {
                                                             job.jobservice
                                                                 .duration_minutes
                                                         )}{" "}
-                                                        {t("client.jobs.review.hours")}
+                                                        {t(
+                                                            "client.jobs.review.hours"
+                                                        )}
                                                     </p>
                                                 </td>
                                                 <td>
@@ -616,19 +718,23 @@ export default function ChangeWorkerCalender({ job }) {
                                                     <p>
                                                         {job.property_address
                                                             .is_cat_avail
-                                                            ? t("admin.leads.AddLead.addAddress.Cat")
+                                                            ? t(
+                                                                  "admin.leads.AddLead.addAddress.Cat"
+                                                              )
                                                             : job
-                                                                .property_address
-                                                                .is_dog_avail
-                                                                ? t("admin.leads.AddLead.addAddress.Dog")
-                                                                : !job
-                                                                    .property_address
-                                                                    .is_cat_avail &&
-                                                                    !job
-                                                                        .property_address
-                                                                        .is_dog_avail
-                                                                    ? "NA"
-                                                                    : ""}
+                                                                  .property_address
+                                                                  .is_dog_avail
+                                                            ? t(
+                                                                  "admin.leads.AddLead.addAddress.Dog"
+                                                              )
+                                                            : !job
+                                                                  .property_address
+                                                                  .is_cat_avail &&
+                                                              !job
+                                                                  .property_address
+                                                                  .is_dog_avail
+                                                            ? "NA"
+                                                            : ""}
                                                     </p>
                                                 </td>
                                             </tr>
@@ -637,13 +743,25 @@ export default function ChangeWorkerCalender({ job }) {
                                 </div>
                                 <div className="table-responsive">
                                     {getWorkersData(selectedHours).length >
-                                        0 ? (
+                                    0 ? (
                                         <table className="table table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col">{t("client.jobs.change.Worker")}</th>
-                                                    <th scope="col">{t("client.jobs.change.date")}</th>
-                                                    <th scope="col">{t("client.jobs.change.shift")}</th>
+                                                    <th scope="col">
+                                                        {t(
+                                                            "client.jobs.change.Worker"
+                                                        )}
+                                                    </th>
+                                                    <th scope="col">
+                                                        {t(
+                                                            "client.jobs.change.date"
+                                                        )}
+                                                    </th>
+                                                    <th scope="col">
+                                                        {t(
+                                                            "client.jobs.change.shift"
+                                                        )}
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -688,13 +806,19 @@ export default function ChangeWorkerCalender({ job }) {
                                             className="form-control mb-3"
                                         >
                                             <option value="one_time">
-                                                {t("client.jobs.change.oneTime")}
+                                                {t(
+                                                    "client.jobs.change.oneTime"
+                                                )}
                                             </option>
                                             <option value="until_date">
-                                                {t("client.jobs.change.UntilDate")}
+                                                {t(
+                                                    "client.jobs.change.UntilDate"
+                                                )}
                                             </option>
                                             <option value="forever">
-                                                {t("client.jobs.change.Forever")}
+                                                {t(
+                                                    "client.jobs.change.Forever"
+                                                )}
                                             </option>
                                         </select>
                                     </div>
@@ -704,7 +828,9 @@ export default function ChangeWorkerCalender({ job }) {
                                     <div className="offset-sm-4 col-sm-4">
                                         <div className="form-group">
                                             <label className="control-label">
-                                                {t("client.jobs.change.UntilDate")}
+                                                {t(
+                                                    "client.jobs.change.UntilDate"
+                                                )}
                                             </label>
                                             <Flatpickr
                                                 name="date"
@@ -784,7 +910,11 @@ export default function ChangeWorkerCalender({ job }) {
 
                                         {feeInAmount > 0 ? (
                                             <p>
-                                                {feeInAmount} ILS {t("admin.global.willBeCharged")}.
+                                                {feeInAmount} ILS{" "}
+                                                {t(
+                                                    "admin.global.willBeCharged"
+                                                )}
+                                                .
                                             </p>
                                         ) : (
                                             <p>
@@ -873,15 +1003,15 @@ const FilterButtons = ({
         style={
             selectedFilter !== text
                 ? {
-                    background: "#EDF1F6",
-                    color: "#2c3f51",
-                    borderRadius: "6px",
-                }
+                      background: "#EDF1F6",
+                      color: "#2c3f51",
+                      borderRadius: "6px",
+                  }
                 : {
-                    background: "#2c3f51",
-                    color: "white",
-                    borderRadius: "6px",
-                }
+                      background: "#2c3f51",
+                      color: "white",
+                      borderRadius: "6px",
+                  }
         }
         onClick={() => {
             onClick?.();

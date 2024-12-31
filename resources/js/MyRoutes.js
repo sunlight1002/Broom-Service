@@ -190,6 +190,7 @@ import ChangePassword from "./Client/Auth/ChangePassword";
 import ClientPropertyAdress from "./Client/ClientPropertyAdress";
 import ViewPropertyAddress from "./Client/ViewPropertyAddress";
 import FacebookInsights from "./Admin/Components/Dashboard/FacebookInsights";
+import CustomMessage from "./Admin/Pages/Setting/CustomMessage";
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
 
@@ -782,6 +783,11 @@ export default function MyRoutes() {
                                 exact
                                 path="templates"
                                 element={<AllTemplatesList />}
+                            />
+                            <Route
+                                exact
+                                path="custom-message"
+                                element={<CustomMessage />}
                             />
                             <Route
                                 exact

@@ -176,7 +176,7 @@ const SafeAndGear = ({
 
     return (
         <div id="container" className={`pdf-wrapper targetDiv rtlcon ${isGeneratingPDF ? "pdf-layout" : ""}`} ref={contentRef}>
-            <p className="navyblueColor font-34 mt-4 font-w-500">Safety And Gear Form</p>
+            <p className="navyblueColor font-34 mt-4 font-w-500">{t("safeAndGear.title")}</p>
             <form onSubmit={handleSaveAsDraft}>
                 <div className={`${isGeneratingPDF ? "" : "row"}`}>
                     <section className="col-xl">

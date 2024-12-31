@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+
 
 class WorkerLeadWebhookController extends Controller
 {
@@ -117,6 +119,19 @@ class WorkerLeadWebhookController extends Controller
         $data_returned = json_decode($get_data, true);
         $messageId = $data_returned['messages'][0]['id'] ?? null;
 
+        if (!$messageId) {
+            return response()->json(['status' => 'Invalid message data'], 400);
+        }
+        
+        // Check if the messageId exists in cache and matches
+        if (Cache::get('processed_message_' . $messageId) === $messageId) {
+        \Log::info('Already processed');
+            return response()->json(['status' => 'Already processed'], 200);
+        }
+        
+        // Store the messageId in the cache for 1 hour
+        Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
+
         if (
             isset($data_returned['messages']) &&
             isset($data_returned['messages'][0]['from_me']) &&
@@ -142,7 +157,10 @@ class WorkerLeadWebhookController extends Controller
             $workerLead = WorkerLeads::where('phone', $from)->first();
             if (!$workerLead) {
                 // If user doesn't exist, create a new record and send the first step message
-                $workerLead = WorkerLeads::create(['phone' => $from]);
+                $workerLead = WorkerLeads::create([
+                    'phone' => $from,
+                    'lng' => 'heb'
+                ]);
                 WhatsAppBotWorkerState::updateOrCreate(
                     ['worker_lead_id' => $workerLead->id],
                     ['step' => 0, 'language' => 'heb']
@@ -161,8 +179,54 @@ class WorkerLeadWebhookController extends Controller
                 ]);
                 return;
             }
+
+            if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                $messageInput = strtolower(trim($input));
+                // Check if the message follows the format "phone – status"
+                if (preg_match('/^\+?\d+\s*[-–]\s*(hire|no|unanswered|ללא מענה|לִשְׂכּוֹר|לֹא)$/i', $messageInput, $matches) && ($message_data[0]['chat_id'] == config('services.whatsapp_groups.relevant_with_workers'))) {
+                    $phoneNumber = trim(explode('-', $matches[0])[0]); // Extracts the number
+                    $statusInput = strtolower($matches[1]); // Extracts the status
+
+                    // Find the workerLead based on the phone number
+                    $workerLead = WorkerLeads::where('phone', $phoneNumber)->first();
+            
+                    if ($workerLead) {
+                        // Determine the status
+                        if (in_array($statusInput, ['hire', 'לִשְׂכּוֹר'])) {
+                            $workerLead->status = "hiring";
+                        } elseif (in_array($statusInput, ['unanswered', 'ללא מענה'])) {
+                            $workerLead->status = "unanswered";
+                        } else {
+                            $workerLead->status = "not-hired";
+                        }
+            
+                        $workerLead->save();
+            
+                        // Send appropriate WhatsApp message
+                        if ($workerLead->status == "hiring") {
+                            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM);
+                        } elseif ($workerLead->status == "not-hired") {
+                            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD);
+                        } else {
+                            $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED);
+                        }
+                        return response()->json(['status' => 'Worker status updated'], 200);
+                    }
+            
+                    return response()->json(['status' => 'Worker not found'], 404);
+                }
+            
+                return response()->json(['status' => 'Message format invalid or already processed'], 400);
+            }
+            
             
             $workerState = WhatsAppBotWorkerState::where("worker_lead_id", $workerLead->id)->first();
+
+            if ($workerState && $workerState->step == 9) {
+                // Conversation is complete, no further processing
+                return response()->json(['status' => 'Conversation complete'], 200);
+            }
+
             $lng = "heb";
             
             if (in_array($input, [1, 2, 3, 4])) {
@@ -172,6 +236,10 @@ class WorkerLeadWebhookController extends Controller
                 WhatsAppBotWorkerState::updateOrCreate(
                     ['worker_lead_id' => $workerLead->id],
                     ['step' => 0, 'language' => $lng]
+                );
+                WorkerLeads::updateOrCreate(
+                    ['id' => $workerLead->id], 
+                    ['lng' => $lng]
                 );
             
                 $switchMessage = $this->botMessages['step0'][$lng];
@@ -202,12 +270,12 @@ class WorkerLeadWebhookController extends Controller
                     // Send the next step message
                     $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                     $acceptedResponses = [
-                        'yes', 'sí', 'да', 'לא', 'no', 'нет', 'כן',
-                        'fulltime', 'משרה מלאה', 'tiempo completo', 'tiempo completo', 
-                        'полная занятость', 'полнаязанятость', 'part time', 'parttime', 
+                        'yes', 'sí', 'да', 'לא', 'no', 'нет', 'כן', 'Да',
+                        'full time', 'משרה מלאה', 'tiempo completo', 'tiempo completo', 
+                        'полная занятость', 'полнаязанятость', 'part time',
                         'משרה חלקית', 'tiempo parcial', 'частичная занятость', 
                         'none', 'לֹא', 'ninguno', 'нет', 'id', 'תעודת זהות', 
-                        'id', 'visa', 'ויזה', 'visa', 'виза'
+                        'id', 'ויזה', 'visa', 'виза', 'כֵּן'
                     ];
                     
                     // Normalize the user input
@@ -239,13 +307,14 @@ class WorkerLeadWebhookController extends Controller
         $messages = $this->botMessages;
         $lng = $language;
         $response = strtolower(trim($input));
+        \Log::info($response. ' res');
         switch ($currentStep) {
             case 0:
-                if (in_array($response, ['yes', 'Sí', 'Да', 'לא'])) {
+                if (in_array($response, ['yes', 'sí', 'Да', 'כֵּן'])) {
                     $workerLead->experience_in_house_cleaning = true;
                     $workerLead->save();
                     return $messages['step2'][$lng];   
-                } elseif (in_array($response, ['no', 'No', 'Нет', 'כן'])) {
+                } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->experience_in_house_cleaning = false;
                     $workerLead->save();
                     return $messages['step2'][$lng];   
@@ -254,11 +323,11 @@ class WorkerLeadWebhookController extends Controller
                 }
                 
             case 1:
-                if (in_array($response, ['yes', 'Sí', 'Да', 'לא'])) {
+                if (in_array($response, ['yes', 'sí', 'Да','כֵּן'])) {
                     $workerLead->you_have_valid_work_visa = true;
                     $workerLead->save();
                     return $messages['step3'][$lng];   
-                } elseif (in_array($response, ['no', 'No', 'Нет', 'כן'])) {
+                } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->you_have_valid_work_visa = false;
                     $workerLead->save();
                     return $messages['step3'][$lng];   
@@ -266,11 +335,11 @@ class WorkerLeadWebhookController extends Controller
                     return $messages['step2'][$lng];   
                 }
             case 2:
-                if (in_array($response, ['yes', 'Sí', 'Да', 'לא'])) {
+                if (in_array($response, ['yes', 'sí', 'Да','כֵּן'])) {
                     $workerLead->ready_to_get_best_job = true;
                     $workerLead->save();
                     return $messages['step4'][$lng];   
-                } elseif (in_array($response, ['no', 'No', 'Нет', 'כן'])) {
+                } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->ready_to_get_best_job = false;
                     $workerLead->save();
                     return $messages['step4'][$lng];   
@@ -278,11 +347,11 @@ class WorkerLeadWebhookController extends Controller
                     return $messages['step3'][$lng];   
                 }
             case 3:
-                if (in_array($response, ['yes', 'Sí', 'Да', 'לא'])) {
+                if (in_array($response, ['yes', 'sí', 'Да','כֵּן'])) {
                     $workerLead->ready_to_work_in_house_cleaning = true;
                     $workerLead->save();
                     return $messages['step5'][$lng];   
-                } elseif (in_array($response, ['no', 'No', 'Нет', 'כן'])) {
+                } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->ready_to_work_in_house_cleaning = false;
                     $workerLead->save();
                     return $messages['step5'][$lng];   
@@ -290,11 +359,11 @@ class WorkerLeadWebhookController extends Controller
                     return $messages['step4'][$lng];   
                 }
             case 4:
-                if (in_array($response, ['yes', 'Sí', 'Да', 'לא'])) {
+                if (in_array($response, ['yes', 'sí', 'Да','כֵּן'])) {
                     $workerLead->areas_aviv_herzliya_ramat_gan_kiryat_ono_good = true;
                     $workerLead->save();
                     return $messages['step6'][$lng];   
-                } elseif (in_array($response, ['no', 'No', 'Нет', 'כן'])) {
+                } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->areas_aviv_herzliya_ramat_gan_kiryat_ono_good = false;
                     $workerLead->save();
                     return $messages['step6'][$lng];   
@@ -302,7 +371,7 @@ class WorkerLeadWebhookController extends Controller
                     return $messages['step5'][$lng];   
                 }
             case 5:
-                if (in_array($response, ['none', 'לֹא', 'Ninguno', 'Нет' , 'id', 'תעודת זהות', 'ID', 'ID', 'visa','ויזה', 'Visa', 'Виза'])) {
+                if (in_array($response, ['none', 'לֹא', 'ninguno', 'hет' , 'id', 'תעודת זהות', 'visa','ויזה', 'bиза'])) {
                     $workerLead->none_id_visa = $response;
                     $workerLead->save();
                     return $messages['step7'][$lng];
@@ -310,11 +379,11 @@ class WorkerLeadWebhookController extends Controller
                     return $messages['step6'][$lng];
                 }
             case 6:
-                if (in_array($response, ['yes', 'Sí', 'Да', 'לא'])) {
+                if (in_array($response, ['yes', 'sí', 'Да','כֵּן'])) {
                     $workerLead->work_sunday_to_thursday_fit_schedule_8_10am_12_2pm = true;
                     $workerLead->save();
                     return $messages['step8'][$lng];   
-                } elseif (in_array($response, ['no', 'No', 'Нет', 'כן'])) {
+                } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->work_sunday_to_thursday_fit_schedule_8_10am_12_2pm = false;
                     $workerLead->save();
                     return $messages['step8'][$lng];   
@@ -323,7 +392,7 @@ class WorkerLeadWebhookController extends Controller
                 }
         
             case 7:
-                if (in_array($response, ['fulltime', "משרה מלאה", 'Tiempo Completo', 'Полная занятость', 'part time', "משרה חלקית", 'Tiempo Parcial', 'Частичная занятость'])) {
+                if (in_array($response, ['full time', "משרה מלאה", 'tiempo completo', 'Полная занятость', 'part time', "משרה חלקית", 'tiempo parcial', 'Частичная занятость'])) {
                     $workerLead->full_or_part_time = $response;
                     $workerLead->save();
                     return $messages['step9'][$lng];
@@ -334,6 +403,10 @@ class WorkerLeadWebhookController extends Controller
             case 8:
                 // The last step, collect contact details
                 if ($this->saveContactDetails($workerLead, $input)) {
+                    WhatsAppBotWorkerState::updateOrCreate(
+                        ['worker_lead_id' => $workerLead->id],
+                        ['step' => 9, 'language' => $lng]
+                    );
                     return $messages['end'][$lng];
                 }
         }
@@ -342,10 +415,10 @@ class WorkerLeadWebhookController extends Controller
     {
         // Normalize the input by removing any newline or carriage return characters
         $input = str_replace(["\n", "\r"], ',', $input);
-    
+
         // Split the input by commas
         $details = array_map('trim', explode(',', $input));
-    
+
         // Check if there are exactly 3 pieces of information
         if (count($details) == 3) {
             // Assign values to the workerLead object
@@ -353,13 +426,24 @@ class WorkerLeadWebhookController extends Controller
             $workerLead->phone = $details[1];
             $workerLead->email = $details[2];
             $workerLead->save();
+
+            if (
+                $workerLead->ready_to_get_best_job &&
+                $workerLead->ready_to_work_in_house_cleaning &&
+                $workerLead->experience_in_house_cleaning &&
+                $workerLead->areas_aviv_herzliya_ramat_gan_kiryat_ono_good &&
+                $workerLead->you_have_valid_work_visa &&
+                $workerLead->work_sunday_to_thursday_fit_schedule_8_10am_12_2pm
+            ) {
+                $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
+            }
+
             return true;
         }
-    
+
         // If it's not in the comma-separated format, try the multiline format
-        // Split input by new lines (to handle the multi-line case like pratik\n+912323232\na@mial.com)
         $details = array_map('trim', explode("\n", $input));
-    
+
         // Check if we have exactly 3 pieces of information after splitting by new lines
         if (count($details) == 3) {
             // Assign values to the workerLead object
@@ -367,9 +451,35 @@ class WorkerLeadWebhookController extends Controller
             $workerLead->phone = $details[1];
             $workerLead->email = $details[2];
             $workerLead->save();
+
+            if (
+                $workerLead->ready_to_get_best_job &&
+                $workerLead->ready_to_work_in_house_cleaning &&
+                $workerLead->experience_in_house_cleaning &&
+                $workerLead->areas_aviv_herzliya_ramat_gan_kiryat_ono_good &&
+                $workerLead->you_have_valid_work_visa &&
+                $workerLead->work_sunday_to_thursday_fit_schedule_8_10am_12_2pm
+            ) {
+                $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
+            }
+
             return true;
         }
-    
-        return false; // If neither format is correct
-    }    
+
+        return false; 
+    }
+
+    /**
+     * Send a WhatsApp message to the worker lead.
+     */
+    protected function sendWhatsAppMessage($workerLead, $enum)
+    {
+        event(new WhatsappNotificationEvent([
+            "type" => $enum,
+            "notificationData" => [
+                'worker' => $workerLead->toArray(),
+            ]
+        ]));
+    }
+
 }

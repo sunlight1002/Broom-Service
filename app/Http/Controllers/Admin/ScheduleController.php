@@ -97,40 +97,67 @@ class ScheduleController extends Controller
             'address_id'     => 'Property',
             'team_id'        => 'Attender'
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
-
+    
         $input = $request->input();
-
+    
         if ($input['start_time']) {
-            $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->addMinutes(30)->format('h:i A');
-            $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', date('Y-m-d') . ' ' . $input['start_time'])->toTimeString();
+            // Map Hebrew meridian terms to English equivalents
+            $hebrewMeridianMap = [
+                'בבוקר' => 'AM', // Morning (AM)
+                'אחר הצהריים' => 'PM', // Afternoon (PM)
+                'לפני הצהריים' => 'AM', // Before noon (AM)
+                'בערב' => 'PM', // Evening (PM)
+            ];
+    
+            // Replace Hebrew meridians in the start_time with English AM/PM
+            $input['start_time'] = str_replace(array_keys($hebrewMeridianMap), array_values($hebrewMeridianMap), $input['start_time']);
+    
+            // Ensure the start_time is in a valid format that Carbon can parse
+            $startTimeWithDate = date('Y-m-d') . ' ' . $input['start_time']; // Add current date for full timestamp
+    
+            try {
+                // Parse the start_time to create end_time (30 minutes added)
+                $input['end_time'] = Carbon::createFromFormat('Y-m-d h:i A', $startTimeWithDate)
+                    ->addMinutes(30)
+                    ->format('h:i A');
+    
+                // Standard format for start_time (24-hour format)
+                $input['start_time_standard_format'] = Carbon::createFromFormat('Y-m-d h:i A', $startTimeWithDate)
+                    ->toTimeString();
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Invalid time format',
+                    'error' => $e->getMessage(),
+                ], 400);
+            }
         }
-
+    
         $client = Client::find($input['client_id']);
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found',
             ], 404);
         }
-
+    
         if (empty($client->phone)) {
             return response()->json([
                 'message' => "Client's phone is required",
             ], 403);
         }
-
+    
         $schedule = Schedule::create($input);
-
+    
         $client->lead_status()->updateOrCreate(
             [],
             ['lead_status' => LeadStatusEnum::POTENTIAL]
         );
-
+    
         event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
-
+    
         LeadActivity::create([
             'client_id' => $client->id,
             'created_date' => " ",
@@ -138,19 +165,19 @@ class ScheduleController extends Controller
             'changes_status' => LeadStatusEnum::POTENTIAL,
             'reason' => 'New schedule created',
         ]);
-
+    
         if (!$schedule->start_date) {
             $schedule->load(['client', 'team', 'propertyAddress']);
-
+    
             SendMeetingMailJob::dispatch($schedule);
-
+    
             return response()->json([
                 'data' => $schedule,
                 'message' => 'Meeting scheduled successfully',
             ]);
         }
         $schedule->load(['client', 'team', 'propertyAddress']);
-
+    
         $this->saveGoogleCalendarEvent($schedule);
         Notification::create([
             'user_id' => $schedule->client_id,
@@ -159,10 +186,10 @@ class ScheduleController extends Controller
             'meet_id' => $schedule->id,
             'status' => $schedule->booking_status
         ]);
-
+    
         // $this->sendMeetingMail($schedule);
         SendMeetingMailJob::dispatch($schedule);
-
+    
         if (!empty($schedule->start_time) && !empty($schedule->end_time)) {
             Notification::create([
                 'user_id' => $schedule->client_id,
@@ -172,12 +199,14 @@ class ScheduleController extends Controller
                 'status' => $schedule->booking_status
             ]);
         }
-
+    
         return response()->json([
             'data' => $schedule,
             'message' => 'Meeting scheduled successfully',
         ]);
     }
+    
+    
 
     public function createScheduleCalendarEvent($scheduleID)
     {

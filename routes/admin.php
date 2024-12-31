@@ -203,6 +203,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('offers', OfferController::class)->except('create');
     Route::get('clients/{id}/offers', [OfferController::class, 'ClientOffers']);
     Route::post('latest-client-offer', [OfferController::class, 'getLatestClientOffer']);
+    Route::post('offer-reopen/{id}', [OfferController::class, 'reopen']);
 
     // Contract Api
     Route::resource('contract', ContractController::class)->except(['create', 'store', 'edit', 'update']);
@@ -432,6 +433,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('/whatsapp-templates', [WhatsappTemplateController::class, 'store']);
     Route::put('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'update']);
     Route::delete('/whatsapp-templates/{id}', [WhatsappTemplateController::class, 'destroy']);
+    Route::post('custom-message-send', [WhatsappTemplateController::class, 'customMessageSend']);
 
     Route::get('/schedule-changes', [ScheduleChangeController::class, 'index'])->name('schedule-changes.index');
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
@@ -446,6 +448,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/get-all-chats', [WhapiController::class, 'getAllChats']);
     Route::get('/get-chat/{chatId}', [WhapiController::class, 'getChatById']);
     Route::get('/get-conversations/{chatId}', [WhapiController::class, 'getConversationsByNumber']);
+    Route::delete('/delete-message/{messageId}', [WhapiController::class, 'deleteMessage']);
 
 
 });
