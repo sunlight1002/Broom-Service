@@ -179,12 +179,8 @@ class CreateJobOrder implements ShouldQueue
                 \Log::info("GenerateJobInvoice one time job");  
                 GenerateJobInvoice::dispatch($order->id, $client->id);
             }else if ($job->is_one_time_in_month_job && isset($order)) {
-
-                \Log::info("GenerateJobInvoice Payment Initiate Call");
-
                 GenerateJobInvoice::dispatch(null, $client->id);
 
-                \Log::info("GenerateJobInvoice Payment Call Complete");
             }
         }
     }

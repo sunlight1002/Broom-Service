@@ -172,7 +172,7 @@ class LeadWebhookController extends Controller
 
             if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
 
-                if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')) {
+                if ($message_data[0]['chat_id'] == "120363353946299896@g.us") {
                     
                     $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
             
@@ -244,7 +244,7 @@ class LeadWebhookController extends Controller
                         }
             
                         // Send WhatsApp message
-                        $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $m]);
+                        $result = sendWhatsappMessage("120363353946299896@g.us", ['name' => '', 'message' => $m]);
                     }
                 }
             

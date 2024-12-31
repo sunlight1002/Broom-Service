@@ -34,7 +34,6 @@ class ClientNotifyForContract implements ShouldQueue
         $ofr = $event->offer;
 
         $notificationType = $ofr['client']['notification_type'];
-        \Log::info($ofr);
         App::setLocale($ofr['client']['lng']);
 
         Notification::create([

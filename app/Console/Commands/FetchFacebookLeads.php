@@ -214,7 +214,6 @@ class FetchFacebookLeads extends Command
 
                             $campaignDetails = $campaignDetailsResponse->json();
                             $mainCampaignId = $campaignDetails['id'] ?? null;
-                            \Log::info($mainCampaignId);
                             $campaignName = $campaignDetails['name'] ?? 'Unknown Campaign';
 
 

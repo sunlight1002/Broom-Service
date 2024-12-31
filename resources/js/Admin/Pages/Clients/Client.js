@@ -433,38 +433,48 @@ export default function Clients() {
                             </Link>
                         </div>
 
-                        {
-                            type == "past" && (
-                                <div className="clearfix w-100 justify-content-between align-items-center">
-                                    <h1 className="page-title d-none d-lg-block float-left">
-                                        {t("admin.sidebar.clients")}
-                                    </h1>
-                                    <div className="search-data">
-                                        <div
-                                            className="App"
-                                            style={{ display: "none" }}
-                                        >
-                                            <CSVLink {...csvReport} id="csv">
-                                                {t("admin.global.Export")}
-                                            </CSVLink>
-                                        </div>
-                                        <div className="action-dropdown dropdown mt-4 mr-2">
-                                            <button
-                                                className="btn navyblue"
-                                                onClick={handleShow}
-                                            >
-                                                {t("admin.global.Import")}
-                                            </button>
-                                        </div>
-                                        <div className="action-dropdown dropdown mt-4 mr-2 d-none d-lg-block">
-                                            <button
-                                                className="btn navyblue ml-2"
-                                                onClick={(e) => handleReport(e)}
-                                            >
-                                                {t("admin.client.Export")}
-                                            </button>
-                                        </div>
 
+                        <div className="clearfix w-100 justify-content-between align-items-center">
+                            <h1 className="page-title d-none d-lg-block float-left">
+                                {t("admin.sidebar.clients")}
+                            </h1>
+                            <div className="search-data">
+                                <div
+                                    className="App"
+                                    style={{ display: "none" }}
+                                >
+                                    <CSVLink {...csvReport} id="csv">
+                                        {t("admin.global.Export")}
+                                    </CSVLink>
+                                </div>
+                                <div className="mt-4 mr-2">
+                                    <button
+                                        className="btn navyblue"
+                                        onClick={handleShow}
+                                    >
+                                        {t("admin.global.Import")}
+                                    </button>
+                                </div>
+                                <div className=" mt-4 mr-2 d-none d-lg-block">
+                                    <button
+                                        className="btn navyblue ml-2"
+                                        onClick={(e) => handleReport(e)}
+                                    >
+                                        {t("admin.client.Export")}
+                                    </button>
+                                </div>
+                                <div className="mr-2">
+                                    <Link
+                                        to="/admin/clients/create"
+                                        className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
+                                    >
+                                        <i className="btn-icon fas fa-plus-circle"></i>
+                                        {t("admin.client.AddNew")}
+                                    </Link>
+                                </div>
+
+                                {
+                                    type == "past" && (
                                         <div className="action-dropdown dropdown mt-4 mr-2 d-lg-none">
                                             <button
                                                 type="button"
@@ -538,18 +548,11 @@ export default function Clients() {
                                                 />
                                             </div>
                                         </div>
+                                    )
+                                }
 
-                                        <Link
-                                            to="/admin/clients/create"
-                                            className="btn navyblue addButton d-none d-lg-block  action-dropdown dropdown mt-4 mr-2 no-hover"
-                                        >
-                                            <i className="btn-icon fas fa-plus-circle"></i>
-                                            {t("admin.client.AddNew")}
-                                        </Link>
-                                    </div>
-                                </div>
-                            )
-                        }
+                            </div>
+                        </div>
                         <div className="hidden-xl mt-4">
                             <select
                                 className="form-control"
@@ -634,30 +637,100 @@ export default function Clients() {
                 {/* Integrating new FilterButtons section here */}
                 {
                     type != "past" && type == null && (
-                        <div className="col-sm-12">
-                            <FilterButtons
-                                text={t("admin.leads.All")}
-                                name=""
-                                className="px-3 mr-1"
-                                selectedFilter={filter}
-                                setselectedFilter={(status) => {
-                                    setFilter(status);
-                                }}
-                            />
-                            {leadStatuses.map((_status, _index) => {
-                                return (
-                                    <FilterButtons
-                                        text={_status}
-                                        className="px-3 mr-1"
-                                        key={_index}
-                                        selectedFilter={filter}
-                                        setselectedFilter={(status) => {
-                                            setFilter(status);
-                                        }}
-                                    />
-                                );
-                            })}
-                        </div>
+                        <>
+                            <div className="col-sm-12 d-none d-lg-flex align-items-center">
+                                <FilterButtons
+                                    text={t("admin.leads.All")}
+                                    name=""
+                                    className="px-3 mr-1"
+                                    selectedFilter={filter}
+                                    setselectedFilter={(status) => {
+                                        setFilter(status);
+                                    }}
+                                />
+                                {leadStatuses.map((_status, _index) => {
+                                    return (
+                                        <FilterButtons
+                                            text={_status}
+                                            className="px-3 mr-1"
+                                            key={_index}
+                                            selectedFilter={filter}
+                                            setselectedFilter={(status) => {
+                                                setFilter(status);
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </div>
+                            <div className="col-sm-6 mt-2 pl-0 d-flex">
+                                <div className="search-data">
+                                    <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 d-lg-none">
+                                        <div
+                                            className=" mr-3"
+                                            style={{ fontWeight: "bold" }}
+                                        >
+                                            {t("admin.global.status")}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="btn btn-default navyblue dropdown-toggle"
+                                            data-toggle="dropdown"
+                                        >
+                                            <i className="fa fa-filter"></i>
+                                        </button>
+                                        <span className="ml-2" style={{
+                                            padding: "6px",
+                                            border: "1px solid #ccc",
+                                            borderRadius: "5px"
+                                        }}>{filter || t("admin.leads.All")}</span>
+
+                                        <div className="dropdown-menu dropdown-menu-right">
+
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilter("potentail");
+                                                }}
+                                            >
+                                                {t("admin.client.Potential")}
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilter("pending client");
+                                                }}
+                                            >
+                                                {t("admin.client.Pending_client")}
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilter("active client");
+                                                }}
+                                            >
+                                                {t("admin.client.Active_client")}
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilter("freeze client");
+                                                }}
+                                            >
+                                                {t("admin.client.Freeze_client")}
+                                            </button>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFilter("past client");
+                                                }}
+                                            >
+                                                {t("admin.client.Past_client")}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
                     )
                 }
                 <div className="card" style={{ boxShadow: "none" }}>

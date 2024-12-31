@@ -77,6 +77,7 @@ class ClientController extends Controller
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
             ->leftJoin('contracts', 'contracts.client_id', '=', 'clients.id')
+            ->leftJoin('client_property_addresses', 'client_property_addresses.client_id', '=', 'clients.id')
             ->where('clients.status', '>', 0)
             ->when($action == 'booked', function ($q) {
                 return $q->has('jobs');
@@ -101,7 +102,9 @@ class ClientController extends Controller
                                 ->orWhere('clients.email', 'like', "%" . $keyword . "%")
                                 ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
                                 ->orWhere('clients.invoicename', 'like', "%" . $keyword . "%")
-                                ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%");
+                                ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%")
+                                ->orWhere('client_property_addresses.address_name', 'like', "%" . $keyword . "%")
+                                ->orWhere('client_property_addresses.geo_address', 'like', "%" . $keyword . "%");
                         });
                     }
                 }
@@ -977,9 +980,10 @@ class ClientController extends Controller
             LeadStatusEnum::IRRELEVANT => 0,
             LeadStatusEnum::UNINTERESTED => 0,
             LeadStatusEnum::UNANSWERED => 0,
-            LeadStatusEnum::UNANSWERED_FINAL => 2,
-            LeadStatusEnum::FREEZE_CLIENT => 2,
+            LeadStatusEnum::RESCHEDULE_CALL => 0,
+            LeadStatusEnum::UNANSWERED_FINAL => 0,
             LeadStatusEnum::POTENTIAL_CLIENT => 1,
+            LeadStatusEnum::FREEZE_CLIENT => 2,
             LeadStatusEnum::PENDING_CLIENT => 2,
             LeadStatusEnum::ACTIVE_CLIENT => 2,
             LeadStatusEnum::UNHAPPY => 2,
@@ -987,7 +991,6 @@ class ClientController extends Controller
             LeadStatusEnum::MOVED => 2,
             LeadStatusEnum::ONE_TIME => 2,
             LeadStatusEnum::PAST => 2,
-            LeadStatusEnum::RESCHEDULE_CALL => 0,
         ];
     
         $client = Client::find($data['id']);

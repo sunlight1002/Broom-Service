@@ -488,7 +488,6 @@ class JobController extends Controller
 
     public function ContactManager($id)
     {
-        \Log::info("dfefe");  // Log something for debugging purposes
 
         // Fetch the job with its related worker and client data using the $id parameter
         $job = Job::with(['client', 'worker'])->findOrFail($id);
@@ -514,8 +513,6 @@ class JobController extends Controller
     public function NeedExtraTime(Request $request)
     {
         $job_id = $request->job_id;
-        \Log::info($job_id);
-        \Log::info("rgrg");
         $job = Job::with(['client', 'worker', 'propertyAddress'])->where('id', $job_id)->first();
         if(!$job){
             return response()->json(['error' => 'Job not found'], 404);

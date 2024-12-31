@@ -56,7 +56,6 @@ Route::get('/brmsrvc.1/{token}', function ($token) {
 });
 
 Route::get('/brmsrvc.1/a/{token}', function ($token) {
-    \Log::info("token: " . $token);
     $shortUrl = ShortUrl::where('token', $token)->first();
 
     if ($shortUrl) {

@@ -57,9 +57,21 @@ class LeadController extends Controller
     public function index(Request $request)
     {
         $query = Client::query()
-            ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
-            ->where('clients.status', '!=', 2)
-            ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status', 'clients.created_at');
+                ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
+                ->leftJoin('client_property_addresses', 'client_property_addresses.client_id', '=', 'clients.id')
+                ->where('clients.status', '!=', 2)
+                ->select(
+                    'clients.id', 
+                    'clients.firstname', 
+                    'clients.lastname', 
+                    'clients.email', 
+                    'clients.phone', 
+                    'leadstatus.lead_status', 
+                    'clients.created_at',
+                    'client_property_addresses.address_name',
+                    'client_property_addresses.geo_address'
+                );
+
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -72,7 +84,9 @@ class LeadController extends Controller
                                 ->orWhere('clients.email', 'like', "%" . $keyword . "%")
                                 ->orWhere('clients.phone', 'like', "%" . $keyword . "%")
                                 ->orWhere('clients.invoicename', 'like', "%" . $keyword . "%")
-                                ->orWhere('leadstatus.lead_status', 'like', $keyword);
+                                ->orWhere('leadstatus.lead_status', 'like', "%" . $keyword . "%")
+                                ->orWhere('client_property_addresses.address_name', 'like', "%" . $keyword . "%")
+                                ->orWhere('client_property_addresses.geo_address', 'like', "%" . $keyword . "%");
                         });
                     }
                 }

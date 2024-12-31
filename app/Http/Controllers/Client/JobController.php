@@ -209,17 +209,10 @@ class JobController extends Controller
         foreach ($jobs as $key => $job) {
             $feePercentage = 0;
         
-            \Log::info('Current Day: ' . $currentDay);
             $endOfWeek = now()->endOfWeek();
-            \Log::info('endOfWeek: ' . $endOfWeek);
             $endOfNextWeek = now()->addWeek()->endOfWeek();
-            \Log::info('endOfNextWeek: ' . $endOfNextWeek);
             $jobStartDate = Carbon::parse($job->start_date);
-            \Log::info("Job Start Date : ". $jobStartDate);
             $timeDifference = $jobStartDate->diffInHours(now(), true);
-            \Log::info("Time Difference : ". $timeDifference);
-
-        
             if ($currentDay === 'Wednesday') {
     
                 if ($timeDifference <= 24) {
@@ -247,12 +240,7 @@ class JobController extends Controller
                 }
             }
 
-            \Log::info("Fee Percentage : ". $feePercentage);    
-        
             $feeAmount = ($feePercentage / 100) * $job->total_amount;
-        
-
-            \Log::info("JobCancellationFee Save for Job : ". $job->id);
 
             JobCancellationFee::create([
                 'job_id' => $job->id,
@@ -441,15 +429,12 @@ class JobController extends Controller
         }
 
         $oldWorker = $job->worker;
-        // \Log::info(['oldWorker'=> $oldWorker]);
 
         $old_job_data = [
             'start_date' => $job->start_date,
             'start_time' => $job->start_time,
             'shifts' => $job->shifts,
         ];
-
-        // \Log::info(['old_job_data'=> $old_job_data]);
 
 
         $manageTime = ManageTime::first();
@@ -917,7 +902,6 @@ class JobController extends Controller
 
 
        $res =  event(new WhatsappNotificationEvent($clientData));
-       \Log::info($res);
     
         return response()->json([
             'message' => 'Request sent successfully via WhatsApp'

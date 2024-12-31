@@ -36,9 +36,6 @@ class NotifyForOffer implements ShouldQueue
         if (isset($services)) {
             $s_names  = '';
             foreach ($services as $k => $service) {
-
-                \Log::info($service->template);
-
                 if ($k != count($services) - 1 && $service->template != "others") {
                     $s_names .= $service->name . ", ";
                 } else if ($service->template == "others") {
