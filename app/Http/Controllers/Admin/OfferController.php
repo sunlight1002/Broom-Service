@@ -144,25 +144,31 @@ class OfferController extends Controller
         $offer = Offer::create($input);
         $offer->load(['client', 'service']);
 
-        $newLeadStatus = LeadStatusEnum::POTENTIAL_CLIENT;
-
-        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
-            $client->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => $newLeadStatus]
-            );
-
-            LeadActivity::create([
-                'client_id' => $client->id,
-                'created_date' => " ",
-                'status_changed_date' => now(),
-                'changes_status' => $newLeadStatus,
-                'reason' => "New price offered",
+        if ($client->status != 2) {
+            $client->update([
+                'status' => 1
             ]);
-
-
+    
+            $newLeadStatus = LeadStatusEnum::POTENTIAL_CLIENT;
+    
+            if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
+    
+                LeadActivity::create([
+                    'client_id' => $client->id,
+                    'created_date' => " ",
+                    'status_changed_date' => now(),
+                    'changes_status' => $newLeadStatus,
+                    'reason' => "New price offered",
+                ]);
+    
+                event(new ClientLeadStatusChanged($client, $newLeadStatus));
+    
+            }
         }
-        event(new ClientLeadStatusChanged($client, $newLeadStatus));
 
         if ($request->action == 'Save and Send') {
             event(new OfferSaved($offer->toArray()));

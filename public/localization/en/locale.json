@@ -129,12 +129,14 @@
       "contact_me": "Contact Me to reschedule the meeting",
       "forms_submitted": "Forms submitted successfully",
       "offer_reopend": "Offer re-opened successfully",
+      "message_send": "Message send Successfully",
       "button":{
         "reopen_offer": "Yes, Reopen Offer!"
       }
     },
     "global": {
         "search": "Search",
+        "success":"Success",
         "all": "All",
         "alltime": "All time",
         "name": "Name",
@@ -1315,7 +1317,12 @@
             "refund_percentage": "Refund Percentage",
             "refund_amount": "Refund Amount",
             "percentage_error": "Percentage cannot be greater than 100",
-            "refund_invoice": "Refund Invoice"
+            "refund_invoice": "Refund Invoice",
+            "save_templates": "Save Templates",
+            "worker_includes": "Worker Includes",
+            "client_includes": "Clients Includes",
+            "worker_excludes": "Worker Excludes",
+            "client_excludes": "Clients Excludes"
         },
         "dashboard": {
             "jobPosted": "Job Posted",
@@ -2013,6 +2020,7 @@
             "pending_request": "Pending Request",
             "fb_insights": "Facebook Insights",
             "fb_campaigns": "Facebook Campaigns",
+            "custom_message": "Custom Message",
             "client": {
                 "waiting": "Waiting",
                 "active_client": "Active client",

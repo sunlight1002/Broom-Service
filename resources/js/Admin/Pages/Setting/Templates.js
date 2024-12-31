@@ -149,7 +149,7 @@ export default function Templates() {
                                     onChange={handleChange('message_rus')}
                                 />
                             </div>
-                            <button type="submit" className="mt-3 btn btn-primary">Save Templates</button>
+                            <button type="submit" className="mt-3 btn btn-primary">{t("admin.global.save_templates")}</button>
                         </div>
                         <div className="suggestions-box" >
                             <h5 className="mb-3">Suggestions</h5>

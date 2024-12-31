@@ -21,6 +21,8 @@ export default function ChangeShiftCalender({ job }) {
     const [selectedHours, setSelectedHours] = useState([]);
     const [updatedJobs, setUpdatedJobs] = useState([]);
     const [AllWorkers, setAllWorkers] = useState([]);
+    const [calendarStartDate, setCalendarStartDate] = useState(null);
+    const [calendarEndDate, setCalendarEndDate] = useState(null);
     const [days, setDays] = useState([]);
     const [formValues, setFormValues] = useState({
         fee: "0",
@@ -38,6 +40,25 @@ export default function ChangeShiftCalender({ job }) {
     const { t } = useTranslation();
     const flatpickrRef = useRef(null);
     const [customDateRange, setCustomDateRange] = useState([]);
+
+    const generateWeek = (startDate) => {
+        let week = [];
+        let today = moment().startOf("day"); // Get the current date at the start of the day
+        days.forEach((d) => {
+            let day = moment(startDate).add(d, "days");
+            if (day.isSameOrAfter(today)) {
+                // Check if the day is greater than or equal to today
+                week.push(day.format("YYYY-MM-DD"));
+            }
+        });
+        return week;
+    };
+
+    const sundayOfCurrentWeek = moment().startOf("week");
+
+    let week = generateWeek(sundayOfCurrentWeek);
+    let nextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
+    let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -60,6 +81,8 @@ export default function ChangeShiftCalender({ job }) {
                 headers,
                 params: {
                     filter: true,
+                    start_date: calendarStartDate,
+                    end_date: calendarEndDate,
                     service_id: job.jobservice.service_id,
                     has_cat: job.property_address.is_cat_avail,
                     has_dog: job.property_address.is_dog_avail,
@@ -78,7 +101,7 @@ export default function ChangeShiftCalender({ job }) {
     useEffect(() => {
         getTime();
         getWorkers();
-    }, []);
+    }, [calendarStartDate, calendarEndDate]);
 
     useEffect(() => {
         setMinUntilDate(
@@ -167,24 +190,6 @@ export default function ChangeShiftCalender({ job }) {
         }
     };
 
-    const generateWeek = (startDate) => {
-        let week = [];
-        let today = moment().startOf("day"); // Get the current date at the start of the day
-        days.forEach((d) => {
-            let day = moment(startDate).add(d, "days");
-            if (day.isSameOrAfter(today)) {
-                // Check if the day is greater than or equal to today
-                week.push(day.format("YYYY-MM-DD"));
-            }
-        });
-        return week;
-    };
-
-    const sundayOfCurrentWeek = moment().startOf("week");
-
-    let week = generateWeek(sundayOfCurrentWeek);
-    let nextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
-    let nextnextweek = generateWeek(sundayOfCurrentWeek.add(1, "weeks"));
 
     const changeShift = (w_id, date, e) => {
         let added = false;
@@ -294,6 +299,56 @@ export default function ChangeShiftCalender({ job }) {
         return job.total_amount * (formValues.fee / 100);
     }, [formValues.fee]);
 
+    useEffect(() => {
+        setHasFetched(false);
+        switch (currentFilter) {
+            case "Current Week":
+                if(week.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(week[0]);
+                    setCalendarEndDate(week[week.length - 1]);
+                }
+                break;
+
+            case "Next Week":
+                if(nextweek.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(nextweek[0]);
+                    setCalendarEndDate(nextweek[nextweek.length - 1]);
+                }
+                break;
+
+            case "Next Next Week":
+                if(nextnextweek.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(nextnextweek[0]);
+                    setCalendarEndDate(nextnextweek[nextnextweek.length - 1]);
+                }
+                break;
+
+            case "Custom":
+                if(customDateRange.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(customDateRange[0]);
+                    setCalendarEndDate(customDateRange[customDateRange.length - 1]);
+                }
+                break;
+
+            default:
+                if(week.length > 0) {
+                    setAllWorkers([]);
+                    setWorkerAvailabilities([]);
+                    setCalendarStartDate(week[0]);
+                    setCalendarEndDate(week[week.length - 1]);
+                }
+                break;
+        }
+    }, [currentFilter, customDateRange]);
+
     return (
         <>
             <div className="row mb-3">
@@ -344,123 +399,17 @@ export default function ChangeShiftCalender({ job }) {
                 </div>
             </div>
             <div className="tab-content" style={{ background: "#fff" }}>
-                <div
-                    style={{
-                        display:
-                            currentFilter === "Current Week" ? "block" : "none",
-                    }}
-                    id="tab-worker-availability"
-                    className="tab-pane active show  table-responsive"
-                    role="tab-panel"
-                    aria-labelledby="current-job"
-                >
-                    <div className="crt-jb-table-scrollable">
-                        <WorkerAvailabilityTable
-                            workerAvailabilities={workerAvailabilities}
-                            week={week}
-                            AllWorkers={AllWorkers}
-                            hasActive={hasActive}
-                            changeShift={changeShift}
-                            removeShift={removeShift}
-                            selectedHours={selectedHours}
-                            searchKeyword={searchVal}
-                        />
-                    </div>
-                </div>
-                <div
-                    style={{
-                        display:
-                            currentFilter === "Next Week" ? "block" : "none",
-                    }}
-                    id="tab-current-job"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="current-job"
-                >
-                    <div className="crt-jb-table-scrollable">
-                        <WorkerAvailabilityTable
-                            workerAvailabilities={workerAvailabilities}
-                            week={nextweek}
-                            AllWorkers={AllWorkers}
-                            hasActive={hasActive}
-                            changeShift={changeShift}
-                            removeShift={removeShift}
-                            selectedHours={selectedHours}
-                            searchKeyword={searchVal}
-                        />
-                    </div>
-                </div>
-                <div
-                    style={{
-                        display:
-                            currentFilter === "Next Next Week"
-                                ? "block"
-                                : "none",
-                    }}
-                    id="tab-current-next-job"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="current-job"
-                >
-                    <div className="crt-jb-table-scrollable">
-                        <WorkerAvailabilityTable
-                            workerAvailabilities={workerAvailabilities}
-                            week={nextnextweek}
-                            AllWorkers={AllWorkers}
-                            hasActive={hasActive}
-                            changeShift={changeShift}
-                            removeShift={removeShift}
-                            selectedHours={selectedHours}
-                            searchKeyword={searchVal}
-                        />
-                    </div>
-                </div>
-                <div
-                    style={{
-                        display: currentFilter === "Custom" ? "block" : "none",
-                    }}
-                    id="tab-current-next-job"
-                    className="tab-pane"
-                    role="tab-panel"
-                    aria-labelledby="current-job"
-                >
-                    <div className="form-group">
-                        <label className="control-label">
-                            Select Date Range
-                        </label>
-                        <Flatpickr
-                            name="date"
-                            className="form-control"
-                            onChange={(selectedDates, dateStr, instance) => {
-                                let start = moment(selectedDates[0]);
-                                let end = moment(selectedDates[1]);
-                                const datesArray = [];
-
-                                for (
-                                    let date = start.clone();
-                                    date.isSameOrBefore(end);
-                                    date.add(1, "day")
-                                ) {
-                                    datesArray.push(date.format("YYYY-MM-DD"));
-                                }
-                                setCustomDateRange(datesArray);
-                            }}
-                            options={{
-                                disableMobile: true,
-                                minDate: moment(
-                                    nextnextweek[nextnextweek.length - 1]
-                                )
-                                    .add(1, "days")
-                                    .format("YYYY-MM-DD"),
-                                mode: "range",
-                            }}
-                        />
-                    </div>
-                    {customDateRange.length > 0 && (
+                {currentFilter === "Current Week" && (
+                    <div
+                        id="tab-worker-availability"
+                        className="tab-pane active show  table-responsive"
+                        role="tab-panel"
+                        aria-labelledby="current-job"
+                    >
                         <div className="crt-jb-table-scrollable">
                             <WorkerAvailabilityTable
                                 workerAvailabilities={workerAvailabilities}
-                                week={customDateRange}
+                                week={week}
                                 AllWorkers={AllWorkers}
                                 hasActive={hasActive}
                                 changeShift={changeShift}
@@ -469,8 +418,111 @@ export default function ChangeShiftCalender({ job }) {
                                 searchKeyword={searchVal}
                             />
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
+                {currentFilter === "Next Week" && (
+                    <div
+                        id="tab-current-job"
+                        className="tab-pane"
+                        role="tab-panel"
+                        aria-labelledby="current-job"
+                    >
+                        <div className="crt-jb-table-scrollable">
+                            <WorkerAvailabilityTable
+                                workerAvailabilities={workerAvailabilities}
+                                week={nextweek}
+                                AllWorkers={AllWorkers}
+                                hasActive={hasActive}
+                                changeShift={changeShift}
+                                removeShift={removeShift}
+                                selectedHours={selectedHours}
+                                searchKeyword={searchVal}
+                            />
+                        </div>
+                    </div>
+                )}
+                {currentFilter === "Next Next Week" && (
+                    <div
+                        id="tab-current-next-job"
+                        className="tab-pane"
+                        role="tab-panel"
+                        aria-labelledby="current-job"
+                    >
+                        <div className="crt-jb-table-scrollable">
+                            <WorkerAvailabilityTable
+                                workerAvailabilities={workerAvailabilities}
+                                week={nextnextweek}
+                                AllWorkers={AllWorkers}
+                                hasActive={hasActive}
+                                changeShift={changeShift}
+                                removeShift={removeShift}
+                                selectedHours={selectedHours}
+                                searchKeyword={searchVal}
+                            />
+                        </div>
+                    </div>
+                )}
+                {currentFilter === "Custom" && (
+                    <div
+                        id="tab-current-next-job"
+                        className="tab-pane"
+                        role="tab-panel"
+                        aria-labelledby="current-job"
+                    >
+                        <div className="form-group">
+                            <label className="control-label">
+                                Select Date Range
+                            </label>
+                            <Flatpickr
+                                name="date"
+                                className="form-control"
+                                onChange={(
+                                    selectedDates,
+                                    dateStr,
+                                    instance
+                                ) => {
+                                    let start = moment(selectedDates[0]);
+                                    let end = moment(selectedDates[1]);
+                                    const datesArray = [];
+
+                                    for (
+                                        let date = start.clone();
+                                        date.isSameOrBefore(end);
+                                        date.add(1, "day")
+                                    ) {
+                                        datesArray.push(
+                                            date.format("YYYY-MM-DD")
+                                        );
+                                    }
+                                    setCustomDateRange(datesArray);
+                                }}
+                                options={{
+                                    disableMobile: true,
+                                    minDate: moment(
+                                        nextnextweek[nextnextweek.length - 1]
+                                    )
+                                        .add(1, "days")
+                                        .format("YYYY-MM-DD"),
+                                    mode: "range",
+                                }}
+                            />
+                        </div>
+                        {customDateRange.length > 0 && (
+                            <div className="crt-jb-table-scrollable">
+                                <WorkerAvailabilityTable
+                                    workerAvailabilities={workerAvailabilities}
+                                    week={customDateRange}
+                                    AllWorkers={AllWorkers}
+                                    hasActive={hasActive}
+                                    changeShift={changeShift}
+                                    removeShift={removeShift}
+                                    selectedHours={selectedHours}
+                                    searchKeyword={searchVal}
+                                />
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
             <div className="form-group text-center mt-3">
                 <input

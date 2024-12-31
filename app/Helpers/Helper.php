@@ -242,7 +242,7 @@ if (!function_exists('sendWhatsappImageMessage')) {
 }
 
 if (!function_exists('sendWorkerWhatsappMessage')) {
-    function sendWorkerWhatsappMessage($number, $data = array(), $lang = 'he')
+    function sendWorkerWhatsappMessage($number, $data = array())
     {
         // Normalize the phone number
         $mobile_no = str_replace("-", "", $number);

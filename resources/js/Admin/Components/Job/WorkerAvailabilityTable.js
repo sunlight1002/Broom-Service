@@ -60,11 +60,10 @@ export default function WorkerAvailabilityTable({
 
     useEffect(() => {
         setModifiedWorkers(AllWorkers);
+    }, [AllWorkers]);
 
-    }, []);
     
     const workers = () => {
-        console.log(modifiedWorkers, "worker");
         
         const today = moment().startOf('day');
         let futureBookedSlots = [];
@@ -74,8 +73,6 @@ export default function WorkerAvailabilityTable({
             if (worker.booked_slots) {
                 Object.keys(worker.booked_slots).forEach((date) => {
                     const slotDate = moment(date, "YYYY-MM-DD");
-                    console.log(slotDate, "slotDate");
-                    
 
                     // Check if the slot date is today or in the future
                     if (slotDate.isSameOrAfter(today)) {

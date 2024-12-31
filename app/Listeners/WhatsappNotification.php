@@ -15,7 +15,7 @@ use App\Models\WhatsappTemplate;
 
 class WhatsappNotification
 {
-    protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $workerBaseUrl, $clientBaseUrl, $adminBaseUrl;
+    protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken;
 
     /**
      * Create the event listener.
@@ -26,12 +26,6 @@ class WhatsappNotification
     {
         $this->whapiApiEndpoint = config('services.whapi.url');
         $this->whapiApiToken = config('services.whapi.token');
-        $this->whapiWorkerApiToken = config('services.whapi.worker_token');
-
-        // Initialize short URL base URLs
-        $this->workerBaseUrl = config('services.short_url.worker');
-        $this->clientBaseUrl = config('services.short_url.client');
-        $this->adminBaseUrl = config('services.short_url.admin');
     }
 
     private function replaceClientFields($text, $clientData, $eventData)
@@ -117,21 +111,6 @@ class WhatsappNotification
                     $commentsText .= "- " . $comment['comment'] . " (by " . $comment['name'] . ") \n";
                 }
             }
-
-            // if(isset($jobData['id']) && !empty($jobData['id'])) {
-            //     $adminJobViewLink = $this->generateShortUrl(url("admin/job/view/" . $jobData['id']), 'admin');
-            //     $clientJobsReviewLink = $this->generateShortUrl(url("client/jobs/" . base64_encode($jobData['id']) . "/review"), 'client');
-            //     $teamJobActionLink = $this->generateShortUrl(url("admin/jobs/" . $jobData['id'] . "/change-worker"), 'admin');
-            //     $clientJobViewLink = $this->generateShortUrl(url("client/jobs/view/" . base64_encode($jobData['id'])), 'client');
-            //     $workerJobViewLink = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']), 'worker');
-            //     $teamBtns = $this->generateShortUrl(url("team-btn/" . base64_encode($jobData['id'])), 'admin');
-            //     $contactManager = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']."?q=contact_manager"), 'worker');
-            //     $workerApproveJob = $this->generateShortUrl(
-            //         isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : null,
-            //         'worker'
-            //     );
-            //     $teamSkipComment = $this->generateShortUrl(url("action-comment/" . ($commentData['id'] ?? '')), 'admin');
-            // }
 
             $currentTime = Carbon::parse($jobData['start_time'] ?? '00:00:00');
             $endTime = Carbon::parse($jobData['end_time'] ?? '00:00:00');
@@ -282,13 +261,6 @@ class WhatsappNotification
     {
         $placeholders = [];
         if($contractData) {
-
-            // if(isset($contractData["contract_id"]) || $contractData["id"]) {
-            //     $teamViewContract = $this->generateShortUrl(isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '', 'admin');
-            //     $createJobLink = $this->generateShortUrl(isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : "", 'admin');
-            //     $clientContractLink = $this->generateShortUrl(isset($contractData['contract_id']) ? url("work-contract/" . $contractData['contract_id']) : '');
-            // }
-
             $placeholders = [
                 ':client_contract_link' => isset($contractData['contract_id']) ? url("work-contract/" . $contractData['contract_id'] ?? '') : '',
                 ':team_contract_link' => isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '',
