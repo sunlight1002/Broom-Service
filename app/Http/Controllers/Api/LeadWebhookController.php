@@ -311,8 +311,8 @@ class LeadWebhookController extends Controller
 
             if ($client) {
                 $createdAt = $client->created_at;
-                if ($createdAt && $createdAt->lt(now()->subHours(24))) {
-                    \Log::info('Client record is older than 24 hours.');
+                if ($createdAt && $createdAt->lt(now()->subHours(12))) {
+                    \Log::info('Client record is older than 12 hours.');
                     die("Client record is older than 24 hours.");
                 }
             }
@@ -379,9 +379,10 @@ class LeadWebhookController extends Controller
 
                 // Send main menu is last menu state not found
                 if (!$client_menus || $message == '9') {
-                    $m = $this->botMessages['main-menu']['en'];
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
+                    }else{
+                        $m = $this->botMessages['main-menu']['en'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -417,9 +418,10 @@ class LeadWebhookController extends Controller
                     (in_array($last_menu, ['need_more_help']) && (str_contains(strtolower($message), 'yes') || str_contains($message, 'כן'))) ||
                     (($prev_step == 'main_menu' || $prev_step == 'customer_service') && $message == '0')
                 ) {
-                    $m = $this->botMessages['main-menu']['en'];
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
+                    }else{
+                        $m = $this->botMessages['main-menu']['en'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -609,7 +611,7 @@ If you would like to speak to a human representative, please send a message with
 
                 // Greeting message
                 if (in_array($last_menu, ['need_more_help', 'cancel_one_time']) && (str_contains(strtolower($message), 'no') || str_contains($message, 'לא'))) {
-                    $msg = ($client->lng == 'heb' ? `מקווה שעזרתי! 🤗` : 'I hope I helped! 🤗');
+                    $msg = ($client->lng == 'heb' ? "מקווה שעזרתי! 🤗" : "I hope I helped! 🤗");
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
@@ -643,8 +645,7 @@ If you would like to speak to a human representative, please send a message with
                         ]));
 
                         if ($client->lng == 'heb') {
-                            $msg = 'נציג מטעמנו יצור קשר בהקדם.
-                            האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
+                            $msg = 'נציג מטעמנו יצור קשר בהקדם. האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
                         } else {
                             $msg = 'A representative from our team will contact you shortly. Is there anything else I can help you with today? (Yes or No) 👋';
                         }
@@ -1512,7 +1513,7 @@ If you would like to speak to a human representative, please send a message with
             );
         }
 
-        $m = $this->botMessages['main-menu']['en'];
+        $m = $this->botMessages['main-menu']['heb'];
 
         $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
 

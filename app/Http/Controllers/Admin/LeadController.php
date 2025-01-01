@@ -177,7 +177,6 @@ class LeadController extends Controller
                 $m = $this->botMessages['main-menu']['heb'];
                 
                 $result = sendWhatsappMessage($client->phone, array('name' => ucfirst($client->firstname), 'message' => $m));
-                \Log::info(['result' => $result]);
 
                 WhatsAppBotClientState::updateOrCreate([
                     'client_id' => $client->id,
