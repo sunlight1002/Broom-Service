@@ -430,7 +430,7 @@ export default function WorkContract() {
                                         </thead>
                                         <tbody>
                                             {services.map((s, i) => {
-                                                const serviceName = s.service === 10
+                                                const serviceName = s.template == "others"
                                                     ? s.other_title
                                                     : client?.lng === 'heb'
                                                         ? s.service_name_heb

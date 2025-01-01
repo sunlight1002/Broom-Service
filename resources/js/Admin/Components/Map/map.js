@@ -25,6 +25,8 @@ const Map = memo(function Map({
     libraries,
     place,
     language,
+    fullAddress = null,
+    setAddress = null,
 }) {
 
     let addressSearchRef = useRef();
@@ -46,6 +48,26 @@ const Map = memo(function Map({
             setLongitude(34.855499);
         }
     }, [address]);
+
+    const onMarkerDragEnd = (e) => {
+        const newLat = e.latLng.lat();
+        const newLng = e.latLng.lng();
+        setLatitude(newLat);
+        setLongitude(newLng);
+
+        // Optionally, fetch the new address using Geocode
+        Geocode.fromLatLng(newLat, newLng).then(
+            (response) => {
+                const address = response.results[0]?.formatted_address || "";
+                // fullAddress.current = address;
+                // setAddress(address);
+                console.log("Updated Full Address:", fullAddress.current);
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
+    };
 
     return (
         <div className="form-group">

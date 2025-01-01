@@ -19,7 +19,7 @@ export default function AddLead() {
     const [loading, setLoading] = useState(false);
     const [extra, setExtra] = useState([{ email: "", name: "", phone: "" }]);
     const [addresses, setAddresses] = useState([]);
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const [formValues, setFormValues] = useState({
         firstname: "",
         lastname: "",
@@ -34,6 +34,8 @@ export default function AddLead() {
         send_bot_message: true,
         payment_method: "cc",
         notification_type: "both",
+        contact_person_phone: "",
+        contact_person_name: "",
     });
 
     const navigate = useNavigate();
@@ -75,6 +77,8 @@ export default function AddLead() {
                         status: !status ? 0 : parseInt(status),
                         meta: "",
                         send_bot_message: formValues.send_bot_message,
+                        contact_person_name: formValues.contact_person_name,
+                        contact_person_phone: formValues.contact_person_phone
                     },
                     propertyAddress: addresses,
                 },
@@ -131,39 +135,39 @@ export default function AddLead() {
             <Sidebar />
             <div id="content">
                 <div className="edit-customer">
-                <form>
-                    <div className="d-flex align-items-center justify-content-between">
-                        <h1 className="page-title addEmployer"
-                        style={{border: "none"}}
-                        >
-                            {t("admin.leads.AddLead.AddLead")}
-                        </h1>
-                        <div className="text-center">
-                            <button
-                                type="submit"
-                                onClick={handleFormSubmit}
-                                className="btn navyblue d-flex align-items-center saveBtn"
-                                style={{paddingLeft: "20px", paddingRight: "20px"}}
+                    <form>
+                        <div className="d-flex align-items-center justify-content-between">
+                            <h1 className="page-title addEmployer"
+                                style={{ border: "none" }}
+                            >
+                                {t("admin.leads.AddLead.AddLead")}
+                            </h1>
+                            <div className="text-center">
+                                <button
+                                    type="submit"
+                                    onClick={handleFormSubmit}
+                                    className="btn navyblue d-flex align-items-center saveBtn"
+                                    style={{ paddingLeft: "20px", paddingRight: "20px" }}
                                 // value="Save"
-                            ><IoSaveOutline className="mr-2"/>{t("admin.leads.save")}</button>
-                            {/* <input
+                                ><IoSaveOutline className="mr-2" />{t("admin.leads.save")}</button>
+                                {/* <input
                                 type="submit"
                                 onClick={handleFormSubmit}
                                 className="btn navyblue saveBtn"
                                 value="Clear"
                             /> */}
+                            </div>
                         </div>
-                    </div>
                         <div className="container-box d-flex justify-content-between">
-                            <div className="card-item mr-3 resMarginRight" style={{background: "#FAFBFC"}}>
+                            <div className="card-item mr-3 resMarginRight" style={{ background: "#FAFBFC" }}>
                                 <div className="card-heading">
                                     <p style={{ margin: "20px 34px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.General_Information")}</p>
                                 </div>
-                                <div className="card-body d-flex">
+                                <div className="card-body d-flex pb-0">
                                     <div className="col">
                                         <div className="form-group d-flex align-items-center w-100">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
-                                            {t("admin.leads.AddLead.Notification_Type")}
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
+                                                {t("admin.leads.AddLead.Notification_Type")}
                                             </label>
 
                                             <select
@@ -178,48 +182,48 @@ export default function AddLead() {
                                             >
                                                 <option value="both">{t("admin.leads.AddLead.both")}</option>
                                                 <option value="email">
-                                                {t("admin.leads.AddLead.email")}
+                                                    {t("admin.leads.AddLead.email")}
                                                 </option>
                                                 <option value="whatsapp">
-                                                {t("admin.leads.AddLead.whatsapp")}
+                                                    {t("admin.leads.AddLead.whatsapp")}
                                                 </option>
                                             </select>
                                         </div>
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "14.4rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "14.4rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.FirstName"
                                                 )}{" "}
                                                 *
                                             </label>
                                             <div className="d-flex flex-column w-100">
-                                            <input
-                                                type="text"
-                                                value={formValues.firstname}
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        firstname:
-                                                        e.target.value,
-                                                    });
-                                                }}
-                                                className="form-control"
-                                                required
-                                                placeholder={t(
-                                                    "admin.leads.AddLead.placeHolder.FirstName"
-                                                )}
+                                                <input
+                                                    type="text"
+                                                    value={formValues.firstname}
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            firstname:
+                                                                e.target.value,
+                                                        });
+                                                    }}
+                                                    className="form-control"
+                                                    required
+                                                    placeholder={t(
+                                                        "admin.leads.AddLead.placeHolder.FirstName"
+                                                    )}
                                                 />
-                                            {errors.firstname ? (
-                                                <small className="text-danger mb-1">
-                                                    {errors.firstname}
-                                                </small>
-                                            ) : (
-                                                ""
-                                            )}
+                                                {errors.firstname ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.firstname}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.LastName"
                                                 )}
@@ -242,7 +246,7 @@ export default function AddLead() {
                                             />
                                         </div>
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.DOB")}
                                             </label>
                                             <input
@@ -265,7 +269,7 @@ export default function AddLead() {
                                             )}
                                         </div>
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.Language")}
                                             </label>
 
@@ -283,8 +287,9 @@ export default function AddLead() {
                                                 <option value="en">{t("admin.leads.AddLead.english")}</option>
                                             </select>
                                         </div>
+
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.SendWPBotMessage"
                                                 )}
@@ -305,10 +310,10 @@ export default function AddLead() {
                                     <div className="col">
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t(
+                                                {t(
                                                     "admin.leads.AddLead.PrimaryPhone"
-                                            )}{" "}
-                                            *
+                                                )}{" "}
+                                                *
                                             </label>
                                             <div className="d-flex flex-column w-100">
                                                 <PhoneInput
@@ -319,7 +324,7 @@ export default function AddLead() {
                                                         const dialCode = country.dialCode;
                                                         let formattedPhone = phone;
                                                         if (phone.startsWith(dialCode + '0')) {
-                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                            formattedPhone = dialCode + phone.slice(dialCode.length + 1);
                                                         }
                                                         setFormValues({
                                                             ...formValues,
@@ -341,7 +346,7 @@ export default function AddLead() {
                                             </div>
                                         </div>
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.PrimaryEmail"
                                                 )}{" "}
@@ -349,32 +354,32 @@ export default function AddLead() {
                                             </label>
                                             <div className="d-flex flex-column w-100">
 
-                                            <input
-                                                type="email"
-                                                value={formValues.email}
-                                                onChange={(e) => {
-                                                    setFormValues({
-                                                        ...formValues,
-                                                        email: e.target.value,
-                                                    });
-                                                }}
-                                                className="form-control"
-                                                required
-                                                placeholder={t(
-                                                    "admin.leads.AddLead.placeHolder.PrimaryEmail"
+                                                <input
+                                                    type="email"
+                                                    value={formValues.email}
+                                                    onChange={(e) => {
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            email: e.target.value,
+                                                        });
+                                                    }}
+                                                    className="form-control"
+                                                    required
+                                                    placeholder={t(
+                                                        "admin.leads.AddLead.placeHolder.PrimaryEmail"
+                                                    )}
+                                                />
+                                                {errors.email ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.email}
+                                                    </small>
+                                                ) : (
+                                                    ""
                                                 )}
-                                            />
-                                            {errors.email ? (
-                                                <small className="text-danger mb-1">
-                                                    {errors.email}
-                                                </small>
-                                            ) : (
-                                                ""
-                                            )}
                                             </div>
                                         </div>
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.InvoiceName"
                                                 )}
@@ -397,7 +402,7 @@ export default function AddLead() {
                                             />
                                         </div>
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t("admin.leads.AddLead.PaymentMethod")}
                                             </label>
 
@@ -434,7 +439,7 @@ export default function AddLead() {
                                             </select>
                                         </div>
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.Password"
                                                 )}
@@ -463,6 +468,60 @@ export default function AddLead() {
                                             ) : (
                                                 ""
                                             )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="card-body d-flex pt-0">
+                                    <div className="col">
+                                        <div className="form-group d-flex align-items-center">
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
+                                                {t(
+                                                    "admin.leads.AddLead.contact_person_phone"
+                                                )}{" "}
+                                            </label>
+                                            <div className="d-flex flex-column w-100">
+                                                <PhoneInput
+                                                    country={'il'}
+                                                    value={formValues.contact_person_phone}
+                                                    onChange={(phone, country) => {
+                                                        const dialCode = country.dialCode;
+                                                        let formattedPhone = phone;
+                                                        if (phone.startsWith(dialCode + '0')) {
+                                                            formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                        }
+                                                        setFormValues({
+                                                            ...formValues,
+                                                            contact_person_phone: formattedPhone,
+                                                        });
+                                                    }}
+                                                    inputClass="form-control"
+                                                    inputProps={{
+                                                        name: 'phone',
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col">
+                                        <div className="form-group d-flex align-items-center">
+                                            <label className="control-label mb-0 navyblueColor" style={{ width: "15rem" }}>
+                                                {t(
+                                                    "admin.leads.AddLead.contact_person_name"
+                                                )}
+                                            </label>
+                                            <input
+                                                name="contact_person_name"
+                                                type="text"
+                                                className="form-control skyBorder"
+                                                value={formValues.contact_person_name}
+                                                onChange={(e) => setFormValues({
+                                                    ...formValues,
+                                                    contact_person_name: e.target.value,
+                                                })}
+                                                placeholder={t(
+                                                    "admin.leads.AddLead.contact_person_name_placeholder"
+                                                )}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -635,138 +694,138 @@ export default function AddLead() {
                                     )}
                                 </div>
                             </div>
-                            <div className="card-item additional_contract_box" style={{background: "#FAFBFC"}}>
+                            <div className="card-item additional_contract_box" style={{ background: "#FAFBFC" }}>
                                 <div className="card-heading">
-                                <p style={{ margin: "20px 20px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.Additional_Contacts")}</p>
+                                    <p style={{ margin: "20px 20px 9px", fontSize: "20px" }} className="navyblueColor">{t("admin.leads.AddLead.Additional_Contacts")}</p>
                                 </div>
                                 <div className="card-body d-flex flex-column">
                                     {extra &&
                                         extra.map((ex, i) => {
                                             return (
                                                 <React.Fragment key={i}>
-                                                <div className="d-flex flex-wrap">
-                                                    <div className="">
-                                                        <div className="form-group" style={{marginRight: "6px"}}>
-                                                            <label className="control-label">
-                                                                {t(
-                                                                    "admin.leads.AddLead.AlternateEmail"
-                                                                )}
-                                                            </label>
-                                                            <input
-                                                                type="tel"
-                                                                value={
-                                                                    ex.email ||
-                                                                    ""
-                                                                }
-                                                                name="email"
-                                                                onChange={(e) =>
-                                                                    handleAlternate(
-                                                                        i,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                className="form-control"
-                                                                placeholder={t(
-                                                                    "admin.leads.AddLead.placeHolder.AlternateEmail"
-                                                                )}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="">
-                                                        <div className="form-group" style={{marginRight: "6px"}}>
-                                                            <label className="control-label">
-                                                                {t(
-                                                                    "admin.leads.AddLead.PersonName"
-                                                                )}
-                                                            </label>
-                                                            <input
-                                                                type="tel"
-                                                                value={
-                                                                    ex.name ||
-                                                                    ""
-                                                                }
-                                                                name="name"
-                                                                onChange={(e) =>
-                                                                    handleAlternate(
-                                                                        i,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                className="form-control"
-                                                                placeholder={t(
-                                                                    "admin.leads.AddLead.placeHolder.PersonName"
-                                                                )}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="">
-                                                        <div className="form-group" style={{marginRight: "6px"}}>
-                                                            <label className="control-label">
-                                                                {t(
-                                                                    "admin.leads.AddLead.AlternatePhone"
-                                                                )}
-                                                            </label>
-                                                            <PhoneInput
-                                                                country={'il'}
-                                                                value={ex.phone || ""}
-                                                                onChange={(phone, country) => {
-                                                                    // Remove leading '0' after country code
-                                                                    const dialCode = country.dialCode;
-                                                                    let formattedPhone = phone;
-                                                                    if (phone.startsWith(dialCode + '0')) {
-                                                                      formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                    <div className="d-flex flex-wrap">
+                                                        <div className="">
+                                                            <div className="form-group" style={{ marginRight: "6px" }}>
+                                                                <label className="control-label">
+                                                                    {t(
+                                                                        "admin.leads.AddLead.AlternateEmail"
+                                                                    )}
+                                                                </label>
+                                                                <input
+                                                                    type="tel"
+                                                                    value={
+                                                                        ex.email ||
+                                                                        ""
                                                                     }
-                                                                    handleAlternatePhone(i, formattedPhone)
-                                                                }}
-                                                                inputClass="form-control"
-                                                                inputProps={{
-                                                                    name: 'phone',
-                                                                    required: true,
-                                                                    placeholder: t("admin.leads.AddLead.placeHolder.AlternatePhone"),
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="">
-                                                        {i == 0 ? (
-                                                            <>
-                                                                <button
-                                                                style={{fontSize: "24px", color: "#2F4054",  padding: "1px 9px", background: "#E5EBF1", borderRadius: "5px"}}
-                                                                    className="mt-25 btn"
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
-                                                                        addExtras(
+                                                                    name="email"
+                                                                    onChange={(e) =>
+                                                                        handleAlternate(
+                                                                            i,
                                                                             e
-                                                                        );
+                                                                        )
+                                                                    }
+                                                                    className="form-control"
+                                                                    placeholder={t(
+                                                                        "admin.leads.AddLead.placeHolder.AlternateEmail"
+                                                                    )}
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="">
+                                                            <div className="form-group" style={{ marginRight: "6px" }}>
+                                                                <label className="control-label">
+                                                                    {t(
+                                                                        "admin.leads.AddLead.PersonName"
+                                                                    )}
+                                                                </label>
+                                                                <input
+                                                                    type="tel"
+                                                                    value={
+                                                                        ex.name ||
+                                                                        ""
+                                                                    }
+                                                                    name="name"
+                                                                    onChange={(e) =>
+                                                                        handleAlternate(
+                                                                            i,
+                                                                            e
+                                                                        )
+                                                                    }
+                                                                    className="form-control"
+                                                                    placeholder={t(
+                                                                        "admin.leads.AddLead.placeHolder.PersonName"
+                                                                    )}
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="">
+                                                            <div className="form-group" style={{ marginRight: "6px" }}>
+                                                                <label className="control-label">
+                                                                    {t(
+                                                                        "admin.leads.AddLead.AlternatePhone"
+                                                                    )}
+                                                                </label>
+                                                                <PhoneInput
+                                                                    country={'il'}
+                                                                    value={ex.phone || ""}
+                                                                    onChange={(phone, country) => {
+                                                                        // Remove leading '0' after country code
+                                                                        const dialCode = country.dialCode;
+                                                                        let formattedPhone = phone;
+                                                                        if (phone.startsWith(dialCode + '0')) {
+                                                                            formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                        }
+                                                                        handleAlternatePhone(i, formattedPhone)
                                                                     }}
-                                                                >
-                                                                    {" "}
-                                                                    <i className="fa fa-plus" ></i>{" "}
-                                                                </button>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <button
-                                                                style={{fontSize: "24px", color: "#2F4054",  padding: "1px 9px", background: "#E5EBF1", borderRadius: "5px"}}
-                                                                    className="mt-25 btn"
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
-                                                                        removeExtras(
-                                                                            e,
-                                                                            i
-                                                                        );
+                                                                    inputClass="form-control"
+                                                                    inputProps={{
+                                                                        name: 'phone',
+                                                                        required: true,
+                                                                        placeholder: t("admin.leads.AddLead.placeHolder.AlternatePhone"),
                                                                     }}
-                                                                >
-                                                                    {" "}
-                                                                    <i className="fa fa-minus"></i>{" "}
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                    </div>
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="">
+                                                            {i == 0 ? (
+                                                                <>
+                                                                    <button
+                                                                        style={{ fontSize: "24px", color: "#2F4054", padding: "1px 9px", background: "#E5EBF1", borderRadius: "5px" }}
+                                                                        className="mt-25 btn"
+                                                                        onClick={(
+                                                                            e
+                                                                        ) => {
+                                                                            addExtras(
+                                                                                e
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        {" "}
+                                                                        <i className="fa fa-plus" ></i>{" "}
+                                                                    </button>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <button
+                                                                        style={{ fontSize: "24px", color: "#2F4054", padding: "1px 9px", background: "#E5EBF1", borderRadius: "5px" }}
+                                                                        className="mt-25 btn"
+                                                                        onClick={(
+                                                                            e
+                                                                        ) => {
+                                                                            removeExtras(
+                                                                                e,
+                                                                                i
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        {" "}
+                                                                        <i className="fa fa-minus"></i>{" "}
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </React.Fragment>
                                             );
@@ -789,7 +848,7 @@ export default function AddLead() {
                     </form>
                 </div>
             </div>
-            { loading && <FullPageLoader visible={loading}/>}
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

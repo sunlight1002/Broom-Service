@@ -111,16 +111,22 @@ export default function Contract() {
                             if (data == null) {
                                 return "-";
                             }
-
-                            return data.map((s, j) => {
-                                return data.length - 1 != j
-                                    ? s.service == "10"
-                                        ? s.other_title + " | "
-                                        : s.name + " | "
-                                    : s.name;
-                            });
+                            return data
+                                .map((s, j) => {
+                                    // Determine the service name based on conditions
+                                    const serviceName = s.template === "airbnb"
+                                        ? s.sub_services?.sub_service_name || "NA"
+                                        : s.service === "10"
+                                        ? s.other_title
+                                        : s.name;
+                    
+                                    // Add separator for all but the last item
+                                    return data.length - 1 !== j ? serviceName + " | " : serviceName;
+                                })
+                                .join("");
                         },
                     },
+                    
                     {
                         title: t("admin.global.Status"),
                         data: "status",

@@ -6,7 +6,12 @@ import { useTranslation } from "react-i18next";
 
 const initialValue = {
     service: "",
-    sub_service: "",
+    sub_services: {
+        id: "",
+        address: "",
+        address_name: "",
+        sub_service_name: "",
+    },
     name: "",
     type: "fixed",
     freq_name: "",
@@ -133,16 +138,24 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                         </Thead>
                         <Tbody>
                             {formValues.map((item, innerIndex) => {
+
+                                const address =
+                                    item.template === "airbnb"
+                                        ? item?.sub_services?.address_name + " " + addresses.find(
+                                            (a) => a.id.toString() === item?.sub_services?.address?.toString()
+                                        )?.geo_address
+                                        : item?.address_name + " " + addresses.find(
+                                            (a) => a.id.toString() === item.address?.toString()
+                                        )?.geo_address;
+
+                                const serviceName = item?.template === "airbnb"
+                                    ? `${item?.name} (${item?.sub_services?.sub_service_name || ""})`
+                                    : item?.name;
+
                                 return (
                                     <Tr key={innerIndex}>
-                                        <Td>
-                                            {item && item.address && addresses.length > 0
-                                                ? (addresses.find(
-                                                    (a) => a.id.toString() === item.address.toString()
-                                                )?.geo_address)
-                                                : "NA"}
-                                        </Td>
-                                        <Td>{item.name}</Td>
+                                        <Td>{address || "NA"}</Td>
+                                        <Td>{serviceName}</Td>
                                         <Td>{item.type}</Td>
                                         <Td>{item.workers ? item.workers.length : 0}</Td>
                                         <Td>{workerJobHours(item)}</Td>
@@ -168,7 +181,6 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                                                 if (menu.key === "edit") {
                                                                     indexRef.current = innerIndex;
                                                                     isAdd.current = false;
-                                                                    // console.log(formValues);
                                                                     setTmpFormValues(formValues);
                                                                     setIsOpen(true);
                                                                 } else {
@@ -183,9 +195,10 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                             </div>
                                         </Td>
                                     </Tr>
-                                )
+                                );
                             })}
                         </Tbody>
+
                     </Table>
                 ) : (
                     <p className="text-center mt-5">{"Services not found!"}</p>

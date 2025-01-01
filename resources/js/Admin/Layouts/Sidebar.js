@@ -287,7 +287,7 @@ export default function Sidebar() {
 
                 <li className="list-group-item">
                     <NavLink to="/admin/custom-message">
-                        <i class="fa-solid fa-paper-plane font-20"></i>{t("admin.sidebar.custom_message")}
+                        <i className="fa-solid fa-paper-plane font-20"></i>{t("admin.sidebar.custom_message")}
                     </NavLink>
                 </li>
 
