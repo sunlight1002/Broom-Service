@@ -430,19 +430,35 @@ export default function WorkContract() {
                                         </thead>
                                         <tbody>
                                             {services.map((s, i) => {
+                                                const serviceName = s.service === 10
+                                                    ? s.other_title
+                                                    : client?.lng === 'heb'
+                                                        ? s.service_name_heb
+                                                        : s.service_name_en;
+
+                                                const subServiceName = client?.lng === 'heb'
+                                                    ? s.sub_services?.subServices?.name_heb
+                                                    : s.sub_services?.subServices?.name_en;
                                                 return (
                                                     <tr key={i}>
+                                                        {
+                                                            s.template === "airbnb" ? (
+                                                                <td>{s.sub_services?.address_name}</td>
+                                                            ) : (
+                                                                <td>
+                                                                    {s.address &&
+                                                                        s.address
+                                                                            .address_name
+                                                                        ? s.address
+                                                                            .address_name
+                                                                        : "NA"}
+                                                                </td>
+                                                            )
+                                                        }
                                                         <td>
-                                                            {s.address &&
-                                                                s.address.address_name
-                                                                ? s.address
-                                                                    .address_name
-                                                                : "NA"}
-                                                        </td>
-                                                        <td>
-                                                            {s.service == 10
-                                                                ? s.other_title
-                                                                : client?.lng == "heb" ? s.service_name_heb : s.service_name_en}
+                                                            {s.template === "airbnb"
+                                                                ? `${serviceName} - ${subServiceName}`
+                                                                : serviceName}
                                                         </td>
                                                         <td>{s.type == "fixed" ? t("admin.leads.AddLead.Options.Type.Fixed") : s.type == "hourly" ? t("admin.leads.AddLead.Options.Type.Hourly") : t("admin.leads.AddLead.Options.Type.Squaremeter")}</td>
                                                         <td>{client?.lng == "heb" ? s.frequency_name_heb : s.frequency_name_en} </td>

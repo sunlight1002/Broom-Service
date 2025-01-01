@@ -94,6 +94,8 @@ export default function OfferServiceModal({
     const handleGetSubServices = async (id) => {
         try {
             const res = await axios.get(`/api/admin/get-sub-services/${id}`, { headers });
+            console.log(res.data);
+
             setSubData(res.data.subServices || []);
         } catch (error) {
             console.log("Error fetching sub-services:", error);
@@ -105,7 +107,7 @@ export default function OfferServiceModal({
     );
 
     const handleSubServices = (selectedOptions, index) => {
-        const selectedValues = selectedOptions ? selectedOptions.map((option) => option.value) : [];
+        const selectedValues = selectedOptions.target.value;
 
         // Update subservices for the specific index
         setSubServiceState((prevState) => ({
@@ -116,8 +118,36 @@ export default function OfferServiceModal({
         setOfferServiceTmp((prevState) =>
             prevState.map((service, i) => ({
                 ...service,
-                sub_services: i === index ? selectedValues : service.sub_services, // Update only the relevant index
+                sub_services: {
+                    ...service.sub_services,
+                    id: i === index ? selectedValues : service.sub_services?.id,
+                },
             }))
+        );
+
+    };
+
+    const handleSubServiceAddress = (index, value) => {
+
+        console.log(value);
+        
+        const selectedAddress = addresses.find(address => address.id == parseInt(value));
+        console.log(selectedAddress);
+        
+
+        setOfferServiceTmp((prevState) =>
+            prevState.map((service, i) =>
+                i === index
+                    ? {
+                        ...service,
+                        sub_services: {
+                            ...service.sub_services,
+                            address: value,
+                            address_name: selectedAddress ? selectedAddress.address_name : "",
+                        },
+                    }
+                    : service
+            )
         );
     };
 
@@ -304,8 +334,7 @@ export default function OfferServiceModal({
         })
     }
 
-    console.log(offerServiceTmp);
-
+console.log(offerServiceTmp);
 
     return (
         <Modal
@@ -323,27 +352,30 @@ export default function OfferServiceModal({
             </Modal.Header>
 
             <Modal.Body>
-                <div className="row mb-1">
-                    <div className="col-sm-6">
-                        <div className="form-group m-0">
-                            <label className="control-label">{t("client.jobs.change.property")}</label>
-                            <select
-                                className="form-control"
-                                name="address"
-                                value={offerServiceTmp[0]?.address || ""}
-                                onChange={(e) => handleAddressChange(0, e.target.value)}
-                            >
-                                <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
-                                {addresses.map((address, i) => (
-                                    <option value={address.id} key={i}>
-                                        {address.address_name}
-                                    </option>
-                                ))}
-                            </select>
+                {/* {
+                    ((toggleAirbnbService[0] == false) || (toggleAirbnbService.length == 0))  ? ( */}
+                        <div className="row mb-1">
+                            <div className="col-sm-6">
+                                <div className="form-group m-0">
+                                    <label className="control-label">{t("client.jobs.change.property")}</label>
+                                    <select
+                                        className="form-control"
+                                        name="address"
+                                        value={offerServiceTmp[0]?.address || ""}
+                                        onChange={(e) => handleAddressChange(0, e.target.value)}
+                                    >
+                                        <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
+                                        {addresses.map((address, i) => (
+                                            <option value={address.id} key={i}>
+                                                {address.address_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
+                    {/* ) : null
+                } */}
                 {Array.isArray(offerServiceTmp) && offerServiceTmp.length > 0 ? (
                     offerServiceTmp.map((service, index) => (
                         <div key={index}>
@@ -507,6 +539,29 @@ export default function OfferServiceModal({
                                         />
                                     </div>
                                 </div>
+
+                                {
+                                    toggleAirbnbService[index] && (
+                                        <div className="col-sm-6">
+                                            <div className="form-group m-0">
+                                                <label className="control-label">{t("client.jobs.change.property")}</label>
+                                                <select
+                                                    className="form-control"
+                                                    name="address"
+                                                    value={service?.sub_services?.address || ""}
+                                                    onChange={(e) => handleSubServiceAddress(index, e.target.value)}
+                                                >
+                                                    <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
+                                                    {addresses.map((address, i) => (
+                                                        <option value={address.id} key={i}>
+                                                            {address.address_name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )
+                                }
                                 {offerServiceTmp[index].is_freelancer && (
                                     <div className="col-sm-6">
                                         <div className="form-group m-0">
@@ -550,13 +605,19 @@ export default function OfferServiceModal({
                                     <div className="col-sm-12">
                                         <div className="form-group m-0">
                                             <label className="control-label">{t("price_offer.subservice")}</label>
-                                            <Select
-                                                options={transformedSubData}
-                                                isMulti
-                                                value={transformedSubData.filter(option => subServiceState[index]?.includes(option.value))}
+                                            <select
+                                                name="type"
+                                                className="form-control"
+                                                value={service.sub_services?.id || ""}
                                                 onChange={(selectedOptions) => handleSubServices(selectedOptions, index)}
-                                                placeholder={t("price_offer.select_subservice")}
-                                            />
+                                            >
+                                                <option value="">{t("price_offer.select_subservice")}</option>
+                                                {
+                                                    subData?.map((item, index) => (
+                                                        <option key={index} value={item.id}>{item.name_en + " - " + item.apartment_size}</option>
+                                                    ))
+                                                }
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
