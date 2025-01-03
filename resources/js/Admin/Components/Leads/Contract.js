@@ -122,7 +122,7 @@ export default function Contract({ contracts, setContracts }) {
                                                         return services.length -
                                                             1 !=
                                                             j
-                                                            ? s.service == "10"
+                                                            ? s.template == "others"
                                                                 ? s.other_title +
                                                                   " | "
                                                                 : s.name + " | "

@@ -17,6 +17,7 @@ import { createHalfHourlyTimeArray } from "../../../Utils/job.utils";
 import Map from "../../Components/Map/map";
 import Sidebar from "../../Layouts/Sidebar";
 import { f } from "html2pdf.js";
+import "moment/locale/he"; // Import Hebrew locale for moment
 
 export default function ViewSchedule() {
     const [client, setClient] = useState([]);
@@ -79,6 +80,11 @@ export default function ViewSchedule() {
         "Content-Type": "application/json",
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
+
+    const adminLng = localStorage.getItem("admin-lng");
+    useEffect(() => {
+        moment.locale(adminLng === "en" ? "en" : "he");
+    }, [adminLng]);
 
     const sendMeeting = async () => {
         if (meetVia === "on-site") {
@@ -624,7 +630,6 @@ export default function ViewSchedule() {
               return moment(t, "hh:mm A").isAfter(moment());
             }
       
-            // If the dates are not the same, return all time slots
             return true;
           });
       }, [startTimeOptions, formattedSelectedDate]);

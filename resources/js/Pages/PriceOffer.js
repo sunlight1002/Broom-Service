@@ -233,7 +233,7 @@ export default function PriceOffer() {
 
     services.filter((s, i, a) => {
         //rg.includes(parseInt(s.service)) in IF commented
-        if (i == 0 && s.service == "10" && a.length >= 2) {
+        if (i == 0 && s.template == "others" && a.length >= 2) {
             [a[0], a[a.length - 1]] = [a[a.length - 1], a[0]];
             return a;
         }
@@ -444,7 +444,7 @@ export default function PriceOffer() {
                         {/* Other Services */}
                         {services.map((service, index) => {
                             if (
-                                service.service === "10" &&
+                                service.template === "others" &&
                                 allTemplates.includes("others") &&
                                 !allTemplates.includes("regular")
                             ) {
@@ -862,7 +862,7 @@ export default function PriceOffer() {
                                     </thead>
                                     <tbody>
                                         {services.map((s, i) => {
-                                            const serviceName = s.service === 10
+                                            const serviceName = s.template === "others"
                                                 ? s.other_title
                                                 : clientLng === 'heb'
                                                     ? s.service_name_heb

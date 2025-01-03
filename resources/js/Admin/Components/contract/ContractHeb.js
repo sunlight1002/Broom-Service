@@ -325,8 +325,8 @@ export default function ContractHeb() {
                                                     services.map((s, i) => {
                                                         return (
                                                             <p>
-                                                                {s.service !=
-                                                                "10"
+                                                                {s.template !=
+                                                                "others"
                                                                     ? s.name
                                                                     : s.other_title}
                                                             </p>
@@ -488,8 +488,8 @@ export default function ContractHeb() {
                                                                         "work-contract.for"
                                                                     ) +
                                                                     " " +
-                                                                    (s.service !=
-                                                                    "10"
+                                                                    (s.template !=
+                                                                    "others"
                                                                         ? s.name
                                                                         : s.other_title) +
                                                                     ", " +

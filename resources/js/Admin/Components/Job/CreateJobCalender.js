@@ -793,7 +793,7 @@ export default function CreateJobCalender({
                                                         value={index}
                                                         key={index}
                                                     >
-                                                        {item.service != "10"
+                                                        {item.template != "others"
                                                             ? item.name
                                                             : item.other_title}
                                                     </option>

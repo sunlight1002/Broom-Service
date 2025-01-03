@@ -114,7 +114,7 @@ export default function CreateJob() {
                                                     </div>
                                                     <div className="dashText ml-2">
                                                         <p className={`font-15 navyblueColor services-${services[selectedServiceIndex].service}-${services[selectedServiceIndex].contract_id}`} style={{ fontWeight: "500" }}>
-                                                            {services[selectedServiceIndex].service === "10"
+                                                            {services[selectedServiceIndex].template === "others"
                                                                 ? services[selectedServiceIndex].other_title
                                                                 : services[selectedServiceIndex].name}
                                                         </p>

@@ -116,17 +116,17 @@ export default function Contract() {
                                     // Determine the service name based on conditions
                                     const serviceName = s.template === "airbnb"
                                         ? s.sub_services?.sub_service_name || "NA"
-                                        : s.service === "10"
-                                        ? s.other_title
-                                        : s.name;
-                    
+                                        : s.template === "others"
+                                            ? s.other_title
+                                            : s.name;
+
                                     // Add separator for all but the last item
                                     return data.length - 1 !== j ? serviceName + " | " : serviceName;
                                 })
                                 .join("");
                         },
                     },
-                    
+
                     {
                         title: t("admin.global.Status"),
                         data: "status",
@@ -174,8 +174,14 @@ export default function Contract() {
                         render: function (data, type, row, meta) {
                             let _html =
                                 '<div class="action-dropdown dropdown"> <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-ellipsis-vertical"></i> </button> <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                            // console.log(row);
 
-                            if (row.status == "verified") {
+                            // Check conditions for "Create Job" button
+                            const services = Array.isArray(row.services) ? row.services : [];
+                            const allOneTime = services.every((service) => service.is_one_time === true);
+                            const hasMultipleServices = services.length > 1;
+
+                            if (row.status === "verified" && (!allOneTime || hasMultipleServices)) {
                                 _html += `<button type="button" class="dropdown-item dt-create-job-btn" data-id="${row.id}">${t("admin.client.createJob")}</button>`;
                             }
 
