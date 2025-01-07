@@ -31,7 +31,7 @@ export default function PriceOffer() {
     const windowWidth = useWindowWidth();
     const [airbnb, setAirbnb] = useState({
         id: "",
-        subServiceId: [],
+        subServiceIds: [],
     })
 
     const id = Base64.decode(param.id);
@@ -58,6 +58,7 @@ export default function PriceOffer() {
         try {
             const res = await axios.post(`/api/client/get-offer/${Base64.decode(param.id)}`);
             const data = res.data.data;
+
             setClientLng(data.client?.lng);
             setOffer(data);
             setStatus(data.status);
@@ -71,16 +72,27 @@ export default function PriceOffer() {
                 }
             }
             let _services = JSON.parse(data.services);
+            console.log(_services);
+            
 
             setServices(_services);
-            const airbnbService = _services.find(service => service.template === "airbnb");
+            const airbnbServices = _services.find(service => service.template === "airbnb");
+            // console.log(airbnbServices);
+            
 
-            if (airbnbService) {
+            const airbnbSubServiceIds = _services
+                .map(service => service.sub_services?.id) // Map to sub_services IDs
+                .filter(id => id); // Filter out undefined or null IDs
+            console.log(airbnbSubServiceIds);
+
+            // Set the AirBnb state with all the IDs
+            if (airbnbServices) {
                 setAirbnb({
-                    id: airbnbService.service,
-                    subServiceId: airbnbService.sub_services,
+                    id: airbnbServices.service,// Collect all main service IDs
+                    subServiceIds: airbnbSubServiceIds, // Collect all sub_service IDs
                 });
             }
+
 
 
             if (data.client.lng === "heb") {
@@ -103,7 +115,6 @@ export default function PriceOffer() {
         }
     };
 
-
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -114,19 +125,33 @@ export default function PriceOffer() {
         if (airbnb.id) {
             handleGetSubServices(airbnb.id);
         }
-    }, [airbnb.id, airbnb.subServiceId]);
+    }, [airbnb.id, airbnb.subServiceIds]);
 
     const handleGetSubServices = async (id) => {
         try {
             const res = await axios.get(`/api/get-sub-services/${id}`);
 
-            const allSubServices = res.data?.subServices;
-            const filteredSubServices = allSubServices.filter(sub => airbnb?.subServiceId?.includes(sub.id));
+            const allSubServices = res.data?.subServices || [];
+            console.log(allSubServices, "allSubServices");
+            
+            // Ensure subServiceIds is an array and convert to string for comparison
+            const subServiceIds = airbnb?.subServiceIds || [];
+            console.log(subServiceIds, "subServiceIds");
+
+            // Filter sub-services where the id matches any in subServiceIds array
+            const filteredSubServices = allSubServices.filter(sub =>
+                subServiceIds.includes(sub.id.toString())
+            );
+            console.log(filteredSubServices, "filteredSubServices");
+            
+
             setSubService(filteredSubServices);
         } catch (error) {
             console.log("Error fetching sub-services:", error);
         }
-    }
+    };
+
+
 
     const handleOffer = (e, id) => {
         e.preventDefault();
@@ -208,7 +233,7 @@ export default function PriceOffer() {
 
     services.filter((s, i, a) => {
         //rg.includes(parseInt(s.service)) in IF commented
-        if (i == 0 && s.service == "10" && a.length >= 2) {
+        if (i == 0 && s.template == "others" && a.length >= 2) {
             [a[0], a[a.length - 1]] = [a[a.length - 1], a[0]];
             return a;
         }
@@ -419,7 +444,7 @@ export default function PriceOffer() {
                         {/* Other Services */}
                         {services.map((service, index) => {
                             if (
-                                service.service === "10" &&
+                                service.template === "others" &&
                                 allTemplates.includes("others") &&
                                 !allTemplates.includes("regular")
                             ) {
@@ -837,20 +862,36 @@ export default function PriceOffer() {
                                     </thead>
                                     <tbody>
                                         {services.map((s, i) => {
+                                            const serviceName = s.template === "others"
+                                                ? s.other_title
+                                                : clientLng === 'heb'
+                                                    ? s.service_name_heb
+                                                    : s.service_name_en;
+
+                                            const subServiceName = clientLng === 'heb'
+                                                ? s.sub_services?.subServices?.name_heb
+                                                : s.sub_services?.subServices?.name_en;
+
                                             return (
                                                 <tr key={i}>
+                                                    {
+                                                        s.template === "airbnb" ? (
+                                                            <td>{s.sub_services?.address_name}</td>
+                                                        ) : (
+                                                            <td>
+                                                                {s.address &&
+                                                                    s.address
+                                                                        .address_name
+                                                                    ? s.address
+                                                                        .address_name
+                                                                    : "NA"}
+                                                            </td>
+                                                        )
+                                                    }
                                                     <td>
-                                                        {s.address &&
-                                                            s.address
-                                                                .address_name
-                                                            ? s.address
-                                                                .address_name
-                                                            : "NA"}
-                                                    </td>
-                                                    <td>
-                                                        {s.service == 10
-                                                            ? s.other_title
-                                                            : clientLng === 'heb' ? s.service_name_heb : s.service_name_en}
+                                                        {s.template === "airbnb"
+                                                            ? `${serviceName} - ${subServiceName}`
+                                                            : serviceName}
                                                     </td>
                                                     <td>
                                                         {clientLng === 'heb' ? (
@@ -1085,8 +1126,9 @@ export default function PriceOffer() {
                         )}
                     </section>
                 </div>
-            </div>
-            {loading && <FullPageLoader visible={loading} />}
-        </div>
+            </div >
+            {loading && <FullPageLoader visible={loading} />
+            }
+        </div >
     );
 }

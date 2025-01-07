@@ -80,8 +80,6 @@ class CampaignCreate extends Command
                     $insightsData = $insightsResponse->json()['data'];
 
                     if (count($insightsData) > 0) {
-                        \Log::info('Insights for campaign ID ' . $campaignId, $insightsData);
-
                         foreach ($insightsData as $campaignData) {
                             FacebookInsights::updateOrCreate(
                                 ['campaign_id' => $campaignData['campaign_id']],

@@ -80,8 +80,8 @@ export default function CreateClientJob() {
                                                             className={`services-${item.service}-${item.contract_id}`}
                                                             key={index}
                                                         >
-                                                            {item.service ==
-                                                            "10"
+                                                            {item.template ==
+                                                            "others"
                                                                 ? item.other_title
                                                                 : item.name}
                                                         </p>

@@ -143,7 +143,7 @@ export default function Form101Table({ formdata, workerId, ResetForm ,handleNotS
                                                                 to={`/storage/signed-docs/${item.pdf_name}`}
                                                                 className="ml-2 btn btn-warning"
                                                             >
-                                                                <i class="fa-solid fa-download"></i>
+                                                                <i className="fa-solid fa-download"></i>
                                                             </Link>
                                                             <button onClick={() => ResetForm(item?.id, "2form101")} className="btn btn-warning">Reset</button>
                                                         </div>

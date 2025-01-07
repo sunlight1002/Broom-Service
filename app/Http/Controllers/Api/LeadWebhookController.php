@@ -219,7 +219,6 @@ class LeadWebhookController extends Controller
             
                         // Check if the client already exists
                         $client = Client::where('phone', $phone)->first();
-                        \Log::info($lng. " lng");
             
                         if (!$client) {
                             $client = new Client;
@@ -238,6 +237,16 @@ class LeadWebhookController extends Controller
                                 ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id) 
                                 : "New lead created successfully\n" . url("admin/leads/view/" . $client->id);
                         } else {
+                           
+                            if($client->status != 2) {
+                                $client->status = 0;
+                                $client->lead_status->update([
+                                    'lead_status' => LeadStatusEnum::PENDING,
+                                ]);
+                                $client->created_at = Carbon::now();
+                                $client->save();
+                            }
+
                             $m = $lng == 'heb' 
                                 ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id) 
                                 : "Lead already exists\n" . url("admin/leads/view/" . $client->id);
@@ -309,10 +318,16 @@ class LeadWebhookController extends Controller
                 die('notification disabled');
             }
 
+            $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
+            if ($responseClientState && $responseClientState->final) {
+                \Log::info('final');
+                die('final');
+            };
+
             if ($client) {
                 $createdAt = $client->created_at;
-                if ($createdAt && $createdAt->lt(now()->subHours(24))) {
-                    \Log::info('Client record is older than 24 hours.');
+                if ($createdAt && $createdAt->lt(now()->subHours(12))) {
+                    \Log::info('Client record is older than 12 hours.');
                     die("Client record is older than 24 hours.");
                 }
             }
@@ -379,9 +394,10 @@ class LeadWebhookController extends Controller
 
                 // Send main menu is last menu state not found
                 if (!$client_menus || $message == '9') {
-                    $m = $this->botMessages['main-menu']['en'];
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
+                    }else{
+                        $m = $this->botMessages['main-menu']['en'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -417,9 +433,10 @@ class LeadWebhookController extends Controller
                     (in_array($last_menu, ['need_more_help']) && (str_contains(strtolower($message), 'yes') || str_contains($message, 'כן'))) ||
                     (($prev_step == 'main_menu' || $prev_step == 'customer_service') && $message == '0')
                 ) {
-                    $m = $this->botMessages['main-menu']['en'];
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
+                    }else{
+                        $m = $this->botMessages['main-menu']['en'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -620,7 +637,14 @@ If you would like to speak to a human representative, please send a message with
                         'read'          => 1,
                         'data'          => json_encode($get_data)
                     ]);
-                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
+                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
+
+                    if ($responseClientState) {
+                        $responseClientState->menu_option = 'main_menu';
+                        $responseClientState->final = true;
+                        $responseClientState->save();
+                    }
+                    // $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
                     $result = sendWhatsappMessage($from, array('message' => $msg));
                     die("Final message");
                 }
@@ -643,8 +667,7 @@ If you would like to speak to a human representative, please send a message with
                         ]));
 
                         if ($client->lng == 'heb') {
-                            $msg = 'נציג מטעמנו יצור קשר בהקדם.
-                            האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
+                            $msg = 'נציג מטעמנו יצור קשר בהקדם. האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
                         } else {
                             $msg = 'A representative from our team will contact you shortly. Is there anything else I can help you with today? (Yes or No) 👋';
                         }
@@ -1512,7 +1535,7 @@ If you would like to speak to a human representative, please send a message with
             );
         }
 
-        $m = $this->botMessages['main-menu']['en'];
+        $m = $this->botMessages['main-menu']['heb'];
 
         $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
 

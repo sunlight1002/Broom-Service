@@ -48,7 +48,6 @@ class TwilioController extends Controller
             "תודה שהתקשרת! שיהיה לך יום טוב.",
             ['voice' => 'Google.he-IL-Wavenet-A', 'language' => 'he-IL']
         );
-        Log::info($response);
         echo $response;
     }
 }

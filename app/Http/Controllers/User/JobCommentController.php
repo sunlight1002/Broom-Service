@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\JobStatusEnum;
-use App\Events\JobNotificationToWorker;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\JobReviewRequest;

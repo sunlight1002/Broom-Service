@@ -25,7 +25,9 @@ class ClientPropertyAddress extends Model
         'prefer_type',
         'is_dog_avail',
         'is_cat_avail',
-        'not_allowed_worker_ids'
+        'not_allowed_worker_ids',
+        'contact_person_name',
+        'contact_person_phone'
     ];
 
     public static function boot()

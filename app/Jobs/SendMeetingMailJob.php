@@ -40,7 +40,6 @@ class SendMeetingMailJob implements ShouldQueue
     public function handle()
     {
         $scheduleArr = $this->schedule->toArray();
-        \Log::info($scheduleArr);
         App::setLocale($scheduleArr['client']['lng']);
 
         $notificationType = $this->schedule->client->notification_type;

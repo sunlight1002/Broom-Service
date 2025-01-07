@@ -68,7 +68,6 @@ class AddGoogleContactForWorkerJob implements ShouldQueue
         ];
 
         if ($worker->contactId) {
-            
             $contactDetails = $this->getGoogleContact($worker->contactId, $googleAccessToken);
     
             if (isset($contactDetails['etag'])) {
@@ -96,7 +95,7 @@ class AddGoogleContactForWorkerJob implements ShouldQueue
     
         $http_code = $response->status();
         $data = $response->json();
-    
+
         if ($http_code == 401) {
             $this->refreshAccessToken($googleAccessToken);
             return $this->createGoogleContact($contactData, $googleAccessToken);

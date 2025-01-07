@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Contract;
 use App\Models\Client;
+use App\Models\ClientPropertyAddress;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 use Carbon\Carbon;
@@ -44,7 +45,7 @@ class ContractReminder extends Command
      */
     public function handle()
     {
-        $staticDate = "2024-01-01"; // Static date to start notifications from
+        $staticDate = "2024-10-11"; // Static date to start notifications from
         $dates = [
             Carbon::now()->subDay(1)->toDateString(),
             Carbon::now()->subDays(3)->toDateString(),
@@ -60,16 +61,55 @@ class ContractReminder extends Command
         // Notify the team for each contract that is "not-signed"
         foreach ($contracts as $contract) {
             $client = $contract->client;
+            $offer = $contract->offer;
+            $offerArr = $offer->toArray();
+            $services = json_decode($offerArr['services']);
+
+            if (isset($services)) {
+                $s_names = '';
+                $s_templates_names = '';
+                foreach ($services as $k => $service) {
+                    if ($k != count($services) - 1 && $service->template != "others") {
+                        $s_names .= $service->name . ", ";
+                        $s_templates_names .= $service->template . ", ";
+                    } else if ($service->template == "others") {
+                        if ($k != count($services) - 1) {
+                            $s_names .= $service->other_title . ", ";
+                            $s_templates_names .= $service->template . ", ";
+                        } else {
+                            $s_names .= $service->other_title;
+                            $s_templates_names .= $service->template;
+                        }
+                    } else {
+                        $s_names .= $service->name;
+                        $s_templates_names .= $service->template;
+                    }
+                }
+            }
+            $offerArr['services'] = $services;
+            $offerArr['service_names'] = $s_names;
+            $offerArr['service_template_names'] = $s_templates_names;
+
+            $property = null;
+            $addressId = $services[0]->address;
+                if (isset($addressId)) {
+                    $address = ClientPropertyAddress::find($addressId);
+                    if (isset($address)) {
+                        $property = $address;
+                    }
+                }
 
             if ($client) {
                 // Trigger the team notification event
-                // event(new WhatsappNotificationEvent([
-                //     "type" => WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED,
-                //     "notificationData" => [
-                //         'client' => $client->toArray(),
-                //         'contract' => $contract->toArray(),
-                //     ]
-                // ]));
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED,
+                    "notificationData" => [
+                        'client' => $client->toArray(),
+                        'contract' => $contract->toArray(),
+                        'offer' => $offerArr,
+                        'property' => $property
+                    ]
+                ]));
 
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED,

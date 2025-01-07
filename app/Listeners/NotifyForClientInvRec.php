@@ -31,7 +31,6 @@ class NotifyForClientInvRec implements ShouldQueue
      */
     public function handle(ClientInvRecCreated $event)
     {
-        \Log::info(['event ' => $event]);
         Notification::create([
             'user_id' => $event->client->id,
             'user_type' => get_class($event->client),

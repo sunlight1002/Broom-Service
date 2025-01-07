@@ -50,8 +50,6 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('SaveGoogleCalendarEventJob started', ['schedule_id' => $this->schedule->id]);
-
         $schedule = $this->schedule;
 
         if (!$schedule->start_date) {
@@ -159,7 +157,6 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
             // throw new Exception('No Google Calendar ID found.');
         }
         if ($schedule->is_calendar_event_created) {
-            Log::info("Updating event in Google Calendar");
 
             $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events/' . $schedule->google_calendar_event_id;
             $response = Http::withHeaders([
@@ -167,9 +164,6 @@ class SaveGoogleCalendarEventJob implements ShouldQueue
                 'Content-Type' => 'application/json',
             ])->put($url, $postData);
         } else {
-
-            Log::info("Creating new event in Google Calendar");
-
             $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events';
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $googleAccessToken,

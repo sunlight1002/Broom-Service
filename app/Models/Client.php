@@ -56,7 +56,9 @@ class Client extends Authenticatable
         'first_login',
         'disable_notification',
         'contactId',
-        'campaign_id'
+        'campaign_id',
+        'contact_person_name',
+        'contact_person_phone',
     ];
 
     /**

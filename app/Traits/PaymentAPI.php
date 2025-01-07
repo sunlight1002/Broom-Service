@@ -303,7 +303,6 @@ trait PaymentAPI
         if ($amount) {
             $postData['TransactionSum'] = $amount;
         }
-        \Log::info([$postData]);
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -346,8 +345,6 @@ trait PaymentAPI
     // Same API but different configuration for 'order' doctype.
     private function generateOrderDocument($client, $items, $duedate, $data, $serviceDate, $jobId = null)
     {
-        // \Log::info($serviceDate);
-        // \Log::info("generateOrderDocument");
         $requestData = [
             'data' => [
                 'client_name' => $input['firstname'] ?? null,
@@ -394,7 +391,6 @@ trait PaymentAPI
         }
 
         if ($totalsum == 0) {
-            \Log::info("Document skipped as totalsum is 0.");
             return null; // Or handle the situation as needed
         }
 
@@ -810,7 +806,6 @@ trait PaymentAPI
     
         foreach ($orders as $order) {
             if ($order->amount == 0) {
-                \Log::info('order', $order->id);
                 continue;
             }
         
@@ -884,7 +879,6 @@ trait PaymentAPI
         $discount
     ) {
         $address = $client->property_addresses()->first();
-        // \Log::info($items);
 
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
@@ -898,12 +892,8 @@ trait PaymentAPI
             ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
             ->value('value');
 
-        // \Log::info("totalsum".$totalsum);
-        // \Log::info("discount".$discount);
         $total = $totalsum - $discount;
-        // \Log::info("total".$total);
         $roundup = number_format((float)(ceil($total) - $total), 2, '.', '');
-        // \Log::info("roundup".$roundup);
 
         $url = 'https://api.icount.co.il/api/v3.php/doc/create';
 
@@ -945,7 +935,6 @@ trait PaymentAPI
 
         $json = $response->json();
 
-        \Log::info('generateInvRecDocument doc create response : ', $json);
 
         $http_code = $response->status();
 
@@ -1001,7 +990,6 @@ trait PaymentAPI
             'original_zcredit_reference_number' => "",
             'items' => $pay_items
         ]);
-        // \Log::info(['captureChargeResponse' => $captureChargeResponse]);
 
         if (!$captureChargeResponse['HasError']) {
             $transaction->update([

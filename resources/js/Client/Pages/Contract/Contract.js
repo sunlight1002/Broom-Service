@@ -49,7 +49,7 @@ export default function Contract() {
 
                         return data.map((s, j) => {
                             return data.length - 1 != j
-                                ? s.service == "10"
+                                ? s.template == "others"
                                     ? s.other_title + " | "
                                     : s.name + " | "
                                 : s.name;

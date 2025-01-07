@@ -92,7 +92,9 @@ class WorkerController extends Controller
                         $query->where(function ($sq) use ($keyword) {
                             $sq->whereRaw("CONCAT_WS(' ', users.firstname, users.lastname) like ?", ["%{$keyword}%"])
                                 ->orWhere('users.email', 'like', "%" . $keyword . "%")
-                                ->orWhere('users.phone', 'like', "%" . $keyword . "%");
+                                ->orWhere('users.phone', 'like', "%" . $keyword . "%")
+                                ->orWhere('users.address', 'like', "%" . $keyword . "%");
+
                         });
                     }
                 }
