@@ -499,6 +499,13 @@ export default function AddLead() {
                                                         name: 'phone',
                                                     }}
                                                 />
+                                                {errors.contact_person_phone ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.contact_person_phone}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -509,7 +516,8 @@ export default function AddLead() {
                                                     "admin.leads.AddLead.contact_person_name"
                                                 )}
                                             </label>
-                                            <input
+                                           <div className="d-flex flex-column w-100">
+                                           <input
                                                 name="contact_person_name"
                                                 type="text"
                                                 className="form-control skyBorder"
@@ -522,6 +530,14 @@ export default function AddLead() {
                                                     "admin.leads.AddLead.contact_person_name_placeholder"
                                                 )}
                                             />
+                                            {errors.contact_person_name ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.contact_person_name}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                           </div>
                                         </div>
                                     </div>
                                 </div>

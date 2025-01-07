@@ -56,7 +56,7 @@ export default function Document({ worker, getWorkerDetails }) {
             .get(`/api/admin/documents/${parseInt(worker.id)}`, { headers })
             .then((response) => {
                 console.log(response.data.documents);
-                
+
                 setDocuments(response.data.documents);
             });
     };
@@ -65,7 +65,7 @@ export default function Document({ worker, getWorkerDetails }) {
         axios.get(`/api/admin/get-doc-types`, { headers }).then((res) => {
             if (res.data && res.data.documentTypes.length > 0) {
                 console.log(res.data.documentTypes);
-                
+
                 setAllDocumentTypes(res.data.documentTypes);
             }
         });
@@ -131,16 +131,20 @@ export default function Document({ worker, getWorkerDetails }) {
             if (worker.country === "Israel") {
                 return alldocumentTypes.filter((i) =>
                     // ["israeli-id", "pension-form", "study-form" , "training-fund-form", "payslip", "others"].includes(i.slug)
-                    ["israeli-id", "pension-form", "study-form" , "payslip", "others"].includes(i.slug)
+                    ["israeli-id", "pension-form", "study-form", "payslip", "others"].includes(i.slug)
 
                 );
             } else {
                 return alldocumentTypes.filter((i) =>
                     // ["pension-form", "training-fund-form","study-form", "payslip" , "insurance-form", "others"].includes(i.slug)
-                    ["payslip" , "insurance-form", "others"].includes(i.slug)
+                    ["payslip", "insurance-form", "others"].includes(i.slug)
 
                 );
             }
+        }else{
+            return alldocumentTypes.filter((i) =>
+                ["payslip", "insurance-form", "others"].includes(i.slug)
+            );
         }
         // If not "my-company", return all documents
         return alldocumentTypes;
@@ -226,7 +230,7 @@ export default function Document({ worker, getWorkerDetails }) {
                         </>
                     )
                 }
-                {
+                {/* {
                     worker && worker?.company_type !== "manpower" && (
                         <button
                             type="button"
@@ -236,7 +240,16 @@ export default function Document({ worker, getWorkerDetails }) {
                             {t("global.addDocument")}
                         </button>
                     )
-                }
+                } */}
+
+                <button
+                    type="button"
+                    onClick={() => handleAddDocument()}
+                    className="btn btn-success m-3"
+                >
+                    {t("global.addDocument")}
+                </button>
+
             </div>
             <DocumentList
                 documents={documents}

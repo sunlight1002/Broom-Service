@@ -132,6 +132,11 @@ class LeadController extends Controller
             'phone'     => ['required', 'string', 'max:20', new ValidPhoneNumber(),'unique:clients'],
         ]);
 
+        $validator->sometimes(['contact_person_name', 'contact_person_phone'], ['required'], function ($input) {
+            return !empty($input->contact_person_name) || !empty($input->contact_person_phone);
+        });
+
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
@@ -298,6 +303,10 @@ class LeadController extends Controller
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:clients,email,' . $id],
             'phone'     => ['required', new ValidPhoneNumber(), 'unique:clients,phone,' . $id],
         ]);
+
+        $validator->sometimes(['contact_person_name', 'contact_person_phone'], ['required'], function ($input) {
+            return !empty($input->contact_person_name) || !empty($input->contact_person_phone);
+        });
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
