@@ -47,10 +47,9 @@ class WorkerLeadWebhookController extends Controller
             'ru' => "У вас есть действующая рабочая виза или удостоверение личности, указанные выше?\n**Да/Нет**",
         ],
         'step3' => [
-            'en' => "Please leave your name, phone, and email, and we will call you right back with all the details.\n\n**Name**:\n**Phone**:\n**Email**:",
+            'en' => "Please leave your name, phone, and email, and we will call you right back with all the details.\n\n**Name**:\n**Email**:",
             'ru' => "Пожалуйста, оставьте свое имя, телефон и email, и мы свяжемся с вами для предоставления всех деталей.
                     \n**Имя**:  
-                    \n**Телефон**:  
                     \n**Email**:",
         ],
         'end' => [
@@ -247,6 +246,7 @@ class WorkerLeadWebhookController extends Controller
         $lng = $language;
         $response = strtolower(trim($input));
         \Log::info($response. ' res');
+        \Log::info($currentStep. ' curr');
         switch ($currentStep) {
             case 0:
                 if (in_array($response, ['yes', 'sí', 'Да', 'כֵּן'])) {
@@ -271,14 +271,11 @@ class WorkerLeadWebhookController extends Controller
                     $workerLead->save();
                     return $this->saveContactDetails($workerLead, $input);   
                 } else {
-                    return $messages['step2'][$lng];   
+                    return $messages['step2'][$lng];    
                 }
 
             case 2:
-                // The last step, collect contact details
-                if ($this->saveContactDetails($workerLead, $input)) {
-                    return $messages['end'][$lng];
-                }
+               $this->saveContactDetails($workerLead, $input);
         }
     }
  
@@ -293,11 +290,10 @@ class WorkerLeadWebhookController extends Controller
                $details = array_map('trim', explode(',', $input));
    
                // Check if there are exactly 3 pieces of information
-               if (count($details) == 3) {
+               if (count($details) == 2) {
                    // Assign values to the workerLead object
                    $workerLead->name = $details[0];
-                   $workerLead->phone = $details[1];
-                   $workerLead->email = $details[2];
+                   $workerLead->email = $details[1];
                    $workerLead->save();
    
                    $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
@@ -309,11 +305,10 @@ class WorkerLeadWebhookController extends Controller
                $details = array_map('trim', explode("\n", $input));
    
                // Check if we have exactly 3 pieces of information after splitting by new lines
-               if (count($details) == 3) {
+               if (count($details) == 2) {
                    // Assign values to the workerLead object
                    $workerLead->name = $details[0];
-                   $workerLead->phone = $details[1];
-                   $workerLead->email = $details[2];
+                   $workerLead->email = $details[1];
                    $workerLead->save();
    
                    $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);

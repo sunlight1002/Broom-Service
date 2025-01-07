@@ -536,7 +536,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM:
                     case WhatsappMessageTemplateEnum::NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.relevant_with_workers');
-                        $lng = 'heb';
+                        $lng = 'en';
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_SKIPPED_COMMENTS:
