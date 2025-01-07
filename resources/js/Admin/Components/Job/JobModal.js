@@ -143,7 +143,7 @@ const JobModal = memo(function JobModal({
 
         let ot = document.querySelector("#other_title");
 
-        if (tmpFormValues.service == "10" && ot != undefined) {
+        if (tmpFormValues.template == "others" && ot != undefined) {
             if (tmpFormValues.other_title == "") {
                 alert.error("Other title cannot be blank");
                 return false;

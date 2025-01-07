@@ -79,13 +79,8 @@ class AddGoogleContactForTeamJob implements ShouldQueue
     
         } else {
             $contactId = $this->createGoogleContact($contactData, $googleAccessToken);
-            Log::info('contactId', ['contactId' => $contactId]);
             if ($contactId) {
                 $admin->update(['contactId' => $contactId]);
-                Log::info("Created new Google contact for client", [
-                    'client_id' => $admin->id,
-                    'contactId' => $contactId
-                ]);
             }
         }   
     }

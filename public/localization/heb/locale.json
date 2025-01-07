@@ -1468,6 +1468,11 @@
                 "Notification_Type": "סוג התראה",
                 "Additional_Contacts": "אנשי קשר נוספים",
                 "potential_coustomer": "לקוח פוטנציאלי",
+                "contact_person_name": "שם איש קשר",
+                "contact_person_name_placeholder": "הזן שם אדם",
+                "contact_person_email": "דוא'ל של איש קשר",
+                "contact_person_phone": "טלפון איש קשר",
+                "contact_person_address": "כתובת איש קשר",
                 "coustomer": "לקוח",
                 "Options": {
                     "PaymentMethod": {

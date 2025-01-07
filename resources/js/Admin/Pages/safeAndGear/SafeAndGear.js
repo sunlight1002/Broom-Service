@@ -208,6 +208,7 @@ const SafeAndGear = ({
                                 className="mt-4 lh-lg "
                                 style={{ fontSize: "16px" }}
                             >
+                                <div className="d-flex mt-2 navublueColor"><span>1.&nbsp;</span><p>{t("safeAndGear.sp1")}</p></div>
                                 <div className="d-flex mt-2 navublueColor"><span>2.&nbsp;</span><p>{t("safeAndGear.sp2")}</p></div>
                                 <div className="d-flex mt-2 navublueColor"><span>3.&nbsp;</span><p>{t("safeAndGear.sp3")}</p></div>
                                 <div className="d-flex mt-2 navublueColor"><span>4.&nbsp;</span><p>{t("safeAndGear.sp4")}</p></div>

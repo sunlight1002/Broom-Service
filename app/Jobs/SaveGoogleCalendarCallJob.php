@@ -52,8 +52,6 @@ class SaveGoogleCalendarCallJob implements ShouldQueue
         try {
             $schedule = $this->schedule;
 
-            \Log::info(['schedule' => $schedule]);
-
             // If no start date provided, don't proceed
             if (!$schedule['schedule']['start_date']) {
                 return;
@@ -167,8 +165,6 @@ class SaveGoogleCalendarCallJob implements ShouldQueue
                 Log::error('No Google Calendar ID found.');
                 return; // Handle the error appropriately
             }
-
-            Log::info("Creating new event in Google Calendar");
 
             // Create new event
             $url = 'https://www.googleapis.com/calendar/v3/calendars/' . $googleCalendarID . '/events';

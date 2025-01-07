@@ -109,6 +109,7 @@ class ScheduleController extends Controller
             $hebrewMeridianMap = [
                 'בבוקר' => 'AM', // Morning (AM)
                 'אחר הצהריים' => 'PM', // Afternoon (PM)
+                'אחרי הצהריים' => 'PM', // Afternoon (PM)
                 'לפני הצהריים' => 'AM', // Before noon (AM)
                 'בערב' => 'PM', // Evening (PM)
             ];
@@ -151,20 +152,22 @@ class ScheduleController extends Controller
     
         $schedule = Schedule::create($input);
     
-        $client->lead_status()->updateOrCreate(
-            [],
-            ['lead_status' => LeadStatusEnum::POTENTIAL]
-        );
-    
-        event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
-    
-        LeadActivity::create([
-            'client_id' => $client->id,
-            'created_date' => " ",
-            'status_changed_date' => Carbon::now(),
-            'changes_status' => LeadStatusEnum::POTENTIAL,
-            'reason' => 'New schedule created',
-        ]);
+        if($client->status != 2) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => LeadStatusEnum::POTENTIAL]
+            );
+        
+            event(new ClientLeadStatusChanged($client, LeadStatusEnum::POTENTIAL));
+        
+            LeadActivity::create([
+                'client_id' => $client->id,
+                'created_date' => " ",
+                'status_changed_date' => Carbon::now(),
+                'changes_status' => LeadStatusEnum::POTENTIAL,
+                'reason' => 'New schedule created',
+            ]);
+        }
     
         if (!$schedule->start_date) {
             $schedule->load(['client', 'team', 'propertyAddress']);

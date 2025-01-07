@@ -219,7 +219,6 @@ class LeadWebhookController extends Controller
             
                         // Check if the client already exists
                         $client = Client::where('phone', $phone)->first();
-                        \Log::info($lng. " lng");
             
                         if (!$client) {
                             $client = new Client;
@@ -246,11 +245,6 @@ class LeadWebhookController extends Controller
                                 ]);
                                 $client->created_at = Carbon::now();
                                 $client->save();
-
-                                \Log::info($client->lead_status->lead_status);
-                                \Log::info($client->status);
-                                \Log::info($client->created_at);
-                                \Log::info($client->id);
                             }
 
                             $m = $lng == 'heb' 
@@ -400,9 +394,10 @@ class LeadWebhookController extends Controller
 
                 // Send main menu is last menu state not found
                 if (!$client_menus || $message == '9') {
-                    $m = $this->botMessages['main-menu']['en'];
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
+                    }else{
+                        $m = $this->botMessages['main-menu']['en'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -438,9 +433,10 @@ class LeadWebhookController extends Controller
                     (in_array($last_menu, ['need_more_help']) && (str_contains(strtolower($message), 'yes') || str_contains($message, 'כן'))) ||
                     (($prev_step == 'main_menu' || $prev_step == 'customer_service') && $message == '0')
                 ) {
-                    $m = $this->botMessages['main-menu']['en'];
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
+                    }else{
+                        $m = $this->botMessages['main-menu']['en'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -671,8 +667,7 @@ If you would like to speak to a human representative, please send a message with
                         ]));
 
                         if ($client->lng == 'heb') {
-                            $msg = 'נציג מטעמנו יצור קשר בהקדם.
-                            האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
+                            $msg = 'נציג מטעמנו יצור קשר בהקדם. האם יש משהו נוסף שאוכל לעזור לך בו היום? (כן או לא) 👋';
                         } else {
                             $msg = 'A representative from our team will contact you shortly. Is there anything else I can help you with today? (Yes or No) 👋';
                         }
@@ -1540,7 +1535,7 @@ If you would like to speak to a human representative, please send a message with
             );
         }
 
-        $m = $this->botMessages['main-menu']['en'];
+        $m = $this->botMessages['main-menu']['heb'];
 
         $result = sendWhatsappMessage($lead->phone, array('name' => ucfirst($lead->firstname), 'message' => $m));
 

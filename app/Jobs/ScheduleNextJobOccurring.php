@@ -72,8 +72,6 @@ class ScheduleNextJobOccurring implements ShouldQueue
         $manageTime = ManageTime::first();
         $workingWeekDays = json_decode($manageTime->days);
 
-        // \Log::info(['job'=> $job]);
-
         try {
             if ($job) {
                 $client = $job->client;

@@ -45,14 +45,35 @@ class SendJobNotificationToWorker implements ShouldQueue
         //     $messages->subject($emailData['emailSubject']);
         // });
 
-        event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::JOB_APPROVED_NOTIFICATION_TO_WORKER,
-            "notificationData" => [
-                'job' => $job,
-                'emailData' => $emailData,
-                'worker' => $worker
-            ]
-        ]));
+        if (isset($emailData) && isset($emailData['by']) && ($emailData['by'] == "admin")) {
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_TEAM,
+                "notificationData" => [
+                    'job' => $job,
+                    'worker' => $worker,
+                    'client' => $job['client']
+                ]
+            ]));
+        }else if(isset($emailData) && isset($emailData['by']) && ($emailData['by'] == "client")){
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_CLIENT,
+                "notificationData" => [
+                    'job' => $job,
+                    'worker' => $worker,
+                    'client' => $job['client']
+                ]
+            ]));
+        }else{
+            // event(new WhatsappNotificationEvent([
+            //     "type" => WhatsappMessageTemplateEnum::JOB_APPROVED_NOTIFICATION_TO_WORKER,
+            //     "notificationData" => [
+            //         'job' => $job,
+            //         'emailData' => $emailData,
+            //         'worker' => $worker
+            //     ]
+            // ]));
+        }
+
 
     }
 }

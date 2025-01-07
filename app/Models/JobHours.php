@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Events\JobNotificationToWorker;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
 
@@ -35,14 +34,14 @@ class JobHours extends Model
                         ]
                     ]));
                 } elseif ($model->isDirty('end_time')) {
-                    $emailData = [
-                        'emailSubject'  => __('mail.job_nxt_step.end_time_nxt_step_email_subject'),
-                        'emailTitle'  => __('mail.job_nxt_step.end_time_nxt_step_email_title'),
-                        'emailContent'  => __('mail.job_nxt_step.end_time_nxt_step_email_content', ['l1' => " <b>".__('mail.job_common.mark_as_complete')."</b>", 'l2' => " <b>".__('mail.job_common.resume_timer')."</b>"]),
-                        'emailContentWa'  => __('mail.job_nxt_step.end_time_nxt_step_email_content', ['l1' => " *".__('mail.job_common.mark_as_complete')."*", 'l2' => " *".__('mail.job_common.resume_timer')."*"]),
-
-                    ];
-                    event(new JobNotificationToWorker($worker, $job, $emailData));
+                    event(new WhatsappNotificationEvent([
+                        "type" => WhatsappMessageTemplateEnum::SEND_WORKER_TO_STOP_TIMER,
+                        "notificationData" => [
+                            'job' => $job,
+                            'worker' => $worker,
+                            'client' => $client,
+                        ]
+                    ]));
 
                 }
             }

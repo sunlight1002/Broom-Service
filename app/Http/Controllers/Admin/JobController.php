@@ -495,7 +495,7 @@ class JobController extends Controller
                     $editJob->workerShifts()->create($shift);
                 }
 
-                $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+                $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
 
                 event(new JobShiftChanged($editJob, $mergedContinuousTime[0]['starting_at']));
             }
@@ -507,7 +507,6 @@ class JobController extends Controller
         });
 
         $selectedService = head($filtered);
-        \Log::info($selectedService);
 
         $service = Services::find($data['service_id']);
         $serviceSchedule = ServiceSchedule::find($selectedService['frequency']);
@@ -665,7 +664,7 @@ class JobController extends Controller
 
                 $this->copyDefaultCommentsToJob($job);
 
-                $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+                $job->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
 
                 // Send notification to client
                 $jobData = $job->toArray();
@@ -718,6 +717,8 @@ class JobController extends Controller
                 'client',
                 'worker',
                 'jobservice',
+                'propertyAddress',
+                'offer'
             ])
             ->find($id);
 
@@ -838,7 +839,7 @@ class JobController extends Controller
                     $editJob->workerShifts()->create($shift);
                 }
 
-                $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+                $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
 
                 event(new JobShiftChanged($editJob, $mergedContinuousTime[0]['starting_at']));
             }
@@ -981,7 +982,7 @@ class JobController extends Controller
             'status' => 'changed'
         ]);
 
-        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
 
         event(new JobWorkerChanged(
             $job,
@@ -1148,7 +1149,7 @@ class JobController extends Controller
                     $editJob->workerShifts()->create($shift);
                 }
 
-                $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+                $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
 
                 event(new JobShiftChanged($editJob, $mergedContinuousTime[0]['starting_at']));
             }
@@ -1273,7 +1274,7 @@ class JobController extends Controller
             'status' => 'changed'
         ]);
 
-        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
 
         event(new JobShiftChanged($job, $mergedContinuousTime[0]['starting_at']));
 
@@ -1449,6 +1450,7 @@ class JobController extends Controller
             ->where('job_group_id', $job->job_group_id)
             ->get();
 
+
         $admin = Admin::where('role', 'admin')->first();
 
         foreach ($jobs as $key => $job) {
@@ -1481,12 +1483,68 @@ class JobController extends Controller
             CreateJobOrder::dispatch($job->id);
             ScheduleNextJobOccurring::dispatch($job->id,null);
 
-            App::setLocale('en');
+            if ($job->offer && $job->offer->services) {
+                $services = json_decode($job->offer->services, true); 
+    
+                // Remove `is_one_time` field if it exists in any service
+                $services = array_map(function ($service) {
+                    if (isset($service['is_one_time'])) {
+                        unset($service['is_one_time']);
+                    }
+                    return $service;
+                }, $services);
+    
+                // Save the updated services back to the offer
+                $job->offer->services = json_encode($services);
+                $job->offer->save();
+            }
+
+            $offer = $job->offer;
+            $offerArr = $offer->toArray();
+                $services = json_decode($offerArr['services']);
+                
+                if (isset($services)) {
+                    $s_names = '';
+                    $s_templates_names = '';
+                    foreach ($services as $k => $service) {
+                        if ($k != count($services) - 1 && $service->template != "others") {
+                            $s_names .= $service->name . ", ";
+                            $s_templates_names .= $service->template . ", ";
+                        } else if ($service->template == "others") {
+                            if ($k != count($services) - 1) {
+                                $s_names .= $service->other_title . ", ";
+                                $s_templates_names .= $service->template . ", ";
+                            } else {
+                                $s_names .= $service->other_title;
+                                $s_templates_names .= $service->template;
+                            }
+                        } else {
+                            $s_names .= $service->name;
+                            $s_templates_names .= $service->template;
+                        }
+                    }
+                }
+                $offerArr['services'] = $services;
+                $offerArr['service_names'] = $s_names;
+                $offerArr['service_template_names'] = $s_templates_names;
+
+                $property = null;
+
+                $addressId = $services[0]->address;
+                if (isset($addressId)) {
+                    $address = ClientPropertyAddress::find($addressId);
+                    if (isset($address)) {
+                        $property = $address;
+                    }
+                }
+
             $data = array(
                 'by'         => 'admin',
                 'email'      => $admin->email??"",
                 'admin'      => $admin?->toArray()??[],
                 'job'        => $job?->toArray()??[],
+                'offer'      => $offerArr ?? null,
+                'property'   => $property ?? null
             );
 
             if (isset($job->client) && !empty($job->client->phone)) {
@@ -1495,6 +1553,7 @@ class JobController extends Controller
                     "notificationData" => $data
                 ]));
             }
+            App::setLocale('en');
 
             $ln = $job->client->lng;
             // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
@@ -1509,28 +1568,11 @@ class JobController extends Controller
             //     $messages->subject($sub);
             // });
 
-            //send notification to admin
-            $emailContent = '';
-            if ($data['by'] == 'client') {
-                $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($job->status) . '.';
-                if ($job->cancellation_fee_amount) {
-                    $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $job->cancellation_fee_amount . 'ILS.';
-                }
-            } else {
-                $emailContent .= 'Job is marked as ' . ucfirst($job->status) . 'by admin/team.';
-            }
-            $emailSubject = ($data['by'] == 'admin') ?
-                (($ln == 'en') ? ('Job has been cancelled') . " #" . $job->id :
-                    $job->id . "# " . ('העבודה בוטלה'))
-                : __('mail.client_job_status.subject') . " #" . $job->id;
-
             //send notification to worker
             $job = $job->toArray();
             $worker = $job['worker'];
             $emailData = [
-                'emailSubject'  => $emailSubject,
-                'emailTitle'  => __('mail.job_common.job_status'),
-                'emailContent'  => $emailContent
+                'by'            => $data['by']
             ];
             event(new JobNotificationToWorker($worker, $job, $emailData));
         }
@@ -1764,7 +1806,7 @@ class JobController extends Controller
         $job->update($jobData);
         $otherWorkerJob->update($otherJobData);
 
-        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
         $jobArray = $job->toArray();
 
         if (
@@ -1787,7 +1829,7 @@ class JobController extends Controller
             // });
         }
 
-        $otherWorkerJob->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+        $otherWorkerJob->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
         $otherJobArray = $otherWorkerJob->toArray();
 
         if (
@@ -2131,14 +2173,12 @@ class JobController extends Controller
             $job->status = JobStatusEnum::PROGRESS;
             $job->save();
             //send notification to worker
-            $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+            $job->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
             $jobData = $job->toArray();
             $worker = $jobData['worker'];
 
             $emailData = [
-                'emailSubject'  => __('mail.job_status.subject'),
-                'emailTitle'  => __('mail.job_common.job_status'),
-                'emailContent'  => __('mail.job_common.worker_job_start_time_content'),
+                'by' => 'admin',
             ];
 
             event(new JobNotificationToWorker($worker, $jobData, $emailData));

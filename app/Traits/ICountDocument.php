@@ -30,7 +30,6 @@ trait ICountDocument
 {
     private function closeDoc($docnum, $type)
     {
-        Log::info('close doc.' . $docnum . '-' . $type);
         $closeDocResponse = $this->closeICountDocument($docnum, $type);
 
         if (!$closeDocResponse["status"]) {
@@ -73,21 +72,14 @@ trait ICountDocument
         $tax = (config('services.app.tax_percentage') / 100) * $subtotal;
         $total = $tax + $subtotal;
         $duedate = Carbon::today()->endOfMonth()->toDateString();
-        \Log::info('total: ' . $total);
-        \Log::info('subtotal: ' . $subtotal);
     
         $isPaymentProcessed = false;
     
         // Auto payment
         if ($payment_method == 'cc') {
-            \Log::info('Payment IcountDoc commitInvoicePayment Initiate');
             $paymentResponse = $this->commitInvoicePayment($client, $services, $card->card_token, $total);
-            // \Log::info(['paymentResponse' => $paymentResponse]);
-    
-            \Log::info('Payment IcountDoc commitInvoicePayment Finish');
     
             if ($paymentResponse['HasError'] == true) {
-                \Log::info('Payment IcountDoc commitInvoicePayment Error');
                 foreach ($orders as $order) {
                     $order->update(['paid_status' => OrderPaidStatusEnum::PROBLEM]);
                 }
@@ -123,8 +115,6 @@ trait ICountDocument
             ? $this->generateInvoiceDocument($client, $orders, $duedate, $otherInvDocOptions)
             : $this->generateInvRecDocument($client, $services, $duedate, $otherInvDocOptions, $subtotal, $discount); // Pass discount here
         
-        \Log::info('Payment IcountDoc generateDocument Finish');
-    
         $discount = $json['doc_info']['discount'] ?? null;
         $totalAmount = $json['doc_info']['afterdiscount'] ?? null;
     
@@ -186,7 +176,6 @@ trait ICountDocument
             event(new ClientInvoiceCreated($client, $invoice));
         }
     
-        \Log::info('Payment IcountDoc finish');
     }
  
     

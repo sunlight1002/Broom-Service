@@ -119,7 +119,7 @@ export default function AddOffer() {
 
             let ot = document.querySelector("#other_title" + t);
 
-            if (formValues[t].service == "10" && ot != undefined) {
+            if (formValues[t].template == "others" && ot != undefined) {
                 if (formValues[t].other_title == "") {
                     alert.error("Other title cannot be blank");
                     return false;

@@ -201,7 +201,7 @@ function FacebookInsights() {
                                 <div>
                                     <div className="dashBox">
                                         <div className="dashIcon">
-                                            <i class="fa-solid fa-users font-50"></i>
+                                            <i className="fa-solid fa-users font-50"></i>
                                         </div>
                                         <div className="dashText">
                                             <h3>{insightsData.total_count}</h3>
@@ -214,7 +214,7 @@ function FacebookInsights() {
                                 <div>
                                     <div className="dashBox">
                                         <div className="dashIcon">
-                                            <i class="fa-solid fa-dollar-sign font-50"></i>
+                                            <i className="fa-solid fa-dollar-sign font-50"></i>
                                         </div>
                                         <div className="dashText">
                                             <h3>${insightsData.total_spend}</h3>

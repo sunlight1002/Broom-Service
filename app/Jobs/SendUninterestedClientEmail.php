@@ -39,7 +39,6 @@ class SendUninterestedClientEmail implements ShouldQueue
      */
     public function handle()
     {
-        \Log::info('Email sending ');
 
         try {
             $fileName = $this->client['lng'] === 'heb' ? 'BroomServiceHebrew.pdf' : 'BroomServiceEnglish.pdf';
@@ -56,8 +55,6 @@ class SendUninterestedClientEmail implements ShouldQueue
             //                 'mime' => 'application/pdf',
             //             ]);
             // });
-    
-            \Log::info('Email sent to client: ' . $this->client['email']);
     
         } catch (\Exception $e) {
             \Log::error('Failed to send email to client: ' . $this->client['email'] . ' - Error: ' . $e);

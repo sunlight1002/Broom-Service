@@ -91,7 +91,6 @@ class GenerateJobInvoice implements ShouldQueue
                 \Log::warning("No valid payment method or card found for client_id: {$this->clientID}");
             }
         } else {
-            \Log::info("No orders found for client_id: {$this->clientID}");
         }
     }
     

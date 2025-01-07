@@ -333,8 +333,8 @@ export default function ContractEng() {
                                                     services.map((s, i) => {
                                                         return (
                                                             <p>
-                                                                {s.service !=
-                                                                    "10"
+                                                                {s.template !=
+                                                                "others"
                                                                     ? s.name
                                                                     : s.other_title}
                                                             </p>
@@ -496,8 +496,8 @@ export default function ContractEng() {
                                                                         "work-contract.for"
                                                                     ) +
                                                                     " " +
-                                                                    (s.service !=
-                                                                        "10"
+                                                                    (s.template !=
+                                                                    "others"
                                                                         ? s.name
                                                                         : s.other_title) +
                                                                     ", " +

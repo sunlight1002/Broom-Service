@@ -5,6 +5,8 @@ import { useParams } from "react-router-dom";
 import { useAlert } from "react-alert";
 import Select from "react-select";
 import Swal from "sweetalert2";
+import PhoneInput from 'react-phone-input-2';
+
 
 import Map from "../Map/map";
 import { useTranslation } from "react-i18next";
@@ -47,6 +49,11 @@ const PropertyAddress = memo(function PropertyAddress({
     const [libraries] = useState(["places", "geometry"]);
     const [allWorkers, setAllWorkers] = useState([]);
     const [workers, setWorkers] = useState([]);
+    const [contactPerson, setContactPerson] = useState({
+        contact_person_name: "",
+        contact_person_phone: "",
+    })
+
 
     const [isOpenAddComment, setIsOpenAddComment] = useState(false);
     const [isOpenCommentList, setIsOpenCommentList] = useState(false);
@@ -157,12 +164,16 @@ const PropertyAddress = memo(function PropertyAddress({
                 id: 0,
                 not_allowed_worker_ids:
                     getWorkerId.length > 0 ? getWorkerId.toString() : null,
+                contact_person_name: contactPerson.contact_person_name,
+                contact_person_phone: contactPerson.contact_person_phone
             };
             const adId = addressId.current?.value;
             if (isAdd.current) {
                 if (!params.id) {
                     addressVal = [updatedData, ...addressVal];
                 }
+                console.log("addressVal", addressVal);
+
             } else {
                 addressVal[addressId.current.value]["geo_address"] =
                     updatedData.geo_address;
@@ -195,6 +206,14 @@ const PropertyAddress = memo(function PropertyAddress({
                 addressVal[addressId.current.value]["not_allowed_worker_ids"] =
                     updatedData.not_allowed_worker_ids
                         ? updatedData.not_allowed_worker_ids
+                        : "";
+                addressVal["contact_person_name"] =
+                    updatedData.contact_person_name
+                        ? updatedData.contact_person_name
+                        : "";
+                addressVal["contact_person_phone"] =
+                    updatedData.contact_person_phone
+                        ? updatedData.contact_person_phone
                         : "";
                 // console.log(updatedData.not_allowed_worker_ids);
             }
@@ -248,6 +267,10 @@ const PropertyAddress = memo(function PropertyAddress({
         setLatitude(32.109333);
         setLongitude(34.855499);
         setWorkers([]);
+        setContactPerson({
+            contact_person_name: "",
+            contact_person_phone: "",
+        })
     };
 
     const handleMenu = (e, data) => {
@@ -280,6 +303,14 @@ const PropertyAddress = memo(function PropertyAddress({
                 setLatitude(Number(data?.latitude));
                 setLongitude(Number(data?.longitude));
                 setAddress(data.geo_address);
+                setContactPerson({
+                    contact_person_name: data?.contact_person_name
+                        ? data?.contact_person_name
+                        : "",
+                    contact_person_phone: data?.contact_person_phone
+                        ? data?.contact_person_phone
+                        : "",
+                })
                 let wArr = [];
                 if (data.not_allowed_worker_ids) {
                     const strToArr = data.not_allowed_worker_ids.split(",");
@@ -425,6 +456,8 @@ const PropertyAddress = memo(function PropertyAddress({
                                         libraries={libraries}
                                         place={place}
                                         language={language}
+                                        fullAddress={fullAddress}
+                                        setAddress={setAddress}
                                     />
                                 </div>
                             </div>
@@ -593,6 +626,34 @@ const PropertyAddress = memo(function PropertyAddress({
                                             </small>
                                         )}
                                     </div>
+                                    <div className="form-group d-flex align-items-center">
+                                        <label className="control-label navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                            {t(
+                                                "admin.leads.AddLead.contact_person_phone"
+                                            )}{" "}
+                                        </label>
+                                        <div className="d-flex flex-column w-100">
+                                            <PhoneInput
+                                                country={'il'}
+                                                value={contactPerson.contact_person_phone}
+                                                onChange={(phone, country) => {
+                                                    const dialCode = country.dialCode;
+                                                    let formattedPhone = phone;
+                                                    if (phone.startsWith(dialCode + '0')) {
+                                                        formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                    }
+                                                    setContactPerson({
+                                                        ...contactPerson,
+                                                        contact_person_phone: formattedPhone,
+                                                    });
+                                                }}
+                                                inputClass="form-control"
+                                                inputProps={{
+                                                    name: 'phone',
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="d-flex flex-column ml-0 ml-md-3">
                                     <div className="form-group d-flex align-items-center">
@@ -675,7 +736,7 @@ const PropertyAddress = memo(function PropertyAddress({
                                             </option>
                                         </select>
                                     </div>
-                                    <div className="form-group d-flex align-items-center">
+                                    <div className="form-group d-flex align-items-center mt-3">
                                         <div className="form-check form-switch pl-0">
                                             <label
                                                 className="form-check-label custom-checkbox navyblueColor"
@@ -740,6 +801,26 @@ const PropertyAddress = memo(function PropertyAddress({
                                             onChange={(newValue) =>
                                                 setWorkers(newValue)
                                             }
+                                        />
+                                    </div>
+                                    <div className="form-group d-flex align-items-center">
+                                        <label className="control-label mb-0 navyblueColor" style={{ width: "15rem", fontWeight: "500", fontSize: "14px" }}>
+                                            {t(
+                                                "admin.leads.AddLead.contact_person_name"
+                                            )}
+                                        </label>
+                                        <input
+                                            name="contact_person_name"
+                                            type="text"
+                                            className="form-control skyBorder"
+                                            value={contactPerson.contact_person_name}
+                                            onChange={(e) => setContactPerson({
+                                                ...contactPerson,
+                                                contact_person_name: e.target.value,
+                                            })}
+                                            placeholder={t(
+                                                "admin.leads.AddLead.contact_person_name_placeholder"
+                                            )}
                                         />
                                     </div>
                                 </div>
@@ -941,13 +1022,13 @@ const PropertyAddress = memo(function PropertyAddress({
                                                     {/* <Td>
                                                         {item.not_allowed_worker_ids ? item.not_allowed_worker_ids
                                                             .map((worker, idx) => (
-                                                                <span class="user-item">
-                                                                    <div class="">
-                                                                        <i class="fa fa-user"></i>
+                                                                <span className="user-item">
+                                                                    <div className="">
+                                                                        <i className="fa fa-user"></i>
                                                                     </div>
-                                                                    <span class="">{worker.label}</span>
-                                                                    <span class="">
-                                                                        <i class="fa fa-trash"></i>
+                                                                    <span className="">{worker.label}</span>
+                                                                    <span className="">
+                                                                        <i className="fa fa-trash"></i>
                                                                     </span>
                                                                 </span>
                                                             ))

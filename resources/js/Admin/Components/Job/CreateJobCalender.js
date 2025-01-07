@@ -110,8 +110,7 @@ export default function CreateJobCalender({
         setSelectedHours(hours);
         let _calendarStartDate = calendarStartDate;
         let _calendarEndDate = calendarEndDate;
-        if(_calendarStartDate == null && week.length > 0) {
-            console.log(week[0], week[week.length - 1]);
+        if (_calendarStartDate == null && week.length > 0) {
             _calendarStartDate = week[0];
             _calendarEndDate = week[week.length - 1];
             setCalendarStartDate(week[0]);
@@ -350,7 +349,7 @@ export default function CreateJobCalender({
         setHasFetched(false);
         switch (currentFilter) {
             case "Current Week":
-                if(week.length > 0) {
+                if (week.length > 0) {
                     setAllWorkers([]);
                     setWorkerAvailabilities([]);
                     setCalendarStartDate(week[0]);
@@ -359,7 +358,7 @@ export default function CreateJobCalender({
                 break;
 
             case "Next Week":
-                if(nextweek.length > 0) {
+                if (nextweek.length > 0) {
                     setAllWorkers([]);
                     setWorkerAvailabilities([]);
                     setCalendarStartDate(nextweek[0]);
@@ -368,7 +367,7 @@ export default function CreateJobCalender({
                 break;
 
             case "Next Next Week":
-                if(nextnextweek.length > 0) {
+                if (nextnextweek.length > 0) {
                     setAllWorkers([]);
                     setWorkerAvailabilities([]);
                     setCalendarStartDate(nextnextweek[0]);
@@ -377,7 +376,7 @@ export default function CreateJobCalender({
                 break;
 
             case "Custom":
-                if(customDateRange.length > 0) {
+                if (customDateRange.length > 0) {
                     setAllWorkers([]);
                     setWorkerAvailabilities([]);
                     setCalendarStartDate(customDateRange[0]);
@@ -386,7 +385,7 @@ export default function CreateJobCalender({
                 break;
 
             default:
-                if(week.length > 0) {
+                if (week.length > 0) {
                     setAllWorkers([]);
                     setWorkerAvailabilities([]);
                     setCalendarStartDate(week[0]);
@@ -395,6 +394,16 @@ export default function CreateJobCalender({
                 break;
         }
     }, [currentFilter, customDateRange]);
+
+
+    const filteredServices = services?.filter(service => {
+        if (service?.template === "airbnb") {
+            return service?.sub_services?.id === selectedService?.sub_services?.id;
+        }
+        return service?.service === selectedService?.service;
+    });
+
+    let filteredServiceObj = Object.assign({}, filteredServices[0]);
 
     return (
         <>
@@ -506,7 +515,7 @@ export default function CreateJobCalender({
                                         disableMobile: true,
                                         minDate: moment(
                                             nextnextweek[
-                                                nextnextweek.length - 1
+                                            nextnextweek.length - 1
                                             ]
                                         )
                                             .add(1, "days")
@@ -597,133 +606,89 @@ export default function CreateJobCalender({
                                                 </td>
                                                 <td>
                                                     {" "}
-                                                    {services.map(
-                                                        (item, index) => {
-                                                            if (
-                                                                item.service ==
-                                                                "10"
-                                                            )
-                                                                return (
-                                                                    <p
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            item.other_title
-                                                                        }
+                                                    {
+                                                        filteredServiceObj && (
+                                                            <>
+                                                                <p>
+                                                                    {filteredServiceObj.template === "others"
+                                                                        ? filteredServiceObj.other_title
+                                                                        : client?.lng === 'heb'
+                                                                            ? filteredServiceObj.service_name_heb
+                                                                            : filteredServiceObj.service_name_en}
+                                                                </p>
+                                                                {filteredServiceObj.template === "airbnb" && (
+                                                                    <p className="mt-0">
+                                                                        ({client?.lng === 'heb'
+                                                                            ? filteredServiceObj.sub_services?.subServices?.name_heb
+                                                                            : filteredServiceObj.sub_services?.subServices?.name_en})
                                                                     </p>
-                                                                );
-                                                            else
-                                                                return (
-                                                                    <p
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            item.name
-                                                                        }
-                                                                    </p>
-                                                                );
-                                                        }
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {item.freq_name}
-                                                            </p>
-                                                        )
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <div key={index}>
-                                                                {item?.workers?.map(
-                                                                    (
-                                                                        worker,
-                                                                        i
-                                                                    ) => (
-                                                                        <p
-                                                                            className={`services-${item.service}-${item.contract_id}`}
-                                                                            key={
-                                                                                i
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                worker.jobHours
-                                                                            }{" "}
-                                                                            hours
-                                                                            (Worker{" "}
-                                                                            {i +
-                                                                                1}
-                                                                            )
-                                                                        </p>
-                                                                    )
                                                                 )}
-                                                            </div>
+                                                            </>
                                                         )
+                                                    }
+                                                </td>
+                                                <td>
+                                                    {filteredServiceObj && (
+                                                        <p>{filteredServiceObj.freq_name}</p>
                                                     )}
                                                 </td>
                                                 <td>
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {
-                                                                    item
-                                                                        ?.address
-                                                                        ?.address_name
-                                                                }
-                                                            </p>
-                                                        )
+                                                    {filteredServiceObj && filteredServiceObj?.workers?.map((worker, i) => (
+                                                        <p
+                                                            className={`services-${filteredServiceObj.service}-${filteredServiceObj.contract_id}`}
+                                                            key={i}
+                                                        >
+                                                            {worker.jobHours} hours (Worker {i + 1})
+                                                        </p>
+                                                    ))}
+                                                </td>
+                                                <td>
+                                                    {filteredServiceObj && (
+                                                        <p>
+                                                            {filteredServiceObj.template === "airbnb"
+                                                                ? filteredServiceObj.sub_services?.address_name || "NA"
+                                                                : filteredServiceObj.address?.address_name || "NA"}
+                                                        </p>
                                                     )}
                                                 </td>
-                                                <td
-                                                    style={{
-                                                        textTransform:
-                                                            "capitalize",
-                                                    }}
-                                                >
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {
-                                                                    item
-                                                                        ?.address
-                                                                        ?.prefer_type
-                                                                }
-                                                            </p>
-                                                        )
+                                                <td style={{ textTransform: "capitalize" }}>
+                                                    {filteredServiceObj && (
+                                                        <p>
+                                                            {filteredServiceObj.template === "airbnb"
+                                                                ? filteredServiceObj.sub_services?.fulladdress?.prefer_type || "NA"
+                                                                : filteredServiceObj.address?.prefer_type || "NA"}
+                                                        </p>
                                                     )}
                                                 </td>
                                                 <td>
-                                                    {services.map(
-                                                        (item, index) => (
-                                                            <p key={index}>
-                                                                {item?.address
-                                                                    ?.is_cat_avail
-                                                                    ? "Cat ,"
-                                                                    : item
-                                                                          ?.address
-                                                                          ?.is_dog_avail
-                                                                    ? "Dog"
-                                                                    : !item
-                                                                          ?.address
-                                                                          ?.is_cat_avail &&
-                                                                      !item
-                                                                          ?.address
-                                                                          ?.is_dog_avail
-                                                                    ? "NA"
-                                                                    : ""}
-                                                            </p>
-                                                        )
+                                                    {filteredServiceObj && (
+                                                        <p>
+                                                            {
+                                                                (() => {
+                                                                    const isCatAvail = filteredServiceObj.template === "airbnb"
+                                                                        ? filteredServiceObj.sub_services?.fulladdress?.is_cat_avail
+                                                                        : filteredServiceObj.address?.is_cat_avail;
+
+                                                                    const isDogAvail = filteredServiceObj.template === "airbnb"
+                                                                        ? filteredServiceObj.sub_services?.fulladdress?.is_dog_avail
+                                                                        : filteredServiceObj.address?.is_dog_avail;
+
+                                                                    if (isCatAvail && isDogAvail) {
+                                                                        return "Cat and Dog";
+                                                                    } else if (isCatAvail) {
+                                                                        return "Cat";
+                                                                    } else if (isDogAvail) {
+                                                                        return "Dog";
+                                                                    }
+                                                                    return "NA"; 
+                                                                })()
+                                                            }
+                                                        </p>
                                                     )}
                                                 </td>
                                             </tr>
                                         </tbody>
+
                                     </table>
                                 </div>
                                 <div className="table-responsive">
@@ -828,7 +793,7 @@ export default function CreateJobCalender({
                                                         value={index}
                                                         key={index}
                                                     >
-                                                        {item.service != "10"
+                                                        {item.template != "others"
                                                             ? item.name
                                                             : item.other_title}
                                                     </option>
@@ -858,15 +823,15 @@ const FilterButtons = ({
         style={
             selectedFilter !== text
                 ? {
-                      background: "#EDF1F6",
-                      color: "#2c3f51",
-                      borderRadius: "6px",
-                  }
+                    background: "#EDF1F6",
+                    color: "#2c3f51",
+                    borderRadius: "6px",
+                }
                 : {
-                      background: "#2c3f51",
-                      color: "white",
-                      borderRadius: "6px",
-                  }
+                    background: "#2c3f51",
+                    color: "white",
+                    borderRadius: "6px",
+                }
         }
         onClick={() => {
             onClick?.();

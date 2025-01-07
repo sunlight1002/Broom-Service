@@ -109,16 +109,18 @@ class ClientEmailController extends Controller
             'status'     => ContractStatusEnum::NOT_SIGNED
         ]);
 
-        $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
+       if($client->lead_status->lead_status !== LeadStatusEnum::ACTIVE_CLIENT) {
+            $newLeadStatus = LeadStatusEnum::PENDING_CLIENT;
 
-        if ($client->lead_status->lead_status != $newLeadStatus) {
-            $client->lead_status()->updateOrCreate(
-                [],
-                ['lead_status' => $newLeadStatus]
-            );
-        }
+            if ($client->lead_status->lead_status != $newLeadStatus) {
+                $client->lead_status()->updateOrCreate(
+                    [],
+                    ['lead_status' => $newLeadStatus]
+                );
+            }
 
-        event(new ClientLeadStatusChanged($client, $newLeadStatus));
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+       }
 
         Notification::create([
             'user_id' => $ofr['client']['id'],
@@ -412,8 +414,6 @@ class ClientEmailController extends Controller
     public function rescheduleMeeting(Request $request, $id)
     {
         $data = $request->all();
-    
-        \Log::info(["data" => $data]);
     
         $schedule = Schedule::find($id);
         if (!$schedule) {
@@ -732,6 +732,8 @@ class ClientEmailController extends Controller
             'client_id'      => $request['data']['client']['id'],
         ]);
 
+       if($client->status != 2){
+
         $newLeadStatus = LeadStatusEnum::POTENTIAL;
 
         if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
@@ -742,7 +744,7 @@ class ClientEmailController extends Controller
 
             event(new ClientLeadStatusChanged($client, $newLeadStatus));
         };
-
+       }
 
         $schedule->load(['client', 'team', 'propertyAddress']);
 

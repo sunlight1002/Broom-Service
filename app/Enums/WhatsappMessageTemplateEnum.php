@@ -174,4 +174,7 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED = "new-lead-hiring-alex-reply-unanswered";
     public const DAILY_REMINDER_TO_LEAD = "daily-reminder-to-lead";
     public const FINAL_MESSAGE_IF_NO_TO_LEAD = "final-message-if-no-to-lead";
+    public const SEND_WORKER_JOB_CANCEL_BY_TEAM = "send-worker-job-cancel-by-team";
+    public const SEND_WORKER_JOB_CANCEL_BY_CLIENT = "send-worker-job-cancel-by-client";
+    public const SEND_WORKER_TO_STOP_TIMER = "send-worker-to-stop-timer";
 }

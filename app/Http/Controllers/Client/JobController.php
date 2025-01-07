@@ -209,17 +209,10 @@ class JobController extends Controller
         foreach ($jobs as $key => $job) {
             $feePercentage = 0;
         
-            \Log::info('Current Day: ' . $currentDay);
             $endOfWeek = now()->endOfWeek();
-            \Log::info('endOfWeek: ' . $endOfWeek);
             $endOfNextWeek = now()->addWeek()->endOfWeek();
-            \Log::info('endOfNextWeek: ' . $endOfNextWeek);
             $jobStartDate = Carbon::parse($job->start_date);
-            \Log::info("Job Start Date : ". $jobStartDate);
             $timeDifference = $jobStartDate->diffInHours(now(), true);
-            \Log::info("Time Difference : ". $timeDifference);
-
-        
             if ($currentDay === 'Wednesday') {
     
                 if ($timeDifference <= 24) {
@@ -247,12 +240,7 @@ class JobController extends Controller
                 }
             }
 
-            \Log::info("Fee Percentage : ". $feePercentage);    
-        
             $feeAmount = ($feePercentage / 100) * $job->total_amount;
-        
-
-            \Log::info("JobCancellationFee Save for Job : ". $job->id);
 
             JobCancellationFee::create([
                 'job_id' => $job->id,
@@ -295,50 +283,33 @@ class JobController extends Controller
                     'status' => 'declined'
                 ]);
     
-                App::setLocale('en');
                 $data = array(
                     'by'         => 'client',
                     'email'      => $admin->email??"",
                     'admin'      => $admin?->toArray()??[],
                     'job'        => $job?->toArray()??[],
+                    'worker'     => $job->worker?->toArray()??[],
+                    'client'     => $job->client?->toArray()??[],
                 );
     
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
-                    "notificationData" => array(
-                        'by'         => 'client',
-                        'job'        => $job->toArray(),
-                    )
+                    "notificationData" => $data
                 ]));
-                // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
+                    
+                    App::setLocale('en');
+                    // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
                 //     $messages->to($data['email']);
                 //     $sub = __('mail.client_job_status.subject');
                 //     $messages->subject($sub);
                 // });
-    
-                //send notification to admin
-                $emailContent = '';
-                if ($data['by'] == 'client') {
-                    $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($job->status) . '.';
-                    if ($job->cancellation_fee_amount) {
-                        $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $job->cancellation_fee_amount . 'ILS.';
-                    }
-                } else {
-                    $emailContent .= 'Job is marked as' . ucfirst($job->status) . 'by admin/team.';
-                }
-    
-                $emailSubject = ($data['by'] == 'admin') ?
-                    ('Job has been cancelled') . " #" . $job->id :
-                    __('mail.client_job_status.subject') . " #" . $job->id;
     
                 //send notification to worker
                 $job = $job->toArray();
                 $worker = $job['worker'];
                 if($worker) {
                     $emailData = [
-                        'emailSubject'  => $emailSubject,
-                        'emailTitle'  => __('mail.job_common.job_status'),
-                        'emailContent'  => $emailContent
+                        'by' => $data['by'],
                     ];
                     event(new JobNotificationToWorker($worker, $job, $emailData));
                 }
@@ -441,15 +412,12 @@ class JobController extends Controller
         }
 
         $oldWorker = $job->worker;
-        // \Log::info(['oldWorker'=> $oldWorker]);
 
         $old_job_data = [
             'start_date' => $job->start_date,
             'start_time' => $job->start_time,
             'shifts' => $job->shifts,
         ];
-
-        // \Log::info(['old_job_data'=> $old_job_data]);
 
 
         $manageTime = ManageTime::first();
@@ -647,7 +615,7 @@ class JobController extends Controller
             'status' => 'changed'
         ]);
 
-        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
 
         event(new JobWorkerChanged(
             $job,
@@ -917,7 +885,6 @@ class JobController extends Controller
 
 
        $res =  event(new WhatsappNotificationEvent($clientData));
-       \Log::info($res);
     
         return response()->json([
             'message' => 'Request sent successfully via WhatsApp'
