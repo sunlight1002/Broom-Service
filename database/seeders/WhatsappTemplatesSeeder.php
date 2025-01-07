@@ -887,7 +887,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::OFFER_PRICE,
                 'description' => 'Client new price offer message template',
-                'message_en' => "Hello, *:client_name*
+                'message_en' => "Hello, *:property_person_name*
 
 Please check the price offer for the *:offer_service_names*. After your approval, an engagement agreement will be sent to you which you will need to fill out and sign below then we will be ready to start the work.
 Click the below button to see the price offer.
@@ -901,7 +901,7 @@ Telephone: 03-525-70-60
 office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
-                'message_heb' => "שלום, *:client_name*
+                'message_heb' => "שלום, *:property_person_name*
 
 מצ'ב הצעת מחיר עבור *:offer_service_names*. לאחר אישורכם, יישלח אליכם הסכם התקשרות אותו תצטרכו למלא ולחתום למטה ואז נהיה מוכנים להתחיל בעבודה.
 לחץ על הכפתור למטה כדי לראות את הצעת המחיר.
@@ -968,7 +968,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT,
                 'description' => 'Reminder to Client - Price Offer Sent (24 Hours, 3 Days, 7 Days)',
-                'message_en' => "Hello :client_name,
+                'message_en' => "Hello :property_person_name,
 
 Just a reminder that you received a price offer from us on :offer_sent_date.
 Please find attached the price offer again for :price_offer_services. Once you confirm, we will send you an engagement agreement to complete and sign.
@@ -985,7 +985,7 @@ Telephone: 03-525-70-60
 office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
-                'message_heb' => "שלום :client_name,
+                'message_heb' => "שלום :property_person_name,
 
 רק תזכורת לכך שקיבלת מאיתנו הצעת מחיר בתאריך :offer_sent_date.
 מצ'ב שוב הצעת המחיר לשירות :price_offer_services. לאחר אישורכם, יישלח אליכם הסכם התקשרות למילוי וחתימה.
@@ -1009,7 +1009,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED,
                 'description' => 'Reminder to Client - Agreement Signature (After 24 Hours, 3 Days, and 7 Days)',
-                'message_en' => "Hello :client_name,
+                'message_en' => "Hello :property_person_name,
 
 Just a reminder that an engagement agreement was sent to you on :contract_sent_date.
 Please find the agreement attached again. Kindly complete all details and sign where required.
@@ -1026,7 +1026,7 @@ Telephone: 03-525-70-60
 office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
-                'message_heb' => "שלום :client_name,
+                'message_heb' => "שלום :property_person_name,
 
 רק תזכורת לכך שנשלח אליכם הסכם התקשרות בתאריך :contract_sent_date.
 מצ'ב שוב הסכם ההתקשרות. נא מלאו את כל הפרטים וחתמו במקומות הנדרשים.
@@ -1281,7 +1281,7 @@ Equipo de servicio de escobas',
             [
                 'key' => WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT,
                 'description' => 'notification send when worker lead webhook status is irrelevant',
-                'message_en' => "Hello :client_name
+                'message_en' => "Hello :worker_name,
 
 🌟 Thank you for contacting us at Job4Service.
 
@@ -1296,7 +1296,7 @@ https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT
 https://t.me/+m84PexCmLjs0MmZk\nhttps://www.facebook.com/JobinIsraelforubr
 
 Have a wonderful day!🌟",
-                'message_heb' => "שלום :client_name,
+                'message_heb' => "שלום :worker_name,
 
 🌟 תודה שפנית אלינו ב-Job4Service.
 
@@ -1312,7 +1312,7 @@ https://t.me/+m84PexCmLjs0MmZk
 https://www.facebook.com/JobinIsraelforubr
 
 שיהיה לך יום נפלא !🌟",
-                'message_spa' => "Hola :client_name
+                'message_spa' => "Hola :worker_name
 
 🌟 Gracias por contactarnos en Job4Service.
 
@@ -1328,7 +1328,7 @@ https://t.me/+m84PexCmLjs0MmZk
 https://www.facebook.com/JobinIsraelforubr
 
 Que tengas un día maravilloso !🌟",
-                'message_ru' => "Привет :client_name,
+                'message_ru' => "Привет :worker_name,
 
 🌟 Спасибо, что связались с нами в Job4Service
 
@@ -1990,7 +1990,7 @@ Click here to take action: :lead_detail_url',
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT,
                 'description' => 'Send message to client to arrange a callbac',
-                'message_en' => 'Hello, *:client_name*,
+                'message_en' => "Hello, *:client_name*,
 
 Greetings from Broom Service
 
@@ -2001,9 +2001,11 @@ Your payment with card [**** **** **** :card_number] has failed. Please add a ne
 Best regards,
 Broom Service Team
 📞 03-525-70-60
-🌐 www.broomservice.co.il',
+🌐 www.broomservice.co.il
 
-                'message_heb' => 'שלום, *:client_name*
+If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
+
+                'message_heb' => "שלום, *:client_name*
 
 התשלום עם כרטיס [**** **** ****:card_number] נכשל. אנא עדכנו לכרטיס תקין או צרו איתנו קשר בהקדם.
 
@@ -2012,7 +2014,9 @@ Broom Service Team
 בברכה,
 ברום סרוויס צוות
 📞 03-525-70-60
-🌐 www.broomservice.co.i',
+🌐 www.broomservice.co.i
+
+אם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הפסק' בכל עת.",
 
                 'message_spa' => '',
                 'message_ru' => '',
@@ -2171,8 +2175,8 @@ Equipo de Broom Service",
 
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT,
-                'description' => 'Send message to client when status is not updated from 24 hours',
-                'message_en' => "Hello *:client_name*
+                'description' => 'Send message to client when Contract is verified',
+                'message_en' => "Hello *:property_person_name*
 
 Your agreement has been successfully confirmed. We will contact you soon to schedule your service.
 
@@ -2184,7 +2188,7 @@ office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
-                'message_heb' => "שלום *:client_name*',
+                'message_heb' => "שלום *:property_person_name*',
 
 ההסכם שלך אומת בהצלחה. ניצור איתך קשר בקרוב לתיאום השירות.
 
@@ -2202,7 +2206,7 @@ office@broomservice.co.il
 
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM,
-                'description' => 'Send message to team when status is not updated from 24 hours',
+                'description' => 'Send message to team when Contract is verified',
                 'message_en' => 'Hello, *Team*,
 
                ',
@@ -2222,8 +2226,8 @@ office@broomservice.co.il
 
             [
                 'key' => WhatsappMessageTemplateEnum::CONTRACT,
-                'description' => 'Send message to team when status is not updated from 24 hours',
-                'message_en' => "Hello :client_name
+                'description' => 'Send message to client when Contract is sent',
+                'message_en' => "Hello :property_person_name
 
 Greetings from Broom Service.
 
@@ -2241,7 +2245,7 @@ office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
-                'message_heb' => "שלום, *:client_name*
+                'message_heb' => "שלום, *:property_person_name*
 
 מצורף בזאת הסכם התקשרות לחתימה דיגיטלית. יש להוסיף את כרטיס האשראי לתשלום, בצירוף חתימת בעל הכרטיס המאשר לחייבו במועד החיוב. הכרטיס יחויב בסכום של 1 ש\"ח ולאחר מכן יזוכה, זאת כדי לוודא את תקינותו. הפרטים יישמרו במערכת מאובטחת. בנוסף, יש לחתום בעמוד האחרון ולאשר את ההסכם.
 
@@ -2261,8 +2265,8 @@ office@broomservice.co.il
 
             [
                 'key' => WhatsappMessageTemplateEnum::CREATE_JOB,
-                'description' => 'Send message to team when status is not updated from 24 hours',
-                'message_en' => "Hello :client_name
+                'description' => 'Send message to client when job is created',
+                'message_en' => "Hello :property_person_name
 
 A service has been scheduled for you: *:job_service_name* on *:job_start_date* at *:job_start_time*
 Please note that the estimated arrival time of our team can be up to an hour and a half from the scheduled start time.
@@ -2279,9 +2283,9 @@ office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
-                'message_heb' => "שלום, *:client_name*
+                'message_heb' => "שלום, *:property_person_name*
 
-נקבע עבורך שירות :service_name בתאריך :job_start_date בשעה :job_start_time.
+נקבע עבורך שירות :job_service_name בתאריך :job_start_date בשעה :job_start_time.
 
 לתשומת לבך, זמן ההגעה המשוער של הצוות יכול להיות עד שעה וחצי מזמן ההתחלה שתואם.
 
@@ -2304,7 +2308,7 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED,
                 'description' => 'Review message for client after job completion',
-                'message_en' => "Hello, *:client_name*
+                'message_en' => "Hello, *:property_person_name*
 
 We hope you enjoyed the service provided by our team.
 
@@ -2323,7 +2327,7 @@ Telephone: 03-525-70-60
 office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
-                'message_heb' => "שלום, *:client_name*
+                'message_heb' => "שלום, *:property_person_name*
 
 אנו מקווים שנהניתם מהשירות שניתן על ידי הצוות שלנו.
 
@@ -2585,8 +2589,8 @@ Equipo de Broom Service",
 
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION,
-                'description' => 'Client meeting schedule reminder message template',
-                'message_en' => "Hello, *:client_name*
+                'description' => 'Send job reminder to client on job cancel',
+                'message_en' => "Hello, *:property_person_name*
 
 The service has been canceled. Please check the details.
 
@@ -2605,7 +2609,7 @@ office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
 
-                'message_heb' => "שלום, *:client_name*
+                'message_heb' => "שלום, *:property_person_name*
 
 השירות בוטל. אנא בדוק את הפרטים.
 
@@ -2630,7 +2634,7 @@ office@broomservice.co.il
 
             [
                 'key' => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
-                'description' => 'Client meeting schedule reminder message template',
+                'description' => 'Send job reminder to admin on job cancel',
                 'message_en' => "Hello, *Team*
 
 
@@ -2659,7 +2663,7 @@ Broom Service Team",
 
             [
                 'key' => WhatsappMessageTemplateEnum::CLIENT_REVIEWED,
-                'description' => 'Client meeting schedule reminder message template',
+                'description' => 'Client review message template',
                 'message_en' => "Hello, *Team*
 
 
@@ -3816,6 +3820,238 @@ Broom Service Team 🌹",
 С наилучшими пожеланиями,
 Команда Broom Service 🌹",
             ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_TEAM,
+                'description' => 'send worker job cancel by team',
+                'message_en' => "Hello :worker_name,
+
+Job is marked as Cancel by admin/team.
+
+Please check the details.
+
+Date/Time: :job_start_date
+Client: :client_name
+Service: :job_service_name
+Start time: :job_start_time
+Property: :job_full_address
+
+Check Job Details: :worker_job_link
+
+If you have any questions or concerns please don't hesitate to get in touch with us by replying to this email.
+
+Best Regards,
+Broom Service Team",
+                'message_heb' => "שלום :worker_name,
+
+המשרה מסומנת כמבוטלת על ידי המנהל/צוות.
+
+אנא בדוק את הפרטים.
+
+תאריך/שעה: :job_start_date
+לקוח: :client_name
+שירות: :job_service_name
+שעת התחלה: :job_start_time
+נֶכֶס: :job_full_address
+
+בדוק את פרטי המשרה: :worker_job_link
+
+אם יש לך שאלות או חששות, אל תהסס לפנות אלינו על ידי מענה לדוא'ל זה.
+
+בברכה,
+צוות שירות רום",
+                'message_spa' => 'Hola :worker_name,
+
+El administrador o el equipo marcaron el trabajo como cancelado.
+
+Verifique los detalles.
+
+Fecha/hora: :job_start_date
+Cliente: :client_name
+Servicio: :job_service_name
+Hora de inicio: :job_start_time
+Propiedad: :job_full_address
+
+Verifique los detalles del trabajo: :worker_job_link
+
+Si tiene alguna pregunta o inquietud, no dude en comunicarse con nosotros respondiendo a este correo electrónico.
+
+Atentamente,
+Equipo de servicio de escobas',
+                'message_ru' => 'Здравствуйте, :worker_name,
+
+Задание отмечено как Отмененное администратором/командой.
+
+Проверьте подробности.
+
+Дата/время: :job_start_date
+Клиент: :client_name
+Услуга: :job_service_name
+Время начала: :job_start_time
+Объект: :job_full_address
+
+Проверьте подробности задания: :worker_job_link
+
+Если у вас есть какие-либо вопросы или опасения, не стесняйтесь обращаться к нам, ответив на это письмо.
+
+С наилучшими пожеланиями,
+Команда Broom Service',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_CLIENT,
+                'description' => 'send worker job cancel by client',
+                'message_en' => "Hello :worker_name,
+
+Client changed the Job status to Cancel With Cancellation fees :cancellation_fee.
+
+Please check the details.
+
+Date/Time: :job_start_date
+Client: :client_name
+Service: :job_service_name
+Start time: :job_start_time
+Property: :job_full_address
+
+Check Job Details: :worker_job_link
+
+If you have any questions or concerns please don't hesitate to get in touch with us by replying to this email.
+
+Best Regards,
+Broom Service Team",
+                'message_heb' => "שלום :worker_name,
+
+הלקוח שינה את סטטוס המשרה לביטול עם דמי ביטול :cancellation_fee.
+
+אנא בדוק את הפרטים.
+
+תאריך/שעה: :job_start_date
+לקוח: :client_name
+שירות: :job_service_name
+שעת התחלה: :job_start_time
+נֶכֶס: :job_full_address
+
+בדוק את פרטי המשרה: :worker_job_link
+
+אם יש לך שאלות או חששות, אל תהסס ליצור איתנו קשר על ידי מענה לדוא'ל זה.
+
+בברכה,
+צוות שירות רום",
+                'message_spa' => 'Hola :worker_name,
+
+El cliente cambió el estado del trabajo a Cancelar con cargos por cancelación :cancellation_fee.
+
+Verifique los detalles.
+
+Fecha/Hora: :job_start_date
+Cliente: :client_name
+Servicio: :job_service_name
+Hora de inicio: :job_start_time
+Propiedad: :job_full_address
+
+Verifique los detalles del trabajo: :worker_job_link
+
+Si tiene alguna pregunta o inquietud, no dude en ponerse en contacto con nosotros respondiendo a este correo electrónico.
+
+Atentamente,
+Equipo de servicio de escobas',
+                'message_ru' => 'Здравствуйте, :worker_name,
+
+Клиент изменил статус задания на «Отмена с оплатой за отмену» :cancellation_fee.
+
+Проверьте подробности.
+
+Дата/время: :job_start_date
+Клиент: :client_name
+Услуга: :job_service_name
+Время начала: :job_start_time
+Недвижимость: :job_full_address
+
+Проверьте подробности задания: :worker_job_link
+
+Если у вас есть какие-либо вопросы или опасения, не стесняйтесь обращаться к нам, ответив на это письмо.
+
+С наилучшими пожеланиями,
+Команда Broom Service',
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::SEND_WORKER_TO_STOP_TIMER,
+                'description' => 'send worker to stop timer',
+                'message_en' => "Hello :worker_name,
+
+The job time has been stopped by you. Check the below link and click  *Mark as complete* if you want to complete your job else click on  *Resume timer* to continue job.
+
+Please check the details.
+
+Date/Time: :job_start_date
+Client: :client_name
+Service: :job_service_name
+Start time: :job_start_time
+Property: :job_full_address
+
+Check Job Details: :worker_job_link
+
+If you have any questions or concerns please don't hesitate to get in touch with us by replying to this email.
+
+Best Regards,
+Broom Service Team",
+                'message_heb' => "שלום :worker_name,
+
+זמן העבודה הופסק על ידך. סמן את הקישור למטה ולחץ על *סמן כהשלמה* אם ברצונך להשלים את העבודה שלך אחרת לחץ על *המשך טיימר* כדי להמשיך בעבודה.
+
+אנא בדוק את הפרטים.
+
+תאריך/שעה: :job_start_date
+לקוח: :client_name
+שירות: :job_service_name
+זמן התחלה: :job_start_time
+נכס: :job_full_address
+
+בדוק את פרטי המשרה: :worker_job_link
+
+אם יש לך שאלות או חששות, אל תהסס ליצור איתנו קשר על ידי מענה לדוא'ל זה.
+
+בברכה,
+צוות שירות רום",
+                'message_spa' => 'Hola :worker_name,
+
+Ha detenido el trabajo. Compruebe el siguiente enlace y haga clic en *Marcar como completado* si desea completar su trabajo; de lo contrario, haga clic en *Reanudar temporizador* para continuar con el trabajo.
+
+Compruebe los detalles.
+
+Fecha/Hora: :job_start_date
+Cliente: :client_name
+Servicio: :job_service_name
+Hora de inicio: :job_start_time
+Propiedad: :job_full_address
+
+Verifique los detalles del trabajo: :worker_job_link
+
+Si tiene alguna pregunta o inquietud, no dude en ponerse en contacto con nosotros respondiendo a este correo electrónico.
+
+Atentamente,
+Equipo de servicio de escobas',
+                'message_ru' => 'Здравствуйте, :worker_name,
+
+Вы остановили время выполнения задания. Проверьте ссылку ниже и нажмите *Отметить как выполненное*, если вы хотите завершить задание, в противном случае нажмите *Таймер возобновления*, чтобы продолжить задание.
+
+Проверьте детали.
+
+Дата/время: :job_start_date
+Клиент: :client_name
+Услуга: :job_service_name
+Время начала: :job_start_time
+Свойство: :job_full_address
+
+Проверьте детали задания: :worker_job_link
+
+Если у вас есть какие-либо вопросы или опасения, не стесняйтесь обращаться к нам, ответив на это письмо.
+
+С наилучшими пожеланиями,
+Команда Broom Service',
+            ],
+
         ];
 
         foreach ($templates as $key => $template) {

@@ -385,7 +385,7 @@ class AuthController extends Controller
 
         $form = $user->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
-            ->whereYear('created_at', now()->year)
+            // ->whereYear('created_at', now()->year)
             ->first();
 
         return response()->json([
@@ -561,7 +561,8 @@ class AuthController extends Controller
                 WorkerFormTypeEnum::INSURANCE,
                 WorkerFormTypeEnum::MANPOWER_SAFTEY,
             ])
-            ->whereYear('created_at', now()->year)
+            // ->whereYear('created_at', now()->year)
+            ->orderBy('created_at', 'DESC')
             ->get()
             ->groupBy('type');
 
@@ -736,7 +737,8 @@ class AuthController extends Controller
                 $q->where('id', $formId);
             })
             ->when($formId == NULL, function ($q) use ($formId) {
-                $q->where('type', WorkerFormTypeEnum::FORM101)->whereYear('created_at', now()->year);
+                $q->where('type', WorkerFormTypeEnum::FORM101);
+                // ->whereYear('created_at', now()->year);
             })
             ->first();
 
@@ -971,7 +973,8 @@ class AuthController extends Controller
                 $q->where('id', $formId);
             })
             ->when($formId == NULL, function ($q) use ($formId) {
-                $q->where('type', WorkerFormTypeEnum::FORM101)->whereYear('created_at', now()->year);
+                $q->where('type', WorkerFormTypeEnum::FORM101);
+                // ->whereYear('created_at', now()->year);
             })
             ->first();
 
@@ -990,7 +993,7 @@ class AuthController extends Controller
             ], 404);
         }
         $form = $worker->forms()
-            ->whereYear('created_at', now()->year)
+            // ->whereYear('created_at', now()->year)
             ->get();
 
         return response()->json([
@@ -1030,7 +1033,7 @@ class AuthController extends Controller
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::INSURANCE)
-            ->whereYear('created_at', now()->year)
+            // ->whereYear('created_at', now()->year)
             ->first();
 
         return response()->json([
@@ -1064,7 +1067,7 @@ class AuthController extends Controller
 
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::INSURANCE)
-            ->whereYear('created_at', now()->year)
+            // ->whereYear('created_at', now()->year)
             ->first();
 
         if ($form && $form->submitted_at) {

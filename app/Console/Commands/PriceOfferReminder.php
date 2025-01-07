@@ -14,6 +14,8 @@ use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use App\Models\ClientPropertyAddress;
+
 
 class PriceOfferReminder extends Command
 {
@@ -37,6 +39,7 @@ class PriceOfferReminder extends Command
         foreach ($offers as $offer) {
             $client = $offer->client;
             $daysDiff = Carbon::now()->diffInDays(Carbon::parse($offer->created_at));
+            \Log::info($daysDiff);
 
             if ($daysDiff <= 1) {
                 $offer->offer_pending_since = '24 שעות'; // 24 hours
@@ -49,7 +52,43 @@ class PriceOfferReminder extends Command
             }
             if ($client) {
                 $offerArr = $offer->toArray();
-                $offerArr['services'] = json_decode($offerArr['services']);
+                $services = json_decode($offerArr['services']);
+                
+                if (isset($services)) {
+                    $s_names = '';
+                    $s_templates_names = '';
+                    foreach ($services as $k => $service) {
+                        if ($k != count($services) - 1 && $service->template != "others") {
+                            $s_names .= $service->name . ", ";
+                            $s_templates_names .= $service->template . ", ";
+                        } else if ($service->template == "others") {
+                            if ($k != count($services) - 1) {
+                                $s_names .= $service->other_title . ", ";
+                                $s_templates_names .= $service->template . ", ";
+                            } else {
+                                $s_names .= $service->other_title;
+                                $s_templates_names .= $service->template;
+                            }
+                        } else {
+                            $s_names .= $service->name;
+                            $s_templates_names .= $service->template;
+                        }
+                    }
+                }
+                $offerArr['services'] = $services;
+                $offerArr['service_names'] = $s_names;
+                $offerArr['service_template_names'] = $s_templates_names;
+
+                $property = null;
+
+                $addressId = $services[0]->address;
+                if (isset($addressId)) {
+                    $address = ClientPropertyAddress::find($addressId);
+                    if (isset($address)) {
+                        $property = $address;
+                    }
+                }
+                
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::STATUS_NOT_UPDATED,
                     "notificationData" => [
@@ -62,7 +101,8 @@ class PriceOfferReminder extends Command
                     "type" => WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT,
                     "notificationData" => [
                         'client' => $client->toArray(),
-                        'offer' => $offerArr
+                        'offer' => $offerArr,
+                        'property' => $property
                     ]
                 ]));
             }

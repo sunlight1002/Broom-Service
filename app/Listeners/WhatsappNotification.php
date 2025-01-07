@@ -307,7 +307,7 @@ class WhatsappNotification
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
 
-    private function replaceOfferFields($text, $offerData)
+    private function replaceOfferFields($text, $offerData, $clientData, $propertyData)
     {
         $serviceNames = [];
 
@@ -327,9 +327,18 @@ class WhatsappNotification
 
         $serviceNamesString = implode(", ", $serviceNames);
 
+        if ($offerData && isset($offerData['service_template_names']) && str_contains($offerData['service_template_names'], 'airbnb')) {
+            $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
+        } elseif (isset($propertyData['contact_person_name']) && !empty($propertyData['contact_person_name'])) {
+            $property_person_name = $propertyData['contact_person_name'] ?? null;
+        } else {
+            $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
+        }       
+
         $placeholders = [];
         if ($offerData) {
             $placeholders = [
+                ':property_person_name' => $property_person_name  ?? '',
                 ':offer_service_names' => $offerData['service_names'] ?? '',
                 ':offer_pending_since' => $offerData['offer_pending_since'] ?? '',
                 ':offer_detail_url' => $offerDetailLink ?? '',
@@ -351,10 +360,19 @@ class WhatsappNotification
             if(isset($contractData["contract_id"]) || $contractData["id"]) {
                 $teamViewContract = $this->generateShortUrl(isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '', 'admin');
                 $createJobLink = $this->generateShortUrl(isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : "", 'admin');
-                $clientContractLink = $this->generateShortUrl(isset($contractData['contract_id']) ? url("work-contract/" . $contractData['contract_id']) : '');
+                $clientContractLink = $this->generateShortUrl((isset($contractData['contract_id']) || isset($contractData['unique_hash'])) ? url("work-contract/" . ($contractData['contract_id'] ?? $contractData['unique_hash'])) : '', 'client');
             }
 
+            // if ($eventData['offer'] && isset($eventData['offer']['service_template_names']) && str_contains($eventData['offer']['service_template_names'], 'airbnb')) {
+            //     $property_person_name = trim(trim($eventData['client']['firstname'] ?? '') . ' ' . trim($eventData['client']['lastname'] ?? '')) ?? null;
+            // } elseif (isset($eventData['property']['contact_person_name']) && !empty($eventData['property']['contact_person_name'])) {
+            //     $property_person_name = $eventData['property']['contact_person_name'] ?? null;
+            // } else {
+            //     $property_person_name = trim(trim($eventData['client']['firstname'] ?? '') . ' ' . trim($eventData['client']['lastname'] ?? '')) ?? null;
+            // }       
+
             $placeholders = [
+                // ':property_person_name' => $property_person_name  ?? '',
                 ':client_contract_link' => $clientContractLink ?? '',
                 ':team_contract_link' => $teamViewContract ?? '',
                 ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at']?? '')->format('M d Y H:i') : '',
@@ -391,6 +409,30 @@ class WhatsappNotification
                 $workerHearingLink = $this->generateShortUrl(isset($eventData['id']) ? url("hearing-schedule/" . base64_encode($eventData['id'])) : '', 'worker');
             }
 
+            $commentBy = "";
+            $cancellationFee = null;
+            if ($by === 'client') {
+                $status = isset($eventData['job']) && ucfirst($eventData['job']['status'] ?? "");
+                $cancellationFee = isset($eventData['job']['cancellation_fee_amount']) 
+                    ? ($eventData['job']['cancellation_fee_amount'] . " ILS") 
+                    : null;
+            
+                if (isset($eventData['client']) && $eventData['client']['lng'] === 'en') {
+                    $commentBy = "Client changed the Job status to $status.";
+                    if ($cancellationFee) {
+                        $commentBy .= " With Cancellation fees $cancellationFee.";
+                    }
+                } else {
+                    $commentBy = "הלקוח שינה את סטטוס העבודה ל $status.";
+                    if ($cancellationFee) {
+                        $commentBy .= " עם דמי ביטול $cancellationFee.";
+                    }
+                }
+            } else {
+                $status = isset($eventData['job']) && ucfirst($eventData['job']['status'] ?? "");
+                $commentBy = "עבודה מסומנת בתור $status";
+            }
+
             $placeholders = [
                ':team_name' => isset($eventData['team']) && !empty($eventData['team']['name'])
                                 ? $eventData['team']['name']
@@ -406,16 +448,12 @@ class WhatsappNotification
                     ? (($eventData['job']['jobservice']['heb_name'] ?? '') . ', ')
                     : (($eventData['job']['jobservice']['name'] ?? '') . ', '),
                 ':old_job_start_time' => Carbon::parse($eventData['old_job']['start_time'] ?? "00:00")->format('H:i'),
-                ':comment' => $by == 'client'
-                    ? ("Client changed the Job status to " . ucfirst($jobData['status'] ?? "") . "."
-                    . (isset($jobData['cancellation_fee_amount']) ?
-                        (" With Cancellation fees " . $jobData['cancellation_fee_amount'] . " ILS.") : " "))
-                    : ("Job is marked as " . ucfirst($jobData['status'] ?? "")),
+                ':comment' => $commentBy ?? '',
                 ':admin_name' => $eventData['admin']['name'] ?? '',
                 ':came_from' => $eventData['type'] ?? '',
                 ':reschedule_call_date' => $eventData['activity']['reschedule_date'] ?? '',
                 ':reschedule_call_time' => $eventData['activity']['reschedule_time'] ?? '',
-
+                ':cancellation_fee' => $cancellationFee ?? '',
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 
             ];
@@ -453,6 +491,8 @@ class WhatsappNotification
                 $clientData = $eventData['client'] ?? null;
                 $offerData = $eventData['offer'] ?? null;
                 $contractData = $eventData['contract'] ?? null;
+                $propertyData = $eventData['property'] ?? null;
+
                 switch ($eventType) {
                     case WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_6_PM:
                     case WhatsappMessageTemplateEnum::WORKER_NEXT_DAY_JOB_REMINDER_AT_5_PM:
@@ -474,6 +514,10 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NEW_LEAD_HIRING_ALEX_REPLY_UNANSWERED:
                     case WhatsappMessageTemplateEnum::DAILY_REMINDER_TO_LEAD:
                     case WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD:
+                    case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
+                    case WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_TEAM:
+                    case WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_CLIENT:
+                    case WhatsappMessageTemplateEnum::SEND_WORKER_TO_STOP_TIMER:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
@@ -523,46 +567,88 @@ class WhatsappNotification
                         App::setLocale('heb');
                         break;
 
-                    case WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION:
+                    // case WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION:
+                    // case WhatsappMessageTemplateEnum::OFFER_PRICE:
+                    // case WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT:
+                    // case WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED:
+                    // case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
+                    // case WhatsappMessageTemplateEnum::CONTRACT:
+                    // case WhatsappMessageTemplateEnum::CREATE_JOB:
+                    // case WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED:
+                    // case WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION:
+                    // case WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION:
+                    // case WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER:
+                    // case WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT:
+                    // case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT:
+                    case WhatsappMessageTemplateEnum::INQUIRY_RESPONSE:
+                    case WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT:
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_SCHEDULE:
                     case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST:
                     case WhatsappMessageTemplateEnum::DELETE_MEETING:
-                    case WhatsappMessageTemplateEnum::OFFER_PRICE:
-                    case WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT:
-                    case WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED:
                     case WhatsappMessageTemplateEnum::OFF_SITE_MEETING_REMINDER_TO_CLIENT:
                     case WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE:
-                    case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
                     case WhatsappMessageTemplateEnum::CLIENT_IN_FREEZE_STATUS:
-                    case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
-                    case WhatsappMessageTemplateEnum::CONTRACT:
-                    case WhatsappMessageTemplateEnum::CREATE_JOB:
-                    case WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED:
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_REMINDER:
-                    case WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION:
                     case WhatsappMessageTemplateEnum::UNANSWERED_LEAD:
-                    case WhatsappMessageTemplateEnum::INQUIRY_RESPONSE:
                     case WhatsappMessageTemplateEnum::PAST:
-                    case WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION:
                     case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
                     case WhatsappMessageTemplateEnum::NOTIFY_CLIENT_FOR_TOMMOROW_MEETINGS:
                     case WhatsappMessageTemplateEnum::ADMIN_RESCHEDULE_MEETING:
-                    case WhatsappMessageTemplateEnum::AFTER_STOP_TO_CLIENT:
                     case WhatsappMessageTemplateEnum::CLIENT_NOT_IN_SYSTEM_OR_NO_OFFER:
                     case WhatsappMessageTemplateEnum::CLIENT_HAS_OFFER_BUT_NO_SIGNED_OR_NO_CONTRACT:
-                    case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT:
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_3_DAYS:
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_7_DAYS:
                     case WhatsappMessageTemplateEnum::NOTIFY_UNANSWERED_AFTER_8_DAYS:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_CLIENT:
                     case WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_CLIENT:
+                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                            \Log::info("client disable notification");
+                            return;
+                        }
+                        $receiverNumber = $clientData['phone'] ?? null;
+                        Log::info($receiverNumber);
+                        $lng = $clientData['lng'] ?? 'heb';
+                        break;
+
+
+                    case WhatsappMessageTemplateEnum::CLIENT_PAYMENT_FAILED_TO_CLIENT:
+                        if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
+                            \Log::info("client disable notification");
+                            return;
+                        }
+                        $receiverNumber = isset($clientData['contact_person_phone']) ? $clientData['contact_person_phone'] : $clientData['phone'] ?? null;
+                        Log::info($receiverNumber);
+                        $lng = $clientData['lng'] ?? 'heb';
+                        break;
+
+                    case WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION://done
+                    case WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION: //done
+                    case WhatsappMessageTemplateEnum::OFFER_PRICE: //done
+                    case WhatsappMessageTemplateEnum::FOLLOW_UP_PRICE_OFFER_SENT_CLIENT: //done
+                    case WhatsappMessageTemplateEnum::NOTIFY_TO_CLIENT_CONTRACT_NOT_SIGNED: //done
+                    case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT: //done
+                    case WhatsappMessageTemplateEnum::CONTRACT: //done
+                    case WhatsappMessageTemplateEnum::CREATE_JOB: //done
+                    case WhatsappMessageTemplateEnum::CLIENT_JOB_UPDATED: //done
+                    case WhatsappMessageTemplateEnum::CLIENT_JOB_STATUS_NOTIFICATION: //done
                     case WhatsappMessageTemplateEnum::CLIENT_DECLINED_PRICE_OFFER:
                     case WhatsappMessageTemplateEnum::CLIENT_DECLINED_CONTRACT:
                         if(isset($clientData['disable_notification']) && $clientData['disable_notification'] == 1){
                             \Log::info("client disable notification");
                             return;
                         }
-                        $receiverNumber = $clientData['phone'] ?? null;
+
+                        if ($offerData && isset($offerData['service_template_names']) && str_contains($offerData['service_template_names'], 'airbnb')) {
+                            \Log::info("airbnb");
+                            $receiverNumber = $clientData['phone'] ?? null;
+                        } elseif (isset($propertyData['contact_person_phone'])) {
+                            \Log::info("property");
+                            $receiverNumber = $propertyData['contact_person_phone'];
+                        } else {
+                            \Log::info("client");
+                            $receiverNumber = $clientData['phone'] ?? null;
+                        }       
+
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
                         break;
@@ -614,58 +700,13 @@ class WhatsappNotification
                 $text = $this->replaceWorkerFields($text, $workerData, $eventData);
                 $text = $this->replaceJobFields($text, $jobData, $workerData, $commentData);
                 $text = $this->replaceMeetingFields($text, $eventData, $lng);
-                $text = $this->replaceOfferFields($text, $offerData);
+                $text = $this->replaceOfferFields($text, $offerData, $clientData, $propertyData);
                 $text = $this->replaceContractFields($text, $contractData, $eventData);
                 $text = $this->replaceOrderFields($text, $eventData);
                 $text = $this->replaceOtherFields($text, $eventData);
 
             } else {
                 switch ($eventType) {
-
-                    case WhatsappMessageTemplateEnum::JOB_APPROVED_NOTIFICATION_TO_WORKER:
-                        // Extract job data
-                        $jobData = $eventData['job'];
-                        $emailData = $eventData['emailData'] ?? null;  // Check if emailData is present
-                        $worker = $eventData['worker'] ?? null;  // Check if emailData is present
-
-                        App::setLocale($worker['lng']);
-
-                        $receiverNumber = $jobData['client']['phone'];
-
-                        // Build the message
-                        $text =  $emailData['emailSubject'] . "\n\n";
-
-                        $text =  $emailData['emailTitle'] . "\n\n";
-
-
-                        $text .= __('mail.wa-message.common.salutation', ['name' => $jobData['worker']['firstname']]) . "\n\n";
-                        // if (isset($emailData['emailContentWa'])) {
-                        //     $text .= $emailData['emailContentWa'] . "\n\n";
-                        // } else {
-                        //     $text .= $emailData['emailContent'] . "\n\n";
-                        // }
-
-                        if (isset($emailData['emailContentWa'])) {
-                            $text .= $emailData['emailContentWa'] . "\n\n";
-                        }else{
-                            $text .= $emailData['emailContent'] . "\n\n";
-                        }
-
-
-                        $text .= __('mail.wa-message.worker_job_approval.content', [
-                            'date_time' => Carbon::parse($jobData['start_date'])->format('M d Y') . " " . Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
-                            'client_name' => $jobData['client']['firstname'] . " " . $jobData['client']['lastname'],
-                            'worker_name' => $jobData['worker']['firstname'] . " " . $jobData['worker']['lastname'],
-                            'service_name' => $jobData['worker']['lng'] == 'heb' ? $jobData['jobservice']['heb_name'] : $jobData['jobservice']['name'],
-                            'start_time' => Carbon::today()->setTimeFromTimeString($jobData['start_time'])->format('H:i'),
-                            'address' => $jobData['property_address']['address_name'] ?? 'NA',
-                        ]);
-
-                        $text .= "\n\n" . __('mail.job_common.check_job_details') . ": " . url("worker/jobs/view/" . $jobData['id']) . "\n\n";
-                        $text .= __('mail.job_common.reply_txt') . "\n\n";
-                        $text .= __('mail.wa-message.common.signature');
-
-                        break;
 
 
                     case WhatsappMessageTemplateEnum::SICK_LEAVE_NOTIFICATION:
@@ -693,6 +734,8 @@ class WhatsappNotification
             if ($receiverNumber && $text) {
                 Log::info('SENDING WA to ' . $receiverNumber);
                 Log::info($text);
+                Log::info($eventType);
+                Log::info($lng);
 
                 $token = $receiverNumber == config('services.whatsapp_groups.relevant_with_workers') ? $this->whapiWorkerApiToken : $this->whapiApiToken;
                 $response = Http::withToken($token)
@@ -706,7 +749,7 @@ class WhatsappNotification
         } catch (\Throwable $th) {
             // dd($th);
             // throw $th;
-            Log::error('WA NOTIFICATION ERROR', ['error' => $th->getMessage(), 's' => $th->getTraceAsString()]);
+            Log::error('WA NOTIFICATION ERROR', ['error' => $th]);
         }
     }
 }

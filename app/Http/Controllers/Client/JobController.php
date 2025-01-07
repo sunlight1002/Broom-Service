@@ -283,50 +283,33 @@ class JobController extends Controller
                     'status' => 'declined'
                 ]);
     
-                App::setLocale('en');
                 $data = array(
                     'by'         => 'client',
                     'email'      => $admin->email??"",
                     'admin'      => $admin?->toArray()??[],
                     'job'        => $job?->toArray()??[],
+                    'worker'     => $job->worker?->toArray()??[],
+                    'client'     => $job->client?->toArray()??[],
                 );
     
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::ADMIN_JOB_STATUS_NOTIFICATION,
-                    "notificationData" => array(
-                        'by'         => 'client',
-                        'job'        => $job->toArray(),
-                    )
+                    "notificationData" => $data
                 ]));
-                // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
+                    
+                    App::setLocale('en');
+                    // Mail::send('/ClientPanelMail/JobStatusNotification', $data, function ($messages) use ($data) {
                 //     $messages->to($data['email']);
                 //     $sub = __('mail.client_job_status.subject');
                 //     $messages->subject($sub);
                 // });
-    
-                //send notification to admin
-                $emailContent = '';
-                if ($data['by'] == 'client') {
-                    $emailContent .=  __('mail.client_job_status.content') . ' ' . ucfirst($job->status) . '.';
-                    if ($job->cancellation_fee_amount) {
-                        $emailContent .= __('mail.client_job_status.cancellation_fee') . ' ' . $job->cancellation_fee_amount . 'ILS.';
-                    }
-                } else {
-                    $emailContent .= 'Job is marked as' . ucfirst($job->status) . 'by admin/team.';
-                }
-    
-                $emailSubject = ($data['by'] == 'admin') ?
-                    ('Job has been cancelled') . " #" . $job->id :
-                    __('mail.client_job_status.subject') . " #" . $job->id;
     
                 //send notification to worker
                 $job = $job->toArray();
                 $worker = $job['worker'];
                 if($worker) {
                     $emailData = [
-                        'emailSubject'  => $emailSubject,
-                        'emailTitle'  => __('mail.job_common.job_status'),
-                        'emailContent'  => $emailContent
+                        'by' => $data['by'],
                     ];
                     event(new JobNotificationToWorker($worker, $job, $emailData));
                 }
@@ -632,7 +615,7 @@ class JobController extends Controller
             'status' => 'changed'
         ]);
 
-        $job->load(['client', 'worker', 'jobservice', 'propertyAddress']);
+        $job->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
 
         event(new JobWorkerChanged(
             $job,

@@ -109,6 +109,7 @@ class ScheduleController extends Controller
             $hebrewMeridianMap = [
                 'בבוקר' => 'AM', // Morning (AM)
                 'אחר הצהריים' => 'PM', // Afternoon (PM)
+                'אחרי הצהריים' => 'PM', // Afternoon (PM)
                 'לפני הצהריים' => 'AM', // Before noon (AM)
                 'בערב' => 'PM', // Evening (PM)
             ];

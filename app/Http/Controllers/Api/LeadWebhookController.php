@@ -172,7 +172,7 @@ class LeadWebhookController extends Controller
 
             if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
 
-                if ($message_data[0]['chat_id'] == "120363353946299896@g.us") {
+                if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')) {
                     
                     $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
             
@@ -219,7 +219,6 @@ class LeadWebhookController extends Controller
             
                         // Check if the client already exists
                         $client = Client::where('phone', $phone)->first();
-                        \Log::info($lng. " lng");
             
                         if (!$client) {
                             $client = new Client;
@@ -238,13 +237,23 @@ class LeadWebhookController extends Controller
                                 ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id) 
                                 : "New lead created successfully\n" . url("admin/leads/view/" . $client->id);
                         } else {
+                           
+                            if($client->status != 2) {
+                                $client->status = 0;
+                                $client->lead_status->update([
+                                    'lead_status' => LeadStatusEnum::PENDING,
+                                ]);
+                                $client->created_at = Carbon::now();
+                                $client->save();
+                            }
+
                             $m = $lng == 'heb' 
                                 ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id) 
                                 : "Lead already exists\n" . url("admin/leads/view/" . $client->id);
                         }
             
                         // Send WhatsApp message
-                        $result = sendWhatsappMessage("120363353946299896@g.us", ['name' => '', 'message' => $m]);
+                        $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $m]);
                     }
                 }
             
@@ -308,6 +317,12 @@ class LeadWebhookController extends Controller
                 \Log::info('notification disabled');
                 die('notification disabled');
             }
+
+            $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
+            if ($responseClientState && $responseClientState->final) {
+                \Log::info('final');
+                die('final');
+            };
 
             if ($client) {
                 $createdAt = $client->created_at;
@@ -611,7 +626,7 @@ If you would like to speak to a human representative, please send a message with
 
                 // Greeting message
                 if (in_array($last_menu, ['need_more_help', 'cancel_one_time']) && (str_contains(strtolower($message), 'no') || str_contains($message, 'לא'))) {
-                    $msg = ($client->lng == 'heb' ? "מקווה שעזרתי! 🤗" : "I hope I helped! 🤗");
+                    $msg = ($client->lng == 'heb' ? `מקווה שעזרתי! 🤗` : 'I hope I helped! 🤗');
                     WebhookResponse::create([
                         'status'        => 1,
                         'name'          => 'whatsapp',
@@ -622,7 +637,14 @@ If you would like to speak to a human representative, please send a message with
                         'read'          => 1,
                         'data'          => json_encode($get_data)
                     ]);
-                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
+                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
+
+                    if ($responseClientState) {
+                        $responseClientState->menu_option = 'main_menu';
+                        $responseClientState->final = true;
+                        $responseClientState->save();
+                    }
+                    // $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
                     $result = sendWhatsappMessage($from, array('message' => $msg));
                     die("Final message");
                 }

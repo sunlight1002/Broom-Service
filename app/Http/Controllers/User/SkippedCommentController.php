@@ -142,6 +142,7 @@ class SkippedCommentController extends Controller
             "type" => WhatsappMessageTemplateEnum::UPDATE_ON_COMMENT_RESOLUTION,
             "notificationData" => [
                 'job' => $jobComment->job->toArray(),
+                'property' => $jobComment->job->propertyAddress->toArray(),
                 'worker' => $jobComment->job->worker->toArray(),
                 'client' => $jobComment->job->client->toArray(),
             ]

@@ -44,11 +44,10 @@ class ClientReviewJob extends Command
         // Get yesterday's date and day of the week
         $yesterday = Carbon::yesterday();
         $dayOfWeek = $yesterday->dayOfWeek; // 0 = Sunday, 1 = Monday, ..., 5 = Friday
-        \Log::info('Review request for jobs completed on: ' . $yesterday->toDateString());
     
         // Fetch jobs completed yesterday
         $jobs = Job::query()
-            ->with(['client', 'jobservice'])
+            ->with(['client', 'jobservice', 'propertyAddress', 'offer'])
             ->whereHas('worker')
             ->where('status', JobStatusEnum::COMPLETED)
             ->whereDate('completed_at', $yesterday->toDateString())
@@ -70,7 +69,7 @@ class ClientReviewJob extends Command
         // Now handle jobs completed on Friday, to send requests on Sunday
         if ($dayOfWeek === Carbon::SUNDAY) {
             $fridayJobs = Job::query()
-                ->with(['client', 'jobservice'])
+                ->with(['client', 'jobservice', 'propertyAddress', 'offer'])
                 ->whereHas('worker')
                 ->where('status', JobStatusEnum::COMPLETED)
                 ->whereDate('completed_at', $yesterday->subDay()->toDateString()) // Check for jobs completed on Friday

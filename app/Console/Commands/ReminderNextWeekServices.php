@@ -48,28 +48,29 @@ class ReminderNextWeekServices extends Command
         // Get the start and end dates for the following week
         $startOfNextWeek = Carbon::now()->startOfWeek()->addWeek()->format('Y-m-d');
         $endOfNextWeek = Carbon::now()->endOfWeek()->addWeek()->format('Y-m-d');
-        \Log::info("Next week's dates: {$startOfNextWeek} to {$endOfNextWeek}");
+        // \Log::info("Next week's dates: {$startOfNextWeek} to {$endOfNextWeek}");
 
         // Fetch all Jobs with their related JobService for services happening next week
-        $jobs = Job::with('jobservice')
+        $jobs = Job::with(['jobservice', 'propertyAddress'])
             ->whereHas('jobservice', function($query) use ($startOfNextWeek, $endOfNextWeek) {
                 $query->whereBetween('created_at', [$startOfNextWeek, $endOfNextWeek]);
             })
             ->get();
 
         foreach ($jobs as $job) {
-            $jobService = $job->jobservice; // Get the related JobService
+            $jobService = $job->jobservice; 
+            $propertyAddress = $job->propertyAddress;
+            
             $time = Carbon::parse($jobService->created_at)->format('Y-m-d');
 
             if ($jobService && $job->client) {
                 $client = $job->client;
-                // Prepare the notification message with the client's name
-                $message = "Hello {$client->firstname} {$client->lastname}, we are reminding you that you have the following service(s) scheduled on {$time}: {$jobService->name}.";
 
                 $response = event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION,
                     "notificationData" => [
                         'client' => $client->toArray(),
+                        'property' => $propertyAddress->toArray(),
                     ]
                 ]));
             }
