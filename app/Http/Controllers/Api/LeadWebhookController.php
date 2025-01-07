@@ -238,6 +238,21 @@ class LeadWebhookController extends Controller
                                 ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id) 
                                 : "New lead created successfully\n" . url("admin/leads/view/" . $client->id);
                         } else {
+                           
+                            if($client->status != 2) {
+                                $client->status = 0;
+                                $client->lead_status->update([
+                                    'lead_status' => LeadStatusEnum::PENDING,
+                                ]);
+                                $client->created_at = Carbon::now();
+                                $client->save();
+
+                                \Log::info($client->lead_status->lead_status);
+                                \Log::info($client->status);
+                                \Log::info($client->created_at);
+                                \Log::info($client->id);
+                            }
+
                             $m = $lng == 'heb' 
                                 ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id) 
                                 : "Lead already exists\n" . url("admin/leads/view/" . $client->id);
@@ -309,10 +324,16 @@ class LeadWebhookController extends Controller
                 die('notification disabled');
             }
 
+            $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
+            if ($responseClientState && $responseClientState->final) {
+                \Log::info('final');
+                die('final');
+            };
+
             if ($client) {
                 $createdAt = $client->created_at;
-                if ($createdAt && $createdAt->lt(now()->subHours(24))) {
-                    \Log::info('Client record is older than 24 hours.');
+                if ($createdAt && $createdAt->lt(now()->subHours(12))) {
+                    \Log::info('Client record is older than 12 hours.');
                     die("Client record is older than 24 hours.");
                 }
             }
@@ -620,7 +641,14 @@ If you would like to speak to a human representative, please send a message with
                         'read'          => 1,
                         'data'          => json_encode($get_data)
                     ]);
-                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
+                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
+
+                    if ($responseClientState) {
+                        $responseClientState->menu_option = 'main_menu';
+                        $responseClientState->final = true;
+                        $responseClientState->save();
+                    }
+                    // $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->delete();
                     $result = sendWhatsappMessage($from, array('message' => $msg));
                     die("Final message");
                 }
