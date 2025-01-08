@@ -263,7 +263,12 @@
         "hasNoWorker": "Нет рабочего",
         "workerHoursReport": "Отчет о часах работы сотрудников",
         "switchWorker": "Сменить рабочего",
-        "repeatancy": "Повторяемость"
+        "repeatancy": "Повторяемость",
+        "problem": "Проблема",
+        "noProblem": "Нет проблем",
+        "noOfProblem": "Количество проблем",
+        "declaration_form": "Форма декларации",
+        "Submit": "Отправить"
     },
     "modal": {
         "title": "Модальное окно",

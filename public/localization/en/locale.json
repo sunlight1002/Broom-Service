@@ -287,6 +287,7 @@
         "problem": "Problem",
         "noProblem": "No Problem",
         "noOfProblem": "No. of Problems",
+        "declaration_form": "Declaration Form",
         "Submit": "Submit"
     },
     "modal": {

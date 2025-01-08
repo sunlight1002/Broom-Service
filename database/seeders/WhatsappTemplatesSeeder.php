@@ -2106,6 +2106,49 @@ Equipo de Broom Service",
 Команда Broom Service",
             ],
 
+//             [
+//                 'key' => WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS,
+//                 'description' => 'Send reminder to worker to fill Pending forms',
+//                 'message_en' => "Hello, *:worker_name*,
+
+// You have successfully registered on our portal. Please sign the Pending forms to start working.
+// Click the below button to fill forms.
+
+// Check Forms: :check_form
+
+// Best regards,
+// Broom Service Team",
+
+//                 'message_heb' => "שלום, *:worker_name*
+
+// נרשמת בהצלחה לפורטל שלנו. אנא חתום על הטפסים הממתינים למטה כדי להתחיל לעבוד.
+// לחץ על הכפתור למטה כדי למלא את הטפסים.
+
+// בדוק טפסים: :check_form
+
+// בברכה,
+// ברום סרוויס צוות",
+
+//                 'message_spa' => "Hola, *:worker_name*
+
+// Se ha registrado correctamente en nuestro portal. Firme los formularios pendientes para comenzar.
+// Haga clic en el botón a continuación para completar los formularios.
+
+// Consultar formularios: :check_form
+
+// Saludos cordiales,
+// Equipo de Broom Service",
+//                 'message_ru' => "Привет, *:worker_name*
+
+// Вы успешно зарегистрировались на нашем портале. Пожалуйста, подпишите формы Pending ниже, чтобы начать.
+// Нажмите кнопку ниже, чтобы заполнить формы.
+
+// Проверить формы: :check_form
+
+// С уважением,
+// Команда Broom Service",
+//             ],
+
             [
                 'key' => WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK,
                 'description' => 'Send message to team to arrange a callbac',
