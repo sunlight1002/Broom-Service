@@ -50,10 +50,6 @@ class WorkerLeadWebhookController extends Controller
             'en' => "We didn’t quite understand your answer.\n\n✅ Please respond clearly with:\n\n2. \"Yes\" or \"No\" – Do you have a valid work visa (Israeli ID, B1 visa, or refugee visa)?\n\nLet’s continue when you’re ready! 😊",
             'ru' => "Мы не совсем поняли ваш ответ.\n\n✅ Пожалуйста, ответьте четко:\n\n2. \"Да\" или \"Нет\" – Есть ли у вас действующая рабочая виза (израильское удостоверение, виза B1 или статус беженца)?\n\nПродолжим, как только вы будете готовы! 😊",
         ],
-        'end' => [
-            'en' => "Feel free to make any adjustments or further refinements as needed.",
-            'ru' => "Не стесняйтесь вносить любые дополнительные корректировки или уточнения по мере необходимости.",
-        ]
     ];
 
     public function fbWebhookCurrentLive(Request $request)
@@ -69,7 +65,7 @@ class WorkerLeadWebhookController extends Controller
 
         // Check if the messageId exists in cache and matches
         if (Cache::get('processed_message_' . $messageId) === $messageId) {
-        \Log::info('Already processed');
+            \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
 
@@ -87,7 +83,6 @@ class WorkerLeadWebhookController extends Controller
             $lng = $this->detectLanguage($input);
             $currentStep = 0;
 
-            // Save the incoming message to the WorkerWebhookResponse
             WorkerWebhookResponse::create([
                 'status' => 1,
                 'name' => 'whatsapp',
@@ -98,10 +93,10 @@ class WorkerLeadWebhookController extends Controller
                 'flex' => 'W',
                 'data' => json_encode($get_data)
             ]);
-            // Check if user already exists
+
             $workerLead = WorkerLeads::where('phone', $from)->first();
+
             if (!$workerLead) {
-                // If user doesn't exist, create a new record and send the first step message
                 $workerLead = WorkerLeads::create([
                     'phone' => $from,
                     'lng' => $lng
@@ -243,8 +238,7 @@ class WorkerLeadWebhookController extends Controller
         $messages = $this->botMessages;
         $lng = $language;
         $response = strtolower(trim($input));
-        \Log::info($response. ' res');
-        \Log::info($currentStep. ' curr');
+
         switch ($currentStep) {
             case 0:
                 if (in_array($response, ['yes', 'sí', 'Да', 'כֵּן'])) {
@@ -263,56 +257,30 @@ class WorkerLeadWebhookController extends Controller
                 if (in_array($response, ['yes', 'sí', 'Да','כֵּן'])) {
                     $workerLead->you_have_valid_work_visa = true;
                     $workerLead->save();
-                    return $messages['step3'][$lng];
+                    return $this->sendMessageToTeamOrLead($workerLead, $input);
                 } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->you_have_valid_work_visa = false;
                     $workerLead->save();
-                    return $this->saveContactDetails($workerLead, $input);
+                    return $this->sendMessageToTeamOrLead($workerLead, $input);
                 } else {
-                    return $messages['step2'][$lng];
+                    return $messages['step3'][$lng];
                 }
 
             case 2:
-               $this->saveContactDetails($workerLead, $input);
+               $this->sendMessageToTeamOrLead($workerLead, $input);
         }
     }
 
-    protected function saveContactDetails($workerLead, $input)
+    protected function sendMessageToTeamOrLead($workerLead, $input)
        {
            if ( $workerLead->you_have_valid_work_visa ) {
 
-               // Normalize the input by removing any newline or carriage return characters
-               $input = str_replace(["\n", "\r"], ',', $input);
+                $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
 
-               // Split the input by commas
-               $details = array_map('trim', explode(',', $input));
-
-               // Check if there are exactly 3 pieces of information
-               if (count($details) == 2) {
-                   // Assign values to the workerLead object
-                   $workerLead->name = $details[0];
-                   $workerLead->email = $details[1];
-                   $workerLead->save();
-
-                   $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
-                   return true;
-
-               }
-
-               // If it's not in the comma-separated format, try the multiline format
-               $details = array_map('trim', explode("\n", $input));
-
-               // Check if we have exactly 3 pieces of information after splitting by new lines
-               if (count($details) == 2) {
-                   // Assign values to the workerLead object
-                   $workerLead->name = $details[0];
-                   $workerLead->email = $details[1];
-                   $workerLead->save();
-
-                   $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
-                   return true;
-               }
-
+                WhatsAppBotWorkerState::updateOrCreate(
+                    ['worker_lead_id' => $workerLead->id],
+                    ['step' => 4]
+                );
 
            } else {
                 $workerLead = WorkerLeads::find($workerLead->id);
@@ -321,17 +289,13 @@ class WorkerLeadWebhookController extends Controller
 
                $resp = $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD);
 
-
                WhatsAppBotWorkerState::updateOrCreate(
                    ['worker_lead_id' => $workerLead->id],
                    ['step' => 4]
                );
 
-               return false;
            }
 
-
-           return false;
        }
 
 
@@ -345,9 +309,6 @@ class WorkerLeadWebhookController extends Controller
         }
     }
 
-    /**
-     * Send a WhatsApp message to the worker lead.
-     */
     protected function sendWhatsAppMessage($workerLead, $enum)
     {
        event(new WhatsappNotificationEvent([
