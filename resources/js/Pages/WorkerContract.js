@@ -10,6 +10,7 @@ import swal from "sweetalert";
 import { IsrailContact } from "../Admin/Pages/Contract/IsrailContact";
 import { NonIsraeliContract } from "../Admin/Pages/Contract/NonIsraeliContract";
 import { objectToFormData } from "../Utils/common.utils";
+import { useTranslation } from "react-i18next";
 
 export default function WorkerContract({
     nextStep,
@@ -23,6 +24,8 @@ export default function WorkerContract({
     const [workerFormDetail, setWorkerFormDetail] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+    const { t } = useTranslation();
 
     const contentRef = useRef(null);
     useEffect(() => {

@@ -12,10 +12,11 @@ import SignatureCanvas from "react-signature-canvas";
 import * as yup from "yup";
 import companySign from '../Assets/image/company-sign.png';
 import { objectToFormData } from "../Utils/common.utils";
-import { GrFormNextLink } from "react-icons/gr";
+import { GrFormNextLink, GrFormPreviousLink } from "react-icons/gr";
 
 const ManpowerSaftyForm = ({
-    setNextStep
+    setNextStep,
+    nextStep
 }) => {
     const sigRef = useRef();
     const param = useParams();
@@ -64,6 +65,8 @@ const ManpowerSaftyForm = ({
         initialValues,
         validationSchema: formSchema,
         onSubmit: async (values) => {
+            console.log(isSubmitted);
+
             if (!isSubmitted) {
                 setIsGeneratingPDF(true);
                 const options = {
@@ -101,13 +104,7 @@ const ManpowerSaftyForm = ({
                     })
                     .then((res) => {
                         alert.success("Form submitted successfully");
-                        if (country !== "Israel") {
-                            setNextStep(prev => prev + 1);
-                        } else {
-                            setTimeout(() => {
-                                window.location.reload(true);
-                            }, 1000);
-                        }
+                        setNextStep(prev => prev + 1);
                         setIsSubmitted(true);
                     })
                     .catch((e) => {
@@ -196,7 +193,7 @@ const ManpowerSaftyForm = ({
                     <div className="text-left no-break">
                         <p className="mb-2" style={{ fontSize: "17px" }}>
                             <strong>{t("manpower_safty_form.title")}</strong><br />
-                            <strong>{t("manpower_safty_form.date", { date: values.date })}</strong><br />
+                            <strong>{t("manpower_safty_form.date", { date: values.date ? values.date : date })}</strong><br />
                         </p>
                     </div>
 
@@ -236,59 +233,59 @@ const ManpowerSaftyForm = ({
 
 
                     <div className="mt-5">
-                        <form className="mb-5" onSubmit={handleSubmit}>
+                        <form className="mb-5">
                             <div className="mt-3" style={{ fontSize: "16px" }}>
                                 <div className="gap-5 d-flex flex-column">
                                     <div className="d-flex flex-column">
                                         <strong className="mb-2">{t("manpower_safty_form.sincerely")}</strong>
                                         <strong>{t("manpower_safty_form.the_worker")} {t("manpower_safty_form.signature")}</strong>
                                     </div>
-                                    {/* <div className="col-md-6 col-12 mt-3 mt-md-0"> */}
-                                    {formValues.signature &&
-                                        formValues.signature != null ? (
-                                        <img src={formValues.signature} />
-                                    ) : (
-                                        <div className="d-flex flex-column">
-                                            <div className="d-flex flex-column"
-                                                style={{
-                                                    width: "250px",
-                                                    height: "100px",
-                                                }}
-                                            >
-                                                <SignatureCanvas
-                                                    penColor="black"
-                                                    canvasProps={{
-                                                        width: 250,
-                                                        height: 100,
-                                                        className:
-                                                            "sign101 border mt-1",
+                                    <div className="col-md-6 col-12 mt-3 mt-md-0">
+                                        {formValues.signature &&
+                                            formValues.signature != null ? (
+                                            <img src={formValues.signature} />
+                                        ) : (
+                                            <div className="d-flex flex-column">
+                                                <div className="d-flex flex-column"
+                                                    style={{
+                                                        width: "250px",
+                                                        height: touched.signature && errors.signature ? "125px" : "100px",
                                                     }}
-                                                    ref={sigRef}
-                                                    onEnd={handleSignatureEnd}
-                                                />
-                                                <span className="text-danger">
-                                                    {touched.signature && errors.signature}
-                                                </span>
-                                            </div>
-
-                                            {!isGeneratingPDF && (
-                                                <div className="d-block mt-2">
-                                                    <button
-                                                        type="button"
-                                                        className="btn navyblue mb-2"
-                                                        onClick={
-                                                            clearSignature
-                                                        }
-                                                    >
-                                                        {t(
-                                                            "safeAndGear.Clear"
-                                                        )}
-                                                    </button>
+                                                >
+                                                    <SignatureCanvas
+                                                        penColor="black"
+                                                        canvasProps={{
+                                                            width: 250,
+                                                            height: 100,
+                                                            className:
+                                                                "sign101 border mt-1",
+                                                        }}
+                                                        ref={sigRef}
+                                                        onEnd={handleSignatureEnd}
+                                                    />
+                                                    <span className="text-danger">
+                                                        {touched.signature && errors.signature}
+                                                    </span>
                                                 </div>
-                                            )}
-                                        </div>
-                                    )}
-                                    {/* </div> */}
+
+                                                {!isGeneratingPDF && (
+                                                    <div className="d-block mt-2">
+                                                        <button
+                                                            type="button"
+                                                            className="btn navyblue mb-2"
+                                                            onClick={
+                                                                clearSignature
+                                                            }
+                                                        >
+                                                            {t(
+                                                                "safeAndGear.Clear"
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <hr />
 
@@ -310,23 +307,44 @@ const ManpowerSaftyForm = ({
                                         <strong>{t("manpower_safty_form.signature")}</strong>
                                     </div>
                                     <div style={{ width: "250px", height: "100px" }}>
-                                    <img src={companySign} />
+                                        <img src={companySign} />
                                     </div>
                                 </div>
                             </div>
-                            <div className="row justify-content-center mt-4">
-                                <div className="col d-flex justify-content-end">
-                                    <button
-                                        type="submit"
-                                        className="btn navyblue"
-                                        disabled={(country != "Israel") && isSubmitted ? false : isSubmitted}
-                                    >
-                                        {/* {!isSubmitted ? t("safeAndGear.Accept") : <> Next <GrFormNextLink /></>} */}
-                                        {!isSubmitted ? t("safeAndGear.Accept") : country != "Israel" ? t("safeAndGear.Next") : t("safeAndGear.submitted")}
+                            <div className="d-flex justify-content-end mt-4">
 
-                                    </button>
+                                <button
+                                    type="button"
+                                    onClick={(e) => setNextStep(prev => prev - 1)}
+                                    className="navyblue py-2 px-4 mr-2"
+                                    name="prev"
+                                    style={{ borderRadius: "5px" }}
+                                >
+                                    <GrFormPreviousLink /> {t("common.prev")}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={(e) => handleSubmit()}
+                                    name="next"
+                                    className="navyblue py-2 px-4"
+                                    style={{ borderRadius: "5px" }}
+                                >
+                                    {t("common.next")} <GrFormNextLink />
+                                </button>
 
-                                </div>
+                                {/* {
+                                    (nextStep === 3) && country !== "Israel" && !isSubmitted && (
+                                        <button
+                                            type="submit"
+                                            onClick={(e) => handleSubmit()}
+                                            name="next"
+                                            className="navyblue py-2 px-4"
+                                            style={{ borderRadius: "5px" }}
+                                        >
+                                            {t("common.submit")}
+                                        </button>
+                                    )
+                                } */}
                             </div>
                         </form>
                     </div>

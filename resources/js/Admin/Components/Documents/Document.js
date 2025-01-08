@@ -142,9 +142,15 @@ export default function Document({ worker, getWorkerDetails }) {
                 );
             }
         }else{
-            return alldocumentTypes.filter((i) =>
-                ["payslip", "insurance-form", "others"].includes(i.slug)
-            );
+            if (worker.country === "Israel") {
+                return alldocumentTypes.filter((i) =>
+                    ["payslip", "others"].includes(i.slug)
+                );
+            } else {
+                return alldocumentTypes.filter((i) =>
+                    ["payslip", "insurance-form", "others"].includes(i.slug)
+                );
+            }
         }
         // If not "my-company", return all documents
         return alldocumentTypes;
