@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class SendReminderforPendingform101 extends Command
 {
+
+    protected $whapiApiToken;
+
     /**
      * The name and signature of the console command.
      *
@@ -31,6 +34,8 @@ class SendReminderforPendingform101 extends Command
     public function __construct()
     {
         parent::__construct();
+
+        $this->whapiApiToken = config('services.whapi.token');
     }
 
     /**
