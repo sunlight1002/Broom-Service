@@ -7,8 +7,10 @@ use App\Models\DocumentType;
 use App\Models\User;
 use App\Models\Document;
 use App\Models\Form;
+use App\Models\Admin;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class DocumentController extends Controller
 {
@@ -20,6 +22,23 @@ class DocumentController extends Controller
             ->with(['document_type' => function ($query) {
                 return $query->select(['id', 'name']);
             }])
+            ->where('userable_type', 'App\Models\User')
+            ->get();
+
+        return response()->json([
+            'documents' => $documents
+        ]);
+    }
+
+    public function adminDocuments($id)
+    {
+        $user = Admin::find($id);
+
+        $documents = $user->documents()
+            ->with(['document_type' => function ($query) {
+                return $query->select(['id', 'name']);
+            }])
+            ->where('userable_type', 'App\Models\Admin')
             ->get();
 
         return response()->json([
@@ -131,6 +150,59 @@ class DocumentController extends Controller
         ]);
         
     }
+
+    public function AdminDocssave(Request $request)
+    {
+        $data = $request->all();
+        \Log::info($data);
+        $user = Auth::user();
+        
+            $validator = Validator::make($request->all(), [
+                'id'             => ['required'],
+                'doc_id'         => ['required'],
+                'file'           => ['required', 'file', 'mimes:pdf,jpeg,png'], // Add accepted file types
+                'other_doc_name' => ['nullable', 'string', 'max:255'], // Validate the optional other_doc_name field
+            ], [], [
+                'doc_id' => 'Document type',
+            ]);
+        
+            $validator->sometimes('other_doc_name', 'required|string|max:255', function ($input) {
+                return $input->doc_id == 9; // Apply 'required' rule if doc_id is 9
+            });
+        
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->messages()], 422);
+            }
+        
+            $file = $request->file('file');
+            $file_name = '';
+            if ($request->hasFile('file')) {
+                if (!Storage::disk('public')->exists('uploads/documents')) {
+                    Storage::disk('public')->makeDirectory('uploads/documents');
+                }
+                $tmp_file_name = $user->id . "_" . date('s') . "_" . $file->getClientOriginalName();
+                if (Storage::disk('public')->putFileAs("uploads/documents", $file, $tmp_file_name)) {
+                    $file_name = $tmp_file_name;
+                }
+            }
+        
+            $docType = DocumentType::find($data['doc_id']);
+        
+            // Use `other_doc_name` if provided, otherwise use the document type name
+            $documentName = $data['other_doc_name'] ?? $docType->name;
+        
+            $user->documents()->create([
+                'document_type_id' => $data['doc_id'],
+                'userable_type'      => get_class($user),
+                'name'             => $documentName,
+                'file'             => $file_name,
+            ]);
+        
+        return response()->json([
+            'message' => 'Document has been created successfully!'
+        ]);
+        
+    }
     
 
     public function remove($id, $user_id)
@@ -152,6 +224,26 @@ class DocumentController extends Controller
                 }
                 $docObj->delete();
             }
+        }
+        return response()->json([
+            'message' => 'Document has been deleted successfully!'
+        ]);
+    }
+
+
+    public function adminRemoveDoc($id, $user_id)
+    {
+
+        $docObj = Document::where('id', $id)
+                ->where('userable_id', $user_id)
+                ->where('userable_type', 'App\Models\Admin')
+                ->first();
+
+        if (!empty($docObj)) {
+            if (Storage::drive('public')->exists('uploads/documents/' . $docObj->file)) {
+                Storage::drive('public')->delete('uploads/documents/' . $docObj->file);
+            }
+            $docObj->delete();
         }
         return response()->json([
             'message' => 'Document has been deleted successfully!'

@@ -29,7 +29,9 @@ class ManpowerCompaniesController extends Controller
 
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
-                            $sq->where('manpower_companies.name', 'like', "%" . $keyword . "%");
+                            $sq->where('manpower_companies.name', 'like', "%" . $keyword . "%")
+                                ->where('manpower_companies.email', 'like', "%" . $keyword . "%");
+                                // ->where('manpower_companies.phone', 'like', "%" . $keyword . "%");
                         });
                     }
                 }
@@ -60,6 +62,7 @@ class ManpowerCompaniesController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'unique:manpower_companies'],
+            'email' => ['required', 'unique:manpower_companies'],
             'file' => ['required', 'file'],
         ]);
 

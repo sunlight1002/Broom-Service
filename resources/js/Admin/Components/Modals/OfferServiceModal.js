@@ -119,8 +119,8 @@ export default function OfferServiceModal({
     const handleSubServices = (selectedOptions, index) => {
         const selectedValues = selectedOptions.target.value;
 
-        const selectedOptionName =
-            selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("subname");
+        const selectedOptionName = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("subname");
+        const selectedSubPrice = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("subprice");
 
         // Update subservices for the specific index
         setSubServiceState((prevState) => ({
@@ -131,6 +131,7 @@ export default function OfferServiceModal({
         setOfferServiceTmp((prevState) =>
             prevState.map((service, i) => ({
                 ...service,
+                fixed_price: i === index ? selectedSubPrice : service.fixed_price,
                 sub_services: {
                     ...service.sub_services,
                     id: i === index ? selectedValues : service.sub_services?.id,
@@ -622,7 +623,7 @@ export default function OfferServiceModal({
                                             >
                                                 <option value="">{t("price_offer.select_subservice")}</option>
                                                 {subData?.map((item, idx) => (
-                                                    <option key={idx} subname={`${item.name_en} - ${item.apartment_size}`} value={item.id}>
+                                                    <option key={idx} subname={`${item.name_en} - ${item.apartment_size}`} subprice={item.price} value={item.id}>
                                                         {`${item.name_en} - ${item.apartment_size}`}
                                                     </option>
                                                 ))}

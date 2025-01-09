@@ -2027,6 +2027,7 @@
             "fb_insights": "Facebook Insights",
             "fb_campaigns": "Facebook Campaigns",
             "custom_message": "Custom Message",
+            "documents": "Documents",
             "client": {
                 "waiting": "Waiting",
                 "active_client": "Active client",

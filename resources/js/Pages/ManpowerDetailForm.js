@@ -279,7 +279,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
-                                                    id_number: e.target.value,
+                                                    IDNumber: e.target.value,
                                                 });
                                             }}
                                             className="form-control"

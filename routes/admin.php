@@ -362,7 +362,10 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     //documents
     Route::get('documents/{id}', [DocumentController::class, 'documents']);
     Route::delete('document/remove/{id}/{user_id}', [DocumentController::class, 'remove']);
+    Route::delete('document/remove-admin/{id}/{user_id}', [DocumentController::class, 'adminRemoveDoc']);
     Route::post('document/save', [DocumentController::class, 'save']);
+    Route::get('document/admin/{id}', [DocumentController::class, 'adminDocuments']);
+    Route::post('document/admin-save', [DocumentController::class, 'AdminDocssave']);
     Route::get('get-doc-types', [DocumentController::class, 'getDocumentTypes']);
     Route::post('document/reset/{form_id}', [DocumentController::class, 'resetForm']);
 

@@ -70,6 +70,12 @@ class Admin extends Authenticatable
         return $this->hasMany(TeamMemberDefaultAvailability::class, 'team_member_id');
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'userable')->orderBy('created_at', 'DESC');
+    }
+
+
     public function setPhoneAttribute($value)
     {
         $this->attributes['phone'] = preg_replace('/\D/', '', $value);

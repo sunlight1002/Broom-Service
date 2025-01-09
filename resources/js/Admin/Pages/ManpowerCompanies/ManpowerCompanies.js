@@ -52,6 +52,10 @@ export default function ManpowerCompanies() {
                     data: "name",
                 },
                 {
+                    title: t("global.Email"),
+                    data: "email",
+                },
+                {
                     title: t("global.action"),
                     data: "action",
                     orderable: false,
