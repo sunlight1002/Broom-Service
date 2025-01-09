@@ -35,28 +35,21 @@ class WorkerLeadWebhookController extends Controller
 
     protected $botMessages = [
         'step0' => [
-            'en' => "🌟 Thank you for contacting Job4Service! 🌟\n\nWe are hiring house cleaning professionals for part-time and full-time positions in the Tel Aviv area.\n\n✅ To apply, you must have one of the following:\n- Israeli ID\n- B1 Work Visa\n- Refugee (blue) visa\n\nPlease answer these questions to proceed:\n1. Do you have experience in house cleaning?\n(Please reply with 'Yes' or 'No')\n\n if you want change language then for русская пресса 2",
-            'ru' => "🌟 Спасибо, что обратились в Job4Service! 🌟\n\nМы ищем уборщиков домов на полный и неполный рабочий день в районе Тель-Авива.\n✅ Для подачи заявки вам необходимо иметь один из следующих документов:\n- Израильское удостоверение личности\n- Рабочая виза B1\n- Статус беженца (синяя виза)\n\nПожалуйста, ответьте на два вопроса:\n1. Есть ли у вас опыт уборки домов?\n(Пожалуйста, ответьте «Да» или «Нет»)\n\nЕсли вы хотите изменить язык, для English press 1",
+            'en' => "🌟 Thank you for contacting Job4Service! 🌟\n\nWe are hiring house cleaning professionals for part-time and full-time positions in the Tel Aviv area.\n\n✅ To apply, you must have one of the following:\n- Israeli ID\n- B1 Work Visa\n- Refugee (blue) visa\n\nPlease answer these two questions to proceed:\n1. Do you have experience in house cleaning?\n(Please reply with 'Yes' or 'No')",
+            'ru' => "🌟 Спасибо, что связались с Job4Service! 🌟\n\nМы ищем сотрудников для уборки домов на полную и частичную занятость в районе Тель-Авива.\n✅ Для подачи заявки у вас должен быть один из следующих документов:\n- Израильское удостоверение личности\n- Рабочая виза B1\n- Статус беженца (синяя виза)\n\nОтветьте, пожалуйста, на два вопроса:\n1. У вас есть опыт работы по уборке домов?\n(Пожалуйста, ответьте \"Да\" или \"Нет\" на каждый вопрос.)",
        ],
         'step1' => [
-            'en' => "We didn’t quite understand your answer.\n\n✅ Please respond clearly with:\n\nDo you have experience in house cleaning?\n**Yes / No**",
-            'ru' => "Мы не совсем поняли ваш ответ.\n\n✅ Пожалуйста, ответьте четко:\n\nЕсть ли у вас опыт в уборке дома?\n**Да / Нет**",
+            'en' => "We didn’t quite understand your answer.\n\n✅ Please respond clearly with:\n\n1. \"Yes\" or \"No\" – Do you have experience in house cleaning?\n\nLet’s continue when you’re ready! 😊",
+            'ru' => "Мы не совсем поняли ваш ответ.\n\n✅ Пожалуйста, ответьте четко:\n\n1. \"Да\" или \"Нет\" – Есть ли у вас опыт работы по уборке?\n\nПродолжим, как только вы будете готовы! 😊  ",
         ],
         'step2' => [
-            'en' => "Do you have a valid work visa or ID as mentioned above?\n**Yes / No**",
-            'ru' => "У вас есть действующая рабочая виза или удостоверение личности, указанные выше?\n**Да/Нет**",
+            'en' => "2. Do you have a valid visa or ID as mentioned above?\n(Please reply with 'Yes' or 'No')",
+            'ru' => "2. У вас есть действующая рабочая виза или удостоверение личности?\n(Пожалуйста, ответьте \"Да\" или \"Нет\" на каждый вопрос.)",
         ],
         'step3' => [
-            'en' => "Please leave your name, phone, and email, and we will call you right back with all the details.\n\n**Name**:\n**Phone**:\n**Email**:",
-            'ru' => "Пожалуйста, оставьте свое имя, телефон и email, и мы свяжемся с вами для предоставления всех деталей.
-                    \n**Имя**:  
-                    \n**Телефон**:  
-                    \n**Email**:",
+            'en' => "We didn’t quite understand your answer.\n\n✅ Please respond clearly with:\n\n2. \"Yes\" or \"No\" – Do you have a valid work visa (Israeli ID, B1 visa, or refugee visa)?\n\nLet’s continue when you’re ready! 😊",
+            'ru' => "Мы не совсем поняли ваш ответ.\n\n✅ Пожалуйста, ответьте четко:\n\n2. \"Да\" или \"Нет\" – Есть ли у вас действующая рабочая виза (израильское удостоверение, виза B1 или статус беженца)?\n\nПродолжим, как только вы будете готовы! 😊",
         ],
-        'end' => [
-            'en' => "Feel free to make any adjustments or further refinements as needed.",
-            'ru' => "Не стесняйтесь вносить любые дополнительные корректировки или уточнения по мере необходимости.",
-        ]
     ];
 
     public function fbWebhookCurrentLive(Request $request)
@@ -69,13 +62,13 @@ class WorkerLeadWebhookController extends Controller
         if (!$messageId) {
             return response()->json(['status' => 'Invalid message data'], 400);
         }
-        
+
         // Check if the messageId exists in cache and matches
         if (Cache::get('processed_message_' . $messageId) === $messageId) {
-        \Log::info('Already processed');
+            \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
-        
+
         // Store the messageId in the cache for 1 hour
         Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
 
@@ -89,8 +82,7 @@ class WorkerLeadWebhookController extends Controller
             $input = $data_returned['messages'][0]['text']['body'];
             $lng = $this->detectLanguage($input);
             $currentStep = 0;
-    
-            // Save the incoming message to the WorkerWebhookResponse
+
             WorkerWebhookResponse::create([
                 'status' => 1,
                 'name' => 'whatsapp',
@@ -101,10 +93,10 @@ class WorkerLeadWebhookController extends Controller
                 'flex' => 'W',
                 'data' => json_encode($get_data)
             ]);
-            // Check if user already exists
+
             $workerLead = WorkerLeads::where('phone', $from)->first();
+
             if (!$workerLead) {
-                // If user doesn't exist, create a new record and send the first step message
                 $workerLead = WorkerLeads::create([
                     'phone' => $from,
                     'lng' => $lng
@@ -137,7 +129,7 @@ class WorkerLeadWebhookController extends Controller
 
                     // Find the workerLead based on the phone number
                     $workerLead = WorkerLeads::where('phone', $phoneNumber)->first();
-            
+
                     if ($workerLead) {
                         // Determine the status
                         if (in_array($statusInput, ['hire', 'לִשְׂכּוֹר'])) {
@@ -147,9 +139,9 @@ class WorkerLeadWebhookController extends Controller
                         } else {
                             $workerLead->status = "not-hired";
                         }
-            
+
                         $workerLead->save();
-            
+
                         // Send appropriate WhatsApp message
                         if ($workerLead->status == "hiring") {
                             $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM);
@@ -160,37 +152,37 @@ class WorkerLeadWebhookController extends Controller
                         }
                         return response()->json(['status' => 'Worker status updated'], 200);
                     }
-            
+
                     return response()->json(['status' => 'Worker not found'], 404);
                 }
-            
+
                 return response()->json(['status' => 'Message format invalid or already processed'], 400);
             }
-            
-            
+
+
             $workerState = WhatsAppBotWorkerState::where("worker_lead_id", $workerLead->id)->first();
 
             if ($workerState && $workerState->step == 4) {
                 // Conversation is complete, no further processing
                 return response()->json(['status' => 'Conversation complete'], 200);
             }
-            
+
             if (in_array($input, [1, 2])) {
                 $languageMap = [1 => 'en', 2 => 'ru'];
                 $lng = $languageMap[$input];
-                
+
                 WhatsAppBotWorkerState::updateOrCreate(
                     ['worker_lead_id' => $workerLead->id],
                     ['step' => 0, 'language' => $lng]
                 );
                 WorkerLeads::updateOrCreate(
-                    ['id' => $workerLead->id], 
+                    ['id' => $workerLead->id],
                     ['lng' => $lng]
                 );
-            
+
                 $switchMessage = $this->botMessages['step0'][$lng];
                 $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $switchMessage]);
-            
+
                 WorkerWebhookResponse::create([
                     'status' => 1,
                     'name' => 'whatsapp',
@@ -199,7 +191,7 @@ class WorkerLeadWebhookController extends Controller
                     'read' => 1,
                     'flex' => 'A',
                 ]);
-            
+
                 return;
             }else{
                 // Process user response based on current step
@@ -215,10 +207,10 @@ class WorkerLeadWebhookController extends Controller
                     // Send the next step message
                     $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                     $acceptedResponses = ['yes', 'да', 'no', 'нет', 'Нет'];
-                    
+
                     // Normalize the user input
                     $normalizedInput = strtolower(trim($input));
-                    
+
                     // Check if the input is valid and not the same as the last message
                     if (($nextMessage != $lastMessageSent) && in_array($normalizedInput, $acceptedResponses)) {
                         // Update the current step in the state
@@ -246,99 +238,64 @@ class WorkerLeadWebhookController extends Controller
         $messages = $this->botMessages;
         $lng = $language;
         $response = strtolower(trim($input));
-        \Log::info($response. ' res');
+
         switch ($currentStep) {
             case 0:
                 if (in_array($response, ['yes', 'sí', 'Да', 'כֵּן'])) {
                     $workerLead->experience_in_house_cleaning = true;
                     $workerLead->save();
-                    return $messages['step2'][$lng];   
+                    return $messages['step2'][$lng];
                 } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->experience_in_house_cleaning = false;
                     $workerLead->save();
-                    return $messages['step2'][$lng];   
+                    return $messages['step2'][$lng];
                 } else {
-                    return $messages['step1'][$lng];   
+                    return $messages['step1'][$lng];
                 }
-                
+
             case 1:
                 if (in_array($response, ['yes', 'sí', 'Да','כֵּן'])) {
                     $workerLead->you_have_valid_work_visa = true;
                     $workerLead->save();
-                    return $messages['step3'][$lng];   
+                    return $this->sendMessageToTeamOrLead($workerLead, $input);
                 } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->you_have_valid_work_visa = false;
                     $workerLead->save();
-                    return $this->saveContactDetails($workerLead, $input);   
+                    return $this->sendMessageToTeamOrLead($workerLead, $input);
                 } else {
-                    return $messages['step2'][$lng];   
+                    return $messages['step3'][$lng];
                 }
 
             case 2:
-                // The last step, collect contact details
-                if ($this->saveContactDetails($workerLead, $input)) {
-                    return $messages['end'][$lng];
-                }
+               $this->sendMessageToTeamOrLead($workerLead, $input);
         }
     }
- 
-    protected function saveContactDetails($workerLead, $input)
+
+    protected function sendMessageToTeamOrLead($workerLead, $input)
        {
            if ( $workerLead->you_have_valid_work_visa ) {
-   
-               // Normalize the input by removing any newline or carriage return characters
-               $input = str_replace(["\n", "\r"], ',', $input);
-   
-               // Split the input by commas
-               $details = array_map('trim', explode(',', $input));
-   
-               // Check if there are exactly 3 pieces of information
-               if (count($details) == 3) {
-                   // Assign values to the workerLead object
-                   $workerLead->name = $details[0];
-                   $workerLead->phone = $details[1];
-                   $workerLead->email = $details[2];
-                   $workerLead->save();
-   
-                   $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
-                   return true;
-   
-               }
-   
-               // If it's not in the comma-separated format, try the multiline format
-               $details = array_map('trim', explode("\n", $input));
-   
-               // Check if we have exactly 3 pieces of information after splitting by new lines
-               if (count($details) == 3) {
-                   // Assign values to the workerLead object
-                   $workerLead->name = $details[0];
-                   $workerLead->phone = $details[1];
-                   $workerLead->email = $details[2];
-                   $workerLead->save();
-   
-                   $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
-                   return true;
-               }
-   
-   
+
+                $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM);
+
+                WhatsAppBotWorkerState::updateOrCreate(
+                    ['worker_lead_id' => $workerLead->id],
+                    ['step' => 4]
+                );
+
            } else {
                 $workerLead = WorkerLeads::find($workerLead->id);
                 $workerLead->status = "not-hired";
                 $workerLead->save();
-   
+
                $resp = $this->sendWhatsAppMessage($workerLead, WhatsappMessageTemplateEnum::FINAL_MESSAGE_IF_NO_TO_LEAD);
 
-   
                WhatsAppBotWorkerState::updateOrCreate(
                    ['worker_lead_id' => $workerLead->id],
                    ['step' => 4]
                );
-   
-               return false;
+
            }
-          
-   
-           return false; 
+
        }
 
 
@@ -351,10 +308,7 @@ class WorkerLeadWebhookController extends Controller
             return 'en';
         }
     }
-    
-    /**
-     * Send a WhatsApp message to the worker lead.
-     */
+
     protected function sendWhatsAppMessage($workerLead, $enum)
     {
        event(new WhatsappNotificationEvent([

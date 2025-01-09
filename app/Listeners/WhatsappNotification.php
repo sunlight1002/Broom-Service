@@ -411,6 +411,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_TEAM:
                     case WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_CLIENT:
                     case WhatsappMessageTemplateEnum::SEND_WORKER_TO_STOP_TIMER:
+                    case WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
@@ -429,7 +430,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NEW_LEAD_HIRIED_TO_TEAM:
                     case WhatsappMessageTemplateEnum::NEW_LEAD_IN_HIRING_DAILY_REMINDER_TO_TEAM:
                         $receiverNumber = config('services.whatsapp_groups.relevant_with_workers');
-                        $lng = 'heb';
+                        $lng = 'en';
                         break;
 
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_FOR_SKIPPED_COMMENTS:

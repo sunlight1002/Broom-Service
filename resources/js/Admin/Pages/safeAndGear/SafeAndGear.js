@@ -12,13 +12,15 @@ import { useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import * as yup from "yup";
 import { objectToFormData } from "../../../Utils/common.utils";
+import swal from "sweetalert";
 
 
 const SafeAndGear = ({
     nextStep,
     setNextStep,
     handleBubbleToggle,
-    activeBubble
+    activeBubble,
+    isManpower
 }) => {
     const sigRef = useRef();
     const param = useParams();
@@ -99,18 +101,25 @@ const SafeAndGear = ({
                     })
                     .then((res) => {
                         setIsSubmitted(true); // Mark as submitted
-                        setNextStep(prev => prev + 1);
+                        if (isManpower && country !== "Israel") {
+                            setNextStep(prev => prev + 1);
+                        } else if (!isManpower) {
+                            setNextStep(prev => prev + 1);
+                        }
                     })
                     .catch((e) => {
                         if (e?.response?.data?.message === 'Safety and gear already signed.') {
                             setNextStep(prev => prev + 1);
                         }
                     });
-            } else {
+            } else if (!isManpower) {
                 setNextStep(prev => prev + 1);
             }
         },
     });
+
+    console.log(country);
+
 
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
@@ -123,8 +132,6 @@ const SafeAndGear = ({
 
     useEffect(() => {
         axios.get(`/api/getSafegear/${id}`).then((res) => {
-            console.log(res);
-
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../../../Assets/css/rtl.css");
@@ -169,7 +176,12 @@ const SafeAndGear = ({
     const handleSaveAsDraft = async (e) => {
         // Check if page 7 exists
         e.preventDefault();
-        setSavingType("submit")
+        if (isManpower && country === "Israel") {
+            swal(t("swal.forms_submitted"), "", "success");
+
+            // alert.success(t("swal.forms_submitted"));
+        }
+
         handleSubmit();
     };
 
@@ -332,7 +344,7 @@ const SafeAndGear = ({
                                     <GrFormPreviousLink /> {t("common.prev")}
                                 </button>
                             )}
-                            {nextStep < 6 && (
+                            {nextStep < 6 || (isManpower && country !== "Israel") ? (
                                 <button
                                     type="submit"
                                     name="next"
@@ -342,7 +354,16 @@ const SafeAndGear = ({
                                 >
                                     {t("common.next")} <GrFormNextLink />
                                 </button>
-                            )}
+                            ) : isManpower && !isSubmitted && country === "Israel" ? (
+                                <button
+                                    type="submit"
+                                    name="next"
+                                    className="navyblue py-2 px-4"
+                                    style={{ borderRadius: "5px" }}
+                                >
+                                    {t("common.submit")}
+                                </button>
+                            ) : null}
                         </div>
                     </section>
                 </div>

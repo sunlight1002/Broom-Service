@@ -62,45 +62,59 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
 
   const startTimeOptions = useMemo(() => {
     const _timeOptions = timeOptions.filter((_option) => {
-      if (_option == "24:00") {
+      console.log(_option);
+      
+      if (_option === "24:00") {
         return false;
       }
-
-      if (meeting && meeting.start_time) {
-        const _st = moment(meeting.start_time, "hh:mm A").format("kk:mm");
-        if (_st == _option) {
+  
+      // Handle meeting time explicitly
+      if (meeting && meeting.start_time && meetingDate) {
+        const meetingStartTime = moment(meeting.start_time, "hh:mm A").format("kk:mm");
+        const isMeetingDateSame = moment(meetingDate, "DD-MM-YYYY").isSame(moment(selectedDate), "day");
+        console.log(meetingStartTime, _option, isMeetingDateSame);
+        
+        if (meetingStartTime === _option && isMeetingDateSame) {
           return true;
         }
       }
-
+  
+      // Parse the current time option
       const _startTime = moment(_option, "kk:mm");
+  
+      // Check available slots
       const isSlotAvailable = availableSlots.some((slot) => {
         const _slotStartTime = moment(slot.start_time, "kk:mm");
         const _slotEndTime = moment(slot.end_time, "kk:mm");
-
+  
         return (
           _slotStartTime.isSame(_startTime) ||
           _startTime.isBetween(_slotStartTime, _slotEndTime)
         );
       });
-
+  
       if (!isSlotAvailable) {
         return false;
       }
-
+  
+      // Check booked slots
       return !bookedSlots.some((slot) => {
         const _slotStartTime = moment(slot.start_time, "kk:mm");
         const _slotEndTime = moment(slot.end_time, "kk:mm");
-
+  
         return (
           _startTime.isBetween(_slotStartTime, _slotEndTime) ||
           _startTime.isSame(_slotStartTime)
         );
       });
     });
-
+  
     return _timeOptions;
-  }, [timeOptions, availableSlots, bookedSlots]);
+  }, [timeOptions, availableSlots, bookedSlots, meeting, meetingDate, selectedDate]);
+  
+
+  // console.log(availableSlots, "availableSlots");
+  
 
   useEffect(() => {
     getTeamAvailibality(selectedDate);
@@ -163,9 +177,11 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
   const timeSlots = useMemo(() => {
     const filteredTimeOptions = startTimeOptions.filter((timeOption) => {
       const formattedTime = moment(timeOption, "kk:mm").format("HH:mm");
-      // Exclude `start_time` only if the selected date matches the `meetingDate`
-      if (moment(selectedDate).isSame(moment(meetingDate, "DD-MM-YYYY"), "day") && formattedTime === res) {
-        return true;
+      const isSelectedDateMeetingDate = moment(selectedDate).isSame(moment(meetingDate, "DD-MM-YYYY"), "day");
+  
+      // Exclude meeting's start_time only if the selected date matches the meeting date
+      if (isSelectedDateMeetingDate && formattedTime === res) {
+        return false; // Exclude
       }
       return true; // Include other times
     });
@@ -173,10 +189,15 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
     return filteredTimeOptions.map((timeOption) =>
       moment(timeOption, "kk:mm").format("hh:mm A")
     );
-  }, [startTimeOptions, selectedDate, meetingDate, res, currentLanguage]);
+  }, [startTimeOptions, selectedDate, meetingDate, res]);
+  
+
+  console.log(timeSlots, "timeSlots");
+  
 
   const filteredTimeSlots = timeSlots.filter((t) => {
     const slotTime = moment(t, "hh:mm A");
+  
     // Check if the selected date is today
     if (moment(selectedDate).isSame(moment(), "day")) {
       // Show only future time slots
@@ -184,6 +205,7 @@ const CustomCalendar = ({ meeting, start_time, meetingDate }) => {
     }
     return true; // Otherwise, show all slots
   });
+  
   
 
   return (

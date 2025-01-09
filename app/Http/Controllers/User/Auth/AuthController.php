@@ -394,6 +394,59 @@ class AuthController extends Controller
         ]);
     }
 
+    public function saveWorkerDetail(Request $request)
+    {
+        // Validation Rules
+        $validator = Validator::make($request->all(), [
+            'worker_id' => 'required|exists:users,id',
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $request->worker_id,
+            'country' => 'required|string|max:255',
+            'gender' => 'required|in:male,female',
+            'renewal_date' => 'nullable|date',
+            'passportNumber' => 'nullable|string|max:50',
+            'IDNumber' => 'nullable|string|max:50',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+    
+        // Get Worker
+        $user = User::find($request->worker_id);
+    
+        // Update User Details
+        $user->update([
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'email' => $request->email,
+            'country' => $request->country,
+            'gender' => $request->gender,
+            'renewal_visa' => $request->renewal_date,
+            'passport_no' => $request->passportNumber,
+            'id_number' => $request->IDNumber,
+        ]);
+    
+        // Handle File Uploads
+        if ($request->hasFile('passport')) {
+            $path = $request->file('passport')->store('worker_documents/passports', 'public');
+            $user->passport = $path;
+        }
+        if ($request->hasFile('visa')) {
+            $path = $request->file('visa')->store('worker_documents/visas', 'public');
+            $user->visa = $path;
+        }
+        if ($request->hasFile('id_card')) {
+            $path = $request->file('id_card')->store('worker_documents/id_cards', 'public');
+            $user->id_card = $path;
+        }
+    
+        $user->save();
+    
+        return response()->json(['message' => 'Worker details updated successfully', 'worker' => $user], 200);
+    }
+
     public function getWorkerInvitation(Request $request)
     {
         $workerInvitation = WorkerInvitation::where('id', base64_decode($request->id))->first();

@@ -31,7 +31,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
         axios
             .get(`/api/getAllForms/${worker.id}`)
             .then((res) => {
+                console.log(res);
                 const formsData = res.data.forms;
+                
                 if (formsData.length > 0) {
                     setForms(formsData);
                     const _contractForm = formsData.find((f) =>

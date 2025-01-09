@@ -46,6 +46,7 @@ Route::post('resendOtp', [AuthController::class, 'resendOtp']);
 Route::post('register', [AuthController::class, 'register']);
 Route::get('showPdf/{id}', [AuthController::class, 'showPdf']);
 Route::post('worker-detail', [AuthController::class, 'getWorkerDetail']);
+Route::post('save-worker-detail', [AuthController::class, 'saveWorkerDetail']);
 Route::post('{id}/work-contract', [AuthController::class, 'WorkContract']);
 Route::get('work-contract/{id}', [AuthController::class, 'getWorkContract']);
 Route::post('form101/{id}', [AuthController::class, 'form101']);
@@ -106,7 +107,6 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
 
     Route::get('doc-types', [DocumentController::class, 'getDocumentTypes']);
     Route::post('upload', [DocumentController::class, 'upload']);
-    Route::post('document/save', [DocumentController::class, 'save']);
 
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('details', [AuthController::class, 'details']);
@@ -145,6 +145,8 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
 
 });
+Route::post('document/save', [DocumentController::class, 'save']);
+
 Route::get('get-sub-services/{id}', [ServicesController::class, 'getSubServices']);
 
 Route::post('/twilio/initiate-call', [LeadTwilioController::class, 'initiateCall']);

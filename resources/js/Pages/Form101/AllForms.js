@@ -32,6 +32,7 @@ import InsuranceForm from "../InsuranceForm";
 import { GrFormPreviousLink } from "react-icons/gr";
 import { GrFormNextLink } from "react-icons/gr";
 import ManpowerSaftyForm from "../ManpowerSaftyForm";
+import ManpowerDetailForm from "../ManpowerDetailForm";
 import useWindowWidth from "../../Hooks/useWindowWidth";
 
 const currentDate = moment().format("YYYY-MM-DD");
@@ -1285,8 +1286,6 @@ function AllForms() {
             }
 
             if (res.data.form) {
-                console.log(res.data.form, "form");
-                
                 setFormValues(res.data.form.data);
 
                 if (res.data.form.submitted_at) {
@@ -1380,7 +1379,7 @@ function AllForms() {
 
     const handleDocSubmit = (data) => {
         axios
-            .post(`/api/document/save`, data, { headers })
+            .post(`/api/document/save`, data)
             .then((res) => {
                 if (res.data.errors) {
                     console.log(res.data.errors);
@@ -1403,6 +1402,9 @@ function AllForms() {
         }
         handleDocSubmit(data);
     };
+
+    console.log(nextStep, "nextStep");
+
 
     return (
         <div className=" mt-4 mb-5 bg-transparent " style={{
@@ -1444,10 +1446,20 @@ function AllForms() {
                     </div>
                 ) : (
                     <div className="d-flex flex-wrap align-items-center">
-                        {worker.country !== "Israel" && <>
+                        {worker.country !== "Israel" ? <>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
+                            <span className="mx-2"> - </span>
+                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
+                            <span className="mx-2"> - </span>
+                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 4</span>
+                        </> : <>
+                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
+                            <span className="mx-2"> - </span>
+                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
+                            <span className="mx-2"> - </span>
+                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
                         </>
                         }
                     </div>
@@ -1472,7 +1484,7 @@ function AllForms() {
                             />
                         </>
                     ) : (
-                        nextStep === 1 && <ManpowerSaftyForm setNextStep={setNextStep} />
+                        nextStep === 1 && <ManpowerDetailForm setNextStep={setNextStep} values={values} nextStep={nextStep}/>
                     )
                 }
 
@@ -1546,12 +1558,11 @@ function AllForms() {
                             </div>
                         </>
                     ) : (
-                        nextStep === 2 && worker.country !== "Israel" ?
-                            <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker} isManpower={isManpower} /> : ""
+                        nextStep === 2 && <ManpowerSaftyForm setNextStep={setNextStep} nextStep={nextStep}/>
                     )
                 }
                 {
-                    nextStep === 3 && !isManpower && (
+                    nextStep === 3 && !isManpower ? (
                         <div className="row mt-3">
                             <section className="col-xl">
                                 <div className="box-heading">
@@ -1714,17 +1725,25 @@ function AllForms() {
                                 </div>
                             </section>
                         </div>
+                    ) : (
+                        nextStep === 3 && <SafeAndGear nextStep={nextStep} handleNextPrev={handleNextPrev} setNextStep={setNextStep}
+                            handleBubbleToggle={handleBubbleToggle}
+                            activeBubble={activeBubble}
+                            isManpower={isManpower}
+                        />
                     )
                 }
             </div>
 
             {
-                nextStep === 4 && !isManpower && (
+                nextStep === 4 && !isManpower ? (
                     <SafeAndGear nextStep={nextStep} handleNextPrev={handleNextPrev} setNextStep={setNextStep}
                         handleBubbleToggle={handleBubbleToggle}
                         activeBubble={activeBubble}
+                        isManpower={isManpower}
                     />
                 )
+                    : nextStep === 4 && worker.country !== "Israel" && <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker} isManpower={isManpower} />
             }
 
             {

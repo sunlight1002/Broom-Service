@@ -2107,6 +2107,49 @@ Equipo de Broom Service",
             ],
 
             [
+                'key' => WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS,
+                'description' => 'Send reminder to worker to fill Pending forms',
+                'message_en' => "Hello, *:worker_name*,
+
+Please sign the below forms to start working.
+Click the below button to fill forms.
+
+Check Forms: :check_form
+
+Best regards,
+Broom Service Team",
+
+                'message_heb' => "שלום, *:worker_name*
+
+אנא חתום על הטפסים למטה כדי להתחיל.
+לחץ על הכפתור למטה כדי למלא את הטפסים.
+
+בדוק טפסים: :check_form
+
+בברכה,
+ברום סרוויס צוות",
+
+                'message_spa' => "Hola, *:worker_name*
+
+Firme los formularios para comenzar.
+Haga clic en el botón a continuación para completar los formularios.
+
+Consultar formularios: :check_form
+
+Saludos cordiales,
+Equipo de Broom Service",
+                'message_ru' => "Привет, *:worker_name*
+
+Пожалуйста, подпишите формы ниже, чтобы начать.
+Нажмите кнопку ниже, чтобы заполнить формы.
+
+Проверить формы: :check_form
+
+С уважением,
+Команда Broom Service",
+            ],
+
+            [
                 'key' => WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK,
                 'description' => 'Send message to team to arrange a callbac',
                 'message_en' => 'Hello, *Team*,
@@ -3561,7 +3604,6 @@ office@broomservice.co.il
                 'key' => WhatsappMessageTemplateEnum::NEW_LEAD_FOR_HIRING_TO_TEAM,
                 'description' => 'Send notification to team for new lead for hiring',
                 'message_en' => "🌟 New Lead for Hiring! 🌟
-Name: :worker_lead_name  
 Contact: :worker_lead_phone  
 Status: ✅ Suitable for house cleaning job
 
@@ -3577,7 +3619,6 @@ Best Regards,
 Broom Service Team 🌹",
 
                 'message_heb' => "🌟 ליד חדש להעסקה! 🌟
-שם: :worker_lead_name
 איש קשר: :worker_lead_phone
 סטטוס: ✅ מתאים לעבודת ניקיון הבית
 
@@ -3593,7 +3634,6 @@ Broom Service Team 🌹",
 צוות שירות מטאטא 🌹",
                 'message_spa' => '',
                 'message_ru' => "🌟 Новый кандидат для найма! 🌟  
-Имя: worker_lead_name
 Контакт: worker_lead_phone  
 Статус: ✅ Подходит для работы по уборке  
 
@@ -3665,7 +3705,6 @@ Equipo de servicio de escobas 🌹",
                 'message_en' => "🚀 Action Required: New Hire 🚀  
 Please proceed to hire the following candidate:  
 
-Name: :worker_lead_name  
 Contact: :worker_lead_phone  
 Status: ✅ Hire confirmed by Alex  
 
@@ -3679,7 +3718,6 @@ Broom Service Team 🌹",
                 'message_heb' => "🚀 נדרשת פעולה: גיוס חדש 🚀
 אנא המשיכו להעסיק את המועמד הבא:
 
-שם: :worker_lead_name
 איש קשר: :worker_lead_phone
 סטטוס: ✅ השכרה באישור אלכס
 
@@ -3693,7 +3731,6 @@ Broom Service Team 🌹",
                 'message_spa' => "🚀 Acción requerida: Nuevo empleado 🚀
 Por favor, proceda a contratar al siguiente candidato:
 
-Nombre: :worker_lead_name
 Contacto: :worker_lead_phone
 Estado: ✅ Contratación confirmada por Alex
 
@@ -3707,7 +3744,6 @@ Equipo de Broom Service 🌹",
                 'message_ru' => "🚀 Требуется действие: Новый сотрудник 🚀  
 Пожалуйста, завершите процесс найма кандидата:  
 
-Имя: :worker_lead_name  
 Контакт: :worker_lead_phone 
 Статус: ✅ Принят на работу  
 
@@ -3793,6 +3829,7 @@ Equipo de Broom Service 🌹",
                 'key' => WhatsappMessageTemplateEnum::DAILY_REMINDER_TO_LEAD,
                 'description' => 'daily reminder to lead',
                 'message_en' => "📞 Reminder: Alex is waiting to hear from you.  
+
 Please call him back at: +972 52-848-0808.  
 
 Let’s finalize your job application! 🌟   
@@ -3801,6 +3838,7 @@ Best Regards,
 Broom Service Team 🌹",
 
                 'message_heb' => "📞 תזכורת: אלכס מחכה לשמוע ממך.
+
 נא להתקשר אליו בחזרה למספר: +972 52-848-0808.
 
 בואו לסיים את מועמדותכם לעבודה! 🌟
@@ -3808,7 +3846,8 @@ Broom Service Team 🌹",
 בברכה,
 צוות שירות מטאטא 🌹",
                 'message_spa' => '',
-                'message_ru' => "📞 Напоминание: Пожалуйста, свяжитесь с Алексом по номеру: +972 52-848-0808.  
+                'message_ru' => "📞 Напоминание: Пожалуйста, свяжитесь с Алексом по номеру: +972 52-848-0808. 
+                 
 Давайте завершим вашу заявку! 🌟  
 
 С наилучшими пожеланиями,
