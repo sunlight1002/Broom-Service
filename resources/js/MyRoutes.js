@@ -185,6 +185,7 @@ import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
 import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
 import ManpowerSaftyForm from "./Pages/ManpowerSaftyForm";
+import ManpowerDetailForm from "./Pages/ManpowerDetailForm";
 import AllForms from "./Pages/Form101/AllForms";
 import ChangePassword from "./Client/Auth/ChangePassword";
 import ClientPropertyAdress from "./Client/ClientPropertyAdress";
@@ -349,6 +350,11 @@ export default function MyRoutes() {
                         exact
                         path="manpower-safty-form/:id"
                         element={<ManpowerSaftyForm />}
+                    />
+                    <Route
+                        exact
+                        path="manpower-detail-form/:id"
+                        element={<ManpowerDetailForm />}
                     />
                     <Route exact path="calendar" element={<CalendarTeam />} />
                     <Route
