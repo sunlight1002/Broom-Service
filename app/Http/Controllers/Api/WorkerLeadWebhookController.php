@@ -95,6 +95,12 @@ class WorkerLeadWebhookController extends Controller
             ]);
 
             $workerLead = WorkerLeads::where('phone', $from)->first();
+            $user = User::where('phone', $from)->first();
+
+            if ($user) {
+                \Log::info('User is already Worker');
+                die("User is already Worker");
+            }
 
             if (!$workerLead) {
                 $workerLead = WorkerLeads::create([
@@ -196,29 +202,10 @@ class WorkerLeadWebhookController extends Controller
             }else{
                 // Process user response based on current step
                 $currentStep = $workerState->step;
-                $nextMessage = $this->processWorkerResponse($workerLead, $input, $currentStep, $workerState->language);
-
-                $lastMessageSent = WorkerWebhookResponse::where('number', $workerLead->phone)
-                ->where('read',1)
-                ->orderBy('created_at', 'desc')
-                ->first()->message ?? '';
+                $nextMessage = $this->processWorkerResponse($workerLead, $input, $currentStep, $workerState);
 
                 if ($nextMessage) {
-                    // Send the next step message
                     $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-                    $acceptedResponses = ['yes', 'да', 'no', 'нет', 'Нет'];
-
-                    // Normalize the user input
-                    $normalizedInput = strtolower(trim($input));
-
-                    // Check if the input is valid and not the same as the last message
-                    if (($nextMessage != $lastMessageSent) && in_array($normalizedInput, $acceptedResponses)) {
-                        // Update the current step in the state
-                        WhatsAppBotWorkerState::updateOrCreate(
-                            ['worker_lead_id' => $workerLead->id],
-                            ['step' => $currentStep + 1]
-                        );
-                    }
                     // Save admin message for next step
                     WorkerWebhookResponse::create([
                         'status' => 1,
@@ -233,23 +220,29 @@ class WorkerLeadWebhookController extends Controller
         }
     }
 
-    protected function processWorkerResponse($workerLead, $input, $currentStep,$language)
+    public function processWorkerResponse($workerLead, $input, $currentStep,$workerState)
     {
         $messages = $this->botMessages;
-        $lng = $language;
+        $lng = $workerState->language;
         $response = strtolower(trim($input));
 
         switch ($currentStep) {
             case 0:
                 if (in_array($response, ['yes', 'sí', 'Да', 'כֵּן'])) {
                     $workerLead->experience_in_house_cleaning = true;
+                    $workerState->step = 1;
+                    $workerState->save();
                     $workerLead->save();
                     return $messages['step2'][$lng];
                 } elseif (in_array($response, ['no', 'No', 'Нет', 'לא'])) {
                     $workerLead->experience_in_house_cleaning = false;
+                    $workerState->step = 1;
+                    $workerState->save();
                     $workerLead->save();
                     return $messages['step2'][$lng];
                 } else {
+                    $workerState->step = 0;
+                    $workerState->save();
                     return $messages['step1'][$lng];
                 }
 

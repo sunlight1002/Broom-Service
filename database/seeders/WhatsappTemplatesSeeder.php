@@ -2149,6 +2149,7 @@ Equipo de Broom Service",
 Команда Broom Service",
             ],
 
+
             [
                 'key' => WhatsappMessageTemplateEnum::NO_SLOT_AVAIL_CALLBACK,
                 'description' => 'Send message to team to arrange a callbac',

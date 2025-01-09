@@ -999,7 +999,6 @@ class ClientController extends Controller
                 'message' => 'Client not found!',
             ]);
         }
-    
         $client->status = $statusArr[$data['status']];
         $client->save();
     

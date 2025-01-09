@@ -103,6 +103,8 @@ export default function ChangeStatusModal({
                 handleChangeStatusModalClose(); // Close the modal
             })
             .catch((e) => {
+                console.log(e);
+                
                 Swal.fire({
                     title: "Error!",
                     text: e.response?.data?.message || "Something went wrong!",

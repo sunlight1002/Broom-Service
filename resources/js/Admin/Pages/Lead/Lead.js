@@ -146,20 +146,20 @@ export default function Lead() {
             table.page(initialPage).draw("page");
         }
     };
-    
+
     const getCurrentPageNumber = () => {
         const table = $(tableRef.current).DataTable();
         const pageInfo = table.page.info();
         return pageInfo.page + 1; // Adjusted to return 1-based page number
     };
-    
+
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const pageFromUrl = parseInt(searchParams.get("page")) || 1;
         const initialPage = pageFromUrl - 1;
-        
+
         initializeDataTable(initialPage);
-    
+
         $(tableRef.current).on("click", "tr.dt-row,tr.child", function (e) {
             let _id = null;
             if (e.target.closest("tr.dt-row")) {
@@ -181,12 +181,12 @@ export default function Lead() {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                 }
             }
-    
+
             if (_id) {
                 navigate(`/admin/leads/view/${_id}`);
             }
         });
-    
+
         // Event listener for pagination
         $(tableRef.current).on("page.dt", function () {
             const currentPageNumber = getCurrentPageNumber();
@@ -194,36 +194,36 @@ export default function Lead() {
             // Update the URL with the page number
             const url = new URL(window.location);
             url.searchParams.set("page", currentPageNumber);
-    
+
             // Use replaceState to avoid adding new history entry
             window.history.replaceState({}, "", url);
         });
-    
+
         $(tableRef.current).on("click", ".dt-edit-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/leads/${_id}/edit`);
         });
-    
+
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/leads/view/${_id}`);
         });
-    
+
         $(tableRef.current).on("click", ".dt-change-status-btn", function () {
             const _id = $(this).data("id");
             toggleChangeStatusModal(_id);
         });
-    
+
         $(tableRef.current).on("click", ".dt-delete-btn", function () {
             const _id = $(this).data("id");
             handleDelete(_id);
         });
-    
+
         i18n.on("languageChanged", () => {
             $(tableRef.current).DataTable().destroy(); // Destroy the table
             initializeDataTable(initialPage);
         });
-    
+
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
@@ -232,10 +232,29 @@ export default function Lead() {
             }
         };
     }, [location.search]);
-    
+
 
     const sortTable = (colIdx) => {
         $(tableRef.current).DataTable().order(parseInt(colIdx), "asc").draw();
+    };
+
+    const updateData = () => {
+        setTimeout(() => {
+            const table = $(tableRef.current).DataTable();
+            table.draw();
+    
+            // Check if the current page has data
+            const pageInfo = table.page.info();
+            if (pageInfo.recordsDisplay === 0 && pageInfo.page > 0) {
+                // Set the page to 1 if the current page is empty
+                table.page(1).draw("page");
+    
+                // Update the URL to reflect the first page
+                const url = new URL(window.location);
+                url.searchParams.set("page", 1);
+                window.history.replaceState({}, "", url);
+            }
+        }, 1000);
     };
 
     const toggleChangeStatusModal = (clientId = 0) => {
@@ -245,12 +264,6 @@ export default function Lead() {
                 id: clientId,
             };
         });
-    };
-
-    const updateData = () => {
-        setTimeout(() => {
-            $(tableRef.current).DataTable().draw();
-        }, 1000);
     };
 
     useEffect(() => {
@@ -280,9 +293,10 @@ export default function Lead() {
                             "Lead has been deleted.",
                             "success"
                         );
-                        setTimeout(() => {
-                            $(tableRef.current).DataTable().draw();
-                        }, 1000);
+                        updateData();
+                        // setTimeout(() => {
+                        //     $(tableRef.current).DataTable().draw();
+                        // }, 1000);
                     });
             }
         });
