@@ -177,5 +177,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const SEND_WORKER_JOB_CANCEL_BY_TEAM = "send-worker-job-cancel-by-team";
     public const SEND_WORKER_JOB_CANCEL_BY_CLIENT = "send-worker-job-cancel-by-client";
     public const SEND_WORKER_TO_STOP_TIMER = "send-worker-to-stop-timer";
-    // public const SEND_TO_WORKER_PENDING_FORMS = "send-to-worker-pending-forms";
+    public const SEND_TO_WORKER_PENDING_FORMS = "send-to-worker-pending-forms";
 }

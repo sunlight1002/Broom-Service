@@ -191,13 +191,13 @@ class SendReminderWithPendingForms extends Command
                     ]);
 
         // Log::info($response->json());
-        Log::info($message);
+        // Log::info($message);
     }
 
     private function sendReminder($worker)
     {
         event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::WORKER_FORMS,
+            "type" => WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS,
             "notificationData" => [
                 'worker' => $worker->toArray(),
             ]

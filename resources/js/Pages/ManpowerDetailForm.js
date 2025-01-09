@@ -53,7 +53,10 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
     const handleSubmit = (e) => {
         try {
             e.preventDefault();
-            const res = axios.post(`/api/worker-detail`, formValues);
+            const res = axios.post(`/api/save-worker-detail`, formValues);
+            if(res.status == 200){
+                setNextStep(2)
+            }
             console.log(res);
 
         } catch (error) {
