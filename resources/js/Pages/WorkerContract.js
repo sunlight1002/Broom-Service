@@ -71,6 +71,8 @@ export default function WorkerContract({
                 .then((res) => {
                     if (worker.country === "Israel") {
                         swal(t('swal.forms_submitted'), "", "success");
+                    }else{
+                        setNextStep(prev => prev + 1)
                     }
                     setIsSubmitted(true);
                     // setTimeout(() => {

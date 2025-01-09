@@ -112,7 +112,7 @@ const SafeAndGear = ({
                             setNextStep(prev => prev + 1);
                         }
                     });
-            } else if (!isManpower) {
+            } else if ((isManpower && country !== "Israel") || !isManpower) {
                 setNextStep(prev => prev + 1);
             }
         },
