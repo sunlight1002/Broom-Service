@@ -1222,13 +1222,15 @@ class AuthController extends Controller
             'formUrl' => Storage::disk('public')->url("signed-docs/{$file_name}")
         ];
 
-        App::setLocale('heb');
-        // Send email
-        Mail::send('/manpowerCompany', $emailData, function ($message) use ($worker, $manpowerCompany, $file_name) {
-            $message->to($manpowerCompany->email)
-                ->subject(__('mail.manpower_company.subject'))
-                ->attach(storage_path("app/public/signed-docs/{$file_name}"));
-        });
+        if($manpowerCompany->email){
+            App::setLocale('heb');
+            // Send email
+            Mail::send('/manpowerCompany', $emailData, function ($message) use ($worker, $manpowerCompany, $file_name) {
+                $message->to($manpowerCompany->email)
+                    ->subject(__('mail.manpower_company.subject'))
+                    ->attach(storage_path("app/public/signed-docs/{$file_name}"));
+            });
+        }
     
         // Update or create the form
         if ($form) {
