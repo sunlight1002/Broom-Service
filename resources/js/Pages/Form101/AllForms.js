@@ -121,7 +121,7 @@ function AllForms() {
             .get(`/api/worker/${param.id}`)
             .then((res) => {
                 const { worker: workData, forms: formData } = res.data;
-                setIsManpower(workData.manpower_company_id == 1 ? true : false)
+                setIsManpower(workData.company_type == "manpower" ? true : false)
                 setWorker(workData);
                 setFormId(formData.form101Form.id)
 
