@@ -10,6 +10,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
     const workerId = Base64.decode(params.id);
     const [worker, setWorker] = useState({});
     const [countries, setCountries] = useState([]);
+    const [errors, setErrors] = useState({});
     // const [country, setCountry] = useState("");
     const [formValues, setFormValues] = useState({
         worker_id: workerId,
@@ -18,7 +19,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
         email: "",
         country: "",
         gender: "",
-        renewal_date: "",
+        renewal_visa: "",
         passportNumber: "",
         IDNumber: ""
     })
@@ -36,32 +37,34 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
         console.log(response.data);
 
         setFormValues({
+            worker_id: response.data.worker.id,
             firstname: response.data.worker.firstname,
             lastname: response.data.worker.lastname,
             email: response.data.worker.email,
             country: response.data.worker.country,
             gender: response.data.worker.gender,
-            renewal_date: response.data.worker.renewal_visa,
+            renewal_visa: response.data.worker.renewal_visa,
             passportNumber: response.data.worker.passport_no ?? "",
             IDNumber: response.data.worker.id_number ?? "",
-
-
         })
         setWorker(response.data.worker);
     }
 
-    const handleSubmit = (e) => {
+    const saveWorkerDetails = async (e) => {
+        e.preventDefault();
         try {
-            e.preventDefault();
-            const res = axios.post(`/api/save-worker-detail`, formValues);
-            if(res.status == 200){
-                setNextStep(2)
+            const response = await axios.post("/api/save-worker-detail", formValues);
+            if(response.status === 200) {
+                setNextStep(prev => prev + 1);
+                window.location.reload();
             }
-            console.log(res);
-
+            console.log(response.data.worker);
         } catch (error) {
-            console.log(error);
-            
+            if (error.response && error.response.data.errors) {
+                setErrors(error.response.data.errors);
+            } else {
+                console.error("Something went wrong:", error);
+            }
         }
     }
 
@@ -70,10 +73,6 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
         getCountries()
     }, [])
 
-
-    const handleNextStep = () => {
-        setNextStep(2)
-    }
 
     const handleDocSubmit = (data) => {
         axios
@@ -93,7 +92,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
 
     const handleFileChange = (e, type) => {
         const data = new FormData();
-        data.append("id", id);
+        data.append("id", workerId);
         if (e.target.files.length > 0) {
             data.append(`${type}`, e.target.files[0]);
         }
@@ -107,7 +106,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                 <div className="mb-4">
                     <p className="navyblueColor font-30 mt-4 font-w-500"> {t("global.declaration_form")}</p>
                 </div>
-                <form className="row" onSubmit={handleNextStep}>
+                <form className="row">
                     <section className="col-xl">
                         <div className="row justify-content-center">
                             <div className="col-sm">
@@ -122,7 +121,6 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                         className="form-control"
                                         value={formValues.firstname}
                                         onChange={(e) => setFormValues({ ...formValues, firstname: e.target.value })}
-                                        readOnly
                                     />
 
                                 </div>
@@ -186,10 +184,12 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                         </label>
                                         <input
                                             type="date"
+                                            name={"renewal_visa"}
+                                            value={formValues.renewal_visa}
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,
-                                                    renewal_date: e.target.value,
+                                                    renewal_visa: e.target.value,
                                                 });
                                             }}
                                             className="form-control"
@@ -236,13 +236,8 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                             id="employeepassportCopy"
                                             accept="image/*"
                                             onChange={(e) => {
-                                                setFieldValue(
-                                                    "employeepassportCopy",
-                                                    e.target.files[0]
-                                                );
                                                 handleFileChange(e, "passport");
-                                            }
-                                            }
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -263,10 +258,6 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                             style={{ fontSize: "unset", backgroundColor: "unset", }}
                                             accept="image/*"
                                             onChange={(e) => {
-                                                setFieldValue(
-                                                    "employeeResidencePermit",
-                                                    e.target.files[0]
-                                                )
                                                 handleFileChange(e, "visa");
                                             }}
                                         />
@@ -309,13 +300,8 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                             id="employeeIdCardCopy"
                                             accept="image/*"
                                             onChange={(e) => {
-                                                setFieldValue(
-                                                    "employeeIdCardCopy",
-                                                    e.target.files[0]
-                                                );
                                                 handleFileChange(e, "id_card");
-                                            }
-                                            }
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -399,11 +385,11 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                             <div className="row justify-content-center mt-4">
                                 <div className="col d-flex justify-content-end">
                                     <button
-                                        type="submit"
-                                        className="btn navyblue"
+                                        type="button"
                                         onClick={(e) => {
-                                            handleSubmit(e);
+                                            saveWorkerDetails(e);
                                         }}
+                                        className="btn navyblue"
                                     >
                                         {/* {!isSubmitted ? t("safeAndGear.Accept") : <> Next <GrFormNextLink /></>} */}
                                         {t("safeAndGear.Next")}

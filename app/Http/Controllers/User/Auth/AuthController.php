@@ -27,6 +27,8 @@ use Twilio\Rest\Client;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cookie;
 use App\Models\DeviceToken;
+use Illuminate\Validation\Rule;
+
 
 class AuthController extends Controller
 {
@@ -400,11 +402,15 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'worker_id' => 'required|exists:users,id',
             'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $request->worker_id,
+            'lastname' => 'nullable|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($request->worker_id), // Ignore the worker's own email
+            ],
             'country' => 'required|string|max:255',
             'gender' => 'required|in:male,female',
-            'renewal_date' => 'nullable|date',
+            'renewal_visa' => 'required|date',
             'passportNumber' => 'nullable|string|max:50',
             'IDNumber' => 'nullable|string|max:50',
         ]);
@@ -423,9 +429,11 @@ class AuthController extends Controller
             'email' => $request->email,
             'country' => $request->country,
             'gender' => $request->gender,
-            'renewal_visa' => $request->renewal_date,
-            'passport_no' => $request->passportNumber,
+            'renewal_visa' => $request->renewal_visa,
+            'passport' => $request->passportNumber,
             'id_number' => $request->IDNumber,
+            'step' => 2,
+            'updated_at' => Carbon::now()
         ]);
     
         // Handle File Uploads
