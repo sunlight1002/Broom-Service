@@ -1285,12 +1285,17 @@ function AllForms() {
             if (res.data.form) {
                 setFormValues(res.data.form.data);
 
-                if (res.data.form.submitted_at) {
+                if (
+                    res.data.form.submitted_at && 
+                    res.data.form.created_at && 
+                    new Date(res.data.form.created_at).getFullYear() === new Date().getFullYear()
+                ) {
                     setTimeout(() => {
                         disableInputs();
                     }, 2000);
                     setIsSubmitted(true);
                 }
+                
             } else if (res.data.worker) {
                 const _worker = res.data.worker;
 
@@ -1796,10 +1801,12 @@ function AllForms() {
                             </button>
                         )}
                         {
-                            (param.formId && nextStep === 3) && !isManpower && (
+                            (param.formId && nextStep === 3) && !isManpower && !isSubmitted && (
                                 <button
                                     type="submit"
-                                    onClick={handleSaveAsDraft}
+                                    onClick={() => {
+                                        handleSaveAsDraft();
+                                    }}
                                     name="next"
                                     className="navyblue py-2 px-4"
                                     style={{ borderRadius: "5px" }}

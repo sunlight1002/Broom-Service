@@ -332,6 +332,25 @@ export default function Clients() {
     }, [type, filters, filter]);
 
 
+    const updateData = () => {
+        setTimeout(() => {
+            const table = $(tableRef.current).DataTable();
+            table.draw();
+
+            // Check if the current page has data
+            const pageInfo = table.page.info();
+            if (pageInfo.recordsDisplay === 0 && pageInfo.page > 0) {
+                // Set the page to 1 if the current page is empty
+                table.page(1).draw("page");
+
+                // Update the URL to reflect the first page
+                const url = new URL(window.location);
+                url.searchParams.set("page", 1);
+                window.history.replaceState({}, "", url);
+            }
+        }, 1000);
+    };
+
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",
@@ -351,9 +370,10 @@ export default function Clients() {
                             "Client has been deleted.",
                             "success"
                         );
-                        setTimeout(() => {
-                            $(tableRef.current).DataTable().draw();
-                        }, 1000);
+                        updateData();
+                        // setTimeout(() => {
+                        //     $(tableRef.current).DataTable().draw();
+                        // }, 1000);
                     });
             }
         });
@@ -406,12 +426,6 @@ export default function Clients() {
                 id: clientId,
             };
         });
-    };
-
-    const updateData = () => {
-        setTimeout(() => {
-            $(tableRef.current).DataTable().draw();
-        }, 1000);
     };
 
     return (

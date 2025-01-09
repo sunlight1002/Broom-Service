@@ -105,6 +105,18 @@ class OfferController extends Controller
             ], 404);
         }
 
+        $meetings = $client->meetings;
+
+        if ($meetings->isNotEmpty()) {
+            foreach ($meetings as $meeting) {
+               if($meeting->status == 'pending') {
+                    $meeting->status = 'confirmed';
+                    $meeting->save();
+               }
+            }
+        }
+        
+
         $services = json_decode($request->get('services'), true);
 
         $tax_percentage = config('services.app.tax_percentage');
