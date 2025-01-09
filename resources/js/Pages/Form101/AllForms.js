@@ -53,7 +53,7 @@ function AllForms() {
     const type = QueryParams.get("type");
 
     const decodeId = Base64.decode(param.id);
-    let numbersOnly = decodeId.replace(/\D/g, ''); // This will remove all non-digit characters
+    let numbersOnly = decodeId.replace(/\D/g, ''); 
 
     const [id, setId] = useState(numbersOnly);
     const [formId, setFormId] = useState(param.formId ? Base64.decode(param.formId) : null)
@@ -82,7 +82,6 @@ function AllForms() {
     };
 
     const handleBubbleToggle = (fieldName) => {
-        // Toggle the bubble visibility by comparing with the current active bubble
         setActiveBubble((prev) => (prev === fieldName ? null : fieldName));
     };
 
@@ -101,10 +100,8 @@ function AllForms() {
 
     const handleNextPrev = (e) => {
         window.scrollTo(0, 0);
-        // Check if the condition is met to prevent incrementing nextStep
         if (param.formId && nextStep === 3) {
-            // Optional: Show a message or handle specific logic here
-            return; // Do nothing if the condition is met
+            return; 
         }
 
         if (e.target.name === "prev") {

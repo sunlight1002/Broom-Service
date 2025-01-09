@@ -1198,7 +1198,7 @@ export function NonIsraeliContract({
                             className="navyblue py-2 px-4"
                             style={{ borderRadius: "5px" }}
                         >
-                            {nextStep === 6 && !isSubmitted ? t("common.submit") : t("common.next")} <GrFormNextLink />
+                            {t("common.next")} <GrFormNextLink />
                         </button>
                     </div>
                 )}

@@ -34,8 +34,6 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
 
     const getWorker = async () => {
         const response = await axios.post(`/api/worker-detail`, { worker_id: workerId });
-        console.log(response.data);
-
         setFormValues({
             worker_id: response.data.worker.id,
             firstname: response.data.worker.firstname,
@@ -54,11 +52,10 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
         e.preventDefault();
         try {
             const response = await axios.post("/api/save-worker-detail", formValues);
-            if(response.status === 200) {
+            if (response.status === 200) {
                 setNextStep(prev => prev + 1);
                 window.location.reload();
             }
-            console.log(response.data.worker);
         } catch (error) {
             if (error.response && error.response.data.errors) {
                 setErrors(error.response.data.errors);
@@ -104,7 +101,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
         <div>
             <div>
                 <div className="mb-4">
-                    <p className="navyblueColor font-30 mt-4 font-w-500"> {t("global.declaration_form")}</p>
+                    <p className="navyblueColor font-30 mt-4 font-w-500"> {t("client.jobs.view.worker_details")}</p>
                 </div>
                 <form className="row">
                     <section className="col-xl">
@@ -122,7 +119,9 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                         value={formValues.firstname}
                                         onChange={(e) => setFormValues({ ...formValues, firstname: e.target.value })}
                                     />
-
+                                    <span className="text-danger">
+                                        {errors.firstname && errors.firstname}
+                                    </span>
                                 </div>
                             </div>
                             <div className="col-sm">
@@ -195,6 +194,9 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                             className="form-control"
                                             placeholder={t("worker.settings.renewal_visa")}
                                         />
+                                        <span className="text-danger">
+                                            {errors.renewal_visa && errors.renewal_visa}
+                                        </span>
                                     </div>
                                 </div>
                             )}
@@ -242,7 +244,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                     </div>
                                 </div>
                             )}
-                            {formValues.country != "Israel" && (
+                            {/* {formValues.country != "Israel" && (
                                 <div className="col-sm-6">
                                     <label htmlFor="employeeResidencePermit"
                                         style={{ marginBottom: "0", width: "100%" }}
@@ -263,7 +265,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                         />
                                     </div>
                                 </div>
-                            )}
+                            )} */}
                         </div>
                         <div className="row justify-content-center">
                             {formValues.country == "Israel" && (
@@ -307,7 +309,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                 </div>
                             )}
                         </div>
-                        <div className="row justify-content-center">
+                        <div className="row justify-content-center mt-2">
                             <div className="col-sm">
                                 <div className="form-group">
                                     <label className="control-label">
@@ -327,6 +329,28 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                     />
                                 </div>
                             </div>
+                            {formValues.country != "Israel" && (
+                                <div className="col-sm">
+                                    <label htmlFor="employeeResidencePermit"
+                                        style={{ marginBottom: "0", width: "100%" }}
+                                    >
+                                        {t("form101.PhotoCopyResident")}
+                                    </label>
+                                    <div className="input_container" style={{ height: "42px" }}>
+                                        <input
+                                            type="file"
+                                            name="employeeResidencePermit"
+                                            id="employeeResidencePermit"
+                                            className="form-control man p-0 border-0"
+                                            style={{ fontSize: "unset", backgroundColor: "unset", }}
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                handleFileChange(e, "visa");
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="">
