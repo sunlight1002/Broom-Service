@@ -72,6 +72,9 @@ class Job extends Model
         'cancelled_at',
         'cancelled_for',
         'cancel_until_date',
+        'worker_notified',
+        'admin_notified',
+        'wednesday_notified',
     ];
 
     /**

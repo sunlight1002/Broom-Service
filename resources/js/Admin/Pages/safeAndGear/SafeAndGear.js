@@ -348,7 +348,7 @@ const SafeAndGear = ({
                                 <button
                                     type="submit"
                                     name="next"
-                                    disabled={isSubmitting}
+                                    disabled={isManpower && isSubmitted && country === "Israel" ? isSubmitted : false}
                                     className="navyblue py-2 px-4"
                                     style={{ borderRadius: "5px" }}
                                 >

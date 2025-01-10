@@ -184,6 +184,8 @@ trait GoogleAPI
                 \Google\Service\PeopleService::CONTACTS,                // Full access to contacts
                 \Google\Service\PeopleService::CONTACTS_READONLY,       // Read-only access to contacts
                 \Google\Service\PeopleService::CONTACTS_OTHER_READONLY, // Read-only access to "Other Contacts"
+                \Google\Service\Sheets::SPREADSHEETS,
+                \Google\Service\Drive::DRIVE,
             ]
         );
         // $client->setIncludeGrantedScopes(true);
