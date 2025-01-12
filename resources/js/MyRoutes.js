@@ -192,6 +192,7 @@ import ClientPropertyAdress from "./Client/ClientPropertyAdress";
 import ViewPropertyAddress from "./Client/ViewPropertyAddress";
 import FacebookInsights from "./Admin/Components/Dashboard/FacebookInsights";
 import CustomMessage from "./Admin/Pages/Setting/CustomMessage";
+import AdminDocument from "./Admin/Components/Documents/AdminDocument";
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
 
@@ -611,6 +612,11 @@ export default function MyRoutes() {
                                 exact
                                 path="schedule-requests"
                                 element={<ScheduleChange />}
+                            />
+                            <Route
+                                exact
+                                path="documents"
+                                element={<AdminDocument />}
                             />
                             <Route
                                 exact

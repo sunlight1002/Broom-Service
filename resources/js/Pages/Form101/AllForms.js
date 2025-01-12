@@ -53,7 +53,7 @@ function AllForms() {
     const type = QueryParams.get("type");
 
     const decodeId = Base64.decode(param.id);
-    let numbersOnly = decodeId.replace(/\D/g, ''); 
+    let numbersOnly = decodeId.replace(/\D/g, '');
 
     const [id, setId] = useState(numbersOnly);
     const [formId, setFormId] = useState(param.formId ? Base64.decode(param.formId) : null)
@@ -101,7 +101,7 @@ function AllForms() {
     const handleNextPrev = (e) => {
         window.scrollTo(0, 0);
         if (param.formId && nextStep === 3) {
-            return; 
+            return;
         }
 
         if (e.target.name === "prev") {
@@ -1286,8 +1286,8 @@ function AllForms() {
                 setFormValues(res.data.form.data);
 
                 if (
-                    res.data.form.submitted_at && 
-                    res.data.form.created_at && 
+                    res.data.form.submitted_at &&
+                    res.data.form.created_at &&
                     new Date(res.data.form.created_at).getFullYear() === new Date().getFullYear()
                 ) {
                     setTimeout(() => {
@@ -1295,7 +1295,7 @@ function AllForms() {
                     }, 2000);
                     setIsSubmitted(true);
                 }
-                
+
             } else if (res.data.worker) {
                 const _worker = res.data.worker;
 
@@ -1454,8 +1454,6 @@ function AllForms() {
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
-                            <span className="mx-2"> - </span>
-                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 4</span>
                         </> : <>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                             <span className="mx-2"> - </span>
@@ -1745,7 +1743,7 @@ function AllForms() {
                         isManpower={isManpower}
                     />
                 )
-                    : nextStep === 4 && worker.country !== "Israel" && <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker} isManpower={isManpower} />
+                    : nextStep === 4 && worker.country !== "Israel" && !isManpower && <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker} isManpower={isManpower} />
             }
 
             {

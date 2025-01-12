@@ -11,6 +11,8 @@ class ManpowerCompany extends Model
 
     protected $fillable = [
         'name',
+        'email',
+        'phone',
         'contract_filename'
     ];
 

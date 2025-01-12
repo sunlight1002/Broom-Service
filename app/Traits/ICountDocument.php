@@ -224,6 +224,7 @@ trait ICountDocument
         ])->post($url, $requestData);
 
         $data = $response->json();
+        \Log::info($data);
         $http_code = $response->status();
 
         if ($http_code != 200) {

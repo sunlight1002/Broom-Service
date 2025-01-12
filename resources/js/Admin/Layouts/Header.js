@@ -222,7 +222,7 @@ export default function AdminHeader() {
                                                 className="dropdown-item"
                                                 to="/admin/my-availability"
                                             >
-                                                {t("admin.avalability")}
+                                                {t("admin.availability")}
                                             </Link>
                                         )}
                                         <Link

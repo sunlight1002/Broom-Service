@@ -406,14 +406,23 @@ class AuthController extends Controller
             'email' => [
                 'required',
                 'email',
-                Rule::unique('users', 'email')->ignore($request->worker_id), // Ignore the worker's own email
+                Rule::unique('users', 'email')->ignore($request->worker_id),
             ],
             'country' => 'required|string|max:255',
             'gender' => 'required|in:male,female',
-            'renewal_visa' => 'required|date',
+            'renewal_visa' => [
+                'nullable', // Default is nullable
+                'date',
+                function ($attribute, $value, $fail) use ($request) {
+                    if (strtolower($request->input('country')) !== 'israel' && !$value) {
+                        $fail("The field is required.");
+                    }
+                },
+            ],
             'passportNumber' => 'nullable|string|max:50',
             'IDNumber' => 'nullable|string|max:50',
         ]);
+        
     
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
@@ -1168,59 +1177,84 @@ class AuthController extends Controller
     public function manpowerForm(Request $request, $id)
     {
         $worker = User::find($id);
-
+    
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
             ], 404);
         }
-
+    
         $data = $request->all();
         $pdfFile = $data['pdf_file'];
         unset($data['pdf_file']);
-
+    
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::MANPOWER_SAFTEY)
             ->first();
-
+    
         if ($form && $form->pdf_name !== null && $form->submitted_at !== null) {
-                return response()->json([
+            return response()->json([
                 'message' => 'Manpower safety already signed.'
             ], 403);
         }
-
+    
         if (!Storage::drive('public')->exists('signed-docs')) {
             Storage::drive('public')->makeDirectory('signed-docs');
         }
-
+    
         $file_name = Str::uuid()->toString() . '.pdf';
         if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
             return response()->json([
                 'message' => "Can't save PDF"
             ], 403);
         }
+    
+        $manpowerCompany = ManpowerCompany::find($worker->manpower_company_id);
+    
+        if (!$manpowerCompany) {
+            return response()->json([
+                'message' => 'Manpower company not found.'
+            ], 404);
+        }
+    
+        // Prepare email data
+        $emailData = [
+            'worker' => $worker,
+            'manpowerCompany' => $manpowerCompany,
+            'formUrl' => Storage::disk('public')->url("signed-docs/{$file_name}")
+        ];
 
-
-          // Update the existing form if it exists and is not signed yet, otherwise create a new form
-          if ($form) {
+        if($manpowerCompany->email){
+            App::setLocale('heb');
+            // Send email
+            Mail::send('/manpowerCompany', $emailData, function ($message) use ($worker, $manpowerCompany, $file_name) {
+                $message->to($manpowerCompany->email)
+                    ->subject(__('mail.manpower_company.subject'))
+                    ->attach(storage_path("app/public/signed-docs/{$file_name}"));
+            });
+        }
+    
+        // Update or create the form
+        if ($form) {
             $form->update([
                 'data' => $data,
                 'submitted_at' => now()->toDateTimeString(),
                 'pdf_name' => $file_name
             ]);
         } else {
-            $form = $worker->forms()->create([
+            $worker->forms()->create([
                 'type' => WorkerFormTypeEnum::MANPOWER_SAFTEY,
                 'data' => $data,
                 'submitted_at' => now()->toDateTimeString(),
                 'pdf_name' => $file_name
             ]);
         }
-
+    
         return response()->json([
             'message' => 'Manpower form signed successfully.'
         ]);
     }
+    
 
 
     public function getManpowerSafty($id)

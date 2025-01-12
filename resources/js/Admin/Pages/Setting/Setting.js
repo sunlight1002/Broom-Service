@@ -5,6 +5,7 @@ import Integration from "../../Components/Settings/Integration";
 import Sidebar from "../../Layouts/Sidebar";
 import { useTranslation } from "react-i18next";
 import BankDetails from "../../Components/Settings/BankDetails";
+import AdminDocument from "../../Components/Documents/AdminDocument";
 
 export default function Setting() {
     const { t } = useTranslation();
@@ -93,6 +94,23 @@ export default function Setting() {
                                 </li>
                             )
                         }
+                        {
+                            role == "superadmin" && (
+                                <li className="nav-item" role="presentation">
+                                    <a
+                                        id="document-tab"
+                                        className="nav-link"
+                                        data-toggle="tab"
+                                        href="#tab-document"
+                                        aria-selected="false"
+                                        role="tab"
+                                    >
+                                        {t("admin.sidebar.documents")}
+
+                                    </a>
+                                </li>
+                            )
+                        }
                     </ul>
                     <div className="tab-content">
                         <div
@@ -111,14 +129,17 @@ export default function Setting() {
                         >
                             <ChangePass />
                         </div>
-                        <div
-                            id="tab-integration"
-                            className="tab-pane"
-                            role="tab-panel"
-                            aria-labelledby="integration-tab"
-                        >
-                            <Integration />
-                        </div>
+                        {role && role === "superadmin" && (
+                            <div
+                                id="tab-integration"
+                                className="tab-pane"
+                                role="tab-panel"
+                                aria-labelledby="integration-tab"
+                            >
+                                <Integration />
+                            </div>
+                        )}
+
                         {
                             role !== "superadmin" && (
                                 <div
@@ -128,6 +149,18 @@ export default function Setting() {
                                     aria-labelledby="tab-bank"
                                 >
                                     <BankDetails />
+                                </div>
+                            )
+                        }
+                        {
+                            role == "superadmin" && (
+                                <div
+                                    id="tab-document"
+                                    className="tab-pane"
+                                    role="tab-panel"
+                                    aria-labelledby="tab-document"
+                                >
+                                    <AdminDocument />
                                 </div>
                             )
                         }

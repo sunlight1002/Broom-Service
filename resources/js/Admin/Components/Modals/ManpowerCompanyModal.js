@@ -14,6 +14,7 @@ export default function ManpowerCompanyModal({
     const alert = useAlert();
     const [formValues, setFormValues] = useState({
         name: company ? company.name : "",
+        email: company ? company.email : "",
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -31,6 +32,11 @@ export default function ManpowerCompanyModal({
             return false;
         }
 
+        if (!formValues.email) {
+            alert.error("The email is missing");
+            return false;
+        }
+
         return true;
     };
 
@@ -45,6 +51,7 @@ export default function ManpowerCompanyModal({
 
             const formData = new FormData();
             formData.append("name", formValues.name);
+            formData.append("email", formValues.email);
 
             if (fileRef.current && fileRef.current.files.length > 0) {
                 const element = fileRef.current.files[0];
@@ -111,7 +118,6 @@ export default function ManpowerCompanyModal({
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label className="control-label">{t("admin.global.Name")}</label>
-
                             <input
                                 type="text"
                                 value={formValues.name}
@@ -126,11 +132,27 @@ export default function ManpowerCompanyModal({
                             />
                         </div>
                     </div>
-
+                    <div className="col-sm-12">
+                        <div className="form-group">
+                            <label className="control-label">{t("global.Email")}</label>
+                            <input
+                                type="email"
+                                value={formValues.email}
+                                onChange={(e) => {
+                                    setFormValues({
+                                        ...formValues,
+                                        email: e.target.value,
+                                    });
+                                }}
+                                className="form-control"
+                                required
+                            />
+                        </div>
+                    </div>
                     <div className="col-sm-12">
                         <div className="form-group">
                             <label htmlFor="file" className="form-label">
-                            {t("formTxt.contractForm")}
+                                {t("formTxt.contractForm")}
                             </label>
                             <input
                                 ref={fileRef}

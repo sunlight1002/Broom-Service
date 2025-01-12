@@ -13,6 +13,7 @@ import * as yup from "yup";
 import companySign from '../Assets/image/company-sign.png';
 import { objectToFormData } from "../Utils/common.utils";
 import { GrFormNextLink, GrFormPreviousLink } from "react-icons/gr";
+import FullPageLoader from "../Components/common/FullPageLoader";
 
 const ManpowerSaftyForm = ({
     setNextStep,
@@ -28,6 +29,7 @@ const ManpowerSaftyForm = ({
     const [formValues, setFormValues] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+    const [loading, setLoading] = useState(false);
     const contentRef = useRef(null);
     const [date, setDate] = useState(moment().format("DD-MM-YYYY"));
     const [country, setCountry] = useState("");
@@ -91,6 +93,8 @@ const ManpowerSaftyForm = ({
 
                 setIsGeneratingPDF(false);
 
+                setLoading(true);
+
                 // Convert JSON object to FormData
                 let formData = objectToFormData(values);
                 formData.append("pdf_file", _pdf);
@@ -103,6 +107,7 @@ const ManpowerSaftyForm = ({
                         },
                     })
                     .then((res) => {
+                        setLoading(false);
                         alert.success("Form submitted successfully");
                         setNextStep(prev => prev + 1);
                         setIsSubmitted(true);
@@ -311,7 +316,7 @@ const ManpowerSaftyForm = ({
                                     </div>
                                 </div>
                             </div>
-                            <div className="d-flex justify-content-end mt-4">
+                            <div className={`d-flex justify-content-end mt-4 ${isGeneratingPDF ? "hide-in-pdf" : ""}`}>
 
                                 <button
                                     type="button"
@@ -331,25 +336,12 @@ const ManpowerSaftyForm = ({
                                 >
                                     {t("common.next")} <GrFormNextLink />
                                 </button>
-
-                                {/* {
-                                    (nextStep === 3) && country !== "Israel" && !isSubmitted && (
-                                        <button
-                                            type="submit"
-                                            onClick={(e) => handleSubmit()}
-                                            name="next"
-                                            className="navyblue py-2 px-4"
-                                            style={{ borderRadius: "5px" }}
-                                        >
-                                            {t("common.submit")}
-                                        </button>
-                                    )
-                                } */}
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
+            <FullPageLoader visible={loading} />
         </div>
     );
 };

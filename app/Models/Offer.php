@@ -34,4 +34,9 @@ class Offer extends Model
     {
         return $this->belongsTo(Services::class, 'job_id');
     }
+
+    public function contract()
+    {
+        return $this->hasOne(Contract::class, 'offer_id');
+    }
 }
