@@ -925,7 +925,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             $clientInfo = $data['client_info']; // Get client info from the response
             $propertyAddress = $client->property_addresses()->first();
 
-            if ($clientInfo && empty($clientInfo['bus_street']) || empty($clientInfo['bus_city']) || empty($clientInfo['bus_zip'])) {
+            if ($clientInfo && (empty($clientInfo['bus_street']) && empty($clientInfo['bus_city']) && empty($clientInfo['bus_zip']))) {
                 $data = [
                     'id' => $clientInfo['id'],
                     'email' => $clientInfo['email'],
@@ -944,6 +944,8 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                 'invoicename' => $clientInfo['company_name'] ? $clientInfo['company_name'] : $client['invoicename'],
                 'phone' => $clientInfo['phone'] ? $this->fixedPhoneNumber($clientInfo['phone']) : $client['phone'],
             ]);
+
+            AddGoogleContactJob::dispatch($client);
 
             return $data;
         } else {
