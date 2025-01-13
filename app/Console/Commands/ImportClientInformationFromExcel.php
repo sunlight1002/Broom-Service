@@ -99,7 +99,7 @@ class ImportClientInformationFromExcel extends Command
 
         $failedImports = collect([]);
 
-        $filePath = storage_path('crm_client.xlsx');
+        $filePath = storage_path('v_properties.xlsx');
 
         if (!file_exists($filePath)) {
             Log::error('File not found at: ' . $filePath);
@@ -117,10 +117,6 @@ class ImportClientInformationFromExcel extends Command
         $updateData = [];
         foreach ($limitedRows as $rowIndex => $row) {
             if ($rowIndex == 0) {
-                continue;
-            }
-
-            if($row[4] == 'David@vellerhomes.com') {
                 continue;
             }
 
