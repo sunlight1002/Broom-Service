@@ -99,6 +99,7 @@ class WorkerLeadWebhookController extends Controller
             $user = User::where('phone', $from)->first();
 
             if ($user) {
+                $m = null;
                 if ($user->status == 1) {
                 $request = ScheduleChange::where('user_id', $user->id)
                         ->where('user_type', get_class($user))
@@ -107,29 +108,37 @@ class WorkerLeadWebhookController extends Controller
                     // Check if ScheduleChange is older than 1 week
                     $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
             
-                    if ($input == 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
-                        $m = $user->lng == 'heb' 
-                            ? "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות." 
-                            : "What is your change for next week? Your response will be forwarded to the team.";
+                   if($input != '2'){
+                        if ($input == 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
+                            if($user->lng == 'heb') {
+                                $m =  "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות.";
+                            }else if($user->lng == 'ru') {
+                                $m = "Какие у вас изменения на следующую неделю? Ваш ответ будет отправлен команде.";
+                            }else if($user->lng == 'en') {
+                                $m = "What is your change for next week? Your response will be forwarded to the team.";
+                            }else{
+                                $m = "¿Cuál es tu cambio para la próxima semana? Tu respuesta será enviada al equipo.";
+                            }
+                
+                            $result = sendWorkerWhatsappMessage($from, array('name' => '', 'message' => $m));
+                
+                            WorkerWebhookResponse::create([
+                                'status' => 1,
+                                'name' => 'whatsapp',
+                                'message' => $m,
+                                'number' => $from,
+                                'read' => 1,
+                                'flex' => 'A',
+                            ]);
             
-                        $result = sendWorkerWhatsappMessage($from, array('name' => '', 'message' => $m));
-            
-                        WorkerWebhookResponse::create([
-                            'status' => 1,
-                            'name' => 'whatsapp',
-                            'message' => $m,
-                            'number' => $from,
-                            'read' => 1,
-                            'flex' => 'A',
-                        ]);
-            
-                    } else if ($input != 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
-                        $scheduleChange = new ScheduleChange();
-                        $scheduleChange->user_type = get_class($user);  
-                        $scheduleChange->user_id = $user->id;      
-                        $scheduleChange->comments = $input;  
-                        $scheduleChange->save();
-                    } 
+                        } else if ($input != 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
+                            $scheduleChange = new ScheduleChange();
+                            $scheduleChange->user_type = get_class($user);  
+                            $scheduleChange->user_id = $user->id;      
+                            $scheduleChange->comments = $input;  
+                            $scheduleChange->save();
+                        } 
+                   }
                 }                   
 
                 die("User is already Worker");

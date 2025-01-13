@@ -1217,26 +1217,30 @@ Broom Service Team 🌹",
 
 בברכה,
 צוות ברום סרוויס 🌹",
-                'message_spa' => 'Hola :worker_name, ¿cómo estás?
+                'message_spa' => "Hola :worker_name,
 
-¿Necesitas algún día o medio día libre la próxima semana?
+¿Cómo estás?
+
+¿Necesitas algún día o medio día libre la semana que viene?
 Necesitamos finalizar el cronograma de la próxima semana hoy, así que avísanos lo antes posible si tienes algún requisito específico.
 
-Si tu cronograma es el mismo que el de la semana pasada, no es necesario realizar cambios.
-*Haz clic aquí para solicitar un cambio en tu cronograma* :request_change_schedule
+Responde 1 si tienes cambios.
+Responde 2 si tu cronograma sigue siendo el mismo.
 
 Saludos cordiales,
-Equipo de servicio de escobas',
+Equipo de servicio de escobas 🌹",
                 'message_ru' => 'Привет, :worker_name  ,
 
-Вам нужен полный или половина выходного дня на следующей неделе?
-Сегодня мы завершаем планирование графика на следующую неделю, поэтому, пожалуйста, сообщите нам как можно скорее, если у вас есть особые пожелания.
+Как ваши дела?
 
-Если ваш график остается таким же, как на прошлой неделе, изменений не требуется.
-*Нажмите здесь, чтобы запросить изменение в вашем графике* :request_change_schedule
+Вам нужен выходной на следующий неделе или половина дня?
+Мы закрываем график на следующую неделю сегодня, поэтому просим вас сообщить нам как можно скорее, если у вас есть какие-либо особые пожелания.
+
+Ответьте 1, если у вас есть изменения.
+Ответьте 2, если ваш график остается без изменений.
 
 С уважением,
-Команда Broom Service',
+Команда Broom Service 🌹',
             ],
 
             [

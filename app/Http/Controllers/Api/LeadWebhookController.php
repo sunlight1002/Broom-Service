@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
 use App\Models\Job;
+use App\Models\User;
 use App\Models\Offer;
 use App\Models\Client;
 use App\Models\Fblead;
 use App\Models\Setting;
-use App\Models\Contract;
 use App\Models\Schedule;
+use App\Models\Contract;
+use App\Models\WorkerLeads;
 use Illuminate\Support\Str;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -273,15 +275,18 @@ class LeadWebhookController extends Controller
                 'data'          => json_encode($get_data)
             ]);
 
-
             $client = null;
             if (strlen($from) > 10) {
                 $client = Client::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
+                $user = User::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
+                $workerLead = WorkerLeads::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
             } else {
                 $client = Client::where('phone', 'like', '%' . $from . '%')->first();
+                $user = User::where('phone', 'like', '%' . $from . '%')->first();
+                $workerLead = WorkerLeads::where('phone', 'like', '%' . $from . '%')->first();
             }
 
-            if (!$client) {
+            if (!$client && !$user && !$workerLead) {
                 $m = $this->botMessages['main-menu']['heb'];
                 $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 

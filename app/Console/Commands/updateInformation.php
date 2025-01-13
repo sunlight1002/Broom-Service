@@ -128,34 +128,23 @@ class updateInformation extends Command
         if ($http_code == 200 && $data['status'] === true) {
             $clientInfo = $data['client_info']; // Get client info from the response
             \Log::info('iCount Client Info', $clientInfo);
-            $propertyAddress = $client->property_addresses()->first();
 
             if ($clientInfo) {
                 $data = [
                     'id' => $clientInfo['id'],
-                    'email' => $clientInfo['email'],
-                    'company_name' => empty($clientInfo['company_name']) ? $invoiceName : $clientInfo['company_name'],
+                    'fname' => empty($clientInfo['fname']) ? $firstname : $clientInfo['fname'],
+                    'lname' => empty($clientInfo['lname']) ? $lastname : $clientInfo['lname'],
                 ];
 
-                $needToUpdate = false;
-                if(empty($clientInfo['fname'])) {
-                    $needToUpdate = true;
-                    $data['fname'] = empty($clientInfo['fname']) ? $firstname : $clientInfo['fname'];
-                }
-
-                if(empty($clientInfo['lname'])) {
-                    $needToUpdate = true;
-                    $data['lname'] = $lastname ?? $client->lastname;
-                }
-
                 if(empty($clientInfo['mobile'])) {
-                    $needToUpdate = true;
                     $data['mobile'] = $phone ? $this->fixedPhoneNumber($phone) : $this->fixedPhoneNumber($client->phone);
                 }
 
-               if($needToUpdate){
+                if(empty($clientInfo['company_name'])) {
+                    $data['company_name'] = $invoiceName ?? $client->invoicename;
+                }
+
                 $res= $this->updateClientIcount($data);
-               }
             }
 
             $client->update([
@@ -163,6 +152,7 @@ class updateInformation extends Command
                 'lastname' => $clientInfo['lname'] ? $clientInfo['lname'] : $client['lastname'],
                 'invoicename' => $clientInfo['company_name'] ? $clientInfo['company_name'] : $client['invoicename'],
                 'vat_number' => $clientInfo['vat_id'] ? $clientInfo['vat_id'] : $client['vat_number'],
+                'phone' => $clientInfo['phone'] ? $this->fixedPhoneNumber($clientInfo['phone']) : $client['phone'],
             ]);
 
             return $data;
@@ -198,9 +188,6 @@ class updateInformation extends Command
             'lname' => $data['lname'] ?? null,
             'mobile' => $data['mobile'] ?? null,
             'phone' => '',
-            'bus_street' => $data['bus_street'] ?? null,
-            'bus_city' => $data['bus_city'] ?? null,
-            'bus_zip' => $data['bus_zip'] ?? null,
         ];
 
         $response = Http::withHeaders([
