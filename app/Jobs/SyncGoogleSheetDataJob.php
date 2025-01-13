@@ -68,30 +68,30 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                 ->get()->pluck('heb_name')->toArray();
         $workers = User::where('status', 1)->get()->pluck('fullname')->toArray();
 
-        $filePath = storage_path('crm_client.xlsx');
+        // $filePath = storage_path('crm_client.xlsx');
 
-        if (!file_exists($filePath)) {
-            Log::error('File not found at: ' . $filePath);
-            return;
-        }
-        $data = Excel::toArray([], $filePath);
-        $firstSheet = $data[0] ?? [];
+        // if (!file_exists($filePath)) {
+        //     Log::error('File not found at: ' . $filePath);
+        //     return;
+        // }
+        // $data = Excel::toArray([], $filePath);
+        // $firstSheet = $data[0] ?? [];
 
-        if (empty($firstSheet)) {
-            Log::error("The first sheet is empty.");
-            return;
-        }
+        // if (empty($firstSheet)) {
+        //     Log::error("The first sheet is empty.");
+        //     return;
+        // }
 
-        $limitedRows = array_slice($firstSheet, 0, 1050);
-        $updateData = [];
-        foreach ($limitedRows as $rowIndex => $row) {
-            if ($rowIndex == 0) {
-                continue;
-            }
-            if (!empty($row[0]) || !empty($row[4])) {
-                $updateData[] = $row;
-            }
-        }
+        // $limitedRows = array_slice($firstSheet, 0, 1050);
+        // $updateData = [];
+        // foreach ($limitedRows as $rowIndex => $row) {
+        //     if ($rowIndex == 0) {
+        //         continue;
+        //     }
+        //     if (!empty($row[0]) || !empty($row[4])) {
+        //         $updateData[] = $row;
+        //     }
+        // }
         try {
             $this->initGoogleConfig();
             $sheets = [];
@@ -154,22 +154,73 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                     'invoicename' => trim($row[0]),
                                 ]);
                             }
-                            // $IcountData = $this->getIcountClientInfo($client);
+                            $IcountData = $this->getIcountClientInfo($client);
                             if ($client) {
                                 $client_ids[] = $client->id;
                                 $addresses = $client->property_addresses->pluck('address_name')->toArray();
+                                \Log::info('Addresses', ['addresses' => $addresses]);
+                                \Log::info('Service', ['service' =>$serviceArr]);
+                                \Log::info('Frequency', ['frequency' => $frequencyArr]);
+                                \Log::info('Workers', ['workers' => $workers]);
                                 // dd($id, $email, $index, $client, $addresses);
-                                $this->addDropdownInGoogleSheet($sheetId, "S" . ($index + 1), $addresses);
-                                $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $serviceArr);
-                                $this->addDropdownInGoogleSheet($sheetId, "Q" . ($index + 1), $frequencyArr);
-                                $this->addDropdownInGoogleSheet($sheetId, "J" . ($index + 1), $workers);
+                                // $this->addDropdownInGoogleSheet($sheetId, "S" . ($index + 1), $addresses);
+                                // $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $serviceArr);
+                                // $this->addDropdownInGoogleSheet($sheetId, "Q" . ($index + 1), $frequencyArr);
+                                // $this->addDropdownInGoogleSheet($sheetId, "J" . ($index + 1), $workers);
                             }
-                            $service = $row[11] ?? null;
 
+                            
+                            // dd($client);
+                            $service = $row[11] ?? null;
+                            
                             $offer = null;
                             if (is_numeric(trim($row[2]))) {
                                 $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
                             }
+                            
+                            // Decode Offer services
+                            // if ($offer) {
+
+                            //     $addressesMap = ClientPropertyAddress::whereIn('address_name', array_keys($addresses))
+                            //         ->pluck('address_name', 'id')
+                            //         ->toArray();
+                            //         \Log::info('Addresses Map', ['addressesMap' => $addressesMap]);
+
+                            //     $servicesData = json_decode($offer->services, true);
+                            //     $isMatch = false;
+
+                            //     foreach ($servicesData as $serviceData) {
+                            //         // Check if address ID exists in the database and matches an address name
+                            //         $addressMatch = isset($serviceData['address']) && isset($addressesMap[$serviceData['address']]);
+
+                            //         // Check if the name matches the provided service array
+                            //         $serviceMatch = isset($serviceData['name']) && in_array($serviceData['name'], $serviceArr);
+
+                            //         // Check frequency match
+                            //         $frequencyMatch = isset($serviceData['freq_name']) && in_array($serviceData['freq_name'], $frequencyArr);
+
+                            //         // Log and process if everything matches
+                            //         if ($addressMatch && $serviceMatch && $frequencyMatch && $workerMatch) {
+                            //             $isMatch = true;
+
+                            //             \Log::info('Matching Offer Record Found', [
+                            //                 'Offer ID' => $offer->id,
+                            //                 'Service Data' => $serviceData,
+                            //                 'Matching Address' => $addressesMap[$serviceData['address']], // Log the matched address name
+                            //             ]);
+
+                            //             // Decide what to do with the matched record here
+                            //             break;
+                            //         }
+                            //     }
+
+                            //     if (!$isMatch) {
+                            //         \Log::warning('No Matching Record Found for Offer ID: ' . $offer->id);
+                            //     }
+                            // } else {
+                            //     \Log::error('No Offer Found for ID: ' . trim($row[2]) . ' and Client ID: ' . $client->id);  
+                            // }
+
                             $serviceName = $serviceMap[trim($service)] ?? null;
                             if (!empty($serviceName)) {
                             }
@@ -870,27 +921,35 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         $http_code = $response->status();
 
 
-        // Check if the request was successful and status is true
         if ($http_code == 200 && $data['status'] === true) {
-            \Log::info("success");
             $clientInfo = $data['client_info']; // Get client info from the response
+            $propertyAddress = $client->property_addresses()->first();
 
-            dd($clientInfo);
+            if ($clientInfo && (empty($clientInfo['bus_street']) && empty($clientInfo['bus_city']) && empty($clientInfo['bus_zip']))) {
+                $data = [
+                    'id' => $clientInfo['id'],
+                    'email' => $clientInfo['email'],
+                    'firstname' => empty($clientInfo['fname']) ? $client['firstname'] : $clientInfo['fname'],
+                    'lastname' => empty($clientInfo['lname']) ? $client['lastname'] : $clientInfo['lname'],
+                    'bus_street' => $propertyAddress->geo_address,
+                    'bus_city' => $propertyAddress->city ?? null,
+                    'bus_zip' => $propertyAddress->zipcode ?? null,
+                ];
+                $res= $this->updateClientIcount($data);
+            }
 
             $client->update([
                 'firstname' => $clientInfo['fname'] ? $clientInfo['fname'] : $client['firstname'],
                 'lastname' => $clientInfo['lname'] ? $clientInfo['lname'] : $client['lastname'],
-                'invoicename' => $clientInfo['client_name'] ? $clientInfo['client_name'] : $client['invoicename'],
-                'vat_number' => $clientInfo['vat_id'] ? $clientInfo['vat_id'] : $client['vat_number'],
-                'icount_client_id' => $clientInfo['id'] ? $clientInfo['id'] : $client['icount_client_id'],
-                'phone' => $clientInfo['id'] ? $clientInfo['id'] : $client['icount_client_id'],
+                'invoicename' => $clientInfo['company_name'] ? $clientInfo['company_name'] : $client['invoicename'],
+                'phone' => $clientInfo['phone'] ? $this->fixedPhoneNumber($clientInfo['phone']) : $client['phone'],
             ]);
+
+            AddGoogleContactJob::dispatch($client);
 
             return $data;
         } else {
-            // $iCountResponse = $this->createClientIcount($client);
-            \Log::info("client is not exist so we create new one: " . json_encode($iCountResponse));
-            return $iCountResponse;
+            echo $client->email . PHP_EOL;
         }
     }
 
@@ -942,5 +1001,79 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         }
 
         return $data;
+    }
+
+    private function updateClientIcount($data)
+    {
+
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/client/update';
+
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'client_id' => $data['id'] ?? 0,
+            'email' => $data['email'] ?? null,
+            'fname' => $data['fname'] ?? null,
+            'lname' => $data['lname'] ?? null,
+            'bus_street' => $data['bus_street'] ?? null,
+            'bus_city' => $data['bus_city'] ?? null,
+            'bus_zip' => $data['bus_zip'] ?? null,
+        ];
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error: Failed to create or update user');
+        }
+
+        return $data;
+    }
+
+    public function fixedPhoneNumber($phone){
+        // $phone = $client->phone;
+
+        // 1. Remove all special characters from the phone number
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+        // 2. If there's any string or invalid characters in the phone, extract the digits
+        if (preg_match('/\d+/', $phone, $matches)) {
+            $phone = $matches[0]; // Extract the digits
+
+            // Reapply rules on extracted phone number
+            // If the phone number starts with 0, add 972 and remove the first 0
+            if (strpos($phone, '0') === 0) {
+                $phone = '972' . substr($phone, 1);
+            }
+
+            // If the phone number starts with +, remove the +
+            if (strpos($phone, '+') === 0) {
+                $phone = substr($phone, 1);
+            }
+        }
+
+        $phoneLength = strlen($phone);
+        if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
+            $phone = '972' . $phone;
+        }
+
+        return $phone;
     }
 }
