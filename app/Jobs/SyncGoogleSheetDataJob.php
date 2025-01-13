@@ -13,6 +13,7 @@ use App\Models\Contract;
 use App\Models\ClientPropertyAddress;
 use App\Models\Offer;
 use App\Models\Services;
+use App\Models\ServiceSchedule;
 use App\Enums\SettingKeyEnum;
 use App\Traits\GoogleAPI;
 use App\Traits\ICountDocument;
@@ -63,6 +64,8 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         ];
 
         $serviceArr = Services::get()->pluck('heb_name')->toArray();
+        $frequencyArr = ServiceSchedule::where('status', 1)
+                ->get()->pluck('heb_name')->toArray();
 
         $filePath = storage_path('crm_client.xlsx');
 
@@ -157,6 +160,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 // dd($id, $email, $index, $client, $addresses);
                                 $this->addDropdownInGoogleSheet($sheetId, "S" . ($index + 1), $addresses);
                                 $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $serviceArr);
+                                $this->addDropdownInGoogleSheet($sheetId, "Q" . ($index + 1), $frequencyArr);
                             }
                             $service = $row[11] ?? null;
 
