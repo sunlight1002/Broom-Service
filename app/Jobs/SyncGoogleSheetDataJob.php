@@ -159,9 +159,9 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 $client_ids[] = $client->id;
                                 $addresses = $client->property_addresses->pluck('address_name')->toArray();
                                 \Log::info('Addresses', ['addresses' => $addresses]);
-                                \Log::info('Service', ['service' =>$serviceArr]);
-                                \Log::info('Frequency', ['frequency' => $frequencyArr]);
-                                \Log::info('Workers', ['workers' => $workers]);
+                                // \Log::info('Service', ['service' =>$serviceArr]);
+                                // \Log::info('Frequency', ['frequency' => $frequencyArr]);
+                                // \Log::info('Workers', ['workers' => $workers]);
                                 // dd($id, $email, $index, $client, $addresses);
                                 // $this->addDropdownInGoogleSheet($sheetId, "S" . ($index + 1), $addresses);
                                 // $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $serviceArr);
@@ -181,38 +181,37 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                             // Decode Offer services
                             // if ($offer) {
 
-                            //     $addressesMap = ClientPropertyAddress::whereIn('address_name', array_keys($addresses))
-                            //         ->pluck('address_name', 'id')
-                            //         ->toArray();
-                            //         \Log::info('Addresses Map', ['addressesMap' => $addressesMap]);
+                                $addressesMap = ClientPropertyAddress::whereIn('address_name', array_keys($addresses))->pluck('id', 'address_name')->toArray();
+                                    \Log::info('Addresses Map', ['addressesMap' => $addressesMap]);
 
-                            //     $servicesData = json_decode($offer->services, true);
-                            //     $isMatch = false;
+                                $servicesData = json_decode($offer->services, true);
+                                $isMatch = false;
 
-                            //     foreach ($servicesData as $serviceData) {
-                            //         // Check if address ID exists in the database and matches an address name
-                            //         $addressMatch = isset($serviceData['address']) && isset($addressesMap[$serviceData['address']]);
+                                foreach ($servicesData as $serviceData) {
+                                    // Check if address ID exists in the database and matches an address name
+                                    $addressMatch = isset($serviceData['address']) && isset($addressesMap[$serviceData['address']]);
+                                    \Log::info("Address Match", ['addressMatch' => $addressMatch]);
 
-                            //         // Check if the name matches the provided service array
-                            //         $serviceMatch = isset($serviceData['name']) && in_array($serviceData['name'], $serviceArr);
+                                    // Check if the name matches the provided service array
+                                    $serviceMatch = isset($serviceData['name']) && in_array($serviceData['name'], $serviceArr);
 
-                            //         // Check frequency match
-                            //         $frequencyMatch = isset($serviceData['freq_name']) && in_array($serviceData['freq_name'], $frequencyArr);
+                                    // Check frequency match
+                                    $frequencyMatch = isset($serviceData['freq_name']) && in_array($serviceData['freq_name'], $frequencyArr);
 
-                            //         // Log and process if everything matches
-                            //         if ($addressMatch && $serviceMatch && $frequencyMatch && $workerMatch) {
-                            //             $isMatch = true;
+                                    // Log and process if everything matches
+                                    if ($addressMatch && $serviceMatch && $frequencyMatch) {
+                                        $isMatch = true;
 
-                            //             \Log::info('Matching Offer Record Found', [
-                            //                 'Offer ID' => $offer->id,
-                            //                 'Service Data' => $serviceData,
-                            //                 'Matching Address' => $addressesMap[$serviceData['address']], // Log the matched address name
-                            //             ]);
+                                        \Log::info('Matching Offer Record Found', [
+                                            'Offer ID' => $offer->id,
+                                            'Service Data' => $serviceData,
+                                            'Matching Address' => $addressesMap[$serviceData['address']], // Log the matched address name
+                                        ]);
 
-                            //             // Decide what to do with the matched record here
-                            //             break;
-                            //         }
-                            //     }
+                                        // Decide what to do with the matched record here
+                                        break;
+                                    }
+                                }
 
                             //     if (!$isMatch) {
                             //         \Log::warning('No Matching Record Found for Offer ID: ' . $offer->id);
@@ -934,12 +933,12 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                 $needToUpdate = false;
                 if(empty($clientInfo['fname'])) {
                     $needToUpdate = true;
-                    $data['first_name'] = $client['firstname'];
+                    $data['fname'] = $client['firstname'];
                 }
 
                 if(empty($clientInfo['lname'])) {
                     $needToUpdate = true;
-                    $data['last_name'] = $client['lastname'];
+                    $data['lname'] = $client['lastname'];
                 }
 
                 if($propertyAddress && empty($clientInfo['bus_street']) && empty($clientInfo['bus_city']) && empty($clientInfo['bus_zip'])) {
@@ -960,7 +959,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                 'phone' => $clientInfo['phone'] ? $this->fixedPhoneNumber($clientInfo['phone']) : $client['phone'],
             ]);
 
-            AddGoogleContactJob::dispatch($client);
+            // AddGoogleContactJob::dispatch($client);
 
             return $data;
         } else {
