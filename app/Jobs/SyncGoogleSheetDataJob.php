@@ -66,6 +66,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         $serviceArr = Services::get()->pluck('heb_name')->toArray();
         $frequencyArr = ServiceSchedule::where('status', 1)
                 ->get()->pluck('heb_name')->toArray();
+        $workers = User::where('status', 1)->get()->pluck('fullname')->toArray();
 
         $filePath = storage_path('crm_client.xlsx');
 
@@ -161,6 +162,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 $this->addDropdownInGoogleSheet($sheetId, "S" . ($index + 1), $addresses);
                                 $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $serviceArr);
                                 $this->addDropdownInGoogleSheet($sheetId, "Q" . ($index + 1), $frequencyArr);
+                                $this->addDropdownInGoogleSheet($sheetId, "J" . ($index + 1), $workers);
                             }
                             $service = $row[11] ?? null;
 

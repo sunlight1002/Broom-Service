@@ -98,7 +98,11 @@ class User extends Authenticatable
         'is_afraid_by_cat' => 'boolean',
         'is_afraid_by_dog' => 'boolean',
     ];
-    
+
+    public function getFullnameAttribute()
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
 
     public static function boot()
     {
