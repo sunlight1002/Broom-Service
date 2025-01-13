@@ -169,15 +169,15 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 // $this->addDropdownInGoogleSheet($sheetId, "J" . ($index + 1), $workers);
                             }
 
-                            
+
                             // dd($client);
                             $service = $row[11] ?? null;
-                            
+
                             $offer = null;
                             if (is_numeric(trim($row[2]))) {
                                 $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
                             }
-                            
+
                             // Decode Offer services
                             // if ($offer) {
 
@@ -218,7 +218,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                             //         \Log::warning('No Matching Record Found for Offer ID: ' . $offer->id);
                             //     }
                             // } else {
-                            //     \Log::error('No Offer Found for ID: ' . trim($row[2]) . ' and Client ID: ' . $client->id);  
+                            //     \Log::error('No Offer Found for ID: ' . trim($row[2]) . ' and Client ID: ' . $client->id);
                             // }
 
                             $serviceName = $serviceMap[trim($service)] ?? null;
@@ -925,17 +925,32 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             $clientInfo = $data['client_info']; // Get client info from the response
             $propertyAddress = $client->property_addresses()->first();
 
-            if ($clientInfo && (empty($clientInfo['bus_street']) && empty($clientInfo['bus_city']) && empty($clientInfo['bus_zip']))) {
+            if ($clientInfo) {
                 $data = [
                     'id' => $clientInfo['id'],
                     'email' => $clientInfo['email'],
-                    'firstname' => empty($clientInfo['fname']) ? $client['firstname'] : $clientInfo['fname'],
-                    'lastname' => empty($clientInfo['lname']) ? $client['lastname'] : $clientInfo['lname'],
-                    'bus_street' => $propertyAddress->geo_address,
-                    'bus_city' => $propertyAddress->city ?? null,
-                    'bus_zip' => $propertyAddress->zipcode ?? null,
                 ];
-                $res= $this->updateClientIcount($data);
+
+                $needToUpdate = false;
+                if(empty($clientInfo['fname'])) {
+                    $needToUpdate = true;
+                    $data['first_name'] = $client['firstname'];
+                }
+
+                if(empty($clientInfo['lname'])) {
+                    $needToUpdate = true;
+                    $data['last_name'] = $client['lastname'];
+                }
+
+                if($propertyAddress && empty($clientInfo['bus_street']) && empty($clientInfo['bus_city']) && empty($clientInfo['bus_zip'])) {
+                    $needToUpdate = true;
+                    $data['bus_street'] = $propertyAddress->geo_address;
+                    $data['bus_city'] = $propertyAddress->city ?? null;
+                    $data['bus_zip'] = $propertyAddress->zipcode ?? null;
+                }
+                if($needToUpdate) {
+                    $res= $this->updateClientIcount($data);
+                }
             }
 
             $client->update([
