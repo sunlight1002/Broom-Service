@@ -55,6 +55,15 @@ class SyncGoogleSheetDataJob implements ShouldQueue
      */
     public function handle()
     {
+        $serviceMap = [
+            '3*' => '3 Star',
+            '4*' => '4 Star',
+            '4' => '4 Star',
+            'משרד' => 'Office Cleaning',
+        ];
+
+        $serviceArr = Services::get()->pluck('heb_name')->toArray();
+
         $filePath = storage_path('crm_client.xlsx');
 
         if (!file_exists($filePath)) {
@@ -94,12 +103,15 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             }
             $sheets = array_reverse($sheets);
             $grouped = [];
+            $services = [];
+            $client_ids = [];
             foreach ($sheets as $key => $sheet) {
                 $data = $this->getGoogleSheetData($sheet);
                 if (empty($data)) {
                     Log::warning("Sheet $sheet is empty.");
                     continue;
                 }
+                $sheetId = $this->getSheetId($sheet);
                 $currentDate = null;
                 foreach ($data as $index => $row) {
                     if ($index == 0) {
@@ -124,124 +136,49 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                             $email = trim($row[1]);
                         }
 
-                        $client = null;
-                        if ($id) {
-                            $client = Client::find($id);
-                        } else if ($email) {
-                            $client = Client::where('email', $email)->first();
-                        }
-                        if (!$client) {
-                            $client = Client::create([
-                                'email' => $email,
-                                'invoicename' => trim($row[0]),
-                            ]);
-                        }
 
-                        $clientUpdateData = [];
-                        foreach ($updateData as $d) {
-                            if (trim($d[0]) == '#' . $client->id) {
-                                $clientUpdateData[] = $d;
-                            } else if (trim($d[4]) == '#' . $client->email) {
-                                $clientUpdateData[] = $d;
+                        if ($id || $email) {
+                            $client = null;
+                            if ($id) {
+                                $client = Client::find($id);
+                            } else if ($email) {
+                                $client = Client::where('email', $email)->first();
+                            }
+                            if (!$client && !empty($email)) {
+                                $client = Client::create([
+                                    'email' => $email,
+                                    'invoicename' => trim($row[0]),
+                                ]);
+                            }
+                            // $IcountData = $this->getIcountClientInfo($client);
+                            if ($client) {
+                                $client_ids[] = $client->id;
+                                $addresses = $client->property_addresses->pluck('address_name')->toArray();
+                                // dd($id, $email, $index, $client, $addresses);
+                                $this->addDropdownInGoogleSheet($sheetId, "S" . ($index + 1), $addresses);
+                                $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $serviceArr);
+                            }
+                            $service = $row[11] ?? null;
+
+                            $offer = null;
+                            if (is_numeric(trim($row[2]))) {
+                                $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
+                            }
+                            $serviceName = $serviceMap[trim($service)] ?? null;
+                            if (!empty($serviceName)) {
+                            }
+                            if (!$offer && $client) {
+                                // $offer = $client->offers()->where('status', 'accepted')->orderBy('created_at', 'DESC')->first();
+                            }
+                            if (!$offer) {
+
+                                $services = [];
                             }
                         }
-
-                        $offer = null;
-                        if (is_numeric(trim($row[2]))) {
-                            $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
-                        }
-                        if (!$offer) {
-                            $offer = $client->offers()->where('status', 'accepted')->orderBy('created_at', 'DESC')->first();
-                        }
-                        if (!$offer) {
-                            $services = [];
-
-                            foreach($clientUpdateData as $d) {
-                                $services[] = [
-                                    "service" => "10",
-                                    "sub_services" => [
-                                        "id" => "",
-                                        "address" => "",
-                                        "address_name" => "",
-                                        "sub_service_name" => ""
-                                    ],
-                                    "name" => "אחרים",
-                                    "type" => "fixed",
-                                    "freq_name" => "חד פעמי",
-                                    "frequency" => "1",
-                                    "fixed_price" => "3500",
-                                    "freelancer_price" => "",
-                                    "rateperhour" => "",
-                                    "ratepersquaremeter" => "",
-                                    "totalsquaremeter" => "",
-                                    "other_title" => "נקיון איפוס כולל חלונות כולל כל המטלות לא כולל ארונות בפנים. כולל נקיון חוץ ופינוי עלים ",
-                                    "template" => "others",
-                                    "cycle" => "1",
-                                    "period" => "na",
-                                    "address" => "1908",
-                                    "weekdays" => [],
-                                    "is_freelancer" => false,
-                                    "weekday_occurrence" => "1",
-                                    "weekday" => "sunday",
-                                    "month_occurrence" => 1,
-                                    "month_date" => 1,
-                                    "monthday_selection_type" => "weekday",
-                                    "workers" => [["jobHours" => "28"]],
-                                    "address_name" => "אוסישקין 76",
-                                    "totalamount" => 3500
-                                ];
-                            }
-
-                            dd($clientUpdateData);
-                            $offer = Offer::create([
-                                'client_id' => $client->id,
-                                'status' => 'accepted',
-                                'services' => [
-                                    [
-                                        "service" => "10",
-                                        "sub_services" => [
-                                            "id" => "",
-                                            "address" => "",
-                                            "address_name" => "",
-                                            "sub_service_name" => ""
-                                        ],
-                                        "name" => "אחרים",
-                                        "type" => "fixed",
-                                        "freq_name" => "חד פעמי",
-                                        "frequency" => "1",
-                                        "fixed_price" => "3500",
-                                        "freelancer_price" => "",
-                                        "rateperhour" => "",
-                                        "ratepersquaremeter" => "",
-                                        "totalsquaremeter" => "",
-                                        "other_title" => "נקיון איפוס כולל חלונות כולל כל המטלות לא כולל ארונות בפנים. כולל נקיון חוץ ופינוי עלים ",
-                                        "template" => "others",
-                                        "cycle" => "1",
-                                        "period" => "na",
-                                        "address" => "1908",
-                                        "weekdays" => [],
-                                        "is_freelancer" => false,
-                                        "weekday_occurrence" => "1",
-                                        "weekday" => "sunday",
-                                        "month_occurrence" => 1,
-                                        "month_date" => 1,
-                                        "monthday_selection_type" => "weekday",
-                                        "workers" => [["jobHours" => "28"]],
-                                        "address_name" => "אוסישקין 76",
-                                        "totalamount" => 3500
-                                    ]
-                                ],
-                            ]);
-                        }
-
-
-
-
-                        dd($clientUpdateData, $offer);
                     }
                 }
             }
-            dd($grouped);
+            dd(implode(',', array_unique($client_ids)));
 
 
             $rows = [];
@@ -269,6 +206,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                 }
             }
         } catch (\Exception $e) {
+            dd($e);
             Log::error("An error occurred: " . $e->getMessage());
         }
     }
@@ -741,6 +679,94 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         return preg_match('/[\x{0590}-\x{05FF}]/u', $text) ? 'hebrew' : 'english';
     }
 
+    public function updateTextValueInGoogleSheet($cell, $value)
+    {
+        $metadataUrl = $this->googleSheetEndpoint . $this->spreadsheetId . "/values/{$cell}?valueInputOption=USER_ENTERED";
+
+        $metadataResponse = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->put($metadataUrl, ['values' => [[$value]]]);
+
+        if ($metadataResponse->successful()) {
+            return $metadataResponse->json();
+        }
+        return false;
+    }
+
+    public function addDropdownInGoogleSheet($sheetId, $cell, $options)
+    {
+        $endpoint = "{$this->googleSheetEndpoint}{$this->spreadsheetId}:batchUpdate";
+
+        $requestBody = [
+            "requests" => [
+                [
+                    "setDataValidation" => [
+                        "range" => [
+                            "sheetId" => $sheetId, // Get Sheet ID dynamically
+                            "startRowIndex" => $this->convertRowCol($cell)["row"] - 1,
+                            "endRowIndex" => $this->convertRowCol($cell)["row"],
+                            "startColumnIndex" => $this->convertRowCol($cell)["col"] - 1,
+                            "endColumnIndex" => $this->convertRowCol($cell)["col"]
+                        ],
+                        "rule" => [
+                            "condition" => [
+                                "type" => "ONE_OF_LIST",
+                                "values" => array_map(fn($option) => ["userEnteredValue" => $option], $options)
+                            ],
+                            "showCustomUi" => true,
+                            "strict" => true
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->post($endpoint, $requestBody);
+
+        return $response->json();
+    }
+
+    /**
+     * Convert A1 notation (e.g., "D8") to row/column indices
+     */
+    private function convertRowCol($cell)
+    {
+        preg_match('/([A-Z]+)(\d+)/', $cell, $matches);
+        $column = $matches[1];
+        $row = intval($matches[2]);
+
+        $colIndex = 0;
+        foreach (str_split($column) as $char) {
+            $colIndex = $colIndex * 26 + (ord($char) - ord('A') + 1);
+        }
+
+        return ["row" => $row, "col" => $colIndex];
+    }
+
+    /**
+     * Get the Sheet ID dynamically
+     */
+    private function getSheetId($sheetName)
+    {
+        $endpoint = "{$this->googleSheetEndpoint}{$this->spreadsheetId}";
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->get($endpoint)->json();
+
+        foreach ($response["sheets"] as $sheet) {
+            if ($sheet["properties"]["title"] === $sheetName) {
+                return $sheet["properties"]["sheetId"];
+            }
+        }
+
+        return null;
+    }
+
 
     public function getAllSheetNames()
     {
@@ -824,7 +850,6 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             'cid' => $iCountCompanyID,
             'user' => $iCountUsername,
             'pass' => $iCountPassword,
-            'phone' => $client['phone'] ?? null,
             'email' => $client['email'] ?? null,
             'get_custom_info' => true,
             'get_contacts' => true
@@ -844,17 +869,20 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             \Log::info("success");
             $clientInfo = $data['client_info']; // Get client info from the response
 
+            dd($clientInfo);
+
             $client->update([
                 'firstname' => $clientInfo['fname'] ? $clientInfo['fname'] : $client['firstname'],
                 'lastname' => $clientInfo['lname'] ? $clientInfo['lname'] : $client['lastname'],
                 'invoicename' => $clientInfo['client_name'] ? $clientInfo['client_name'] : $client['invoicename'],
                 'vat_number' => $clientInfo['vat_id'] ? $clientInfo['vat_id'] : $client['vat_number'],
                 'icount_client_id' => $clientInfo['id'] ? $clientInfo['id'] : $client['icount_client_id'],
+                'phone' => $clientInfo['id'] ? $clientInfo['id'] : $client['icount_client_id'],
             ]);
 
             return $data;
         } else {
-            $iCountResponse = $this->createClientIcount($client);
+            // $iCountResponse = $this->createClientIcount($client);
             \Log::info("client is not exist so we create new one: " . json_encode($iCountResponse));
             return $iCountResponse;
         }
@@ -907,6 +935,6 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             throw new Exception('Error: Failed to create or update user');
         }
 
-        return $response;
+        return $data;
     }
 }
