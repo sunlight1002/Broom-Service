@@ -99,18 +99,16 @@ class WorkerLeadWebhookController extends Controller
             $user = User::where('phone', $from)->first();
 
             if ($user) {
-                \Log::info('User is already Worker');
-            
                 if ($user->status == 1) {
-                    $request = ScheduleChange::where('user_id', $user->id)
-                            ->where('user_type', get_class($user))
-                            ->latest()->first();
+                $request = ScheduleChange::where('user_id', $user->id)
+                        ->where('user_type', get_class($user))
+                        ->latest()->first();
             
                     // Check if ScheduleChange is older than 1 week
                     $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
             
                     if ($input == 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
-                        $m = $client->lng == 'heb' 
+                        $m = $user->lng == 'heb' 
                             ? "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות." 
                             : "What is your change for next week? Your response will be forwarded to the team.";
             
@@ -127,8 +125,8 @@ class WorkerLeadWebhookController extends Controller
             
                     } else if ($input != 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
                         $scheduleChange = new ScheduleChange();
-                        $scheduleChange->user_type = get_class($client);  
-                        $scheduleChange->user_id = $client->id;      
+                        $scheduleChange->user_type = get_class($user);  
+                        $scheduleChange->user_id = $user->id;      
                         $scheduleChange->comments = $input;  
                         $scheduleChange->save();
                     } 
