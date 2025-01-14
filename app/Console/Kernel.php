@@ -74,7 +74,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('terminate:worker')->dailyAt('08:00');
 
-        // $schedule->command('send:reminder-with-pending-forms')->dailyAt('08:00');
+        $schedule->command('send:reminder-with-pending-forms')->dailyAt('08:00');
 
 
     }
