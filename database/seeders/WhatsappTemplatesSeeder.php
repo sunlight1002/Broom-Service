@@ -1152,31 +1152,35 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
                 'description' => 'Every Monday, send a notification to all clients and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule. Also, notify them if there is any holiday during that week.',
-                'message_en' => "Dear Clients, good morning,
+                'message_en' => "Dear :client_name, 
 
-Today is Monday, and we’re finalizing the work schedule for next week. If you have any constraints, changes, or special requests, please send them to us by the end of the day.
+Good morning!
 
-For any questions or requests, we’re here to assist you.
+Today is Monday, and we are finalizing the schedule for next week.
+    • If you have any changes or preferences, please reply with the number 1.
 
-*Click here to send a message regarding a change or request* :request_change_schedule
+For any additional questions or requests, we are here to assist you.
 
-Wishing you a wonderful day! 🌸
-Broom Service Team 🌹
+Have a wonderful day! 🌸
+Best Regards,
+The Broom Service Team 🌹
 www.broomservice.co.il
-Telephone: 03-525-70-60
+Phone: 03-525-70-60
 office@broomservice.co.il
 
 If you no longer wish to receive messages from us, please reply with 'STOP' at any time.",
-                'message_heb' => "לקוחות יקרים, בוקר טוב,
+                'message_heb' => "לקוחות :client_name,
 
-היום יום שני, ואנו סוגרים סידור עבודה לשבוע הבא. במידה ויש לכם אילוצים, שינויים או בקשות מיוחדות, נבקש להעבירם עוד היום.
+בוקר טוב,
 
-לכל שאלה או בקשה, אנו פה לשירותכם.
+היום יום שני, ואנו סוגרים את סידור העבודה לשבוע הבא.
+    • במידה ויש לכם אילוצים, שינויים או בקשות מיוחדות, אנא השיבו עם הספרה 1.
+    
+לכל שאלה או בקשה, אנו כאן לשירותכם.
 
-*לחץ כאן לשליחת הודעה על שינוי או בקשה* :request_change_schedule
-
-המשך יום נהדר! 🌸
-צוות ברום סרוויס🌹
+המשך יום נפלא! 🌸
+בברכה,
+צוות ברום סרוויס 🌹
 www.broomservice.co.il
 טלפון: 03-525-70-60
 office@broomservice.co.il
@@ -1189,46 +1193,54 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE,
                 'description' => 'Every Monday, send a notification to all workers and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule. Also, notify them if there is any holiday during that week.',
-                'message_en' => "Hi :worker_name, how are you?
+                'message_en' => "Hi :worker_name, 
+                
+how are you?
 
 Do you need any day or half-day off next week?
 We need to finalize next week’s schedule today, so please let us know as soon as possible if you have any specific requirements.
 
-If your schedule is the same as last week, no changes are needed.
-*Click here to request a change in your schedule* :request_change_schedule
+Reply 1 if you have changes.
+Reply 2 if your schedule remains the same.
 
 Best Regards,
-Broom Service Team",
+Broom Service Team 🌹",
                 'message_heb' => "שלום :worker_name,
 
-האם אתה זקוק ליום חופש מלא או חצי יום חופש בשבוע הבא?
-אנו סוגרים את סידור העבודה להיום ונבקש לדעת בהקדם אם יש לך בקשות מיוחדות.
+מה שלומך?
 
-אם הלוז שלך נשאר כמו שבוע שעבר, אין צורך בשינוי.
-*לחץ כאן לבקשת שינוי בלוח הזמנים שלך* :request_change_schedule
+האם אתה זקוק ליום חופש או חצי יום חופש בשבוע הבא?
+אנו סוגרים את סידור העבודה לשבוע הבא היום, ולכן נבקש שתעדכן אותנו בהקדם האפשרי אם יש לך בקשות מיוחדות.
+
+ענה 1 אם יש שינויים.
+ענה 2 אם הסידור נשאר כפי שהיה.
 
 בברכה,
-צוות ברום סרוויס",
-                'message_spa' => 'Hola :worker_name, ¿cómo estás?
+צוות ברום סרוויס 🌹",
+                'message_spa' => "Hola :worker_name,
 
-¿Necesitas algún día o medio día libre la próxima semana?
+¿Cómo estás?
+
+¿Necesitas algún día o medio día libre la semana que viene?
 Necesitamos finalizar el cronograma de la próxima semana hoy, así que avísanos lo antes posible si tienes algún requisito específico.
 
-Si tu cronograma es el mismo que el de la semana pasada, no es necesario realizar cambios.
-*Haz clic aquí para solicitar un cambio en tu cronograma* :request_change_schedule
+Responde 1 si tienes cambios.
+Responde 2 si tu cronograma sigue siendo el mismo.
 
 Saludos cordiales,
-Equipo de servicio de escobas',
+Equipo de servicio de escobas 🌹",
                 'message_ru' => 'Привет, :worker_name  ,
 
-Вам нужен полный или половина выходного дня на следующей неделе?
-Сегодня мы завершаем планирование графика на следующую неделю, поэтому, пожалуйста, сообщите нам как можно скорее, если у вас есть особые пожелания.
+Как ваши дела?
 
-Если ваш график остается таким же, как на прошлой неделе, изменений не требуется.
-*Нажмите здесь, чтобы запросить изменение в вашем графике* :request_change_schedule
+Вам нужен выходной на следующий неделе или половина дня?
+Мы закрываем график на следующую неделю сегодня, поэтому просим вас сообщить нам как можно скорее, если у вас есть какие-либо особые пожелания.
+
+Ответьте 1, если у вас есть изменения.
+Ответьте 2, если ваш график остается без изменений.
 
 С уважением,
-Команда Broom Service',
+Команда Broom Service 🌹',
             ],
 
             [

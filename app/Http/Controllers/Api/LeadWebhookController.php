@@ -4,17 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
 use App\Models\Job;
+use App\Models\User;
 use App\Models\Offer;
 use App\Models\Client;
 use App\Models\Fblead;
 use App\Models\Setting;
-use App\Models\Contract;
 use App\Models\Schedule;
+use App\Models\Contract;
+use App\Models\WorkerLeads;
 use Illuminate\Support\Str;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Enums\LeadStatusEnum;
 use App\Enums\SettingKeyEnum;
+use App\Models\ScheduleChange;
 use App\Events\SendClientLogin;
 use App\Models\WebhookResponse;
 use App\Traits\ScheduleMeeting;
@@ -272,15 +275,18 @@ class LeadWebhookController extends Controller
                 'data'          => json_encode($get_data)
             ]);
 
-
             $client = null;
             if (strlen($from) > 10) {
                 $client = Client::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
+                $user = User::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
+                $workerLead = WorkerLeads::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
             } else {
                 $client = Client::where('phone', 'like', '%' . $from . '%')->first();
+                $user = User::where('phone', 'like', '%' . $from . '%')->first();
+                $workerLead = WorkerLeads::where('phone', 'like', '%' . $from . '%')->first();
             }
 
-            if (!$client) {
+            if (!$client && !$user && !$workerLead) {
                 $m = $this->botMessages['main-menu']['heb'];
                 $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -325,12 +331,51 @@ class LeadWebhookController extends Controller
             };
 
             if ($client) {
+                $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
+            
+                if ($client->status == 2 && $client->lead_status->lead_status == LeadStatusEnum::ACTIVE_CLIENT) {
+                    $request = ScheduleChange::where('user_id', $client->id)
+                            ->where('user_type', get_class($client))
+                            ->latest()->first();
+            
+                    // Check if ScheduleChange is older than 1 week
+                    $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
+            
+                    if ($messageBody == 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
+                        $m = $client->lng == 'heb' 
+                            ? "מהו השינוי או הבקשה לשבוע הבא?\n    • במידה ואין שינויים, אין צורך בפעולה נוספת." 
+                            : "What is your change for next week?\n    • If there are no changes, no action is needed.";
+            
+                        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
+            
+                        WebhookResponse::create([
+                            'status'        => 1,
+                            'name'          => 'whatsapp',
+                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'message'       => $m,
+                            'number'        => $from,
+                            'flex'          => 'A',
+                            'read'          => 1,
+                            'data'          => json_encode($get_data)
+                        ]);
+            
+                    } else if ($messageBody != 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
+                        $scheduleChange = new ScheduleChange();
+                        $scheduleChange->user_type = get_class($client);  
+                        $scheduleChange->user_id = $client->id;      
+                        $scheduleChange->comments = $messageBody;  
+                        $scheduleChange->save();
+                    }                    
+                }
+            
                 $createdAt = $client->created_at;
                 if ($createdAt && $createdAt->lt(now()->subHours(12))) {
-                    \Log::info('Client record is older than 12 hours.');
-                    die("Client record is older than 24 hours.");
+                    \Log::info('Client record is older than 12 hours.', ['client_id' => $client->id]);
+                    die('Client record is older than 12 hours.');
                 }
             }
+            
+            
 
             if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
                 $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : ($message_data[0]['button']['text'] ?? "");
@@ -1451,24 +1496,24 @@ If you would like to speak to a human representative, please send a message with
                 }
 
 
-                if (($message !== "Human Representative") || !(str_contains($message, '@'))) {
-                    // Follow-up message for returning to the menu, with translation based on the client's language
-                    $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
-                        : "Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time";
+                // if (($message !== "Human Representative") || !(str_contains($message, '@'))) {
+                //     // Follow-up message for returning to the menu, with translation based on the client's language
+                //     $follow_up_msg = $client->lng == 'heb' ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
+                //         : "Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time";
 
-                    WebhookResponse::create([
-                        'status'        => 1,
-                        'name'          => 'whatsapp',
-                        'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                        'message'       => $follow_up_msg,
-                        'number'        => $from,
-                        'flex'          => 'A',
-                        'read'          => 1,
-                        'data'          => json_encode($get_data)
-                    ]);
+                //     WebhookResponse::create([
+                //         'status'        => 1,
+                //         'name'          => 'whatsapp',
+                //         'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                //         'message'       => $follow_up_msg,
+                //         'number'        => $from,
+                //         'flex'          => 'A',
+                //         'read'          => 1,
+                //         'data'          => json_encode($get_data)
+                //     ]);
 
-                    $result = sendWhatsappMessage($from, array('message' => $follow_up_msg));
-                }
+                //     $result = sendWhatsappMessage($from, array('message' => $follow_up_msg));
+                // }
             }
         }
 

@@ -46,8 +46,8 @@ class WeeklyNotifyClientWorker extends Command
         // Get the start and end dates for the following week
         $startOfNextWeek = Carbon::now()->addWeek()->startOfWeek();
         $endOfNextWeek = Carbon::now()->addWeek()->endOfWeek();
-        // \Log::info($startOfNextWeek." start");
-        // \Log::info($endOfNextWeek." end");
+        \Log::info($startOfNextWeek." start");
+        \Log::info($endOfNextWeek." end");
 
         // Fetch scheduled jobs for the next week
         $scheduledJobs = Job::whereBetween('start_date', [$startOfNextWeek, $endOfNextWeek])
