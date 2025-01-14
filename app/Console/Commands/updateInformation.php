@@ -55,17 +55,17 @@ class updateInformation extends Command
 
         $data = Excel::toArray([], $filePath);
             $firstSheet = $data[0] ?? [];
-    
+
             if (empty($firstSheet)) {
                 $this->info("The first sheet is empty.");
                 return;
             }
-    
+
             $limitedRows = array_slice($firstSheet, 0, 1050);
 
             foreach ($limitedRows as $rowIndex => $row) {
                 $row = array_slice($row, 0, 45);
-    
+
                 if (empty(array_filter($row))) {
                     continue;
                 }
@@ -140,10 +140,6 @@ class updateInformation extends Command
                     $data['mobile'] = $phone ? $this->fixedPhoneNumber($phone) : $this->fixedPhoneNumber($client->phone);
                 }
 
-                if(empty($clientInfo['company_name'])) {
-                    $data['company_name'] = $invoiceName ?? $client->invoicename;
-                }
-
                 $res= $this->updateClientIcount($data);
             }
 
@@ -152,7 +148,7 @@ class updateInformation extends Command
                 'lastname' => $clientInfo['lname'] ? $clientInfo['lname'] : $client['lastname'],
                 'invoicename' => $clientInfo['company_name'] ? $clientInfo['company_name'] : $client['invoicename'],
                 'vat_number' => $clientInfo['vat_id'] ? $clientInfo['vat_id'] : $client['vat_number'],
-                'phone' => $clientInfo['phone'] ? $this->fixedPhoneNumber($clientInfo['phone']) : $client['phone'],
+                'phone' => $phone ? $this->fixedPhoneNumber($phone) : $client['phone'],
             ]);
 
             return $data;
@@ -183,7 +179,6 @@ class updateInformation extends Command
             'user' => $iCountUsername,
             'pass' => $iCountPassword,
             'client_id' => $data['id'] ?? 0,
-            'email' => $data['email'] ?? null,
             'fname' => $data['fname'] ?? null,
             'lname' => $data['lname'] ?? null,
             'mobile' => $data['mobile'] ?? null,
