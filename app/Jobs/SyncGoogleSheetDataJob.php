@@ -154,7 +154,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                     'invoicename' => trim($row[0]),
                                 ]);
                             }
-                            $IcountData = $this->getIcountClientInfo($client);
+                            // $IcountData = $this->getIcountClientInfo($client);
                             if ($client) {
                                 $client_ids[] = $client->id;
                                 $addresses = $client->property_addresses->pluck('address_name')->toArray();
@@ -163,55 +163,90 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 // \Log::info('Frequency', ['frequency' => $frequencyArr]);
                                 // \Log::info('Workers', ['workers' => $workers]);
                                 // dd($id, $email, $index, $client, $addresses);
-                                // $this->addDropdownInGoogleSheet($sheetId, "S" . ($index + 1), $addresses);
-                                // $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $serviceArr);
-                                // $this->addDropdownInGoogleSheet($sheetId, "Q" . ($index + 1), $frequencyArr);
-                                // $this->addDropdownInGoogleSheet($sheetId, "J" . ($index + 1), $workers);
+                                $dJson = $this->addDropdownInGoogleSheet($sheetId, "S" . ($index + 1), $addresses);
+                                echo $dJson . PHP_EOL;
+                                $dJson = $this->addDropdownInGoogleSheet($sheetId, "J" . ($index + 1), $workers);
+                                echo $dJson . PHP_EOL;
+                                $service = $row[11] ?? null;
+
+                                $offer = null;
+                                $services = [];
+                                $frequencies = [];
+                                if (is_numeric(trim($row[2]))) {
+                                    $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
+
+                                    if($offer) {
+                                        $data = json_decode($offer->services, true);
+                                        foreach ($data as $d) {
+                                            $services[] = $d['name'];
+                                            $frequencies[] = $d['freq_name'];
+                                        }
+                                    }
+                                }
+
+                                $offers = $client->offers;
+                                foreach ($offers as $offer) {
+                                    $data = json_decode($offer->services, true);
+                                    foreach ($data as $d) {
+                                        $services[] = $d['name'];
+                                        $frequencies[] = $d['freq_name'];
+                                    }
+                                }
+                                if(!empty($services)) {
+                                    $dJson = $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $services);
+                                    echo $dJson . PHP_EOL;
+                                } else {
+                                    $dJson = $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $serviceArr);
+                                    echo $dJson . PHP_EOL;
+                                }
+                                if(!empty($frequencies)) {
+                                    $dJson = $this->addDropdownInGoogleSheet($sheetId, "Q" . ($index + 1), $frequencies);
+                                    echo $dJson . PHP_EOL;
+                                } else {
+                                    $dJson = $this->addDropdownInGoogleSheet($sheetId, "Q" . ($index + 1), $frequencyArr);
+                                    echo $dJson . PHP_EOL;
+                                }
+                                sleep(3);
+                                echo ($index + 1) . PHP_EOL;
                             }
 
 
                             // dd($client);
-                            $service = $row[11] ?? null;
-
-                            $offer = null;
-                            if (is_numeric(trim($row[2]))) {
-                                $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
-                            }
 
                             // Decode Offer services
                             // if ($offer) {
 
-                                $addressesMap = ClientPropertyAddress::whereIn('address_name', array_keys($addresses))->pluck('id', 'address_name')->toArray();
-                                    \Log::info('Addresses Map', ['addressesMap' => $addressesMap]);
+                                // $addressesMap = ClientPropertyAddress::whereIn('address_name', array_keys($addresses))->pluck('id', 'address_name')->toArray();
+                                //     \Log::info('Addresses Map', ['addressesMap' => $addressesMap]);
 
-                                $servicesData = json_decode($offer->services, true);
-                                $isMatch = false;
+                                // $servicesData = json_decode($offer->services, true);
+                                // $isMatch = false;
 
-                                foreach ($servicesData as $serviceData) {
-                                    // Check if address ID exists in the database and matches an address name
-                                    $addressMatch = isset($serviceData['address']) && isset($addressesMap[$serviceData['address']]);
-                                    \Log::info("Address Match", ['addressMatch' => $addressMatch]);
+                                // foreach ($servicesData as $serviceData) {
+                                //     // Check if address ID exists in the database and matches an address name
+                                //     $addressMatch = isset($serviceData['address']) && isset($addressesMap[$serviceData['address']]);
+                                //     \Log::info("Address Match", ['addressMatch' => $addressMatch]);
 
-                                    // Check if the name matches the provided service array
-                                    $serviceMatch = isset($serviceData['name']) && in_array($serviceData['name'], $serviceArr);
+                                //     // Check if the name matches the provided service array
+                                //     $serviceMatch = isset($serviceData['name']) && in_array($serviceData['name'], $serviceArr);
 
-                                    // Check frequency match
-                                    $frequencyMatch = isset($serviceData['freq_name']) && in_array($serviceData['freq_name'], $frequencyArr);
+                                //     // Check frequency match
+                                //     $frequencyMatch = isset($serviceData['freq_name']) && in_array($serviceData['freq_name'], $frequencyArr);
 
-                                    // Log and process if everything matches
-                                    if ($addressMatch && $serviceMatch && $frequencyMatch) {
-                                        $isMatch = true;
+                                //     // Log and process if everything matches
+                                //     if ($addressMatch && $serviceMatch && $frequencyMatch) {
+                                //         $isMatch = true;
 
-                                        \Log::info('Matching Offer Record Found', [
-                                            'Offer ID' => $offer->id,
-                                            'Service Data' => $serviceData,
-                                            'Matching Address' => $addressesMap[$serviceData['address']], // Log the matched address name
-                                        ]);
+                                //         \Log::info('Matching Offer Record Found', [
+                                //             'Offer ID' => $offer->id,
+                                //             'Service Data' => $serviceData,
+                                //             'Matching Address' => $addressesMap[$serviceData['address']], // Log the matched address name
+                                //         ]);
 
-                                        // Decide what to do with the matched record here
-                                        break;
-                                    }
-                                }
+                                //         // Decide what to do with the matched record here
+                                //         break;
+                                //     }
+                                // }
 
                             //     if (!$isMatch) {
                             //         \Log::warning('No Matching Record Found for Offer ID: ' . $offer->id);
@@ -783,7 +818,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             'Content-Type' => 'application/json',
         ])->post($endpoint, $requestBody);
 
-        return $response->json();
+        return $response->body();
     }
 
     /**
