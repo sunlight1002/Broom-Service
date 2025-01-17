@@ -158,7 +158,7 @@ export function IsrailContact({
         e.preventDefault();
 
         // Validate the current step
-        await validateForm(); // This will populate the errors object 
+        await validateForm(); // This will populate the errors object
         scrollToError(errors);
         // Check if there are any errors
         if (!Object.keys(errors).length) {
@@ -174,16 +174,16 @@ export function IsrailContact({
         }
     };
 
-
     return (
         <div className="mt-5 contracttargetDiv rtlcon" ref={contentRef}>
             <div className="">
                 <p className="navyblueColor font-30 mt-4 font-w-500">{t("israilContract.title1")}</p>
                 <p className="mt-2">{t("israilContract.title2")}</p>
             </div>
+
             <form onSubmit={handleNextPrev}>
                 {
-                    nextStep === 5 && (
+                    (nextStep === 5 || !nextStep) && (
                         <div className="row">
                             <section className="col-sm pl-0 pr-3">
                                 <ol
@@ -551,7 +551,7 @@ export function IsrailContact({
                     )
                 }
                 {
-                    nextStep === 6 && (
+                    (nextStep === 6 || !nextStep) && (
                         <div className="row">
                             <section className="col pl-0 pr-0">
                                 <ol>

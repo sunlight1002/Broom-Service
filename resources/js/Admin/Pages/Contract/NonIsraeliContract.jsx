@@ -247,7 +247,7 @@ export function NonIsraeliContract({
     };
 
     console.log(sigRef1);
-    
+
 
     return (
         <div className="mt-5 contracttargetDiv pdf-wrapper" ref={contentRef}>
@@ -257,7 +257,7 @@ export function NonIsraeliContract({
             </div>
             <form onSubmit={handleNextPrev}>
                 {
-                    (isGeneratingPDF ? nextStep === 6 : nextStep === 5) && (
+                    ((isGeneratingPDF ? nextStep === 6 : nextStep === 5) || !nextStep) && (
                         <div className="row">
                             <section className="col pl-0">
                                 <ol
@@ -615,7 +615,7 @@ export function NonIsraeliContract({
                     )
                 }
                 {
-                    nextStep === 6 && (
+                    (nextStep === 6 || !nextStep) && (
                         <div className="row mt-4">
                             <section className="col">
                                 <p className="">
