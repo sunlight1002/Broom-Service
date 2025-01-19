@@ -27,6 +27,7 @@ use App\Enums\JobStatusEnum;
 use Illuminate\Http\Request;
 use Exception;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Arr;
 
 
 class SyncGoogleSheetDataJob implements ShouldQueue
@@ -65,7 +66,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
 
         $serviceArr = Services::get()->pluck('heb_name')->toArray();
         $frequencyArr = ServiceSchedule::where('status', 1)
-                ->get()->pluck('heb_name')->toArray();
+            ->get()->pluck('name_heb')->toArray();
         $workers = User::where('status', 1)->get()->pluck('fullname')->toArray();
 
         // $filePath = storage_path('crm_client.xlsx');
@@ -157,29 +158,72 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                             // $IcountData = $this->getIcountClientInfo($client);
                             if ($client) {
                                 $client_ids[] = $client->id;
-                                $addresses = $client->property_addresses->pluck('address_name')->toArray();
-                                \Log::info('Addresses', ['addresses' => $addresses]);
+
                                 // \Log::info('Service', ['service' =>$serviceArr]);
                                 // \Log::info('Frequency', ['frequency' => $frequencyArr]);
                                 // \Log::info('Workers', ['workers' => $workers]);
                                 // dd($id, $email, $index, $client, $addresses);
-                                $dJson = $this->addDropdownInGoogleSheet($sheetId, "S" . ($index + 1), $addresses);
-                                echo $dJson . PHP_EOL;
-                                $dJson = $this->addDropdownInGoogleSheet($sheetId, "J" . ($index + 1), $workers);
-                                echo $dJson . PHP_EOL;
-                                $service = $row[11] ?? null;
+                                $fields = [];
 
+                                $selectedAddress = $row[17] ?? null;
+
+
+                                $selectedWorker = $row[8] ?? null;
+                                $bestMatch = null;
+                                $highestSimilarity = 0;
+
+                                foreach ($workers as $worker) {
+                                    similar_text($selectedWorker, $worker, $percent);
+                                    if ($percent > $highestSimilarity) {
+                                        $highestSimilarity = $percent;
+                                        $bestMatch = $worker;
+                                    }
+
+                                    similar_text($worker, $selectedWorker, $percent);
+                                    if ($percent > $highestSimilarity) {
+                                        $highestSimilarity = $percent;
+                                        $bestMatch = $worker;
+                                    }
+                                }
+
+                                $fields[] = [
+                                    'sheetId' => $sheetId, // Sheet ID
+                                    'cell' => "J" . ($index + 1), // Cell location
+                                    'type' => 'dropdown', // Field type
+                                    'values' => $workers, // Dropdown options
+                                    'value' => ($highestSimilarity > 50) ? $bestMatch : null,
+                                ];
+                                $service = $row[11] ?? null;
+                                $workerHours = $row[13] ?? null;
+                                $workerHours = str_replace(',', '.', $workerHours);
+                                $selectedService = $serviceMap[$row[11] ?? null] ?? null;
+                                if ($selectedService) {
+                                    $selectedService = Services::where('name', $selectedService)->first();
+                                }
                                 $offer = null;
                                 $services = [];
                                 $frequencies = [];
+                                $selectedOfferData = null;
+
                                 if (is_numeric(trim($row[2]))) {
                                     $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
 
-                                    if($offer) {
+                                    if ($offer) {
                                         $data = json_decode($offer->services, true);
-                                        foreach ($data as $d) {
-                                            $services[] = $d['name'];
-                                            $frequencies[] = $d['freq_name'];
+                                        if (count($data) == 1) {
+                                            $selectedOfferData = $data[0];
+                                            $services[] = $data[0]['name'];
+                                            $frequencies[] = $data[0]['freq_name'];
+                                        } else {
+                                            foreach ($data as $d) {
+                                                $jobHours = Arr::pluck($d['workers'], 'jobHours');
+                                                $isFound = in_array($workerHours, $jobHours);
+                                                if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($isFound)) {
+                                                    $selectedOfferData = $d;
+                                                }
+                                                $services[] = $d['name'];
+                                                $frequencies[] = $d['freq_name'];
+                                            }
                                         }
                                     }
                                 }
@@ -187,25 +231,97 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 $offers = $client->offers;
                                 foreach ($offers as $offer) {
                                     $data = json_decode($offer->services, true);
-                                    foreach ($data as $d) {
-                                        $services[] = $d['name'];
-                                        $frequencies[] = $d['freq_name'];
+                                    if (count($data) == 1) {
+                                        $selectedOfferData = $data[0];
+                                        $services[] = $data[0]['name'];
+                                        $frequencies[] = $data[0]['freq_name'];
+                                    } else {
+                                        foreach ($data as $d) {
+                                            $jobHours = Arr::pluck($d['workers'], 'jobHours');
+                                            $isFound = in_array($workerHours, $jobHours);
+
+                                            if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($isFound)) {
+                                                $selectedOfferData = $d;
+                                            }
+                                            $services[] = $d['name'];
+                                            $frequencies[] = $d['freq_name'];
+                                        }
                                     }
                                 }
-                                if(!empty($services)) {
-                                    $dJson = $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $services);
-                                    echo $dJson . PHP_EOL;
+                                if (!empty($services)) {
+                                    $fields[] = [
+                                        'sheetId' => $sheetId, // Sheet ID
+                                        'cell' => "M" . ($index + 1), // Cell location
+                                        'type' => 'dropdown', // Field type
+                                        'values' => $services, // Dropdown options
+                                        'value' => count($services) == 1 ? $services[0] : ($selectedOfferData['name'] ?? null),
+                                    ];
                                 } else {
-                                    $dJson = $this->addDropdownInGoogleSheet($sheetId, "M" . ($index + 1), $serviceArr);
-                                    echo $dJson . PHP_EOL;
+                                    $fields[] = [
+                                        'sheetId' => $sheetId, // Sheet ID
+                                        'cell' => "M" . ($index + 1), // Cell location
+                                        'type' => 'dropdown', // Field type
+                                        'values' => $serviceArr, // Dropdown options
+                                        'value' => count($serviceArr) == 1 ? $serviceArr[0] : ($selectedOfferData['name'] ?? null),
+                                    ];
                                 }
-                                if(!empty($frequencies)) {
-                                    $dJson = $this->addDropdownInGoogleSheet($sheetId, "Q" . ($index + 1), $frequencies);
-                                    echo $dJson . PHP_EOL;
+                                if (!empty($frequencies)) {
+                                    $fields[] = [
+                                        'sheetId' => $sheetId, // Sheet ID
+                                        'cell' => "Q" . ($index + 1), // Cell location
+                                        'type' => 'dropdown', // Field type
+                                        'values' => $frequencies, // Dropdown options
+                                        'value' => count($frequencies) == 1 ? $frequencies[0] : ($selectedOfferData['freq_name'] ?? null),
+                                    ];
                                 } else {
-                                    $dJson = $this->addDropdownInGoogleSheet($sheetId, "Q" . ($index + 1), $frequencyArr);
-                                    echo $dJson . PHP_EOL;
+                                    $fields[] = [
+                                        'sheetId' => $sheetId, // Sheet ID
+                                        'cell' => "Q" . ($index + 1), // Cell location
+                                        'type' => 'dropdown', // Field type
+                                        'values' => $frequencyArr, // Dropdown options
+                                        'value' => count($frequencyArr) == 1 ? $frequencyArr[0] : ($selectedOfferData['freq_name'] ?? null),
+                                    ];
                                 }
+
+                                $addresses = $client->property_addresses()->when($selectedOfferData, function($q) use ($selectedOfferData) {
+                                    $q->where('id', $selectedOfferData['address']);
+                                })->get()->pluck('address_name')->toArray();
+                                $bestMatch = null;
+                                $highestSimilarity = 0;
+
+                                foreach ($addresses as $address) {
+                                    similar_text($selectedAddress, $address, $percent);
+                                    if ($percent > $highestSimilarity) {
+                                        $highestSimilarity = $percent;
+                                        $bestMatch = $address;
+                                    }
+
+                                    similar_text($address, $selectedAddress, $percent);
+                                    if ($percent > $highestSimilarity) {
+                                        $highestSimilarity = $percent;
+                                        $bestMatch = $address;
+                                    }
+                                }
+
+                                $fields[] = [
+                                    'sheetId' => $sheetId, // Sheet ID
+                                    'cell' => "S" . ($index + 1), // Cell location
+                                    'type' => 'dropdown', // Field type
+                                    'values' => $addresses, // Dropdown options
+                                    'value' => (count($addresses) == 1) ? $addresses[0] : (($highestSimilarity > 50) ? $bestMatch : null),
+                                ];
+
+                                if ($selectedOfferData) {
+                                    $fields[] = [
+                                        'sheetId' => $sheetId, // Sheet ID
+                                        'cell' => "D" . ($index + 1), // Cell location
+                                        'type' => 'number', // Field type
+                                        'value' => $selectedOfferData['totalamount'] ?? null,
+                                    ];
+                                }
+                                echo json_encode($fields) . PHP_EOL;
+                                $response = $this->updateGoogleSheetFields($fields);
+                                echo $response . PHP_EOL;
                                 sleep(3);
                                 echo ($index + 1) . PHP_EOL;
                             }
@@ -216,37 +332,37 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                             // Decode Offer services
                             // if ($offer) {
 
-                                // $addressesMap = ClientPropertyAddress::whereIn('address_name', array_keys($addresses))->pluck('id', 'address_name')->toArray();
-                                //     \Log::info('Addresses Map', ['addressesMap' => $addressesMap]);
+                            // $addressesMap = ClientPropertyAddress::whereIn('address_name', array_keys($addresses))->pluck('id', 'address_name')->toArray();
+                            //     \Log::info('Addresses Map', ['addressesMap' => $addressesMap]);
 
-                                // $servicesData = json_decode($offer->services, true);
-                                // $isMatch = false;
+                            // $servicesData = json_decode($offer->services, true);
+                            // $isMatch = false;
 
-                                // foreach ($servicesData as $serviceData) {
-                                //     // Check if address ID exists in the database and matches an address name
-                                //     $addressMatch = isset($serviceData['address']) && isset($addressesMap[$serviceData['address']]);
-                                //     \Log::info("Address Match", ['addressMatch' => $addressMatch]);
+                            // foreach ($servicesData as $serviceData) {
+                            //     // Check if address ID exists in the database and matches an address name
+                            //     $addressMatch = isset($serviceData['address']) && isset($addressesMap[$serviceData['address']]);
+                            //     \Log::info("Address Match", ['addressMatch' => $addressMatch]);
 
-                                //     // Check if the name matches the provided service array
-                                //     $serviceMatch = isset($serviceData['name']) && in_array($serviceData['name'], $serviceArr);
+                            //     // Check if the name matches the provided service array
+                            //     $serviceMatch = isset($serviceData['name']) && in_array($serviceData['name'], $serviceArr);
 
-                                //     // Check frequency match
-                                //     $frequencyMatch = isset($serviceData['freq_name']) && in_array($serviceData['freq_name'], $frequencyArr);
+                            //     // Check frequency match
+                            //     $frequencyMatch = isset($serviceData['freq_name']) && in_array($serviceData['freq_name'], $frequencyArr);
 
-                                //     // Log and process if everything matches
-                                //     if ($addressMatch && $serviceMatch && $frequencyMatch) {
-                                //         $isMatch = true;
+                            //     // Log and process if everything matches
+                            //     if ($addressMatch && $serviceMatch && $frequencyMatch) {
+                            //         $isMatch = true;
 
-                                //         \Log::info('Matching Offer Record Found', [
-                                //             'Offer ID' => $offer->id,
-                                //             'Service Data' => $serviceData,
-                                //             'Matching Address' => $addressesMap[$serviceData['address']], // Log the matched address name
-                                //         ]);
+                            //         \Log::info('Matching Offer Record Found', [
+                            //             'Offer ID' => $offer->id,
+                            //             'Service Data' => $serviceData,
+                            //             'Matching Address' => $addressesMap[$serviceData['address']], // Log the matched address name
+                            //         ]);
 
-                                //         // Decide what to do with the matched record here
-                                //         break;
-                                //     }
-                                // }
+                            //         // Decide what to do with the matched record here
+                            //         break;
+                            //     }
+                            // }
 
                             //     if (!$isMatch) {
                             //         \Log::warning('No Matching Record Found for Offer ID: ' . $offer->id);
@@ -785,32 +901,126 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         return false;
     }
 
-    public function addDropdownInGoogleSheet($sheetId, $cell, $options)
+    public function updateGoogleSheetFields($fields)
     {
         $endpoint = "{$this->googleSheetEndpoint}{$this->spreadsheetId}:batchUpdate";
 
-        $requestBody = [
-            "requests" => [
-                [
-                    "setDataValidation" => [
-                        "range" => [
-                            "sheetId" => $sheetId, // Get Sheet ID dynamically
-                            "startRowIndex" => $this->convertRowCol($cell)["row"] - 1,
-                            "endRowIndex" => $this->convertRowCol($cell)["row"],
-                            "startColumnIndex" => $this->convertRowCol($cell)["col"] - 1,
-                            "endColumnIndex" => $this->convertRowCol($cell)["col"]
-                        ],
-                        "rule" => [
-                            "condition" => [
-                                "type" => "ONE_OF_LIST",
-                                "values" => array_map(fn($option) => ["userEnteredValue" => $option], $options)
-                            ],
-                            "showCustomUi" => true,
-                            "strict" => true
+        $requests = [];
+
+        foreach ($fields as $field) {
+            $sheetId = $field['sheetId']; // Sheet ID
+            $cell = $field['cell']; // e.g., "A1"
+            $fieldType = $field['type']; // 'dropdown', 'text', 'checkbox', 'date', 'number'
+            $values = $field['values'] ?? []; // For dropdown options
+            $value = $field['value'] ?? null; // Value to update the cell with (optional)
+
+            $range = [
+                "sheetId" => $sheetId,
+                "startRowIndex" => $this->convertRowCol($cell)["row"] - 1,
+                "endRowIndex" => $this->convertRowCol($cell)["row"],
+                "startColumnIndex" => $this->convertRowCol($cell)["col"] - 1,
+                "endColumnIndex" => $this->convertRowCol($cell)["col"]
+            ];
+
+            switch ($fieldType) {
+                case 'dropdown':
+                    // Set dropdown options
+                    $requests[] = [
+                        "setDataValidation" => [
+                            "range" => $range,
+                            "rule" => [
+                                "condition" => [
+                                    "type" => "ONE_OF_LIST",
+                                    "values" => array_map(fn($option) => ["userEnteredValue" => $option], $values)
+                                ],
+                                "showCustomUi" => true,
+                                "strict" => true
+                            ]
                         ]
-                    ]
-                ]
-            ]
+                    ];
+
+                    // Set initial value for dropdown
+                    if ($value && in_array($value, $values, true)) {
+                        $requests[] = [
+                            "repeatCell" => [
+                                "range" => $range,
+                                "cell" => [
+                                    "userEnteredValue" => ["stringValue" => $value]
+                                ],
+                                "fields" => "userEnteredValue"
+                            ]
+                        ];
+                    }
+                    break;
+
+                case 'text':
+                    $requests[] = [
+                        "repeatCell" => [
+                            "range" => $range,
+                            "cell" => [
+                                "userEnteredValue" => ["stringValue" => $value]
+                            ],
+                            "fields" => "userEnteredValue"
+                        ]
+                    ];
+                    break;
+
+                case 'checkbox':
+                    $requests[] = [
+                        "repeatCell" => [
+                            "range" => $range,
+                            "cell" => [
+                                "userEnteredValue" => ["boolValue" => filter_var($value, FILTER_VALIDATE_BOOLEAN)],
+                                "dataValidation" => [
+                                    "condition" => [
+                                        "type" => "BOOLEAN"
+                                    ],
+                                    "strict" => true,
+                                    "showCustomUi" => true
+                                ]
+                            ],
+                            "fields" => "userEnteredValue,dataValidation"
+                        ]
+                    ];
+                    break;
+
+                case 'date':
+                    $requests[] = [
+                        "repeatCell" => [
+                            "range" => $range,
+                            "cell" => [
+                                "userEnteredValue" => ["numberValue" => $value], // Date as a numeric value
+                                "userEnteredFormat" => [
+                                    "numberFormat" => [
+                                        "type" => "DATE",
+                                        "pattern" => "yyyy-mm-dd"
+                                    ]
+                                ]
+                            ],
+                            "fields" => "userEnteredValue,userEnteredFormat.numberFormat"
+                        ]
+                    ];
+                    break;
+
+                case 'number':
+                    $requests[] = [
+                        "repeatCell" => [
+                            "range" => $range,
+                            "cell" => [
+                                "userEnteredValue" => ["numberValue" => $value]
+                            ],
+                            "fields" => "userEnteredValue"
+                        ]
+                    ];
+                    break;
+
+                default:
+                    throw new \Exception("Unsupported field type: $fieldType");
+            }
+        }
+
+        $requestBody = [
+            "requests" => $requests
         ];
 
         $response = Http::withHeaders([
@@ -820,6 +1030,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
 
         return $response->body();
     }
+
 
     /**
      * Convert A1 notation (e.g., "D8") to row/column indices
@@ -966,24 +1177,24 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                 ];
 
                 $needToUpdate = false;
-                if(empty($clientInfo['fname'])) {
+                if (empty($clientInfo['fname'])) {
                     $needToUpdate = true;
                     $data['fname'] = $client['firstname'];
                 }
 
-                if(empty($clientInfo['lname'])) {
+                if (empty($clientInfo['lname'])) {
                     $needToUpdate = true;
                     $data['lname'] = $client['lastname'];
                 }
 
-                if($propertyAddress && empty($clientInfo['bus_street']) && empty($clientInfo['bus_city']) && empty($clientInfo['bus_zip'])) {
+                if ($propertyAddress && empty($clientInfo['bus_street']) && empty($clientInfo['bus_city']) && empty($clientInfo['bus_zip'])) {
                     $needToUpdate = true;
                     $data['bus_street'] = $propertyAddress->geo_address;
                     $data['bus_city'] = $propertyAddress->city ?? null;
                     $data['bus_zip'] = $propertyAddress->zipcode ?? null;
                 }
-                if($needToUpdate) {
-                    $res= $this->updateClientIcount($data);
+                if ($needToUpdate) {
+                    $res = $this->updateClientIcount($data);
                 }
             }
 
@@ -1096,7 +1307,8 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         return $data;
     }
 
-    public function fixedPhoneNumber($phone){
+    public function fixedPhoneNumber($phone)
+    {
         // $phone = $client->phone;
 
         // 1. Remove all special characters from the phone number
