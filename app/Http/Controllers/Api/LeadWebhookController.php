@@ -164,6 +164,7 @@ class LeadWebhookController extends Controller
         
 
         if (
+            $data_returned['channel_id'] == 'GAMORA-MDYNP' &&
             isset($data_returned['messages']) &&
             isset($data_returned['messages'][0]['from_me']) &&
             $data_returned['messages'][0]['from_me'] == false
@@ -330,7 +331,7 @@ class LeadWebhookController extends Controller
                 die('final');
             };
 
-            if ($client) {
+            if ($client && $data_returned['channel_id'] == 'NIGHTW-2642E') {
                 $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
                 $tap1 = false;
             
@@ -405,7 +406,7 @@ class LeadWebhookController extends Controller
             
             
 
-            if (isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
+            if ($data_returned['channel_id'] == 'GAMORA-MDYNP' && isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
                 $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : ($message_data[0]['button']['text'] ?? "");
                 // \Log::info($message);
                 $result = WhatsappLastReply::where('phone', $from)
