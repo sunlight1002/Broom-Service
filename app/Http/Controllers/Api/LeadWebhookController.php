@@ -145,7 +145,6 @@ class LeadWebhookController extends Controller
         $responseClientState = [];
         $data_returned = json_decode($get_data, true);
         $message = null;
-        Log::info(['whatsapp_webhook' => $data_returned]);
 
         $messageId = $data_returned['messages'][0]['id'] ?? null;
 
@@ -445,18 +444,64 @@ Broom Service Contact Information:
                         sendClientWhatsappMessage($from, ['message' => $message]);
                     }
             
-                    // Handle updating or appending comments
+                   // Handle updating or appending comments
                     if ($messageBody == 1 && $isMonday && $request && $client->has_input_one) {
+                        // Cache the user's intention to edit
+                        Cache::put("user_{$client->id}_action", 'edit', now()->addMinutes(10));
+
                         $promptMessage = $client->lng == 'heb' 
                             ? "מהו השינוי או הבקשה לשבוע הבא?"
                             : "What is your change or request for next week?";
                         sendClientWhatsappMessage($from, ['message' => $promptMessage]);
                     } elseif ($messageBody == 2 && $isMonday && $request && $client->has_input_one) {
+                        // Cache the user's intention to add additional information
+                        Cache::put("user_{$client->id}_action", 'add', now()->addMinutes(10));
+
                         $promptMessage = $client->lng == 'heb' 
                             ? "אנא הזן הודעה כדי להוסיף מידע נוסף."
                             : "Please enter a message to add additional information.";
                         sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+                    } else {
+                        // Retrieve the cached action to determine the user's intent
+                        $cachedAction = Cache::get("user_{$client->id}_action");
+
+                        if ($cachedAction === 'edit') {
+                            // Process editing the existing message
+                            $scheduleChange = ScheduleChange::where('user_type', get_class($client))
+                                ->where('user_id', $client->id)
+                                ->latest()
+                                ->first();
+
+                            if ($scheduleChange) {
+                                $scheduleChange->comments = $messageBody;  
+                                $scheduleChange->save();
+
+                                $confirmationMessage = $client->lng == 'heb' 
+                                    ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
+                                    : "Your message has been received and will be forwarded to our team for further handling.";
+                                sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+                            }
+
+                            // Clear the cache after the action is complete
+                            Cache::forget("user_{$client->id}_action");
+                        } elseif ($cachedAction === 'add') {
+                            // Process adding additional information
+                            $scheduleChange = new ScheduleChange();
+                            $scheduleChange->user_type = get_class($client);
+                            $scheduleChange->user_id = $client->id;
+                            $scheduleChange->comments = $messageBody;
+                            $scheduleChange->save();
+
+                            $confirmationMessage = $client->lng == 'heb' 
+                                ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
+                                : "Your message has been received and will be forwarded to our team for further handling.";
+                            sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+
+                            // Clear the cache after the action is complete
+                            Cache::forget("user_{$client->id}_action");
+                        }
                     }
+
             
                     // Log older records
                     $createdAt = $client->created_at;
