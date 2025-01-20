@@ -22,7 +22,8 @@ class WebhookResponse extends Model
         'wa_id',
         'video',
         'image',
-        'contact'
+        'contact',
+        'stop_last_message',
     ];
 
     public static function getWhatsappMessage($message_no, $lang_type, $client)

@@ -15,7 +15,7 @@ use App\Models\WhatsappTemplate;
 
 class WhatsappNotification
 {
-    protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken;
+    protected $whapiApiEndpoint, $whapiApiToken, $whapiWorkerApiToken, $workerBaseUrl, $clientBaseUrl, $whapiClientApiToken, $adminBaseUrl;
 
     /**
      * Create the event listener.
@@ -26,6 +26,13 @@ class WhatsappNotification
     {
         $this->whapiApiEndpoint = config('services.whapi.url');
         $this->whapiApiToken = config('services.whapi.token');
+        $this->whapiWorkerApiToken = config('services.whapi.worker_token');
+        $this->whapiClientApiToken = config('services.whapi.client_token');
+
+        // Initialize short URL base URLs
+        $this->workerBaseUrl = config('services.short_url.worker');
+        $this->clientBaseUrl = config('services.short_url.client');
+        $this->adminBaseUrl = config('services.short_url.admin');
     }
 
     private function replaceClientFields($text, $clientData, $eventData)
@@ -247,7 +254,7 @@ class WhatsappNotification
             $property_person_name = $propertyData['contact_person_name'] ?? null;
         } else {
             $property_person_name = trim(trim($clientData['firstname'] ?? '') . ' ' . trim($clientData['lastname'] ?? '')) ?? null;
-        }       
+        }
 
         $placeholders = [];
         if ($offerData) {
@@ -307,10 +314,10 @@ class WhatsappNotification
             $cancellationFee = null;
             if ($by === 'client') {
                 $status = isset($eventData['job']) && ucfirst($eventData['job']['status'] ?? "");
-                $cancellationFee = isset($eventData['job']['cancellation_fee_amount']) 
-                    ? ($eventData['job']['cancellation_fee_amount'] . " ILS") 
+                $cancellationFee = isset($eventData['job']['cancellation_fee_amount'])
+                    ? ($eventData['job']['cancellation_fee_amount'] . " ILS")
                     : null;
-            
+
                 if (isset($eventData['client']) && $eventData['client']['lng'] === 'en') {
                     $commentBy = "Client changed the Job status to $status.";
                     if ($cancellationFee) {
@@ -541,7 +548,7 @@ class WhatsappNotification
                         } else {
                             \Log::info("client");
                             $receiverNumber = $clientData['phone'] ?? null;
-                        }       
+                        }
 
                         Log::info($receiverNumber);
                         $lng = $clientData['lng'] ?? 'heb';
@@ -847,7 +854,17 @@ class WhatsappNotification
                 Log::info($eventType);
                 Log::info($lng);
 
-                $token = $receiverNumber == config('services.whatsapp_groups.relevant_with_workers') ? $this->whapiWorkerApiToken : $this->whapiApiToken;
+                $token = $this->whapiApiToken;
+
+                if($receiverNumber == config('services.whatsapp_groups.relevant_with_workers')){
+                    $token = $this->whapiWorkerApiToken;
+                }else if($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE){
+                    \Log::info('NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE');
+                    $token = $this->whapiClientApiToken;
+                }else{
+                    $token = $this->whapiApiToken;
+                }
+
                 $response = Http::withToken($token)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,

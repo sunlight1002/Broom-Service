@@ -32,6 +32,7 @@ Route::get('/google/callback', [GoogleController::class, 'callback']);
 Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_fb');
 Route::any('/webhook_worker', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_worker');
 
+
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);
 Route::any('/facebook/webhook', [LeadController::class, 'facebookWebhook']);
 

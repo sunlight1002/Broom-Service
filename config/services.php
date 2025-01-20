@@ -75,6 +75,7 @@ return [
     'whapi' => [
         'url' => env('WHAPI_API_URL'),
         'token' => env('WHAPI_API_TOKEN'),
+        'client_token' => env('CLIENT_WHAPI_API_TOKEN'),
         'worker_token' => env('WORKER_WHAPI_API_TOKEN')
     ],
 

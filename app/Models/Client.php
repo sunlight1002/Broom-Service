@@ -59,6 +59,7 @@ class Client extends Authenticatable
         'campaign_id',
         'contact_person_name',
         'contact_person_phone',
+        'stop_last_message'
     ];
 
     /**
