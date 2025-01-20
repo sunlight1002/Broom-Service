@@ -507,6 +507,7 @@ class ChatController extends Controller
         if ($response->successful()) {
             $data = $response->json();
             $pageAccessToken = $data['access_token'];
+            \Log::info("Page Access Token: " . $pageAccessToken);
 
             return $pageAccessToken;
         } else {
@@ -578,6 +579,7 @@ class ChatController extends Controller
 
     public function messengerMessage($id)
     {
+        \Log::info("Fetching Messenger messages for ID: " . $id);
         $url = 'https://graph.facebook.com/v21.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . config('services.facebook.access_token');
     
         Log::info("Requesting Messenger messages", ["URL" => $url]);

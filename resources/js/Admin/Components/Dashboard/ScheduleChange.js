@@ -4,7 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import { Button, Modal } from "react-bootstrap";
-
+import moment from "moment";
 
 import $ from "jquery";
 import "datatables.net";
@@ -35,27 +35,24 @@ function ScheduleChange() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const leaveStatuses = ["pending", "completed", "approved"];
+    const leaveStatuses = ["pending", "completed"];
     const userType = ["Client", "Worker"];
 
     const statusArr = {
         "pending": "pending",
         "completed": "completed",
-        "approved": "approved",
     };
 
     const toggleChangeStatusModal = (_id) => {
-        console.log(_id);
-
         setIsOpen(!isOpen)
         setUserId(_id)
     }
 
 
-    const handleChangeStatus = async () => {
+    const handleChangeStatus = async (userId) => {
         setLoading(true)
         try {
-            const response = await axios.put(`/api/admin/schedule-changes/${userId}`, { status }, { headers });
+            const response = await axios.put(`/api/admin/schedule-changes/${userId}`, { status: "completed" }, { headers });
             console.log(response.data);
 
             setLoading(false)
@@ -84,16 +81,36 @@ function ScheduleChange() {
                 },
                 order: [[0, "desc"]],
                 columns: [
-                    { title: "User Type", data: "user_type" },
-                    { title: "User Name", data: "user_fullname" },
-                    { title: "Comments", data: "comments" },
+                    { title: t("global.user_type"), data: "user_type" },
+                    { title: t("global.user_name"), data: "user_fullname" },
+                    { title: t("global.reason"), data: "reason" },
+                    { title: t("global.comments"), data: "comments" },
+                    // {
+                    //     title: "Status",
+                    //     data: "status",
+                    //     render: function (data) {
+                    //         const style = leadStatusColor(data);
+                    //         return `<p style="background-color: ${style.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                    //         ${data}
+                    //     </p>`;
+                    //     },
+                    // },
                     {
-                        title: "Status",
+                        title: t("global.is_completed"),
                         data: "status",
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded " style="border: 1px solid #ebebeb; overflow: hidden"> <input type="checkbox" data-id="${row.id
+                                }" class="form-control dt-if-completed-checkbox" ${row.status == "completed" ? "checked" : ""
+                                }/> </span> </div>`;
+                        },
+                    },
+                    {
+                        title: t("modal.date"),
+                        data: "created_at",
                         render: function (data) {
-                            const style = leadStatusColor(data);
-                            return `<p style="background-color: ${style.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                            ${data}
+                            return `<p style="color: black; padding: 5px 10px; border-radius: 5px; width: 110px;">
+                            ${moment(data).format("DD-MM-YYYY")}
                         </p>`;
                         },
                     },
@@ -110,7 +127,7 @@ function ScheduleChange() {
                                     </button> 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>
-                                        <button type="button" class="dropdown-item dt-change-status-btn" data-id="${row.id}">${t("admin.leads.change_status")}</button>
+                                        
                                     </div> 
                                 </div>`;
                         }
@@ -173,10 +190,19 @@ function ScheduleChange() {
             navigate(`/admin/schedule-requests/${_id}`);
         });
 
-        $(tableRef.current).on("click", ".dt-change-status-btn", function () {
-            const _id = $(this).data("id");
-            toggleChangeStatusModal(_id);
-        });
+        $(tableRef.current).on(
+            "change",
+            ".dt-if-completed-checkbox",
+            function () {
+                const _id = $(this).data("id");
+                handleChangeStatus(_id, this.checked);
+            }
+        );
+
+        // $(tableRef.current).on("click", ".dt-change-status-btn", function () {
+        //     const _id = $(this).data("id");
+        //     toggleChangeStatusModal(_id);
+        // });
 
         // Handle language changes
         i18n.on("languageChanged", () => {

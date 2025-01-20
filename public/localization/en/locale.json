@@ -288,7 +288,12 @@
         "noProblem": "No Problem",
         "noOfProblem": "No. of Problems",
         "declaration_form": "Declaration Form",
-        "Submit": "Submit"
+        "Submit": "Submit",
+        "reason" : "Reason",
+        "comments" : "Comments",
+        "is_completed" : "Is Completed",
+        "user_type" : "User Type",
+        "user_name" : "User Name"
     },
     "modal": {
         "title": "Modal",

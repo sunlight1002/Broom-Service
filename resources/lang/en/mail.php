@@ -937,6 +937,11 @@ return [
         'body' => 'Your OTP (One-Time Password) for login is: :otp',
         'expiration' => 'Please use this OTP to proceed with your login. OTP will expire in 10 minutes.',
     ],
+    'verification' => [
+        'subject' => 'Your OTP for verification',
+        'body' => 'Your OTP (One-Time Password) for verification is: :otp',
+        'expiration' => 'Please use this OTP to proceed with your verification process. OTP will expire in 10 minutes.',
+    ],
     'refund_claim' => [
         'header' => "*Refund Claim Status | Broom Service*",
         'subject' => 'Refund Claim Status',

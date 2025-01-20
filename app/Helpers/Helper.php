@@ -29,6 +29,31 @@ if (!function_exists('sendInvoicePayToClient')) {
     }
 }
 
+if (!function_exists('sendTeamWhatsappMessage')) {
+    function sendTeamWhatsappMessage($number, $data = array(), $lang = 'he')
+    {
+        // Build the payload for the API request
+        $payload = [
+            'to' => $number,
+            'body' => str_replace("\t", "", $data['message'])
+        ];
+
+        // Send the message using Http Client
+        $response = Http::withToken(config('services.whapi.token'))
+            ->post(config('services.whapi.url') . 'messages/text', $payload);
+
+        // Log the response for debugging
+        Log::info($response->json());
+
+        // Check the response status
+        if ($response->successful()) { 
+            return $response->json();
+        } else {
+            return $response->object(); // Return the response object on error
+        }
+    }
+}
+
 if (!function_exists('sendWhatsappMessage')) {
     function sendWhatsappMessage($number, $data = array(), $lang = 'he', $replyId = null)
     {

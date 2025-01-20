@@ -60,7 +60,8 @@ class Client extends Authenticatable
         'contact_person_name',
         'contact_person_phone',
         'stop_last_message',
-        'has_input_one'
+        'has_input_one',
+        'attempts',
     ];
 
     /**

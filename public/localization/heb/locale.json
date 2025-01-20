@@ -283,7 +283,12 @@
         "noProblem": "אין בעיה",
         "noOfProblem": "מספר בעיות",
         "declaration_form": "טופס הצהרה",
-        "Submit": "שלח"
+        "Submit": "שלח",
+        "reason": "סיבה",
+        "comments": "תגובות",
+        "is_completed": "הושלם",
+        "user_type": "סוג משתמש",
+        "user_name": "שם משתמש"
     },
     "modal": {
         "title": "מודל",
