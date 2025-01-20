@@ -7,7 +7,10 @@ import DatePicker from "react-datepicker";
 import moment from "moment";
 import axios from "axios";
 import { use } from "i18next";
-import { Tooltip} from "react-tooltip";
+import { Tooltip } from "react-tooltip";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.css";
+import { useTranslation } from "react-i18next";
 
 // import "react-datepicker/dist/react-datepicker.css"; // import DatePicker styles
 
@@ -21,6 +24,9 @@ export default function ChangeStatusModal({
     const alert = useAlert();
     const [allHolidays, setAllHolidays] = useState([])
     const [holidayNamesMap, setHolidayNamesMap] = useState({});
+    const [pendingJobs, setPendingJobs] = useState([]);
+    const [fee, setFee] = useState("0");
+    const { t } = useTranslation();
     const [formValues, setFormValues] = useState({
         reason: "",
         status: "irrelevant",
@@ -28,7 +34,9 @@ export default function ChangeStatusModal({
         reschedule_date: null, // Add a field for the reschedule date
         reschedule_time: "", // Add a field for the reschedule time
     });
-
+    const [minUntilDate, setMinUntilDate] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [totalAmount, setTotalAmount] = useState(0);
 
     const generateWeekendDates = (start, end) => {
         const weekends = [];
@@ -101,10 +109,13 @@ export default function ChangeStatusModal({
                 setIsLoading(false);
                 await getUpdatedData(); // Fetch updated data after successful submission
                 handleChangeStatusModalClose(); // Close the modal
+                if(formValues.status === "past"){
+                    cencelJob();
+                }
             })
             .catch((e) => {
                 console.log(e);
-                
+
                 Swal.fire({
                     title: "Error!",
                     text: e.response?.data?.message || "Something went wrong!",
@@ -149,11 +160,37 @@ export default function ChangeStatusModal({
         }
     };
 
+    const getJobsOrder = async() =>{
+        const res = await axios.get(`/api/admin/get-pending-job-orders/${clientId}`, { headers });
+        setPendingJobs(res.data);
+    }
+
+
+    const cencelJob = async() => {
+        const data = {
+            fee: fee
+        }
+        try {
+            const res = await axios.put(`/api/admin/cancel-pending-job-orders/${clientId}`, data , { headers });
+            console.log(res);
+            getJobsOrder();
+        } catch (error) {
+            console.error("Error fetching holidays:", error);
+        }
+    }
+
     useEffect(() => {
         handleAllHolidays();
+        getJobsOrder();
     }, []);
 
-
+    const handleFeeChange = (_value) => {
+        if (fee == _value) {
+            setFee("0");
+        } else {
+            setFee(_value);
+        }
+    };
 
     const getHolidayName = (date) => holidayNamesMap[date.toDateString()] || "";
 
@@ -223,9 +260,9 @@ export default function ChangeStatusModal({
                                                 const holidayName = getHolidayName(date);
                                                 return (
                                                     <div>
-                                                        <span><strong 
-                                                        data-tooltip-id="name"
-                                                        data-tooltip-content={ holidayName }
+                                                        <span><strong
+                                                            data-tooltip-id="name"
+                                                            data-tooltip-content={holidayName}
                                                         >{day}</strong></span>
                                                     </div>
                                                 );
@@ -252,6 +289,74 @@ export default function ChangeStatusModal({
                                 </div>
                             </>
                         )}
+                        {
+                            formValues.status === "past" && (pendingJobs?.jobs?.length > 0 || pendingJobs?.orders?.length > 0) && (
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            {t(
+                                                "admin.schedule.jobs.CancelModal.CancellationFee"
+                                            )}
+                                        </label>
+                                        <div className="form-check">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="fee"
+                                                id="fee0"
+                                                value={0}
+                                                defaultChecked={true}
+                                                onChange={(e) => {
+                                                    handleFeeChange(e.target.value);
+                                                }}
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="fee0"
+                                            >
+                                                0%
+                                            </label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="fee"
+                                                id="fee50"
+                                                value={50}
+                                                onChange={(e) => {
+                                                    handleFeeChange(e.target.value);
+                                                }}
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="fee50"
+                                            >
+                                                50%
+                                            </label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="fee"
+                                                id="fee100"
+                                                value={100}
+                                                onChange={(e) => {
+                                                    handleFeeChange(e.target.value);
+                                            }}
+                                            />
+                                            <label
+                                                className="form-check-label"
+                                                htmlFor="fee100"
+                                            >
+                                                100%
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        }
                         <div className="col-sm-12">
                             <div className="form-group">
                                 <label className="control-label">Reason</label>

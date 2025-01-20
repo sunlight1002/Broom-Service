@@ -33,7 +33,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
             .then((res) => {
                 console.log(res);
                 const formsData = res.data.forms;
-                
+
                 if (formsData.length > 0) {
                     setForms(formsData);
                     const _contractForm = formsData.find((f) =>
@@ -69,7 +69,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
 
 
     const ResetForm = async (form_id, type) => {
-        
+
         Swal.fire({
             title: "Are you sure?",
             text: "You want to reset this form!",
@@ -83,17 +83,19 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                 try {
                     const res = await axios.post(`/api/admin/document/reset/${form_id}`, {}, { headers })
                     alert.success(res?.data?.message)
-                    if(type == "form101"){
+                    if (type == "form101") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=1`, "_blank");
-                    }else if(type == "contract"){
+                    } else if (type == "contract") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=5`, "_blank");
-                    }else if(type == "safety_and_gear_form"){
+                    } else if (type == "safety_and_gear_form") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=4`, "_blank");
-                    }else if(type == "form_insurance"){
+                    } else if (type == "safety_and_gear_form_manpower") {
+                        window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=3`, "_blank");
+                    } else if (type == "form_insurance") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=7`, "_blank");
-                    }else if(type == "2form101"){
+                    } else if (type == "2form101") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
-                    }else if(type == "manpower"){
+                    } else if (type == "manpower") {
                         window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?type=manpower`, "_blank");
                     }
                     getForm();
@@ -105,17 +107,17 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
     }
 
     const handleNotSigned = (form_id, type) => {
-        if(type == "form101"){
+        if (type == "form101") {
             window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=1`, "_blank");
-        }else if(type == "contract"){
+        } else if (type == "contract") {
             window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=5`, "_blank");
-        }else if(type == "safety_and_gear_form"){
+        } else if (type == "safety_and_gear_form") {
             window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=4`, "_blank");
-        }else if(type == "form_insurance"){
+        } else if (type == "form_insurance") {
             window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=7`, "_blank");
-        }else if(type == "2form101"){
+        } else if (type == "2form101") {
             window.open(`/worker-forms/${Base64.encode(worker.id.toString())}/${Base64.encode(form_id.toString())}`, "_blank");
-        }else if(type == "manpower"){
+        } else if (type == "manpower") {
             window.open(`/worker-forms/${Base64.encode(form_id.toString())}?type=manpower`, "_blank");
         }
     }
@@ -200,88 +202,170 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
             aria-labelledby="customer-notes-tab"
         >
             {worker.company_type === "manpower" && (
-                <div
-                className="card card-widget widget-user-2"
-                style={{ boxShadow: "none" }}
-            >
-                <div className="card-comments cardforResponsive"></div>
-                <div
-                    className="card-comment p-3"
-                    style={{
-                        backgroundColor: "rgba(0,0,0,.05)",
-                        borderRadius: "5px",
-                    }}
-                >
-                    <div className="d-flex justify-content-between align-items-center flex-res-column-505" >
-                        <div className="mb-2">
-                            <span className="noteDate font-weight-bold">
-                                {t("formTxt.manpowerSaftyForm")}
-                            </span>
-                        </div>
-
-                        <div className="d-flex ">
-                            <div className=" mb-2 mr-4 text-center">
-                                {(ManpowerSaftyForm?.submitted_at && worker)? (
-                                    <span className="btn btn-success">
-                                        {t("global.signed")}
+                <>
+                    <div
+                        className="card card-widget widget-user-2"
+                        style={{ boxShadow: "none" }}
+                    >
+                        <div className="card-comments cardforResponsive"></div>
+                        <div
+                            className="card-comment p-3"
+                            style={{
+                                backgroundColor: "rgba(0,0,0,.05)",
+                                borderRadius: "5px",
+                            }}
+                        >
+                            <div className="d-flex justify-content-between align-items-center flex-res-column-505" >
+                                <div className="mb-2">
+                                    <span className="noteDate font-weight-bold">
+                                        {t("global.declaration_form")}
                                     </span>
-                                ) : (
-                                    <span className="btn btn-warning "
-                                    onClick={() => handleNotSigned(ManpowerSaftyForm?.id, "manpower")}
-                                    >
-                                        {t("global.notSigned")}
-                                    </span>
-                                )}
-                            </div>
+                                </div>
 
-                            <div className=" mb-2 mr-4  text-center">
-                                {(ManpowerSaftyForm?.submitted_at && worker) ? (
-                                    <Link
-                                        target="_blank"
-                                        to={
-                                            worker.ManpowerSaftyForm
-                                                ? `/storage/uploads/worker/contract/${worker.ManpowerSaftyForm}`
-                                                : `/worker-forms/` +
-                                                Base64.encode(worker.id.toString())
-                                        }
-                                        className="btn btn-warning"
-                                    >
-                                        <i className="fa fa-eye"></i>
-                                    </Link>
-                                ) : (
-                                    <span className="btn btn-warning">-</span>
-                                )}
-                            </div>
-
-                            <div className="mb-2 mr-4 text-center">
-                                {((ManpowerSaftyForm) && ManpowerSaftyForm?.pdf_name) ? (
-                                    <div className="d-flex" style={{ gap: "22px" }}>
-                                        <a
-                                            href={`/storage/signed-docs/${ManpowerSaftyForm.pdf_name}`}
-                                            target={"_blank"}
-                                            download={`${ManpowerSaftyForm.type}.pdf`}
-                                            className="btn btn-warning"
-                                        >
-                                            <i className="fa fa-download"></i>
-                                        </a>
-                                        <button onClick={() => ResetForm(ManpowerSaftyForm?.id, "manpower")} className="btn btn-warning">Reset</button>
+                                <div className="d-flex ">
+                                    <div className=" mb-2 mr-4 text-center">
+                                        {(ManpowerSaftyForm?.submitted_at && worker) ? (
+                                            <span className="btn btn-success">
+                                                {t("global.signed")}
+                                            </span>
+                                        ) : (
+                                            <span className="btn btn-warning "
+                                                onClick={() => handleNotSigned(ManpowerSaftyForm?.id, "manpower")}
+                                            >
+                                                {t("global.notSigned")}
+                                            </span>
+                                        )}
                                     </div>
-                                ) : (
-                                    <span className="btn btn-warning">-</span>
-                                )}
-                            </div>
 
-                            {/* {Object.is(worker.worker_contract, null) && worker.is_exist ? (
+                                    <div className=" mb-2 mr-4  text-center">
+                                        {(ManpowerSaftyForm?.submitted_at && worker) ? (
+                                            <Link
+                                                target="_blank"
+                                                to={
+                                                    worker.ManpowerSaftyForm
+                                                        ? `/storage/uploads/worker/contract/${worker.ManpowerSaftyForm}`
+                                                        : `/worker-forms/` +
+                                                        Base64.encode(worker.id.toString())
+                                                }
+                                                className="btn btn-warning"
+                                            >
+                                                <i className="fa fa-eye"></i>
+                                            </Link>
+                                        ) : (
+                                            <span className="btn btn-warning">-</span>
+                                        )}
+                                    </div>
+
+                                    <div className="mb-2 mr-4 text-center">
+                                        {((ManpowerSaftyForm) && ManpowerSaftyForm?.pdf_name) ? (
+                                            <div className="d-flex" style={{ gap: "22px" }}>
+                                                <a
+                                                    href={`/storage/signed-docs/${ManpowerSaftyForm.pdf_name}`}
+                                                    target={"_blank"}
+                                                    download={`${ManpowerSaftyForm.type}.pdf`}
+                                                    className="btn btn-warning"
+                                                >
+                                                    <i className="fa fa-download"></i>
+                                                </a>
+                                                <button onClick={() => ResetForm(ManpowerSaftyForm?.id, "manpower")} className="btn btn-warning">Reset</button>
+                                            </div>
+                                        ) : (
+                                            <span className="btn btn-warning">-</span>
+                                        )}
+                                    </div>
+
+                                    {/* {Object.is(worker.worker_contract, null) && worker.is_exist ? (
                                 <div className="col-lg-12">
                                     {uploadFormDiv("worker_contract")}
                                 </div>
                             ) : (
                                 ""
                             )} */}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                    <div
+                        className="card card-widget widget-user-2"
+                        style={{ boxShadow: "none" }}
+                    >
+                        <div className="card-comments cardforResponsive"></div>
+                        <div
+                            className="card-comment p-3"
+                            style={{
+                                backgroundColor: "rgba(0,0,0,.05)",
+                                borderRadius: "5px",
+                            }}
+                        >
+                            <div className="d-flex justify-content-between align-items-center flex-res-column-505" >
+
+                                <div className="mb-2">
+                                    <span className="noteDate font-weight-bold">
+                                        {t("global.safetyAbdGear")}
+                                    </span>
+                                </div>
+
+                                <div className="d-flex">
+                                    <div className="mb-2 mr-4 text-center">
+                                        {safetyAndGearForm?.submitted_at || worker.safety_and_gear_form ? (
+                                            <span className="btn btn-success ">
+                                                {t("global.signed")}
+                                            </span>
+                                        ) : (
+                                            <span className="btn btn-warning"
+                                                onClick={() => window.open(`/worker-forms/${Base64.encode(worker.id.toString())}?page=3`, "_blank")}
+                                            >
+                                                {t("global.notSigned")}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className=" mb-2 mr-4 text-center">
+                                        {safetyAndGearForm?.submitted_at || worker.safety_and_gear_form ? (
+                                            <Link
+                                                target="_blank"
+                                                to={
+                                                    worker.safety_and_gear_form
+                                                        ? `/storage/uploads/worker/safetygear/${worker.safety_and_gear_form}`
+                                                        : `/worker-forms/${Base64.encode(worker.id.toString())}?page=3`
+                                                }
+                                                className="btn btn-warning"
+                                            >
+                                                <i className="fa fa-eye"></i>
+                                            </Link>
+                                        ) : (
+                                            <span className="btn btn-warning">-</span>
+                                        )}
+                                    </div>
+
+                                    <div className="mb-2 mr-4 text-center">
+                                        {((safetyAndGearForm || worker.form_insurance) && safetyAndGearForm?.pdf_name) ? (
+                                            <div className="d-flex" style={{ gap: "22px" }}>
+                                                <a
+                                                    href={`/storage/signed-docs/${safetyAndGearForm.pdf_name}`}
+                                                    target="_blank"
+                                                    download={`${safetyAndGearForm.type}.pdf`}
+                                                    className="btn btn-warning"
+                                                >
+                                                    <i className="fa fa-download"></i>
+                                                </a>
+                                                <button onClick={() => ResetForm(safetyAndGearForm?.id, "safety_and_gear_form_manpower")} className="btn btn-warning">Reset</button>
+                                            </div>
+
+                                        ) : (
+                                            <span className="btn btn-warning">-</span>
+                                        )}
+                                    </div>
+                                    {Object.is(worker.safety_and_gear_form, null) &&
+                                        worker.is_exist
+                                        ? uploadFormDiv("safety_and_gear_form")
+                                        : ""}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </>
+
             )}
             {worker.company_type === "my-company" && (
                 <>
@@ -322,7 +406,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             </span>
                                         ) : (
                                             <span className="btn btn-warning "
-                                            onClick={() => handleNotSigned(contractForm?.id, "contract")}
+                                                onClick={() => handleNotSigned(contractForm?.id, "contract")}
                                             >
                                                 {t("global.notSigned")}
                                             </span>
@@ -405,7 +489,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 </span>
                                             ) : (
                                                 <span className="btn btn-warning"
-                                                onClick={() => handleNotSigned(form?.id, "form101")}
+                                                    onClick={() => handleNotSigned(form?.id, "form101")}
                                                 >
                                                     {t("global.notSigned")}
                                                 </span>
@@ -487,7 +571,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             </span>
                                         ) : (
                                             <span className="btn btn-warning"
-                                            onClick={() => handleNotSigned(safetyAndGearForm?.id, "safety_and_gear_form")}
+                                                onClick={() => handleNotSigned(safetyAndGearForm?.id, "safety_and_gear_form")}
                                             >
                                                 {t("global.notSigned")}
                                             </span>
@@ -501,7 +585,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 to={
                                                     worker.safety_and_gear_form
                                                         ? `/storage/uploads/worker/safetygear/${worker.safety_and_gear_form}`
-                                                        : `/worker-safe-gear/` + Base64.encode(worker.id.toString())
+                                                        : `/worker-forms/${Base64.encode(worker.id.toString())}?page=4`
                                                 }
                                                 className="btn btn-warning"
                                             >
@@ -568,7 +652,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                         </span>
                                     ) : (
                                         <span className="btn btn-warning"
-                                        onClick={() => handleNotSigned(insuranceForm?.id, "form_insurance")}
+                                            onClick={() => handleNotSigned(insuranceForm?.id, "form_insurance")}
                                         >
                                             {t("global.notSigned")}
                                         </span>
@@ -628,7 +712,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     style={{ boxShadow: "none" }}
                 >
                     <div className="card-comments cardforResponsive"></div>
-                    <Form101Table formdata={forms} workerId={worker.id} ResetForm={ResetForm} handleNotSigned={handleNotSigned}/>
+                    <Form101Table formdata={forms} workerId={worker.id} ResetForm={ResetForm} handleNotSigned={handleNotSigned} />
                 </div>
             )}
         </div>

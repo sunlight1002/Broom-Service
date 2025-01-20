@@ -285,6 +285,16 @@ class LeadWebhookController extends Controller
                 $workerLead = WorkerLeads::where('phone', 'like', '%' . $from . '%')->first();
             }
 
+            if($client) {
+                \Log::info('Client: ' . $client->id);
+            }
+            if($user) {
+                \Log::info('User: ' . $user->id);
+            }
+            if($workerLead) {
+                \Log::info('WorkerLead: ' . $workerLead->id);
+            }
+
             if (!$client && !$user && !$workerLead) {
                 $m = $this->botMessages['main-menu']['heb'];
                 $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
@@ -329,192 +339,7 @@ class LeadWebhookController extends Controller
                 die('final');
             };
 
-            if ($client) {
-                $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
-                $isMonday = now()->isMonday();
-                $tap1 = false;
-            
-                if ($client->status == 2 && $client->lead_status->lead_status == LeadStatusEnum::ACTIVE_CLIENT) {
-                    $request = ScheduleChange::where('user_id', $client->id)
-                            ->where('user_type', get_class($client))
-                            ->latest()->first();
-            
-                    $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
-            
-                    // Handle initial input with messageBody = 1
-                    if ($messageBody == 1 && $isMonday && (!$request || $isOlderThanWeek)) {
-                        $tap1 = true;
-                        $m = $client->lng == 'heb' 
-                            ? "מהו השינוי או הבקשה לשבוע הבא?\n    • במידה ואין שינויים, אין צורך בפעולה נוספת."
-                            : "What is your change for next week?\n    • If there are no changes, no action is needed.";
-            
-                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
-            
-                        $client->has_input_one = true;
-                        $client->stop_last_message = 1;
-                        $client->save();
-            
-                        WebhookResponse::create([
-                            'status'        => 1,
-                            'name'          => 'whatsapp',
-                            'entry_id'      => $get_data['entry'][0]['id'] ?? '',
-                            'message'       => $m,
-                            'number'        => $from,
-                            'flex'          => 'A',
-                            'read'          => 1,
-                            'data'          => json_encode($get_data),
-                        ]);
-                    }
-            
-                    // Handle invalid input when stop_last_message != 1
-                    if ($isMonday && $messageBody != '1' && $client->stop_last_message != 1) {
-                        $follow_up_msg = $client->lng == 'heb' 
-                            ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
-                            : "Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time.";
-            
-                        WebhookResponse::create([
-                            'status'        => 1,
-                            'name'          => 'whatsapp',
-                            'entry_id'      => $get_data['entry'][0]['id'] ?? '',
-                            'message'       => $follow_up_msg,
-                            'number'        => $from,
-                            'flex'          => 'A',
-                            'read'          => 1,
-                            'data'          => json_encode($get_data),
-                        ]);
-            
-                        sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
-                    }
-            
-                    // Handle new or updated ScheduleChange
-                    else if ($messageBody != 1 && $isMonday && (!$request || $isOlderThanWeek) && $client->has_input_one) {
-                        $scheduleChange = ScheduleChange::updateOrCreate(
-                            [
-                                'user_type' => get_class($client),
-                                'user_id' => $client->id,
-                            ],
-                            [
-                                'comments' => $messageBody,
-                            ]
-                        );
-            
-                        $client->stop_last_message = 1;
-                        $client->save();
-            
-                        // Send follow-up message
-             if($client->lng == 'heb'){
-                $message = 'שלום ' . $client->firstname . " " . $client->lastname . ',  
-
-ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול.
-
-להלן ההודעה ששלחת:
-"' . $scheduleChange->comments . '"  
-
-האם תרצה לשנות את ההודעה או לבקש משהו נוסף?
-
-השב 1 כדי לשנות את ההודעה.
-השב 2 כדי להוסיף מידע נוסף.
-במידה ואין שינויים או מידע נוסף, אין צורך בפעולה נוספת.
-
-פרטי קשר של ברום סרוויס:
-🌐 www.broomservice.co.il
-📞 טלפון: 03-525-70-60
-📧 דוא"ל: office@broomservice.co.il';
-            } else{
-                $message = 'Hello '  . $client->firstname . " " . $client->lastname . ', 
-
-Your message has been received and will be forwarded to our team for further handling.
-
-Here is the message you sent:
-"' . $scheduleChange->comments . '"  
-
-Would you like to edit your message or add anything else?
-
-Reply 1 to edit your message.
-Reply 2 to add additional information.
-If there are no changes or additional information, no further action is needed.
-
-Broom Service Contact Information:
-🌐 www.broomservice.co.il
-📞 Phone: 03-525-70-60
-📧 Email: office@broomservice.co.il';
-            }
-
-            
-                        sendClientWhatsappMessage($from, ['message' => $message]);
-                    }
-            
-                   // Handle updating or appending comments
-                    if ($messageBody == 1 && $isMonday && $request && $client->has_input_one) {
-                        // Cache the user's intention to edit
-                        Cache::put("user_{$client->id}_action", 'edit', now()->addMinutes(10));
-
-                        $promptMessage = $client->lng == 'heb' 
-                            ? "מהו השינוי או הבקשה לשבוע הבא?"
-                            : "What is your change or request for next week?";
-                        sendClientWhatsappMessage($from, ['message' => $promptMessage]);
-                    } elseif ($messageBody == 2 && $isMonday && $request && $client->has_input_one) {
-                        // Cache the user's intention to add additional information
-                        Cache::put("user_{$client->id}_action", 'add', now()->addMinutes(10));
-
-                        $promptMessage = $client->lng == 'heb' 
-                            ? "אנא הזן הודעה כדי להוסיף מידע נוסף."
-                            : "Please enter a message to add additional information.";
-                        sendClientWhatsappMessage($from, ['message' => $promptMessage]);
-                    } else {
-                        // Retrieve the cached action to determine the user's intent
-                        $cachedAction = Cache::get("user_{$client->id}_action");
-
-                        if ($cachedAction === 'edit') {
-                            // Process editing the existing message
-                            $scheduleChange = ScheduleChange::where('user_type', get_class($client))
-                                ->where('user_id', $client->id)
-                                ->latest()
-                                ->first();
-
-                            if ($scheduleChange) {
-                                $scheduleChange->comments = $messageBody;  
-                                $scheduleChange->save();
-
-                                $confirmationMessage = $client->lng == 'heb' 
-                                    ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
-                                    : "Your message has been received and will be forwarded to our team for further handling.";
-                                sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
-                            }
-
-                            // Clear the cache after the action is complete
-                            Cache::forget("user_{$client->id}_action");
-                        } elseif ($cachedAction === 'add') {
-                            // Process adding additional information
-                            $scheduleChange = new ScheduleChange();
-                            $scheduleChange->user_type = get_class($client);
-                            $scheduleChange->user_id = $client->id;
-                            $scheduleChange->comments = $messageBody;
-                            $scheduleChange->save();
-
-                            $confirmationMessage = $client->lng == 'heb' 
-                                ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
-                                : "Your message has been received and will be forwarded to our team for further handling.";
-                            sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
-
-                            // Clear the cache after the action is complete
-                            Cache::forget("user_{$client->id}_action");
-                        }
-                    }
-
-                }
-                // Log older records
-                $createdAt = $client->created_at;
-                if ($createdAt && $createdAt->lt(now()->subHours(12))) {
-                    \Log::info('Client record is older than 12 hours.', ['client_id' => $client->id]);
-                    die('Client record is older than 12 hours.');
-                }
-            }
-            
-            
-            
-
-            if ($data_returned['channel_id'] == 'GAMORA-MDYNP' && isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
+            if ($client && $data_returned['channel_id'] == 'DEADPL-DAB6G' && isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
                 $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : ($message_data[0]['button']['text'] ?? "");
                 // \Log::info($message);
                 $result = WhatsappLastReply::where('phone', $from)
@@ -1724,6 +1549,245 @@ If you would like to speak to a human representative, please send a message with
                 'type' => "website"
             ]
         ]));
+    }
+
+    public function activeClients(Request $request){
+        try {
+            $get_data = $request->getContent();
+            $responseClientState = [];
+            $data_returned = json_decode($get_data, true);
+            $message = null;
+    
+            $messageId = $data_returned['messages'][0]['id'] ?? null;
+    
+            if (!$messageId) {
+                return response()->json(['status' => 'Invalid message data'], 400);
+            }
+            
+            // Check if the messageId exists in cache and matches
+            if (Cache::get('processed_message_' . $messageId) === $messageId) {
+            \Log::info('Already processed');
+                return response()->json(['status' => 'Already processed'], 200);
+            }
+            
+            // Store the messageId in the cache for 1 hour
+            Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
+            
+    
+            if (
+                isset($data_returned['messages']) &&
+                isset($data_returned['messages'][0]['from_me']) &&
+                $data_returned['messages'][0]['from_me'] == false
+            ) {
+                $message_data = $data_returned['messages'];
+                $from = $message_data[0]['from'];
+                Log::info($from);
+                $lng = 'heb';
+
+                $client = null;
+                if (strlen($from) > 10) {
+                    $client = Client::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
+                    $user = User::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
+                    $workerLead = WorkerLeads::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
+                } else {
+                    $client = Client::where('phone', 'like', '%' . $from . '%')->first();
+                    $user = User::where('phone', 'like', '%' . $from . '%')->first();
+                    $workerLead = WorkerLeads::where('phone', 'like', '%' . $from . '%')->first();
+                }
+
+                if ($client && !$user && !$workerLead) {
+                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
+                    if ($responseClientState && $responseClientState->final) {
+                        \Log::info('final');
+                        die('final');
+                    };
+        
+                    if ($client && !$user && !$workerLead) {
+                        $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
+                        $isMonday = now()->isMonday();
+                        $tap1 = false;
+                    
+                        if ($client->status == 2 && $client->lead_status->lead_status == LeadStatusEnum::ACTIVE_CLIENT) {
+                            $request = ScheduleChange::where('user_id', $client->id)
+                                    ->where('user_type', get_class($client))
+                                    ->latest()->first();
+                    
+                            $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
+                    
+                            // Handle initial input with messageBody = 1
+                            if ($messageBody == 1 && $isMonday && (!$request || $isOlderThanWeek)) {
+                                $tap1 = true;
+                                $m = $client->lng == 'heb' 
+                                    ? "מהו השינוי או הבקשה לשבוע הבא?\n    • במידה ואין שינויים, אין צורך בפעולה נוספת."
+                                    : "What is your change for next week?\n    • If there are no changes, no action is needed.";
+                    
+                                sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
+                    
+                                $client->has_input_one = true;
+                                $client->stop_last_message = 1;
+                                $client->save();
+                    
+                                WebhookResponse::create([
+                                    'status'        => 1,
+                                    'name'          => 'whatsapp',
+                                    'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                    'message'       => $m,
+                                    'number'        => $from,
+                                    'flex'          => 'A',
+                                    'read'          => 1,
+                                    'data'          => json_encode($get_data),
+                                ]);
+                            }
+                    
+                            // Handle invalid input when stop_last_message != 1
+                            if ($isMonday && $messageBody != '1' && $client->stop_last_message != 1) {
+                                $follow_up_msg = $client->lng == 'heb' 
+                                    ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
+                                    : "Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time.";
+                    
+                                WebhookResponse::create([
+                                    'status'        => 1,
+                                    'name'          => 'whatsapp',
+                                    'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                    'message'       => $follow_up_msg,
+                                    'number'        => $from,
+                                    'flex'          => 'A',
+                                    'read'          => 1,
+                                    'data'          => json_encode($get_data),
+                                ]);
+                    
+                                sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
+                            }
+                    
+                            // Handle new or updated ScheduleChange
+                            else if ($messageBody != 1 && $isMonday && (!$request || $isOlderThanWeek) && $client->has_input_one) {
+                                $scheduleChange = ScheduleChange::updateOrCreate(
+                                    [
+                                        'user_type' => get_class($client),
+                                        'user_id' => $client->id,
+                                    ],
+                                    [
+                                        'comments' => $messageBody,
+                                    ]
+                                );
+                    
+                                $client->stop_last_message = 1;
+                                $client->save();
+                    
+                                // Send follow-up message
+                     if($client->lng == 'heb'){
+                        $message = 'שלום ' . $client->firstname . " " . $client->lastname . ',  
+        
+        ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול.
+        
+        להלן ההודעה ששלחת:
+        "' . $scheduleChange->comments . '"  
+        
+        האם תרצה לשנות את ההודעה או לבקש משהו נוסף?
+        
+        השב 1 כדי לשנות את ההודעה.
+        השב 2 כדי להוסיף מידע נוסף.
+        במידה ואין שינויים או מידע נוסף, אין צורך בפעולה נוספת.
+        
+        פרטי קשר של ברום סרוויס:
+        🌐 www.broomservice.co.il
+        📞 טלפון: 03-525-70-60
+        📧 דוא"ל: office@broomservice.co.il';
+                    } else{
+                        $message = 'Hello '  . $client->firstname . " " . $client->lastname . ', 
+        
+        Your message has been received and will be forwarded to our team for further handling.
+        
+        Here is the message you sent:
+        "' . $scheduleChange->comments . '"  
+        
+        Would you like to edit your message or add anything else?
+        
+        Reply 1 to edit your message.
+        Reply 2 to add additional information.
+        If there are no changes or additional information, no further action is needed.
+        
+        Broom Service Contact Information:
+        🌐 www.broomservice.co.il
+        📞 Phone: 03-525-70-60
+        📧 Email: office@broomservice.co.il';
+                    }
+        
+                    
+                                sendClientWhatsappMessage($from, ['message' => $message]);
+                            }
+                    
+                           // Handle updating or appending comments
+                            if ($messageBody == 1 && $isMonday && $request && $client->has_input_one) {
+                                // Cache the user's intention to edit
+                                Cache::put("user_{$client->id}_action", 'edit', now()->addMinutes(10));
+        
+                                $promptMessage = $client->lng == 'heb' 
+                                    ? "מהו השינוי או הבקשה לשבוע הבא?"
+                                    : "What is your change or request for next week?";
+                                sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+                            } elseif ($messageBody == 2 && $isMonday && $request && $client->has_input_one) {
+                                // Cache the user's intention to add additional information
+                                Cache::put("user_{$client->id}_action", 'add', now()->addMinutes(10));
+        
+                                $promptMessage = $client->lng == 'heb' 
+                                    ? "אנא הזן הודעה כדי להוסיף מידע נוסף."
+                                    : "Please enter a message to add additional information.";
+                                sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+                            } else {
+                                // Retrieve the cached action to determine the user's intent
+                                $cachedAction = Cache::get("user_{$client->id}_action");
+        
+                                if ($cachedAction === 'edit') {
+                                    // Process editing the existing message
+                                    $scheduleChange = ScheduleChange::where('user_type', get_class($client))
+                                        ->where('user_id', $client->id)
+                                        ->latest()
+                                        ->first();
+        
+                                    if ($scheduleChange) {
+                                        $scheduleChange->comments = $messageBody;  
+                                        $scheduleChange->save();
+        
+                                        $confirmationMessage = $client->lng == 'heb' 
+                                            ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
+                                            : "Your message has been received and will be forwarded to our team for further handling.";
+                                        sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+                                    }
+        
+                                    // Clear the cache after the action is complete
+                                    Cache::forget("user_{$client->id}_action");
+                                } elseif ($cachedAction === 'add') {
+                                    // Process adding additional information
+                                    $scheduleChange = new ScheduleChange();
+                                    $scheduleChange->user_type = get_class($client);
+                                    $scheduleChange->user_id = $client->id;
+                                    $scheduleChange->comments = $messageBody;
+                                    $scheduleChange->save();
+        
+                                    $confirmationMessage = $client->lng == 'heb' 
+                                        ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
+                                        : "Your message has been received and will be forwarded to our team for further handling.";
+                                    sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+        
+                                    // Clear the cache after the action is complete
+                                    Cache::forget("user_{$client->id}_action");
+                                }
+                            }
+        
+                        }
+                        // Log older records
+                        $createdAt = $client->created_at;
+                        if ($createdAt && $createdAt->lt(now()->subHours(12))) {
+                            \Log::info('Client record is older than 12 hours.', ['client_id' => $client->id]);
+                            die('Client record is older than 12 hours.');
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
 }

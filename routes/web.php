@@ -33,6 +33,7 @@ Route::post('/icount/webhook', [iCountController::class, 'webhook']);
 Route::get('/google/callback', [GoogleController::class, 'callback']);
 
 Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_fb');
+Route::any('/webhook_active_client', [LeadWebhookController::class, 'activeClients'])->name('webhook_active_client');
 Route::any('/webhook_worker', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_worker');
 Route::any('/webhook_active_worker', [WorkerLeadWebhookController::class, 'activeWorkers'])->name('webhook_active_worker');
 

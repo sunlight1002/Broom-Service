@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\CancellationActionEnum;
 use App\Enums\JobStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Enums\OrderPaidStatusEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Events\ClientLeadStatusChanged;
 use App\Events\JobShiftChanged;
@@ -38,6 +39,7 @@ use App\Jobs\CreateJobOrder;
 use App\Jobs\ScheduleNextJobOccurring;
 use App\Models\JobCancellationFee;
 use App\Models\ManageTime;
+use App\Models\Order;
 use App\Traits\PaymentAPI;
 use App\Events\JobNotificationToAdmin;
 use App\Events\JobNotificationToClient;
@@ -2193,6 +2195,90 @@ class JobController extends Controller
         return response()->json([
             'message' => 'Updated Successfully',
         ]);
+    }
+
+    public function getPendingJobsAndPayment($id){
+        try {
+            $jobs = Job::where("client_id", $id)
+                    ->whereNotIn("status", [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED, JobStatusEnum::PROGRESS])
+                    ->get();
+                    
+
+            $orders = Order::where("client_id", $id)
+                    ->where("paid_status", '!=' ,OrderPaidStatusEnum::PAID)
+                    ->where("status", 'Open')
+                    ->get();
+
+            return response()->json([
+                'jobs' => $jobs ?? [],
+                'orders' => $orders ?? []
+            ]);
+
+        } catch (\Throwable $th) {
+            throw $th;
+            // return response()->json([
+            //     'message' => 'Something went wrong!'
+            // ]);
+        }
+    }
+
+    public function CancelPendingJobsAndPayment(Request $request, $id){
+        try {
+            $jobs = Job::where("client_id", $id)
+                ->whereNotIn("status", [JobStatusEnum::CANCEL, JobStatusEnum::COMPLETED, JobStatusEnum::PROGRESS])
+                ->get();
+            
+            if (!$jobs) {
+                return response()->json([
+                    'message' => 'No pending jobs found!'
+                ]);
+            }
+            
+            $orders = Order::where("client_id", $id)
+                    ->where("paid_status", '!=' ,OrderPaidStatusEnum::PAID)
+                    ->where("status", 'Open')
+                    ->get();
+
+            foreach ($orders as $key => $order) {
+                $order->update(['status' => 'Closed']);
+            }
+
+            foreach ($jobs as $key => $job) {
+                $feePercentage = $request->fee;
+                $feeAmount = ($feePercentage / 100) * $job->total_amount;
+    
+                JobCancellationFee::create([
+                    'job_id' => $job->id,
+                    'job_group_id' => $job->job_group_id,
+                    'cancellation_fee_percentage' => $feePercentage,
+                    'cancellation_fee_amount' => $feeAmount,
+                    'cancelled_user_role' => 'admin',
+                    'cancelled_by' => Auth::user()->id,
+                    'action' => CancellationActionEnum::CANCELLATION,
+                    'duration' => 'forever',
+                ]);
+    
+                $job->update([
+                    'status' => JobStatusEnum::CANCEL,
+                    'cancellation_fee_percentage' => $feePercentage,
+                    'cancellation_fee_amount' => $feeAmount,
+                    'cancelled_by_role' => 'admin',
+                    'cancelled_by' => Auth::user()->id,
+                    'cancelled_at' => now(),
+                    'cancelled_for' => 'forever',
+                ]);
+    
+                CreateJobOrder::dispatch($job->id);
+                ScheduleNextJobOccurring::dispatch($job->id,null);
+            }
+
+            return response()->json([
+                'message' => 'Cancelled Successfully'
+            ]);
+
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     public function extendWorkerJobTime(Request $request){

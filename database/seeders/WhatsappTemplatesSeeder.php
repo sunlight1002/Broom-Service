@@ -3597,12 +3597,13 @@ Contact: :worker_lead_phone
 Status: ✅ Suitable for house cleaning job
 
 Alex, please contact the lead and update the status with:
-1. 'Hire' – If hired
-2. 'No' – If not suitable
-3. 'Unanswered' – If the lead didn’t respond
+1. 'h' – If hired  
+2. 'n' – If not suitable  
+3. 't' - will think
+4. 'u' – If the lead didn’t respond 
 
 ⚠️ Please reply within 24 hours with the lead’s number and status.
-Example: +972 52-123-4567 – Hire
+Example: +972 52-123-4567 – h
 
 Best Regards,
 Broom Service Team 🌹",
@@ -3612,12 +3613,13 @@ Broom Service Team 🌹",
 סטטוס: ✅ מתאים לעבודת ניקיון הבית
 
 אלכס, אנא צור קשר עם המוביל ועדכן את הסטטוס באמצעות:
-1. 'השכרה' - אם התקבל לעבודה
-2. 'לא' - אם לא מתאים
-3. 'לא נענה' - אם המוביל לא הגיב
+1. 'h' - אם יתקבל לעבודה
+2. 'n' - אם לא מתאים
+3. 't' - יחשוב
+4. 'u' - אם המוביל לא הגיב
 
 ⚠️ אנא השב תוך 24 שעות עם מספר הליד והסטטוס.
-דוגמה: +972 52-123-4567 - השכרה
+דוגמה: +972 52-123-4567 - h
 
 בברכה,
 צוות שירות מטאטא 🌹",
@@ -3627,12 +3629,13 @@ Broom Service Team 🌹",
 Статус: ✅ Подходит для работы по уборке
 
 Алекс, пожалуйста, свяжитесь с кандидатом и обновите статус:
-1. 'Hire' – Принят на работу
-2. 'No' – Не подходит
-3. 'Unanswered' – Не ответил
+1. 'h' – Если наняли
+2. 'n' – Если не подходит
+3. 't' - подумает
+4. 'u' – Если лид не ответил
 
 ⚠️ Обновите статус в течение 24 часов с номером кандидата.
-Пример: +972 52-123-4567 – Hire
+Пример: +972 52-123-4567 – h
 
 С наилучшими пожеланиями,
 Команда Broom Service 🌹",
@@ -3767,6 +3770,196 @@ Broom Service Team 🌹",
 
                 'message_ru' => "⚠️ Напоминание: Пожалуйста, подтвердите завершение найма: +972 52-123-4567.
 Спасибо! 😊
+
+С наилучшими пожеланиями,
+Команда Broom Service 🌹",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM,
+                'description' => 'worker lead not relevant by team',
+                'message_en' => "🌟 Thank you for contacting us at Job4Service
+We offer the best jobs in the house cleaning industry in Israel.
+We hire only people with suitable visas for work in Israel.
+We offer house cleaning jobs only in the Tel Aviv area, and only during weekday mornings. We do not work on weekends or in the evenings.
+We are a professional cleaning team, so we hire only people with experience in house cleaning.
+If it may suit you or your friends now or in the future, you are more than welcome to contact us again. 😀
+
+👫 Know someone who'd be a great fit for our team? Invite them to join this group and explore the opportunities with us! Just send them this link:  
+
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT3T
+
+https://t.me/+m84PexCmLjs0MmZk
+
+https://www.facebook.com/JobinIsraelforubr
+
+Have a wonderful day!🌟
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "🌟 תודה שפנית אלינו ב-Job4Service
+אנו מציעים את מיטב המשרות בענף ניקיון בתים בישראל.
+אנו שוכרים רק אנשים בעלי ויזות מתאימות לעבודה בישראל.
+אנו מציעים עבודות ניקיון בתים רק באזור תל אביב, ורק בשעות הבוקר של ימי חול. אנחנו לא עובדים בסופי שבוע או בערב.
+אנו צוות ניקיון מקצועי ולכן אנו שוכרים רק אנשים בעלי ניסיון בניקיון בתים.
+אם זה יכול להתאים לך או לחברים שלך עכשיו או בעתיד, אתה יותר ממוזמנת לפנות אלינו שוב. 😀
+
+👫 מכירים מישהו שיתאים מאוד לצוות שלנו? הזמן אותם להצטרף לקבוצה זו ולחקור את ההזדמנויות יחד איתנו! פשוט שלח להם את הקישור הזה:
+
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT3T
+
+https://t.me/+m84PexCmLjs0MmZk
+
+https://www.facebook.com/JobinIsraelforubr
+
+שיהיה לך יום נפלא!🌟
+
+בברכה,
+צוות שירות מטאטא 🌹",
+                'message_spa' => "🌟 Gracias por contactarnos en Job4Service
+Ofrecemos los mejores trabajos en la industria de limpieza de casas en Israel.
+Solo contratamos personas con visas adecuadas para trabajar en Israel.
+Ofrecemos trabajos de limpieza de casas solo en el área de Tel Aviv, y solo durante las mañanas de los días de semana. No trabajamos los fines de semana ni por las tardes.
+Somos un equipo de limpieza profesional, por lo que contratamos solo personas con experiencia en limpieza de casas.
+Si puede ser útil para usted o sus amigos ahora o en el futuro, puede contactarnos nuevamente. 😀
+
+👫 ¿Conoce a alguien que sería ideal para nuestro equipo? ¡Invítelo a unirse a este grupo y explore las oportunidades con nosotros! Simplemente envíele este enlace:
+
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT3T
+
+https://t.me/+m84PexCmLjs0MmZk
+
+https://www.facebook.com/JobinIsraelforubr
+
+¡Que tengas un día maravilloso!🌟
+
+Saludos cordiales,
+Broom Service Team 🌹",
+
+                'message_ru' => "🌟 Спасибо, что связались с нами в Job4Service
+Мы предлагаем лучшие вакансии в сфере уборки домов в Израиле.
+Мы нанимаем только людей с подходящими визами для работы в Израиле.
+Мы предлагаем работу по уборке домов только в районе Тель-Авива, и только по утрам в будние дни. Мы не работаем по выходным или вечерам.
+Мы профессиональная команда по уборке, поэтому нанимаем только людей с опытом работы в этой сфере.
+Если это может подойти вам или вашим друзьям сейчас или в будущем, вы всегда можете связаться с нами снова. 😀
+👫 Знаете кого-то, кто идеально подойдет для нашей команды? Пригласите их присоединиться к этой группе и исследовать возможности с нами! Просто отправьте им эту ссылку:
+
+https://wa.me/9725258480808
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT3T
+
+https://t.me/+m84PexCmLjs0MmZk
+
+https://www.facebook.com/JobinIsraelforubr
+
+Для получения дополнительной информации, не стесняйтесь обращаться к нам.
+Хорошего дня! 🌟
+
+С наилучшими пожеланиями,
+Команда Broom Service 🌹",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD,
+                'description' => 'team will think send to worker lead',
+                'message_en' => "Hi,
+
+I understand you spoke with Alex about the job. I want to take a moment to let you know that this is an excellent opportunity with the highest legal salary you can earn here in Israel.
+
+We are a well-established company that has been working with VIP clients for over 10 years. Right now, we only have two spots available, and I wouldn’t want you to miss out on such a great chance.
+
+I promise you won’t find another company with better clients, better payment, or a more supportive work environment.
+
+Whatever you decide, I wish you the best of luck and a great day ahead!
+
+Best regards,
+
+https://wa.me/9725258480808
+
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT3T
+
+https://t.me/+m84PexCmLjs0MmZk
+
+https://www.facebook.com/JobinIsraelforubr
+
+
+Have a wonderful day!🌟
+
+Best Regards,
+Broom Service Team 🌹",
+
+                'message_heb' => "היי ,
+
+אני מבין שדיברת עם אלכס על העבודה. אני רוצה להקדיש רגע כדי להודיע ​​לכם שזו הזדמנות מצוינת עם השכר החוקי הגבוה ביותר שתוכלו להרוויח כאן בישראל.
+
+אנחנו חברה ותיקה שעובדת עם לקוחות VIP כבר למעלה מ-10 שנים. כרגע, יש לנו רק שני מקומות פנויים, ואני לא רוצה שתפספסו הזדמנות כל כך גדולה.
+
+אני מבטיח שלא תמצא חברה אחרת עם לקוחות טובים יותר, תשלום טוב יותר או סביבת עבודה תומכת יותר.
+
+לא משנה מה תחליט, אני מאחל לך מזל טוב ויום נהדר!
+
+בברכה,
+
+https://wa.me/9725258480808
+
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT3T
+
+https://t.me/+m84PexCmLjs0MmZk
+
+https://www.facebook.com/JobinIsraelforubr
+
+
+שיהיה לך יום נפלא!🌟
+
+בברכה,
+צוות שירות מטאטא 🌹",
+                'message_spa' => "Hola,
+
+Entiendo que hablaste con Alex sobre el trabajo. Quiero tomarme un momento para informarte que esta es una excelente oportunidad con el salario legal más alto que puedes ganar aquí en Israel.
+
+Somos una empresa bien establecida que ha estado trabajando con clientes VIP durante más de 10 años. En este momento, solo tenemos dos lugares disponibles y no quiero que pierdas una oportunidad tan grande.
+
+Te prometo que no encontrarás otra empresa con mejores clientes, mejor pago o un entorno de trabajo más solidario.
+
+Sea cual sea tu decisión, ¡te deseo la mejor de las suertes y un gran día por delante!
+
+Saludos Saludos,
+
+https://wa.me/9725258480808
+
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT3T
+
+https://t.me/+m84PexCmLjs0MmZk
+
+https://www.facebook.com/JobinIsraelforubr
+
+¡Que tengas un día maravilloso!🌟
+
+Saludos cordiales,
+Equipo de servicio de escobas 🌹",
+
+                'message_ru' => "Привет,
+
+Я понял, что вы поговорили с Алексом о работе. Хочу сказать, что это отличная возможность с самой высокой легальной зарплатой, которую вы можете получать здесь, в Израиле.
+
+Мы – стабильная компания, работающая с VIP-клиентами уже более 10 лет. Сейчас у нас есть всего два свободных места, и я бы не хотел, чтобы вы упустили такой шанс.
+
+Обещаю, вы не найдете другую компанию с лучшими клиентами, лучшей оплатой и поддерживающей рабочей средой.
+
+В любом случае, желаю вам удачи и хорошего дня!
+
+С уважением,
+
+
+https://wa.me/9725258480808
+https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT3T
+
+https://t.me/+m84PexCmLjs0MmZk
+
+https://www.facebook.com/JobinIsraelforubr
+Для получения дополнительной информации, не стесняйтесь обращаться к нам.
+
+Хорошего дня! 🌟
 
 С наилучшими пожеланиями,
 Команда Broom Service 🌹",
