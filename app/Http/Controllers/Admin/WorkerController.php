@@ -47,6 +47,7 @@ class WorkerController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status');
+        \Log::info($status);
         $manpowerCompanyID = $request->get('manpower_company_id');
         $isMyCompany = $request->get('is_my_company');
         $isFreelancer = $request->get('is_freelancer');
@@ -54,11 +55,7 @@ class WorkerController extends Controller
         $query = User::query()
             ->when($status == "active", function ($q) {
                 return $q
-                    ->where(function ($q) {
-                        $q
-                            ->whereNull('last_work_date')
-                            ->orWhereDate('last_work_date', '>=', today()->toDateString());
-                    });
+                    ->where('status', 1);
             })
             ->when($status == "past", function ($q) {
                 return $q
@@ -67,7 +64,7 @@ class WorkerController extends Controller
             })
             ->when($status == "inactive", function ($q) {
                 return $q
-                    ->where('status', '==', 0);
+                    ->where('status', 0);
             })
             ->when($manpowerCompanyID, function ($q) use ($manpowerCompanyID) {
                 return $q->where('manpower_company_id', $manpowerCompanyID);

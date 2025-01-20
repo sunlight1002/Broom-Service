@@ -276,7 +276,8 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                             {t("form101.id_num")}
                                         </label>
                                         <input
-                                            type="passportNumber"
+                                            type="text"
+                                            value={formValues.IDNumber}
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,

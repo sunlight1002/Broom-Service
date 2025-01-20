@@ -419,6 +419,8 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::SEND_WORKER_JOB_CANCEL_BY_CLIENT:
                     case WhatsappMessageTemplateEnum::SEND_WORKER_TO_STOP_TIMER:
                     case WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS:
+                    case WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD:
+                    case WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;

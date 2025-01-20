@@ -15,6 +15,7 @@ class VerifyCsrfToken extends Middleware
         'webhook_fb',
         '/webhook_worker',
         '/webhook_active_worker',
+        '/webhook_active_client',
         'twilio/voice/webhook',
         'zcredit/callback',
         'newlead',

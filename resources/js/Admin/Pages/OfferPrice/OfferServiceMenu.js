@@ -141,12 +141,12 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
 
                                 const address =
                                     item.template === "airbnb"
-                                        ? item?.sub_services?.address_name + " " + addresses.find(
+                                        ? (item?.sub_services?.address_name + " " + addresses.find(
                                             (a) => a.id.toString() === item?.sub_services?.address?.toString()
-                                        )?.geo_address
-                                        : item?.address_name + " " + addresses.find(
+                                        )?.geo_address) ?? ""
+                                        : (item?.address_name + " " + addresses.find(
                                             (a) => a.id.toString() === item.address?.toString()
-                                        )?.geo_address;
+                                        )?.geo_address) ?? "";
 
                                 const serviceName = item?.template === "airbnb"
                                     ? `${item?.name} (${item?.sub_services?.sub_service_name || ""})`
