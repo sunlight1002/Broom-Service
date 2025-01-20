@@ -14,6 +14,7 @@ class WhatsAppBotClientState extends Model
         'menu_option',
         'language',
         'auth_id',
-        'final'
+        'final',
+        'stop_last_message'
     ];
 }

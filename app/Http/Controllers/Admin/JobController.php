@@ -402,7 +402,7 @@ class JobController extends Controller
 
         // Locate the service and add is_one_time field
         foreach ($services as &$service) {
-            if (($service['service'] == 1) || (in_array($service['freq_name'], ['One Time', 'חד פעמי']))) {
+            if (($service['service'] == 1) || isset($service['freq_name']) && (in_array($service['freq_name'], ['One Time', 'חד פעמי']))) {
                 $service['is_one_time'] = true; // Add the field
             }
         }

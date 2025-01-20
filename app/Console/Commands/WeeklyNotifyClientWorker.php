@@ -71,17 +71,19 @@ class WeeklyNotifyClientWorker extends Command
         $template = WhatsappTemplate::where('key','NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE')->first();
 
         foreach ($scheduledJobs as $job) {
-            if ($job->client) {
-                $clientData = [
-                    'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
-                    'notificationData' => [
-                        // 'job' => $job,
-                        'client' => $job->client,
-                        // 'holidayMessage' => $holidayMessage,
-                    ],
-                ];
-                event(new WhatsappNotificationEvent($clientData));
-            }
+            // if ($job->client) {
+            //     $clientData = [
+            //         'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
+            //         'notificationData' => [
+            //             // 'job' => $job,
+            //             'client' => $job->client,
+            //             // 'holidayMessage' => $holidayMessage,
+            //         ],
+            //     ];
+            //     event(new WhatsappNotificationEvent($clientData));
+            //     $job->client->stop_last_message = 0;
+            //     $job->client->save();
+            // }
             if ($job->worker) {
                 $workerData = [
                     'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE,
@@ -92,6 +94,8 @@ class WeeklyNotifyClientWorker extends Command
                     ],
                 ];
                 event(new WhatsappNotificationEvent($workerData));
+                $job->worker->stop_last_message = 0;
+                $job->worker->save();
             }
         }
 

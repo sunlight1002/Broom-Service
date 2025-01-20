@@ -77,6 +77,7 @@ class User extends Authenticatable
         'contactId',
         'step',
         'id_number',
+        'stop_last_message'
     ];
 
     /**

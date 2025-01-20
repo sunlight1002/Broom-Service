@@ -32,6 +32,7 @@ class WhatsappNotification
         $this->whapiApiEndpoint = config('services.whapi.url');
         $this->whapiApiToken = config('services.whapi.token');
         $this->whapiWorkerApiToken = config('services.whapi.worker_token');
+        $this->whapiClientApiToken = config('services.whapi.client_token');
         
         // Initialize short URL base URLs
         $this->workerBaseUrl = config('services.short_url.worker');
@@ -738,7 +739,17 @@ class WhatsappNotification
                 Log::info($eventType);
                 Log::info($lng);
 
-                $token = $receiverNumber == config('services.whatsapp_groups.relevant_with_workers') ? $this->whapiWorkerApiToken : $this->whapiApiToken;
+                $token = $this->whapiApiToken;
+
+                if($receiverNumber == config('services.whatsapp_groups.relevant_with_workers')){
+                    $token = $this->whapiWorkerApiToken;
+                }else if($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE){
+                    \Log::info('NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE');
+                    $token = $this->whapiClientApiToken;
+                }else{
+                    $token = $this->whapiApiToken;
+                }
+
                 $response = Http::withToken($token)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
                         'to' => $receiverNumber,

@@ -70,6 +70,47 @@ if (!function_exists('sendWhatsappMessage')) {
     }
 }
 
+if (!function_exists('sendClientWhatsappMessage')) {
+    function sendClientWhatsappMessage($number, $data = array(), $lang = 'he', $replyId = null)
+    {
+        if (isset($data['disable_notification']) && $data['disable_notification'] == 1) {
+            return;
+        }
+        // Normalize the phone number
+        $mobile_no = str_replace("-", "", $number);
+
+        // Prepend country code if necessary
+        if (strlen($mobile_no) <= 10) {
+            $mobile_no = '972' . $mobile_no; // Assuming '972' is the country code for Israel
+        }
+        
+        // Build the payload for the API request
+        $payload = [
+            'to' => $mobile_no,
+            'body' => str_replace("\t", "", $data['message'])
+        ];
+
+        // Include reply ID if provided
+        if ($replyId) {
+            $payload['reply_to'] = $replyId; // Adjust the key according to your API specification
+        }
+
+        // Send the message using Http Client
+        $response = Http::withToken(config('services.whapi.client_token'))
+            ->post(config('services.whapi.url') . 'messages/text', $payload);
+
+        // Log the response for debugging
+        Log::info($response->json());
+
+        // Check the response status
+        if ($response->successful()) { 
+            return $response->json();
+        } else {
+            return $response->object(); // Return the response object on error
+        }
+    }
+}
+
 if (!function_exists('sendWhatsappMediaMessage')) {
     function sendWhatsappMediaMessage(
         $number, 
