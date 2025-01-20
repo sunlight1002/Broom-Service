@@ -84,19 +84,19 @@ class WeeklyNotifyClientWorker extends Command
             //     $job->client->stop_last_message = 0;
             //     $job->client->save();
             // }
-            if ($job->worker) {
-                $workerData = [
-                    'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE,
-                    'notificationData' => [
-                        // 'job' => $job,
-                        'worker' => $job->worker,
-                        // 'holidayMessage' => $holidayMessage,
-                    ],
-                ];
-                event(new WhatsappNotificationEvent($workerData));
-                $job->worker->stop_last_message = 0;
-                $job->worker->save();
-            }
+            // if ($job->worker) {
+            //     $workerData = [
+            //         'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE,
+            //         'notificationData' => [
+            //             // 'job' => $job,
+            //             'worker' => $job->worker,
+            //             // 'holidayMessage' => $holidayMessage,
+            //         ],
+            //     ];
+            //     event(new WhatsappNotificationEvent($workerData));
+            //     $job->worker->stop_last_message = 0;
+            //     $job->worker->save();
+            // }
         }
 
         return 0;

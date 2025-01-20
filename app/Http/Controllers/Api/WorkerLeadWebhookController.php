@@ -108,7 +108,6 @@ class WorkerLeadWebhookController extends Controller
                     // Check if ScheduleChange is older than 1 week
                     $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
             
-                   if($input != '2'){
                         if ($input == 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
                             if($user->lng == 'heb') {
                                 $m =  "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות.";
@@ -130,15 +129,46 @@ class WorkerLeadWebhookController extends Controller
                                 'read' => 1,
                                 'flex' => 'A',
                             ]);
+
+                            $user->stop_last_message = 1;
+                            $user->save();
             
-                        } else if ($input != 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
+                        } 
+
+
+                        if (now()->isMonday() && $input != '1' && $input != '2' && $user->stop_last_message != 1) {
+                            $follow_up_msg = null;
+                            // Follow-up message for returning to the menu, with translation based on the client's language
+                            if ($user->lng == 'heb') {
+                                $follow_up_msg = "מצטערים, לא הבנו. אנא השב עם הספרה 1 אם יש לך שינויים, או 2 אם הסידור נשאר כפי שהיה.\n\nאם לא תתקבל תשובה תוך 5 שעות, הנושא יועבר לטיפול הצוות.\n\nבברכה,\nצוות ברום סרוויס 🌹";
+                            }else if ($user->lng == 'ru') {
+                                $follow_up_msg = "Извините, я вас не понял. Пожалуйста, ответьте 1, если у вас есть изменения, или 2, если график остается без изменений.\n\nЕсли ответа не будет в течение 5 часов, проблема будет передана команде.\n\nС уважением,\nКоманда Broom Service 🌹";
+                            } else if($user->lng == 'en') {
+                                $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
+                            }else{
+                                $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
+                            }
+        
+                                WorkerWebhookResponse::create([
+                                    'status' => 1,
+                                    'name' => 'whatsapp',
+                                    'entry_id' => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                                    'message' => $data_returned['messages'][0]['text']['body'],
+                                    'number' => $from,
+                                    'read' => 1,
+                                    'flex' => 'A',
+                                    'data' => json_encode($get_data)
+                                ]);
+        
+                            $result = sendWorkerWhatsappMessage($from, array('message' => $follow_up_msg));
+                            
+                        } else if ($input != 1 && $input != 2 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
                             $scheduleChange = new ScheduleChange();
                             $scheduleChange->user_type = get_class($user);  
                             $scheduleChange->user_id = $user->id;      
                             $scheduleChange->comments = $input;  
                             $scheduleChange->save();
-                        } 
-                   }
+                        }  
                 }                   
 
                 die("User is already Worker");
