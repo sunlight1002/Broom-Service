@@ -20,4 +20,7 @@ final class ClientMetaEnum extends AbstractEnum
     public const NOTIFICATION_SENT_UNANSWERED_3DAYS = 'notification_sent_unanswered_3days';
     public const NOTIFICATION_SENT_UNANSWERED_7DAYS = 'notification_sent_unanswered_7days';
     public const NOTIFICATION_SENT_UNANSWERED_8DAYS = 'notification_sent_unanswered_8days';
+    public const NOTIFICATION_SENT_CONTRACT_NOTSIGNED_24HOURS = 'notification_sent_contract_notsigned_24hours';
+    public const NOTIFICATION_SENT_CONTRACT_NOTSIGNED_3DAYS = 'notification_sent_contract_notsigned_3days';
+    public const NOTIFICATION_SENT_CONTRACT_NOTSIGNED_7DAYS = 'notification_sent_contract_notsigned_7days';
 }

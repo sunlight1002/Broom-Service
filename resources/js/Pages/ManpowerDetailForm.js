@@ -42,7 +42,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
             country: response.data.worker.country,
             gender: response.data.worker.gender,
             renewal_visa: response.data.worker.renewal_visa,
-            passportNumber: response.data.worker.passport_no ?? "",
+            passportNumber: response.data.worker.passport ?? "",
             IDNumber: response.data.worker.id_number ?? "",
         })
         setWorker(response.data.worker);
@@ -212,6 +212,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                         </label>
                                         <input
                                             type="passportNumber"
+                                            value={formValues.passportNumber}
                                             onChange={(e) => {
                                                 setFormValues({
                                                     ...formValues,

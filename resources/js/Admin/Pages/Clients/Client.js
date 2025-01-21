@@ -113,7 +113,7 @@ export default function Clients() {
                         orderable: false,
                         render: function (data, type, row, meta) {
                             const _statusColor = leadStatusColor(data);
-                            return `<p style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            return `<p class="dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                             ${data}
                         </p>`;
                         },

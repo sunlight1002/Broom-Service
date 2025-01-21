@@ -34,11 +34,9 @@ export default function GeneralInfo({
         }
     }, [values.employeecountry]);
 
-    console.log(values.employeeIsraeliResident);
-    
-
-
     const { t } = useTranslation();
+    console.log(values);
+
 
     const sexOptions = [
         { label: t("form101.label_male"), value: "Male" },
@@ -342,15 +340,22 @@ export default function GeneralInfo({
                                                     type="file"
                                                     name="employeepassportCopy"
                                                     id="employeepassportCopy"
+                                                    title={values.employeepassportCopy}
                                                     accept="image/*"
                                                     onChange={(e) => {
-                                                        setFieldValue(
-                                                            "employeepassportCopy",
-                                                            e.target.files[0]
-                                                        );
-                                                        handleFileChange(e, "passport");
-                                                    }
-                                                    }
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            console.log(file.size);
+
+                                                            const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
+                                                            if (fileSizeInMB > 10) {
+                                                                alert("File size must be less than 10MB"); // Show error message
+                                                                return;
+                                                            }
+                                                            setFieldValue("employeepassportCopy", file);
+                                                            handleFileChange(e, "passport");
+                                                        }
+                                                    }}
                                                     onBlur={handleBlur}
                                                 />
                                             </div>
@@ -377,7 +382,8 @@ export default function GeneralInfo({
                                                     className="form-control man p-0 border-0"
                                                     style={{ fontSize: "unset", backgroundColor: "unset", }}
                                                     accept="image/*"
-                                                    onChange={(e) =>{
+                                                    title={values.employeeResidencePermit}
+                                                    onChange={(e) => {
                                                         setFieldValue(
                                                             "employeeResidencePermit",
                                                             e.target.files[0]
@@ -437,6 +443,7 @@ export default function GeneralInfo({
                                                     type="file"
                                                     name="employeeIdCardCopy"
                                                     id="employeeIdCardCopy"
+                                                    title={values.employeeIdCardCopy}
                                                     accept="image/*"
                                                     onChange={(e) => {
                                                         setFieldValue(
@@ -449,6 +456,12 @@ export default function GeneralInfo({
                                                     onBlur={handleBlur}
                                                 />
                                             </div>
+                                            {/* {values &&
+                                                values.employeeIdCardCopy && (
+                                                    <p className="text-success">
+                                                        {values.employeeIdCardCopy}
+                                                    </p>
+                                                )} */}
                                             {touched.employeeIdCardCopy &&
                                                 errors.employeeIdCardCopy && (
                                                     <p className="text-danger">

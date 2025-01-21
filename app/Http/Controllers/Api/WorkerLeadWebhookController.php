@@ -96,155 +96,161 @@ class WorkerLeadWebhookController extends Controller
             ]);
 
             $workerLead = WorkerLeads::where('phone', $from)->first();
-            $user = User::where('phone', $from)->first();
+            $user = User::where('phone', $from)
+                    ->where('status', 1)
+                    ->first();
 
-            if ($user) {
-                $m = null;
-            
-                if ($user->status == 1) {
-                    $request = ScheduleChange::where('user_id', $user->id)
-                        ->where('user_type', get_class($user))
-                        ->latest()
-                        ->first();
-            
-                    $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
-            
-                    // If the input is 1
-                    if ($input == 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
-                        // Set the flag to true
-                        $user->has_input_one = true;
-                        $user->save();
-            
-                        // Send appropriate message
-                        if ($user->lng == 'heb') {
-                            $m = "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות.";
-                        } else if ($user->lng == 'ru') {
-                            $m = "Какие у вас изменения на следующую неделю? Ваш ответ будет отправлен команде.";
-                        } else if ($user->lng == 'en') {
-                            $m = "What is your change for next week? Your response will be forwarded to the team.";
-                        } else {
-                            $m = "¿Cuál es tu cambio para la próxima semana? Tu respuesta será enviada al equipo.";
-                        }
-            
-                        sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $m]);
-            
-                        WorkerWebhookResponse::create([
-                            'status' => 1,
-                            'name' => 'whatsapp',
-                            'message' => $m,
-                            'number' => $from,
-                            'read' => 1,
-                            'flex' => 'A',
-                        ]);
-            
-                        $user->stop_last_message = 1;
-                        $user->save();
-                    }
-
-
-                        if (now()->isMonday() && $input != '1' && $input != '2' && $user->stop_last_message != 1) {
-                            $follow_up_msg = null;
-                            // Follow-up message for returning to the menu, with translation based on the client's language
-                            if ($user->lng == 'heb') {
-                                $follow_up_msg = "מצטערים, לא הבנו. אנא השב עם הספרה 1 אם יש לך שינויים, או 2 אם הסידור נשאר כפי שהיה.\n\nאם לא תתקבל תשובה תוך 5 שעות, הנושא יועבר לטיפול הצוות.\n\nבברכה,\nצוות ברום סרוויס 🌹";
-                            }else if ($user->lng == 'ru') {
-                                $follow_up_msg = "Извините, я вас не понял. Пожалуйста, ответьте 1, если у вас есть изменения, или 2, если график остается без изменений.\n\nЕсли ответа не будет в течение 5 часов, проблема будет передана команде.\n\nС уважением,\nКоманда Broom Service 🌹";
-                            } else if($user->lng == 'en') {
-                                $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
-                            }else{
-                                $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
-                            }
-        
-                            WorkerWebhookResponse::create([
-                                'status' => 1,
-                                'name' => 'whatsapp',
-                                'entry_id' => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                                'message' => $data_returned['messages'][0]['text']['body'],
-                                'number' => $from,
-                                'read' => 1,
-                                'flex' => 'A',
-                                'data' => json_encode($get_data)
-                            ]);
-        
-                            $result = sendWorkerWhatsappMessage($from, array('message' => $follow_up_msg));
-                            
-                        } else if ($input != 1 && $input != 2 && now()->isMonday() && (!$request || $isOlderThanWeek) && $user->has_input_one) {
-                            $scheduleChange = new ScheduleChange();
-                            $scheduleChange->user_type = get_class($user);  
-                            $scheduleChange->user_id = $user->id;      
-                            $scheduleChange->comments = $input;  
-                            $scheduleChange->save();
-
-                            $user->has_input_one = false;
-                            $user->stop_last_message = 1;
-                            $user->save();
-
-                            $message = null;
-
-                            if($user->lng == 'heb'){
-                                $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',  
-קיבלנו את תגובתך. בקשתך לשינויים בסידור העבודה התקבלה והועברה לצוות שלנו לבדיקה וטיפול.  
-
-להלן הבקשה שלך:  
-"' . $scheduleChange->comments . '"  
-
-בברכה,  
-צוות ברום סרוויס 🌹';
-                            } else if($user->lng == 'ru'){
-                                $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',  
-Мы получили ваш ответ. Ваш запрос на изменения в графике получен и передан нашей команде для проверки и обработки.  
-
-Вот ваш запрос:  
-"' . $scheduleChange->comments . '"  
-
-С уважением,  
-Команда Broom Service 🌹';
-                            } else{
-                                $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',  
-We received your response. Your request for changes to your schedule has been received and forwarded to our team for review and action.  
-
-Here’s your request:  
-"' . $scheduleChange->comments . '"  
-
-Best Regards,  
-Broom Service Team 🌹 ';
-                            }
-
-                            sendWorkerWhatsappMessage($from, array('message' => $message));
-                        }  else if($input == 2 && now()->isMonday() && (!$request || $isOlderThanWeek) && !$user->has_input_one) {
-
-                            $user->has_input_one = false;
-                            $user->stop_last_message = 1;
-                            $user->save();
-
-                            $message = null;
-
-                            if($user->lng == 'heb'){
-                                $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',  
-קיבלנו את תגובתך. אין שינויים בסידור העבודה שלך לשבוע הבא.  
-
-בברכה,  
-צוות ברום סרוויס 🌹';
-                            } else if($user->lng == 'ru'){
-                                $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',  
-Мы получили ваш ответ. Ваш график на следующую неделю остается без изменений.  
-
-С уважением,  
-Команда Broom Service 🌹';
-                            } else{
-                                $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',  
-We received your response. There are no changes to your schedule for next week.  
-
-Best Regards,  
-Broom Service Team 🌹 ';
-                            }
-
-                            sendWorkerWhatsappMessage($from, array('message' => $message));
-                        }
-                }                   
-
-                die("User is already Worker");
+            if($user){
+                die("user already exist");
             }
+
+//             if ($user) {
+//                 $m = null;
+            
+//                 if ($user->status == 1) {
+//                     $request = ScheduleChange::where('user_id', $user->id)
+//                         ->where('user_type', get_class($user))
+//                         ->latest()
+//                         ->first();
+            
+//                     $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
+            
+//                     // If the input is 1
+//                     if ($input == 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
+//                         // Set the flag to true
+//                         $user->has_input_one = true;
+//                         $user->save();
+            
+//                         // Send appropriate message
+//                         if ($user->lng == 'heb') {
+//                             $m = "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות.";
+//                         } else if ($user->lng == 'ru') {
+//                             $m = "Какие у вас изменения на следующую неделю? Ваш ответ будет отправлен команде.";
+//                         } else if ($user->lng == 'en') {
+//                             $m = "What is your change for next week? Your response will be forwarded to the team.";
+//                         } else {
+//                             $m = "¿Cuál es tu cambio para la próxima semana? Tu respuesta será enviada al equipo.";
+//                         }
+            
+//                         sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $m]);
+            
+//                         WorkerWebhookResponse::create([
+//                             'status' => 1,
+//                             'name' => 'whatsapp',
+//                             'message' => $m,
+//                             'number' => $from,
+//                             'read' => 1,
+//                             'flex' => 'A',
+//                         ]);
+            
+//                         $user->stop_last_message = 1;
+//                         $user->save();
+//                     }
+
+
+//                         if (now()->isMonday() && $input != '1' && $input != '2' && $user->stop_last_message != 1) {
+//                             $follow_up_msg = null;
+//                             // Follow-up message for returning to the menu, with translation based on the client's language
+//                             if ($user->lng == 'heb') {
+//                                 $follow_up_msg = "מצטערים, לא הבנו. אנא השב עם הספרה 1 אם יש לך שינויים, או 2 אם הסידור נשאר כפי שהיה.\n\nאם לא תתקבל תשובה תוך 5 שעות, הנושא יועבר לטיפול הצוות.\n\nבברכה,\nצוות ברום סרוויס 🌹";
+//                             }else if ($user->lng == 'ru') {
+//                                 $follow_up_msg = "Извините, я вас не понял. Пожалуйста, ответьте 1, если у вас есть изменения, или 2, если график остается без изменений.\n\nЕсли ответа не будет в течение 5 часов, проблема будет передана команде.\n\nС уважением,\nКоманда Broom Service 🌹";
+//                             } else if($user->lng == 'en') {
+//                                 $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
+//                             }else{
+//                                 $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
+//                             }
+        
+//                             WorkerWebhookResponse::create([
+//                                 'status' => 1,
+//                                 'name' => 'whatsapp',
+//                                 'entry_id' => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+//                                 'message' => $data_returned['messages'][0]['text']['body'],
+//                                 'number' => $from,
+//                                 'read' => 1,
+//                                 'flex' => 'A',
+//                                 'data' => json_encode($get_data)
+//                             ]);
+        
+//                             $result = sendWorkerWhatsappMessage($from, array('message' => $follow_up_msg));
+                            
+//                         } else if ($input != 1 && $input != 2 && now()->isMonday() && (!$request || $isOlderThanWeek) && $user->has_input_one) {
+//                             $scheduleChange = new ScheduleChange();
+//                             $scheduleChange->user_type = get_class($user);  
+//                             $scheduleChange->user_id = $user->id;      
+//                             $scheduleChange->comments = $input;  
+//                             $scheduleChange->save();
+
+//                             $user->has_input_one = false;
+//                             $user->stop_last_message = 1;
+//                             $user->save();
+
+//                             $message = null;
+
+//                             if($user->lng == 'heb'){
+//                                 $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',  
+// קיבלנו את תגובתך. בקשתך לשינויים בסידור העבודה התקבלה והועברה לצוות שלנו לבדיקה וטיפול.  
+
+// להלן הבקשה שלך:  
+// "' . $scheduleChange->comments . '"  
+
+// בברכה,  
+// צוות ברום סרוויס 🌹';
+//                             } else if($user->lng == 'ru'){
+//                                 $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',  
+// Мы получили ваш ответ. Ваш запрос на изменения в графике получен и передан нашей команде для проверки и обработки.  
+
+// Вот ваш запрос:  
+// "' . $scheduleChange->comments . '"  
+
+// С уважением,  
+// Команда Broom Service 🌹';
+//                             } else{
+//                                 $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',  
+// We received your response. Your request for changes to your schedule has been received and forwarded to our team for review and action.  
+
+// Here’s your request:  
+// "' . $scheduleChange->comments . '"  
+
+// Best Regards,  
+// Broom Service Team 🌹 ';
+//                             }
+
+//                             sendWorkerWhatsappMessage($from, array('message' => $message));
+//                         }  else if($input == 2 && now()->isMonday() && (!$request || $isOlderThanWeek) && !$user->has_input_one) {
+
+//                             $user->has_input_one = false;
+//                             $user->stop_last_message = 1;
+//                             $user->save();
+
+//                             $message = null;
+
+//                             if($user->lng == 'heb'){
+//                                 $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',  
+// קיבלנו את תגובתך. אין שינויים בסידור העבודה שלך לשבוע הבא.  
+
+// בברכה,  
+// צוות ברום סרוויס 🌹';
+//                             } else if($user->lng == 'ru'){
+//                                 $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',  
+// Мы получили ваш ответ. Ваш график на следующую неделю остается без изменений.  
+
+// С уважением,  
+// Команда Broom Service 🌹';
+//                             } else{
+//                                 $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',  
+// We received your response. There are no changes to your schedule for next week.  
+
+// Best Regards,  
+// Broom Service Team 🌹 ';
+//                             }
+
+//                             sendWorkerWhatsappMessage($from, array('message' => $message));
+//                         }
+//                 }                   
+
+//                 die("User is already Worker");
+//             }
 
             if (!$workerLead) {
                 $workerLead = WorkerLeads::create([
@@ -360,6 +366,191 @@ Broom Service Team 🌹 ';
                         'flex' => 'A',
                     ]);
                 }
+            }
+        }
+    }
+
+    public function activeWorkers(Request $request)
+    {
+        $get_data = $request->getContent();
+        $data_returned = json_decode($get_data, true);
+        $messageId = $data_returned['messages'][0]['id'] ?? null;
+        $lng = "en";
+
+        \Log::info($data_returned);
+
+        if (!$messageId) {
+            return response()->json(['status' => 'Invalid message data'], 400);
+        }
+
+        // Check if the messageId exists in cache and matches
+        if (Cache::get('processed_message_' . $messageId) === $messageId) {
+            \Log::info('Already processed');
+            return response()->json(['status' => 'Already processed'], 200);
+        }
+
+        // Store the messageId in the cache for 1 hour
+        Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
+
+        if (
+            isset($data_returned['messages']) &&
+            isset($data_returned['messages'][0]['from_me']) &&
+            $data_returned['messages'][0]['from_me'] == false
+        ) {
+            $message_data = $data_returned['messages'];
+            $from = $message_data[0]['from'];
+            $input = $data_returned['messages'][0]['text']['body'];
+
+            $user = User::where('phone', $from)
+                    ->where('status', 1)
+                    ->first();
+
+            if ($user) {
+                $m = null;
+            
+                if ($user->status == 1) {
+                    $request = ScheduleChange::where('user_id', $user->id)
+                        ->where('user_type', get_class($user))
+                        ->latest()
+                        ->first();
+            
+                    $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
+            
+                    // If the input is 1
+                    if ($input == 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
+                        // Set the flag to true
+                        $user->has_input_one = true;
+                        $user->save();
+            
+                        // Send appropriate message
+                        if ($user->lng == 'heb') {
+                            $m = "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות.";
+                        } else if ($user->lng == 'ru') {
+                            $m = "Какие у вас изменения на следующую неделю? Ваш ответ будет отправлен команде.";
+                        } else if ($user->lng == 'en') {
+                            $m = "What is your change for next week? Your response will be forwarded to the team.";
+                        } else {
+                            $m = "¿Cuál es tu cambio para la próxima semana? Tu respuesta será enviada al equipo.";
+                        }
+            
+                        sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $m]);
+            
+                        WorkerWebhookResponse::create([
+                            'status' => 1,
+                            'name' => 'whatsapp',
+                            'message' => $m,
+                            'number' => $from,
+                            'read' => 1,
+                            'flex' => 'A',
+                        ]);
+            
+                        $user->stop_last_message = 1;
+                        $user->save();
+                    }
+
+
+                    if (now()->isMonday() && $input != '1' && $input != '2' && $user->stop_last_message != 1) {
+                        $follow_up_msg = null;
+                        // Follow-up message for returning to the menu, with translation based on the client's language
+                        if ($user->lng == 'heb') {
+                            $follow_up_msg = "מצטערים, לא הבנו. אנא השב עם הספרה 1 אם יש לך שינויים, או 2 אם הסידור נשאר כפי שהיה.\n\nאם לא תתקבל תשובה תוך 5 שעות, הנושא יועבר לטיפול הצוות.\n\nבברכה,\nצוות ברום סרוויס 🌹";
+                        }else if ($user->lng == 'ru') {
+                            $follow_up_msg = "Извините, я вас не понял. Пожалуйста, ответьте 1, если у вас есть изменения, или 2, если график остается без изменений.\n\nЕсли ответа не будет в течение 5 часов, проблема будет передана команде.\n\nС уважением,\nКоманда Broom Service 🌹";
+                        } else if($user->lng == 'en') {
+                            $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
+                        }else{
+                            $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
+                        }
+    
+                        WorkerWebhookResponse::create([
+                            'status' => 1,
+                            'name' => 'whatsapp',
+                            'entry_id' => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
+                            'message' => $data_returned['messages'][0]['text']['body'],
+                            'number' => $from,
+                            'read' => 1,
+                            'flex' => 'A',
+                            'data' => json_encode($get_data)
+                        ]);
+    
+                        $result = sendWorkerWhatsappMessage($from, array('message' => $follow_up_msg));
+                        
+                    } else if ($input != 1 && $input != 2 && now()->isMonday() && (!$request || $isOlderThanWeek) && $user->has_input_one) {
+                        $scheduleChange = new ScheduleChange();
+                        $scheduleChange->user_type = get_class($user);  
+                        $scheduleChange->user_id = $user->id;      
+                        $scheduleChange->comments = $input;  
+                        $scheduleChange->save();
+
+                        $user->has_input_one = false;
+                        $user->stop_last_message = 1;
+                        $user->save();
+
+                        $message = null;
+
+                        if($user->lng == 'heb'){
+                            $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',  
+קיבלנו את תגובתך. בקשתך לשינויים בסידור העבודה התקבלה והועברה לצוות שלנו לבדיקה וטיפול.  
+
+להלן הבקשה שלך:  
+"' . $scheduleChange->comments . '"  
+
+בברכה,  
+צוות ברום סרוויס 🌹';
+                        } else if($user->lng == 'ru'){
+                            $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',  
+Мы получили ваш ответ. Ваш запрос на изменения в графике получен и передан нашей команде для проверки и обработки.  
+
+Вот ваш запрос:  
+"' . $scheduleChange->comments . '"  
+
+С уважением,  
+Команда Broom Service 🌹';
+                        } else{
+                            $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',  
+We received your response. Your request for changes to your schedule has been received and forwarded to our team for review and action.  
+
+Here’s your request:  
+"' . $scheduleChange->comments . '"  
+
+Best Regards,  
+Broom Service Team 🌹 ';
+                        }
+
+                        sendWorkerWhatsappMessage($from, array('message' => $message));
+                    }  else if($input == 2 && now()->isMonday() && (!$request || $isOlderThanWeek) && !$user->has_input_one) {
+
+                        $user->has_input_one = false;
+                        $user->stop_last_message = 1;
+                        $user->save();
+
+                        $message = null;
+
+                        if($user->lng == 'heb'){
+                            $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',  
+קיבלנו את תגובתך. אין שינויים בסידור העבודה שלך לשבוע הבא.  
+
+בברכה,  
+צוות ברום סרוויס 🌹';
+                        } else if($user->lng == 'ru'){
+                            $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',  
+Мы получили ваш ответ. Ваш график на следующую неделю остается без изменений.  
+
+С уважением,  
+Команда Broom Service 🌹';
+                        } else{
+                            $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',  
+We received your response. There are no changes to your schedule for next week.  
+
+Best Regards,  
+Broom Service Team 🌹 ';
+                        }
+
+                        sendWorkerWhatsappMessage($from, array('message' => $message));
+                    }
+                }                   
+
+                die("User is already Worker");
             }
         }
     }

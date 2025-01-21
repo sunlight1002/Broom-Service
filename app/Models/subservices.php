@@ -13,6 +13,7 @@ class subservices extends Model
         'name_en',
         'name_heb',
         'apartment_size',
+        'hours',
         'price',
         'service_id'
     ];

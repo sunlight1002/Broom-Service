@@ -31,6 +31,8 @@ export default function AddClient() {
     const [vatNumber, setVatNumber] = useState("");
     const [addresses, setAddresses] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [contactPersonName, setContactPersonName] = useState("");
+    const [contactPersonPhone, setContactPersonPhone] = useState("");
 
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -96,6 +98,8 @@ export default function AddClient() {
             notification_type: notificationType,
             extra: JSON.stringify(extra),
             status: !status ? 0 : parseInt(status),
+            contact_person_name: contactPersonName,
+            contact_person_phone: contactPersonPhone
         };
 
         axios
@@ -236,7 +240,7 @@ export default function AddClient() {
                                     <div className="col">
                                         <div className="form-group d-flex align-items-center w-100">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t("admin.leads.AddLead.Notification_Type")}
+                                                {t("admin.leads.AddLead.Notification_Type")}
                                             </label>
 
                                             <select
@@ -251,16 +255,16 @@ export default function AddClient() {
                                             >
                                                 <option value="both">{t("admin.leads.AddLead.both")}</option>
                                                 <option value="email">
-                                                {t("admin.leads.AddLead.email")}
+                                                    {t("admin.leads.AddLead.email")}
                                                 </option>
                                                 <option value="whatsapp">
-                                                {t("admin.leads.AddLead.whatsapp")}
+                                                    {t("admin.leads.AddLead.whatsapp")}
                                                 </option>
                                             </select>
                                         </div>
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "14.4rem" }}>
-                                            {t("admin.leads.AddLead.FirstName")}{" "}
+                                                {t("admin.leads.AddLead.FirstName")}{" "}
                                                 *
                                             </label>
                                             <div className="d-flex flex-column w-100">
@@ -285,7 +289,7 @@ export default function AddClient() {
                                         </div>
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t("admin.leads.AddLead.LastName")}
+                                                {t("admin.leads.AddLead.LastName")}
                                             </label>
                                             <input
                                                 type="text"
@@ -337,7 +341,7 @@ export default function AddClient() {
                                             </select>
                                         </div>
                                         <div className="form-group d-flex align-items-center">
-                                            <label className="control-label navyblueColor" style={{width: "15rem"}}>
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
                                                 {t(
                                                     "admin.leads.AddLead.SendWPBotMessage"
                                                 )}
@@ -369,7 +373,7 @@ export default function AddClient() {
                                                         const dialCode = country.dialCode;
                                                         let formattedPhone = phone;
                                                         if (phone.startsWith(dialCode + '0')) {
-                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                            formattedPhone = dialCode + phone.slice(dialCode.length + 1);
                                                         }
                                                         setPhone(formattedPhone);
                                                     }}
@@ -389,7 +393,7 @@ export default function AddClient() {
                                         </div>
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t("admin.leads.AddLead.PrimaryEmail")}{" "}
+                                                {t("admin.leads.AddLead.PrimaryEmail")}{" "}
                                                 *
                                             </label>
                                             <div className="d-flex flex-column w-100">
@@ -415,7 +419,7 @@ export default function AddClient() {
                                         </div>
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t("admin.leads.AddLead.InvoiceName")} *
+                                                {t("admin.leads.AddLead.InvoiceName")} *
                                             </label>
                                             <input
                                                 type="text"
@@ -439,7 +443,7 @@ export default function AddClient() {
                                         </div>
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t("admin.leads.AddLead.PaymentMethod")}
+                                                {t("admin.leads.AddLead.PaymentMethod")}
                                             </label>
 
                                             <select
@@ -451,17 +455,17 @@ export default function AddClient() {
                                             >
                                                 <option value="cc">{t("admin.leads.AddLead.Options.PaymentMethod.CreditCard")}</option>
                                                 <option value="mt">
-                                                {t("admin.leads.AddLead.Options.PaymentMethod.MoneyTransfer")}
+                                                    {t("admin.leads.AddLead.Options.PaymentMethod.MoneyTransfer")}
                                                 </option>
                                                 <option value="cheque">
-                                                {t("admin.leads.AddLead.Options.PaymentMethod.ByCheque")}
+                                                    {t("admin.leads.AddLead.Options.PaymentMethod.ByCheque")}
                                                 </option>
                                                 <option value="cash">{t("admin.leads.AddLead.Options.PaymentMethod.ByCash")}</option>
                                             </select>
                                         </div>
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t("admin.leads.AddLead.Password")} *
+                                                {t("admin.leads.AddLead.Password")} *
                                             </label>
                                             <input
                                                 type="password"
@@ -482,9 +486,10 @@ export default function AddClient() {
                                                 ""
                                             )}
                                         </div>
+
                                         <div className="form-group d-flex align-items-center">
                                             <label className="control-label navyblueColor" style={{ width: "15rem" }}>
-                                            {t("admin.leads.AddLead.VatNumber")}
+                                                {t("admin.leads.AddLead.VatNumber")}
                                             </label>
                                             <input
                                                 type="text"
@@ -504,6 +509,70 @@ export default function AddClient() {
                                             ) : (
                                                 ""
                                             )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="card-body d-flex pt-0">
+                                    <div className="col">
+                                        <div className="form-group d-flex align-items-center">
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
+                                                {t(
+                                                    "admin.leads.AddLead.contact_person_phone"
+                                                )}{" "}
+                                            </label>
+                                            <div className="d-flex flex-column w-100">
+                                                <PhoneInput
+                                                    country={'il'}
+                                                    value={contactPersonPhone}
+                                                    onChange={(phone, country) => {
+                                                        const dialCode = country.dialCode;
+                                                        let formattedPhone = phone;
+                                                        if (phone.startsWith(dialCode + '0')) {
+                                                            formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                        }
+                                                        setContactPersonPhone(formattedPhone);
+                                                    }}
+                                                    inputClass="form-control"
+                                                    inputProps={{
+                                                        name: 'phone',
+                                                    }}
+                                                />
+                                                {errors.contact_person_phone ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.contact_person_phone}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col">
+                                        <div className="form-group d-flex align-items-center">
+                                            <label className="control-label mb-0 navyblueColor" style={{ width: "15rem" }}>
+                                                {t(
+                                                    "admin.leads.AddLead.contact_person_name"
+                                                )}
+                                            </label>
+                                            <div className="d-flex flex-column w-100">
+                                                <input
+                                                    name="contact_person_name"
+                                                    type="text"
+                                                    className="form-control skyBorder"
+                                                    value={contactPersonName}
+                                                    onChange={(e) => setContactPersonName(e.target.value)}
+                                                    placeholder={t(
+                                                        "admin.leads.AddLead.contact_person_name_placeholder"
+                                                    )}
+                                                />
+                                                {errors.contact_person_name ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.contact_person_name}
+                                                    </small>
+                                                ) : (
+                                                    ""
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -720,7 +789,7 @@ export default function AddClient() {
                                                                         const dialCode = country.dialCode;
                                                                         let formattedPhone = phone;
                                                                         if (phone.startsWith(dialCode + '0')) {
-                                                                          formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                                            formattedPhone = dialCode + phone.slice(dialCode.length + 1);
                                                                         }
                                                                         handleAlternatePhone(i, formattedPhone)
                                                                     }}
@@ -801,7 +870,7 @@ export default function AddClient() {
                             >
                                 <option value="0">{t("admin.leads.title")}</option>
                                 <option value="1">
-                                {t("admin.leads.AddLead.potential_coustomer")}
+                                    {t("admin.leads.AddLead.potential_coustomer")}
                                 </option>
                                 <option value="2"> {t("admin.leads.AddLead.coustomer")}</option>
                             </select>
@@ -819,7 +888,7 @@ export default function AddClient() {
                             style={{ display: "none" }}
                         >
                             <label className="control-label">
-                            {t("admin.leads.AddLead.Options.CreateJob.title")}
+                                {t("admin.leads.AddLead.Options.CreateJob.title")}
                             </label>
                             <select
                                 className="form-control"
@@ -862,7 +931,7 @@ export default function AddClient() {
                     </form>
                 </div>
             </div>
-            { loading && <FullPageLoader visible={loading}/>}
+            {loading && <FullPageLoader visible={loading} />}
         </div>
     );
 }

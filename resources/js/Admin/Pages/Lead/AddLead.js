@@ -36,6 +36,7 @@ export default function AddLead() {
         notification_type: "both",
         contact_person_phone: "",
         contact_person_name: "",
+        vat_number: "",
     });
 
     const navigate = useNavigate();
@@ -469,6 +470,32 @@ export default function AddLead() {
                                                 ""
                                             )}
                                         </div>
+                                        <div className="form-group d-flex align-items-center">
+                                            <label className="control-label navyblueColor" style={{ width: "15rem" }}>
+                                                {t("admin.leads.AddLead.VatNumber")}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formValues.vat_number}
+                                                onChange={(e) =>
+                                                    setFormValues({
+                                                        ...formValues,
+                                                        vat_number: e.target.value,
+                                                    })
+                                                }
+                                                className="form-control"
+                                                required
+                                                placeholder="Vat Number"
+                                                autoComplete="vat-number"
+                                            />
+                                            {errors.vat_number ? (
+                                                <small className="text-danger mb-1">
+                                                    {errors.vat_number}
+                                                </small>
+                                            ) : (
+                                                ""
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="card-body d-flex pt-0">
@@ -516,28 +543,28 @@ export default function AddLead() {
                                                     "admin.leads.AddLead.contact_person_name"
                                                 )}
                                             </label>
-                                           <div className="d-flex flex-column w-100">
-                                           <input
-                                                name="contact_person_name"
-                                                type="text"
-                                                className="form-control skyBorder"
-                                                value={formValues.contact_person_name}
-                                                onChange={(e) => setFormValues({
-                                                    ...formValues,
-                                                    contact_person_name: e.target.value,
-                                                })}
-                                                placeholder={t(
-                                                    "admin.leads.AddLead.contact_person_name_placeholder"
+                                            <div className="d-flex flex-column w-100">
+                                                <input
+                                                    name="contact_person_name"
+                                                    type="text"
+                                                    className="form-control skyBorder"
+                                                    value={formValues.contact_person_name}
+                                                    onChange={(e) => setFormValues({
+                                                        ...formValues,
+                                                        contact_person_name: e.target.value,
+                                                    })}
+                                                    placeholder={t(
+                                                        "admin.leads.AddLead.contact_person_name_placeholder"
+                                                    )}
+                                                />
+                                                {errors.contact_person_name ? (
+                                                    <small className="text-danger mb-1">
+                                                        {errors.contact_person_name}
+                                                    </small>
+                                                ) : (
+                                                    ""
                                                 )}
-                                            />
-                                            {errors.contact_person_name ? (
-                                                <small className="text-danger mb-1">
-                                                    {errors.contact_person_name}
-                                                </small>
-                                            ) : (
-                                                ""
-                                            )}
-                                           </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

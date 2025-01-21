@@ -11,6 +11,7 @@ import { IsrailContact } from "../Admin/Pages/Contract/IsrailContact";
 import { NonIsraeliContract } from "../Admin/Pages/Contract/NonIsraeliContract";
 import { objectToFormData } from "../Utils/common.utils";
 import { useTranslation } from "react-i18next";
+import FullPageLoader from "../Components/common/FullPageLoader";
 
 export default function WorkerContract({
     nextStep,
@@ -24,6 +25,7 @@ export default function WorkerContract({
     const [workerFormDetail, setWorkerFormDetail] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+    const [loading, setLoading] = useState(false)
 
     const { t } = useTranslation();
 
@@ -56,6 +58,7 @@ export default function WorkerContract({
                 .outputPdf("blob", "Contract.pdf");
 
             setIsGeneratingPDF(false);
+            setLoading(true)
             // Convert JSON object to FormData
             let formData = objectToFormData(values);
             formData.append("pdf_file", _pdf);
@@ -71,10 +74,11 @@ export default function WorkerContract({
                 .then((res) => {
                     if (worker.country === "Israel") {
                         swal(t('swal.forms_submitted'), "", "success");
-                    }else{
+                    } else {
                         setNextStep(prev => prev + 1)
                     }
                     setIsSubmitted(true);
+                    setLoading(false)
                     // setTimeout(() => {
                     //     window.location.href = "/worker/login";
                     // }, 1000);
@@ -86,7 +90,7 @@ export default function WorkerContract({
                     if (e.response.data.message === "Contract already signed") {
                         setNextStep(prev => prev + 1)
                     }
-
+                    setLoading(false)
                     // swal("Error!", e.response.data.message, "error");
                 });
         } else {
@@ -160,6 +164,11 @@ export default function WorkerContract({
             ) : (
                 <h1>Loading</h1>
             )}
+            {
+               worker.country === "Israel" && (
+                    <FullPageLoader visible={loading} />
+                )
+            }
         </>
     );
 }

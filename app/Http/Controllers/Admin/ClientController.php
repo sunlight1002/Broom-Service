@@ -189,6 +189,10 @@ class ClientController extends Controller
             'email' => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:clients'],
         ]);
 
+        $validator->sometimes(['contact_person_name', 'contact_person_phone'], ['required'], function ($input) {
+            return !empty($input->contact_person_name) || !empty($input->contact_person_phone);
+        });
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages()]);
         }
