@@ -30,7 +30,7 @@ export default function ContractHeb() {
         axios
             .post(`/api/admin/get-contract/${param.id}`, {}, { headers })
             .then((res) => {
-                
+
                 const _contract = res.data.contract;
                 setOffer(_contract.offer);
                 setServices(JSON.parse(_contract.offer.services));
@@ -103,7 +103,7 @@ export default function ContractHeb() {
                                                     <input
                                                         className="btn btn-warning"
                                                         onClick={handleVerify}
-                                                        value="Verify"
+                                                        value="לְאַמֵת"
                                                     />
                                                 </div>
                                             </div>
@@ -114,7 +114,7 @@ export default function ContractHeb() {
                                                 <div className="mt-2 float-right">
                                                     <input
                                                         className="btn btn-success"
-                                                        value="Verified"
+                                                        value="מְאוּמָת"
                                                     />
                                                 </div>
                                             </div>
@@ -125,7 +125,7 @@ export default function ContractHeb() {
                                                         to={`/admin/create-job/${contract.id}`}
                                                         className="btn btn-pink"
                                                     >
-                                                        Create Job
+                                                        צור עבודה
                                                     </Link>
                                                 </div>
                                             </div>
@@ -326,19 +326,12 @@ export default function ContractHeb() {
                                                     "work-contract.the_service_txt"
                                                 )}
                                             </Td>
-                                            <Td>
-                                                {services &&
-                                                    services.map((s, i) => {
-                                                        return (
-                                                            <p>
-                                                                {s.template !=
-                                                                "others"
-                                                                    ? s.name
-                                                                    : s.other_title}
-                                                            </p>
-                                                        );
-                                                    })}
-                                            </Td>
+                                            <td>
+                                                {services && services.map((s, i) => {
+
+                                                    return <p key={i}>{((s.template != 'others') ? client?.lng == 'en' ? s.service_name_en : s.service_name_heb : s.other_title)}</p>
+                                                })}
+                                            </td>
                                         </Tr>
                                         <Tr>
                                             <Td style={{ width: "60%" }}>
@@ -354,15 +347,15 @@ export default function ContractHeb() {
                                                             {contract?.client
                                                                 ?.geo_address
                                                                 ? contract
-                                                                      .client
-                                                                      .geo_address +
-                                                                  ", "
+                                                                    .client
+                                                                    .geo_address +
+                                                                ", "
                                                                 : ""}
                                                         </span>
 
                                                         {contract?.form_data?.additional_address ? (
                                                             contract.status ===
-                                                            "not-signed" ? (
+                                                                "not-signed" ? (
                                                                 <>
                                                                     <span
                                                                         style={{
@@ -403,14 +396,14 @@ export default function ContractHeb() {
                                                                         }}
                                                                         className="d-block mt-2"
                                                                     >
-                                                                        Other
-                                                                        address
-                                                                        if any?
+                                                                        {t(
+                                                                            "work-contract.other_address_txt"
+                                                                        )}
                                                                     </span>
                                                                     <br />
                                                                     <span className="form-control">
                                                                         {
-                                                                           contract?.form_data?.additional_address
+                                                                            contract?.form_data?.additional_address
                                                                         }
                                                                     </span>
                                                                 </>
@@ -458,17 +451,14 @@ export default function ContractHeb() {
                                                     "work-contract.frequency_txt"
                                                 )}
                                             </Td>
-                                            <Td>
-                                                {services &&
-                                                    services.map((s, i) => {
-                                                        return (
-                                                            <p>
-                                                                {" "}
-                                                                {s.freq_name}
-                                                            </p>
-                                                        );
-                                                    })}
-                                            </Td>
+                                            <td>
+                                                {services && services.map((s, i) => {
+                                                    return (
+                                                        <p key={i}> {client?.lng == 'heb' ? s.frequency_name_heb : s.frequency_name_en}</p>
+                                                    )
+                                                })}
+
+                                            </td>
                                         </Tr>
                                         <Tr>
                                             <Td style={{ width: "60%" }}>
@@ -476,34 +466,12 @@ export default function ContractHeb() {
                                                     "work-contract.consideration_txt"
                                                 )}
                                             </Td>
-                                            <Td>
-                                                {services &&
-                                                    services.map((s, i) => {
-                                                        return (
-                                                            <p>
-                                                                {s.totalamount +
-                                                                    t(
-                                                                        "work-contract.ils"
-                                                                    ) +
-                                                                    " + " +
-                                                                    t(
-                                                                        "work-contract.vat"
-                                                                    ) +
-                                                                    " " +
-                                                                    t(
-                                                                        "work-contract.for"
-                                                                    ) +
-                                                                    " " +
-                                                                    (s.template !=
-                                                                    "others"
-                                                                        ? s.name
-                                                                        : s.other_title) +
-                                                                    ", " +
-                                                                    s.freq_name}
-                                                            </p>
-                                                        );
-                                                    })}
-                                            </Td>
+                                            <td>
+                                                {services && services.map((s, i) => {
+
+                                                    return <p key={i}>{s.totalamount + t('work-contract.ils') + " + " + t('work-contract.vat') + " " + t('work-contract.for') + " " + ((s.template != 'others') ? client?.lng == 'en' ? s.service_name_en : s.service_name_heb : s.other_title) + ", " + (client?.lng == 'heb' ? s.frequency_name_heb : s.frequency_name_en)}</p>
+                                                })}
+                                            </td>
                                         </Tr>
                                         <Tr>
                                             <Td style={{ width: "60%" }}>
@@ -523,7 +491,7 @@ export default function ContractHeb() {
                                         </Tr>
                                         {contract &&
                                             (contract.status ===
-                                            "not-signed" ? (
+                                                "not-signed" ? (
                                                 <>
                                                     {/* Uncommented out part for selecting card type if needed */}
                                                     {/*<Tr>
@@ -863,7 +831,7 @@ export default function ContractHeb() {
                                         </h5>
                                         {contract &&
                                             (contract.status ===
-                                            "not-signed" ? (
+                                                "not-signed" ? (
                                                 <>
 
                                                 </>
@@ -892,7 +860,7 @@ export default function ContractHeb() {
                                     {contract && (
                                         <>
                                             {contract.status ===
-                                            "un-verified" ? (
+                                                "un-verified" ? (
                                                 <div className="col-sm-6">
                                                     <div className="mt-2">
                                                         <input
@@ -905,7 +873,7 @@ export default function ContractHeb() {
                                                     </div>
                                                 </div>
                                             ) : contract.status ===
-                                              "verified" ? (
+                                                "verified" ? (
                                                 <div className="col-sm-6">
                                                     <div className="mt-2">
                                                         <input

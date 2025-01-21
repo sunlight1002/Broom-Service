@@ -111,7 +111,7 @@ export default function WorkContract() {
             .post(`/api/client/contracts/${param.id}`, { headers })
 
             .then((res) => {
-                console.log(res);
+                // console.log(res);
 
                 // console.log(res.data.cards[0], "card");
                 setStatus(res.data?.contract?.status)
@@ -145,6 +145,8 @@ export default function WorkContract() {
 
 
                 setServices(JSON.parse(res.data.offer?.services))
+                console.log(JSON.parse(res.data.offer?.services));
+                
                 setContract(res?.data?.contract)
             })
     }
@@ -347,7 +349,7 @@ export default function WorkContract() {
                                     <td>
                                         {services && services.map((s, i) => {
 
-                                            return <p>{((s.service != '10') ? s.name : s.other_title)}</p>
+                                            return <p key={i}>{((s.template != 'others') ? client?.lng == 'en' ? s.service_name_en : s.service_name_heb : s.other_title)}</p>
                                         })}
                                     </td>
                                 </tr>
@@ -374,10 +376,9 @@ export default function WorkContract() {
                                 <tr>
                                     <td style={{ width: "60%" }}>{t('work-contract.frequency_txt')}</td>
                                     <td>
-
                                         {services && services.map((s, i) => {
                                             return (
-                                                <p> {s.freq_name}</p>
+                                                <p key={i}> { client?.lng == 'heb' ? s.frequency_name_heb : s.frequency_name_en}</p>
                                             )
                                         })}
 
@@ -388,7 +389,7 @@ export default function WorkContract() {
                                     <td>
                                         {services && services.map((s, i) => {
 
-                                            return <p>{s.totalamount + t('work-contract.ils') + " + " + t('work-contract.vat') + " " + t('work-contract.for') + " " + ((s.service != '10') ? s.name : s.other_title) + ", " + s.freq_name}</p>
+                                            return <p key={i}>{s.totalamount + t('work-contract.ils') + " + " + t('work-contract.vat') + " " + t('work-contract.for') + " " + ((s.template != 'others') ? client?.lng == 'en' ? s.service_name_en : s.service_name_heb : s.other_title) + ", " + (client?.lng == 'heb' ? s.frequency_name_heb : s.frequency_name_en)}</p>
                                         })}
                                     </td>
                                 </tr>
