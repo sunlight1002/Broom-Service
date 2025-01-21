@@ -502,13 +502,12 @@ Broom Service Contact Information:
                         }
                     }
 
-            
-                    // Log older records
-                    $createdAt = $client->created_at;
-                    if ($createdAt && $createdAt->lt(now()->subHours(12))) {
-                        \Log::info('Client record is older than 12 hours.', ['client_id' => $client->id]);
-                        die('Client record is older than 12 hours.');
-                    }
+                }
+                // Log older records
+                $createdAt = $client->created_at;
+                if ($createdAt && $createdAt->lt(now()->subHours(12))) {
+                    \Log::info('Client record is older than 12 hours.', ['client_id' => $client->id]);
+                    die('Client record is older than 12 hours.');
                 }
             }
             
