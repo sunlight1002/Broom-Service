@@ -439,11 +439,18 @@ class AuthController extends Controller
             'country' => $request->country,
             'gender' => $request->gender,
             'renewal_visa' => $request->renewal_visa,
-            'passport' => $request->passportNumber,
-            'id_number' => $request->IDNumber,
             'step' => 2,
             'updated_at' => Carbon::now()
         ]);
+
+        if ($request->has('passportNumber')) {
+            $user->passport = $request->passportNumber;
+        }
+    
+        if ($request->has('IDNumber')) {
+            $user->id_number = $request->IDNumber;
+        }
+        $user->save();
     
         // Handle File Uploads
         if ($request->hasFile('passport')) {

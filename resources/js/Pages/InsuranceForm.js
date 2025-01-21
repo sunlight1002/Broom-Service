@@ -24,6 +24,7 @@ import { GrFormPreviousLink } from "react-icons/gr";
 import { GrFormNextLink } from "react-icons/gr";
 
 import moment from "moment";
+import FullPageLoader from "../Components/common/FullPageLoader";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.js",
@@ -41,6 +42,7 @@ const InsuranceForm = ({
     const currentDate = moment().format("YYYY-MM-DD");
     const [pdfData, setPdfData] = useState(null);
     const { t } = useTranslation();
+    const [loading, setLoading] = useState(false);
     const initialValues = {
         // page 1
         type: "New",
@@ -400,6 +402,7 @@ const InsuranceForm = ({
             setPdfData(url);
             setShow(true);
         } else {
+            setLoading(true);
             // Convert JSON object to FormData
             let formData = objectToFormData(values);
             formData.append("pdf_file", blob);
@@ -420,8 +423,10 @@ const InsuranceForm = ({
                     setTimeout(() => {
                         window.location.reload(true);
                     }, 2000);
+                    setLoading(false);
                 })
                 .catch((e) => {
+                    setLoading(false);
                     Swal.fire({
                         title: "Error!",
                         text: e.response.data.message,
@@ -2360,6 +2365,9 @@ const InsuranceForm = ({
                     </div>
                 </section>
             </form>
+            {
+                <FullPageLoader visible={loading} />
+            }
         </div>
     );
 };

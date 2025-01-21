@@ -59,8 +59,6 @@ export default function OfferServiceModal({
         isAdd ? [initialValues] : tmpFormValues && Array.isArray(tmpFormValues) ? tmpFormValues : [initialValues]
     );
 
-    const [isFreelancer, setIsFreelancer] = useState(false);
-
     useEffect(() => {
         if (!isAdd && Array.isArray(tmpFormValues) && tmpFormValues.length > 0) {
             setOfferServiceTmp(tmpFormValues);
@@ -81,13 +79,6 @@ export default function OfferServiceModal({
     const [toggleAirbnbService, setToggleAirbnbService] = useState([]);
     const [selectedSubServices, setSelectedSubServices] = useState([]);
     const [subData, setSubData] = useState([]);
-    const adminlng = localStorage.getItem("admin-lng");
-
-    const transformedSubData = subData.map((s) => ({
-        value: s.id,
-        label: adminlng === "en" ? s.name_en : s.name_heb,
-    }));
-
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -112,15 +103,13 @@ export default function OfferServiceModal({
         }
     };
 
-    const selectedOptions = transformedSubData.filter((option) =>
-        selectedSubServices.includes(option.value)
-    );
-
     const handleSubServices = (selectedOptions, index) => {
         const selectedValues = selectedOptions.target.value;
 
         const selectedOptionName = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("subname");
         const selectedSubPrice = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("subprice");
+        const selectedSubHours = selectedOptions.target.options[selectedOptions.target.selectedIndex].getAttribute("hours");
+
 
         // Update subservices for the specific index
         setSubServiceState((prevState) => ({
@@ -132,6 +121,7 @@ export default function OfferServiceModal({
             prevState.map((service, i) => ({
                 ...service,
                 fixed_price: i === index ? selectedSubPrice : service.fixed_price,
+                workers: i === index ? [{ jobHours: selectedSubHours }] : service.workers,
                 sub_services: {
                     ...service.sub_services,
                     id: i === index ? selectedValues : service.sub_services?.id,
@@ -385,8 +375,7 @@ export default function OfferServiceModal({
                         </div>
                     </div>
                 </div>
-                {/* ) : null
-                } */}
+
                 {Array.isArray(offerServiceTmp) && offerServiceTmp.length > 0 ? (
                     offerServiceTmp.map((service, index) => (
                         <div key={index}>
@@ -623,7 +612,7 @@ export default function OfferServiceModal({
                                             >
                                                 <option value="">{t("price_offer.select_subservice")}</option>
                                                 {subData?.map((item, idx) => (
-                                                    <option key={idx} subname={`${item.name_en} - ${item.apartment_size}`} subprice={item.price} value={item.id}>
+                                                    <option key={idx} subname={`${item.name_en} - ${item.apartment_size}`} subprice={item.price} hours={item.hours} value={item.id}>
                                                         {`${item.name_en} - ${item.apartment_size}`}
                                                     </option>
                                                 ))}

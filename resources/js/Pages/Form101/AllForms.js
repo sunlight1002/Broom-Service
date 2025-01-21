@@ -100,7 +100,7 @@ function AllForms() {
 
     const handleNextPrev = (e) => {
         window.scrollTo(0, 0);
-        if (param.formId && nextStep === 3) {
+        if (param.formId && nextStep === 3 && e.target.name !== "prev") {
             return;
         }
 
@@ -1400,12 +1400,19 @@ function AllForms() {
         const data = new FormData();
         data.append("id", id);
         if (e.target.files.length > 0) {
-            data.append(`${type}`, e.target.files[0]);
+            const file = e.target.files[0];
+            const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
+            if (fileSizeInMB > 10) {
+                alert.error(t("form101.step1.imageSize")); // Show an error message
+                return;
+            }
+            data.append(`${type}`, file);
         }
         handleDocSubmit(data);
     };
 
-    console.log(nextStep, "nextStep");
+    console.log(worker.country);
+    
 
 
     return (
@@ -1454,6 +1461,8 @@ function AllForms() {
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
+                            <span className="mx-2"> - </span>
+                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 4</span>
                         </> : <>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                             <span className="mx-2"> - </span>
@@ -1742,8 +1751,7 @@ function AllForms() {
                         activeBubble={activeBubble}
                         isManpower={isManpower}
                     />
-                )
-                    : nextStep === 4 && worker.country !== "Israel" && !isManpower && <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker} isManpower={isManpower} />
+                ) : nextStep === 4 && worker.country !== "Israel" && isManpower && <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker} isManpower={isManpower} />
             }
 
             {
@@ -1817,8 +1825,11 @@ function AllForms() {
                     </div>
                 ) : null
             }
-
-
+            {
+                nextStep === 3 && param.formId && (
+                    <FullPageLoader visible={loading} />
+                )
+            }
         </div>
     )
 }
