@@ -16,7 +16,9 @@ export default function GeneralInfo({
     setFieldValue,
     handleBubbleToggle,
     activeBubble,
-    handleFileChange
+    handleFileChange,
+    form_submitted_at,
+    form_created_at
 }) {
 
     const [indentityType, setIndentityType] = useState(values.employeecountry);
@@ -35,8 +37,6 @@ export default function GeneralInfo({
     }, [values.employeecountry]);
 
     const { t } = useTranslation();
-    console.log(values);
-
 
     const sexOptions = [
         { label: t("form101.label_male"), value: "Male" },
@@ -96,6 +96,9 @@ export default function GeneralInfo({
         "Health Fund Number": t("form101.step1.validation.first_name"),
         "Marital Status": t("form101.step1.validation.Marital_Status")
     }
+
+    console.log(values);
+    
 
     return (
         <div className="">
@@ -699,31 +702,37 @@ export default function GeneralInfo({
                                     )}
                                 </div>
                                 <div className="col-sm">
-                                    <DateField
-                                        name="DateOfBeginningWork"
-                                        label="Start Date of Job"
-                                        value={values.DateOfBeginningWork}
-                                        onChange={(e) => {
-                                            if (e.target.value !== null) {
-                                                setFieldValue("DateOfBeginningWork", e.target.value);
-                                            }
-                                        }}
-                                        toggleBubble={handleBubbleToggle} // Pass the toggle handler
-                                        onBlur={handleBlur}
-                                        error={
-                                            touched.DateOfBeginningWork && errors.DateOfBeginningWork
-                                                ? errors.DateOfBeginningWork
-                                                : ""
-                                        }
-                                        required
-                                    />
-                                    {activeBubble === 'DateOfBeginningWork' && (
-                                        <div className="d-flex justify-content-end">
-                                            <div className="speech up">
-                                                {t("form101.step1.validation.Start_Date_Of_Job")}
-                                            </div>
-                                        </div>
-                                    )}
+                                    {
+                                        !form_submitted_at && (
+                                            <>
+                                                <DateField
+                                                    name="DateOfBeginningWork"
+                                                    label="Start Date of Job"
+                                                    value={values.DateOfBeginningWork}
+                                                    onChange={(e) => {
+                                                        if (e.target.value !== null) {
+                                                            setFieldValue("DateOfBeginningWork", e.target.value);
+                                                        }
+                                                    }}
+                                                    toggleBubble={handleBubbleToggle} // Pass the toggle handler
+                                                    onBlur={handleBlur}
+                                                    error={
+                                                        touched.DateOfBeginningWork && errors.DateOfBeginningWork
+                                                            ? errors.DateOfBeginningWork
+                                                            : ""
+                                                    }
+                                                    required
+                                                />
+                                                {activeBubble === 'DateOfBeginningWork' && (
+                                                    <div className="d-flex justify-content-end">
+                                                        <div className="speech up">
+                                                            {t("form101.step1.validation.Start_Date_Of_Job")}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )
+                                    }
                                 </div>
                             </div>
                             <div className="row">

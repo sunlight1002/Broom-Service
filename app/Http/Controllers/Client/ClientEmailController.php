@@ -400,6 +400,10 @@ class ClientEmailController extends Controller
                     event(new ClientLeadStatusChanged($client, $newLeadStatus));
                 }
             }else{
+                event(new WhatsappNotificationEvent([
+                    "type" => WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED,
+                    "notificationData" => $schedule->toArray()
+                ]));
                 \Log::info("hasAcceptedOffer");
             }
         }
@@ -432,8 +436,15 @@ class ClientEmailController extends Controller
         // Map Hebrew meridian to English
         $hebrewMeridianMap = [
             'לפנה"צ' => 'AM',
+            'בבוקר' => 'AM',
+            'לפני הצהריים' => 'AM',
+            'לפנות בוקר' => 'AM',
+            'אחה"צ' => 'PM',
             'אחרי הצהריים' => 'PM',
+            'בערב' => 'PM',
         ];
+
+        
         $data['start_time'] = str_replace(array_keys($hebrewMeridianMap), array_values($hebrewMeridianMap), $data['start_time']);
     
         // Parse and calculate times

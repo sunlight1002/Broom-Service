@@ -3572,8 +3572,8 @@ office@broomservice.co.il
             ],
 
             [
-                'key' => WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM,
-                'description' => 'Send notification to team for reschedule call',
+                'key' => WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM_ON_DATE,
+                'description' => 'Send notification to team for reschedule call on date',
                 'message_en' => "",
 
                 'message_heb' => "שלום צוות,
@@ -3584,6 +3584,27 @@ office@broomservice.co.il
 
 בברכה,
 צוות ברום סרוויס🌹",
+                'message_spa' => '',
+                'message_ru' => "",
+            ],
+
+            [
+                'key' => WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM,
+                'description' => 'Send notification to team for reschedule call',
+                'message_en' => "",
+
+                'message_heb' => "שלום צוות,
+
+שימו לב, שיחה חדשה נקבעה:
+ תאריך: :reschedule_call_date
+ שעה: :reschedule_call_time
+ שם הלקוח: :client_name
+ נושא השיחה: :activity_reason
+
+אנא ודאו שאתם מוכנים לשיחה במועד שנקבע.
+
+בברכה,
+צוות ברום סרוויס 🌹",
                 'message_spa' => '',
                 'message_ru' => "",
             ],

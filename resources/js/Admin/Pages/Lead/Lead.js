@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import i18next from "i18next";
+import { Tooltip } from "react-tooltip";
 import { useTranslation } from "react-i18next";
 
 import $ from "jquery";
@@ -56,7 +57,6 @@ export default function Lead() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
@@ -100,12 +100,43 @@ export default function Lead() {
                         data: "lead_status",
                         orderable: false,
                         render: function (data, type, row) {
+                            console.log(row);
+
                             const _statusColor = leadStatusColor(data);
-                            return `<p class="badge dt-change-status-btn" data-id="${row.id}" style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
-                                ${data}
-                            </p>`;
+                            let _html = ``;
+
+                            // Add reschedule details with tooltip if the lead status is 'reschedule call'
+                            if (row.lead_status === 'reschedule call' && row.reschedule_date && row.reschedule_time) {
+                                const tooltipContent = `${row.reschedule_date} ${row.reschedule_time}<br>${row.reason}`;
+                                _html += `<p 
+                                    class="badge dt-change-status-btn" 
+                                    data-tooltip-id="reschedule" 
+                                    data-tooltip-html="${tooltipContent}" 
+                                    style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
+                                    ${data}
+                                </p>`;
+                            } else if (row.reason) {
+                                const reason = `${row.reason}`;
+                                _html = `<p 
+                                    class="badge dt-change-status-btn" 
+                                    data-tooltip-id="reschedule" 
+                                    data-tooltip-html="${reason}" 
+                                    data-id="${row.id}" 
+                                    style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
+                                    ${data}
+                                </p>`;
+                            } else {
+                                _html = `<p 
+                                    class="badge dt-change-status-btn" 
+                                    data-id="${row.id}" 
+                                    style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
+                                    ${data}
+                                </p>`;
+                            }
+                            return _html;
                         },
                     },
+
                     {
                         title: t("admin.global.Action"),
                         data: "action",
@@ -242,13 +273,13 @@ export default function Lead() {
         setTimeout(() => {
             const table = $(tableRef.current).DataTable();
             table.draw();
-    
+
             // Check if the current page has data
             const pageInfo = table.page.info();
             if (pageInfo.recordsDisplay === 0 && pageInfo.page > 0) {
                 // Set the page to 1 if the current page is empty
                 table.page(1).draw("page");
-    
+
                 // Update the URL to reflect the first page
                 const url = new URL(window.location);
                 url.searchParams.set("page", 1);
@@ -430,6 +461,7 @@ export default function Lead() {
                     statusArr={statusArr}
                 />
             )}
+            <Tooltip id="reschedule" place="top" type="dark" effect="solid" style={{ zIndex: "99999" }} />
         </div>
     );
 }

@@ -454,6 +454,7 @@ class WhatsappNotification
                 ':came_from' => $eventData['type'] ?? '',
                 ':reschedule_call_date' => $eventData['activity']['reschedule_date'] ?? '',
                 ':reschedule_call_time' => $eventData['activity']['reschedule_time'] ?? '',
+                ':activity_reason' => $eventData['activity']['reason'] ?? '',
                 ':cancellation_fee' => $cancellationFee ?? '',
                 // ':content_txt' => $eventData['content_data'] ? $eventData['content_data'] : ' ',
 
@@ -691,6 +692,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::NOTIFY_TEAM_ONE_WEEK_BEFORE_WORKER_VISA_RENEWAL:
                     case WhatsappMessageTemplateEnum::CLIENT_MEETING_CANCELLED:
                     case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM:
+                    case WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM_ON_DATE:
                     case WhatsappMessageTemplateEnum::NOTIFY_TO_TEAM_CONTRACT_NOT_SIGNED:
                     case WhatsappMessageTemplateEnum::CONTACT_ME_TO_RESCHEDULE_THE_MEETING_TEAM:
                     // case WhatsappMessageTemplateEnum::FILE_SUBMISSION_REQUEST_TEAM:

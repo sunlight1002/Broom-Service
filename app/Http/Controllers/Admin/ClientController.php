@@ -1077,6 +1077,14 @@ class ClientController extends Controller
             } else {
                 $notificationDate = Carbon::now();
             }
+
+            event(new WhatsappNotificationEvent([
+                "type" => WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM,
+                "notificationData" => [
+                    "client" => $client->toArray(),
+                    "activity" => $activity->toArray(),
+                ]
+            ]));
         
             // Dispatch the jobs to save Google calendar event and send notification
             SaveGoogleCalendarCallJob::dispatch($notificationData);
