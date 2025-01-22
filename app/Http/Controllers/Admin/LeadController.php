@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\LeadStatusEnum;
+use App\Enums\SettingKeyEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Fblead;
 use App\Models\Client;
@@ -11,6 +12,7 @@ use App\Models\FacebookInsights;
 use App\Models\Offer;
 use App\Models\ClientPropertyAddress;
 use App\Models\Schedule;
+use App\Models\Setting;
 use App\Models\WebhookResponse;
 use App\Models\WhatsAppBotClientState;
 use App\Models\WhatsappLastReply;
@@ -537,6 +539,7 @@ class LeadController extends Controller
     {
         try {
             $property_address = $request->data;
+            \Log::info($property_address);
             if (count($property_address) > 0) {
                 $savedAddress = ClientPropertyAddress::UpdateOrCreate(
                     [
@@ -544,6 +547,21 @@ class LeadController extends Controller
                     ],
                     $property_address
                 );
+
+                $address = ClientPropertyAddress::where('client_id', $property_address['client_id'])->first();
+                if ($address->id == $savedAddress->id) {
+                    \Log::info("Address updated");
+                    $data = [
+                        'id' => $address->client_id,
+                        'email' => Client::find($address->client_id)->email ?? null,
+                        'bus_street' => $address->geo_address,
+                        'bus_city' => $address->city ?? null,
+                        'bus_zip' => $address->zipcode ?? null,
+                    ];
+
+                    $this->updateClientIcount($data);
+                }
+
                 return response()->json([
                     'data' => $savedAddress,
                     'message'   => 'Lead property address saved successfully',
@@ -559,6 +577,49 @@ class LeadController extends Controller
             ], 500);
         }
     }
+
+    private function updateClientIcount($data)
+    {
+
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/client/update';
+
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'client_id' => $data['id'] ?? 0,
+            'email' => $data['email'] ?? null,
+            'bus_street' => $data['bus_street'] ?? null,
+            'bus_city' => $data['bus_city'] ?? null,
+            'bus_zip' => $data['bus_zip'] ?? null,
+        ];
+        \Log::info($requestData);
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error: Failed to create or update user');
+        }
+        // return $data;
+    }
+
     public function removePropertyAddress($id)
     {
         try {

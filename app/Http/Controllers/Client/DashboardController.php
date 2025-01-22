@@ -9,6 +9,7 @@ use App\Models\Schedule;
 use App\Models\Contract;
 use App\Models\Files;
 use App\Models\Client;
+use App\Models\Setting;
 use App\Models\ClientPropertyAddress;
 use App\Models\ManageTime;
 use App\Traits\PriceOffered;
@@ -18,11 +19,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Yajra\DataTables\Facades\DataTables;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Enums\SettingKeyEnum;
 use App\Events\WhatsappNotificationEvent;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\App;
@@ -436,6 +439,20 @@ class DashboardController extends Controller
             // Check if there are any fields to update
             if (!empty($updatedFields)) {
                 $address->update($updatedFields);
+
+                $firstAddress = ClientPropertyAddress::where('client_id', $address['client_id'])->first();
+                if ($address->id == $firstAddress->id) {
+                    \Log::info("Address updated");
+                    $data = [
+                        'id' => $firstAddress->client_id,
+                        'email' => Client::find($firstAddress->client_id)->email ?? null,
+                        'bus_street' => $firstAddress->geo_address,
+                        'bus_city' => $firstAddress->city ?? null,
+                        'bus_zip' => $firstAddress->zipcode ?? null,
+                    ];
+    
+                    $this->updateClientIcount($data);
+                }
     
                 return response()->json([
                     'message' => 'Address updated successfully',
@@ -454,6 +471,46 @@ class DashboardController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function updateClientIcount($data)
+    {
+
+        $iCountCompanyID = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
+            ->value('value');
+
+        $iCountUsername = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_USERNAME)
+            ->value('value');
+
+        $iCountPassword = Setting::query()
+            ->where('key', SettingKeyEnum::ICOUNT_PASSWORD)
+            ->value('value');
+
+        $url = 'https://api.icount.co.il/api/v3.php/client/update';
+
+        $requestData = [
+            'cid' => $iCountCompanyID,
+            'user' => $iCountUsername,
+            'pass' => $iCountPassword,
+            'client_id' => $data['id'] ?? 0,
+            'email' => $data['email'] ?? null,
+            'bus_street' => $data['bus_street'] ?? null,
+            'bus_city' => $data['bus_city'] ?? null,
+            'bus_zip' => $data['bus_zip'] ?? null,
+        ];
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+
+        $data = $response->json();
+        $http_code = $response->status();
+
+        if ($http_code != 200) {
+            throw new Exception('Error: Failed to create or update user');
+        }
+        // return $data;
     }
     
 
