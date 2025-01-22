@@ -100,6 +100,7 @@ const PropertyAddress = memo(function PropertyAddress({
             setAddress(_place.formatted_address);
             fullAddress.current.value = _place.formatted_address;
             addressName.current.value = _place.name;
+            city.current.value = _place.vicinity;
             setLatitude(_place.geometry.location.lat());
             lat.current.value = _place.geometry.location.lat();
             setLongitude(_place.geometry.location.lng());
@@ -112,6 +113,7 @@ const PropertyAddress = memo(function PropertyAddress({
             lat.current.value = _place.geometry.location.lat();
             long.current.value = _place.geometry.location.lng();
             city.current.value = _place.vicinity;
+            
             const address_components = _place.address_components;
             $.each(address_components, function (index, component) {
                 var types = component.types;
@@ -183,6 +185,8 @@ const PropertyAddress = memo(function PropertyAddress({
                     updatedData.apt_no;
                 addressVal[addressId.current.value]["entrence_code"] =
                     updatedData.entrence_code;
+                addressVal[addressId.current.value]["city"] =
+                    updatedData.city;
                 addressVal[addressId.current.value]["zipcode"] =
                     updatedData.zipcode;
                 addressVal[addressId.current.value]["parking"] =
@@ -284,6 +288,7 @@ const PropertyAddress = memo(function PropertyAddress({
                     ? data.address_name
                     : "";
                 floor.current.value = data?.floor;
+                city.current.value = data?.city;
                 Apt.current.value = data?.apt_no;
                 enterance.current.value = data?.entrence_code;
                 zip.current.value = data?.zipcode;
