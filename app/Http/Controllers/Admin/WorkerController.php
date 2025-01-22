@@ -51,6 +51,8 @@ class WorkerController extends Controller
         $manpowerCompanyID = $request->get('manpower_company_id');
         $isMyCompany = $request->get('is_my_company');
         $isFreelancer = $request->get('is_freelancer');
+        $isManpower = $request->get('is_manpower');
+        \Log::info($isManpower);
 
         $query = User::query()
             ->when($status == "active", function ($q) {
@@ -72,12 +74,15 @@ class WorkerController extends Controller
             ->when($isMyCompany == 'true', function ($q) {
                 return $q->where('company_type', 'my-company');
             })
+            ->when($isManpower == 'true', function ($q) {
+                return $q->where('company_type', 'manpower');
+            })
             ->when($isFreelancer == 'true', function ($q) {
                 return $q->where('company_type', 'freelancer');
             })
-            ->when($status && !$manpowerCompanyID, function ($q) {
-                return $q->where('company_type', 'my-company');
-            })
+            // ->when($status && !$manpowerCompanyID, function ($q) {
+            //     return $q->where('company_type', 'my-company');
+            // })
             ->select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.phone', 'users.status', 'users.address', 'users.latitude', 'users.longitude');
 
         return DataTables::eloquent($query)

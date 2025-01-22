@@ -25,6 +25,7 @@ export default function AllWorkers() {
         status: "",
         manpower_company_id: "",
         is_my_company: false,
+        is_manpower: false,
         is_freelancer: false
     });
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
@@ -36,6 +37,7 @@ export default function AllWorkers() {
     const statusRef = useRef(null);
     const manpowerCompanyRef = useRef(null);
     const isMyCompanyRef = useRef(null);
+    const isManpowerRef = useRef(null);
     const isFreelancerRef = useRef(null);
 
     const headers = {
@@ -63,6 +65,7 @@ export default function AllWorkers() {
                         d.status = statusRef.current.value;
                         d.manpower_company_id = manpowerCompanyRef.current.value;
                         d.is_my_company = isMyCompanyRef.current.value;
+                        d.is_manpower = isManpowerRef.current.value;
                         d.is_freelancer = isFreelancerRef.current.value;
                     },
                 },
@@ -579,11 +582,34 @@ export default function AllWorkers() {
                                         ...filters,
                                         manpower_company_id: "",
                                         is_my_company: true,
+                                        is_manpower: false,
                                         is_freelancer: false
                                     });
                                 }}
                             >
                                 {t("admin.global.myCompany")}
+                            </button>
+                            <button
+                                className={`btn border rounded px-3 mx-1`}
+                                style={
+                                    filters.is_manpower === true
+                                        ? { background: "white" }
+                                        : {
+                                            background: "#2c3f51",
+                                            color: "white",
+                                        }
+                                }
+                                onClick={() => {
+                                    setFilters({
+                                        ...filters,
+                                        manpower_company_id: "",
+                                        is_manpower: true,
+                                        is_my_company: false,
+                                        is_freelancer: false
+                                    });
+                                }}
+                            >
+                                {t("admin.global.manpower_company")}
                             </button>
                             <button
                                 className={`btn border rounded px-3 mx-1`}
@@ -600,7 +626,8 @@ export default function AllWorkers() {
                                         ...filters,
                                         manpower_company_id: "",
                                         is_freelancer: true,
-                                        is_my_company: false
+                                        is_my_company: false,
+                                        is_manpower: false
                                     });
                                 }}
                             >
@@ -646,6 +673,11 @@ export default function AllWorkers() {
                             type="hidden"
                             value={filters.is_my_company}
                             ref={isMyCompanyRef}
+                        />
+                        <input
+                            type="hidden"
+                            value={filters.is_manpower}
+                            ref={isManpowerRef}
                         />
                         <input
                             type="hidden"

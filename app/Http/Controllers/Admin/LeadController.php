@@ -59,21 +59,36 @@ class LeadController extends Controller
     public function index(Request $request)
     {
         $query = Client::query()
-                ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
-                ->leftJoin('client_property_addresses', 'client_property_addresses.client_id', '=', 'clients.id')
-                ->where('clients.status', '!=', 2)
-                ->select(
-                    'clients.id', 
-                    'clients.firstname', 
-                    'clients.lastname', 
-                    'clients.email', 
-                    'clients.phone', 
-                    'leadstatus.lead_status', 
-                    'clients.created_at',
-                    'client_property_addresses.address_name',
-                    'client_property_addresses.geo_address'
-                );
-
+            ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
+            ->leftJoin('client_property_addresses', 'client_property_addresses.client_id', '=', 'clients.id')
+            ->leftJoinSub(
+                LeadActivity::select('lead_activities.client_id', 'lead_activities.reason', 'lead_activities.reschedule_date', 'lead_activities.reschedule_time')
+                    ->whereNotNull('reschedule_date')
+                    ->whereRaw('lead_activities.id IN (
+                        SELECT MAX(id)
+                        FROM lead_activities AS sub
+                        WHERE sub.client_id = lead_activities.client_id
+                    )'),
+                'latest_lead_activity',
+                'latest_lead_activity.client_id',
+                '=',
+                'clients.id'
+            )
+            ->where('clients.status', '!=', 2)
+            ->select(
+                'clients.id',
+                'clients.firstname',
+                'clients.lastname',
+                'clients.email',
+                'clients.phone',
+                'leadstatus.lead_status',
+                'clients.created_at',
+                'client_property_addresses.address_name',
+                'client_property_addresses.geo_address',
+                'latest_lead_activity.reason',
+                'latest_lead_activity.reschedule_date',
+                'latest_lead_activity.reschedule_time'
+            );
 
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
@@ -110,12 +125,22 @@ class LeadController extends Controller
                 $sql = "leadstatus.lead_status like ?";
                 $query->whereRaw($sql, ["{$keyword}"]);
             })
+            ->addColumn('reschedule_date', function ($data) {
+                return $data->reschedule_date ? Carbon::parse($data->reschedule_date)->format('d/m/Y') : '-';
+            })
+            ->addColumn('reschedule_time', function ($data) {
+                return $data->reschedule_time ?? '-';
+            })
+            ->addColumn('reason', function ($data) {
+                return $data->reason ?? null; 
+            })
             ->addColumn('action', function ($data) {
                 return '';
             })
             ->rawColumns(['action'])
             ->toJson();
     }
+
 
     /**
      * Store a newly created resource in storage.

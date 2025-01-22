@@ -66,6 +66,9 @@ function AllForms() {
     const [nextStep, setNextStep] = useState(page ? parseInt(page) : 1);
     const [isManpower, setIsManpower] = useState(false)
     const [activeBubble, setActiveBubble] = useState(null);
+    const [form_submitted_at, setForm_submitted_at] = useState("");
+    const [form_created_at, setForm_created_at] = useState("");
+    const [AllForms, setAllForms] = useState([]);
 
     useEffect(() => {
         if (windowWidth < 767) {
@@ -80,6 +83,8 @@ function AllForms() {
         "Content-Type": "multipart/form-data",
         Authorization: `Bearer ` + localStorage.getItem("worker-token"),
     };
+
+    const hebrewRegex = /[\u0590-\u05FF]/;
 
     const handleBubbleToggle = (fieldName) => {
         setActiveBubble((prev) => (prev === fieldName ? null : fieldName));
@@ -130,7 +135,24 @@ function AllForms() {
             });
     };
 
+    const getAllForm = async () => {
+        const res = await axios.get(`/api/getAllForms/${id}`);
+        if (res.data.forms.length > 0) {
+            const _form101Forms = res.data?.forms.filter((f) =>
+                f.type.includes("form101")
+            );
+            const submitted_atForm = _form101Forms.find((f) =>
+                f.submitted_at !== null
+            );
+            if (submitted_atForm) {
+                setForm_submitted_at(submitted_atForm.submitted_at);
+                setForm_created_at(submitted_atForm.created_at);
+            }
+        }
+    }
+
     useEffect(() => {
+        getAllForm();
         getWorker();
     }, []);
 
@@ -197,8 +219,28 @@ function AllForms() {
             }),
             employeeDob: yup.date().required(t("form101.errorMsg.dobReq")),
             employeeDateOfAliyah: yup.date().nullable(),
-            employeeCity: yup.string().required(t("form101.errorMsg.CityReq")),
-            employeeStreet: yup.string().required(t("form101.errorMsg.StreetReq")),
+            employeeCity: yup
+                .string()
+                .when("employeecountry", {
+                    is: "Israel",
+                    then: () =>
+                        yup
+                            .string()
+                            .required(t("form101.errorMsg.CityReq"))
+                            .matches(hebrewRegex, "The input must contain Hebrew characters only"),
+                    otherwise: yup.string().required(t("form101.errorMsg.CityReq")),
+                }),
+            employeeStreet: yup
+                .string()
+                .when("employeecountry", {
+                    is: "Israel",
+                    then: () =>
+                        yup
+                            .string()
+                            .required(t("form101.errorMsg.StreetReq"))
+                            .matches(hebrewRegex, "The input must contain Hebrew characters only"),
+                    otherwise: yup.string().required(t("form101.errorMsg.StreetReq")),
+                }),
             employeeHouseNo: yup
                 .string()
                 .required(t("form101.errorMsg.HouseNoReq")),
@@ -244,17 +286,43 @@ function AllForms() {
                 .nullable(),
             DateOfBeginningWork: yup
                 .date()
-                .required(t("form101.errorMsg.dateOfBeginReq")),
-        }),
+                .nullable()
+                .required(t("form101.errorMsg.dateOfBeginReq"))
+                .test(
+                    "is-future-date",
+                    t("form101.errorMsg.dateOfBeginReq"),
+                    function (value) {
+                        console.log(value, "value");
+                        if (!form_submitted_at && value > new Date()) {
+                            return false; 
+                        }
+                        return true;
+                    }
+                ),
+            }),
+
         step2: yup.object({
             children: yup.array().of(
                 yup.object().shape({
                     firstName: yup
                         .string()
-                        .required(t("form101.errorMsg.NameRequired")),
-                    IdNumber: yup
-                        .string()
-                        .required(t("form101.errorMsg.NameRequired")),
+                        .test(
+                            "is-hebrew-or-required",
+                            t("form101.errorMsg.NameRequired"),
+                            function (value) {
+                                if (worker?.country === "Israel") {
+                                    if (!hebrewRegex.test(value)) {
+                                        return this.createError({
+                                            message: t("form101.errorMsg.hebrew"),
+                                        });
+                                    }
+                                    return !!value && value.trim().length > 0;
+                                } else {
+                                    return !!value && value.trim().length > 0;
+                                }
+                            }
+                        ),
+                    IdNumber: yup.string().required(t("form101.errorMsg.IdNumberReq")),
                     Dob: yup.date().required(t("form101.errorMsg.dobReq")),
                     inCustody: yup.boolean(),
                     haveChildAllowance: yup.boolean(),
@@ -313,9 +381,11 @@ function AllForms() {
                         .shape({
                             firstName: yup
                                 .string()
+                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.fNameReq")),
                             lastName: yup
                                 .string()
+                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.lNameReq")),
                             Identity: yup
                                 .string()
@@ -1209,6 +1279,8 @@ function AllForms() {
         },
         enableReinitialize: true,
         validationSchema: formSchema[`step${nextStep}`], // Dynamically set schema based on current step
+        validateOnChange: true,
+        validateOnBlur: true,
         onSubmit: (values) => {
             if (!isSubmitted) {
                 setLoading(true);
@@ -1351,15 +1423,6 @@ function AllForms() {
             setSavingType("draft");
         }
 
-        // if (nextStep === 7 && !param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1)) {
-        //     setSavingType("submit");
-        // } else if (nextStep === 6 && !param.formId && !(worker.country !== "Israel" && worker.is_existing_worker !== 1)) {
-        //     setSavingType("submit");
-        // }else{
-        //     setSavingType("draft");
-        // }
-
-        // setFormSubmitted(true);
         handleSubmit();
         const validationErrors = await validateForm();
 
@@ -1411,8 +1474,7 @@ function AllForms() {
         handleDocSubmit(data);
     };
 
-    console.log(worker.country);
-    
+    console.log(formValues, "form");
 
 
     return (
@@ -1487,11 +1549,12 @@ function AllForms() {
                                 handleBubbleToggle={handleBubbleToggle}
                                 activeBubble={activeBubble}
                                 handleFileChange={handleFileChange}
-                            // identityType={identityType}
+                                form_submitted_at={form_submitted_at}
+                                form_created_at={form_created_at}
                             />
                         </>
                     ) : (
-                        nextStep === 1 && <ManpowerDetailForm setNextStep={setNextStep} values={values} nextStep={nextStep}/>
+                        nextStep === 1 && <ManpowerDetailForm setNextStep={setNextStep} values={values} nextStep={nextStep} />
                     )
                 }
 
@@ -1565,7 +1628,7 @@ function AllForms() {
                             </div>
                         </>
                     ) : (
-                        nextStep === 2 && <ManpowerSaftyForm setNextStep={setNextStep} nextStep={nextStep}/>
+                        nextStep === 2 && <ManpowerSaftyForm setNextStep={setNextStep} nextStep={nextStep} />
                     )
                 }
                 {

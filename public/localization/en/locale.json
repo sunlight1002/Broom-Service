@@ -2735,7 +2735,8 @@
             "sign": "Signature is required",
             "incomeReq": "Income is required",
             "pleaseSelectOneIncomeType": "Please select at least one income type",
-            "residancePermitReq": "Residence permit is required"
+            "residancePermitReq": "Residence permit is required",
+            "hebrew": "The input must contain Hebrew characters only"
         }
     },
     "credit-card": {

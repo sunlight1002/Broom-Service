@@ -107,11 +107,13 @@ class ScheduleController extends Controller
         if ($input['start_time']) {
             // Map Hebrew meridian terms to English equivalents
             $hebrewMeridianMap = [
-                'בבוקר' => 'AM', // Morning (AM)
-                'אחר הצהריים' => 'PM', // Afternoon (PM)
-                'אחרי הצהריים' => 'PM', // Afternoon (PM)
-                'לפני הצהריים' => 'AM', // Before noon (AM)
-                'בערב' => 'PM', // Evening (PM)
+                'לפנה"צ' => 'AM',
+                'בבוקר' => 'AM',
+                'לפני הצהריים' => 'AM',
+                'לפנות בוקר' => 'AM',
+                'אחה"צ' => 'PM',
+                'אחרי הצהריים' => 'PM',
+                'בערב' => 'PM',
             ];
     
             // Replace Hebrew meridians in the start_time with English AM/PM

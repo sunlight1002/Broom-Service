@@ -73,7 +73,7 @@ class NotifyTeamRescheduleCallToday extends Command
 
         // Dispatch team notification event for the selected day
         event(new WhatsappNotificationEvent([
-            "type" => WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM,
+            "type" => WhatsappMessageTemplateEnum::RESCHEDULE_CALL_FOR_TEAM_ON_DATE,
             "notificationData" => $notificationData
         ]));
     }

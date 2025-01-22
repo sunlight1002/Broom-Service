@@ -9,6 +9,7 @@ import logo from "../Assets/image/sample.svg";
 import { Link } from "react-router-dom";
 import Swal from 'sweetalert2';
 import { useAlert } from "react-alert";
+import FullPageLoader from "../Components/common/FullPageLoader";
 
 export default function MeetingSchedule() {
     const param = useParams();
@@ -19,6 +20,7 @@ export default function MeetingSchedule() {
     const [teamName, setTeamName] = useState("");
     const [address, setAddress] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const getMeeting = () => {
         axios
@@ -98,10 +100,12 @@ export default function MeetingSchedule() {
                 id: Base64.decode(param.id),
                 type: type
             }
+            setLoading(true);
             const res = await axios.post(`/api/client/reject-meeting`, data);
             console.log(res);
             if (res.status == 200) {
                 setIsSubmitted(true);
+                setLoading(false);
                 alert.success(res?.data?.message)
             }
         }
@@ -220,6 +224,7 @@ export default function MeetingSchedule() {
                     </div>
                 </div>
             </div>
+            <FullPageLoader visible={loading} />
         </div>
     );
 }

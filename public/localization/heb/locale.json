@@ -2755,7 +2755,8 @@
             "sign": "חתימה נדרשת",
             "incomeReq": "הכנסה נדרשת",
             "pleaseSelectOneIncomeType": "אנא בחר לפחות סוג הכנסה אחד",
-            "residencePermitReq": "נדרש היתר שהייה"
+            "residencePermitReq": "נדרש היתר שהייה",
+            "hebrew": "הקלט חייב להכיל תווים עבריים בלבד"
         }
     },
     "credit-card": {
