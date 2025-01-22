@@ -68,6 +68,7 @@ const ClientPropertyAdress = () => {
             setAddress(_place.formatted_address);
             fullAddress.current.value = _place.formatted_address;
             addressName.current.value = _place.name;
+            city.current.value = _place.vicinity;
             setLatitude(_place.geometry.location.lat());
             lat.current.value = _place.geometry.location.lat();
             setLongitude(_place.geometry.location.lng());
@@ -120,6 +121,7 @@ const ClientPropertyAdress = () => {
         parking.current.value = address.parking || "";
         lobby.current.value = address.lobby || "";
         key.current.value = address.key || "";
+        city.current.value = address.city || "";
         prefer_type.current.value = address.prefer_type || "default";
         is_dog_avail.current.checked = address.is_dog_avail || false;
         is_cat_avail.current.checked = address.is_cat_avail || false;
