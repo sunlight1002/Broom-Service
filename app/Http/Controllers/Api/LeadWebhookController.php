@@ -194,11 +194,14 @@ class LeadWebhookController extends Controller
                         $lng = 'heb'; 
                     }
                     
-                    if(!in_array($new, ['חדש', 'New'])) {
+                    if(stripos($new, 'חדש') == false){ 
+                        die('Invalid message');
+                    }
+                    if(stripos($new, 'New') == false){
                         die('Invalid message');
                     }
 
-                    if (!$phone) {
+                    if (empty($phone)) {
                         return response()->json(['status' => 'Invalid message data'], 400);
                     }
             
