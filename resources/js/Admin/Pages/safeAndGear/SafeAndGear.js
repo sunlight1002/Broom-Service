@@ -13,6 +13,7 @@ import SignatureCanvas from "react-signature-canvas";
 import * as yup from "yup";
 import { objectToFormData } from "../../../Utils/common.utils";
 import swal from "sweetalert";
+import FullPageLoader from "../../../Components/common/FullPageLoader";
 
 
 const SafeAndGear = ({
@@ -37,6 +38,7 @@ const SafeAndGear = ({
     const [savingType, setSavingType] = useState("submit");
     const [is_existing_worker, setIs_existing_worker] = useState(0)
     const [country, setCountry] = useState("")
+    const [loading, setLoading] = useState(false)
 
     const contentRef = useRef(null);
 
@@ -92,6 +94,8 @@ const SafeAndGear = ({
                 formData.append("savingType", savingType);
                 formData.append("step", nextStep);
 
+                setLoading(true);
+
                 axios
                     .post(`/api/${id}/safegear`, formData, {
                         headers: {
@@ -101,24 +105,26 @@ const SafeAndGear = ({
                     })
                     .then((res) => {
                         setIsSubmitted(true); // Mark as submitted
-                        if (isManpower && country !== "Israel") {
+                        if (!isManpower) {
                             setNextStep(prev => prev + 1);
-                        } else if (!isManpower) {
-                            setNextStep(prev => prev + 1);
+                        } else {
+                            swal(t("swal.forms_submitted"), "", "success");
                         }
+
+                        setLoading(false);
                     })
                     .catch((e) => {
-                        if (e?.response?.data?.message === 'Safety and gear already signed.') {
+                        setLoading(false);
+                        if (e?.response?.data?.message === 'Safety and gear already signed.' && !isManpower) {
                             setNextStep(prev => prev + 1);
                         }
+
                     });
-            } else if ((isManpower && country !== "Israel") || !isManpower) {
+            } else if (!isManpower) {
                 setNextStep(prev => prev + 1);
             }
         },
     });
-
-    console.log(country);
 
 
     const handleSignatureEnd = () => {
@@ -174,14 +180,7 @@ const SafeAndGear = ({
 
 
     const handleSaveAsDraft = async (e) => {
-        // Check if page 7 exists
         e.preventDefault();
-        if (isManpower && country === "Israel") {
-            swal(t("swal.forms_submitted"), "", "success");
-
-            // alert.success(t("swal.forms_submitted"));
-        }
-
         handleSubmit();
     };
 
@@ -344,17 +343,17 @@ const SafeAndGear = ({
                                     <GrFormPreviousLink /> {t("common.prev")}
                                 </button>
                             )}
-                            {nextStep < 6 || (isManpower && country !== "Israel") ? (
+                            {nextStep < 6 || (isManpower) ? (
                                 <button
                                     type="submit"
                                     name="next"
-                                    disabled={isManpower && isSubmitted && country === "Israel" ? isSubmitted : false}
+                                    disabled={isManpower && isSubmitted ? isSubmitted : false}
                                     className="navyblue py-2 px-4"
                                     style={{ borderRadius: "5px" }}
                                 >
-                                    {t("common.next")} <GrFormNextLink />
+                                    {isManpower ? t("common.submit") : <>{t("common.next")} <GrFormNextLink /></>}
                                 </button>
-                            ) : isManpower && !isSubmitted && country === "Israel" ? (
+                            ) : isManpower && !isSubmitted ? (
                                 <button
                                     type="submit"
                                     name="next"
@@ -368,7 +367,9 @@ const SafeAndGear = ({
                     </section>
                 </div>
             </form>
-
+            {isManpower && (
+                <FullPageLoader visible={loading} />
+            )}
         </div>
     );
 };

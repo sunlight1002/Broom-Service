@@ -263,6 +263,12 @@ class WorkerLeadWebhookController extends Controller
                     ->where('status', 1)
                     ->first();
 
+            $client = Client::where('phone', $from)->first();
+            $workerLead = WorkerLead::where('phone', $from)->first();
+            if ($client || $workerLead) {
+                die('exist');
+            }
+
             if ($user) {
                 $m = null;
             

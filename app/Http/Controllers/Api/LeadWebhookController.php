@@ -193,6 +193,10 @@ class LeadWebhookController extends Controller
                     } else {
                         $lng = 'heb'; 
                     }
+                    
+                    if (empty($phone)) {
+                        return response()->json(['status' => 'Invalid message data'], 400);
+                    }
             
                     // Validate name and split into first and last name
                     if ($fullName) {
@@ -1550,6 +1554,7 @@ If you would like to speak to a human representative, please send a message with
             ]
         ]));
     }
+
 
     public function activeClients(Request $request){
         try {

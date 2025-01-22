@@ -624,7 +624,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                     </div>
                 </>
             )}
-            {(worker && worker.country !== "Israel") && (
+            {(worker && worker.country !== "Israel") && worker.company_type === "my-company" && (
                 <div
                     className="card card-widget widget-user-2"
                     style={{ boxShadow: "none" }}
