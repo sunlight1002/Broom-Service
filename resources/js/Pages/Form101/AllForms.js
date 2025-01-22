@@ -1461,8 +1461,6 @@ function AllForms() {
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
-                            <span className="mx-2"> - </span>
-                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 4</span>
                         </> : <>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                             <span className="mx-2"> - </span>
@@ -1745,13 +1743,13 @@ function AllForms() {
             </div>
 
             {
-                nextStep === 4 && !isManpower ? (
+                nextStep === 4 && !isManpower && (
                     <SafeAndGear nextStep={nextStep} handleNextPrev={handleNextPrev} setNextStep={setNextStep}
                         handleBubbleToggle={handleBubbleToggle}
                         activeBubble={activeBubble}
                         isManpower={isManpower}
                     />
-                ) : nextStep === 4 && worker.country !== "Israel" && isManpower && <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker} isManpower={isManpower} />
+                )
             }
 
             {

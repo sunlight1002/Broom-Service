@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from "react-i18next";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { useAlert } from 'react-alert';
 
 const ManpowerDetailForm = ({ setNextStep, values }) => {
     const { t } = useTranslation();
@@ -11,6 +12,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
     const [worker, setWorker] = useState({});
     const [countries, setCountries] = useState([]);
     const [errors, setErrors] = useState({});
+    const alert = useAlert();
     // const [country, setCountry] = useState("");
     const [formValues, setFormValues] = useState({
         worker_id: workerId,
@@ -91,7 +93,13 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
         const data = new FormData();
         data.append("id", workerId);
         if (e.target.files.length > 0) {
-            data.append(`${type}`, e.target.files[0]);
+            const file = e.target.files[0];
+            const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
+            if (fileSizeInMB > 10) {
+                alert.error(t("form101.step1.imageSize")); // Show an error message
+                return;
+            }
+            data.append(`${type}`, file);
         }
         handleDocSubmit(data);
     };
