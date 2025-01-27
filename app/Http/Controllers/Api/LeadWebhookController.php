@@ -2405,13 +2405,11 @@ If you would like to speak to a human representative, please send a message with
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();
 
-                \Log::info("monday client".$client??'');
 
                 $isMonday = now()->isMonday();
                 if ($isMonday && $client && $client->stop_last_message == 0) {
 
                     $msgStatus = Cache::get('client_monday_msg_status_' . $client->id);
-                    \Log::info('msgStatus', [$msgStatus]);
                     if(!empty($msgStatus)) {
                         $menu_option = explode('->', $msgStatus);
                         $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');

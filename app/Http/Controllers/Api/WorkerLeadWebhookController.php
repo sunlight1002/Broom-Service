@@ -464,9 +464,19 @@ class WorkerLeadWebhookController extends Controller
                         break;
 
                     case 'change_schedule_comment':
+                        if ($lng == 'heb') {
+                            $reason = "שנה לוח זמנים";
+                        }else if($lng == 'spa'){
+                            $reason = "Cambiar horario";
+                        }else if($lng == 'ru'){
+                            $reason = "Изменить расписание";
+                        }else{
+                            $reason = "Change Schedule";
+                        }
                         $scheduleChange = new ScheduleChange();
                         $scheduleChange->user_type = get_class($user);
                         $scheduleChange->user_id = $user->id;
+                        $scheduleChange->reason = $reason;
                         $scheduleChange->comments = $input;
                         $scheduleChange->save();
 
@@ -524,7 +534,16 @@ class WorkerLeadWebhookController extends Controller
                                 $todaySchedule .= "\n";
                             }
                         }else{
-                            $todaySchedule = $lng == 'en' ? "No today jobs scheduled" : "לא מתוכננות משרות היום";
+                            if ($lng == 'heb') {
+                                $reason = "לא מתוכננות משרות היום";
+                            }else if($lng == 'spa'){
+                                $reason = "No hay trabajos programados para hoy";
+                            }else if($lng == 'ru'){
+                                $reason = "Сегодня нет запланированных работ";
+                            }else{
+                                $reason = "No today jobs scheduled";
+                            }
+                            $todaySchedule = $reason;
                         }
 
                         if ($tomorrowJobs && $tomorrowJobs->count() > 0) {
@@ -544,7 +563,16 @@ class WorkerLeadWebhookController extends Controller
                                 $tomorrowSchedule .= "\n";
                             }
                         }else{
-                            $tomorrowSchedule = $lng == 'en' ? "No tomorrow jobs scheduled" : "לא מתוכננות עבודות מחר";
+                            if ($lng == 'heb') {
+                                $reason = "לא מתוכננות עבודות מחר";
+                            }else if($lng == 'spa'){
+                                $reason = "No hay trabajos programados para mañana";
+                            }else if($lng == 'ru'){
+                                $reason = "Завтра не запланировано никаких работ";
+                            }else{
+                                $reason = "No tomorrow jobs scheduled";
+                            }
+                            $tomorrowSchedule = $reason;
                         }
                         $nextMessage = str_replace(':today_schedule', $todaySchedule, $nextMessage);
                         $nextMessage = str_replace(':tomorrow_schedule', $tomorrowSchedule, $nextMessage);
