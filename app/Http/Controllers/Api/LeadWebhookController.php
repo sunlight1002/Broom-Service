@@ -1674,12 +1674,16 @@ If you would like to speak to a human representative, please send a message with
         // Store the messageId in the cache for 1 hour
         Cache::put('active_client_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
+
         if (
             isset($data_returned['messages']) &&
             isset($data_returned['messages'][0]['from_me']) &&
             $data_returned['messages'][0]['from_me'] == false
         ) {
             $message_data = $data_returned['messages'];
+            if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                die("Group message");
+            }
             $from = $message_data[0]['from'];
             $input = trim($data_returned['messages'][0]['text']['body']);
 
@@ -1692,18 +1696,7 @@ If you would like to speak to a human representative, please send a message with
             $client = Client::where('phone', $from)
                 ->orWhereJsonContains('extra', [['phone' => $from]])
                 ->first();
-
-                if ($client) {
-                    \Log::info('client', $client->toArray());
-                }
-                if ($workerLead) {
-                    \Log::info('worker lead', $workerLead->toArray());
-                }
-                if ($user) {
-                    \Log::info('user', $user->toArray());
-                }
             $lng = $client->lng ?? $this->detectLanguage($input);
-
             if ($user || $workerLead) {
                 die('Worker or worker lead found');
             }
@@ -2036,7 +2029,7 @@ If you would like to speak to a human representative, please send a message with
 
                     $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
                     $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, $input, url("admin/clients/view/" . $client->id)], $nextMessage);
-                    sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
@@ -2398,13 +2391,15 @@ If you would like to speak to a human representative, please send a message with
                 $data_returned['messages'][0]['from_me'] == false
             ) {
                 $message_data = $data_returned['messages'];
+                if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                    die("Group message");
+                }
                 $from = $message_data[0]['from'];
                 Log::info($from);
 
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();
-
 
                 $isMonday = now()->isMonday();
                 if ($isMonday && $client && $client->stop_last_message == 0) {
