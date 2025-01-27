@@ -167,9 +167,8 @@ class ChatController extends Controller
                     $replyId ? $replyId : null
                 );
             }
-
-            \Log::info($result);
         } else {
+            \Log::info("wdwdwd");
             // Send regular message (text only)
             $result = sendWhatsappMessage(
                 $request->number,
