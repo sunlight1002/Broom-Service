@@ -62,7 +62,10 @@ Route::post('worker-invitation-update/{id}', [AuthController::class, 'getWorkerI
 Route::post('{id}/manpower-form', [AuthController::class, 'manpowerForm']);
 Route::get('getManpowerSafteyForm/{id}', [AuthController::class, 'getManpowerSafty']);
 
-
+Route::post('password/email', [AuthController::class, 'sendResetLinkEmail']);
+Route::get('reset-password/{token}', [AuthController::class, 'showResetForm'])->name('user.password.reset');
+Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('reset.password.update');
+// Route::post('password/update', [AuthController::class, 'updatePassword'])->name('user.password.update');
 
 Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
 Route::post('guest/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);

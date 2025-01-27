@@ -73,7 +73,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $action = $request->get('action');
-    
+
         $query = Client::query()
             ->leftJoin('leadstatus', 'leadstatus.client_id', '=', 'clients.id')
             ->leftJoin('contracts', 'contracts.client_id', '=', 'clients.id')
@@ -86,16 +86,33 @@ class ClientController extends Controller
             ->when($action == 'notbooked', function ($q) {
                 return $q->whereDoesntHave('jobs');
             })
-            ->select('clients.id', 'clients.firstname', 'clients.lastname', 'clients.email', 'clients.phone', 'leadstatus.lead_status', 'clients.created_at')
+            ->select(
+                'clients.id',
+                'clients.firstname',
+                'clients.lastname',
+                'clients.email',
+                'clients.phone',
+                'leadstatus.lead_status',
+                'clients.created_at'
+            )
+            // Add a subquery to fetch the latest verified contract ID
+            ->selectRaw('(
+                SELECT contracts.id
+                FROM contracts
+                WHERE contracts.client_id = clients.id
+                AND contracts.status = ?
+                ORDER BY contracts.created_at DESC
+                LIMIT 1
+            ) AS latest_verified_contract_id', [ContractStatusEnum::VERIFIED])
             ->selectRaw('IF(contracts.status = "' . ContractStatusEnum::VERIFIED . '", 1, 0) AS has_contract')
             ->groupBy('clients.id');
-    
+
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if ($request->has('search')) {
                     $keyword = $request->get('search')['value'];
                     \Log::info($keyword);
-    
+
                     if (!empty($keyword)) {
                         $query->where(function ($sq) use ($keyword) {
                             $sq->whereRaw("CONCAT_WS(' ', clients.firstname, clients.lastname) like ?", ["%{$keyword}%"])

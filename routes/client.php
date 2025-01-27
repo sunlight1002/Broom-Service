@@ -87,6 +87,10 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('verifyOtp', [AuthController::class, 'verifyOtp']);
 Route::post('resendOtp', [AuthController::class, 'resendOtp']);
 Route::post('change-password', [AuthController::class, 'changePassword']);
+Route::post('password/email', [AuthController::class, 'sendResetLinkEmail']);
+Route::get('client/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('client.password.reset');
+Route::post('client/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+// Route::post('password/update', [AuthController::class, 'updatePassword'])->name('password.update');
 
 // Emails Routes
 Route::get('{id}/info', [ClientEmailController::class, 'getClientInfo']);

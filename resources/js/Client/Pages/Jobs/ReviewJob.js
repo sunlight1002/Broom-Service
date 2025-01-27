@@ -86,6 +86,8 @@ export default function ReviewJob() {
         getJob();
     }, []);
 
+    console.log(job);
+    
     return (
         <div id="container">
             <ClientSidebar />

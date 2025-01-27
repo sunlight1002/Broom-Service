@@ -5,15 +5,16 @@ import { useNavigate } from "react-router-dom";
 import FullLoader from "../../../../public/js/FullLoader";
 import { getCookie } from "../../Admin/Components/common/Cookies";
 import FullPageLoader from "../../Components/common/FullPageLoader";
+import { useAlert } from "react-alert";
 
 
 export default function WorkerLogin() {
-    const [worker, setWorker] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
     const [loading, setLoading] = useState(false)
     const [isRemembered, setIsRemembered] = useState(false)
-
+    const alert = useAlert();
     const navigate = useNavigate()
 
 
@@ -32,11 +33,29 @@ export default function WorkerLogin() {
         }
     }, []);
 
+    const forgotPassword = async () => {
+        if (!email) {
+            alert.error('Please enter email');
+            return;
+        }
+        try {
+            const response = await axios.post('/api/password/email', {
+                email,
+            });
+            alert.success(response?.data?.message);
+
+        } catch (err) {
+            console.log(err);
+
+        }
+    };
+
+
     const HandleLogin = (e) => {
         e.preventDefault();
         setLoading(true)
         const data = {
-            worker_id: worker,
+            email: email,
             password: password,
         };
         axios.post(`/api/login`, data).then((result) => {
@@ -47,7 +66,7 @@ export default function WorkerLogin() {
                 if (isRemembered) {
                     localStorage.setItem("worker-token", result.data.token);
                     i18next.changeLanguage(result.data.lng);
-                    if(result?.data?.lng == 'en') {
+                    if (result?.data?.lng == 'en') {
                         document.querySelector("html").removeAttribute("dir");
                         const rtlLink = document.querySelector('link[href*="rtl.css"]');
                         if (rtlLink) {
@@ -61,16 +80,16 @@ export default function WorkerLogin() {
                     localStorage.setItem("worker-id", result.data.id);
 
                     window.location = "/worker/dashboard";
-                }else{
+                } else {
                     if (result.data.two_factor_enabled === 1 || result.data[0] === 1) {
                         localStorage.setItem("worker-email", result.data.email);
                         localStorage.setItem("worker-lng", result.data.lng);
                         window.location = "/worker/login-otp";
                         setLoading(false)
-                    }else{
+                    } else {
                         localStorage.setItem("worker-token", result.data.token);
                         i18next.changeLanguage(result.data.lng);
-                        if(result?.data?.lng == 'en') {
+                        if (result?.data?.lng == 'en') {
                             document.querySelector("html").removeAttribute("dir");
                             const rtlLink = document.querySelector('link[href*="rtl.css"]');
                             if (rtlLink) {
@@ -141,7 +160,7 @@ export default function WorkerLogin() {
                                         className="form-control"
                                         placeholder="Enter Worker id or Email"
                                         onChange={(e) =>
-                                            setWorker(e.target.value)
+                                            setEmail(e.target.value)
                                         }
                                         autoFocus
                                     />
@@ -179,7 +198,10 @@ export default function WorkerLogin() {
                                     </small>
                                 )}
                             </div>
-                            <div className="form-group mt-4">
+                            {/* <div className='d-flex justify-content-start align-items-center'>
+                                <button type="button" className="btn btn-link p-0" onClick={() => forgotPassword()}>forgot password</button>
+                            </div> */}
+                            <div className="form-group mt-1">
                                 <button
                                     as="input"
                                     type="submit"

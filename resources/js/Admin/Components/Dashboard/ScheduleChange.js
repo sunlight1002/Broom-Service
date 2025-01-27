@@ -50,12 +50,10 @@ function ScheduleChange() {
     }
 
 
-    const handleChangeStatus = async (userId) => {
+    const handleChangeStatus = async (userId,e) => {
         setLoading(true)
         try {
-            const response = await axios.put(`/api/admin/schedule-changes/${userId}`, { status: "completed" }, { headers });
-            console.log(response.data);
-
+            const response = await axios.put(`/api/admin/schedule-changes/${userId}`, { status: e ? "completed" : "pending" }, { headers });
             setLoading(false)
             setIsOpen(false)
             $(tableRef.current).DataTable().ajax.reload();
@@ -69,8 +67,8 @@ function ScheduleChange() {
             $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
-                autoWidth: false,
-                stateSave: true,
+                // autoWidth: false,
+                // stateSave: true,
                 ajax: {
                     url: "/api/admin/schedule-changes",
                     type: "GET",
@@ -82,8 +80,31 @@ function ScheduleChange() {
                 },
                 order: [[0, "desc"]],
                 columns: [
-                    { title: t("global.user_type"), data: "user_type" },
-                    { title: t("global.user_name"), data: "user_fullname" },
+                    { 
+                        title: t("global.user_type"), 
+                        data: "user_type",
+                        render: function (data) {
+                            if (data === "Client") {
+                                return `<span class="">C</span>`;
+                            } else if (data === "Worker") {
+                                return `<span class="">W</span>`;
+                            }
+                        }, 
+                    },
+                    { 
+                        title: t("global.user_name"), 
+                        data: "user_fullname" ,
+                        render: function (data) {
+                            const firstname = data.split(" ")[0];
+                            const lastname = data.split(" ")[1];
+                            return `<p 
+                                    class="badge dt-change-status-btn" 
+                                    data-tooltip-id="comment" 
+                                    data-tooltip-html="${data}">
+                                    ${firstname} ${lastname.substring(0, 1)}
+                                </p>`;
+                        }, 
+                    },
                     { title: t("global.reason"), data: "reason" },
                     { 
                         title: t("global.comments"), 
@@ -129,9 +150,12 @@ function ScheduleChange() {
                         title: t("modal.date"),
                         data: "created_at",
                         render: function (data) {
-                            return `<p style="color: black; padding: 5px 10px; border-radius: 5px;">
-                            ${moment(data).format("DD-MM-YYYY HH:mm")}
-                        </p>`;
+                            return `<p 
+                                        class="badge dt-change-status-btn" 
+                                        data-tooltip-id="comment" 
+                                        data-tooltip-html="${moment(data).format("DD-MM-YYYY HH:mm")}">
+                                        ${moment(data).format("DD-MM")}
+                                    </p>`;
                         },
                     },
                     {
@@ -157,6 +181,9 @@ function ScheduleChange() {
                 ordering: true,
                 searching: true,
                 responsive: true,
+                autoWidth: true,
+                width: "100%",
+                scrollX: true,
                 drawCallback: function () {
                     // initializeTableActions();
                     setLoading(false); // Hide loader when data is loaded

@@ -193,6 +193,7 @@ import ViewPropertyAddress from "./Client/ViewPropertyAddress";
 import FacebookInsights from "./Admin/Components/Dashboard/FacebookInsights";
 import CustomMessage from "./Admin/Pages/Setting/CustomMessage";
 import AdminDocument from "./Admin/Components/Documents/AdminDocument";
+import ClientForgotPassword from "./Client/Auth/ClientForgotPassword";
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
 
@@ -214,6 +215,11 @@ export default function MyRoutes() {
                         exact
                         path="client/login"
                         element={<ClientLogin />}
+                    />
+                    <Route
+                        exact
+                        path="client/reset-password/:token"
+                        element={<ClientForgotPassword />}
                     />
                     <Route
                         exact
