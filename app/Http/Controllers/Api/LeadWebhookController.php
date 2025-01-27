@@ -1692,7 +1692,18 @@ If you would like to speak to a human representative, please send a message with
             $client = Client::where('phone', $from)
                 ->orWhereJsonContains('extra', [['phone' => $from]])
                 ->first();
+
+                if ($client) {
+                    \Log::info('client', $client->toArray());
+                }
+                if ($workerLead) {
+                    \Log::info('worker lead', $workerLead->toArray());
+                }
+                if ($user) {
+                    \Log::info('user', $user->toArray());
+                }
             $lng = $client->lng ?? $this->detectLanguage($input);
+
             if ($user || $workerLead) {
                 die('Worker or worker lead found');
             }
@@ -2025,7 +2036,7 @@ If you would like to speak to a human representative, please send a message with
 
                     $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
                     $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, $input, url("admin/clients/view/" . $client->id)], $nextMessage);
-                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
@@ -2393,6 +2404,8 @@ If you would like to speak to a human representative, please send a message with
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();
+
+                \Log::info("monday client".$client??'');
 
                 $isMonday = now()->isMonday();
                 if ($isMonday && $client && $client->stop_last_message == 0) {

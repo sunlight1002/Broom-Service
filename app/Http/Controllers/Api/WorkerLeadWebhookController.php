@@ -108,6 +108,16 @@ class WorkerLeadWebhookController extends Controller
             'ru' => "Ваш график следующий:\nСегодня: :today_schedule\nЗавтра: :tomorrow_schedule\n\nНа любом этапе вы можете вернуться в главное меню, отправив сообщение 'меню'.",
             'spa' => "Tu horario es el siguiente:\nHoy: :today_schedule\nMañana: :tomorrow_schedule\n\nEn cualquier momento, puedes volver al menú principal escribiendo 'Menú'.",
         ],
+        'attempts' => [
+            "en" => "We couldn’t verify your request. Please contact the team directly for assistance.",
+            "heb" => "לא הצלחנו לאמת את בקשתך. אנא צור קשר עם הצוות ישירות לעזרה.",
+            "ru" => "Мы не смогли обработать ваш запрос. Пожалуйста, свяжитесь с командой напрямую для помощи.",
+        ],
+        "team_attempts" => [
+            "en" => ":worker_name failed to complete their request. Please reach out to them.",
+            "heb" => ":worker_name לא השלים את בקשתו. נא ליצור קשר עמו.",
+            "ru" => ":worker_name не смог обработать свою заявку. Пожалуйста, свяжитесь с ним.",
+        ]
     ];
 
 
@@ -333,6 +343,9 @@ class WorkerLeadWebhookController extends Controller
             $user = User::where('phone', $from)
                     ->where('status', 1)
                     ->first();
+            if ($user) {
+                \Log::info('User found activeWorker: ' . $user);
+            }
 
             if ($user && $user->stop_last_message == 1) {
                 $lng = $user->lng;
@@ -343,6 +356,13 @@ class WorkerLeadWebhookController extends Controller
                 if($activeWorkerBot){
                     $menu_option = explode('->', $activeWorkerBot->menu_option);
                     $last_menu = end($menu_option);
+                }
+
+                $cacheKey = 'send_menu_sorry_count_' . $from;
+
+                // Initialize the cache if not already set
+                if (!Cache::has($cacheKey)) {
+                    Cache::put($cacheKey, 0, now()->addHours(24));
                 }
 
                 if(empty($last_menu) || in_array(strtolower($input), ["menu", "меню", "תפריט", "menú"])) {
@@ -360,9 +380,19 @@ class WorkerLeadWebhookController extends Controller
                 } else if ($last_menu == 'main_menu' && $input == '4') {
                     $send_menu = 'access_employee_portal';
                 } else {
+                    // Handle 'sorry' case
                     $send_menu = 'sorry';
+                    $sorryCount = Cache::increment($cacheKey);
+                    // Log the cache count for debugging
+                    \Log::info("Cache count for $from: $sorryCount");
+                
+                    if ($sorryCount > 4) {
+                        Cache::put($cacheKey, 0, now()->addHours(24)); // Reset to 0 and keep the cache expiration
+                        $send_menu = 'attempts_exceeded'; // Handle as 'attempts_exceeded'
+                    } elseif ($sorryCount == 4) {
+                        $send_menu = 'attempts_exceeded';
+                    }
                 }
-
 
                 switch ($send_menu) {
                     case 'main_menu':
@@ -377,7 +407,7 @@ class WorkerLeadWebhookController extends Controller
                         // Replace :worker_name with the user's firstname and lastname
                         $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
                         $personalizedMessage = str_replace(':worker_name', $workerName, $initialMessage);
-                        sendWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                         WorkerWebhookResponse::create([
                             'status' => 1,
@@ -391,7 +421,7 @@ class WorkerLeadWebhookController extends Controller
 
                     case 'talk_to_manager':
                         $nextMessage = $this->activeWorkersbotMessages['talk_to_manager'][$lng];
-                        sendWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
                         $activeWorkerBot->update(['menu_option' => 'main_menu->talk_to_manager', 'lng' => $lng]);
 
@@ -409,7 +439,7 @@ class WorkerLeadWebhookController extends Controller
                         $nextMessage = $this->activeWorkersbotMessages['comment'][$lng];
                         $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
                         $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $input], $nextMessage);
-                        sendWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                         $nextMessage = $this->activeWorkersbotMessages['team_comment']["en"];
                         $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $input], $nextMessage);
@@ -419,7 +449,7 @@ class WorkerLeadWebhookController extends Controller
 
                     case 'change_schedule':
                         $nextMessage = $this->activeWorkersbotMessages['change_schedule'][$lng];
-                        sendWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
                         $activeWorkerBot->update(['menu_option' => 'main_menu->change_schedule', 'lng' => $lng]);
 
@@ -447,20 +477,20 @@ class WorkerLeadWebhookController extends Controller
 
                         $message = $this->activeWorkersbotMessages['change_schedule_comment'][$lng];
                         $message = str_replace([':message'], [$input], $message);
-                        sendWhatsappMessage($from, array('message' => $message));
+                        sendClientWhatsappMessage($from, array('message' => $message));
                         $activeWorkerBot->delete();
                         break;
 
                     case 'access_employee_portal':
                         $nextMessage = $this->activeWorkersbotMessages['access_employee_portal'][$lng];
                         $personalizedMessage = str_replace(':link', url("worker/login"), $nextMessage);
-                        sendWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                         $activeWorkerBot->delete();
                         break;
 
                     case 'sorry':
                         $message = $this->activeWorkersbotMessages['sorry'][$lng];
-                        sendWhatsappMessage($from, array('message' => $message));
+                        sendClientWhatsappMessage($from, array('message' => $message));
                         break;
 
                     case 'today_and_tomorrow_schedule':
@@ -493,6 +523,8 @@ class WorkerLeadWebhookController extends Controller
                                 }
                                 $todaySchedule .= "\n";
                             }
+                        }else{
+                            $todaySchedule = $lng == 'en' ? "No today jobs scheduled" : "לא מתוכננות משרות היום";
                         }
 
                         if ($tomorrowJobs && $tomorrowJobs->count() > 0) {
@@ -511,11 +543,29 @@ class WorkerLeadWebhookController extends Controller
                                 }
                                 $tomorrowSchedule .= "\n";
                             }
+                        }else{
+                            $tomorrowSchedule = $lng == 'en' ? "No tomorrow jobs scheduled" : "לא מתוכננות עבודות מחר";
                         }
                         $nextMessage = str_replace(':today_schedule', $todaySchedule, $nextMessage);
                         $nextMessage = str_replace(':tomorrow_schedule', $tomorrowSchedule, $nextMessage);
-                        sendWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
                         $activeWorkerBot->delete();
+                        break;
+
+                    case 'attempts_exceeded':
+                        // Handle attempts exceeded logic
+                        $message = $this->activeWorkersbotMessages['attempts'][$lng];
+                        sendClientWhatsappMessage($from, array('message' => $message));
+                
+                        // Notify the team
+                        $nextMessage = $this->activeWorkersbotMessages['team_attempts']["heb"];
+                        $workerName = $user->firstname ?? '' . ' ' . $user->lastname ?? '';
+                        $personalizedMessage = str_replace(':worker_name', $workerName, $nextMessage);
+                        sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
+                        // Reset the cache
+                        Cache::forget($cacheKey);
+                        $activeWorkerBot->delete();
+
                         break;
 
                     default:
@@ -560,6 +610,8 @@ class WorkerLeadWebhookController extends Controller
                     ->where('status', 1)
                     ->first();
 
+            \Log::info($user??'');
+
             if ($user && $user->stop_last_message == 0) {
                 $m = null;
                 $isMonday = now()->isMonday();
@@ -582,7 +634,7 @@ class WorkerLeadWebhookController extends Controller
                             $m = "¿Cuál es tu cambio para la próxima semana? Tu respuesta será enviada al equipo.";
                         }
 
-                        sendWhatsappMessage($from, ['name' => '', 'message' => $m]);
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
                         Cache::put('worker_monday_msg_status_' . $user->id, 'main_monday_msg->next_week_change', now()->addDay(1));
                         WorkerWebhookResponse::create([
                             'status' => 1,
@@ -618,7 +670,7 @@ Best Regards,
 Broom Service Team 🌹 ';
                         }
 
-                        sendWhatsappMessage($from, array('message' => $message));
+                        sendClientWhatsappMessage($from, array('message' => $message));
                         Cache::forget('worker_monday_msg_status_' . $user->id);
                         WorkerMetas::where('worker_id', $user->id)->where('key', 'monday_msg_sent')->delete();
                     } else if ($last_menu == 'next_week_change' && !empty($messageBody)) {
@@ -666,7 +718,7 @@ Best Regards,
 Broom Service Team 🌹 ';
                         }
 
-                        sendWhatsappMessage($from, array('message' => $message));
+                        sendClientWhatsappMessage($from, array('message' => $message));
                         Cache::forget('worker_monday_msg_status_' . $user->id);
                         WorkerMetas::where('worker_id', $user->id)->where('key', 'monday_msg_sent')->delete();
                     } else {
@@ -692,7 +744,7 @@ Broom Service Team 🌹 ';
                             'data' => json_encode($get_data)
                         ]);
 
-                        sendWhatsappMessage($from, array('message' => $follow_up_msg));
+                        sendClientWhatsappMessage($from, array('message' => $follow_up_msg));
                     }
                 }
             }

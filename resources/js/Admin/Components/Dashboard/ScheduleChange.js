@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import { Button, Modal } from "react-bootstrap";
 import moment from "moment";
+import { Tooltip } from "react-tooltip";
 
 import $ from "jquery";
 import "datatables.net";
@@ -84,7 +85,26 @@ function ScheduleChange() {
                     { title: t("global.user_type"), data: "user_type" },
                     { title: t("global.user_name"), data: "user_fullname" },
                     { title: t("global.reason"), data: "reason" },
-                    { title: t("global.comments"), data: "comments" },
+                    { 
+                        title: t("global.comments"), 
+                        data: "comments",
+                        render: function (data) {
+                            const truncateWithEllipsis = (text, maxLength) => {
+                                if (text.length <= maxLength) {
+                                    return text; // If the text length is less than or equal to maxLength, return as is
+                                }
+                                return text.substring(0, maxLength) + '...';
+                            };
+                            const truncatedData = truncateWithEllipsis(data, 5);
+                            return `<p 
+                                        class="badge dt-change-status-btn" 
+                                        data-tooltip-id="comment" 
+                                        data-tooltip-html="${data}">
+                                        ${truncatedData}
+                                    </p>`;
+                        },
+                        
+                    },
                     // {
                     //     title: "Status",
                     //     data: "status",
@@ -109,8 +129,8 @@ function ScheduleChange() {
                         title: t("modal.date"),
                         data: "created_at",
                         render: function (data) {
-                            return `<p style="color: black; padding: 5px 10px; border-radius: 5px; width: 110px;">
-                            ${moment(data).format("DD-MM-YYYY")}
+                            return `<p style="color: black; padding: 5px 10px; border-radius: 5px;">
+                            ${moment(data).format("DD-MM-YYYY HH:mm")}
                         </p>`;
                         },
                     },
@@ -343,7 +363,8 @@ function ScheduleChange() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-        </div>
+            <Tooltip id="comment" place="top" type="dark" effect="solid" style={{ zIndex: "99999" }} />
+          </div>
     )
 }
 
