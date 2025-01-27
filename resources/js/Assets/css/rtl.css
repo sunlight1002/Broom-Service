@@ -250,6 +250,12 @@ li {
     text-align: right;
     direction: rtl;
 }
+
+.form-group label{
+    text-align: right;
+    direction: rtl;
+    width: 100%;
+}
 .worker-view-job{
     text-align: right;
     direction: rtl;

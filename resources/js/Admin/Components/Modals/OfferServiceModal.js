@@ -238,14 +238,20 @@ export default function OfferServiceModal({
         );
     };
 
+    console.log(offerServiceTmp);
+    
+
     const handleAddService = () => {
-        const selectedAddress = addresses[0];
+        // const selectedAddress = addresses[0];
+        // console.log("selectedAddress",selectedAddress);
+        
 
         setOfferServiceTmp((prevState) => [
             ...prevState,
             {
                 ...initialValues,
-                address: selectedAddress.id
+                address: prevState[0].address,
+                address_name: prevState[0].address_name
             }
         ]);
     };
@@ -324,7 +330,7 @@ export default function OfferServiceModal({
             return updatedServices;
         });
     };
-    
+
 
     const handleFreelancerPrice = (serviceIndex, tmpvalue) => {
         setOfferServiceTmp((prevState) => {
@@ -537,6 +543,25 @@ export default function OfferServiceModal({
                                             defaultChecked={service.is_freelancer}
                                             onChange={(e) => handleFreelancer(index, e.target.checked)}
                                         />
+                                    </div>
+                                </div>
+
+                                <div className="col-sm-6">
+                                    <div className="form-group m-0">
+                                        <label className="control-label">{t("client.jobs.change.property")}</label>
+                                        <select
+                                            className="form-control"
+                                            name="address"
+                                            value={offerServiceTmp[index]?.address || ""}
+                                            onChange={(e) => handleAddressChange(index, e.target.value)}
+                                        >
+                                            <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
+                                            {addresses.map((address, i) => (
+                                                <option value={address.id} key={i}>
+                                                    {address.address_name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
 

@@ -57,7 +57,7 @@ class LeadWebhookController extends Controller
     protected $activeClientBotMessages = [
         "main_menu" => [
             "en" => "Hello :client_name 🌸, I’m Gali, the digital secretary of Broom Service!\nHow can I assist you today ? 😊\n\nHere are your options:\n1️⃣ Contact me urgently\n2️⃣ When is my next service?\n3️⃣ Request a new quote\n4️⃣ Invoice and accounting inquiry\n5️⃣ Change or update schedul\n6️⃣ Access our client portal\n\n❓ If you have a question or request not listed, type 'Menu' to return to the main menu at any time.",
-            "heb" => "שלום -CLIENT NAME-🌸, אני גלי, המזכירה הדיגיטלית של ברום סרוויס!\nבמה אוכל לעזור לך היום? 😊\n\nלהלן האפשרויות:\n1️⃣ צרו איתי קשר דחוף\n2️⃣ מתי מגיעים אלי?\n3️⃣ בקשה להצעת מחיר חדשה\n4️⃣ הנה'ח - פנייה למחלקת הנהלת חשבונות\n5️⃣ שינוי או עדכון שיבוץ\n6️⃣ גישה לפורטל הלקוחות שלנו\n\n❓ אם יש לך שאלה אחרת או בקשה שלא בתפריט, תוכל תמיד להחזיר אותי לתפריט הראשי על ידי כתיבת 'תפריט'."
+            "heb" => "שלום - :client_name -🌸, אני גלי, המזכירה הדיגיטלית של ברום סרוויס!\nבמה אוכל לעזור לך היום? 😊\n\nלהלן האפשרויות:\n1️⃣ צרו איתי קשר דחוף\n2️⃣ מתי מגיעים אלי?\n3️⃣ בקשה להצעת מחיר חדשה\n4️⃣ הנה'ח - פנייה למחלקת הנהלת חשבונות\n5️⃣ שינוי או עדכון שיבוץ\n6️⃣ גישה לפורטל הלקוחות שלנו\n\n❓ אם יש לך שאלה אחרת או בקשה שלא בתפריט, תוכל תמיד להחזיר אותי לתפריט הראשי על ידי כתיבת 'תפריט'."
         ],
         "not_recognized" => [
             "en" => "Hello, we couldn’t recognize your number in our system.\nAre you an existing client, or would you like to receive a quote for our service?\n 1️⃣ I am an existing client\n 2️⃣ I’d like a quote",
@@ -146,6 +146,26 @@ class LeadWebhookController extends Controller
         "sorry" => [
             "en" => "Sorry, I didn’t understand your request.\nPlease try again or type 'Menu' to return to the main menu.",
             "heb" => "מצטערים, לא הבנתי את בקשתך.\nאנא נסה שוב או הקלד 'תפריט' כדי לחזור לתפריט הראשי."
+        ],
+        "stop" => [
+            "en" => "Hello :client_name,
+We have received your request to stop receiving commercial messages.
+
+Please note that reminders and essential notifications related to your services will still be sent from this number to ensure smooth communication.
+
+If you have any further questions or requests, feel free to contact us.
+
+Best regards,
+Broom Service Team 🌹",
+            "heb" => "שלום :client_name,
+בקשתך להפסיק לקבל הודעות פרסומיות התקבלה.
+
+לתשומת ליבך, תזכורות והתראות חשובות הקשורות לשירותיך ימשיכו להישלח ממספר זה על מנת להבטיח תקשורת חלקה.
+
+לכל שאלה או בקשה נוספת, נשמח לעמוד לשירותך.
+
+בברכה,
+צוות ברום סרוויס 🌹"
         ]
     ];
 
@@ -1701,6 +1721,11 @@ If you would like to speak to a human representative, please send a message with
                 die('Worker or worker lead found');
             }
 
+            if($client && $client->disable_notification == 1){
+                \Log::info('Client disabled notification');
+                die('Client disabled notification');
+            }
+
             if ($isMonday && $client && $client->stop_last_message != 1) {
                 if ($client->stop_last_message == 0 && in_array(strtolower(trim($input)), ["menu", "תפריט"])) {
                     $client->stop_last_message = 1;
@@ -1826,6 +1851,10 @@ If you would like to speak to a human representative, please send a message with
                     ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
                     ->first();
                 $send_menu = 'failed_attempts';
+            } else if (in_array(strtolower(trim($input)), ["stop", "הפסק"])) {
+                $client->disable_notification = 1;
+                $client->save();
+                $send_menu = 'stop';
             } else {
                 $send_menu = 'sorry';
             }
@@ -2265,6 +2294,29 @@ If you would like to speak to a human representative, please send a message with
                         'status' => 1,
                         'name' => 'whatsapp',
                         'message' => $nextMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+                    break;
+
+                case 'stop':
+                    $nextMessage = $this->activeClientBotMessages['stop'][$lng];
+                    $personalizedMessage = str_replace(':client_name', $client->firstname . ' ' . $client->lastname, $nextMessage);
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            'menu_option' => 'stop'
+                        ]
+                    );
+
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $personalizedMessage,
                         'number' => $from,
                         'read' => 1,
                         'flex' => 'A',

@@ -28,7 +28,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cookie;
 use App\Models\DeviceToken;
 use Illuminate\Validation\Rule;
-
+use Illuminate\Support\Facades\Password;
+use Laravel\Fortify\Contracts\ResetPasswordViewResponse;
 
 class AuthController extends Controller
 {
@@ -48,7 +49,7 @@ class AuthController extends Controller
      public function login(Request $request)
      {
          $validator = Validator::make($request->all(), [
-             'worker_id' => ['required'],
+             'email' => ['required'],
              'password'  => ['required', 'string', 'min:6'],
          ]);
      
@@ -57,10 +58,7 @@ class AuthController extends Controller
          }
      
          if (Auth::attempt([
-             'worker_id' => $request->worker_id,
-             'password'  => $request->password
-         ]) || Auth::attempt([
-             'email'     => $request->worker_id,
+             'email'     => $request->email,
              'password'  => $request->password
          ])) {
              $user = User::find(auth()->user()->id);
@@ -274,6 +272,63 @@ class AuthController extends Controller
                 ], 500);
             }
         }
+
+
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        \Log::info($request->email);
+
+        // Validate the incoming request
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        // Attempt to send the reset link for clients
+        $status = Password::broker('users')->sendResetLink(
+            ['email' => $request->email]
+        );
+    
+        \Log::info($status);
+
+        // Return the response based on the result
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['message' => __($status)], 200)
+            : response()->json(['message' => __($status)], 400);
+    }
+
+    public function showResetForm(Request $request, $token = null)
+    {
+        // Custom logic, if needed
+        return view('auth.worker-reset-password', ['token' => $token]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        // Validate incoming request
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|confirmed|min:6',
+            'token' => 'required',
+        ]);
+
+        // Attempt to reset the password
+        $status = Password::broker('users')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user) use ($request) {
+                // Update the client's password
+                $user->forceFill([
+                    'password' => Hash::make($request->password),
+                    'passcode' => $request->password
+                ])->save();
+            }
+        );
+
+        // Return the response based on the result
+        return $status === Password::PASSWORD_RESET
+            ? redirect()->route('login')->with('status', __('Your password has been reset!'))
+            : back()->withErrors(['email' => [__($status)]]);
+    }
 
 
     /** 

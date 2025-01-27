@@ -120,6 +120,7 @@ class JobController extends Controller
             ])
             ->where('client_id', Auth::user()->id)
             ->find($id);
+            // $job['jobservices'] = $job->jobservice;  
 
         return response()->json([
             'job' => $job,
