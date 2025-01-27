@@ -30,9 +30,11 @@ Route::post('/icount/webhook', [iCountController::class, 'webhook']);
 Route::get('/google/callback', [GoogleController::class, 'callback']);
 
 Route::any('/webhook_fb', [LeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_fb');
-Route::any('/webhook_active_client', [LeadWebhookController::class, 'activeClients'])->name('webhook_active_client');
-Route::any('/webhook_worker', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_worker');
-Route::any('/webhook_active_worker', [WorkerLeadWebhookController::class, 'activeWorkers'])->name('webhook_active_worker');
+Route::any('/webhook_active_clients', [LeadWebhookController::class, 'fbActiveClientsWebhookCurrentLive'])->name('webhook_active_clients');
+Route::any('/webhook_active_client_monday', [LeadWebhookController::class, 'activeClientsMonday'])->name('webhook_active_client_monday');
+Route::any('/webhook_active_workers', [WorkerLeadWebhookController::class, 'fbActiveWorkersWebhookCurrentLive'])->name('webhook_active_workers');
+Route::any('/webhook_worker_lead', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_worker_lead');
+Route::any('/webhook_active_worker_monday', [WorkerLeadWebhookController::class, 'activeWorkersMonday'])->name('webhook_active_worker_monday');
 
 
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);

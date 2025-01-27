@@ -13,6 +13,7 @@ class ScheduleChange extends Model
 
     protected $fillable = [
         'user_type',
+        'reason',
         'comments',
         'user_id',
         'status'

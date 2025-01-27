@@ -27,6 +27,7 @@ class ScheduleChangeController extends Controller
              'user_type',
              'user_id',
              'status',
+             'reason',
              'comments',
              'created_at',
              'updated_at'
@@ -53,9 +54,6 @@ class ScheduleChangeController extends Controller
          // Filter by user type and status
          $userType = $request->get('type', null); // Default to null (no filter)
          $status = $request->get('status', null); // Get status filter (null by default)
-
-         \Log::info($userType);
-         \Log::info($status);
      
          $query->where(function ($query) use ($userType, $status) {
              if ($userType) {
@@ -99,7 +97,9 @@ class ScheduleChangeController extends Controller
                  'user_type' => $userType,
                  'user_fullname' => $user->firstname . ' ' . $user->lastname,
                  'status' => $change->status,
+                 'reason' => $change->reason,
                  'comments' => $change->comments,
+                 'created_at' => $change->created_at,
              ];
          });
      

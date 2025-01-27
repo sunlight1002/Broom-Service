@@ -67,6 +67,7 @@ return [
         'app_scope_id' => env('FB_APP_SCOPE_ID'),
         'account_id' => env('FB_ACCOUNT_ID'),
         'access_token' => env('FB_ACCESS_TOKEN'),
+        'msg_access_token' => env('FB_MSG_ACCESS_TOKEN'),
         'webhook_token' => env('FB_WEBHOOK_TOKEN'),
         'page_id' => env('FB_PAGE_ID'),
         'business_id' => env('FB_BUSINESS_ID'),
@@ -88,6 +89,7 @@ return [
         'problem_with_workers' => env('PROBLEM_WITH_WORKERS_WA_GROUP_ID'),
         'notification_test' => env('NOTIFICATION_TEST_GROUP'),
         'relevant_with_workers' => env('RELEVANT_WITH_WORKERS_WA_GROUP_ID'),
+        'problem_with_payments' => env('PROBLEM_WITH_PAYMENTS_WA_GROUP_ID'),
     ],
 
     'twilio' => [

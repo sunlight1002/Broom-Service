@@ -73,12 +73,12 @@ export default function PriceOffer() {
             }
             let _services = JSON.parse(data.services);
             console.log(_services);
-            
+
 
             setServices(_services);
             const airbnbServices = _services.find(service => service.template === "airbnb");
             // console.log(airbnbServices);
-            
+
 
             const airbnbSubServiceIds = _services
                 .map(service => service.sub_services?.id) // Map to sub_services IDs
@@ -133,7 +133,7 @@ export default function PriceOffer() {
 
             const allSubServices = res.data?.subServices || [];
             console.log(allSubServices, "allSubServices");
-            
+
             // Ensure subServiceIds is an array and convert to string for comparison
             const subServiceIds = airbnb?.subServiceIds || [];
             console.log(subServiceIds, "subServiceIds");
@@ -143,7 +143,7 @@ export default function PriceOffer() {
                 subServiceIds.includes(sub.id.toString())
             );
             console.log(filteredSubServices, "filteredSubServices");
-            
+
 
             setSubService(filteredSubServices);
         } catch (error) {
@@ -257,7 +257,7 @@ export default function PriceOffer() {
 
     return (
         <div className="navyblueColor parent">
-            <div className=" mt-4 mb-5 bg-transparent " style={{
+            <div className="mt-4 mb-5 bg-transparent " style={{
                 margin: mobileView ? "0 10px" : "auto",
                 maxWidth: "800px"
             }}>
@@ -271,12 +271,12 @@ export default function PriceOffer() {
                 </div>
                 <div className="mt-3">
                     <section className="d-flex align-items-center" style={{ gap: "20px" }}>
-                        <p className="navyblueColor font-34 mt-4 font-w-500">{t("price_offer.price_offno")} #{id}</p>
+                        <p className="mt-4 navyblueColor font-34 font-w-500">{t("price_offer.price_offno")} #{id}</p>
                         {status == "sent" ? (
-                            <div className="headBtns mt-3">
+                            <div className="mt-3 headBtns">
                                 <button
                                     type="button"
-                                    className="btn m-1 btn-success acpt"
+                                    className="m-1 btn btn-success acpt"
                                     disabled={loading}
                                     style={{ lineHeight: "1.3" }}
                                     onClick={(e) =>
@@ -299,11 +299,11 @@ export default function PriceOffer() {
                         ) : (
                             <div className="mt-3 headMsg">
                                 {status == "accepted" ? (
-                                    <h4 className="btn btn-success px-3" style={{ lineHeight: "1.3" }}>
+                                    <h4 className="px-3 btn btn-success" style={{ lineHeight: "1.3" }}>
                                         {t("global.accepted")}
                                     </h4>
                                 ) : (
-                                    <h4 className="btn btn-danger px-3" style={{ lineHeight: "1.3" }}>
+                                    <h4 className="px-3 btn btn-danger" style={{ lineHeight: "1.3" }}>
                                         {t("global.rejected")}
                                     </h4>
                                 )}
@@ -317,7 +317,7 @@ export default function PriceOffer() {
                                     "Y-MM-DD"
                                 )}
                             </span></p>
-                        <p className="navyblueColor font-15 m-0">{t("price_offer.honour_of")}:{" "}
+                        <p className="m-0 navyblueColor font-15">{t("price_offer.honour_of")}:{" "}
                             <span>
                                 {client.firstname + " " + client.lastname}
                             </span>{" "}</p>
@@ -329,7 +329,7 @@ export default function PriceOffer() {
                             <h5 className="mb-2">{t("price_offer.about_title")}</h5>
                             <p style={{ whiteSpace: "pre-wrap" }}>{t("price_offer.about")}</p>
                         </div>
-                        <div className="we-have mt-3 mt-2">
+                        <div className="mt-2 mt-3 we-have">
                             <h4>{t("price_offer.offer_title")}</h4>
                         </div>
 
@@ -346,7 +346,7 @@ export default function PriceOffer() {
                                     <li>{t("price_offer.airbnb.air5")}</li>
                                 </ul>
                                 <h5 className="mt-4 mb-2">{getNextNumber()}. {t("price_offer.regular_services.rs2")}</h5>
-                                <div className="table-responsive text-center">
+                                <div className="text-center table-responsive">
                                     <table className="table table-sm table-bordered table-striped">
                                         <thead>
                                             <tr>
@@ -384,7 +384,7 @@ export default function PriceOffer() {
                                     {getNextNumber()}. {" "}
                                     {t("price_offer.regular_services.rs2")}
                                 </h4>
-                                <div className="table-responsive text-center">
+                                <div className="text-center table-responsive">
                                     <table className="table table-sm table-bordered table-striped">
                                         <thead>
                                             <tr>
@@ -739,7 +739,7 @@ export default function PriceOffer() {
                                         src={t(
                                             "price_offer.renovation.rn2_img"
                                         )}
-                                        className="img-fluid m-2"
+                                        className="m-2 img-fluid"
                                         alt="Room Services"
                                     />
                                 </div>
@@ -821,12 +821,12 @@ export default function PriceOffer() {
                             </ul>
                         </div> */}
                     </section>
-                    <section className="col px-3">
+                    <section className="px-3 col">
                         <div className="shift-20" id="priceOfferTable">
                             <h5 className="card-title">
                                 {t("price_offer.service_title")}
                             </h5>
-                            <div className="table-responsive text-center">
+                            <div className="text-center table-responsive">
                                 <table className="table table-sm table-bordered table-striped">
                                     <thead>
                                         <tr>
@@ -871,7 +871,7 @@ export default function PriceOffer() {
                                             const subServiceName = clientLng === 'heb'
                                                 ? s.sub_services?.subServices?.name_heb
                                                 : s.sub_services?.subServices?.name_en;
-
+                                            console.log('jdfbjbsfjb', s);
                                             return (
                                                 <tr key={i}>
                                                     {
@@ -1088,7 +1088,7 @@ export default function PriceOffer() {
                             </ul>
                         </div>
                         {status == "sent" ? (
-                            <div className="headBtns mt-3 d-flex justify-content-end">
+                            <div className="mt-3 headBtns d-flex justify-content-end">
                                 <button
                                     type="button"
                                     className="btn btn-success acpt"
@@ -1114,11 +1114,11 @@ export default function PriceOffer() {
                         ) : (
                             <div className="mt-3 headMsg d-flex justify-content-end">
                                 {status == "accepted" ? (
-                                    <h4 className="btn btn-success px-3" style={{ lineHeight: "1.3" }}>
+                                    <h4 className="px-3 btn btn-success" style={{ lineHeight: "1.3" }}>
                                         {t("global.accepted")}
                                     </h4>
                                 ) : (
-                                    <h4 className="btn btn-danger px-3" style={{ lineHeight: "1.3" }}>
+                                    <h4 className="px-3 btn btn-danger" style={{ lineHeight: "1.3" }}>
                                         {t("global.rejected")}
                                     </h4>
                                 )}

@@ -71,6 +71,7 @@ class WeeklyNotifyClientWorker extends Command
         $template = WhatsappTemplate::where('key','NOTIFY_MONDAY_CLIENT_AND_WORKER_FOR_SCHEDULE')->first();
 
         foreach ($scheduledJobs as $job) {
+            \Log::info($job);
             if ($job->client) {
                 $clientData = [
                     'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,

@@ -23,7 +23,7 @@ class ChatController extends Controller
         // Return a JSON response
         return response()->json($webhookResponses);
     }
-    
+
     public function chats()
     {
         $data = WebhookResponse::distinct()->where('number', '!=', null)->get(['number']);
@@ -69,21 +69,21 @@ class ChatController extends Controller
         $validatedData = $request->validate([
             'number' => 'required|string|unique:webhook_responses,number',
         ]);
-    
+
         // Check if the number already exists in the WebhookResponse table
         $existingRecord = WebhookResponse::where('number', $validatedData['number'])->first();
-    
+
         // If it exists, return a response indicating the record already exists
         if ($existingRecord) {
             return response()->json(['message' => 'Record with this number already exists.'], 409); // 409 Conflict
         }
-    
+
         // Check if the number exists in the clients table
         $client = Client::where('phone', $validatedData['number'])->first();
-    
+
         // If a client exists, use their name; otherwise, use a default name
         $name = $client ? $client->firstname . ' ' . $client->lastname : 'Default Name';
-    
+
         // Create a new WebhookResponse record with default values
         $webhookResponse = WebhookResponse::create([
             'name' => $name,                      // Fill name from the client if exists
@@ -97,56 +97,56 @@ class ChatController extends Controller
             'res_id' => null,        // Set your default res_id here
             'wa_id' => null           // Set your default wa_id here
         ]);
-    
+
         return response()->json(['message' => 'Webhook response stored successfully.', 'data' => $webhookResponse], 201); // 201 Created
     }
-    
+
 
 
     public function chatsMessages($no)
     {
         $chat = WebhookResponse::where('number', $no)->get();
-    
+
         WebhookResponse::where(['number' => $no, 'read' => 0])->update([
             'read' => 1
         ]);
-    
+
         $lastMsg = WebhookResponse::where('number', $no)->get()->last();
         $expired = ($lastMsg && $lastMsg->created_at < Carbon::now()->subHours(24)) ? 1 : 0;
-    
+
         if (strlen($no) > 10) {
             $client = Client::where('phone', 'like', '%' . substr($no, 2) . '%')->first();
         } else {
             $client = Client::where('phone', 'like', '%' . $no . '%')->first();
         }
-    
+
         $clientName = $client ? $client->firstname . " " . $client->lastname : 'Unknown';
-    
+
         return response()->json([
             'chat' => $chat,
             'expired' => $expired,
             'clientName' => $clientName,
         ]);
     }
-    
+
 
     public function chatReply(Request $request)
     {
         $replyId = $request->input('replyId'); // Get replyId from request
         $mediaPath = null;
         $result = null;
-        $mimeType = null;   
-    
+        $mimeType = null;
+
         // Check if a media file is included in the request
         if ($request->hasFile('media')) {
             // Handle media upload
             $mediaFile = $request->file('media');
             $mediaPath = $mediaFile->store('public/uploads/media'); // Store the media file and get the path
             $fullMediaPath = storage_path('app/' . $mediaPath); // Get the full path of the uploaded file
-    
+
             // Determine the file MIME type
             $mimeType = $mediaFile->getMimeType();
-    
+
             // Check if the media is an image
             if (strpos($mimeType, 'image') !== false) {
                 \Log::info($request->message);
@@ -167,19 +167,19 @@ class ChatController extends Controller
                     $replyId ? $replyId : null
                 );
             }
-    
+
             \Log::info($result);
         } else {
             // Send regular message (text only)
             $result = sendWhatsappMessage(
-                $request->number, 
+                $request->number,
                 array('message' => $request->message),
                 $replyId ? $replyId : null
             );
         }
-    
+
         // Accessing the result's message id properly, assuming it may be an object
-  
+
         // Accessing the result's message id properly, assuming it may be an object or array
         $messageId = is_array($result) ? ($result['message']['id'] ?? null) : ($result->message->id ?? null);
 
@@ -201,7 +201,7 @@ class ChatController extends Controller
             'msg' => 'Message sent successfully',
         ]);
     }
-    
+
 
     public function saveResponse(Request $request)
     {
@@ -507,6 +507,7 @@ class ChatController extends Controller
         if ($response->successful()) {
             $data = $response->json();
             $pageAccessToken = $data['access_token'];
+            \Log::info("Page Access Token: " . $pageAccessToken);
 
             return $pageAccessToken;
         } else {
@@ -547,57 +548,58 @@ class ChatController extends Controller
     public function Participants()
     {
         $pageAccessToken = $this->getPageAccessToken();
-    
+
         if (!$pageAccessToken) {
             Log::error('Page Access Token is not available');
             return response()->json([
                 'error' => 'Page Access Token is missing'
             ]);
         }
-    
+
         $url ='https://graph.facebook.com/v21.0/' . config('services.facebook.account_id') . '/conversations?fields=participants&limit=100000000000000000000000000000000000000000000000000000&access_token=' . $pageAccessToken;
-    
+
         $ch = curl_init();
-    
+
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    
+
         $result = curl_exec($ch);
-        
+
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
         }
         curl_close($ch);
         $_p = json_decode($result);
-    
+
         return response()->json([
             'data' => $_p,
             'page_id' => config('services.facebook.account_id')
         ]);
-    }    
+    }
 
     public function messengerMessage($id)
     {
-        $url = 'https://graph.facebook.com/v21.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . config('services.facebook.access_token');
-    
+        \Log::info("Fetching Messenger messages for ID: " . $id);
+        $url = 'https://graph.facebook.com/v21.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . config('services.facebook.msg_access_token');
+
         Log::info("Requesting Messenger messages", ["URL" => $url]);
-    
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    
+
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
+
         if (curl_errno($ch)) {
             Log::error("CURL error", ["Error" => curl_error($ch)]);
             curl_close($ch);
             return response()->json(['error' => 'Failed to fetch data'], 500);
         }
         curl_close($ch);
-    
+
         $response = json_decode($result, true);
-    
+
         // Check for Graph API error
         if ($httpCode !== 200 || isset($response['error'])) {
             Log::error("Graph API error", [
@@ -606,16 +608,16 @@ class ChatController extends Controller
             ]);
             return response()->json(['error' => $response['error'] ?? 'Unknown error'], $httpCode);
         }
-    
+
         Log::info('Messenger messages fetched successfully', [
             'chat' => $response
         ]);
-    
+
         return response()->json([
             'chat' => $response,
         ]);
     }
-    
+
     public function messengerReply(Request $request)
     {
         $accessToken = config('services.facebook.access_token');

@@ -59,9 +59,28 @@ class SyncGoogleSheetDataJob implements ShouldQueue
     {
         $serviceMap = [
             '3*' => '3 Star',
+            '3' => '3 Star',
             '4*' => '4 Star',
+            '5*' => '5 Star',
+            '5' => '5 Star',
             '4' => '4 Star',
             'משרד' => 'Office Cleaning',
+        ];
+
+        $frequencyMap = [
+            'B' => 'On demand',
+            '1' => 'Once Time week',
+            '2' => 'Twice in week',
+            '3' => '3 times a week',
+            '4' => '4 times a week',
+            '5' => '5 times a week',
+            '6' => '6 times a week',
+            '0,5' => 'Once in every two weeks',
+            '0.5' => 'Once in every two weeks',
+            '0.25' => 'Once a month',
+            '0,25' => 'Once a month',
+            '0.3' => 'Once in every three weeks',
+            '0,3' => 'Once in every three weeks',
         ];
 
         $serviceArr = Services::get()->pluck('heb_name')->toArray();
@@ -196,13 +215,20 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 $service = $row[11] ?? null;
                                 $workerHours = $row[13] ?? null;
                                 $workerHours = str_replace(',', '.', $workerHours);
-                                $selectedService = $serviceMap[$row[11] ?? null] ?? null;
+                                $selectedService = $serviceMap[trim($row[11]) ?? null] ?? null;
                                 if ($selectedService) {
                                     $selectedService = Services::where('name', $selectedService)->first();
                                 }
+
+                                $selectedFrequency = $frequencyMap[$row[18] ?? null] ?? null;
+                                if ($selectedFrequency) {
+                                    $selectedFrequency = ServiceSchedule::where('name', $selectedFrequency)->first();
+                                }
+
                                 $offer = null;
                                 $services = [];
                                 $frequencies = [];
+                                $selectedOfferDataArr = [];
                                 $selectedOfferData = null;
 
                                 if (is_numeric(trim($row[2]))) {
@@ -211,15 +237,15 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                     if ($offer) {
                                         $data = json_decode($offer->services, true);
                                         if (count($data) == 1) {
-                                            $selectedOfferData = $data[0];
+                                            $selectedOfferDataArr[] = $data[0];
                                             $services[] = $data[0]['name'];
                                             $frequencies[] = $data[0]['freq_name'];
                                         } else {
                                             foreach ($data as $d) {
-                                                $jobHours = Arr::pluck($d['workers'], 'jobHours');
-                                                $isFound = in_array($workerHours, $jobHours);
-                                                if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($isFound)) {
-                                                    $selectedOfferData = $d;
+                                                // $jobHours = Arr::pluck($d['workers'], 'jobHours');
+                                                // $isFound = in_array($workerHours, $jobHours);
+                                                if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null))) {
+                                                    $selectedOfferDataArr[] = $d;
                                                 }
                                                 $services[] = $d['name'];
                                                 $frequencies[] = $d['freq_name'];
@@ -227,27 +253,39 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         }
                                     }
                                 }
-
                                 $offers = $client->offers;
                                 foreach ($offers as $offer) {
                                     $data = json_decode($offer->services, true);
                                     if (count($data) == 1) {
-                                        $selectedOfferData = $data[0];
+                                        $selectedOfferDataArr[] = $data[0];
                                         $services[] = $data[0]['name'];
                                         $frequencies[] = $data[0]['freq_name'];
                                     } else {
                                         foreach ($data as $d) {
-                                            $jobHours = Arr::pluck($d['workers'], 'jobHours');
-                                            $isFound = in_array($workerHours, $jobHours);
+                                            // $jobHours = Arr::pluck($d['workers'], 'jobHours');
+                                            // $isFound = in_array($workerHours, $jobHours);
 
-                                            if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($isFound)) {
-                                                $selectedOfferData = $d;
+                                            if ($selectedService && ($d['name'] == $selectedService->name || $d['name'] == $selectedService->heb_name) && ($d['freq_name'] == ($selectedFrequency->name ?? null) || $d['freq_name'] == ($selectedFrequency->name_heb ?? null))) {
+                                                $selectedOfferDataArr[] = $d;
                                             }
                                             $services[] = $d['name'];
                                             $frequencies[] = $d['freq_name'];
                                         }
                                     }
                                 }
+
+                                if(count($selectedOfferDataArr) > 1) {
+                                    foreach($selectedOfferDataArr as $d) {
+                                        $jobHours = Arr::pluck($d['workers'], 'jobHours');
+                                        $isFound = in_array($workerHours, $jobHours);
+                                        if($isFound) {
+                                            $selectedOfferData = $d;
+                                        }
+                                    }
+                                } else {
+                                    $selectedOfferData = $selectedOfferDataArr[0] ?? null;
+                                }
+
                                 if (!empty($services)) {
                                     $fields[] = [
                                         'sheetId' => $sheetId, // Sheet ID
@@ -265,13 +303,22 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         'value' => count($serviceArr) == 1 ? $serviceArr[0] : ($selectedOfferData['name'] ?? null),
                                     ];
                                 }
+                                $selectedFrequencyName = null;
+                                if($selectedFrequency) {
+                                    if($client->lng == 'en') {
+                                        $selectedFrequencyName = $selectedFrequency->name;
+                                    } else {
+                                        $selectedFrequencyName = $selectedFrequency->name_heb;
+                                    }
+                                }
+
                                 if (!empty($frequencies)) {
                                     $fields[] = [
                                         'sheetId' => $sheetId, // Sheet ID
                                         'cell' => "Q" . ($index + 1), // Cell location
                                         'type' => 'dropdown', // Field type
                                         'values' => $frequencies, // Dropdown options
-                                        'value' => count($frequencies) == 1 ? $frequencies[0] : ($selectedOfferData['freq_name'] ?? null),
+                                        'value' => count($frequencies) == 1 ? $frequencies[0] : ($selectedFrequencyName ?? null),
                                     ];
                                 } else {
                                     $fields[] = [
@@ -279,7 +326,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         'cell' => "Q" . ($index + 1), // Cell location
                                         'type' => 'dropdown', // Field type
                                         'values' => $frequencyArr, // Dropdown options
-                                        'value' => count($frequencyArr) == 1 ? $frequencyArr[0] : ($selectedOfferData['freq_name'] ?? null),
+                                        'value' => count($frequencyArr) == 1 ? $frequencyArr[0] : ($selectedFrequencyName ?? null),
                                     ];
                                 }
 
@@ -305,7 +352,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
 
                                 $fields[] = [
                                     'sheetId' => $sheetId, // Sheet ID
-                                    'cell' => "S" . ($index + 1), // Cell location
+                                    'cell' => "T" . ($index + 1), // Cell location
                                     'type' => 'dropdown', // Field type
                                     'values' => $addresses, // Dropdown options
                                     'value' => (count($addresses) == 1) ? $addresses[0] : (($highestSimilarity > 50) ? $bestMatch : null),

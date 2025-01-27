@@ -62,14 +62,14 @@ const ScheduleRequestDetails = () => {
                                         </p>
                                     </div>
                                 </div>
-                                <div className="col-sm-4">
+                                {/* <div className="col-sm-4">
                                     <div className="form-group">
                                         <label className="control-label">
                                             {t("worker.settings.gender")}
                                         </label>
                                         <p>{schedule?.user?.gender}</p>
                                     </div>
-                                </div>
+                                </div> */}
                                 <div className="col-sm-4">
                                     <div className="form-group">
                                         <label className="control-label">
@@ -86,6 +86,16 @@ const ScheduleRequestDetails = () => {
                                         </label>
                                         <p>
                                             {schedule?.status}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="col-sm-4">
+                                    <div className="form-group">
+                                        <label className="control-label">
+                                            {t("worker.settings.status")}
+                                        </label>
+                                        <p>
+                                            {schedule?.reason}
                                         </p>
                                     </div>
                                 </div>
