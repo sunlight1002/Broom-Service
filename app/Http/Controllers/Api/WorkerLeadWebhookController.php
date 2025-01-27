@@ -4,20 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\LeadStatusEnum;
 use App\Enums\NotificationTypeEnum;
-use App\Enums\SettingKeyEnum;
+use App\Enums\JobStatusEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Events\WhatsappNotificationEvent;
 use App\Http\Controllers\Controller;
-use App\Models\Fblead;
 use App\Models\User;
-use App\Models\Contract;
+use App\Models\Client;
 use App\Models\Job;
 use App\Jobs\SendMeetingMailJob;
 use App\Models\Offer;
 use App\Models\WorkerWebhookResponse;
 use App\Models\WhatsAppBotWorkerState;
 use App\Models\Notification;
-use App\Models\Setting;
+use App\Models\WorkerMetas;
 use App\Models\WorkerLeads;
 use App\Models\ScheduleChange;
 use App\Models\WhatsAppBotActiveWorkerState;
@@ -84,7 +83,31 @@ class WorkerLeadWebhookController extends Controller
         ],
         'team_schedule_change' => [
             'en' => ":worker_name requested a schedule change: :message. \nPlease review and handle accordingly..",
-        ]
+        ],
+        'change_schedule_comment' => [
+            'en' => "We received your request for schedule changes.\nHere’s your request:\n':message'\nYour request has been forwarded to our team for review and action.",
+            'heb' => "קיבלנו את בקשתך לשינויים בסידור העבודה.\nלהלן הבקשה שלך:\n':message'\nהבקשה הועברה לצוות שלנו לבדיקה וטיפול.",
+            'ru' => "Мы получили ваш запрос на изменение графика.\nВот ваш запрос:\n':message'\nВаш запрос передан нашей команде для проверки и обработки.",
+            'spa' => "Hemos recibido tu solicitud de cambios en el horario.\nAquí está tu solicitud:\n':message'\nTu solicitud ha sido enviada a nuestro equipo para su revisión y acción.",
+        ],
+        'sorry' => [
+            'en' => "I'm sorry, I didn’t understand your response.\n• Reply with a number from the menu options.\n• Type 'menu' to return to the main menu.",
+            'heb' => "מצטערים, לא הבנו את תשובתך.\n• אנא השב עם מספר מאחת האפשרויות בתפריט.\n• הקלד 'תפריט' כדי לחזור לתפריט הראשי",
+            'ru' => "Извините, я вас не понял.\n• Ответьте номером из вариантов меню.\n• Напишите 'меню', чтобы вернуться в главное меню",
+            'spa' => "Lo siento, no entendí tu respuesta.\n• Responde con un número de las opciones del menú.\n• Escribe 'menú' para volver al menú principal.",
+        ],
+        'access_employee_portal' => [
+            'en' => "Here is the link to the employee portal: 🌐\n:link\nLog in with your credentials to access your account and details.\nAt any time, you can return to the main menu by typing 'Menu'.",
+            'heb' => "הנה הקישור לפורטל העובדים: 🌐\n:link\nהיכנס עם הפרטים שלך כדי לגשת לחשבונך.\nבכל שלב ניתן לחזור לתפריט הראשי על ידי הקלדת 'תפריט'.",
+            'ru' => "Вот ссылка на портал сотрудников: 🌐\n:link\nВойдите с помощью своих учетных данных, чтобы получить доступ к своему аккаунту и деталям.\nНа любом этапе вы можете вернуться в главное меню, отправив сообщение 'меню'.",
+            'spa' => "Aquí está el enlace al portal de empleados: 🌐\n:link\nInicia sesión con tus credenciales para acceder a tu cuenta y detalles.\nEn cualquier momento, puedes volver al menú principal escribiendo 'Menú'.",
+        ],
+        'today_and_tomorrow_schedule' => [
+            'en' => "Your schedule is as follows:\nToday: :today_schedule\nTomorrow: :tomorrow_schedule\n\nAt any time, you can return to the main menu by typing 'Menu'.",
+            'heb' => "סידור העבודה שלך הוא:\nהיום: :today_schedule\nמחר: :tomorrow_schedule\n\nבכל שלב ניתן לחזור לתפריט הראשי על ידי הקלדת 'תפריט'.",
+            'ru' => "Ваш график следующий:\nСегодня: :today_schedule\nЗавтра: :tomorrow_schedule\n\nНа любом этапе вы можете вернуться в главное меню, отправив сообщение 'меню'.",
+            'spa' => "Tu horario es el siguiente:\nHoy: :today_schedule\nMañana: :tomorrow_schedule\n\nEn cualquier momento, puedes volver al menú principal escribiendo 'Menú'.",
+        ],
     ];
 
 
@@ -100,13 +123,13 @@ class WorkerLeadWebhookController extends Controller
         }
 
         // Check if the messageId exists in cache and matches
-        if (Cache::get('processed_message_' . $messageId) === $messageId) {
+        if (Cache::get('worker_processed_message_' . $messageId) === $messageId) {
             \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
 
         // Store the messageId in the cache for 1 hour
-        Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
+        Cache::put('worker_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
         if (
             isset($data_returned['messages']) &&
@@ -278,13 +301,13 @@ class WorkerLeadWebhookController extends Controller
         }
 
         // Check if the messageId exists in cache and matches
-        if (Cache::get('processed_message_' . $messageId) === $messageId) {
+        if (Cache::get('active_worker_processed_message_' . $messageId) === $messageId) {
             \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
 
         // Store the messageId in the cache for 1 hour
-        Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
+        Cache::put('active_worker_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
         if (
             isset($data_returned['messages']) &&
@@ -293,7 +316,7 @@ class WorkerLeadWebhookController extends Controller
         ) {
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
-            $input = $data_returned['messages'][0]['text']['body'];
+            $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
             $lng = "heb";
 
             WorkerWebhookResponse::create([
@@ -307,81 +330,54 @@ class WorkerLeadWebhookController extends Controller
                 'data' => json_encode($get_data)
             ]);
 
-            $workerLead = WorkerLeads::where('phone', $from)->first();
             $user = User::where('phone', $from)
                     ->where('status', 1)
                     ->first();
-                    \Log::info($user);
 
-            if ($user && !$workerLead) {
+            if ($user && $user->stop_last_message == 1) {
                 $lng = $user->lng;
-                $last_menu = '';
+                $last_menu = null;
+                $send_menu = null;
                 $activeWorkerBot = WhatsAppBotActiveWorkerState::where('worker_id', $user->id)->first();
-                
+
                 if($activeWorkerBot){
                     $menu_option = explode('->', $activeWorkerBot->menu_option);
                     $last_menu = end($menu_option);
-                    \Log::info($last_menu);
                 }
 
-                if (!$activeWorkerBot || $input == in_array(strtolower($input), ["menu", "меню", "תפריט", "menú"])) {
-                    // Fetch the initial message based on the selected language
-                    $initialMessage = $this->activeWorkersbotMessages['main_menu'][$lng];
-                
-                    // Replace :worker_name with the user's firstname and lastname
-                    $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
-                    $personalizedMessage = str_replace(':worker_name', $workerName, $initialMessage);
-                    $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
-
-                    WhatsAppBotActiveWorkerState::updateOrCreate(
-                        ['worker_id' => $user->id],
-                        ['menu_option' => 'main_menu', 'lng' => $lng]
-                    );
-
-                    WorkerWebhookResponse::create([
-                        'status' => 1,
-                        'name' => 'whatsapp',
-                        'message' => $personalizedMessage,
-                        'number' => $from,
-                        'read' => 1,
-                        'flex' => 'A',
-                    ]);
+                if(empty($last_menu) || in_array(strtolower($input), ["menu", "меню", "תפריט", "menú"])) {
+                    $send_menu = 'main_menu';
+                } else if ($last_menu == 'main_menu' && $input == '1') {
+                    $send_menu = 'talk_to_manager';
+                } else if ($last_menu == 'talk_to_manager' && !empty($input)) {
+                    $send_menu = 'comment';
+                } else if ($last_menu == 'main_menu' && $input == '2') {
+                    $send_menu = 'change_schedule';
+                } else if ($last_menu == 'change_schedule' && !empty($input)) {
+                    $send_menu = 'change_schedule_comment';
+                } else if ($last_menu == 'main_menu' && $input == '3') {
+                    $send_menu = 'today_and_tomorrow_schedule';
+                } else if ($last_menu == 'main_menu' && $input == '4') {
+                    $send_menu = 'access_employee_portal';
+                } else {
+                    $send_menu = 'sorry';
                 }
 
-                if($input == '1' || $last_menu == 'comment'){
-                    if($input == '1'){
-                        $nextMessage = $this->activeWorkersbotMessages['talk_to_manager'][$lng];
-                        $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
+                switch ($send_menu) {
+                    case 'main_menu':
+                        $initialMessage = $this->activeWorkersbotMessages['main_menu'][$lng];
                         WhatsAppBotActiveWorkerState::updateOrCreate(
-                            ['worker_id' => $user->id],
-                            ['menu_option' => 'talk_to_manager->comment']
-                        );
-
-                        WorkerWebhookResponse::create([
-                            'status' => 1,
-                            'name' => 'whatsapp',
-                            'message' => $nextMessage,
-                            'number' => $from,
-                            'read' => 1,
-                            'flex' => 'A',
-                        ]);
-                    }
-
-                    if($last_menu == 'comment'){
-                       $workerComment = WhatsAppBotActiveWorkerState::updateOrCreate(
-                            ['worker_id' => $user->id],
-                            ['menu_option' => 'talk_to_manager->comment', 
-                            'comment' => trim($input),
-                            'final' => true
+                            ["worker_id" => $user->id],
+                            [
+                                'menu_option' => 'main_menu',
+                                'lng' => $lng,
                             ]
                         );
-
-                        $nextMessage = $this->activeWorkersbotMessages['comment'][$lng];
-
+                        // Replace :worker_name with the user's firstname and lastname
                         $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
-                        $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $workerComment->comment], $nextMessage);
-                        $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                        $personalizedMessage = str_replace(':worker_name', $workerName, $initialMessage);
+                        sendWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
                         WorkerWebhookResponse::create([
                             'status' => 1,
@@ -391,23 +387,13 @@ class WorkerLeadWebhookController extends Controller
                             'read' => 1,
                             'flex' => 'A',
                         ]);
+                        break;
 
-                        $nextMessage = $this->activeWorkersbotMessages['team_comment']["en"];
-                        $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $workerComment->comment], $nextMessage);
-                        $result = sendTeamWhatsappMessage(config('services.whatsapp_groups.relevant_with_workers'), ['name' => '', 'message' => $personalizedMessage]);
+                    case 'talk_to_manager':
+                        $nextMessage = $this->activeWorkersbotMessages['talk_to_manager'][$lng];
+                        sendWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
-                    }
-                }
-
-                if($input == '2' || $last_menu == 'change_schedule'){
-                    if($input == '2'){
-                        $nextMessage = $this->activeWorkersbotMessages['change_schedule'][$lng];
-                        $result = sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-
-                        WhatsAppBotActiveWorkerState::updateOrCreate(
-                            ['worker_id' => $user->id],
-                            ['menu_option' => 'main_menu->change_schedule']
-                        );
+                        $activeWorkerBot->update(['menu_option' => 'main_menu->talk_to_manager', 'lng' => $lng]);
 
                         WorkerWebhookResponse::create([
                             'status' => 1,
@@ -417,29 +403,126 @@ class WorkerLeadWebhookController extends Controller
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-                    }
+                        break;
 
-                    if($last_menu == 'change_schedule'){
-                        if($input == '1'){
+                    case 'comment':
+                        $nextMessage = $this->activeWorkersbotMessages['comment'][$lng];
+                        $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
+                        $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $input], $nextMessage);
+                        sendWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
-                        }else{
-                            $workerComment = WhatsAppBotActiveWorkerState::updateOrCreate(
-                                ['worker_id' => $user->id],
-                                ['menu_option' => 'main_menu->change_schedule', 
-                                'comment' => trim($input),
-                                'final' => true
-                                ]
-                            );
-    
-                            $nextMessage = $this->activeWorkersbotMessages['team_schedule_change']["en"];
-                            $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
-                            $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $workerComment->comment], $nextMessage);
-                            $result = sendTeamWhatsappMessage(config('services.whatsapp_groups.relevant_with_workers'), ['name' => '', 'message' => $personalizedMessage]);
+                        $nextMessage = $this->activeWorkersbotMessages['team_comment']["en"];
+                        $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $input], $nextMessage);
+                        sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_workers'), ['name' => '', 'message' => $personalizedMessage]);
+                        $activeWorkerBot->delete();
+                        break;
+
+                    case 'change_schedule':
+                        $nextMessage = $this->activeWorkersbotMessages['change_schedule'][$lng];
+                        sendWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+
+                        $activeWorkerBot->update(['menu_option' => 'main_menu->change_schedule', 'lng' => $lng]);
+
+                        WorkerWebhookResponse::create([
+                            'status' => 1,
+                            'name' => 'whatsapp',
+                            'message' => $nextMessage,
+                            'number' => $from,
+                            'read' => 1,
+                            'flex' => 'A',
+                        ]);
+                        break;
+
+                    case 'change_schedule_comment':
+                        $scheduleChange = new ScheduleChange();
+                        $scheduleChange->user_type = get_class($user);
+                        $scheduleChange->user_id = $user->id;
+                        $scheduleChange->comments = $input;
+                        $scheduleChange->save();
+
+                        $nextMessage = $this->activeWorkersbotMessages['team_schedule_change']["en"];
+                        $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
+                        $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $input], $nextMessage);
+                        sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
+
+                        $message = $this->activeWorkersbotMessages['change_schedule_comment'][$lng];
+                        $message = str_replace([':message'], [$input], $message);
+                        sendWhatsappMessage($from, array('message' => $message));
+                        $activeWorkerBot->delete();
+                        break;
+
+                    case 'access_employee_portal':
+                        $nextMessage = $this->activeWorkersbotMessages['access_employee_portal'][$lng];
+                        $personalizedMessage = str_replace(':link', url("worker/login"), $nextMessage);
+                        sendWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                        $activeWorkerBot->delete();
+                        break;
+
+                    case 'sorry':
+                        $message = $this->activeWorkersbotMessages['sorry'][$lng];
+                        sendWhatsappMessage($from, array('message' => $message));
+                        break;
+
+                    case 'today_and_tomorrow_schedule':
+                        $nextMessage = $this->activeWorkersbotMessages['today_and_tomorrow_schedule'][$lng];
+                        $todayJobs = Job::where('worker_id', $user->id)
+                        ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                        ->whereDate('start_date', now())
+                        ->get();
+
+                        $tomorrowJobs = Job::where('worker_id', $user->id)
+                        ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                        ->whereDate('start_date', now()->addDay(1))
+                        ->get();
+
+                        $todaySchedule = "";
+                        $tomorrowSchedule = "";
+                        if ($todayJobs && $todayJobs->count() > 0) {
+                            foreach ($todayJobs as $job) {
+                                Carbon::setLocale($lng == 'en' ? 'en' : 'he');
+                                $day = Carbon::parse($job->start_date)->translatedFormat('l'); // Use translatedFormat for localized day
+                                if($job->service) {
+                                    $todaySchedule .= $job->service->name . ', ';
+                                }
+                                $todaySchedule .=  $day . ' - ' . $job->start_time . ' ' . $job->end_time . ", ";
+                                if($job->propertyAddress) {
+                                    $todaySchedule .= $job->propertyAddress->geo_address . ', ';
+                                }
+                                if($job->client) {
+                                    $todaySchedule .= $job->client->firstname . ' ' . $job->client->lastname;
+                                }
+                                $todaySchedule .= "\n";
+                            }
                         }
-                    }
+
+                        if ($tomorrowJobs && $tomorrowJobs->count() > 0) {
+                            foreach ($tomorrowJobs as $job) {
+                                Carbon::setLocale($lng == 'en' ? 'en' : 'he');
+                                $day = Carbon::parse($job->start_date)->translatedFormat('l'); // Use translatedFormat for localized day
+                                if($job->service) {
+                                    $tomorrowSchedule .= $job->service->name . ', ';
+                                }
+                                $tomorrowSchedule .=  $day . ' - ' . $job->start_time . ' ' . $job->end_time . ", ";
+                                if($job->propertyAddress) {
+                                    $tomorrowSchedule .= $job->propertyAddress->geo_address . ', ';
+                                }
+                                if($job->client) {
+                                    $tomorrowSchedule .= $job->client->firstname . ' ' . $job->client->lastname;
+                                }
+                                $tomorrowSchedule .= "\n";
+                            }
+                        }
+                        $nextMessage = str_replace(':today_schedule', $todaySchedule, $nextMessage);
+                        $nextMessage = str_replace(':tomorrow_schedule', $tomorrowSchedule, $nextMessage);
+                        sendWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                        $activeWorkerBot->delete();
+                        break;
+
+                    default:
+                        # code...
+                        break;
                 }
             }
-                    
         }
     }
 
@@ -457,13 +540,13 @@ class WorkerLeadWebhookController extends Controller
         }
 
         // Check if the messageId exists in cache and matches
-        if (Cache::get('processed_message_' . $messageId) === $messageId) {
+        if (Cache::get('worker_monday_processed_message_' . $messageId) === $messageId) {
             \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
 
         // Store the messageId in the cache for 1 hour
-        Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
+        Cache::put('worker_monday_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
         if (
             isset($data_returned['messages']) &&
@@ -472,35 +555,22 @@ class WorkerLeadWebhookController extends Controller
         ) {
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
-            $input = $data_returned['messages'][0]['text']['body'];
 
             $user = User::where('phone', $from)
                     ->where('status', 1)
                     ->first();
 
-            $client = Client::where('phone', $from)->first();
-            $workerLead = WorkerLead::where('phone', $from)->first();
-            if ($client || $workerLead) {
-                die('exist');
-            }
-
-            if ($user) {
+            if ($user && $user->stop_last_message == 0) {
                 $m = null;
-            
-                if ($user->status == 1) {
-                    $request = ScheduleChange::where('user_id', $user->id)
-                        ->where('user_type', get_class($user))
-                        ->latest()
-                        ->first();
-            
-                    $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
-            
-                    // If the input is 1
-                    if ($input == 1 && now()->isMonday() && (!$request || $isOlderThanWeek)) {
-                        // Set the flag to true
-                        $user->has_input_one = true;
-                        $user->save();
-            
+                $isMonday = now()->isMonday();
+
+                $msgStatus = Cache::get('worker_monday_msg_status_' . $user->id);
+                if($isMonday && !empty($msgStatus)) {
+                    $menu_option = explode('->', $msgStatus);
+                    $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
+                    $last_menu = end($menu_option);
+
+                    if($last_menu == 'main_monday_msg' && $messageBody == '1') {
                         // Send appropriate message
                         if ($user->lng == 'heb') {
                             $m = "מהו השינוי שאתה מבקש לשבוע הבא? תשובתך תועבר לצוות.";
@@ -511,9 +581,9 @@ class WorkerLeadWebhookController extends Controller
                         } else {
                             $m = "¿Cuál es tu cambio para la próxima semana? Tu respuesta será enviada al equipo.";
                         }
-            
-                        sendWorkerWhatsappMessage($from, ['name' => '', 'message' => $m]);
-            
+
+                        sendWhatsappMessage($from, ['name' => '', 'message' => $m]);
+                        Cache::put('worker_monday_msg_status_' . $user->id, 'main_monday_msg->next_week_change', now()->addDay(1));
                         WorkerWebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
@@ -522,14 +592,84 @@ class WorkerLeadWebhookController extends Controller
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-            
+                    } else if ($last_menu == 'main_monday_msg' && $messageBody == '2') {
                         $user->stop_last_message = 1;
                         $user->save();
-                    }
 
+                        $message = null;
 
-                    if (now()->isMonday() && $input != '1' && $input != '2' && $user->stop_last_message != 1) {
-                        $follow_up_msg = null;
+                        if($user->lng == 'heb'){
+                            $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',
+קיבלנו את תגובתך. אין שינויים בסידור העבודה שלך לשבוע הבא.
+
+בברכה,
+צוות ברום סרוויס 🌹';
+                        } else if($user->lng == 'ru'){
+                            $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',
+Мы получили ваш ответ. Ваш график на следующую неделю остается без изменений.
+
+С уважением,
+Команда Broom Service 🌹';
+                        } else{
+                            $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',
+We received your response. There are no changes to your schedule for next week.
+
+Best Regards,
+Broom Service Team 🌹 ';
+                        }
+
+                        sendWhatsappMessage($from, array('message' => $message));
+                        Cache::forget('worker_monday_msg_status_' . $user->id);
+                        WorkerMetas::where('worker_id', $user->id)->where('key', 'monday_msg_sent')->delete();
+                    } else if ($last_menu == 'next_week_change' && !empty($messageBody)) {
+                        $scheduleChange = new ScheduleChange();
+                        $scheduleChange->user_type = get_class($user);
+                        $scheduleChange->user_id = $user->id;
+                        $scheduleChange->comments = $messageBody;
+                        $scheduleChange->save();
+
+                        $personalizedMessage = "שלום צוות,\n" . $user->firstname . " " . $user->lastname . " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא.\nהבקשה שלו היא:\n\"".$messageBody."\"\nאנא בדקו וטפלו בהתאם.\nבברכה,\nצוות ברום סרוויס";
+
+                        sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
+
+                        $user->stop_last_message = 1;
+                        $user->save();
+
+                        $message = null;
+
+                        if($user->lng == 'heb'){
+                            $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',
+קיבלנו את תגובתך. בקשתך לשינויים בסידור העבודה התקבלה והועברה לצוות שלנו לבדיקה וטיפול.
+
+להלן הבקשה שלך:
+"' . $scheduleChange->comments . '"
+
+בברכה,
+צוות ברום סרוויס 🌹';
+                        } else if($user->lng == 'ru'){
+                            $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',
+Мы получили ваш ответ. Ваш запрос на изменения в графике получен и передан нашей команде для проверки и обработки.
+
+Вот ваш запрос:
+"' . $scheduleChange->comments . '"
+
+С уважением,
+Команда Broom Service 🌹';
+                        } else{
+                            $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',
+We received your response. Your request for changes to your schedule has been received and forwarded to our team for review and action.
+
+Here’s your request:
+"' . $scheduleChange->comments . '"
+
+Best Regards,
+Broom Service Team 🌹 ';
+                        }
+
+                        sendWhatsappMessage($from, array('message' => $message));
+                        Cache::forget('worker_monday_msg_status_' . $user->id);
+                        WorkerMetas::where('worker_id', $user->id)->where('key', 'monday_msg_sent')->delete();
+                    } else {
                         // Follow-up message for returning to the menu, with translation based on the client's language
                         if ($user->lng == 'heb') {
                             $follow_up_msg = "מצטערים, לא הבנו. אנא השב עם הספרה 1 אם יש לך שינויים, או 2 אם הסידור נשאר כפי שהיה.\n\nאם לא תתקבל תשובה תוך 5 שעות, הנושא יועבר לטיפול הצוות.\n\nבברכה,\nצוות ברום סרוויס 🌹";
@@ -540,7 +680,7 @@ class WorkerLeadWebhookController extends Controller
                         }else{
                             $follow_up_msg = "Sorry, I didn’t quite understand that. Please reply with the number 1 if you have changes or 2 if your schedule remains the same.\n\nIf no response is received within 5 hours, the issue will be escalated to the team.\n\nBest Regards,\nBroom Service Team 🌹";
                         }
-    
+
                         WorkerWebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
@@ -551,85 +691,10 @@ class WorkerLeadWebhookController extends Controller
                             'flex' => 'A',
                             'data' => json_encode($get_data)
                         ]);
-    
-                        $result = sendWorkerWhatsappMessage($from, array('message' => $follow_up_msg));
-                        
-                    } else if ($input != 1 && $input != 2 && now()->isMonday() && (!$request || $isOlderThanWeek) && $user->has_input_one) {
-                        $scheduleChange = new ScheduleChange();
-                        $scheduleChange->user_type = get_class($user);  
-                        $scheduleChange->user_id = $user->id;      
-                        $scheduleChange->comments = $input;  
-                        $scheduleChange->save();
 
-                        $user->has_input_one = false;
-                        $user->stop_last_message = 1;
-                        $user->save();
-
-                        $message = null;
-
-                        if($user->lng == 'heb'){
-                            $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',  
-קיבלנו את תגובתך. בקשתך לשינויים בסידור העבודה התקבלה והועברה לצוות שלנו לבדיקה וטיפול.  
-
-להלן הבקשה שלך:  
-"' . $scheduleChange->comments . '"  
-
-בברכה,  
-צוות ברום סרוויס 🌹';
-                        } else if($user->lng == 'ru'){
-                            $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',  
-Мы получили ваш ответ. Ваш запрос на изменения в графике получен и передан нашей команде для проверки и обработки.  
-
-Вот ваш запрос:  
-"' . $scheduleChange->comments . '"  
-
-С уважением,  
-Команда Broom Service 🌹';
-                        } else{
-                            $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',  
-We received your response. Your request for changes to your schedule has been received and forwarded to our team for review and action.  
-
-Here’s your request:  
-"' . $scheduleChange->comments . '"  
-
-Best Regards,  
-Broom Service Team 🌹 ';
-                        }
-
-                        sendWorkerWhatsappMessage($from, array('message' => $message));
-                    }  else if($input == 2 && now()->isMonday() && (!$request || $isOlderThanWeek) && !$user->has_input_one) {
-
-                        $user->has_input_one = false;
-                        $user->stop_last_message = 1;
-                        $user->save();
-
-                        $message = null;
-
-                        if($user->lng == 'heb'){
-                            $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',  
-קיבלנו את תגובתך. אין שינויים בסידור העבודה שלך לשבוע הבא.  
-
-בברכה,  
-צוות ברום סרוויס 🌹';
-                        } else if($user->lng == 'ru'){
-                            $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',  
-Мы получили ваш ответ. Ваш график на следующую неделю остается без изменений.  
-
-С уважением,  
-Команда Broom Service 🌹';
-                        } else{
-                            $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',  
-We received your response. There are no changes to your schedule for next week.  
-
-Best Regards,  
-Broom Service Team 🌹 ';
-                        }
-
-                        sendWorkerWhatsappMessage($from, array('message' => $message));
+                        sendWhatsappMessage($from, array('message' => $follow_up_msg));
                     }
-                }                   
-
-                die("User is already Worker");
+                }
             }
         }
     }

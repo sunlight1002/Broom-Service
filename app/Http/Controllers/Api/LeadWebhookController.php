@@ -17,6 +17,7 @@ use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Enums\LeadStatusEnum;
 use App\Enums\SettingKeyEnum;
+use App\Enums\JobStatusEnum;
 use App\Models\ScheduleChange;
 use App\Events\SendClientLogin;
 use App\Models\WebhookResponse;
@@ -95,8 +96,8 @@ class LeadWebhookController extends Controller
             "heb" => "🔔 לקוח בשם :client_name ביקש שיחזרו אליו בדחיפות בנושא: :message\n📞 טלפון: :client_phone\n📄 :client_link"
         ],
         "service_schedule" => [
-            "en" => "Your service is scheduled for \n:date_time",
-            "heb" => "השירות בשבוע הבא מתוכנן ל- \n:date_time"
+            "en" => "Your service is scheduled for \n:date_time\n⏰ Please note: Arrival time may vary up to 1.5 hours from the scheduled time.",
+            "heb" => "השירות בשבוע הבא מתוכנן ל- \n:date_time\n⏰ שים לב: זמן ההגעה עשוי להשתנות ולהגיע לעד כשעה וחצי משעת ההתחלה."
         ],
         "next_week_service_schedule" => [
             "en" => "Your service next week is scheduled for \n:date_time\n⏰ Please note: Arrival time may vary up to 1.5 hours from the scheduled time.",
@@ -112,7 +113,7 @@ class LeadWebhookController extends Controller
         ],
         "team_new_qoute" => [
             "en" => "🔔 Client :client_name has requested a new quote.\n📞 Phone: :client_phone\n📄 :client_link",
-            "heb"=> "🔔 לקוח בשם :client_name ביקש הצעת מחיר חדשה.\n📞 טלפון: :client_phone\n📄 :client_link"
+            "heb" => "🔔 לקוח בשם :client_name ביקש הצעת מחיר חדשה.\n📞 טלפון: :client_phone\n📄 :client_link"
         ],
         "invoice_account" => [
             "en" => "What would you like to forward to our accounting department?\nPlease let us know your inquiry or request, and we’ll ensure to get back to you promptly.",
@@ -248,16 +249,16 @@ class LeadWebhookController extends Controller
         if (!$messageId) {
             return response()->json(['status' => 'Invalid message data'], 400);
         }
-        
+
         // Check if the messageId exists in cache and matches
         if (Cache::get('processed_message_' . $messageId) === $messageId) {
-        \Log::info('Already processed');
+            \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
-        
+
         // Store the messageId in the cache for 1 hour
         Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
-        
+
 
         if (
             isset($data_returned['messages']) &&
@@ -272,41 +273,41 @@ class LeadWebhookController extends Controller
             if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
 
                 if ($message_data[0]['chat_id'] == config('services.whatsapp_groups.lead_client')) {
-                    
+
                     $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
-            
+
                     // Split the message body into lines
                     $lines = explode("\n", trim($messageBody));
-            
+
                     $new = trim($lines[0] ?? '');
                     $fullName = trim($lines[1] ?? '');
-                    $phone = trim($lines[2] ?? '');    
-                    $email = trim($lines[3] ?? '');   
+                    $phone = trim($lines[2] ?? '');
+                    $email = trim($lines[3] ?? '');
 
                     if (stripos($new, 'חדש') !== false) {
-                        $lng = 'heb'; 
+                        $lng = 'heb';
                     } elseif (stripos($new, 'New') !== false) {
-                        $lng = 'en'; 
+                        $lng = 'en';
                     } else {
-                        $lng = 'heb'; 
+                        $lng = 'heb';
                     }
-                    
+
                     if (empty($phone)) {
                         return response()->json(['status' => 'Invalid message data'], 400);
                     }
-            
+
                     // Validate name and split into first and last name
                     if ($fullName) {
                         $nameParts = explode(' ', $fullName);
                         $firstName = $nameParts[0] ?? '';
                         $lastName = isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : '';
                     }
-            
+
                     // Validate and format the phone number
                     if ($phone) {
                         // Remove all special characters from the phone number
                         $phone = preg_replace('/[^0-9+]/', '', $phone);
-            
+
                         // Adjust phone number formatting
                         if (strpos($phone, '0') === 0) {
                             $phone = '972' . substr($phone, 1);
@@ -314,15 +315,15 @@ class LeadWebhookController extends Controller
                         if (strpos($phone, '+') === 0) {
                             $phone = substr($phone, 1);
                         }
-            
+
                         // Ensure phone starts with '972'
                         if (strlen($phone) === 9 || strlen($phone) === 10) {
                             $phone = '972' . $phone;
                         }
-            
+
                         // Check if the client already exists
                         $client = Client::where('phone', $phone)->first();
-            
+
                         if (!$client) {
                             $client = new Client;
                             $client->phone = $phone;
@@ -335,13 +336,13 @@ class LeadWebhookController extends Controller
                             $client->geo_address = '';
                             $client->lng = ($lng);
                             $client->save();
-            
-                            $m = $lng == 'heb' 
-                                ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id) 
+
+                            $m = $lng == 'heb'
+                                ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id)
                                 : "New lead created successfully\n" . url("admin/leads/view/" . $client->id);
                         } else {
-                           
-                            if($client->status != 2) {
+
+                            if ($client->status != 2) {
                                 $client->status = 0;
                                 $client->lead_status->update([
                                     'lead_status' => LeadStatusEnum::PENDING,
@@ -350,19 +351,19 @@ class LeadWebhookController extends Controller
                                 $client->save();
                             }
 
-                            $m = $lng == 'heb' 
-                                ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id) 
+                            $m = $lng == 'heb'
+                                ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id)
                                 : "Lead already exists\n" . url("admin/leads/view/" . $client->id);
                         }
-            
+
                         // Send WhatsApp message
                         $result = sendWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $m]);
                     }
                 }
-            
+
                 return response()->json(['status' => 'Already processed'], 200);
             }
-            
+
 
             $response = WebhookResponse::create([
                 'status'        => 1,
@@ -386,13 +387,13 @@ class LeadWebhookController extends Controller
                 $workerLead = WorkerLeads::where('phone', 'like', '%' . $from . '%')->first();
             }
 
-            if($client) {
+            if ($client) {
                 \Log::info('Client: ' . $client->id);
             }
-            if($user) {
+            if ($user) {
                 \Log::info('User: ' . $user->id);
             }
-            if($workerLead) {
+            if ($workerLead) {
                 \Log::info('WorkerLead: ' . $workerLead->id);
             }
 
@@ -449,7 +450,7 @@ class LeadWebhookController extends Controller
 
                 $client_menus = WhatsAppBotClientState::where('client_id', $client->id)->first();
 
-                if($message == 0){
+                if ($message == 0) {
                     $m = $this->botMessages['main-menu'][$client->lng];
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -504,7 +505,7 @@ class LeadWebhookController extends Controller
                 if (!$client_menus || $message == '9') {
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
-                    }else{
+                    } else {
                         $m = $this->botMessages['main-menu']['en'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
@@ -543,7 +544,7 @@ class LeadWebhookController extends Controller
                 ) {
                     if ($client->lng == 'heb') {
                         $m = $this->botMessages['main-menu']['heb'];
-                    }else{
+                    } else {
                         $m = $this->botMessages['main-menu']['en'];
                     }
                     $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
@@ -862,8 +863,8 @@ If you would like to speak to a human representative, please send a message with
                     $client->save();
 
                     // Ask for last name
-                    $msg = $client->lng == 'heb' 
-                        ? 'מה שם המשפחה שלך?' 
+                    $msg = $client->lng == 'heb'
+                        ? 'מה שם המשפחה שלך?'
                         : "Please send your last name.";
 
                     WebhookResponse::create([
@@ -896,8 +897,8 @@ If you would like to speak to a human representative, please send a message with
                     $client->save();
 
                     // Ask for full address
-                    $msg = $client->lng == 'heb' 
-                        ? 'כתובת מלאה (רחוב, מספר ועיר בלבד)' 
+                    $msg = $client->lng == 'heb'
+                        ? 'כתובת מלאה (רחוב, מספר ועיר בלבד)'
                         : "Please send your full address (Only street, number, and city).";
 
                     WebhookResponse::create([
@@ -929,7 +930,7 @@ If you would like to speak to a human representative, please send a message with
                     $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json', [
                         'address' => $message,
                         'key' => config('services.google.map_key'),
-                        'language' => $client->lng == 'heb' ? 'he' : 'en' 
+                        'language' => $client->lng == 'heb' ? 'he' : 'en'
                     ]);
 
                     \Log::info($response->json());
@@ -1657,7 +1658,6 @@ If you would like to speak to a human representative, please send a message with
         $get_data = $request->getContent();
         $data_returned = json_decode($get_data, true);
         $messageId = $data_returned['messages'][0]['id'] ?? null;
-        $lng = "en";
 
         \Log::info($data_returned);
 
@@ -1666,13 +1666,13 @@ If you would like to speak to a human representative, please send a message with
         }
 
         // Check if the messageId exists in cache and matches
-        if (Cache::get('processed_message_' . $messageId) === $messageId) {
+        if (Cache::get('active_client_processed_message_' . $messageId) == $messageId) {
             \Log::info('Already processed');
             return response()->json(['status' => 'Already processed'], 200);
         }
 
         // Store the messageId in the cache for 1 hour
-        Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
+        Cache::put('active_client_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
         if (
             isset($data_returned['messages']) &&
@@ -1681,9 +1681,42 @@ If you would like to speak to a human representative, please send a message with
         ) {
             $message_data = $data_returned['messages'];
             $from = $message_data[0]['from'];
-            $input = $data_returned['messages'][0]['text']['body'];
-            $lng = "heb";
+            $input = trim($data_returned['messages'][0]['text']['body']);
+
             $isMonday = now()->isMonday();
+
+            $workerLead = WorkerLeads::where('phone', $from)->first();
+            $user = User::where('phone', $from)
+                ->where('status', 1)
+                ->first();
+            $client = Client::where('phone', $from)
+                ->orWhereJsonContains('extra', [['phone' => $from]])
+                ->first();
+            $lng = $client->lng ?? $this->detectLanguage($input);
+            if ($user || $workerLead) {
+                die('Worker or worker lead found');
+            }
+
+            if ($isMonday && $client && $client->stop_last_message != 1) {
+                if ($client->stop_last_message == 0 && in_array(strtolower(trim($input)), ["menu", "תפריט"])) {
+                    $client->stop_last_message = 1;
+                    $client->save();
+                } else {
+                    \Log::info('Monday msg reply is pending');
+                    die('Monday msg reply is pending.');
+                }
+            }
+            \Log::info('client', $client->toArray());
+
+            $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)->first();
+
+            $last_menu = null;
+            $send_menu = null;
+            if ($clientMessageStatus) {
+                $lng = $clientMessageStatus->lng ?? 'heb';
+                $menu_option = explode('->', $clientMessageStatus->menu_option);
+                $last_menu = end($menu_option);
+            }
 
             WebhookResponse::create([
                 'status' => 1,
@@ -1696,73 +1729,120 @@ If you would like to speak to a human representative, please send a message with
                 'data' => json_encode($get_data)
             ]);
 
-            $workerLead = WorkerLeads::where('phone', $from)->first();
-            $user = User::where('phone', $from)
-                    ->where('status', 1)
-                    ->first();
-            $client = Client::where('phone', $from)
-                    ->orWhereJsonContains('extra', [['phone' => $from]])
-                    ->first();
-                    // \Log::info($client);
 
-            if($user) {
-                \Log::info('User: ' . $user->id);
-            }
-            if($workerLead) {
-                \Log::info('WorkerLead: ' . $workerLead->id);
-            }
-            if ($client) {
-                \Log::info('Client: ' . $client->id);
-                \Log::info('Client Name: ' . $client);
-            }
-            if($client && $client->attempts == 4) {
-                \Log::info('Client: ' . $client->id);
-                $nextMessage = $this->activeClientBotMessages['failed_attempts'][$client->lng];
-                $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+            if (empty($last_menu) || in_array(strtolower(trim($input)), ["menu", "תפריט"])) {
+                if (!$client && !$user && !$workerLead) {
+                    $send_menu = 'not_recognized';
+                } else {
+                    $send_menu = 'main_menu';
+                }
+            } else if ($last_menu == 'main_menu' && $input == '1') {
+                $send_menu = 'urgent_contact';
+            } else if ($last_menu == 'main_menu' && $input == '2') {
+                $send_menu = 'service_schedule';
+            } else if ($last_menu == 'main_menu' && $input == '3') {
+                $send_menu = 'request_new_qoute';
+            } else if ($last_menu == 'main_menu' && $input == '4') {
+                $send_menu = 'invoice_account';
+            } else if ($last_menu == 'main_menu' && $input == '5') {
+                $send_menu = 'change_update_schedule';
+            } else if ($last_menu == 'main_menu' && $input == '6') {
+                $send_menu = 'access_portal';
+            } else if ($last_menu == 'not_recognized' && $input == '1') {
+                $send_menu = 'enter_phone';
+            } else if ($last_menu == 'not_recognized' && $input == '2') {
+                $send_menu = 'new_lead';
+            } else if ($last_menu == 'urgent_contact' && !empty($input)) {
+                $send_menu = 'thankyou';
+            } else if ($last_menu == 'service_schedule' && $input == '5') {
+                $send_menu = 'change_update_schedule';
+            } else if ($last_menu == 'invoice_account' && !empty($input)) {
+                $send_menu = 'thank_you_invoice_account';
+            } else if ($last_menu == 'change_update_schedule' && !empty($input)) {
+                $send_menu = 'thank_you_change_update_schedule';
+            } else if ($last_menu == 'enter_phone' && !empty($input)) {
+                $phone = $input;
 
-                $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                    ['client_id' => $client->id],
-                    ["from" => $from,
-                    'menu_option' => 'failed_attempts']
-                );
+                // 1. Remove all special characters from the phone number
+                $phone = preg_replace('/[^0-9+]/', '', $phone);
 
-                WebhookResponse::create([
-                    'status' => 1,
-                    'name' => 'whatsapp',
-                    'message' => $nextMessage,
-                    'number' => $from,
-                    'read' => 1,
-                    'flex' => 'A',
-                ]);
-                return response()->json(['status' => 'success'], 200);
-            }
+                // 2. If there's any string or invalid characters in the phone, extract the digits
+                if (preg_match('/\d+/', $phone, $matches)) {
+                    $phone = $matches[0]; // Extract the digits
 
-            $lastMessage = WebhookResponse::where('flex', 'C')->orderBy('id', 'desc')->first();
+                    // Reapply rules on extracted phone number
+                    // If the phone number starts with 0, add 972 and remove the first 0
+                    if (strpos($phone, '0') === 0) {
+                        $phone = '972' . substr($phone, 1);
+                    }
 
-            if($lastMessage) {
-                \Log::info('lastMessage: ' . $lastMessage);
-            }
-
-            if ($client && !$user && !$workerLead && ($client->stop_last_message == 1 )) {
-                $lng = $client->lng;
-                $last_menu = '';
-
-                $activeClientBot = WhatsAppBotActiveClientState::where('client_id', $client->id)->first();
-
-                if($activeClientBot){
-                    $menu_option = explode('->', $activeClientBot->menu_option);
-                    $last_menu = end($menu_option);
-                    \Log::info($last_menu);
+                    // If the phone number starts with +, remove the +
+                    if (strpos($phone, '+') === 0) {
+                        $phone = substr($phone, 1);
+                    }
                 }
 
-                if (!$activeClientBot || in_array(strtolower($input), ["menu", "תפריט"])) {
-                   $this->sendMainMenu($client, $from);
-                   die("end");
+                $phoneLength = strlen($phone);
+                if (($phoneLength === 9 || $phoneLength === 10) && strpos($phone, '972') !== 0) {
+                    $phone = '972' . $phone;
                 }
 
-                if($last_menu == "end"){
-                    $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
-                    $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                $client = Client::where('phone', $phone)
+                    ->orWhereJsonContains('extra', [['phone' => $phone]])
+                    ->first();
+                // $lng = $client->lng ?? "heb";
+                if ($client && !empty($phone)) {
+                    $send_menu = 'email_sent';
+                } else {
+                    $send_menu = 'not_recognized';
+                }
+            } else if ($last_menu == 'email_sent' && $input == '0') {
+                $client = Client::where('phone', $clientMessageStatus->client_phone)
+                    ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
+                    ->first();
+                $send_menu = 'email_sent';
+            } else if ($last_menu == 'email_sent' && !empty($input)) {
+                $client = Client::where('phone', $clientMessageStatus->client_phone)
+                    ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
+                    ->first();
+                // $lng = $client->lng ?? "heb";
+                if ($client->otp == $input) {
+                    $send_menu = 'verified';
+                } else {
+                    $client->attempts = $client->attempts + 1;
+                    $client->save();
+                    if ($client->attempts >= 4) {
+                        $send_menu = 'failed_attempts';
+                    } else {
+                        $send_menu = 'incorect_otp';
+                    }
+                }
+            } else if ($last_menu == 'failed_attempts') {
+                $client = Client::where('phone', $clientMessageStatus->client_phone)
+                    ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
+                    ->first();
+                $send_menu = 'failed_attempts';
+            } else {
+                $send_menu = 'sorry';
+            }
+
+            switch ($send_menu) {
+                case 'main_menu':
+                    $this->sendMainMenu($client, $from);
+                    break;
+                case 'not_recognized':
+                    $nextMessage = $this->activeClientBotMessages['not_recognized'][$lng];
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            'menu_option' => 'not_recognized',
+                            'lng' => $lng,
+                            "from" => $from,
+                        ]
+                    );
+
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
@@ -1771,20 +1851,16 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
-                }
-
-                // if(in_array(strtolower($input), ["menu", "תפריט"])){
-                //     $this->sendMainMenu($client);
-                //    die("end");
-                // }
-
-                if($input == '1' && $last_menu !== 'end'){
-                    $clientName = $client->firstname ?? ''. ' ' . $client->lastname ?? '';
+                    break;
+                case 'urgent_contact':
+                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
 
                     $nextMessage = $this->activeClientBotMessages['urgent_contact'][$lng];
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
-                    $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
-
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    $clientMessageStatus->update([
+                        'menu_option' => 'main_menu->urgent_contact',
+                    ]);
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
@@ -1793,75 +1869,57 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
+                    break;
+                case 'thankyou':
+                    $nextMessage = $this->activeClientBotMessages['thankyou'][$lng];
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
-                    WhatsAppBotActiveClientState::updateOrCreate(
-                        ['client_id' => $client->id],
-                        ['menu_option' => 'urgent_contact->comment',
-                        "from" => $from]
-                    );
-                    die("end");
-                }
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $nextMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
 
-                if($last_menu == 'comment'){
-                    $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                        ['client_id' => $client->id],
-                        ['menu_option' => 'end', 
-                        'comment' => trim($input),
-                        'final' => true,
-                        "from" => $from,
-                        ]
-                    );
+                    $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
+                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+                    $personalizedMessage = str_replace([':client_name', ':message', ':client_phone', ':client_link'], [$clientName, trim($input), $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
 
-                    if($clientMessage->comment){
-                        $nextMessage = $this->activeClientBotMessages['thankyou'][$lng];
-                        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף";
+                    $scheduleChange->comments = trim($input);
+                    $scheduleChange->save();
 
-                        WebhookResponse::create([
-                            'status' => 1,
-                            'name' => 'whatsapp',
-                            'message' => $nextMessage,
-                            'number' => $from,
-                            'read' => 1,
-                            'flex' => 'A',
-                        ]);
+                    $clientMessageStatus->delete();
+                    break;
 
-                        $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
-                        $clientName = $client->firstname ?? ''. ' ' . $client->lastname ?? '';
-                        $personalizedMessage = str_replace([':client_name', ':message', ':client_phone', ':client_link'], [$clientName, $clientMessage->comment, $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
-                        // $result = sendTeamWhatsappMessage(config('services.whatsapp_groups.relevant_with_workers'), ['name' => '', 'message' => $personalizedMessage]);
-                        $result = sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
-
-
-                        $scheduleChange = new ScheduleChange();
-                        $scheduleChange->user_type = get_class($client);
-                        $scheduleChange->user_id = $client->id;
-                        $scheduleChange->reason = $lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף";
-                        $scheduleChange->comments = $clientMessage->comment;
-                        $scheduleChange->save();
-
-                        // $clientMessage->delete();
-                    }
-                    
-                    die("end");
-
-                }
-
-                if($input == "2" && $last_menu !== 'end'){
-                    $now = Carbon::now();
+                case 'service_schedule':
                     $today = Carbon::today()->toDateString();
-                    $weekEndDate = Carbon::today()->endOfWeek()->toDateString();
+                    $weekEndDate = Carbon::today()->endOfWeek(Carbon::SATURDAY)->toDateString();
                     $dateTime = '';
 
-                    $nextWeekStart = Carbon::now()->startOfWeek()->addWeek()->format('Y-m-d'); 
-                    $nextWeekEnd = Carbon::now()->endOfWeek()->addWeek()->format('Y-m-d'); 
+                    $nextWeekStart = Carbon::now()->startOfWeek(Carbon::SUNDAY)->addWeek()->format('Y-m-d');
+                    $nextWeekEnd = Carbon::now()->endOfWeek(Carbon::SATURDAY)->addWeek()->format('Y-m-d');
 
                     // Fetch jobs for the current week
                     $currentWeekJobs = Job::where('client_id', $client->id)
+                        ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
                         ->whereBetween('start_date', [$today, $weekEndDate])
                         ->get();
 
-                    if(!empty($currentWeekJobs)){
-                        foreach($currentWeekJobs as $job){
+                    // Fetch jobs for the next week
+                    $nextWeekJobs = Job::where('client_id', $client->id)
+                        ->whereNotIn('status', [JobStatusEnum::COMPLETED, JobStatusEnum::CANCEL])
+                        ->whereBetween('start_date', [$nextWeekStart, $nextWeekEnd])
+                        ->get();
+
+                    if ($currentWeekJobs && $currentWeekJobs->count() > 0) {
+                        foreach ($currentWeekJobs as $job) {
                             Carbon::setLocale($lng == 'en' ? 'en' : 'he');
                             $day = Carbon::parse($job->start_date)->translatedFormat('l'); // Use translatedFormat for localized day
                             $dateTime .=  $day . ' - ' . $job->start_time . ' ' . $job->end_time . "," . "\n";
@@ -1869,7 +1927,7 @@ If you would like to speak to a human representative, please send a message with
 
                         $nextMessage = $this->activeClientBotMessages['service_schedule'][$lng];
                         $personalizedMessage = str_replace(':date_time', $dateTime, $nextMessage);
-                        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                         WebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
@@ -1879,23 +1937,9 @@ If you would like to speak to a human representative, please send a message with
                             'flex' => 'A',
                         ]);
 
-                        $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                            ['client_id' => $client->id],
-                            ['menu_option' => 'end', 
-                            'final' => true,
-                            "from" => $from,
-                            ]
-                        );
-                    }
-
-
-                    // Fetch jobs for the next week
-                    $nextWeekJobs = Job::where('client_id', $client->id)
-                        ->whereBetween('start_date', [$nextWeekStart, $nextWeekEnd])
-                        ->get();
-
-                    if(!empty($nextWeekJobs)){
-                        foreach($nextWeekJobs as $job){
+                        $clientMessageStatus->delete();
+                    } else if ($nextWeekJobs && $nextWeekJobs->count() > 0) {
+                        foreach ($nextWeekJobs as $job) {
                             Carbon::setLocale($lng == 'en' ? 'en' : 'he');
                             $day = Carbon::parse($job->start_date)->translatedFormat('l'); // Use translatedFormat for localized day
                             $dateTime .= $day . ' - ' . $job->start_time . ' ' . $job->end_time . "," . "\n";
@@ -1903,7 +1947,7 @@ If you would like to speak to a human representative, please send a message with
 
                         $nextMessage = $this->activeClientBotMessages['next_week_service_schedule'][$lng];
                         $personalizedMessage = str_replace(':date_time', $dateTime, $nextMessage);
-                        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                         WebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
@@ -1913,20 +1957,13 @@ If you would like to speak to a human representative, please send a message with
                             'flex' => 'A',
                         ]);
 
-                        $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                            ['client_id' => $client->id],
-                            ['menu_option' => 'end', 
-                            'final' => true,
-                            "from" => $from,
-                            ]
-                        );
-
-                    }
-
-                    if(empty($currentWeekJobs) && empty($nextWeekJobs)){
+                        $clientMessageStatus->delete();
+                    } else {
                         $nextMessage = $this->activeClientBotMessages['no_service_avail'][$lng];
-                        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                        $clientMessageStatus->update([
+                            'menu_option' => 'main_menu->service_schedule',
+                        ]);
                         WebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
@@ -1935,27 +1972,11 @@ If you would like to speak to a human representative, please send a message with
                             'read' => 1,
                             'flex' => 'A',
                         ]);
-                        $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                            ['client_id' => $client->id],
-                            ['menu_option' => 'main_menu']
-                        );
                     }
-
-                    // WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
-                    die("end");
-                }
-
-                if($input == "3" && $last_menu !== 'end'){
+                    break;
+                case 'request_new_qoute':
                     $nextMessage = $this->activeClientBotMessages['request_new_qoute'][$lng];
-                    $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-
-                    $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                        ['client_id' => $client->id],
-                        ['menu_option' => 'end', 
-                        'final' => true,
-                        "from" => $from,
-                        ]
-                    );
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
                     WebhookResponse::create([
                         'status' => 1,
@@ -1967,22 +1988,17 @@ If you would like to speak to a human representative, please send a message with
                     ]);
 
                     $nextMessage = $this->activeClientBotMessages['team_new_qoute']["heb"];
-                    $clientName = $client->firstname ?? ''. ' ' . $client->lastname ?? '';
+                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
                     $personalizedMessage = str_replace([':client_name', ':client_phone', ':client_link'], [$clientName, $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
-                    $result = sendTeamWhatsappMessage(config('services.whatsapp_groups.relevant_with_workers'), ['name' => '', 'message' => $personalizedMessage]);
-                    // WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
-                    die("end");
-                }
-
-                if($input == "4" && $last_menu !== 'end'){
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
+                    $clientMessageStatus->delete();
+                    break;
+                case 'invoice_account':
                     $nextMessage = $this->activeClientBotMessages['invoice_account'][$lng];
-                    $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-
-                    $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                        ['client_id' => $client->id],
-                        ['menu_option' => 'main_menu->request',
-                        "from" => $from,]
-                    );
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    $clientMessageStatus->update([
+                        'menu_option' => 'main_menu->invoice_account',
+                    ]);
 
                     WebhookResponse::create([
                         'status' => 1,
@@ -1992,68 +2008,49 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
+                    break;
+                case 'thank_you_invoice_account':
+                    $nextMessage = $this->activeClientBotMessages['thank_you_invoice_account'][$lng];
+                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+                    $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $personalizedMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
 
-                   
-                    die("end");
-                }
+                    $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
+                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, $input, url("admin/clients/view/" . $client->id)], $nextMessage);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $personalizedMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
 
-                if($last_menu == "request"){
-                    $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                        ['client_id' => $client->id],
-                        ['menu_option' => 'end', 
-                        'comment' => trim($input),
-                        'final' => true,
-                        "from" => $from,
-                        ]
-                    );
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "Invoice and accounting inquiry" : 'הנה"ח - פנייה למחלקת הנהלת חשבונות';
+                    $scheduleChange->comments = $input;
+                    $scheduleChange->save();
+                    $clientMessageStatus->delete();
+                    break;
 
-                    if($clientMessage->comment){
-                        $nextMessage = $this->activeClientBotMessages['thank_you_invoice_account'][$lng];
-                        $clientName = $client->firstname ?? ''. ' ' . $client->lastname ?? '';
-                        $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
-                        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
-                        WebhookResponse::create([
-                            'status' => 1,
-                            'name' => 'whatsapp',
-                            'message' => $personalizedMessage,
-                            'number' => $from,
-                            'read' => 1,
-                            'flex' => 'A',
-                        ]);
-
-                        $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
-                        $personalizedMessage = str_replace([':client_name', ":client_phone", ":message" ,':client_link'], [$clientName, $client->phone, $clientMessage->comment, url("admin/clients/view/" . $client->id)], $nextMessage);
-                        $result = sendTeamWhatsappMessage(config('services.whatsapp_groups.relevant_with_workers'), ['name' => '', 'message' => $personalizedMessage]);
-                        WebhookResponse::create([
-                            'status' => 1,
-                            'name' => 'whatsapp',
-                            'message' => $personalizedMessage,
-                            'number' => $from,
-                            'read' => 1,
-                            'flex' => 'A',
-                        ]);
-
-                        $scheduleChange = new ScheduleChange();
-                        $scheduleChange->user_type = get_class($client);
-                        $scheduleChange->user_id = $client->id;
-                        $scheduleChange->reason = $lng == "en" ? "Invoice and accounting inquiry" : 'הנה"ח - פנייה למחלקת הנהלת חשבונות';
-                        $scheduleChange->comments = $clientMessage->comment;
-                        $scheduleChange->save();
-
-                        // WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
-                        die("end");
-                    }
-                }
-                
-                if($input == "5" && $last_menu !== 'end'){
+                case 'change_update_schedule':
                     $nextMessage = $this->activeClientBotMessages['change_update_schedule'][$lng];
-                    $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
 
-                    $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                        ['client_id' => $client->id],
-                        ['menu_option' => 'main_menu->change_update_schedule',
-                        "from" => $from,]
-                    );
+                    $clientMessageStatus->update([
+                        'menu_option' => 'main_menu->change_update_schedule',
+                    ]);
 
                     WebhookResponse::create([
                         'status' => 1,
@@ -2063,68 +2060,24 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
-                }
+                    break;
 
-                if($last_menu == "change_update_schedule"){
-                    $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                        ['client_id' => $client->id],
-                        ['menu_option' => 'end', 
-                        'comment' => trim($input),
-                        'final' => true,
-                        "from" => $from,
-                        ]
-                    );
+                case 'thank_you_change_update_schedule':
+                    $nextMessage = $this->activeClientBotMessages['thank_you_change_update_schedule'][$lng];
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $nextMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
 
-                    if($clientMessage->comment){
-                        $nextMessage = $this->activeClientBotMessages['thank_you_change_update_schedule'][$lng];
-                        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-                        WebhookResponse::create([
-                            'status' => 1,
-                            'name' => 'whatsapp',
-                            'message' => $nextMessage,
-                            'number' => $from,
-                            'read' => 1,
-                            'flex' => 'A',
-                        ]);
-
-                        $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
-                        $clientName = $client->firstname ?? ''. ' ' . $client->lastname ?? '';
-                        $personalizedMessage = str_replace([':client_name', ":client_phone", ":message" ,':client_link'], [$clientName, $client->phone, $clientMessage->comment, url("admin/clients/view/" . $client->id)], $nextMessage);
-                        // $result = sendTeamWhatsappMessage(config('services.whatsapp_groups.relevant_with_workers'), ['name' => '', 'message' => $personalizedMessage]);
-                        $result = sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
-
-                        WebhookResponse::create([
-                            'status' => 1,
-                            'name' => 'whatsapp',
-                            'message' => $personalizedMessage,
-                            'number' => $from,
-                            'read' => 1,
-                            'flex' => 'A',
-                        ]);
-
-                        $scheduleChange = new ScheduleChange();
-                        $scheduleChange->user_type = get_class($client);
-                        $scheduleChange->user_id = $client->id;
-                        $scheduleChange->reason = $lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
-                        $scheduleChange->comments = $clientMessage->comment;
-                        $scheduleChange->save();
-
-                        // WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
-                        die("end");
-                    }
-                }
-
-                if($input == "6" && $last_menu !== 'end'){
-                    $nextMessage = $this->activeClientBotMessages['access_portal'][$lng];
-                    $personalizedMessage = str_replace(':client_portal_link', url("client/login"), $nextMessage);
-                    $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
-                    $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                        ['client_id' => $client->id],
-                        ['menu_option' => 'end', 
-                        'final' => true,
-                        "from" => $from,
-                        ]
-                    );
+                    $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
+                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, $input, url("admin/clients/view/" . $client->id)], $nextMessage);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                     WebhookResponse::create([
                         'status' => 1,
@@ -2134,32 +2087,36 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
-                    // WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
-                    die("end");
-                }
-            }else {
-                $lng = $this->detectLanguage($input);
-                $clientMessage = WhatsAppBotActiveClientState::where('from', $from)->first();
 
-                if(!$clientMessage){
-                    $nextMessage = $this->activeClientBotMessages['not_recognized'][$lng];
-                    $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
+                    $scheduleChange->comments = $input;
+                    $scheduleChange->save();
+                    $clientMessageStatus->delete();
+                    break;
+                case 'access_portal':
+                    $nextMessage = $this->activeClientBotMessages['access_portal'][$lng];
+                    $personalizedMessage = str_replace(':client_portal_link', url("client/login"), $nextMessage);
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    $clientMessageStatus->delete();
 
-                    $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                        ["from" => $from],
-                        [
-                            'menu_option' => 'not_recognized',
-                            'lng' => $lng,
-                            "from" => $from,
-                        ]
-                    );
-                    // \Log::info($clientMessage);
-
-                    // if($clientMessage){
-                    //     $menu_option = explode('->', $clientMessage->menu_option);
-                    //     $last_menu = end($menu_option);
-                    //     \Log::info($last_menu);
-                    // }
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $personalizedMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+                    break;
+                case 'enter_phone':
+                    $nextMessage = $this->activeClientBotMessages['enter_phone'][$lng];
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    $clientMessageStatus->update([
+                        'menu_option' => 'not_recognized->enter_phone',
+                    ]);
 
                     WebhookResponse::create([
                         'status' => 1,
@@ -2169,217 +2126,156 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
+                    break;
 
-                }else{
+                case 'email_sent':
+                    $this->ClientOtpSend($client, $from, $lng);
+                    break;
 
-                    $menu_option = explode('->', $clientMessage->menu_option);
-                    $last_menu = end($menu_option);
-                    \Log::info($last_menu);
-    
-                    if($last_menu == "not_recognized" && $input == "1"){
-                        $nextMessage = $this->activeClientBotMessages['enter_phone'][$lng];
-                        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-                        $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                            ["from" => $from],
-                            ['menu_option' => 'not_recognized->enter_phone']
-                        );
-    
-                        WebhookResponse::create([
-                            'status' => 1,
-                            'name' => 'whatsapp',
-                            'message' => $nextMessage,
-                            'number' => $from,
-                            'read' => 1,
-                            'flex' => 'A',
-                        ]);
+                case 'verified':
+                    // Decode the `extra` field (or initialize it as an empty array if null or invalid)
+                    $extra = $client->extra ? json_decode($client->extra, true) : [];
+
+                    if (!is_array($extra)) {
+                        $extra = [];
                     }
-    
-                    if ($last_menu == "enter_phone") {
-                        // Check if the input contains only numbers and optionally a "+" at the beginning
-                        if (preg_match('/^\+?\d+$/', $input)) {
-                            Log::info("Input contains number or +", ['input' => $input]);
 
-                            if (strlen($input) > 10) {
-                                $client = Client::where('phone', 'like', '%' . substr($input, 2) . '%')->first();
-                                $user = User::where('phone', 'like', '%' . substr($input, 2) . '%')->first();
-                                $workerLead = WorkerLeads::where('phone', 'like', '%' . substr($input, 2) . '%')->first();
-                            } else {
-                                $client = Client::where('phone', 'like', '%' . $input . '%')->first();
-                                $user = User::where('phone', 'like', '%' . $input . '%')->first();
-                                $workerLead = WorkerLeads::where('phone', 'like', '%' . $input . '%')->first();
-                            }
-
-                            if($client && !$user && !$workerLead){
-                               $this->ClientOtpSend($client, $from, $lng);
-                            }
-
-                        } elseif (preg_match('/[^\d+]/', $input)) {
-                            $nextMessage = $this->activeClientBotMessages['enter_phone'][$lng];
-                            $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-                            $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                                ["from" => $from],
-                                ['menu_option' => 'not_recognized->enter_phone']
-                            );
-        
-                            WebhookResponse::create([
-                                'status' => 1,
-                                'name' => 'whatsapp',
-                                'message' => $nextMessage,
-                                'number' => $from,
-                                'read' => 1,
-                                'flex' => 'A',
-                            ]);
+                    // Add or update the `from` phone in the `extra` field
+                    $found = false;
+                    foreach ($extra as &$entry) {
+                        if ($entry['phone'] == $from) {
+                            $found = true; // `from` already exists in the `extra` array
+                            break;
                         }
                     }
+                    unset($entry); // Unset reference to prevent side effects
 
-                    if($last_menu == "otp-send"){
-                        $clientMessage = WhatsAppBotActiveClientState::where('from', $from)->first();
-
-                        if ($clientMessage) {
-                            $client = Client::where('phone', 'like', '%' . $clientMessage->client_phone . '%')->first();
-
-                            if ($client) {
-                                \Log::info($client->otp . " " . $input);
-                            }
-
-                            if ($client && $client->otp == $input) {
-                                // Reset OTP and expiry
-                                $client->otp = null;
-                                $client->otp_expiry = null;
-                            
-                                // Decode the `extra` field (or initialize it as an empty array if null or invalid)
-                                $extra = $client->extra ? json_decode($client->extra, true) : [];
-                                
-                                if (!is_array($extra)) {
-                                    $extra = [];
-                                }
-                            
-                                // Add or update the `from` phone in the `extra` field
-                                $found = false;
-                                foreach ($extra as &$entry) {
-                                    if ($entry['phone'] == $from) {
-                                        $found = true; // `from` already exists in the `extra` array
-                                        break;
-                                    }
-                                }
-                                unset($entry); // Unset reference to prevent side effects
-                            
-                                if (!$found) {
-                                    // Add a new object with the `from` value
-                                    $extra[] = [
-                                        "email" => "",
-                                        "name"  => "",
-                                        "phone" => $from,
-                                    ];
-                                }
-                                // Encode the updated `extra` array back to JSON
-                                $client->extra = json_encode($extra);
-                                $client->save();
-                            
-                                // Send verified message
-                                $nextMessage = $this->activeClientBotMessages['verified'][$lng];
-                                $personalizedMessage = str_replace(':client_name', $client->firstname . ' ' . $client->lastname, $nextMessage);
-                                $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
-                            
-                                // Update bot state
-                                $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                                    ['client_id' => $client->id],
-                                    ["from" => $from,
-                                    'menu_option' => 'main_menu']
-                                );
-                            
-                                // Create webhook response
-                                WebhookResponse::create([
-                                    'status' => 1,
-                                    'name' => 'whatsapp',
-                                    'message' => $nextMessage,
-                                    'number' => $from,
-                                    'read' => 1,
-                                    'flex' => 'A',
-                                ]);
-
-                                $this->sendMainMenu($client, $from);
-                                die();
-                            } else {
-                                if($last_menu == "otp-send" && $input != "0"){
-                                    $nextMessage = $this->activeClientBotMessages['incorect_otp'][$lng];
-                                    $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-
-                                    $client->attempts = $client->attempts + 1;
-                                    $client->save();
-                                
-                                    // Update bot state
-                                    $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
-                                        ["from" => $from],
-                                        ['menu_option' => 'not_recognized->otp-send']
-                                    );
-                                
-                                    // Create webhook response
-                                    WebhookResponse::create([
-                                        'status' => 1,
-                                        'name' => 'whatsapp',
-                                        'message' => $nextMessage,
-                                        'number' => $from,
-                                        'read' => 1,
-                                        'flex' => 'A',
-                                    ]);
-                                    die();
-                                }
-
-                                if($last_menu == "otp-send" && $input == "0"){
-                                    $this->ClientOtpSend($client, $from, $lng);
-                                }
-                            }
-                        }
+                    if (!$found) {
+                        // Add a new object with the `from` value
+                        $extra[] = [
+                            "email" => "",
+                            "name"  => "",
+                            "phone" => $from,
+                        ];
                     }
+                    // Encode the updated `extra` array back to JSON
+                    $client->extra = json_encode($extra);
+                    $client->save();
 
-                    if ($last_menu == "not_recognized" && $input == "2") {
-                        $lead                = new Client;
-                        $lead->firstname     = 'lead';
-                        $lead->lastname      = '';
-                        $lead->phone         = $from;
-                        $lead->email         = $from . '@lead.com';
-                        $lead->status        = 0;
-                        $lead->password      = Hash::make($from);
-                        $lead->passcode      = $from;
-                        $lead->geo_address   = '';
-                        $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
-                        $lead->save();
-                       
-                        $m = $this->botMessages['main-menu'][$lng];
-                        $result = sendWhatsappMessage($from, array('name' => '', 'message' => $m));
-    
-                        WebhookResponse::create([
-                            'status'        => 1,
-                            'name'          => 'whatsapp',
-                            'entry_id'      => (isset($get_data['entry'][0])) ? $get_data['entry'][0]['id'] : '',
-                            'message'       => $m,
-                            'number'        => $from,
-                            'flex'          => 'A',
-                            'read'          => 1,
-                            'data'          => json_encode($get_data)
-                        ]);
-    
-                        WhatsAppBotClientState::updateOrCreate([
-                            'client_id' => $client->id,
-                        ], [
-                            'menu_option' => 'main_menu',
-                            'language' =>  $lng == 'heb' ? 'he' : 'en',
-                        ]);
-                        die("STOPPED");
-                    }
-                }
+                    // Send verified message
+                    $nextMessage = $this->activeClientBotMessages['verified'][$lng];
+                    $personalizedMessage = str_replace(':client_name', $client->firstname . ' ' . $client->lastname, $nextMessage);
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
+                    $clientMessageStatus->update([
+                        'menu_option' => 'main_menu',
+                    ]);
+
+                    // Create webhook response
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $nextMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+
+                    $this->sendMainMenu($client, $from);
+                    break;
+                case 'incorect_otp':
+                    $nextMessage = $this->activeClientBotMessages['incorect_otp'][$lng];
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    $clientMessageStatus->update([
+                        'menu_option' => 'not_recognized->enter_phone->email_sent',
+                    ]);
+
+                    // Create webhook response
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $nextMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+                    break;
+                case 'new_lead':
+                    $m = $this->botMessages['main-menu']['heb'];
+                    sendWhatsappMessage($from, array('name' => '', 'message' => $m));
+
+                    WebhookResponse::create([
+                        'status'        => 1,
+                        'name'          => 'whatsapp',
+                        'message'       =>  $m,
+                        'number'        =>  $from,
+                        'read'          => 1,
+                        'flex'          => 'A'
+                    ]);
+
+                    $lead                = new Client;
+                    $lead->firstname     = 'lead';
+                    $lead->lastname      = '';
+                    $lead->phone         = $from;
+                    $lead->email         = $from . '@lead.com';
+                    $lead->status        = 0;
+                    $lead->password      = Hash::make($from);
+                    $lead->passcode      = $from;
+                    $lead->geo_address   = '';
+                    $lead->lng           = ($lng == 'heb' ? 'heb' : 'en');
+                    $lead->save();
+
+                    WhatsAppBotClientState::updateOrCreate([
+                        'client_id' => $lead->id,
+                    ], [
+                        'menu_option' => 'main_menu',
+                        'language' => $lng == 'heb' ? 'he' : 'en',
+                    ]);
+
+                    break;
+                case 'sorry':
+                    $nextMessage = $this->activeClientBotMessages['sorry'][$lng];
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $nextMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+                    break;
+                case 'failed_attempts':
+                    $nextMessage = $this->activeClientBotMessages['failed_attempts'][$lng];
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            'menu_option' => 'failed_attempts'
+                        ]
+                    );
+
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $nextMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+                    break;
             }
-                    
         }
     }
 
-    public function ClientOtpSend($client, $from, $lng){
+    public function ClientOtpSend($client, $from, $lng)
+    {
         $otp = strval(random_int(100000, 999999)); // Generates a random 6-digit number
 
         $client->otp = $otp;
-        $client->otp_expiry = now()->addMinutes(10); 
+        $client->otp_expiry = now()->addMinutes(10);
         $client->save();
 
         $emailData = [
@@ -2389,19 +2285,21 @@ If you would like to speak to a human representative, please send a message with
 
         // Send Email Notification
         Mail::send('Mails.client.VerifedClient', $emailData, function ($message) use ($client) {
-                $message->to($client->email);
-                $message->subject(__('mail.verification.subject'));
-            });
-    
-        $clientMessage = WhatsAppBotActiveClientState::updateOrCreate(
+            $message->to($client->email);
+            $message->subject(__('mail.verification.subject'));
+        });
+
+        WhatsAppBotActiveClientState::updateOrCreate(
             ["from" => $from],
-            ["client_phone" => $client->phone,
-            'menu_option' => 'not_recognized->enter_phone->otp-send']
+            [
+                "client_phone" => $client->phone,
+                'menu_option' => 'not_recognized->enter_phone->email_sent'
+            ]
         );
 
         $nextMessage = $this->activeClientBotMessages['email_sent'][$lng];
         $personalizedMessage = str_replace(':email', substr($client->email, 0, 2), $nextMessage);
-        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
         WebhookResponse::create([
             'status' => 1,
@@ -2425,60 +2323,64 @@ If you would like to speak to a human representative, please send a message with
         }
     }
 
-    public function sendMainMenu($client, $from){
-         $lng = $client->lng;
+    public function sendMainMenu($client, $from)
+    {
+        $lng = $client->lng;
 
-         // Fetch the initial message based on the selected language
-         $initialMessage = $this->activeClientBotMessages['main_menu'][$lng];
-                
-         // Replace :client_name with the client's firstname and lastname
-         $clientName = $client->firstname ?? ''. ' ' . $client->lastname ?? '';
-         $personalizedMessage = str_replace(':client_name', $clientName, $initialMessage);
-         $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+        // Fetch the initial message based on the selected language
+        $initialMessage = $this->activeClientBotMessages['main_menu'][$lng];
 
-         WhatsAppBotActiveClientState::updateOrCreate(
-             ['client_id' => $client->id],
-             [
+        // Replace :client_name with the client's firstname and lastname
+        $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+        $personalizedMessage = str_replace(':client_name', $clientName, $initialMessage);
+        $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+        WhatsAppBotActiveClientState::updateOrCreate(
+            ['client_id' => $client->id],
+            [
                 'from' => $from,
-                'menu_option' => 'main_menu', 'lng' => $lng]
-         );
+                'menu_option' => 'main_menu',
+                'lng' => $lng
+            ]
+        );
 
-         WebhookResponse::create([
-             'status' => 1,
-             'name' => 'whatsapp',
-             'message' => $personalizedMessage,
-             'number' => $from,
-             'read' => 1,
-             'flex' => 'A',
-         ]);
+        WebhookResponse::create([
+            'status' => 1,
+            'name' => 'whatsapp',
+            'message' => $personalizedMessage,
+            'number' => $from,
+            'read' => 1,
+            'flex' => 'A',
+        ]);
 
-         return response()->json(['status' => 'success'], 200);
+        return response()->json(['status' => 'success'], 200);
     }
 
 
-    public function activeClientsMonday(Request $request){
+    public function activeClientsMonday(Request $request)
+    {
         try {
             $get_data = $request->getContent();
             $responseClientState = [];
             $data_returned = json_decode($get_data, true);
             $message = null;
-    
+
             $messageId = $data_returned['messages'][0]['id'] ?? null;
-    
+
             if (!$messageId) {
                 return response()->json(['status' => 'Invalid message data'], 400);
             }
-            
+
             // Check if the messageId exists in cache and matches
-            if (Cache::get('processed_message_' . $messageId) === $messageId) {
-            \Log::info('Already processed');
+            if (Cache::get('client_monday_processed_message_' . $messageId) === $messageId) {
+                \Log::info('Already processed');
                 return response()->json(['status' => 'Already processed'], 200);
             }
-            
+
             // Store the messageId in the cache for 1 hour
-            Cache::put('processed_message_' . $messageId, $messageId, now()->addHours(1));
-            
-    
+            Cache::put('client_monday_processed_message_' . $messageId, $messageId, now()->addHours(1));
+
+
             if (
                 isset($data_returned['messages']) &&
                 isset($data_returned['messages'][0]['from_me']) &&
@@ -2487,123 +2389,57 @@ If you would like to speak to a human representative, please send a message with
                 $message_data = $data_returned['messages'];
                 $from = $message_data[0]['from'];
                 Log::info($from);
-                $lng = 'heb';
 
-                $client = null;
-                if (strlen($from) > 10) {
-                    $client = Client::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
-                    $user = User::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
-                    $workerLead = WorkerLeads::where('phone', 'like', '%' . substr($from, 2) . '%')->first();
-                } else {
-                    $client = Client::where('phone', 'like', '%' . $from . '%')->first();
-                    $user = User::where('phone', 'like', '%' . $from . '%')->first();
-                    $workerLead = WorkerLeads::where('phone', 'like', '%' . $from . '%')->first();
-                }
+                $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
+                    $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
+                })->first();
 
-                if($user){
-                    \Log::info('user'.$user->id);
-                }
+                $isMonday = now()->isMonday();
+                if ($isMonday && $client && $client->stop_last_message == 0) {
 
-                if($workerLead){
-                    \Log::info('workerLead'.$workerLead->id);
-                }
+                    $msgStatus = Cache::get('client_monday_msg_status_' . $client->id);
+                    \Log::info('msgStatus', [$msgStatus]);
+                    if(!empty($msgStatus)) {
+                        $menu_option = explode('->', $msgStatus);
+                        $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
+                        $last_menu = end($menu_option);
 
-                if($client){
-                    \Log::info('client'.$client->id);
-                }
+                        if($last_menu == 'main_monday_msg' && $messageBody == '1') {
+                            $m = $client->lng == 'heb'
+                                ? "מהו השינוי או הבקשה לשבוע הבא?"
+                                : "What is your change for next week?";
 
-                if ($client && !$user && !$workerLead) {
-                    $responseClientState = WhatsAppBotClientState::where('client_id', $client->id)->first();
-                    if ($responseClientState && $responseClientState->final) {
-                        \Log::info('final');
-                        die('final');
-                    };
-        
-                    if ($client && !$user && !$workerLead) {
-                        $messageBody = $data_returned['messages'][0]['text']['body'] ?? '';
-                        $isMonday = now()->isMonday();
-                        $tap1 = false;
+                            sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
+                            Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change', now()->addDay(1));
+                            WebhookResponse::create([
+                                'status'        => 1,
+                                'name'          => 'whatsapp',
+                                'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                'message'       => $m,
+                                'number'        => $from,
+                                'flex'          => 'A',
+                                'read'          => 1,
+                                'data'          => json_encode($get_data),
+                            ]);
+                        } else if ($last_menu == 'next_week_change' && !empty($messageBody)) {
+                            $scheduleChange = ScheduleChange::create([
+                                    'user_type' => get_class($client),
+                                    'user_id' => $client->id,
+                                    'comments' => $messageBody,
+                                    "reason" => $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ',
+                                ]
+                            );
 
-                        \Log::info('messageBody'.$messageBody);
-                    
-                        if ($client->status == 2 && $client->lead_status->lead_status == LeadStatusEnum::ACTIVE_CLIENT) {
-                            \Log::info('client'.$client->id);
-                            $request = ScheduleChange::where('user_id', $client->id)
-                                    ->where('user_type', get_class($client))
-                                    ->latest()->first();
-                                    \Log::info('request'.$request);
-                    
-                            $isOlderThanWeek = $request && $request->created_at->lt(now()->subWeek());
-                    
-                            // Handle initial input with messageBody = 1
-                            if ($messageBody == 1 && $isMonday && (!$request || $isOlderThanWeek)) {
-                                $tap1 = true;
-                                $m = $client->lng == 'heb' 
-                                    ? "מהו השינוי או הבקשה לשבוע הבא?\n    • במידה ואין שינויים, אין צורך בפעולה נוספת."
-                                    : "What is your change for next week?\n    • If there are no changes, no action is needed.";
-                    
-                                sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
-                    
-                                $client->has_input_one = true;
-                                $client->stop_last_message = 1;
-                                $client->save();
-                    
-                                WebhookResponse::create([
-                                    'status'        => 1,
-                                    'name'          => 'whatsapp',
-                                    'entry_id'      => $get_data['entry'][0]['id'] ?? '',
-                                    'message'       => $m,
-                                    'number'        => $from,
-                                    'flex'          => 'A',
-                                    'read'          => 1,
-                                    'data'          => json_encode($get_data),
-                                ]);
-                            }
-                    
-                            // Handle invalid input when stop_last_message != 1
-                            if ($isMonday && $messageBody != '1' && $client->stop_last_message != 1) {
-                                $follow_up_msg = $client->lng == 'heb' 
-                                    ? "סליחה, לא הצלחתי להבין את ההודעה שלך. 🤗\nתוכל בבקשה לבדוק שוב ולשלוח את תגובתך מחדש? \n\nאם אתה זקוק לעזרה נוספת, תוכל לחזור לתפריט הראשי על ידי שליחת הספרה 9, או לחזור צעד אחד אחורה על ידי שליחת הספרה 0.\n\nאם אינך מעוניין לקבל מאיתנו הודעות נוספות, אנא שלח 'הסר' בכל עת."
-                                    : "Sorry, I couldn't quite understand your message. 🤗\nCould you please check it and try sending it again?\n\nIf you need further assistance, you can return to the main menu by sending the number 9, or go back one step by sending the number 0.\n\nIf you no longer wish to receive messages from us, please reply with 'STOP' at any time.";
-                    
-                                WebhookResponse::create([
-                                    'status'        => 1,
-                                    'name'          => 'whatsapp',
-                                    'entry_id'      => $get_data['entry'][0]['id'] ?? '',
-                                    'message'       => $follow_up_msg,
-                                    'number'        => $from,
-                                    'flex'          => 'A',
-                                    'read'          => 1,
-                                    'data'          => json_encode($get_data),
-                                ]);
-                    
-                                sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
-                            }
-                    
-                            // Handle new or updated ScheduleChange
-                            else if ($messageBody != 1 && $isMonday && (!$request || $isOlderThanWeek) && $client->has_input_one) {
-                                $scheduleChange = ScheduleChange::updateOrCreate(
-                                    [
-                                        'user_type' => get_class($client),
-                                        'user_id' => $client->id,
-                                    ],
-                                    [
-                                        'comments' => $messageBody,
-                                        "reason" => $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ',
-                                    ]
-                                );
-                    
-                                $client->stop_last_message = 1;
-                                $client->save();
-                    
-                                // Send follow-up message
-                     if($client->lng == 'heb'){
-                        $message = 'שלום ' . $client->firstname . " " . $client->lastname . ',  
-        
+                            Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes', now()->addDay(1));
+
+                            // Send follow-up message
+                            if ($client->lng == 'heb') {
+                                $message = 'שלום ' . $client->firstname . " " . $client->lastname . ',
+
 ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול.
 
 להלן ההודעה ששלחת:
-"' . $scheduleChange->comments . '"  
+"' . $scheduleChange->comments . '"
 
 האם תרצה לשנות את ההודעה או לבקש משהו נוסף?
 
@@ -2615,13 +2451,13 @@ If you would like to speak to a human representative, please send a message with
 🌐 www.broomservice.co.il
 📞 טלפון: 03-525-70-60
 📧 דוא"ל: office@broomservice.co.il';
-                    } else{
-                        $message = 'Hello '  . $client->firstname . " " . $client->lastname . ', 
+                            } else {
+                                $message = 'Hello '  . $client->firstname . " " . $client->lastname . ',
 
 Your message has been received and will be forwarded to our team for further handling.
 
 Here is the message you sent:
-"' . $scheduleChange->comments . '"  
+"' . $scheduleChange->comments . '"
 
 Would you like to edit your message or add anything else?
 
@@ -2633,78 +2469,82 @@ Broom Service Contact Information:
 🌐 www.broomservice.co.il
 📞 Phone: 03-525-70-60
 📧 Email: office@broomservice.co.il';
-                    }
-        
-                    
-                                sendClientWhatsappMessage($from, ['message' => $message]);
                             }
-                    
-                           // Handle updating or appending comments
-                            if ($messageBody == 1 && $isMonday && $request && $client->has_input_one) {
-                                // Cache the user's intention to edit
-                                Cache::put("user_{$client->id}_action", 'edit', now()->addMinutes(10));
-        
-                                $promptMessage = $client->lng == 'heb' 
-                                    ? "מהו השינוי או הבקשה לשבוע הבא?"
-                                    : "What is your change or request for next week?";
-                                sendClientWhatsappMessage($from, ['message' => $promptMessage]);
-                            } elseif ($messageBody == 2 && $isMonday && $request && $client->has_input_one) {
-                                // Cache the user's intention to add additional information
-                                Cache::put("user_{$client->id}_action", 'add', now()->addMinutes(10));
-        
-                                $promptMessage = $client->lng == 'heb' 
-                                    ? "אנא הזן הודעה כדי להוסיף מידע נוסף."
-                                    : "Please enter a message to add additional information.";
-                                sendClientWhatsappMessage($from, ['message' => $promptMessage]);
-                            } else {
-                                // Retrieve the cached action to determine the user's intent
-                                $cachedAction = Cache::get("user_{$client->id}_action");
-        
-                                if ($cachedAction === 'edit') {
-                                    // Process editing the existing message
-                                    $scheduleChange = ScheduleChange::where('user_type', get_class($client))
-                                        ->where('user_id', $client->id)
-                                        ->latest()
-                                        ->first();
-        
-                                    if ($scheduleChange) {
-                                        $scheduleChange->comments = $messageBody;  
-                                        $scheduleChange->save();
-        
-                                        $confirmationMessage = $client->lng == 'heb' 
-                                            ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
-                                            : "Your message has been received and will be forwarded to our team for further handling.";
-                                        sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
-                                    }
-        
-                                    // Clear the cache after the action is complete
-                                    Cache::forget("user_{$client->id}_action");
-                                } elseif ($cachedAction === 'add') {
-                                    // Process adding additional information
-                                    $scheduleChange = new ScheduleChange();
-                                    $scheduleChange->user_type = get_class($client);
-                                    $scheduleChange->user_id = $client->id;
-                                    $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
-                                    $scheduleChange->comments = $messageBody;
-                                    $scheduleChange->save();
-        
-                                    $confirmationMessage = $client->lng == 'heb' 
-                                        ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
-                                        : "Your message has been received and will be forwarded to our team for further handling.";
-                                    sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
-        
-                                    // Clear the cache after the action is complete
-                                    Cache::forget("user_{$client->id}_action");
-                                }
+
+                            sendClientWhatsappMessage($from, ['message' => $message]);
+                        } else if ($last_menu == 'review_changes' && $messageBody == '1') {
+                            // Cache the user's intention to edit
+                            Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes->changes', now()->addDay(1));
+
+                            $promptMessage = $client->lng == 'heb'
+                                ? "מהו השינוי או הבקשה לשבוע הבא?"
+                                : "What is your change or request for next week?";
+                            sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+                        } else if ($last_menu == 'review_changes' && $messageBody == '2') {
+                            // Cache the user's intention to edit
+                            Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes->additional', now()->addDay(1));
+
+                            $promptMessage = $client->lng == 'heb'
+                                ? "אנא הזן הודעה כדי להוסיף מידע נוסף."
+                                : "Please enter a message to add additional information.";
+                            sendClientWhatsappMessage($from, ['message' => $promptMessage]);
+                        } else if ($last_menu == 'changes' && !empty($messageBody)) {
+                            // Process editing the existing message
+                            $scheduleChange = ScheduleChange::where('user_type', get_class($client))
+                                ->where('user_id', $client->id)
+                                ->where('status', 'pending')
+                                ->latest()
+                                ->first();
+
+                            if ($scheduleChange) {
+                                $scheduleChange->comments = $messageBody;
+                                $scheduleChange->save();
+
+                                $confirmationMessage = $client->lng == 'heb'
+                                    ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
+                                    : "Your message has been received and will be forwarded to our team for further handling.";
+                                sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
                             }
-        
+                            $client->stop_last_message = 1;
+                            $client->save();
+
+                            // Clear the cache after the action is complete
+                            Cache::forget('client_monday_msg_status_' . $client->id);
+                        } else if ($last_menu == 'additional' && !empty($messageBody)) {
+                            // Process adding additional information
+                            $scheduleChange = new ScheduleChange();
+                            $scheduleChange->user_type = get_class($client);
+                            $scheduleChange->user_id = $client->id;
+                            $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
+                            $scheduleChange->comments = $messageBody;
+                            $scheduleChange->save();
+
+                            $confirmationMessage = $client->lng == 'heb'
+                                ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
+                                : "Your message has been received and will be forwarded to our team for further handling.";
+                            sendClientWhatsappMessage($from, ['message' => $confirmationMessage]);
+                            $client->stop_last_message = 1 ;
+                            $client->save();
+                            // Clear the cache after the action is complete
+                            Cache::forget('client_monday_msg_status_' . $client->id);
+                        } else {
+                            $follow_up_msg = $client->lng == 'heb'
+                                ? "מצטערים, לא הבנו את הבקשה.\n• במידה ויש שינוי או בקשה, אנא השיבו עם הספרה 1.\n• תוכלו גם להקליד 'תפריט' כדי לחזור לתפריט הראשי"
+                                : "Sorry, I didn’t quite understand that.\n• If you have a change or request, please reply with the number 1.\n• You can also type 'Menu' to return to the main menu.";
+
+                            WebhookResponse::create([
+                                'status'        => 1,
+                                'name'          => 'whatsapp',
+                                'entry_id'      => $get_data['entry'][0]['id'] ?? '',
+                                'message'       => $follow_up_msg,
+                                'number'        => $from,
+                                'flex'          => 'A',
+                                'read'          => 1,
+                                'data'          => json_encode($get_data),
+                            ]);
+
+                            sendClientWhatsappMessage($from, ['message' => $follow_up_msg]);
                         }
-                        // // Log older records
-                        // $createdAt = $client->created_at;
-                        // if ($createdAt && $createdAt->lt(now()->subHours(12))) {
-                        //     \Log::info('Client record is older than 12 hours.', ['client_id' => $client->id]);
-                        //     die('Client record is older than 12 hours.');
-                        // }
                     }
                 }
             }
@@ -2712,5 +2552,4 @@ Broom Service Contact Information:
             throw $th;
         }
     }
-
 }

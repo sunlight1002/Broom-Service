@@ -89,14 +89,14 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                     .map((w) => parseInt(w.jobHours))
                     .reduce((a, b) => a + b, 0);
                 return _service.rateperhour * _totalHours;
-
             } else if (_service.type === "squaremeter") {
                 if (_service.ratepersquaremeter && _service.totalsquaremeter) {
-                    return _service.ratepersquaremeter * _service.totalsquaremeter;
+                    return (
+                        _service.ratepersquaremeter * _service.totalsquaremeter
+                    );
                 } else {
                     return "-";
                 }
-
             } else {
                 return _service.fixed_price;
             }
@@ -105,21 +105,18 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
         }
     };
 
-
     return (
         <div>
             <div className="text-right" style={{ marginBottom: "5px" }}>
-                {
-                    !urlPath.includes("edit") && (
-                        <button
-                            type="button"
-                            onClick={handleAddService}
-                            className="btn btn-success"
-                        >
-                            + {t("global.addService")}
-                        </button>
-                    )
-                }
+                {!urlPath.includes("edit") && (
+                    <button
+                        type="button"
+                        onClick={handleAddService}
+                        className="btn btn-success"
+                    >
+                        + {t("global.addService")}
+                    </button>
+                )}
             </div>
             <div className="table-responsive">
                 {formValues.length > 0 ? (
@@ -131,33 +128,62 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                 <Th>{t("price_offer.type")}</Th>
                                 <Th>{t("global.noOfWorker")}</Th>
                                 <Th>{t("price_offer.job_h_txt")}</Th>
-                                <Th>{t("admin.leads.AddLead.AddLeadClient.jobMenu.Price")}</Th>
-                                <Th>{t("admin.leads.AddLead.AddLeadClient.jobMenu.Frequency")}</Th>
-                                <Th>{t("admin.leads.AddLead.AddLeadClient.jobMenu.Actions")}</Th>
+                                <Th>
+                                    {t(
+                                        "admin.leads.AddLead.AddLeadClient.jobMenu.Price"
+                                    )}
+                                </Th>
+                                <Th>
+                                    {t(
+                                        "admin.leads.AddLead.AddLeadClient.jobMenu.Frequency"
+                                    )}
+                                </Th>
+                                <Th>
+                                    {t(
+                                        "admin.leads.AddLead.AddLeadClient.jobMenu.Actions"
+                                    )}
+                                </Th>
                             </Tr>
                         </Thead>
                         <Tbody>
                             {formValues.map((item, innerIndex) => {
-
+                                const getAddress = (addressId) => {
+                                    const address = addresses.find(
+                                        (a) =>
+                                            a.id.toString() ===
+                                            addressId?.toString()
+                                    );
+                                    return address
+                                        ? `${address.address_name || ""} - ${
+                                              address.geo_address || ""
+                                          }`.trim()
+                                        : "";
+                                };
                                 const address =
                                     item.template === "airbnb"
-                                        ? (item?.sub_services?.address_name + " " + addresses.find(
-                                            (a) => a.id.toString() === item?.sub_services?.address?.toString()
-                                        )?.geo_address) ?? ""
-                                        : (item?.address_name + " " + addresses.find(
-                                            (a) => a.id.toString() === item.address?.toString()
-                                        )?.geo_address) ?? "";
+                                        ? getAddress(
+                                              item?.sub_services?.address
+                                          )
+                                        : getAddress(item?.address);
 
-                                const serviceName = item?.template === "airbnb"
-                                    ? `${item?.name} (${item?.sub_services?.sub_service_name || ""})`
-                                    : item?.name;
+                                const serviceName =
+                                    item?.template === "airbnb"
+                                        ? `${item?.name} (${
+                                              item?.sub_services
+                                                  ?.sub_service_name || ""
+                                          })`
+                                        : item?.name;
 
                                 return (
                                     <Tr key={innerIndex}>
                                         <Td>{address || "NA"}</Td>
                                         <Td>{serviceName}</Td>
                                         <Td>{item.type}</Td>
-                                        <Td>{item.workers ? item.workers.length : 0}</Td>
+                                        <Td>
+                                            {item.workers
+                                                ? item.workers.length
+                                                : 0}
+                                        </Td>
                                         <Td>{workerJobHours(item)}</Td>
                                         <Td>{calcPrice(item)}</Td>
                                         <Td>{item.freq_name}</Td>
@@ -178,13 +204,23 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                                             key={menu.key}
                                                             onClick={(e) => {
                                                                 e.preventDefault();
-                                                                if (menu.key === "edit") {
-                                                                    indexRef.current = innerIndex;
+                                                                if (
+                                                                    menu.key ===
+                                                                    "edit"
+                                                                ) {
+                                                                    indexRef.current =
+                                                                        innerIndex;
                                                                     isAdd.current = false;
-                                                                    setTmpFormValues(formValues);
-                                                                    setIsOpen(true);
+                                                                    setTmpFormValues(
+                                                                        formValues
+                                                                    );
+                                                                    setIsOpen(
+                                                                        true
+                                                                    );
                                                                 } else {
-                                                                    handleRemoveFormFields(innerIndex);
+                                                                    handleRemoveFormFields(
+                                                                        innerIndex
+                                                                    );
                                                                 }
                                                             }}
                                                         >
@@ -198,10 +234,9 @@ const OfferServiceMenu = memo(function OfferServiceMenu({
                                 );
                             })}
                         </Tbody>
-
                     </Table>
                 ) : (
-                    <p className="text-center mt-5">{"Services not found!"}</p>
+                    <p className="mt-5 text-center">{"Services not found!"}</p>
                 )}
             </div>
             {isOpen && (

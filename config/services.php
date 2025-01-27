@@ -67,6 +67,7 @@ return [
         'app_scope_id' => env('FB_APP_SCOPE_ID'),
         'account_id' => env('FB_ACCOUNT_ID'),
         'access_token' => env('FB_ACCESS_TOKEN'),
+        'msg_access_token' => env('FB_MSG_ACCESS_TOKEN'),
         'webhook_token' => env('FB_WEBHOOK_TOKEN'),
         'page_id' => env('FB_PAGE_ID'),
         'business_id' => env('FB_BUSINESS_ID'),

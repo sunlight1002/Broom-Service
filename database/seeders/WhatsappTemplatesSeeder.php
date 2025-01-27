@@ -1157,7 +1157,8 @@ office@broomservice.co.il
 Good morning!
 
 Today is Monday, and we are finalizing the schedule for next week.
-    • If you have any changes or preferences, please reply with the number 1.
+    • If you have any changes or preferences, *please reply with the number 1*.
+    • If there are no changes, no action is needed.
 
 For any additional questions or requests, we are here to assist you.
 
@@ -1175,6 +1176,7 @@ If you no longer wish to receive messages from us, please reply with 'STOP' at a
 
 היום יום שני, ואנו סוגרים את סידור העבודה לשבוע הבא.
     • במידה ויש לכם אילוצים, שינויים או בקשות מיוחדות, אנא השיבו עם הספרה 1.
+    • במידה ואין שינויים, אין צורך בפעולה נוספת.
 
 לכל שאלה או בקשה, אנו כאן לשירותכם.
 
@@ -1193,9 +1195,9 @@ office@broomservice.co.il
             [
                 'key' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE,
                 'description' => 'Every Monday, send a notification to all workers and workers asking if they have any changes to their schedule for the following week or if they would like to keep the same schedule. Also, notify them if there is any holiday during that week.',
-                'message_en' => "Hi :worker_name,
+                'message_en' => "Hello :worker_name,
 
-how are you?
+How are you?
 
 Do you need any day or half-day off next week?
 We need to finalize next week’s schedule today, so please let us know as soon as possible if you have any specific requirements.
@@ -1229,7 +1231,7 @@ Responde 2 si tu cronograma sigue siendo el mismo.
 
 Saludos cordiales,
 Equipo de servicio de escobas 🌹",
-                'message_ru' => 'Привет, :worker_name  ,
+                'message_ru' => 'Здравствуйте, :worker_name  ,
 
 Как ваши дела?
 
@@ -3618,10 +3620,10 @@ Contact: :worker_lead_phone
 Status: ✅ Suitable for house cleaning job
 
 Alex, please contact the lead and update the status with:
-1. 'h' – If hired  
-2. 'n' – If not suitable  
+1. 'h' – If hired
+2. 'n' – If not suitable
 3. 't' - will think
-4. 'u' – If the lead didn’t respond 
+4. 'u' – If the lead didn’t respond
 
 ⚠️ Please reply within 24 hours with the lead’s number and status.
 Example: +972 52-123-4567 – h
@@ -3806,7 +3808,7 @@ We offer house cleaning jobs only in the Tel Aviv area, and only during weekday 
 We are a professional cleaning team, so we hire only people with experience in house cleaning.
 If it may suit you or your friends now or in the future, you are more than welcome to contact us again. 😀
 
-👫 Know someone who'd be a great fit for our team? Invite them to join this group and explore the opportunities with us! Just send them this link:  
+👫 Know someone who'd be a great fit for our team? Invite them to join this group and explore the opportunities with us! Just send them this link:
 
 https://chat.whatsapp.com/H0dpX0ERLNRAbM8ejgjT3T
 

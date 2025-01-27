@@ -76,7 +76,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('send:reminder-with-pending-forms')->dailyAt('08:00');
 
-
+        // Close active client bot
+        $schedule->command('client:close-active-client-bot')->everyMinute();
     }
 
     /**
