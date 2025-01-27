@@ -325,6 +325,9 @@ class WorkerLeadWebhookController extends Controller
             $data_returned['messages'][0]['from_me'] == false
         ) {
             $message_data = $data_returned['messages'];
+            if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                die("Group message");
+            }
             $from = $message_data[0]['from'];
             $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
             $lng = "heb";
@@ -385,7 +388,7 @@ class WorkerLeadWebhookController extends Controller
                     $sorryCount = Cache::increment($cacheKey);
                     // Log the cache count for debugging
                     \Log::info("Cache count for $from: $sorryCount");
-                
+
                     if ($sorryCount > 4) {
                         Cache::put($cacheKey, 0, now()->addHours(24)); // Reset to 0 and keep the cache expiration
                         $send_menu = 'attempts_exceeded'; // Handle as 'attempts_exceeded'
@@ -584,7 +587,7 @@ class WorkerLeadWebhookController extends Controller
                         // Handle attempts exceeded logic
                         $message = $this->activeWorkersbotMessages['attempts'][$lng];
                         sendClientWhatsappMessage($from, array('message' => $message));
-                
+
                         // Notify the team
                         $nextMessage = $this->activeWorkersbotMessages['team_attempts']["heb"];
                         $workerName = $user->firstname ?? '' . ' ' . $user->lastname ?? '';
@@ -632,6 +635,9 @@ class WorkerLeadWebhookController extends Controller
             $data_returned['messages'][0]['from_me'] == false
         ) {
             $message_data = $data_returned['messages'];
+            if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                die("Group message");
+            }
             $from = $message_data[0]['from'];
 
             $user = User::where('phone', $from)
