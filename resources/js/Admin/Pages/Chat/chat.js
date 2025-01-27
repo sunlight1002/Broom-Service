@@ -430,26 +430,26 @@ export default function chat() {
         });
     };
 
-    // const parsedData = (data) => {
-    //     if (!data) {
-    //         // console.warn("Data is null or undefined");
-    //         return 'No data provided';
-    //     }
+    const parsedData = (data) => {
+        if (!data) {
+            // console.warn("Data is null or undefined");
+            return 'No data provided';
+        }
 
-    //     try {
-    //         let jsonData = typeof data === 'string' ? JSON.parse(data) : data;
-    //         // Check if the parsed data is still a string (stringified JSON inside JSON)
-    //         if (typeof jsonData === 'string') {
-    //             jsonData = JSON.parse(jsonData);
-    //         }
-    //         // Safely extract the message ID
-    //         const messageId = jsonData?.messages?.[0]?.id || 'Message ID not found';
-    //         // console.log(messageId, "Extracted Message ID");
-    //         return messageId;
-    //     } catch (error) {
-    //         return 'Invalid data format';
-    //     }
-    // };
+        try {
+            let jsonData = typeof data === 'string' ? JSON.parse(data) : data;
+            // Check if the parsed data is still a string (stringified JSON inside JSON)
+            if (typeof jsonData === 'string') {
+                jsonData = JSON.parse(jsonData);
+            }
+            // Safely extract the message ID
+            const messageId = jsonData?.messages?.[0]?.id || 'Message ID not found';
+            // console.log(messageId, "Extracted Message ID");
+            return messageId;
+        } catch (error) {
+            return 'Invalid data format';
+        }
+    };
 
 
     function escapeSelectorClass(className) {
@@ -1042,11 +1042,7 @@ export default function chat() {
                                                                                         </div>
 
                                                                                         {groupedMessages[date].map((m, i) => {
-                                                                                            //    const chatId = parsedData(m.data);
-
-                                                                                            //    if (!chatId || chatId === 'No data provided') {
-                                                                                            //        console.error("Failed to extract chatId from:", m.data);
-                                                                                            //    }
+                                                                                               const chatId = parsedData(m.data);
 
                                                                                             if (m.message !== "restart") {
                                                                                                 return (
@@ -1156,7 +1152,7 @@ export default function chat() {
                                                                                                                         setImage(m?.image);
                                                                                                                     }
                                                                                                                     setReplyMessage(m.message);
-                                                                                                                    setReplyId(m?.id);
+                                                                                                                    setReplyId(chatId??m.id);
                                                                                                                 }}
                                                                                                             ></i>
                                                                                                         </div>

@@ -76,8 +76,9 @@ if (!function_exists('sendWhatsappMessage')) {
 
         // Include reply ID if provided
         if ($replyId) {
-            $payload['reply_to'] = $replyId; // Adjust the key according to your API specification
+            $payload['quoted'] = $replyId; // Adjust the key according to your API specification
         }
+        \Log::info($payload);
 
         // Send the message using Http Client
         $response = Http::withToken(config('services.whapi.token'))
@@ -117,7 +118,7 @@ if (!function_exists('sendClientWhatsappMessage')) {
 
         // Include reply ID if provided
         if ($replyId) {
-            $payload['reply_to'] = $replyId; // Adjust the key according to your API specification
+            $payload['quoted'] = $replyId; // Adjust the key according to your API specification
         }
 
         // Send the message using Http Client
@@ -224,6 +225,7 @@ if (!function_exists('sendWhatsappImageMessage')) {
         $fullMediaPath,
         $caption = '',
         $mimeType = 'image/jpeg', // Adjust based on the image type (e.g., 'image/png')
+        $replyId = null
         // $quoted = null,
         // $ephemeral = null,
         // $edit = null,
@@ -285,6 +287,7 @@ if (!function_exists('sendWhatsappImageMessage')) {
                 'media' => $mediaId, // Encode the image as base64
                 'mime_type' => $fileMimeType,
                 'caption' => $caption,
+                'qouted' => $replyId ? $replyId : null,
                 'no_encode' => true, // Specify if encoding should be disabled
             ]);
 
@@ -403,7 +406,8 @@ if (!function_exists('sendWhatsappMediaMessage')) {
                     'to' => $mobile_no,
                     'media' => $mediaId,
                     'caption' => $caption,
-                    'mime_type' => 'video/mp4'
+                    'mime_type' => 'video/mp4',
+                    'quoted' => $replyId ? $replyId : null
                 ]);
 
             // Log the message response for debugging
