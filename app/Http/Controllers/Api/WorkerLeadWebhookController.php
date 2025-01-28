@@ -648,10 +648,15 @@ class WorkerLeadWebhookController extends Controller
 
             if ($user && $user->stop_last_message == 0) {
                 $m = null;
-                $isMonday = now()->isMonday();
 
                 $msgStatus = Cache::get('worker_monday_msg_status_' . $user->id);
-                if($isMonday && !empty($msgStatus)) {
+                \Log::info('$msgStatus', [$msgStatus]);
+
+                if(empty($msgStatus)) {
+                    $msgStatus = 'main_monday_msg';
+                }
+
+                if(!empty($msgStatus)) {
                     $menu_option = explode('->', $msgStatus);
                     $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
                     $last_menu = end($menu_option);
@@ -669,7 +674,7 @@ class WorkerLeadWebhookController extends Controller
                         }
 
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $m]);
-                        Cache::put('worker_monday_msg_status_' . $user->id, 'main_monday_msg->next_week_change', now()->addDay(1));
+                        Cache::put('worker_monday_msg_status_' . $user->id, 'next_week_change', now()->addDay(1));
                         WorkerWebhookResponse::create([
                             'status' => 1,
                             'name' => 'whatsapp',
@@ -679,8 +684,7 @@ class WorkerLeadWebhookController extends Controller
                             'flex' => 'A',
                         ]);
                     } else if ($last_menu == 'main_monday_msg' && $messageBody == '2') {
-                        $user->stop_last_message = 1;
-                        $user->save();
+
 
                         $message = null;
 
@@ -707,6 +711,8 @@ Broom Service Team 🌹 ';
                         sendClientWhatsappMessage($from, array('message' => $message));
                         Cache::forget('worker_monday_msg_status_' . $user->id);
                         WorkerMetas::where('worker_id', $user->id)->where('key', 'monday_msg_sent')->delete();
+                        $user->stop_last_message = 1;
+                        $user->save();
                     } else if ($last_menu == 'next_week_change' && !empty($messageBody)) {
                         $scheduleChange = new ScheduleChange();
                         $scheduleChange->user_type = get_class($user);
@@ -718,8 +724,7 @@ Broom Service Team 🌹 ';
 
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
 
-                        $user->stop_last_message = 1;
-                        $user->save();
+
 
                         $message = null;
 
@@ -755,6 +760,8 @@ Broom Service Team 🌹 ';
                         sendClientWhatsappMessage($from, array('message' => $message));
                         Cache::forget('worker_monday_msg_status_' . $user->id);
                         WorkerMetas::where('worker_id', $user->id)->where('key', 'monday_msg_sent')->delete();
+                        $user->stop_last_message = 1;
+                        $user->save();
                     } else {
                         // Follow-up message for returning to the menu, with translation based on the client's language
                         if ($user->lng == 'heb') {

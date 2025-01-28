@@ -102,16 +102,17 @@ The Broom Service Team 🌹',
 
         ];
 
-        $workers = User::where('status', '1')->where('phone', '918469138538')->get();
-        // dd( $workers);
+        // $workers = User::where('status', '1')->where('phone', '918469138538')->get();
+         $workers = User::where('status', '1')->where('stop_last_message', 0)->get();
+        //  dd($workers);
         foreach ($workers as $worker) {
             \Log::info('Sending message to ' . $worker->phone . ' (' . $worker->firstname . ')');
 
-            $result = sendWorkerWhatsappMessage($worker->phone, array('name' => '', 'message' => $message[$worker->lng] ?? $message['en']));
+            // $result = sendClientWhatsappMessage($worker->phone, array('name' => '', 'message' => $message[$worker->lng] ?? $message['en']));
 
-            if (!$result) {
-                \Log::error('Failed to send message to ' . $worker->phone);
-            }
+            // if (!$result) {
+            //     \Log::error('Failed to send message to ' . $worker->phone);
+            // }
 
             $workerData = [
                 'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE,

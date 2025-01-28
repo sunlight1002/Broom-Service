@@ -103,17 +103,22 @@ office@broomservice.co.il',
                 ->whereHas('lead_status', function ($query) {
                     $query->where('lead_status', 'active client');
                 })
-                ->where('id', 1348)
+                // ->whereIn('id', [1788])
                 ->get();
-
+            // dd($clients);
         foreach ($clients as $client) {
+            // if(in_array($client->id, [110,112,120,121,174,203,220,221,232,233,261,270,1,2,6,8,11,13,15,21,23,24,25,30,39,40,43,45,49,51,52,54,55,57,65,67,68,70,71,79,80,85,86,88,91,135,166,179,204,215,238,240,245,246,247,333,339,394])) {
+            //     echo "Already sent: " . $client->id . PHP_EOL;
+            //     continue;
+            // }
+
             \Log::info('Sending message to ' . $client->phone . ' (' . $client->firstname . ')');
 
-            $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $message[$client->lng]));
+            // $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $message[$client->lng]));
 
-            if (!$result) {
-                \Log::error('Failed to send message to ' . $client->phone);
-            }
+            // if (!$result) {
+            //     \Log::error('Failed to send message to ' . $client->phone);
+            // }
 
             $clientData = [
                 'type' => WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE,
@@ -125,6 +130,7 @@ office@broomservice.co.il',
             $client->stop_last_message = 0;
             $client->save();
             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg', now()->addDay(1));
+            // echo $client->id . PHP_EOL;
         }
     }
 }
