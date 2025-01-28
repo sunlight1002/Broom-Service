@@ -130,6 +130,7 @@
         "forms_submitted": "טפסים נשלחו בהצלחה",
         "offer_reopend": "ההצעה נפתחה מחדש בהצלחה",
         "message_send": "ההודעה נשלחה בהצלחה",
+        "make_active_client": "האם אתה רוצה להפוך את הלקוח ללקוח פעיל?",
         "button": {
             "reopen_offer": "מול, הצעה פתוחה!"
         }

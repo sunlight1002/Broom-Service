@@ -2769,7 +2769,8 @@ tbody tr:hover{
 .conversation-list .conversation-text {
   float: left;
   font-size: 13px;
-  margin-left: 12px;
+  /* margin-left: 12px; */
+  padding: 10px 10px;
   width: 100%;
 }
 
@@ -2779,7 +2780,7 @@ tbody tr:hover{
 
 .conversation-list .odd .conversation-text {
   float: right !important;
-  margin-right: 12px;
+  /* margin-right: 12px; */
   text-align: right;
   width: 100% !important;
 }

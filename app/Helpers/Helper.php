@@ -42,9 +42,6 @@ if (!function_exists('sendTeamWhatsappMessage')) {
         $response = Http::withToken(config('services.whapi.token'))
             ->post(config('services.whapi.url') . 'messages/text', $payload);
 
-        // Log the response for debugging
-        Log::info($response->json());
-
         // Check the response status
         if ($response->successful()) { 
             return $response->json();
@@ -78,14 +75,9 @@ if (!function_exists('sendWhatsappMessage')) {
         if ($replyId) {
             $payload['quoted'] = $replyId; // Adjust the key according to your API specification
         }
-        \Log::info($payload);
-
         // Send the message using Http Client
         $response = Http::withToken(config('services.whapi.token'))
             ->post(config('services.whapi.url') . 'messages/text', $payload);
-
-        // Log the response for debugging
-        Log::info($response->json());
 
         // Check the response status
         if ($response->successful()) { 

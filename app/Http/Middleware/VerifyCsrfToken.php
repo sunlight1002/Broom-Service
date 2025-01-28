@@ -15,6 +15,7 @@ class VerifyCsrfToken extends Middleware
         'webhook_fb',
         '/webhook_active_workers',
         '/webhook_active_clients',
+        '/webhook_client_review',
         '/webhook_worker_lead',
         '/webhook_active_worker_monday',
         '/webhook_active_client_monday',

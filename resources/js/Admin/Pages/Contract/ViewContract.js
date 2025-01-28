@@ -4,6 +4,7 @@ import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 import companySign from "../../../Assets/image/company-sign.png";
 import logo from "../../../Assets/image/sample.svg";
@@ -16,13 +17,7 @@ export default function ViewContract() {
     const [services, setServices] = useState([]);
     const [client, setClient] = useState(null);
     const [contract, setContract] = useState(null);
-    const [signature, setSignature] = useState(null);
-    const [cardSignature, setCardSignature] = useState(null);
-    const [Aaddress, setAaddress] = useState(null);
     const [status, setStatus] = useState("");
-    const [sessionURL, setSessionURL] = useState("");
-    const [addCardBtnDisabled, setAddCardBtnDisabled] = useState(false);
-    const [checkingForCard, setCheckingForCard] = useState(false);
     const [clientCards, setClientCards] = useState([]);
     const [selectedClientCardID, setSelectedClientCardID] = useState(null);
     const [isCardAdded, setIsCardAdded] = useState(false);
@@ -32,6 +27,11 @@ export default function ViewContract() {
     const windowWidth = useWindowWidth();
     const [mobileView, setMobileView] = useState(false);
     const [nextStep, setNextStep] = useState(1);
+    const [formValues, setFormValues] = useState({
+        reason: "",
+        status: "active client",
+        id: "",
+    });
 
     const { t } = useTranslation();
     const params = useParams();
@@ -101,10 +101,7 @@ export default function ViewContract() {
             .post(`/api/admin/verify-contract`, { id: params.id }, { headers })
             .then((res) => {
                 setLoading(false);
-                swal(res.data.message, "", "success");
-                setTimeout(() => {
-                    window.location.reload(true);
-                }, 1000);
+                handleswal();
             })
             .catch((e) => {
                 setLoading(false);
@@ -119,6 +116,49 @@ export default function ViewContract() {
     useEffect(() => {
         getContract();
     }, []);
+
+
+
+    const handleSubmit = () => {
+        axios
+            .post(`/api/admin/set-to-active-client/${client?.id}`, "", { headers })
+            .then(async (response) => {
+                Swal.fire("Added!", response?.data?.message, "success");
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 600);
+            })
+            .catch((e) => {
+                console.log(e);
+                Swal.fire({
+                    title: "Error!",
+                    text: e.response?.data?.message || "Something went wrong!",
+                    icon: "error",
+                });
+            });
+    };
+
+
+    const handleswal = () => {
+        Swal.fire({
+            title: t("common.delete.title"),
+            text: t("swal.make_active_client"),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: t("form101.label_yes"),
+            cancelButtonText: t("form101.label_no"), 
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                handleSubmit();
+            } else {
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 600);
+            }
+        });
+    };
 
     const workerHours = (_service) => {
         if (_service.type === "hourly") {

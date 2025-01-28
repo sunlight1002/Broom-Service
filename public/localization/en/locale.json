@@ -130,6 +130,7 @@
       "forms_submitted": "Forms submitted successfully",
       "offer_reopend": "Offer re-opened successfully",
       "message_send": "Message send Successfully",
+      "make_active_client": "Do you want to make the client to active client?",
       "button":{
         "reopen_offer": "Yes, Reopen Offer!"
       }
