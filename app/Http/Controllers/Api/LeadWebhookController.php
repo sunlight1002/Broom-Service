@@ -434,7 +434,7 @@ Broom Service Team 🌹",
                 $lead->firstname     = 'lead';
                 $lead->lastname      = '';
                 $lead->phone         = $from;
-                $lead->email         = $from . '@lead.com';
+                $lead->email         = "";
                 $lead->status        = 0;
                 $lead->password      = Hash::make($from);
                 $lead->passcode      = $from;
@@ -1716,6 +1716,10 @@ If you would like to speak to a human representative, please send a message with
                 ->orWhereJsonContains('extra', [['phone' => $from]])
                 ->first();
 
+                if($client && $client->lead_status->lead_status != LeadStatusEnum::ACTIVE_CLIENT){
+                    die('Client already active');
+                }
+
             $msgStatus = Cache::get('client_review' . $client->id);
 
             if (!empty($msgStatus)) {
@@ -2257,7 +2261,7 @@ If you would like to speak to a human representative, please send a message with
                     $lead->firstname     = 'lead';
                     $lead->lastname      = '';
                     $lead->phone         = $from;
-                    $lead->email         = $from . '@lead.com';
+                    $lead->email         = "";
                     $lead->status        = 0;
                     $lead->password      = Hash::make($from);
                     $lead->passcode      = $from;
@@ -2464,27 +2468,41 @@ If you would like to speak to a human representative, please send a message with
 //                 if(!empty($msgStatus)){
 
 //                     $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
+//                     $last_input2 = Cache::get('client_review_input2' . $client->id);
 
 //                     if($messageBody == '1'){
+
 //                         $message = $client->lng == "en" ? "We’re delighted to hear you were satisfied with our service! 🌟
 // Thank you for your positive feedback. We’re here if you need anything else." : "שמחים לשמוע שהייתם מרוצים מהשירות שלנו! 🌟
 // תודה רבה על הפידבק החיובי. אנחנו כאן לכל דבר נוסף.";
+
 //                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
+
 //                         Cache::put('client_review_input1' . $client->id, 'client_review_input1', now()->addDay(1));
 //                         Cache::forget('client_review' . $client->id);
+
 //                     }else if ($messageBody == '2'){
+
 //                         $message = $client->lng == "en" ? "Thank you for your feedback!
 // Please write your comment or request here." : "תודה על הפידבק שלכם!
 // אנא כתבו את ההערה או הבקשה שלכם.";
+
 //                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
-//                        $last_input2 = Cache::put('client_review_input2' . $client->id, 'client_review_input2', now()->addDay(1));
+
+//                         Cache::put('client_review_input2' . $client->id, 'client_review_input2', now()->addDay(1));
+
 //                     }else if(empty($last_input2)){
+
 //                         \Log::info('No last input2');
+
 //                         $nextMessage = $this->activeClientBotMessages['sorry'][$client->lng];
 //                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+//                         Cache::forget('client_review' . $client->id);
+
 //                     }
 
-//                     if(!empty($last_input2)){
+//                     if(!empty($last_input2) && !in_array($messageBody, ['1', '2'])){
+//                         \Log::info('last input2');
 //                         $scheduleChange = ScheduleChange::create([
 //                             'user_type' => get_class($client),
 //                             'user_id' => $client->id,
