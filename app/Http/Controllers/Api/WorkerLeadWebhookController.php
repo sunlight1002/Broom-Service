@@ -304,8 +304,6 @@ class WorkerLeadWebhookController extends Controller
         $messageId = $data_returned['messages'][0]['id'] ?? null;
         $lng = "en";
 
-        \Log::info($data_returned);
-
         if (!$messageId) {
             return response()->json(['status' => 'Invalid message data'], 400);
         }
@@ -386,9 +384,6 @@ class WorkerLeadWebhookController extends Controller
                     // Handle 'sorry' case
                     $send_menu = 'sorry';
                     $sorryCount = Cache::increment($cacheKey);
-                    // Log the cache count for debugging
-                    \Log::info("Cache count for $from: $sorryCount");
-
                     if ($sorryCount > 4) {
                         Cache::put($cacheKey, 0, now()->addHours(24)); // Reset to 0 and keep the cache expiration
                         $send_menu = 'attempts_exceeded'; // Handle as 'attempts_exceeded'
@@ -614,8 +609,6 @@ class WorkerLeadWebhookController extends Controller
         $messageId = $data_returned['messages'][0]['id'] ?? null;
         $lng = "en";
 
-        \Log::info($data_returned);
-
         if (!$messageId) {
             return response()->json(['status' => 'Invalid message data'], 400);
         }
@@ -644,13 +637,10 @@ class WorkerLeadWebhookController extends Controller
                     ->where('status', 1)
                     ->first();
 
-            \Log::info($user??'');
-
             if ($user && $user->stop_last_message == 0) {
                 $m = null;
 
                 $msgStatus = Cache::get('worker_monday_msg_status_' . $user->id);
-                \Log::info('$msgStatus', [$msgStatus]);
 
                 if(empty($msgStatus)) {
                     $msgStatus = 'main_monday_msg';

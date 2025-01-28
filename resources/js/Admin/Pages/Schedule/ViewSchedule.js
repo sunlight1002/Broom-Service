@@ -47,6 +47,8 @@ export default function ViewSchedule() {
     const [libraries] = useState(["places", "geometry"]);
     const [allWorkers, setAllWorkers] = useState([]);
     const [workers, setWorkers] = useState([]);
+    const [emailModal, setEmailModal] = useState(false);
+    const [email, setEmail] = useState("");
 
     const params = useParams();
     const alert = useAlert();
@@ -87,6 +89,11 @@ export default function ViewSchedule() {
     }, [adminLng]);
 
     const sendMeeting = async () => {
+        if(!client.email){
+            alert.error("Client email not found");
+            setEmailModal(true);
+            return false
+        }
         if (meetVia === "on-site") {
             if (!selectedDate) {
                 alert.error("Date not selected");
@@ -184,6 +191,28 @@ export default function ViewSchedule() {
                 });
         }
     };
+
+    const handleClientField = async() => {
+        if(!email){
+            alert.error("Please enter email");
+            return false
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert.error("Please enter valid email");
+            return false
+        }
+        const data = {
+            id: params.id,
+            email: email
+        }
+        const res = await axios.post(`/api/admin/add-some-fields`, data, { headers })
+        if(res.status === 200){
+            alert.success(res.data.message);
+            setEmailModal(false);
+            setEmail("");
+        }        
+    }
 
     const resetForm = () => {
         fullAddress.current && (fullAddress.current.value = "");
@@ -983,6 +1012,54 @@ export default function ViewSchedule() {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                size="md"
+                className="modal-container"
+                show={emailModal}
+                onHide={() => setEmailModal(false)}
+                backdrop="static"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Add Email for {(client.firstname ?? "") + " " + (client.lastname ?? "")}</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label htmlFor="email" className="control-label">Email</label>
+                                <input
+                                    name="email"
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="form-control"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setEmailModal(false)}
+                    >
+                        Close
+                    </Button>
+                    <Button
+                        type="submit"
+                        onClick={handleClientField}
+                        className="btn btn-primary"
+                    >
+                        Save
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+
             <Modal
                 size="lg"
                 className="modal-container"

@@ -132,6 +132,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::resource('leads', LeadController::class)->except(['create', 'show']);
     Route::post('leads/save-property-address', [LeadController::class, 'savePropertyAddress']);
     Route::delete('leads/remove-property-address/{id}', [LeadController::class, 'removePropertyAddress']);
+    Route::post('add-some-fields', [LeadController::class, 'addSomeFields']);
 
     //  Routes for Lead Activity
     Route::get('/lead-activities/{id}', [LeadActivityController::class, 'getLeadActivities']);
