@@ -408,7 +408,7 @@ class WorkerLeadWebhookController extends Controller
                             ]
                         );
                         // Replace :worker_name with the user's firstname and lastname
-                        $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
+                        $workerName = (($user->firstname ?? ''). ' ' . ($user->lastname ?? ''));
                         $personalizedMessage = str_replace(':worker_name', $workerName, $initialMessage);
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
@@ -440,7 +440,7 @@ class WorkerLeadWebhookController extends Controller
 
                     case 'comment':
                         $nextMessage = $this->activeWorkersbotMessages['comment'][$lng];
-                        $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
+                        $workerName = (($user->firstname ?? ''). ' ' . ($user->lastname ?? ''));
                         $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $input], $nextMessage);
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
@@ -484,7 +484,7 @@ class WorkerLeadWebhookController extends Controller
                         $scheduleChange->save();
 
                         $nextMessage = $this->activeWorkersbotMessages['team_schedule_change']["en"];
-                        $workerName = $user->firstname ?? ''. ' ' . $user->lastname ?? '';
+                        $workerName = (($user->firstname ?? ''). ' ' . ($user->lastname ?? ''));
                         $personalizedMessage = str_replace([':worker_name', ':message'], [$workerName, $input], $nextMessage);
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
 
@@ -590,7 +590,7 @@ class WorkerLeadWebhookController extends Controller
 
                         // Notify the team
                         $nextMessage = $this->activeWorkersbotMessages['team_attempts']["heb"];
-                        $workerName = $user->firstname ?? '' . ' ' . $user->lastname ?? '';
+                        $workerName = (($user->firstname ?? ''). ' ' . ($user->lastname ?? ''));
                         $personalizedMessage = str_replace(':worker_name', $workerName, $nextMessage);
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
                         // Reset the cache
@@ -689,19 +689,19 @@ class WorkerLeadWebhookController extends Controller
                         $message = null;
 
                         if($user->lng == 'heb'){
-                            $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',
+                            $message = 'שלום ' . ($user->firstname ?? '' . " " . $user->lastname ?? '') . ',
 קיבלנו את תגובתך. אין שינויים בסידור העבודה שלך לשבוע הבא.
 
 בברכה,
 צוות ברום סרוויס 🌹';
                         } else if($user->lng == 'ru'){
-                            $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',
+                            $message = 'Здравствуйте, '  . ($user->firstname ?? '' . " " . $user->lastname ?? '') .',
 Мы получили ваш ответ. Ваш график на следующую неделю остается без изменений.
 
 С уважением,
 Команда Broom Service 🌹';
                         } else{
-                            $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',
+                            $message = 'Hello '  . ($user->firstname ?? '' . " " . $user->lastname ?? '') . ',
 We received your response. There are no changes to your schedule for next week.
 
 Best Regards,
@@ -720,7 +720,7 @@ Broom Service Team 🌹 ';
                         $scheduleChange->comments = $messageBody;
                         $scheduleChange->save();
 
-                        $personalizedMessage = "שלום צוות,\n" . $user->firstname . " " . $user->lastname . " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא.\nהבקשה שלו היא:\n\"".$messageBody."\"\nאנא בדקו וטפלו בהתאם.\nבברכה,\nצוות ברום סרוויס";
+                        $personalizedMessage = "שלום צוות,\n" . ($user->firstname ?? '') . " " . ($user->lastname ?? '') . " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא.\nהבקשה שלו היא:\n\"".$messageBody."\"\nאנא בדקו וטפלו בהתאם.\nבברכה,\nצוות ברום סרוויס";
 
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.workers_availability'), ['name' => '', 'message' => $personalizedMessage]);
 
@@ -729,7 +729,7 @@ Broom Service Team 🌹 ';
                         $message = null;
 
                         if($user->lng == 'heb'){
-                            $message = 'שלום ' . $user->firstname . " " . $user->lastname . ',
+                            $message = 'שלום ' . ($user->firstname ?? '') . " " . ($user->lastname ?? '') . ',
 קיבלנו את תגובתך. בקשתך לשינויים בסידור העבודה התקבלה והועברה לצוות שלנו לבדיקה וטיפול.
 
 להלן הבקשה שלך:
@@ -738,7 +738,7 @@ Broom Service Team 🌹 ';
 בברכה,
 צוות ברום סרוויס 🌹';
                         } else if($user->lng == 'ru'){
-                            $message = 'Здравствуйте, '  . $user->firstname . " " . $user->lastname .',
+                            $message = 'Здравствуйте, '  . ($user->firstname ?? '') . " " . ($user->lastname ?? '') .',
 Мы получили ваш ответ. Ваш запрос на изменения в графике получен и передан нашей команде для проверки и обработки.
 
 Вот ваш запрос:
@@ -747,7 +747,7 @@ Broom Service Team 🌹 ';
 С уважением,
 Команда Broom Service 🌹';
                         } else{
-                            $message = 'Hello '  . $user->firstname . " " . $user->lastname . ',
+                            $message = 'Hello '  . ($user->firstname ?? '') . " " . ($user->lastname ?? '') . ',
 We received your response. Your request for changes to your schedule has been received and forwarded to our team for review and action.
 
 Here’s your request:

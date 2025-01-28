@@ -95,6 +95,7 @@ class ScheduleChangeController extends Controller
              return [
                  'id' => $change->id,
                  'user_type' => $userType,
+                 'user_id' => $change->user_id,
                  'user_fullname' => $user->firstname . ' ' . $user->lastname,
                  'status' => $change->status,
                  'reason' => $change->reason,
