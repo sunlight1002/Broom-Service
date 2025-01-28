@@ -180,7 +180,7 @@ class FacebookLeadUpdate extends Command
                                  $leadInfo[$field['name']] = $field['values'][0] ?? null;
                              }
      
-                             $email = isset($leadInfo['email']) && !empty($leadInfo['email']) ? $leadInfo['email'] : 'lead' . $lead['id'] . '@lead.com';
+                             $email = null;
                              $phone = isset($leadInfo['phone_number']) && !empty($leadInfo['phone_number']) ? str_replace('+', '', $leadInfo['phone_number']) : '';
      
                              if (!empty($phone) && substr($phone, 0, 1) === '0') {
