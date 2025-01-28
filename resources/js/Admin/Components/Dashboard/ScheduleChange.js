@@ -81,8 +81,9 @@ function ScheduleChange() {
                 order: [[0, "desc"]],
                 columns: [
                     { 
-                        title: t("global.user_type"), 
+                        title: t("global.Type"), 
                         data: "user_type",
+                        width: "5%",
                         render: function (data) {
                             if (data === "Client") {
                                 return `<span class="">C</span>`;
@@ -92,7 +93,7 @@ function ScheduleChange() {
                         }, 
                     },
                     { 
-                        title: t("global.user_name"), 
+                        title: t("global.name"), 
                         data: "user_fullname" ,
                         render: function (data) {
                             const firstname = data.split(" ")[0];
@@ -105,50 +106,48 @@ function ScheduleChange() {
                                 </p>`;
                         }, 
                     },
-                    { title: t("global.reason"), data: "reason" },
+                    { 
+                        title: t("global.reason"), 
+                        data: "reason" ,
+                        render: function (data) {
+                            const first = data.indexOf(" ") === -1 ? data : data.split(" ")[0];
+                            return `<p 
+                                    class="badge dt-change-status-btn" 
+                                    data-tooltip-id="comment" 
+                                    data-tooltip-html="${data}">
+                                    ${first}...
+                                </p>`;
+                        }, 
+                    },
                     { 
                         title: t("global.comments"), 
                         data: "comments",
                         render: function (data) {
-                            const truncateWithEllipsis = (text, maxLength) => {
-                                if (text.length <= maxLength) {
-                                    return text; // If the text length is less than or equal to maxLength, return as is
-                                }
-                                return text.substring(0, maxLength) + '...';
-                            };
-                            const truncatedData = truncateWithEllipsis(data, 5);
+                            const first = data.indexOf(" ") === -1 ? data : data.split(" ")[0];
                             return `<p 
                                         class="badge dt-change-status-btn" 
                                         data-tooltip-id="comment" 
                                         data-tooltip-html="${data}">
-                                        ${truncatedData}
+                                        ${first}
                                     </p>`;
                         },
                         
                     },
-                    // {
-                    //     title: "Status",
-                    //     data: "status",
-                    //     render: function (data) {
-                    //         const style = leadStatusColor(data);
-                    //         return `<p style="background-color: ${style.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
-                    //         ${data}
-                    //     </p>`;
-                    //     },
-                    // },
                     {
                         title: t("global.is_completed"),
                         data: "status",
                         orderable: false,
+                        width: "9%",
                         render: function (data, type, row, meta) {
-                            return `<div class="d-flex justify-content-sm-start justify-content-md-center"> <span class="rounded " style="border: 1px solid #ebebeb; overflow: hidden"> <input type="checkbox" data-id="${row.id
-                                }" class="form-control dt-if-completed-checkbox" ${row.status == "completed" ? "checked" : ""
-                                }/> </span> </div>`;
+                            return `<div class="d-flex"><span class="rounded" style="border: 1px solid #ebebeb; overflow: hidden; "> <input type="checkbox" data-id="${row.id
+                                }" class="form-control dt-if-completed-checkbox" style="cursor: pointer; margin: 5px 5px;" ${row.status == "completed" ? "checked" : ""
+                                }/> </span></div> `;
                         },
                     },
                     {
                         title: t("modal.date"),
                         data: "created_at",
+                        width: "10%",
                         render: function (data) {
                             return `<p 
                                         class="badge dt-change-status-btn" 
@@ -163,6 +162,7 @@ function ScheduleChange() {
                         data: null,
                         orderable: false,
                         responsivePriority: 1,
+                        width: "5%",
                         render: function (data, type, row, meta) {
                             return `
                                 <div class="action-dropdown dropdown"> 

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ContractStatusEnum;
 use App\Enums\LeadStatusEnum;
+use App\Models\LeadActivity;
+use App\Events\ClientLeadStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Client;
@@ -277,6 +279,47 @@ class ContractController extends Controller
 
         return response()->json([
             'message' => 'Contact file uploaded!',
+        ]);
+    }
+
+    public function setToActiveClient($id){
+
+        $client = Client::find($id);
+
+        if (!$client) {
+            return response()->json([
+                'message' => 'Client not found!',
+            ]);
+        }
+        $client->status = 2;
+        $client->save();
+    
+        $newLeadStatus = LeadStatusEnum::ACTIVE_CLIENT;
+    
+        if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+            $client->lead_status()->updateOrCreate(
+                [],
+                ['lead_status' => $newLeadStatus]
+            );
+    
+            event(new ClientLeadStatusChanged($client, $newLeadStatus));
+        }
+    
+        $client->logs()->create([
+            'status' => 2,
+            'reason' => "",
+        ]);
+    
+        // Log the status change in LeadActivity
+        $activity = LeadActivity::create([
+            'client_id' => $id,
+            'created_date' => now(),
+            'status_changed_date' => now(),
+            'changes_status' => $newLeadStatus,
+        ]);
+    
+        return response()->json([
+            'message' => 'Status has been changed successfully!',
         ]);
     }
 }
