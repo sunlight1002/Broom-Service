@@ -1726,7 +1726,7 @@ If you would like to speak to a human representative, please send a message with
                 die('Client disabled notification');
             }
 
-            if ($isMonday && $client && $client->stop_last_message != 1) {
+            if ($isMonday && $client && $client->stop_last_message != 1 && !in_array(strtolower(trim($input)), ["stop", "הפסק"])) {
                 if ($client->stop_last_message == 0 && in_array(strtolower(trim($input)), ["menu", "תפריט"])) {
                     $client->stop_last_message = 1;
                     $client->save();
@@ -1759,7 +1759,11 @@ If you would like to speak to a human representative, please send a message with
             ]);
 
 
-            if (empty($last_menu) || in_array(strtolower(trim($input)), ["menu", "תפריט"])) {
+            if (in_array(strtolower(trim($input)), ["stop", "הפסק"])) {
+                $client->disable_notification = 1;
+                $client->save();
+                $send_menu = 'stop';
+            } else if (empty($last_menu) || in_array(strtolower(trim($input)), ["menu", "תפריט"])) {
                 if (!$client && !$user && !$workerLead) {
                     $send_menu = 'not_recognized';
                 } else {
@@ -1851,10 +1855,6 @@ If you would like to speak to a human representative, please send a message with
                     ->orWhereJsonContains('extra', [['phone' => $clientMessageStatus->client_phone]])
                     ->first();
                 $send_menu = 'failed_attempts';
-            } else if (in_array(strtolower(trim($input)), ["stop", "הפסק"])) {
-                $client->disable_notification = 1;
-                $client->save();
-                $send_menu = 'stop';
             } else {
                 $send_menu = 'sorry';
             }
