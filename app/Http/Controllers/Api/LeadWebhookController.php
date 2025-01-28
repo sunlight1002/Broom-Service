@@ -1715,9 +1715,9 @@ If you would like to speak to a human representative, please send a message with
                 ->first();
 
             $msgStatus = null;
-            
+
             if ($client) {
-                
+
                 $msgStatus = Cache::get('client_review' . $client->id);
 
                 if (!empty($msgStatus)) {
@@ -2462,7 +2462,7 @@ If you would like to speak to a human representative, please send a message with
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();
-                
+
                 $msgStatus = null;
                 if($client){
                     $msgStatus = Cache::get('client_review' . $client->id);
@@ -2472,7 +2472,6 @@ If you would like to speak to a human representative, please send a message with
 
                     $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
                     $last_input2 = Cache::get('client_review_input2' . $client->id) ?? null;
-                    $sorry = Cache::get('client_review_sorry' . $client->id) ?? null;
 
                     // $last_input1 = Cache::get('client_review_input1' . $client->id);
 
@@ -2480,38 +2479,28 @@ If you would like to speak to a human representative, please send a message with
                         Cache::forget('client_review_sorry' . $client->id);
                         Cache::forget('client_review_input2' . $client->id);
                         Cache::forget('client_review' . $client->id);
-                    
+
                     }
 
-                    if($messageBody == '1'){
+                    if($messageBody == '7'){
 
-                        $message = $client->lng == "en" ? "We’re delighted to hear you were satisfied with our service! 🌟\nThank you for your positive feedback. We’re here if you need anything else." 
+                        $message = $client->lng == "en" ? "We’re delighted to hear you were satisfied with our service! 🌟\nThank you for your positive feedback. We’re here if you need anything else."
                         : "שמחים לשמוע שהייתם מרוצים מהשירות שלנו! 🌟\nתודה רבה על הפידבק החיובי. אנחנו כאן לכל דבר נוסף.";
 
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
                         sleep(2);
-                        Cache::put('client_review_input1' . $client->id, 'client_review_input1', now()->addDay(1));
                         Cache::forget('client_review' . $client->id);
-                        
-                    }else if ($messageBody == '2'){
 
-                        $message = $client->lng == "en" ? "Thank you for your feedback!\nPlease write your comment or request here." 
+                    }else if ($messageBody == '8'){
+
+                        $message = $client->lng == "en" ? "Thank you for your feedback!\nPlease write your comment or request here."
                         : "תודה על הפידבק שלכם!\nאנא כתבו את ההערה או הבקשה שלכם.";
 
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
 
                         Cache::put('client_review_input2' . $client->id, 'client_review_input2', now()->addDay(1));
-                        Cache::forget('client_review_sorry' . $client->id);
 
-                    }else if(empty($last_input2) && !in_array(strtolower(trim($messageBody)), ['1', '2',"menu", "תפריט"])){
-
-                        \Log::info('No last input2');
-
-                        $nextMessage = $this->activeClientBotMessages['sorry'][$client->lng];
-                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-                        Cache::put('client_review_sorry' . $client->id, 'client_review_sorry', now()->addDay(1));
-
-                    } else if(!empty($last_input2) && !in_array($messageBody, ['1', '2'])){
+                    } else if(!empty($last_input2) && !empty($messageBody)){
                         \Log::info('last input2');
                         $scheduleChange = ScheduleChange::create([
                             'user_type' => get_class($client),
@@ -2520,7 +2509,7 @@ If you would like to speak to a human representative, please send a message with
                             "reason" => $client->lng == "en" ? "Client Feedback" : 'משוב לקוח',
                         ]);
 
-                        $message = $client->lng == "en" ? "Thank you for your feedback! Your message has been received and will be forwarded to the supervisor for further handling.\nWe’re here for anything else you might need and will get back to you if necessary." 
+                        $message = $client->lng == "en" ? "Thank you for your feedback! Your message has been received and will be forwarded to the supervisor for further handling.\nWe’re here for anything else you might need and will get back to you if necessary."
                         : "תודה על הפידבק שלכם! ההודעה שלכם התקבלה ותועבר למפקח להמשך טיפול.\nאנחנו כאן לכל דבר נוסף ונחזור אליכם במידת הצורך.";
 
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
