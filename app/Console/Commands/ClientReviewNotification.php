@@ -75,6 +75,7 @@ Please reply with the appropriate number.",
         ->get();
 
         foreach ($clients as $client) {
+            WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
             $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
             $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
             sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
