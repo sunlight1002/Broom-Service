@@ -39,7 +39,7 @@ class CloseActiveClientBot extends Command
     public function handle()
     {
         $message = [
-            'heb' => "מצטערים, לא הבנתי את בקשתך.\nאנא נסה שוב או הקלד \"תפריט\" כדי לחזור לתפריט הראשי.",
+            'heb' => "לא התקבלה תגובה ממך. השיחה תיסגר אוטומטית.\nאם תצטרך משהו, אנא אל תהסס לפנות אלינו שוב.",
             'en' => "We didn’t receive a response from you. This chat will close automatically.\nIf you need anything, please don’t hesitate to reach out again.",
         ];
         $activeClients = WhatsAppBotActiveClientState::where('menu_option', '!=', 'failed_attempts')->where('updated_at', '<', now()->subMinutes(10))->get();
