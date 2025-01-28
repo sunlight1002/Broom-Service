@@ -49,7 +49,7 @@ class CloseActiveWorkerBot extends Command
         {
             try {
                 if($worker->worker) {
-                    $lng = $client->lng ?? 'en';
+                    $lng = $worker->worker->lng ?? 'en';
                     $nextMessage = $message[$lng];
                     sendClientWhatsappMessage($worker->worker->phone, ['name' => '', 'message' => $nextMessage]);
                     $worker->delete();
