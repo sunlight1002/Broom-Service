@@ -1928,7 +1928,7 @@ If you would like to speak to a human representative, please send a message with
                     ]);
 
                     $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
-                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
                     $personalizedMessage = str_replace([':client_name', ':message', ':client_phone', ':client_link'], [$clientName, trim($input), $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
@@ -2032,7 +2032,7 @@ If you would like to speak to a human representative, please send a message with
                     ]);
 
                     $nextMessage = $this->activeClientBotMessages['team_new_qoute']["heb"];
-                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
                     $personalizedMessage = str_replace([':client_name', ':client_phone', ':client_link'], [$clientName, $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
                     $clientMessageStatus->delete();
@@ -2055,7 +2055,7 @@ If you would like to speak to a human representative, please send a message with
                     break;
                 case 'thank_you_invoice_account':
                     $nextMessage = $this->activeClientBotMessages['thank_you_invoice_account'][$lng];
-                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
                     sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
@@ -2119,7 +2119,7 @@ If you would like to speak to a human representative, please send a message with
                     ]);
 
                     $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
-                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
                     $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, $input, url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
@@ -2424,121 +2424,127 @@ If you would like to speak to a human representative, please send a message with
     }
 
 
-//     public function clientReview(Request $request){
-//         try {
-//             $get_data = $request->getContent();
-//             $responseClientState = [];
-//             $data_returned = json_decode($get_data, true);
-//             $message = null;
+    public function clientReview(Request $request){
+        try {
+            $get_data = $request->getContent();
+            $responseClientState = [];
+            $data_returned = json_decode($get_data, true);
+            $message = null;
 
-//             $messageId = $data_returned['messages'][0]['id'] ?? null;
+            $messageId = $data_returned['messages'][0]['id'] ?? null;
 
-//             if (!$messageId) {
-//                 return response()->json(['status' => 'Invalid message data'], 400);
-//             }
+            if (!$messageId) {
+                return response()->json(['status' => 'Invalid message data'], 400);
+            }
 
-//             // Check if the messageId exists in cache and matches
-//             if (Cache::get('client_review_processed_message_' . $messageId) === $messageId) {
-//                 \Log::info('Already processed');
-//                 return response()->json(['status' => 'Already processed'], 200);
-//             }
+            // Check if the messageId exists in cache and matches
+            if (Cache::get('client_review_processed_message_' . $messageId) === $messageId) {
+                \Log::info('Already processed');
+                return response()->json(['status' => 'Already processed'], 200);
+            }
 
-//             // Store the messageId in the cache for 1 hour
-//             Cache::put('client_review_processed_message_' . $messageId, $messageId, now()->addHours(1));
-
-
-//             if (
-//                 isset($data_returned['messages']) &&
-//                 isset($data_returned['messages'][0]['from_me']) &&
-//                 $data_returned['messages'][0]['from_me'] == false
-//             ) {
-//                 $message_data = $data_returned['messages'];
-//                 if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
-//                     die("Group message");
-//                 }
-//                 $from = $message_data[0]['from'];
-//                 Log::info($from);
-
-//                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
-//                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
-//                 })->first();
-
-//                 $msgStatus = Cache::get('client_review' . $client->id);
-
-//                 if(!empty($msgStatus)){
-
-//                     $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
-//                     $last_input2 = Cache::get('client_review_input2' . $client->id);
-
-//                     if($messageBody == '1'){
-
-//                         $message = $client->lng == "en" ? "We’re delighted to hear you were satisfied with our service! 🌟
-// Thank you for your positive feedback. We’re here if you need anything else." : "שמחים לשמוע שהייתם מרוצים מהשירות שלנו! 🌟
-// תודה רבה על הפידבק החיובי. אנחנו כאן לכל דבר נוסף.";
-
-//                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
-
-//                         Cache::put('client_review_input1' . $client->id, 'client_review_input1', now()->addDay(1));
-//                         Cache::forget('client_review' . $client->id);
-
-//                     }else if ($messageBody == '2'){
-
-//                         $message = $client->lng == "en" ? "Thank you for your feedback!
-// Please write your comment or request here." : "תודה על הפידבק שלכם!
-// אנא כתבו את ההערה או הבקשה שלכם.";
-
-//                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
-
-//                         Cache::put('client_review_input2' . $client->id, 'client_review_input2', now()->addDay(1));
-
-//                     }else if(empty($last_input2)){
-
-//                         \Log::info('No last input2');
-
-//                         $nextMessage = $this->activeClientBotMessages['sorry'][$client->lng];
-//                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
-//                         Cache::forget('client_review' . $client->id);
-
-//                     }
-
-//                     if(!empty($last_input2) && !in_array($messageBody, ['1', '2'])){
-//                         \Log::info('last input2');
-//                         $scheduleChange = ScheduleChange::create([
-//                             'user_type' => get_class($client),
-//                             'user_id' => $client->id,
-//                             'comments' => $messageBody,
-//                             "reason" => $client->lng == "en" ? "Client Feedback" : 'משוב לקוח',
-//                         ]);
-
-//                         $message = $client->lng == "en" ? "Thank you for your feedback! Your message has been received and will be forwarded to the supervisor for further handling.
-// We’re here for anything else you might need and will get back to you if necessary." : "תודה על הפידבק שלכם! ההודעה שלכם התקבלה ותועבר למפקח להמשך טיפול.
-// אנחנו כאן לכל דבר נוסף ונחזור אליכם במידת הצורך.";
-
-//                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
-
-//                         $teammsg = "שלום צוות,
-
-// :client_name שיתף את ההערה או הבקשה הבאה בנוגע לשירות האחרון שקיבל:
-// ':message'
-
-// אנא בדקו וטפלו בנושא בהקדם. עדכנו את הלקוח כשהנושא טופל.";
-
-//                         $teammsg = str_replace([':client_name', ':message'], [($client->firstname ?? '' . ' ' . $client->lastname ?? ''), $scheduleChange->comments], $teammsg);
-
-//                         sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
-
-//                         Cache::forget('client_review_input2' . $client->id);
-//                         Cache::forget('client_review' . $client->id);
-//                     }
+            // Store the messageId in the cache for 1 hour
+            Cache::put('client_review_processed_message_' . $messageId, $messageId, now()->addHours(1));
 
 
-//                 }
+            if (
+                isset($data_returned['messages']) &&
+                isset($data_returned['messages'][0]['from_me']) &&
+                $data_returned['messages'][0]['from_me'] == false
+            ) {
+                $message_data = $data_returned['messages'];
+                if (Str::endsWith($message_data[0]['chat_id'], '@g.us')) {
+                    die("Group message");
+                }
+                $from = $message_data[0]['from'];
+                Log::info($from);
 
-//             }
-//         } catch (\Throwable $th) {
-//             throw $th;
-//         }
-//     }
+                $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
+                    $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
+                })->first();
+
+                $msgStatus = Cache::get('client_review' . $client->id);
+
+                if(!empty($msgStatus)){
+
+                    $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
+                    $last_input2 = Cache::get('client_review_input2' . $client->id);
+
+                    if(Cache::get('client_review_sorry' . $client->id) && !in_array(strtolower(trim($messageBody)), ["menu", "תפריט"])){
+                        \Log::info('forget');
+                        Cache::forget('client_review' . $client->id);
+                    }
+
+                    if($messageBody == '1'){
+
+                        $message = $client->lng == "en" ? "We’re delighted to hear you were satisfied with our service! 🌟
+Thank you for your positive feedback. We’re here if you need anything else." : "שמחים לשמוע שהייתם מרוצים מהשירות שלנו! 🌟
+תודה רבה על הפידבק החיובי. אנחנו כאן לכל דבר נוסף.";
+
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
+
+                        Cache::put('client_review_input1' . $client->id, 'client_review_input1', now()->addDay(1));
+                        Cache::forget('client_review' . $client->id);
+
+                    }else if ($messageBody == '2'){
+
+                        $message = $client->lng == "en" ? "Thank you for your feedback!
+Please write your comment or request here." : "תודה על הפידבק שלכם!
+אנא כתבו את ההערה או הבקשה שלכם.";
+
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
+
+                        Cache::put('client_review_input2' . $client->id, 'client_review_input2', now()->addDay(1));
+
+                    }else if(empty($last_input2) && !in_array(strtolower(trim($messageBody)), ['1', '2',"menu", "תפריט"]) && $msgStatus){
+
+                        \Log::info('No last input2');
+
+                        $nextMessage = $this->activeClientBotMessages['sorry'][$client->lng];
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+                        Cache::put('client_review_sorry' . $client->id, 'client_review_sorry', now()->addDay(1));
+
+                    }
+                    
+                    
+                    if(!empty($last_input2) && !in_array($messageBody, ['1', '2'])){
+                        \Log::info('last input2');
+                        $scheduleChange = ScheduleChange::create([
+                            'user_type' => get_class($client),
+                            'user_id' => $client->id,
+                            'comments' => $messageBody,
+                            "reason" => $client->lng == "en" ? "Client Feedback" : 'משוב לקוח',
+                        ]);
+
+                        $message = $client->lng == "en" ? "Thank you for your feedback! Your message has been received and will be forwarded to the supervisor for further handling.
+We’re here for anything else you might need and will get back to you if necessary." : "תודה על הפידבק שלכם! ההודעה שלכם התקבלה ותועבר למפקח להמשך טיפול.
+אנחנו כאן לכל דבר נוסף ונחזור אליכם במידת הצורך.";
+
+                        sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
+
+                        $teammsg = "שלום צוות,
+
+:client_name שיתף את ההערה או הבקשה הבאה בנוגע לשירות האחרון שקיבל:
+':message'
+
+אנא בדקו וטפלו בנושא בהקדם. עדכנו את הלקוח כשהנושא טופל.";
+
+                        $teammsg = str_replace([':client_name', ':message'], [(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')), $scheduleChange->comments], $teammsg);
+
+                        sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
+
+                        Cache::forget('client_review_input2' . $client->id);
+                        Cache::forget('client_review' . $client->id);
+                    }
+
+
+                }
+
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 
 
     public function activeClientsMonday(Request $request)
@@ -2616,7 +2622,7 @@ If you would like to speak to a human representative, please send a message with
                                 ]
                             );
 
-                            $teammsg = "שלום צוות, הלקוח" .$client->firstname . " " . $client->lastname . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $teammsg = "שלום צוות, הלקוח" .($client->firstname ?? '') . " " . ($client->lastname ?? '') . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2694,7 +2700,7 @@ office@broomservice.co.il';
                                 $scheduleChange->comments = $messageBody;
                                 $scheduleChange->save();
 
-                                $teammsg = "שלום צוות, הלקוח" .$client->firstname . " " . $client->lastname . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                                $teammsg = "שלום צוות, הלקוח" .($client->firstname ?? '') . " " . ($client->lastname ?? '') . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                                 sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2717,7 +2723,7 @@ office@broomservice.co.il';
                             $scheduleChange->comments = $messageBody;
                             $scheduleChange->save();
 
-                            $teammsg = "שלום צוות, הלקוח" .$client->firstname . " " . $client->lastname . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $teammsg = "שלום צוות, הלקוח" .($client->firstname ?? "") . " " . ($client->lastname ?? ""). "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 

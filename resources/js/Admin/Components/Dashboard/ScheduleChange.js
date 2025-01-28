@@ -95,16 +95,18 @@ function ScheduleChange() {
                     { 
                         title: t("global.name"), 
                         data: "user_fullname" ,
-                        render: function (data) {
+                        className: "cursor-pointer",
+                        render: function (data, type, row, meta) {
                             const firstname = data.split(" ")[0];
                             const lastname = data.split(" ")[1];
-                            return `<p 
-                                    class="badge dt-change-status-btn" 
-                                    data-tooltip-id="comment" 
-                                    data-tooltip-html="${data}">
-                                    ${firstname} ${lastname.substring(0, 1)}
-                                </p>`;
-                        }, 
+                            return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}"><p 
+                                        class="badge" 
+                                        data-tooltip-id="comment" 
+                                        data-tooltip-html="${data}">
+                                        ${firstname} ${lastname ? lastname.substring(0, 1) : ""}
+                                    </p></div>`;
+                        },
+                        
                     },
                     { 
                         title: t("global.reason"), 
@@ -112,7 +114,7 @@ function ScheduleChange() {
                         render: function (data) {
                             const first = data.indexOf(" ") === -1 ? data : data.split(" ")[0];
                             return `<p 
-                                    class="badge dt-change-status-btn" 
+                                    class="badge" 
                                     data-tooltip-id="comment" 
                                     data-tooltip-html="${data}">
                                     ${first}...
@@ -125,7 +127,7 @@ function ScheduleChange() {
                         render: function (data) {
                             const first = data.indexOf(" ") === -1 ? data : data.split(" ")[0];
                             return `<p 
-                                        class="badge dt-change-status-btn" 
+                                        class="badge dt-comment-btn" 
                                         data-tooltip-id="comment" 
                                         data-tooltip-html="${data}">
                                         ${first}
@@ -150,7 +152,7 @@ function ScheduleChange() {
                         width: "10%",
                         render: function (data) {
                             return `<p 
-                                        class="badge dt-change-status-btn" 
+                                        class="badge dt-date-btn" 
                                         data-tooltip-id="comment" 
                                         data-tooltip-html="${moment(data).format("DD-MM-YYYY HH:mm")}">
                                         ${moment(data).format("DD-MM")}
@@ -218,6 +220,18 @@ function ScheduleChange() {
         const searchInputWrapper = `<i class="fa fa-search search-icon"></i>`;
         $("div.dt-search").append(searchInputWrapper);
         $("div.dt-search").addClass("position-relative");
+
+        $(tableRef.current).on("click", ".dt-user-name-btn", function (e) {
+            console.log("Button clicked!");
+        
+            const _id = $(this).data("id");
+            console.log("ID:", _id);
+        
+            if (_id) {
+                navigate(`/admin/clients/view/${_id}`);
+            }
+        });
+        
 
         // Event listener for pagination
         $(tableRef.current).on("page.dt", function () {
