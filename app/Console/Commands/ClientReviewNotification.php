@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\JobStatusEnum;
+use App\Enums\LeadStatusEnum;
 use App\Events\JobReviewRequest;
 use App\Models\Job;
 use App\Models\Client;
@@ -70,7 +71,7 @@ Please reply with the appropriate number.",
     {
         $clients = Client::where('status', '2')
         ->whereHas('lead_status', function ($query) {
-            $query->where('lead_status', 'active client');
+            $query->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
         })
         ->get();
 

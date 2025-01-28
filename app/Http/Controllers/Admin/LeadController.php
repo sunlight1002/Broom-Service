@@ -704,7 +704,7 @@ class LeadController extends Controller
                             }
                         }
 
-                        $email = isset($mapped_field_data['email']) && !empty($mapped_field_data['email']) ? $mapped_field_data['email'] : 'lead' . $lead_data['id'] . '@lead.com';
+                        $email = null;
 
                         $name = isset($mapped_field_data['full_name']) && !empty($mapped_field_data['full_name']) ? explode(' ', $mapped_field_data['full_name']) : explode(' ', 'lead ' . $lead_data['id']);
 

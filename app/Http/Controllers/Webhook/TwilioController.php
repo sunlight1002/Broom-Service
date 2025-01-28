@@ -21,7 +21,7 @@ class TwilioController extends Controller
         $client = Client::updateOrCreate([
             'phone' => $request_data['From'],
         ], [
-            'email'             => $request_data['From'] . '@lead.com',
+            'email'             => null,
             'payment_method'    => 'cc',
             'password'          => Hash::make($request_data['From']),
             'passcode'          => $request_data['From'],

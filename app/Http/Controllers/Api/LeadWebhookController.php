@@ -349,7 +349,7 @@ Broom Service Team 🌹",
                             $client->phone = $phone;
                             $client->firstname = $firstName ?? '';
                             $client->lastname = $lastName ?? '';
-                            $client->email = filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : ($phone . '@lead.com');
+                            $client->email = null;
                             $client->status = 0;
                             $client->password = Hash::make($phone);
                             $client->passcode = $phone;

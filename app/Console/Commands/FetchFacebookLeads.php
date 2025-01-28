@@ -227,7 +227,7 @@ class FetchFacebookLeads extends Command
                                 $leadInfo[$field['name']] = $field['values'][0] ?? null;
                             }
 
-                            $email = isset($leadInfo['email']) && !empty($leadInfo['email']) ? $leadInfo['email'] : 'lead' . $lead['id'] . '@lead.com';
+                            $email = null;
 
                             $name = isset($leadInfo['full_name']) && !empty($leadInfo['full_name']) ? explode(' ', $leadInfo['full_name']) : explode(' ', 'lead ' . $lead['id']);
 
