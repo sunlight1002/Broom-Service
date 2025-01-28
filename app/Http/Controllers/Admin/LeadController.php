@@ -411,6 +411,19 @@ class LeadController extends Controller
         ]);
     }
 
+    public function addSomeFields(Request $request)
+    {
+        $client = Client::find($request->id);
+
+        if (!$client) {
+            return response()->json(['error' => 'Client not found'], 404);
+        };
+
+        $client->update($request->all());
+
+        return response()->json(['message' => 'Client updated successfully']);
+    }
+
     public function jobstarttime(Request $request)
     {
         \Log::info("Request received");

@@ -953,8 +953,6 @@ If you would like to speak to a human representative, please send a message with
                         'language' => $client->lng == 'heb' ? 'he' : 'en'
                     ]);
 
-                    \Log::info($response->json());
-
 
                     if ($response->successful()) {
                         $data = $response->object();
@@ -1679,7 +1677,7 @@ If you would like to speak to a human representative, please send a message with
         $data_returned = json_decode($get_data, true);
         $messageId = $data_returned['messages'][0]['id'] ?? null;
 
-        \Log::info($data_returned);
+        // \Log::info($data_returned);
 
         if (!$messageId) {
             return response()->json(['status' => 'Invalid message data'], 400);
@@ -2473,11 +2471,16 @@ If you would like to speak to a human representative, please send a message with
                 if(!empty($msgStatus)){
 
                     $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
-                    $last_input2 = Cache::get('client_review_input2' . $client->id);
+                    $last_input2 = Cache::get('client_review_input2' . $client->id) ?? null;
+                    $sorry = Cache::get('client_review_sorry' . $client->id) ?? null;
+
+                    // $last_input1 = Cache::get('client_review_input1' . $client->id);
 
                     if(Cache::get('client_review_sorry' . $client->id) && !in_array(strtolower(trim($messageBody)), ["menu", "תפריט"])){
                         Cache::forget('client_review_sorry' . $client->id);
+                        Cache::forget('client_review_input2' . $client->id);
                         Cache::forget('client_review' . $client->id);
+                    
                     }
 
                     if($messageBody == '1'){
@@ -2489,7 +2492,7 @@ If you would like to speak to a human representative, please send a message with
                         sleep(2);
                         Cache::put('client_review_input1' . $client->id, 'client_review_input1', now()->addDay(1));
                         Cache::forget('client_review' . $client->id);
-
+                        
                     }else if ($messageBody == '2'){
 
                         $message = $client->lng == "en" ? "Thank you for your feedback!\nPlease write your comment or request here." 
@@ -2498,8 +2501,9 @@ If you would like to speak to a human representative, please send a message with
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
 
                         Cache::put('client_review_input2' . $client->id, 'client_review_input2', now()->addDay(1));
+                        Cache::forget('client_review_sorry' . $client->id);
 
-                    }else if(empty($last_input2) && !in_array(strtolower(trim($messageBody)), ['1', '2',"menu", "תפריט"]) && $msgStatus){
+                    }else if(empty($last_input2) && !in_array(strtolower(trim($messageBody)), ['1', '2',"menu", "תפריט"])){
 
                         \Log::info('No last input2');
 
@@ -2528,9 +2532,9 @@ If you would like to speak to a human representative, please send a message with
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
                         sleep(2);
                         Cache::forget('client_review_input2' . $client->id);
+                        Cache::forget('client_review_sorry' . $client->id);
                         Cache::forget('client_review' . $client->id);
                     }
-
 
                 }
 
