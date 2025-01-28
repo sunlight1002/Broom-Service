@@ -1716,15 +1716,15 @@ If you would like to speak to a human representative, please send a message with
                 ->orWhereJsonContains('extra', [['phone' => $from]])
                 ->first();
 
-                if($client && $client->lead_status->lead_status != LeadStatusEnum::ACTIVE_CLIENT){
-                    die('Client already active');
-                }
-
             $msgStatus = Cache::get('client_review' . $client->id);
 
             if (!empty($msgStatus)) {
                 \Log::info('Client already reviewed');
                 die('Client already reviewed');
+            }
+
+            if($client && $client->lead_status->lead_status != LeadStatusEnum::ACTIVE_CLIENT){
+                die('Client already active');
             }
 
             $lng = $client->lng ?? $this->detectLanguage($input);
@@ -1746,7 +1746,6 @@ If you would like to speak to a human representative, please send a message with
                     die('Monday msg reply is pending.');
                 }
             }
-            \Log::info('client', $client->toArray());
 
             $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)->first();
 
@@ -2472,6 +2471,7 @@ If you would like to speak to a human representative, please send a message with
 
                     if(Cache::get('client_review_sorry' . $client->id) && !in_array(strtolower(trim($messageBody)), ["menu", "תפריט"])){
                         \Log::info('forget');
+                        Cache::forget('client_review_sorry' . $client->id);
                         Cache::forget('client_review' . $client->id);
                     }
 
@@ -2586,6 +2586,13 @@ We’re here for anything else you might need and will get back to you if necess
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();
+
+                $msgStatus = Cache::get('client_review' . $client->id);
+
+                if (!empty($msgStatus)) {
+                    \Log::info('Client already reviewed');
+                    die('Client already reviewed');
+                }
 
                 $isMonday = now()->isMonday();
                 if ($isMonday && $client && $client->stop_last_message == 0) {
