@@ -10,11 +10,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
+use App\Events\WorkerForm101Requested;
 
 class SendReminderWithPendingForms extends Command
 {
 
     protected $whapiApiToken;
+    protected $whapiApiEndpoint;
 
     /**
      * The name and signature of the console command.
@@ -40,6 +42,7 @@ class SendReminderWithPendingForms extends Command
         parent::__construct();
 
         $this->whapiApiToken = config('services.whapi.token');
+        $this->whapiApiEndpoint = config('services.whapi.url');
     }
     /**
      * Execute the console command.
@@ -68,14 +71,14 @@ class SendReminderWithPendingForms extends Command
 
             if ($is_submitted && $country != 'Israel' && $company_type === 'my-company') {
 
-                $form101 = Form::where('user_id', $user->id)->where('type', 'form101')->whereNotNull('submitted_at')->exists() ? true : false;
+                $form101 = Form::where('user_id', $user->id)->where('type', 'form101')->whereYear('created_at', now()->year)->whereNotNull('submitted_at')->exists() ? true : false;
                 $contract = Form::where('user_id', $user->id)->where('type', 'contract')->whereNotNull('submitted_at')->exists() ? true : false;
                 $safety_and_gear = Form::where('user_id', $user->id)->where('type', 'saftey-and-gear')->whereNotNull('submitted_at')->exists() ? true : false;
                 $insurance = Form::where('user_id', $user->id)->where('type', 'insurance')->whereNotNull('submitted_at')->exists() ? true : false;
 
             } else if ($is_submitted && $country == 'Israel' && $company_type === 'my-company') {
 
-                $form101 = Form::where('user_id', $user->id)->where('type', 'form101')->whereNotNull('submitted_at')->exists() ? true : false;
+                $form101 = Form::where('user_id', $user->id)->where('type', 'form101')->whereYear('created_at', now()->year)->whereNotNull('submitted_at')->exists() ? true : false;
                 $contract = Form::where('user_id', $user->id)->where('type', 'contract')->whereNotNull('submitted_at')->exists() ? true : false;
                 $safety_and_gear = Form::where('user_id', $user->id)->where('type', 'saftey-and-gear')->whereNotNull('submitted_at')->exists() ? true : false;
 
@@ -83,7 +86,7 @@ class SendReminderWithPendingForms extends Command
 
                 $declaration_form = Form::where('user_id', $user->id)->where('type', 'manpower-saftey')->whereNotNull('submitted_at')->exists() ? true : false;
                 $safety_and_gear = Form::where('user_id', $user->id)->where('type', 'saftey-and-gear')->whereNotNull('submitted_at')->exists() ? true : false;
-                $insurance = Form::where('user_id', $user->id)->where('type', 'insurance')->whereNotNull('submitted_at')->exists() ? true : false;
+                // $insurance = Form::where('user_id', $user->id)->where('type', 'insurance')->whereNotNull('submitted_at')->exists() ? true : false;
 
             } else if ($is_submitted && $country == 'Israel' && $company_type === 'manpower') {
 
@@ -155,19 +158,18 @@ class SendReminderWithPendingForms extends Command
                     'company_type' => $user->company_type,
                     'declaration_form' => $declaration_form ? 'True' : 'False',
                     'safety_and_gear' => $safety_and_gear ? 'True' : 'False',
-                    'insurance' => $insurance ? 'True' : 'False',
                 ]);
             }
         }
-    
+
         // Process and prepare the message
         $message = "Hi team,\n\nThe following workers didn't complete the forms:\n\n";
-    
+
         foreach ($matchingUsers as $user) {
             $incompleteForms = collect($user)->filter(function ($value, $key) {
                 return $value === 'False' && !in_array($key, ['id', 'worker_name', 'country', 'company_type']);
             });
-    
+
             if ($incompleteForms->isNotEmpty()) {
                 $userId = $user['id'];
 
@@ -175,14 +177,25 @@ class SendReminderWithPendingForms extends Command
                 $message .= "{$user['worker_name']} - {$forms}\n";
 
                 $worker = User::find($userId);
+                // dd($incompleteForms, $incompleteForms->count() == 1 && $incompleteForms->has('form101') && $incompleteForms->get('form101') == "False");
+                if ($incompleteForms->count() == 1 && $incompleteForms->has('form101') && $incompleteForms->get('form101') == "False") {
+                    $form101 = Form::where('user_id', $worker->id)->where('type', 'form101')->whereYear('created_at', now()->year)->whereNull('submitted_at')->first();
+                    if($form101) {
+                        echo("Sending Form 101 reminder to: " . $worker->email) . PHP_EOL;
 
-                $this->sendReminder($worker);
+                        // echo $worker->email . PHP_EOL;
+                        event(new WorkerForm101Requested($worker, 'form101', $form101->id));
+                    }
+                } else {
+                    echo $userId . "/" . $worker->email . "/Test". PHP_EOL;
+                    $this->sendReminder($worker);
+                }
             }
         }
 
         $message .= "\n\nBest Regards,\nBroom Service Team 🌹";
 
-        $receiverNumber = config('services.whatsapp_groups.workers_availability');
+        $receiverNumber = config('services.whatsapp_groups.problem_with_workers');
 
         $response = Http::withToken($this->whapiApiToken)
                     ->post($this->whapiApiEndpoint . 'messages/text', [
@@ -196,6 +209,7 @@ class SendReminderWithPendingForms extends Command
 
     private function sendReminder($worker)
     {
+        Log::info('Pending Worker', $worker->toArray());
         event(new WhatsappNotificationEvent([
             "type" => WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS,
             "notificationData" => [

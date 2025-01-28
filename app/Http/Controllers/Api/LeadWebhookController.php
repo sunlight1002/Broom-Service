@@ -117,11 +117,11 @@ class LeadWebhookController extends Controller
         ],
         "invoice_account" => [
             "en" => "What would you like to forward to our accounting department?\nPlease let us know your inquiry or request, and we’ll ensure to get back to you promptly.",
-            "heb" => 'מה תרצה להעביר למחלקת הנה"ח שלנו?\nאנא ציין את בקשתך או השאלה שלך, ואנו נדאג להחזיר לך תשובה בהקדם.'
+            "heb" => "מה תרצה להעביר למחלקת הנה\"ח שלנו?\nאנא ציין את בקשתך או השאלה שלך, ואנו נדאג להחזיר לך תשובה בהקדם."
         ],
         "thank_you_invoice_account" => [
             "en" => "Hello :client_name,\n    • Thank you for reaching out to our accounting department.\nYour request has been received, and we are forwarding it to the relevant team for review.\nWe will get back to you as soon as possible with a detailed response.",
-            "heb" => 'שלום :client_name,\n    • תודה על פנייתך למחלקת הנה"ח שלנו.\nהבקשה שלך התקבלה ואנו מעבירים אותה לבדיקה של הצוות הרלוונטי.\nנחזור אליך בהקדם האפשרי עם תשובה מסודרת.'
+            "heb" => "שלום :client_name,\n    • תודה על פנייתך למחלקת הנה\"ח שלנו.\nהבקשה שלך התקבלה ואנו מעבירים אותה לבדיקה של הצוות הרלוונטי.\nנחזור אליך בהקדם האפשרי עם תשובה מסודרת."
         ],
         "team_invoice_account" => [
             "en" => "🔔 Client :client_name has contacted accounting with the following message: :message\n📞 Phone: :client_phone\n📄 :client_link",
@@ -2058,7 +2058,7 @@ If you would like to speak to a human representative, please send a message with
 
                     $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
                     $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, $input, url("admin/clients/view/" . $client->id)], $nextMessage);
-                    sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
@@ -2488,6 +2488,10 @@ If you would like to speak to a human representative, please send a message with
                                 ]
                             );
 
+                            $teammsg = "שלום צוות, הלקוח" .$client->firstname . " " . $client->lastname . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+
+                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
+
                             Cache::put('client_monday_msg_status_' . $client->id, 'main_monday_msg->next_week_change->review_changes', now()->addDay(1));
 
                             // Send follow-up message
@@ -2505,10 +2509,12 @@ If you would like to speak to a human representative, please send a message with
 השב 2 כדי להוסיף מידע נוסף.
 במידה ואין שינויים או מידע נוסף, אין צורך בפעולה נוספת.
 
-פרטי קשר של ברום סרוויס:
-🌐 www.broomservice.co.il
-📞 טלפון: 03-525-70-60
-📧 דוא"ל: office@broomservice.co.il';
+המשך יום נפלא! 🌸
+בברכה,
+צוות ברום סרוויס 🌹
+www.broomservice.co.il
+טלפון: 03-525-70-60
+office@broomservice.co.il';
                             } else {
                                 $message = 'Hello '  . $client->firstname . " " . $client->lastname . ',
 
@@ -2523,10 +2529,12 @@ Reply 1 to edit your message.
 Reply 2 to add additional information.
 If there are no changes or additional information, no further action is needed.
 
-Broom Service Contact Information:
-🌐 www.broomservice.co.il
-📞 Phone: 03-525-70-60
-📧 Email: office@broomservice.co.il';
+Have a wonderful day! 🌸
+Best Regards,
+The Broom Service Team 🌹
+www.broomservice.co.il
+Phone: 03-525-70-60
+office@broomservice.co.il';
                             }
 
                             sendClientWhatsappMessage($from, ['message' => $message]);
@@ -2558,6 +2566,10 @@ Broom Service Contact Information:
                                 $scheduleChange->comments = $messageBody;
                                 $scheduleChange->save();
 
+                                $teammsg = "שלום צוות, הלקוח" .$client->firstname . " " . $client->lastname . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+
+                                sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
+
                                 $confirmationMessage = $client->lng == 'heb'
                                     ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."
                                     : "Your message has been received and will be forwarded to our team for further handling.";
@@ -2576,6 +2588,10 @@ Broom Service Contact Information:
                             $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
                             $scheduleChange->comments = $messageBody;
                             $scheduleChange->save();
+
+                            $teammsg = "שלום צוות, הלקוח" .$client->firstname . " " . $client->lastname . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+
+                            sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
                             $confirmationMessage = $client->lng == 'heb'
                                 ? "ההודעה שלך התקבלה ותועבר לצוות שלנו להמשך טיפול."

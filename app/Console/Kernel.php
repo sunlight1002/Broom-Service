@@ -78,6 +78,26 @@ class Kernel extends ConsoleKernel
 
         // Close active client bot
         $schedule->command('client:close-active-client-bot')->everyMinute();
+        $schedule->command('client:close-active-worker-bot')->everyMinute();
+
+        $schedule->command('send:to-active-clients')->weeklyOn(Schedule::MONDAY, '8:30');
+        $schedule->command('send:to-active-workers')
+            ->mondays()
+            ->between('08:30', '20:30')
+            ->hourlyAt(30);
+
+        // Monday at 1:30 PM
+        $schedule->command('worker:not_respond_on_monday')
+            ->weeklyOn(Schedule::MONDAY, '13:30');
+
+        // Monday at 8:00 PM
+        $schedule->command('worker:not_respond_on_monday')
+            ->weeklyOn(Schedule::MONDAY, '20:00');
+
+        // Tuesday at 8:30 AM
+        $schedule->command('worker:not_respond_on_monday')
+            ->weeklyOn(Schedule::TUESDAY, '08:30');
+
     }
 
     /**
