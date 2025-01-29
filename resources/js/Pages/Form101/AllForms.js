@@ -1844,7 +1844,7 @@ function AllForms() {
             {
                 ![4, 5, 6, 7].includes(nextStep) ? (
                     <div className="d-flex justify-content-end">
-                        {nextStep !== 1 && !isManpower && (
+                        {nextStep !== 1 && nextStep !== 0 && !isManpower && (
                             <button
                                 type="button"
                                 onClick={(e) => handleNextPrev(e)}
