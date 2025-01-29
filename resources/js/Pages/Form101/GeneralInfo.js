@@ -702,8 +702,8 @@ export default function GeneralInfo({
                                     )}
                                 </div>
                                 <div className="col-sm">
-                                    {
-                                        !form_submitted_at && (
+                                    {/* {
+                                        !form_submitted_at && ( */}
                                             <>
                                                 <DateField
                                                     name="DateOfBeginningWork"
@@ -731,8 +731,8 @@ export default function GeneralInfo({
                                                     </div>
                                                 )}
                                             </>
-                                        )
-                                    }
+                                        {/* )
+                                    } */}
                                 </div>
                             </div>
                             <div className="row">

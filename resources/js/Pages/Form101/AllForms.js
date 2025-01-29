@@ -137,11 +137,11 @@ function AllForms() {
 
     const getAllForm = async () => {
         const res = await axios.get(`/api/getAllForms/${id}`);
-        if (res.data.forms.length > 0) {
-            const _form101Forms = res.data?.forms.filter((f) =>
+        if (res.data?.forms?.length > 0) {
+            const _form101Forms = res.data?.forms?.filter((f) =>
                 f.type.includes("form101")
             );
-            const submitted_atForm = _form101Forms.find((f) =>
+            const submitted_atForm = _form101Forms?.find((f) =>
                 f.submitted_at !== null
             );
             if (submitted_atForm) {
@@ -219,28 +219,8 @@ function AllForms() {
             }),
             employeeDob: yup.date().required(t("form101.errorMsg.dobReq")),
             employeeDateOfAliyah: yup.date().nullable(),
-            employeeCity: yup
-                .string()
-                .when("employeecountry", {
-                    is: "Israel",
-                    then: () =>
-                        yup
-                            .string()
-                            .required(t("form101.errorMsg.CityReq"))
-                            .matches(hebrewRegex, "The input must contain Hebrew characters only"),
-                    otherwise: yup.string().required(t("form101.errorMsg.CityReq")),
-                }),
-            employeeStreet: yup
-                .string()
-                .when("employeecountry", {
-                    is: "Israel",
-                    then: () =>
-                        yup
-                            .string()
-                            .required(t("form101.errorMsg.StreetReq"))
-                            .matches(hebrewRegex, "The input must contain Hebrew characters only"),
-                    otherwise: yup.string().required(t("form101.errorMsg.StreetReq")),
-                }),
+            employeeCity: yup.string().required(t("form101.errorMsg.CityReq")),
+            employeeStreet: yup.string().required(t("form101.errorMsg.StreetReq")),
             employeeHouseNo: yup
                 .string()
                 .required(t("form101.errorMsg.HouseNoReq")),
@@ -259,7 +239,7 @@ function AllForms() {
             employeeMaritalStatus: yup
                 .string()
                 .required(t("form101.errorMsg.MaritalStatusReq")),
-
+    
             employeeCollectiveMoshavMember: yup
                 .string()
                 .required(t("form101.errorMsg.CollectiveMoshavMemberReq")),
@@ -286,43 +266,17 @@ function AllForms() {
                 .nullable(),
             DateOfBeginningWork: yup
                 .date()
-                .nullable()
-                .required(t("form101.errorMsg.dateOfBeginReq"))
-                .test(
-                    "is-future-date",
-                    t("form101.errorMsg.dateOfBeginReq"),
-                    function (value) {
-                        console.log(value, "value");
-                        if (!form_submitted_at && value > new Date()) {
-                            return false; 
-                        }
-                        return true;
-                    }
-                ),
-            }),
-
+                .required(t("form101.errorMsg.dateOfBeginReq")),
+        }),
         step2: yup.object({
             children: yup.array().of(
                 yup.object().shape({
                     firstName: yup
                         .string()
-                        .test(
-                            "is-hebrew-or-required",
-                            t("form101.errorMsg.NameRequired"),
-                            function (value) {
-                                if (worker?.country === "Israel") {
-                                    if (!hebrewRegex.test(value)) {
-                                        return this.createError({
-                                            message: t("form101.errorMsg.hebrew"),
-                                        });
-                                    }
-                                    return !!value && value.trim().length > 0;
-                                } else {
-                                    return !!value && value.trim().length > 0;
-                                }
-                            }
-                        ),
-                    IdNumber: yup.string().required(t("form101.errorMsg.IdNumberReq")),
+                        .required(t("form101.errorMsg.NameRequired")),
+                    IdNumber: yup
+                        .string()
+                        .required(t("form101.errorMsg.NameRequired")),
                     Dob: yup.date().required(t("form101.errorMsg.dobReq")),
                     inCustody: yup.boolean(),
                     haveChildAllowance: yup.boolean(),
@@ -381,11 +335,9 @@ function AllForms() {
                         .shape({
                             firstName: yup
                                 .string()
-                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.fNameReq")),
                             lastName: yup
                                 .string()
-                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.lNameReq")),
                             Identity: yup
                                 .string()
@@ -1316,6 +1268,7 @@ function AllForms() {
         validateOnMount: false,
     });
 
+
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
     };
@@ -1441,6 +1394,7 @@ function AllForms() {
             handleNextPrev(e);
         }
     };
+
 
     const handleDocSubmit = (data) => {
         axios
