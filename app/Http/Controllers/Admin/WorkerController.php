@@ -444,6 +444,33 @@ class WorkerController extends Controller
             return response()->json(['errors' => $validator->messages()]);
         }
 
+        $role = $request->role;
+        $lng = $request->lng;
+        if($role == 'cleaner'){
+            if ($lng == "heb") {
+                $role = "מנקה";
+            }elseif ($lng == "en") {
+                $role = "Cleaner";
+            }elseif ($lng == "ru") {
+                $role = "уборщик";
+            }else{
+                $role = "limpiador";
+            }
+        }else if($role == 'general_worker'){
+            if ($lng == "heb") {
+                $role = "עובד כללי";
+            }elseif ($lng == "en") {
+                $role = "General worker";
+            }elseif ($lng == "ru") {
+                $role = "Общий рабочий";
+            }else{
+                $role = "Trabajador general";
+            }
+        }else{
+            $role = $request->role;
+        }
+        
+
         $worker = User::create([
             'firstname'     => $request->firstname,
             'lastname'      => ($request->lastname) ? $request->lastname : '',
@@ -454,7 +481,7 @@ class WorkerController extends Controller
             'longitude'     => $request->longitude,
             'renewal_visa'  => $request->renewal_visa,
             'gender'        => $request->gender,
-            'role'          => $request->role,
+            'role'          => $role,
             'payment_per_hour'  => $request->payment_hour,
             'worker_id'     => $request->worker_id,
             'lng'           => $request->lng,
@@ -477,7 +504,8 @@ class WorkerController extends Controller
                 : NULL,
             'driving_fees' => $request->driving_fees,
             'employment_type' => $request->employment_type,
-            'salary' => $request->salary
+            'salary' => $request->salary,
+            'step' => 0
         ]);
 
         $i = 1;
