@@ -343,15 +343,15 @@ const SafeAndGear = ({
                                     <GrFormPreviousLink /> {t("common.prev")}
                                 </button>
                             )}
-                            {nextStep < 6 || (isManpower) ? (
+                            {nextStep < 6 && (!isManpower) ? (
                                 <button
                                     type="submit"
                                     name="next"
-                                    disabled={isManpower && isSubmitted ? isSubmitted : false}
+                                    disabled={isSubmitted}
                                     className="navyblue py-2 px-4"
                                     style={{ borderRadius: "5px" }}
                                 >
-                                    {isManpower ? t("common.submit") : <>{t("common.next")} <GrFormNextLink /></>}
+                                    {t("common.next")} <GrFormNextLink />
                                 </button>
                             ) : isManpower && !isSubmitted ? (
                                 <button
