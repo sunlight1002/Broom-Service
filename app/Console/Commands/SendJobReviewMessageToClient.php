@@ -121,26 +121,23 @@ Please reply with the appropriate number.",
                             $client = Client::where('email', $email)->first();
                         }
                         if ($client) {
-                            if($currentDate == '2025-01-26' || $currentDate == '2025-01-27') {
+                            if($currentDate == '2025-01-28') {
                                 $clientIds[] = $client->id;
                             }
                         }
                     }
                 }
             }
-
-            dd(array_unique($clientIds));
-
-            // foreach(array_unique($clientIds) as $clientId) {
-            //     $client = Client::find($clientId);
-            //     if($client) {
-            //         WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
-            //         $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
-            //         $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
-            //         sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
-            //         Cache::put('client_review' . $client->id, 'client_review', now()->addDay(1));
-            //     }
-            // }
+        }
+        foreach(array_unique($clientIds) as $clientId) {
+            $client = Client::find($clientId);
+            if($client) {
+                WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
+                $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
+                $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
+                sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
+                Cache::put('client_review' . $client->id, 'client_review', now()->addDay(1));
+            }
         }
 
         return 0;
