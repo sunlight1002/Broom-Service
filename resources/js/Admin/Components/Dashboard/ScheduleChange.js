@@ -83,7 +83,7 @@ function ScheduleChange() {
                     { 
                         title: t("global.Type"), 
                         data: "user_type",
-                        width: "5%",
+                        className: "text-center",
                         render: function (data) {
                             if (data === "Client") {
                                 return `<span class="">C</span>`;
@@ -95,15 +95,15 @@ function ScheduleChange() {
                     { 
                         title: t("global.name"), 
                         data: "user_fullname" ,
-                        className: "cursor-pointer",
+                        className: "cursor-pointer text-center",
+                        width: "20%",   
                         render: function (data, type, row, meta) {
                             const firstname = data.split(" ")[0];
                             const lastname = data.split(" ")[1];
                             return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}"><p 
-                                        class="badge" 
                                         data-tooltip-id="comment" 
                                         data-tooltip-html="${data}">
-                                        ${firstname} ${lastname ? lastname.substring(0, 1) : ""}
+                                        ${data}
                                     </p></div>`;
                         },
                         
@@ -111,6 +111,7 @@ function ScheduleChange() {
                     { 
                         title: t("global.reason"), 
                         data: "reason" ,
+                        className: "text-center",
                         render: function (data) {
                             const first = data.indexOf(" ") === -1 ? data : data.split(" ")[0];
                             return `<p 
@@ -124,13 +125,15 @@ function ScheduleChange() {
                     { 
                         title: t("global.comments"), 
                         data: "comments",
+                        className: "text-center",
+                        width: "35%",
                         render: function (data) {
                             const first = data.indexOf(" ") === -1 ? data : data.split(" ")[0];
                             return `<p 
-                                        class="badge dt-comment-btn" 
+                                        class=" dt-comment-btn text-start" 
                                         data-tooltip-id="comment" 
                                         data-tooltip-html="${data}">
-                                        ${first}
+                                        ${data}
                                     </p>`;
                         },
                         
@@ -138,10 +141,10 @@ function ScheduleChange() {
                     {
                         title: t("global.is_completed"),
                         data: "status",
-                        orderable: false,
-                        width: "9%",
+                        className: "text-center",
+                        width: "10%",
                         render: function (data, type, row, meta) {
-                            return `<div class="d-flex"><span class="rounded" style="border: 1px solid #ebebeb; overflow: hidden; "> <input type="checkbox" data-id="${row.id
+                            return `<div class="d-flex justify-content-center"><span class="rounded" style="border: 1px solid #ebebeb; overflow: hidden; "> <input type="checkbox" data-id="${row.id
                                 }" class="form-control dt-if-completed-checkbox" style="cursor: pointer; margin: 5px 5px;" ${row.status == "completed" ? "checked" : ""
                                 }/> </span></div> `;
                         },
@@ -149,7 +152,8 @@ function ScheduleChange() {
                     {
                         title: t("modal.date"),
                         data: "created_at",
-                        width: "10%",
+                        className: "text-center",
+                        width: "5%",
                         render: function (data) {
                             return `<p 
                                         class="badge dt-date-btn" 
@@ -162,8 +166,7 @@ function ScheduleChange() {
                     {
                         title: t("admin.global.action"),
                         data: null,
-                        orderable: false,
-                        responsivePriority: 1,
+                        className: "text-center",
                         width: "5%",
                         render: function (data, type, row, meta) {
                             return `
@@ -180,12 +183,10 @@ function ScheduleChange() {
 
                     },
                 ],
-                ordering: true,
                 searching: true,
-                responsive: true,
-                autoWidth: true,
-                width: "100%",
-                scrollX: true,
+                scrollX: true, // Ensures horizontal scrolling
+                autoWidth: false, // Prevents automatic width issues
+                width: "100% !important",
                 drawCallback: function () {
                     // initializeTableActions();
                     setLoading(false); // Hide loader when data is loaded
