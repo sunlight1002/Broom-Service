@@ -156,6 +156,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                         $email = null;
                         if (strpos(trim($row[1]), '#') === 0) {
                             $id = substr(trim($row[1]), 1);
+                            // \Log::info("ID found: $id");
                         } else if (filter_var(trim($row[1]), FILTER_VALIDATE_EMAIL)) {
                             $email = trim($row[1]);
                         }
@@ -177,15 +178,9 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                             // $IcountData = $this->getIcountClientInfo($client);
                             if ($client) {
                                 $client_ids[] = $client->id;
-
-                                // \Log::info('Service', ['service' =>$serviceArr]);
-                                // \Log::info('Frequency', ['frequency' => $frequencyArr]);
-                                // \Log::info('Workers', ['workers' => $workers]);
-                                // dd($id, $email, $index, $client, $addresses);
                                 $fields = [];
 
                                 $selectedAddress = $row[17] ?? null;
-
 
                                 $selectedWorker = $row[8] ?? null;
                                 $bestMatch = null;
@@ -233,6 +228,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
 
                                 if (is_numeric(trim($row[2]))) {
                                     $offer = Offer::where('id', trim($row[2]))->where('client_id', $client->id)->first();
+                                    \Log::info($offer);
 
                                     if ($offer) {
                                         $data = json_decode($offer->services, true);
@@ -251,6 +247,8 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                                 $frequencies[] = $d['freq_name'];
                                             }
                                         }
+                                    
+                                        $this->handleJob($offer, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, );
                                     }
                                 }
                                 $offers = $client->offers;
@@ -273,6 +271,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         }
                                     }
                                 }
+                                // \Log::info($offers);
 
                                 if(count($selectedOfferDataArr) > 1) {
                                     foreach($selectedOfferDataArr as $d) {
@@ -366,9 +365,10 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                         'value' => $selectedOfferData['totalamount'] ?? null,
                                     ];
                                 }
-                                echo json_encode($fields) . PHP_EOL;
+                                // \Log::info('Fields', ['fields' => $fields]);
+                                // echo json_encode($fields) . PHP_EOL;
                                 $response = $this->updateGoogleSheetFields($fields);
-                                echo $response . PHP_EOL;
+                                // echo $response . PHP_EOL;
                                 sleep(3);
                                 echo ($index + 1) . PHP_EOL;
                             }
@@ -846,84 +846,334 @@ class SyncGoogleSheetDataJob implements ShouldQueue
         }
     }
 
-    private function handleJob($contract, $row, &$lastValidDate = null)
+    private function handleJob($offer, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService)
     {
         try {
-            $workerName = $row[8] ?? null;
-            $date = $row[3] ?? null;
-            $wedenesday_notified = $row[5] ?? null;
-            $jobHours = $row[11] ?? null;
-            $actualHours = $row[12] ?? null;
+            if ($offer) {
+                \Log::info("Offer ID: " . $offer->id);
+                \Log::info("Client ID: " . $offer->client_id);
+                \Log::info($selectedOfferDataArr);
+                \Log::info($services);
+                \Log::info($frequencies);
+                \Log::info($selectedAddress);
+                \Log::info($selectedFrequency);
+                \Log::info($selectedService);
 
-            $weeks = ['יום ראשון', 'יום שני', 'יום שלישי', 'יום רביעי', 'יום חמישי', 'יום שישי', 'יום שבת'];
+                $contract = Contract::with('offer')
+                ->where('offer_id', $offer->id)
+                ->latest();
 
-            if ($date) {
-                $parts = explode(' ', $date);
-                $res = $parts[1] ?? null;
-
-                if (in_array($res, $weeks)) {
-                    $date = $parts[0]; // Use index 0 as the date
+                if (!$contract) {
+                    return response()->json([
+                        'message' => 'Contract not found'
+                    ], 404);
                 }
-
-                $lastValidDate = $date; // Update the last valid date
-            } else {
-                $date = $lastValidDate; // Use the last valid date if current date is null
             }
 
-            if (!$workerName || !$date) {
-                \Log::warning("Skipping row due to missing worker name or date.");
-                return;
-            }
+            //     $client = $contract->client;
+            //     if (!$client) {
+            //         return response()->json([
+            //             'message' => 'Client not found'
+            //         ], 404);
+            //     }
 
-            $names = array_filter(explode(" ", trim($workerName)));
-            $query = User::query();
+            //     // Fetch the offer
+            //     $offer = $contract->offer;
+            //     if (!$offer) {
+            //         return response()->json([
+            //             'message' => 'Offer not found'
+            //         ], 404);
+            //     }
 
-            if (isset($names[0])) {
-                $query->where('first_name', $names[0]);
-            }
+            //     // Decode services (if stored as JSON)
+            //     $services = is_string($offer->services) ? json_decode($offer->services, true) : $offer->services;
 
-            if (isset($names[1])) {
-                $query->orWhere('last_name', $names[1]);
-            }
+            //     // Locate the service and add is_one_time field
+            //     foreach ($services as &$service) {
+            //         if (($service['service'] == 1) || isset($service['freq_name']) && (in_array($service['freq_name'], ['One Time', 'חד פעמי']))) {
+            //             $service['is_one_time'] = true; // Add the field
+            //         }
+            //     }
 
-            // Search for the worker
-            $worker = $query->first();
+            //     // Save updated services back to the offer
+            //     $offer->services = json_encode($services);
+            //     $offer->save();
 
-            if (!$worker) {
-                \Log::warning("No matching Worker for Name: $workerName");
-                return;
-            }
 
-            $addressId = null;
-            $offer = $contract->offer;
-            $servicesData = json_decode($offer->services, true);
+            //     $manageTime = ManageTime::first();
+            //     $workingWeekDays = json_decode($manageTime->days);
 
-            foreach ($servicesData as $s) {
-                $addressId = $s['address'];
-            }
+            //     if (isset($data['updatedJobs'])) {
+            //         foreach ($data['updatedJobs'] as $updateJob) {
+            //             $editJob = Job::find($updateJob['job_id']);
 
-            // Create the job
-            $job = Job::create([
-                'contract_id' => $contract->id,
-                'client_id' => $contract->client_id,
-                'offer_id' => $contract->offer_id,
-                'worker_id' => $worker->id,
-                'address_id' => $addressId,
-                'start_date' => $date,
-                'wednesday_notified' => $wedenesday_notified == "true" || $wedenesday_notified == '1' ? true : false,
-            ]);
+            //             $repeat_value = $editJob->jobservice->period;
 
-            if ($job && $jobHours && $actualHours) {
-                $job->status = JobStatusEnum::COMPLETED;
-                $job->save();
-            } elseif ($job && !$actualHours) {
-                $job->status = JobStatusEnum::SCHEDULED;
-                $job->save();
-            }
+            //             $job_date = Carbon::parse($updateJob['date']);
+            //             $preferredWeekDay = strtolower($job_date->format('l'));
+            //             $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+            //             $job_date = $job_date->toDateString();
+
+            //             $slots = explode(',', $updateJob['shifts']);
+            //             // sort slots in ascending order of time before merging for continuous time
+            //             sort($slots);
+
+            //             $shiftFormattedArr = [];
+            //             foreach ($slots as $key => $shift) {
+            //                 $timing = explode('-', $shift);
+
+            //                 $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+            //                 $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+            //                 $shiftFormattedArr[$key] = [
+            //                     'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+            //                     'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+            //                 ];
+            //             }
+
+            //             $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+            //             $minutes = 0;
+            //             $slotsInString = '';
+            //             foreach ($mergedContinuousTime as $key => $slot) {
+            //                 if (!empty($slotsInString)) {
+            //                     $slotsInString .= ',';
+            //                 }
+
+            //                 $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+            //                 $minutes += Carbon::parse($slot['ending_at'])->diffInMinutes(Carbon::parse($slot['starting_at']));
+            //             }
+
+            //             $status = JobStatusEnum::SCHEDULED;
+
+            //             if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $editJob->worker_id, $editJob->id)) {
+            //                 $status = JobStatusEnum::UNSCHEDULED;
+            //             }
+
+            //             $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+            //             $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
+
+            //             $jobData = [
+            //                 'start_date'    => $job_date,
+            //                 'start_time'    => $start_time,
+            //                 'end_time'      => $end_time,
+            //                 'shifts'        => $slotsInString,
+            //                 'status'        => $status,
+            //                 'next_start_date'   => $next_job_date,
+            //             ];
+
+            //             $jobData['previous_shifts'] = $editJob->shifts;
+            //             $jobData['previous_shifts_after'] = NULL;
+
+            //             $editJob->update($jobData);
+
+            //             $editJob->jobservice()->update([
+            //                 'duration_minutes'  => $minutes,
+            //                 'config'            => [
+            //                     'cycle'             => $editJob->jobservice->cycle,
+            //                     'period'            => $editJob->jobservice->period,
+            //                     'preferred_weekday' => $preferredWeekDay
+            //                 ]
+            //             ]);
+
+            //             $editJob->workerShifts()->delete();
+            //             foreach ($mergedContinuousTime as $key => $shift) {
+            //                 $editJob->workerShifts()->create($shift);
+            //             }
+
+            //             $editJob->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
+
+            //             event(new JobShiftChanged($editJob, $mergedContinuousTime[0]['starting_at']));
+            //         }
+            //     }
+
+            //     $offerServices = $this->formatServices($contract->offer, false);
+            //     $filtered = Arr::where($offerServices, function ($value, $key) use ($data) {
+            //         return $value['service'] == $data['service_id'];
+            //     });
+
+            //     $selectedService = head($filtered);
+
+            //     $service = Services::find($data['service_id']);
+            //     $serviceSchedule = ServiceSchedule::find($selectedService['frequency']);
+
+            //     $repeat_value = $serviceSchedule->period;
+            //     if ($selectedService['service'] == 10) {
+            //         $s_name = $selectedService['other_title'];
+            //         $s_heb_name = $selectedService['other_title'];
+            //     } else {
+            //         $s_name = $service->name;
+            //         $s_heb_name = $service->heb_name;
+            //     }
+            //     $s_freq   = $selectedService['freq_name'];
+            //     $s_cycle  = $selectedService['cycle'];
+            //     $s_period = $selectedService['period'];
+            //     $s_id     = $selectedService['service'];
+
+            //     $jobGroupID = NULL;
+
+            //     $workerIDs = array_values(array_unique(data_get($data, 'workers.*.worker_id')));
+            //     foreach ($workerIDs as $workerID) {
+            //         $workerDates = Arr::where($data['workers'], function ($value) use ($workerID) {
+            //             return $value['worker_id'] == $workerID;
+            //         });
+
+            //         $workerDates = array_values($workerDates);
+            //         foreach ($workerDates as $workerIndex => $workerDate) {
+            //             $job_date = Carbon::parse($workerDate['date']);
+            //             $preferredWeekDay = strtolower($job_date->format('l'));
+            //             $next_job_date = $this->scheduleNextJobDate($job_date, $repeat_value, $preferredWeekDay, $workingWeekDays);
+
+            //             $job_date = $job_date->toDateString();
+
+            //             $slots = explode(',', $workerDate['shifts']);
+            //             sort($slots);
+
+            //             $shiftFormattedArr = [];
+            //             foreach ($slots as $key => $shift) {
+            //                 $timing = explode('-', $shift);
+
+            //                 $start_time = Carbon::createFromFormat('H:i', $timing[0])->toTimeString();
+            //                 $end_time = Carbon::createFromFormat('H:i', $timing[1])->toTimeString();
+
+            //                 $shiftFormattedArr[$key] = [
+            //                     'starting_at' => Carbon::parse($job_date . ' ' . $start_time)->toDateTimeString(),
+            //                     'ending_at' => Carbon::parse($job_date . ' ' . $end_time)->toDateTimeString()
+            //                 ];
+            //             }
+
+            //             $mergedContinuousTime = $this->mergeContinuousTimes($shiftFormattedArr);
+
+            //             $minutes = 0;
+            //             $slotsInString = '';
+            //             foreach ($mergedContinuousTime as $key => $slot) {
+            //                 if (!empty($slotsInString)) {
+            //                     $slotsInString .= ',';
+            //                 }
+
+            //                 $slotsInString .= Carbon::parse($slot['starting_at'])->format('H:i') . '-' . Carbon::parse($slot['ending_at'])->format('H:i');
+
+            //                 // Calculate duration in 15-minute slots
+            //                 $start = Carbon::parse($slot['starting_at']);
+            //                 $end = Carbon::parse($slot['ending_at']);
+            //                 $interval = 15; // in minutes
+            //                 while ($start < $end) {
+            //                     $start->addMinutes($interval);
+            //                     $minutes += $interval;
+            //                 }
+            //             }
+
+            //             if ($selectedService['type'] == 'hourly') {
+            //                 $hours = ($minutes / 60);
+            //                 $total_amount = ($selectedService['rateperhour'] * $hours);
+            //             } else if($selectedService['type'] == 'squaremeter') {
+            //                 $total_amount = ($selectedService['ratepersquaremeter'] * $selectedService['totalsquaremeter']);
+            //             } else {
+            //                 $total_amount = ($selectedService['fixed_price']);
+            //             }
+
+            //             $status = JobStatusEnum::SCHEDULED;
+
+            //             if ($this->isJobTimeConflicting($mergedContinuousTime, $job_date, $workerDate['worker_id'])) {
+            //                 $status = JobStatusEnum::UNSCHEDULED;
+            //             }
+
+            //             $start_time = Carbon::parse($mergedContinuousTime[0]['starting_at'])->toTimeString();
+            //             $end_time = Carbon::parse($mergedContinuousTime[count($mergedContinuousTime) - 1]['ending_at'])->toTimeString();
+
+            //             $job = Job::create([
+            //                 'worker_id'     => $workerDate['worker_id'],
+            //                 'client_id'     => $contract->client_id,
+            //                 'contract_id'   => $contract->id,
+            //                 'offer_id'      => $contract->offer_id,
+            //                 'start_date'    => $job_date,
+            //                 'start_time'    => $start_time,
+            //                 'end_time'      => $end_time,
+            //                 'shifts'        => $slotsInString,
+            //                 'schedule'      => $repeat_value,
+            //                 'schedule_id'   => $s_id,
+            //                 'status'        => $status,
+            //                 'subtotal_amount'  => $total_amount,
+            //                 'total_amount'  => $total_amount,
+            //                 'next_start_date'   => $next_job_date,
+            //                 'address_id'        => $selectedService['address']['id'],
+            //                 'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
+            //                 'original_worker_id'     => $workerDate['worker_id'],
+            //                 'original_shifts'        => $slotsInString,
+            //             ]);
+
+            //             // Create entry in ParentJobs
+            //             $parentJob = ParentJobs::create([
+            //                 'job_id' => $job->id,
+            //                 'client_id' => $contract->client_id,
+            //                 'worker_id' => $workerDate['worker_id'],
+            //                 'offer_id' => $contract->offer_id,
+            //                 'contract_id' => $contract->id,
+            //                 'schedule'      => $repeat_value,
+            //                 'schedule_id'   => $s_id,
+            //                 'start_date' => $job_date,
+            //                 'next_start_date'   => $next_job_date,
+            //                 'keep_prev_worker'  => isset($data['prevWorker']) ? $data['prevWorker'] : false,
+            //                 'status' => $status, // You can set this according to your needs
+            //             ]);
+
+
+
+            //             $jobser = JobService::create([
+            //                 'job_id'            => $job->id,
+            //                 'service_id'        => $s_id,
+            //                 'name'              => $s_name,
+            //                 'heb_name'          => $s_heb_name,
+            //                 'duration_minutes'  => $minutes,
+            //                 'freq_name'         => $s_freq,
+            //                 'cycle'             => $s_cycle,
+            //                 'period'            => $s_period,
+            //                 'total'             => $total_amount,
+            //                 'config'            => [
+            //                     'cycle'             => $serviceSchedule->cycle,
+            //                     'period'            => $serviceSchedule->period,
+            //                     'preferred_weekday' => $preferredWeekDay
+            //                 ]
+            //             ]);
+
+            //             $jobGroupID = $jobGroupID ? $jobGroupID : $job->id;
+
+            //             $job->update([
+            //                 'origin_job_id' => $job->id,
+            //                 'job_group_id' => $jobGroupID,
+            //                 'parent_job_id' => $parentJob->id
+            //             ]);
+
+            //             foreach ($mergedContinuousTime as $key => $shift) {
+            //                 $job->workerShifts()->create($shift);
+            //             }
+
+            //             $job->load(['client', 'worker', 'jobservice', 'propertyAddress', 'offer']);
+
+            //             // Send notification to client
+            //             $jobData = $job->toArray();
+
+            //             ScheduleNextJobOccurring::dispatch($job->id, null);
+
+            //         }
+            //     }
+
+            //     $newLeadStatus = $this->getClientLeadStatusBasedOnJobs($client);
+
+            //     if (!$client->lead_status || $client->lead_status->lead_status != $newLeadStatus) {
+            //         $client->lead_status()->updateOrCreate(
+            //             [],
+            //             ['lead_status' => $newLeadStatus]
+            //         );
+
+            //     }
+            // }
         } catch (\Throwable $th) {
-            \Log::error("Error in handleJob: " . $th->getMessage());
             throw $th;
         }
+           
     }
 
 

@@ -458,6 +458,7 @@ class AuthController extends Controller
             'worker_id' => 'required|exists:users,id',
             'firstname' => 'required|string|max:255',
             'lastname' => 'nullable|string|max:255',
+            'address' => 'required|string',
             'email' => [
                 'required',
                 'email',
@@ -491,9 +492,15 @@ class AuthController extends Controller
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
             'email' => $request->email,
+            'lng' => $request->lng,
             'country' => $request->country,
             'gender' => $request->gender,
             'renewal_visa' => $request->renewal_visa,
+            'address' => $request->address,
+            'is_afraid_by_dog' => $request->is_afraid_by_dog,
+            'is_afraid_by_cat' => $request->is_afraid_by_cat,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
             'step' => 2,
             'updated_at' => Carbon::now()
         ]);

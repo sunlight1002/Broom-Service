@@ -108,7 +108,7 @@ const ManpowerSaftyForm = ({
                     })
                     .then((res) => {
                         setLoading(false);
-                        alert.success("Form submitted successfully");
+                        // alert.success("Form submitted successfully");
                         setNextStep(prev => prev + 1);
                         setIsSubmitted(true);
                     })

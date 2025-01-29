@@ -18,7 +18,8 @@ export default function GeneralInfo({
     activeBubble,
     handleFileChange,
     form_submitted_at,
-    form_created_at
+    form_created_at,
+    dateOfBegin
 }) {
 
     const [indentityType, setIndentityType] = useState(values.employeecountry);
@@ -96,9 +97,6 @@ export default function GeneralInfo({
         "Health Fund Number": t("form101.step1.validation.first_name"),
         "Marital Status": t("form101.step1.validation.Marital_Status")
     }
-
-    console.log(values);
-    
 
     return (
         <div className="">
@@ -348,8 +346,6 @@ export default function GeneralInfo({
                                                     onChange={(e) => {
                                                         const file = e.target.files[0];
                                                         if (file) {
-                                                            console.log(file.size);
-
                                                             const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
                                                             if (fileSizeInMB > 10) {
                                                                 alert("File size must be less than 10MB"); // Show error message
@@ -702,8 +698,8 @@ export default function GeneralInfo({
                                     )}
                                 </div>
                                 <div className="col-sm">
-                                    {/* {
-                                        !form_submitted_at && ( */}
+                                    {
+                                        !form_submitted_at && (
                                             <>
                                                 <DateField
                                                     name="DateOfBeginningWork"
@@ -731,8 +727,8 @@ export default function GeneralInfo({
                                                     </div>
                                                 )}
                                             </>
-                                        {/* )
-                                    } */}
+                                         )
+                                    }
                                 </div>
                             </div>
                             <div className="row">

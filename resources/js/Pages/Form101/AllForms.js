@@ -63,12 +63,13 @@ function AllForms() {
     const [savingType, setSavingType] = useState("submit");
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [worker, setWorker] = useState([])
-    const [nextStep, setNextStep] = useState(page ? parseInt(page) : 1);
+    const [nextStep, setNextStep] = useState(page ? parseInt(page) : formId ? 1 : 0);
     const [isManpower, setIsManpower] = useState(false)
     const [activeBubble, setActiveBubble] = useState(null);
-    const [form_submitted_at, setForm_submitted_at] = useState("");
-    const [form_created_at, setForm_created_at] = useState("");
+    const [form_submitted_at, setForm_submitted_at] = useState(null);
+    const [form_created_at, setForm_created_at] = useState(null);
     const [AllForms, setAllForms] = useState([]);
+    const [dateOfBegin, setDateOfBegin] = useState(null);
 
     useEffect(() => {
         if (windowWidth < 767) {
@@ -111,7 +112,7 @@ function AllForms() {
 
         if (e.target.name === "prev") {
             setNextStep(prev => prev - 1);
-        } else {
+        } else if (e.target.name === "next") {
             setNextStep(prev => prev + 1);
         }
 
@@ -147,6 +148,7 @@ function AllForms() {
             if (submitted_atForm) {
                 setForm_submitted_at(submitted_atForm.submitted_at);
                 setForm_created_at(submitted_atForm.created_at);
+                setDateOfBegin(submitted_atForm.data.DateOfBeginningWork);
             }
         }
     }
@@ -219,8 +221,25 @@ function AllForms() {
             }),
             employeeDob: yup.date().required(t("form101.errorMsg.dobReq")),
             employeeDateOfAliyah: yup.date().nullable(),
-            employeeCity: yup.string().required(t("form101.errorMsg.CityReq")),
-            employeeStreet: yup.string().required(t("form101.errorMsg.StreetReq")),
+            employeeCity: yup.string()
+                .when("employeecountry", {
+                    is: "Israel",
+                    then: () =>
+                        yup
+                            .string()
+                            .required(t("form101.errorMsg.CityReq"))
+                            .matches(hebrewRegex, "The input must contain Hebrew characters only"),
+                    otherwise: yup.string().required(t("form101.errorMsg.CityReq")),
+                }),
+            employeeStreet: yup.string().when("employeecountry", {
+                is: "Israel",
+                then: () =>
+                    yup
+                        .string()
+                        .required(t("form101.errorMsg.StreetReq"))
+                        .matches(hebrewRegex, "The input must contain Hebrew characters only"),
+                otherwise: yup.string().required(t("form101.errorMsg.StreetReq")),
+            }),
             employeeHouseNo: yup
                 .string()
                 .required(t("form101.errorMsg.HouseNoReq")),
@@ -239,7 +258,7 @@ function AllForms() {
             employeeMaritalStatus: yup
                 .string()
                 .required(t("form101.errorMsg.MaritalStatusReq")),
-    
+
             employeeCollectiveMoshavMember: yup
                 .string()
                 .required(t("form101.errorMsg.CollectiveMoshavMemberReq")),
@@ -266,17 +285,42 @@ function AllForms() {
                 .nullable(),
             DateOfBeginningWork: yup
                 .date()
-                .required(t("form101.errorMsg.dateOfBeginReq")),
+                .nullable()
+                .required(t("form101.errorMsg.dateOfBeginReq"))
+                .test(
+                    "is-future-date",
+                    t("form101.errorMsg.dateOfBeginReq"),
+                    function (value) {
+                        if (!form_submitted_at && value > new Date()) {
+                            return false;
+                        }
+                        return true;
+                    }
+                ),
         }),
+
         step2: yup.object({
             children: yup.array().of(
                 yup.object().shape({
                     firstName: yup
                         .string()
-                        .required(t("form101.errorMsg.NameRequired")),
-                    IdNumber: yup
-                        .string()
-                        .required(t("form101.errorMsg.NameRequired")),
+                        .test(
+                            "is-hebrew-or-required",
+                            t("form101.errorMsg.NameRequired"),
+                            function (value) {
+                                if (worker?.country === "Israel") {
+                                    if (!hebrewRegex.test(value)) {
+                                        return this.createError({
+                                            message: t("form101.errorMsg.hebrew"),
+                                        });
+                                    }
+                                    return !!value && value.trim().length > 0;
+                                } else {
+                                    return !!value && value.trim().length > 0;
+                                }
+                            }
+                        ),
+                    IdNumber: yup.string().required(t("form101.errorMsg.IdNumberReq")),
                     Dob: yup.date().required(t("form101.errorMsg.dobReq")),
                     inCustody: yup.boolean(),
                     haveChildAllowance: yup.boolean(),
@@ -335,9 +379,11 @@ function AllForms() {
                         .shape({
                             firstName: yup
                                 .string()
+                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.fNameReq")),
                             lastName: yup
                                 .string()
+                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.lNameReq")),
                             Identity: yup
                                 .string()
@@ -1252,6 +1298,7 @@ function AllForms() {
                     .then((response) => {
                         if (savingType == "submit" && formId) {
                             alert.success(response.data.message);
+                            setIsSubmitted(true);
                         }
                         setLoading(false);
                         setSavingType("submit");
@@ -1268,6 +1315,8 @@ function AllForms() {
         validateOnMount: false,
     });
 
+    console.log(isSubmitted, "isSubmitted");
+    
 
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
@@ -1369,6 +1418,13 @@ function AllForms() {
         getForm();
     }, [id, formId, page]);
 
+    useEffect(() => {
+        if (!values.DateOfBeginningWork && dateOfBegin) {
+            setFieldValue("DateOfBeginningWork", dateOfBegin);
+        }
+    }, [values]);
+    
+
     const handleSaveAsDraft = async () => {
         if (nextStep === 3) {
             setSavingType("submit");
@@ -1428,7 +1484,7 @@ function AllForms() {
         handleDocSubmit(data);
     };
 
-    console.log(formValues, "form");
+    console.log(errors);
 
 
     return (
@@ -1441,55 +1497,47 @@ function AllForms() {
                     className="img-fluid broom-logo"
                     alt="Broom Services"
                 />
-                {!isManpower ? (
-                    <div className="d-flex flex-wrap align-items-center">
-                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
-                        <span className="mx-2"> - </span>
-                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
-                        <span className="mx-2"> - </span>
-                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
-                        {
-                            !param.formId ? (
-                                <>
-                                    <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 4</span>
-                                    <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 5 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 5</span>
-                                    <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 6 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 6</span>
-                                </>
-                            ) : ""
-                        }
-                        {
-                            !param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1) && (
-                                <>
-                                    <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 7 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 7</span>
-                                </>
-                            )
-                        }
-                    </div>
-                ) : (
-                    <div className="d-flex flex-wrap align-items-center">
-                        {worker.country !== "Israel" ? <>
+                {nextStep != 0 && (
+                    !isManpower ? (
+                        <div className="d-flex flex-wrap align-items-center">
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
-                        </> : <>
+                            {
+                                !param.formId ? (
+                                    <>
+                                        <span className="mx-2"> - </span>
+                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 4</span>
+                                        <span className="mx-2"> - </span>
+                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 5 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 5</span>
+                                        <span className="mx-2"> - </span>
+                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 6 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 6</span>
+                                    </>
+                                ) : ""
+                            }
+                            {
+                                !param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1) && (
+                                    <>
+                                        <span className="mx-2"> - </span>
+                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 7 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 7</span>
+                                    </>
+                                )
+                            }
+                        </div>
+                    ) : (
+                        <div className="d-flex flex-wrap align-items-center">
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
-                            <span className="mx-2"> - </span>
-                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
-                        </>
-                        }
-                    </div>
+                        </div>
+                    )
                 )}
             </div>
 
             <div className="targetDiv">
+                {nextStep === 0 && <ManpowerDetailForm setNextStep={setNextStep} values={values} nextStep={nextStep} />}
                 {
                     nextStep === 1 && !isManpower ? (
                         <>
@@ -1505,10 +1553,11 @@ function AllForms() {
                                 handleFileChange={handleFileChange}
                                 form_submitted_at={form_submitted_at}
                                 form_created_at={form_created_at}
+                                dateOfBegin={dateOfBegin}
                             />
                         </>
                     ) : (
-                        nextStep === 1 && <ManpowerDetailForm setNextStep={setNextStep} values={values} nextStep={nextStep} />
+                        nextStep === 1 && <ManpowerSaftyForm setNextStep={setNextStep} nextStep={nextStep} />
                     )
                 }
 
@@ -1582,7 +1631,11 @@ function AllForms() {
                             </div>
                         </>
                     ) : (
-                        nextStep === 2 && <ManpowerSaftyForm setNextStep={setNextStep} nextStep={nextStep} />
+                        nextStep === 2 && <SafeAndGear nextStep={nextStep} handleNextPrev={handleNextPrev} setNextStep={setNextStep}
+                            handleBubbleToggle={handleBubbleToggle}
+                            activeBubble={activeBubble}
+                            isManpower={isManpower}
+                        />
                     )
                 }
                 {
@@ -1750,11 +1803,7 @@ function AllForms() {
                             </section>
                         </div>
                     ) : (
-                        nextStep === 3 && <SafeAndGear nextStep={nextStep} handleNextPrev={handleNextPrev} setNextStep={setNextStep}
-                            handleBubbleToggle={handleBubbleToggle}
-                            activeBubble={activeBubble}
-                            isManpower={isManpower}
-                        />
+                        null
                     )
                 }
             </div>
@@ -1806,11 +1855,11 @@ function AllForms() {
                                 <GrFormPreviousLink /> {t("common.prev")}
                             </button>
                         )}
-                        {!(param.formId && nextStep === 3) && nextStep < 7 && !isManpower && (
+                        {!(param.formId && nextStep === 3) && nextStep < 7 && !isManpower && nextStep !== 0 && (
                             <button
                                 type="button"
                                 onClick={async (e) => {
-                                    await handleSaveAsDraft();
+                                    await handleSaveAsDraft(e);
                                     // handleNextPrev(e);
                                 }}
                                 name="next"
@@ -1825,8 +1874,8 @@ function AllForms() {
                             (param.formId && nextStep === 3) && !isManpower && !isSubmitted && (
                                 <button
                                     type="submit"
-                                    onClick={() => {
-                                        handleSaveAsDraft();
+                                    onClick={(e) => {
+                                        handleSaveAsDraft(e);
                                     }}
                                     name="next"
                                     className="navyblue py-2 px-4"
