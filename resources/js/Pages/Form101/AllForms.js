@@ -63,12 +63,13 @@ function AllForms() {
     const [savingType, setSavingType] = useState("submit");
     const [formSubmitted, setFormSubmitted] = useState(false);
     const [worker, setWorker] = useState([])
-    const [nextStep, setNextStep] = useState(page ? parseInt(page) : 1);
+    const [nextStep, setNextStep] = useState(page ? parseInt(page) : formId ? 1 : 0);
     const [isManpower, setIsManpower] = useState(false)
     const [activeBubble, setActiveBubble] = useState(null);
-    const [form_submitted_at, setForm_submitted_at] = useState("");
-    const [form_created_at, setForm_created_at] = useState("");
+    const [form_submitted_at, setForm_submitted_at] = useState(null);
+    const [form_created_at, setForm_created_at] = useState(null);
     const [AllForms, setAllForms] = useState([]);
+    const [dateOfBegin, setDateOfBegin] = useState(null);
 
     useEffect(() => {
         if (windowWidth < 767) {
@@ -111,7 +112,7 @@ function AllForms() {
 
         if (e.target.name === "prev") {
             setNextStep(prev => prev - 1);
-        } else {
+        } else if (e.target.name === "next") {
             setNextStep(prev => prev + 1);
         }
 
@@ -123,6 +124,9 @@ function AllForms() {
             .get(`/api/worker/${param.id}`)
             .then((res) => {
                 const { worker: workData, forms: formData } = res.data;
+                if (!page) {
+                    setNextStep(res.data.worker.step)
+                }
                 setIsManpower(workData.company_type == "manpower" ? true : false)
                 setWorker(workData);
                 setFormId(formData.form101Form.id)
@@ -135,8 +139,9 @@ function AllForms() {
             });
     };
 
+
     const getAllForm = async () => {
-        const res = await axios.get(`/api/getAllForms/${id}`);
+        const res = await axios.get(`/api/getAllForms/${id}/${type}`);
         if (res.data?.forms?.length > 0) {
             const _form101Forms = res.data?.forms?.filter((f) =>
                 f.type.includes("form101")
@@ -147,13 +152,16 @@ function AllForms() {
             if (submitted_atForm) {
                 setForm_submitted_at(submitted_atForm.submitted_at);
                 setForm_created_at(submitted_atForm.created_at);
+                setDateOfBegin(submitted_atForm.data.DateOfBeginningWork);
             }
         }
     }
 
     useEffect(() => {
         getAllForm();
-        getWorker();
+        if (type != "lead") {
+            getWorker();
+        }
     }, []);
 
 
@@ -219,8 +227,23 @@ function AllForms() {
             }),
             employeeDob: yup.date().required(t("form101.errorMsg.dobReq")),
             employeeDateOfAliyah: yup.date().nullable(),
-            employeeCity: yup.string().required(t("form101.errorMsg.CityReq")),
-            employeeStreet: yup.string().required(t("form101.errorMsg.StreetReq")),
+            employeeCity: yup.string()
+                .test('is-city-required', t("form101.errorMsg.CityReq"), function (value) {
+                    const { employeecountry } = this.parent; // Get the country value from the parent schema
+                    if (employeecountry === "Israel") {
+                        return value && hebrewRegex.test(value);
+                    }
+                    return value != null; // If not Israel, just check if there's a value
+                }),
+
+            employeeStreet: yup.string()
+                .test('is-street-required', t("form101.errorMsg.StreetReq"), function (value) {
+                    const { employeecountry } = this.parent; // Get the country value from the parent schema
+                    if (employeecountry === "Israel") {
+                        return value && hebrewRegex.test(value);
+                    }
+                    return value != null; // If not Israel, just check if there's a value
+                }),
             employeeHouseNo: yup
                 .string()
                 .required(t("form101.errorMsg.HouseNoReq")),
@@ -239,7 +262,7 @@ function AllForms() {
             employeeMaritalStatus: yup
                 .string()
                 .required(t("form101.errorMsg.MaritalStatusReq")),
-    
+
             employeeCollectiveMoshavMember: yup
                 .string()
                 .required(t("form101.errorMsg.CollectiveMoshavMemberReq")),
@@ -268,15 +291,29 @@ function AllForms() {
                 .date()
                 .required(t("form101.errorMsg.dateOfBeginReq")),
         }),
+
         step2: yup.object({
             children: yup.array().of(
                 yup.object().shape({
                     firstName: yup
                         .string()
-                        .required(t("form101.errorMsg.NameRequired")),
-                    IdNumber: yup
-                        .string()
-                        .required(t("form101.errorMsg.NameRequired")),
+                        .test(
+                            "is-hebrew-or-required",
+                            t("form101.errorMsg.NameRequired"),
+                            function (value) {
+                                if (worker?.country === "Israel") {
+                                    if (!hebrewRegex.test(value)) {
+                                        return this.createError({
+                                            message: t("form101.errorMsg.hebrew"),
+                                        });
+                                    }
+                                    return !!value && value.trim().length > 0;
+                                } else {
+                                    return !!value && value.trim().length > 0;
+                                }
+                            }
+                        ),
+                    IdNumber: yup.string().required(t("form101.errorMsg.IdNumberReq")),
                     Dob: yup.date().required(t("form101.errorMsg.dobReq")),
                     inCustody: yup.boolean(),
                     haveChildAllowance: yup.boolean(),
@@ -335,9 +372,11 @@ function AllForms() {
                         .shape({
                             firstName: yup
                                 .string()
+                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.fNameReq")),
                             lastName: yup
                                 .string()
+                                .matches(hebrewRegex, "The input must contain Hebrew characters only")
                                 .required(t("form101.errorMsg.lNameReq")),
                             Identity: yup
                                 .string()
@@ -1241,6 +1280,7 @@ function AllForms() {
                 formData.append("savingType", savingType);
                 formData.append("formId", formId);
                 formData.append("step", nextStep);
+                formData.append("type", type == "lead" ? "lead" : "worker");
 
                 axios
                     .post(`/api/form101/${id}`, formData, {
@@ -1252,6 +1292,7 @@ function AllForms() {
                     .then((response) => {
                         if (savingType == "submit" && formId) {
                             alert.success(response.data.message);
+                            setIsSubmitted(true);
                         }
                         setLoading(false);
                         setSavingType("submit");
@@ -1267,6 +1308,63 @@ function AllForms() {
         validateOnChange: false,
         validateOnMount: false,
     });
+
+    const getWorkerLead = () => {
+        axios
+            .get(`/api/worker-lead-detail/${Base64.decode(param.id)}`)
+            .then((res) => {
+                const _worker = res.data;
+                setWorker(_worker);
+                if (res.status == 200) {
+                     setIsManpower(_worker.company_type == "manpower" ? true : false)
+
+                    if (!page) {
+                        setNextStep(_worker.step)
+                    }
+                    if (_worker?.firstName !== null) {
+                        setFieldValue("employeeFirstName", _worker.firstname);
+                    }
+                    if (_worker?.lastName !== null) {
+                        setFieldValue("employeeLastName", _worker.lastname);
+                    }
+                    if (_worker?.address !== null) {
+                        setFieldValue("employeeAddress", _worker.address);
+                    }
+                    if (_worker?.passport !== null) {
+                        setFieldValue("employeePassportNumber", _worker.passport);
+                    }
+                    if (_worker?.phone !== null) {
+                        setFieldValue("employeeMobileNo", _worker.phone);
+                    }
+                    if (_worker?.worker_id !== null) {
+                        setFieldValue("employeeIdNumber", _worker.id_number);
+                    }
+                    if (_worker?.country !== null) {
+                        // setFieldValue("employeeCountry", _worker.country);
+                        setFieldValue("employeecountry", _worker.country);
+                    }
+
+                    const workerGender = _worker.gender;
+                    const gender =
+                        workerGender.charAt(0).toUpperCase() +
+                        workerGender.slice(1);
+                    setFieldValue("employeeEmail", _worker.email);
+                    setFieldValue("sender.employeeEmail", _worker.email);
+                    setFieldValue("employeeSex", gender);
+                }
+            })
+            .catch((err) => {
+                if (err?.response?.data?.message) {
+                    alert.error(err.response.data.message);
+                }
+            });
+    };
+
+    useEffect(() => {
+        if (type == 'lead') {
+            getWorkerLead()
+        }
+    }, [])
 
 
     const handleSignatureEnd = () => {
@@ -1296,7 +1394,7 @@ function AllForms() {
     };
 
     const getForm = () => {
-        axios.get(`/api/get101/${id}/${formId}`).then((res) => {
+        axios.get(`/api/get101/${id}/${formId}/${type}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
 
 
@@ -1323,6 +1421,8 @@ function AllForms() {
 
             } else if (res.data.worker) {
                 const _worker = res.data.worker;
+                console.log(_worker, "worker");
+                
 
                 if (!page) {
                     setNextStep(res.data.worker.step)
@@ -1368,6 +1468,13 @@ function AllForms() {
     useEffect(() => {
         getForm();
     }, [id, formId, page]);
+
+    useEffect(() => {
+        if (!values.DateOfBeginningWork && dateOfBegin) {
+            setFieldValue("DateOfBeginningWork", dateOfBegin);
+        }
+    }, []);
+
 
     const handleSaveAsDraft = async () => {
         if (nextStep === 3) {
@@ -1428,9 +1535,6 @@ function AllForms() {
         handleDocSubmit(data);
     };
 
-    console.log(formValues, "form");
-
-
     return (
         <div className=" mt-4 mb-5 bg-transparent " style={{
             margin: mobileView ? "0 20px" : "0 120px"
@@ -1441,55 +1545,47 @@ function AllForms() {
                     className="img-fluid broom-logo"
                     alt="Broom Services"
                 />
-                {!isManpower ? (
-                    <div className="d-flex flex-wrap align-items-center">
-                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
-                        <span className="mx-2"> - </span>
-                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
-                        <span className="mx-2"> - </span>
-                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
-                        {
-                            !param.formId ? (
-                                <>
-                                    <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 4</span>
-                                    <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 5 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 5</span>
-                                    <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 6 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 6</span>
-                                </>
-                            ) : ""
-                        }
-                        {
-                            !param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1) && (
-                                <>
-                                    <span className="mx-2"> - </span>
-                                    <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 7 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 7</span>
-                                </>
-                            )
-                        }
-                    </div>
-                ) : (
-                    <div className="d-flex flex-wrap align-items-center">
-                        {worker.country !== "Israel" ? <>
+                {nextStep != 0 && (
+                    !isManpower ? (
+                        <div className="d-flex flex-wrap align-items-center">
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
-                        </> : <>
+                            {
+                                !param.formId ? (
+                                    <>
+                                        <span className="mx-2"> - </span>
+                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 4 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 4</span>
+                                        <span className="mx-2"> - </span>
+                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 5 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 5</span>
+                                        <span className="mx-2"> - </span>
+                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 6 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 6</span>
+                                    </>
+                                ) : ""
+                            }
+                            {
+                                !param.formId && (worker.country !== "Israel" && worker.is_existing_worker !== 1) && (
+                                    <>
+                                        <span className="mx-2"> - </span>
+                                        <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 7 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 7</span>
+                                    </>
+                                )
+                            }
+                        </div>
+                    ) : (
+                        <div className="d-flex flex-wrap align-items-center">
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 1 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 1</span>
                             <span className="mx-2"> - </span>
                             <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 2 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 2</span>
-                            <span className="mx-2"> - </span>
-                            <span className={`badge mx-1 py-1 px-3 my-1 ${nextStep === 3 ? 'bluecolor' : 'lightgrey'}`}>{t("form101.step")} 3</span>
-                        </>
-                        }
-                    </div>
+                        </div>
+                    )
                 )}
             </div>
 
             <div className="targetDiv">
+                {nextStep === 0 && <ManpowerDetailForm setNextStep={setNextStep} values={values} nextStep={nextStep} type={type} />}
                 {
                     nextStep === 1 && !isManpower ? (
                         <>
@@ -1505,10 +1601,11 @@ function AllForms() {
                                 handleFileChange={handleFileChange}
                                 form_submitted_at={form_submitted_at}
                                 form_created_at={form_created_at}
+                                dateOfBegin={dateOfBegin}
                             />
                         </>
                     ) : (
-                        nextStep === 1 && <ManpowerDetailForm setNextStep={setNextStep} values={values} nextStep={nextStep} />
+                        nextStep === 1 && <ManpowerSaftyForm setNextStep={setNextStep} nextStep={nextStep} type={type} />
                     )
                 }
 
@@ -1582,7 +1679,13 @@ function AllForms() {
                             </div>
                         </>
                     ) : (
-                        nextStep === 2 && <ManpowerSaftyForm setNextStep={setNextStep} nextStep={nextStep} />
+                        nextStep === 2 && <SafeAndGear nextStep={nextStep} handleNextPrev={handleNextPrev} setNextStep={setNextStep}
+                            handleBubbleToggle={handleBubbleToggle}
+                            activeBubble={activeBubble}
+                            isManpower={isManpower}
+                            type={type}
+
+                        />
                     )
                 }
                 {
@@ -1750,11 +1853,7 @@ function AllForms() {
                             </section>
                         </div>
                     ) : (
-                        nextStep === 3 && <SafeAndGear nextStep={nextStep} handleNextPrev={handleNextPrev} setNextStep={setNextStep}
-                            handleBubbleToggle={handleBubbleToggle}
-                            activeBubble={activeBubble}
-                            isManpower={isManpower}
-                        />
+                        null
                     )
                 }
             </div>
@@ -1765,6 +1864,7 @@ function AllForms() {
                         handleBubbleToggle={handleBubbleToggle}
                         activeBubble={activeBubble}
                         isManpower={isManpower}
+                        type={type}
                     />
                 )
             }
@@ -1774,6 +1874,7 @@ function AllForms() {
                     <WorkerContract nextStep={nextStep} setNextStep={setNextStep} worker={worker}
                         handleBubbleToggle={handleBubbleToggle}
                         activeBubble={activeBubble}
+                        type={type}
                     />
                 )
             }
@@ -1788,6 +1889,7 @@ function AllForms() {
                     <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker}
                         handleBubbleToggle={handleBubbleToggle}
                         activeBubble={activeBubble}
+                        type={type}
                     />
                 )
             }
@@ -1795,7 +1897,7 @@ function AllForms() {
             {
                 ![4, 5, 6, 7].includes(nextStep) ? (
                     <div className="d-flex justify-content-end">
-                        {nextStep !== 1 && !isManpower && (
+                        {nextStep !== 1 && nextStep !== 0 && !isManpower && (
                             <button
                                 type="button"
                                 onClick={(e) => handleNextPrev(e)}
@@ -1806,11 +1908,11 @@ function AllForms() {
                                 <GrFormPreviousLink /> {t("common.prev")}
                             </button>
                         )}
-                        {!(param.formId && nextStep === 3) && nextStep < 7 && !isManpower && (
+                        {!(param.formId && nextStep === 3) && nextStep < 7 && !isManpower && nextStep !== 0 && (
                             <button
                                 type="button"
                                 onClick={async (e) => {
-                                    await handleSaveAsDraft();
+                                    await handleSaveAsDraft(e);
                                     // handleNextPrev(e);
                                 }}
                                 name="next"
@@ -1825,8 +1927,8 @@ function AllForms() {
                             (param.formId && nextStep === 3) && !isManpower && !isSubmitted && (
                                 <button
                                     type="submit"
-                                    onClick={() => {
-                                        handleSaveAsDraft();
+                                    onClick={(e) => {
+                                        handleSaveAsDraft(e);
                                     }}
                                     name="next"
                                     className="navyblue py-2 px-4"

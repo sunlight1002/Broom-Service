@@ -420,8 +420,9 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                 to={
                                                     worker.worker_contract
                                                         ? `/storage/uploads/worker/contract/${worker.worker_contract}`
-                                                        : `/worker-contract/` +
-                                                        Base64.encode(worker.id.toString())
+                                                        // ? `/storage/signed-docs/${worker.worker_contract}`
+                                                        : `/worker-forms/` +
+                                                        Base64.encode(worker.id.toString()) + "?page=5"
                                                 }
                                                 className="btn btn-warning"
                                             >
@@ -502,7 +503,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                                     to={
                                                         worker.form_101
                                                             ? `/storage/uploads/worker/form101/${worker.form_101}`
-                                                            : `/form101/` + Base64.encode(worker.id.toString())
+                                                            : `/worker-forms/` + Base64.encode(worker.id.toString())
                                                     }
                                                     className="btn btn-warning"
                                                 >
@@ -666,7 +667,7 @@ export default function WorkerForms({ worker, getWorkerDetails }) {
                                             to={
                                                 worker.form_insurance
                                                     ? `/storage/uploads/worker/insurance/${worker.form_insurance}`
-                                                    : `/insurance-form/` + Base64.encode(worker.id.toString())
+                                                    : `/worker-forms/` + Base64.encode(worker.id.toString()) + `?page=7`
                                             }
                                             className="btn btn-warning"
                                         >

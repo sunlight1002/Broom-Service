@@ -27,9 +27,10 @@ export default function ChangeStatusModal({
     const [pendingJobs, setPendingJobs] = useState([]);
     const [fee, setFee] = useState("0");
     const { t } = useTranslation();
+    const [status, setStatus] = useState(null);
     const [formValues, setFormValues] = useState({
         reason: "",
-        status: "irrelevant",
+        status: "",
         id: clientId,
         reschedule_date: null, // Add a field for the reschedule date
         reschedule_time: "", // Add a field for the reschedule time
@@ -37,6 +38,13 @@ export default function ChangeStatusModal({
     const [minUntilDate, setMinUntilDate] = useState(null);
     const [loading, setLoading] = useState(false);
     const [totalAmount, setTotalAmount] = useState(0);
+
+    const PastStatusMap = {
+        "unhappy": t("admin.client.Unhappy"),
+        "price issue": t("admin.client.Price_issue"),
+        "moved": t("admin.client.Moved"),
+        "one-time": t("admin.client.One_Time"),
+    };
 
     const generateWeekendDates = (start, end) => {
         const weekends = [];
@@ -88,13 +96,22 @@ export default function ChangeStatusModal({
 
         setIsLoading(true);
 
-        const processedFormValues = {
-            ...formValues,
-            reschedule_date: formValues.reschedule_date
-                ? moment(formValues.reschedule_date).format("YYYY-MM-DD")
-                : null,
-            reschedule_time: formValues.reschedule_time,
-        };
+        let processedFormValues = null;
+
+        if(status){
+             processedFormValues = {
+                ...formValues,
+                status: status
+            }
+        } else {
+             processedFormValues = {
+                ...formValues,
+                reschedule_date: formValues.reschedule_date
+                    ? moment(formValues.reschedule_date).format("YYYY-MM-DD")
+                    : null,
+                reschedule_time: formValues.reschedule_time,
+            };
+        }
 
         // Use FormData for submission
         const formData = new FormData();
@@ -109,7 +126,7 @@ export default function ChangeStatusModal({
                 setIsLoading(false);
                 await getUpdatedData(); // Fetch updated data after successful submission
                 handleChangeStatusModalClose(); // Close the modal
-                if(formValues.status === "past"){
+                if (formValues.status === "past") {
                     cencelJob();
                 }
             })
@@ -160,18 +177,18 @@ export default function ChangeStatusModal({
         }
     };
 
-    const getJobsOrder = async() =>{
+    const getJobsOrder = async () => {
         const res = await axios.get(`/api/admin/get-pending-job-orders/${clientId}`, { headers });
         setPendingJobs(res.data);
     }
 
 
-    const cencelJob = async() => {
+    const cencelJob = async () => {
         const data = {
             fee: fee
         }
         try {
-            const res = await axios.put(`/api/admin/cancel-pending-job-orders/${clientId}`, data , { headers });
+            const res = await axios.put(`/api/admin/cancel-pending-job-orders/${clientId}`, data, { headers });
             console.log(res);
             getJobsOrder();
         } catch (error) {
@@ -204,14 +221,14 @@ export default function ChangeStatusModal({
                 backdrop="static"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Change status</Modal.Title>
+                    <Modal.Title>{t("global.change_status")}</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
                     <div className="row">
                         <div className="col-sm-12">
                             <div className="form-group">
-                                <label className="control-label">Status</label>
+                                <label className="control-label">{t("global.status")}</label>
 
                                 <select
                                     name="status"
@@ -224,6 +241,7 @@ export default function ChangeStatusModal({
                                     value={formValues.status}
                                     className="form-control mb-3"
                                 >
+                                    <option value="">---select status---</option>
                                     {Object.keys(statusArr).map((s) => (
                                         <option key={s} value={s}>
                                             {statusArr[s]}
@@ -236,7 +254,7 @@ export default function ChangeStatusModal({
                             <>
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label className="control-label">Reschedule Date</label>
+                                        <label className="control-label">{t("global.reschedule_date")}</label>
                                         <DatePicker
                                             selected={formValues.reschedule_date}
                                             onChange={(date) =>
@@ -272,7 +290,7 @@ export default function ChangeStatusModal({
                                 </div>
                                 <div className="col-sm-12">
                                     <div className="form-group">
-                                        <label className="control-label">Reschedule Time</label>
+                                        <label className="control-label">{t("global.reschedule_time")}</label>
                                         <input
                                             type="time"
                                             className="form-control"
@@ -344,7 +362,7 @@ export default function ChangeStatusModal({
                                                 value={100}
                                                 onChange={(e) => {
                                                     handleFeeChange(e.target.value);
-                                            }}
+                                                }}
                                             />
                                             <label
                                                 className="form-check-label"
@@ -357,9 +375,31 @@ export default function ChangeStatusModal({
                                 </div>
                             )
                         }
+                        {
+                            formValues.status === "past" && (
+                                <div className="col-sm-12">
+                                    <div className="form-group">
+                                        <label className="control-label">{t("global.sub_status")}</label>
+
+                                        <select
+                                            name="status"
+                                            onChange={(e) => setStatus(e.target.value)}
+                                            value={status}
+                                            className="form-control mb-3"
+                                        >
+                                            {Object.keys(PastStatusMap).map((s) => (
+                                                <option key={s} value={s}>
+                                                    {PastStatusMap[s]}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            )
+                        }
                         <div className="col-sm-12">
                             <div className="form-group">
-                                <label className="control-label">Reason</label>
+                                <label className="control-label">{t("global.reason")}</label>
 
                                 <textarea
                                     name="reason"

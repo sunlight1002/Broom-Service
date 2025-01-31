@@ -39,7 +39,7 @@ export default function AddWorker() {
         phone: "",
         email: "",
         gender: "",
-        role: "",
+        role: "cleaner",
         payment_hour: "",
         worker_id: Math.random().toString().concat("0".repeat(3)).substr(2, 5),
         renewal_date: "",
@@ -321,7 +321,7 @@ export default function AddWorker() {
                                                     const dialCode = country.dialCode;
                                                     let formattedPhone = phone;
                                                     if (phone.startsWith(dialCode + '0')) {
-                                                      formattedPhone = dialCode + phone.slice(dialCode.length + 1);
+                                                        formattedPhone = dialCode + phone.slice(dialCode.length + 1);
                                                     }
                                                     handleFormValuesChange('phone', formattedPhone)
                                                 }}
@@ -405,18 +405,23 @@ export default function AddWorker() {
                                             <label className="control-label">
                                                 {t("nonIsrailContract.role")}
                                             </label>
-                                            <input
-                                                type="text"
+                                            <select
+                                                className="form-control"
                                                 value={formValues.role}
-                                                onChange={(e) => {
+                                                onChange={(e) =>
                                                     setFormValues({
                                                         ...formValues,
                                                         role: e.target.value,
-                                                    });
-                                                }}
-                                                className="form-control"
-                                                placeholder={t("nonIsrailContract.role")}
-                                            />
+                                                    })
+                                                }
+                                            >
+                                                <option value="cleaner">
+                                                    Cleaner
+                                                </option>
+                                                <option value="general_worker">
+                                                    General worker
+                                                </option>
+                                            </select>
                                             {errors.role && (
                                                 <small className="text-danger mb-1">
                                                     {errors.role}
@@ -578,7 +583,7 @@ export default function AddWorker() {
                                     <div className="col-sm-6">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("worker.settings.paymentMethod")}
+                                                {t("worker.settings.paymentMethod")}
                                             </label>
 
                                             <select
@@ -611,7 +616,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                        {t("worker.settings.fullName")}
+                                                            {t("worker.settings.fullName")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -619,7 +624,7 @@ export default function AddWorker() {
                                                             name="full_name"
                                                             onChange={handleBankDetails}
                                                             className="form-control"
-                                                            placeholder= {t("worker.settings.enterFullname")}
+                                                            placeholder={t("worker.settings.enterFullname")}
                                                         />
                                                         {errors.full_name ? (
                                                             <small className="text-danger mb-1">
@@ -633,7 +638,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                        {t("worker.settings.bankName")}
+                                                            {t("worker.settings.bankName")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -655,7 +660,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                        {t("worker.settings.bankNumber")}
+                                                            {t("worker.settings.bankNumber")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -677,7 +682,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                        {t("worker.settings.branchNumber")}
+                                                            {t("worker.settings.branchNumber")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -699,7 +704,7 @@ export default function AddWorker() {
                                                 <div className="col-sm-6">
                                                     <div className="form-group">
                                                         <label className="control-label">
-                                                        {t("worker.settings.accountNumber")}
+                                                            {t("worker.settings.accountNumber")}
                                                         </label>
                                                         <input
                                                             type="text"
@@ -867,21 +872,21 @@ export default function AddWorker() {
                                         </div>
                                     </div>
 
-                                        {selectedType === "fixed" && (
-                                            <div className="col-sm-6">
-                                                <div className="form-group">
-                                                    <label className="control-label">{t("worker.settings.salary")}</label>
-                                                    <input
-                                                        type="number"
-                                                        className="form-control"
-                                                        placeholder={t("worker.settings.salary")}
-                                                        value={salary}
-                                                        onChange={(e) => setSalary(e.target.value)}
-                                                    />
-                                                </div>
+                                    {selectedType === "fixed" && (
+                                        <div className="col-sm-6">
+                                            <div className="form-group">
+                                                <label className="control-label">{t("worker.settings.salary")}</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control"
+                                                    placeholder={t("worker.settings.salary")}
+                                                    value={salary}
+                                                    onChange={(e) => setSalary(e.target.value)}
+                                                />
                                             </div>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
+                                </div>
 
                                 <div className="form-group">
                                     <label className="control-label">

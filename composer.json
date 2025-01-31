@@ -8,6 +8,7 @@
         "php": "^7.3|^8.0|^8.2",
         "barryvdh/laravel-dompdf": "^2.1",
         "deployer/deployer": "^7.0",
+        "doctrine/dbal": "^4.2",
         "facebook/graph-sdk": "^5.1",
         "fruitcake/laravel-cors": "^2.0",
         "giggsey/libphonenumber-for-php": "^8.13",

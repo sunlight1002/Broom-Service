@@ -1909,7 +1909,7 @@ If you would like to speak to a human representative, please send a message with
                     ]);
                     break;
                 case 'urgent_contact':
-                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
 
                     $nextMessage = $this->activeClientBotMessages['urgent_contact'][$lng];
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
@@ -1940,7 +1940,7 @@ If you would like to speak to a human representative, please send a message with
                     ]);
 
                     $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
-                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
                     $personalizedMessage = str_replace([':client_name', ':message', ':client_phone', ':client_link'], [$clientName, trim($input), $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
@@ -2044,7 +2044,7 @@ If you would like to speak to a human representative, please send a message with
                     ]);
 
                     $nextMessage = $this->activeClientBotMessages['team_new_qoute']["heb"];
-                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
                     $personalizedMessage = str_replace([':client_name', ':client_phone', ':client_link'], [$clientName, $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
                     $clientMessageStatus->delete();
@@ -2067,7 +2067,7 @@ If you would like to speak to a human representative, please send a message with
                     break;
                 case 'thank_you_invoice_account':
                     $nextMessage = $this->activeClientBotMessages['thank_you_invoice_account'][$lng];
-                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
                     sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
@@ -2131,7 +2131,7 @@ If you would like to speak to a human representative, please send a message with
                     ]);
 
                     $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
-                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
                     $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, $input, url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
@@ -2410,7 +2410,7 @@ If you would like to speak to a human representative, please send a message with
         $initialMessage = $this->activeClientBotMessages['main_menu'][$lng];
 
         // Replace :client_name with the client's firstname and lastname
-        $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
+        $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
         $personalizedMessage = str_replace(':client_name', $clientName, $initialMessage);
         $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 

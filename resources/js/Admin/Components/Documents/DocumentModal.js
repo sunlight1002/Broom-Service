@@ -109,7 +109,7 @@ const DocumentModal = ({ isOpen, setIsOpen, handleDocSubmit, docTypes }) => {
                                 ref={docFile}
                                 className="form-control"
                                 type="file"
-                                accept="application/pdf"
+                                accept="application/pdf, image/*"
                                 id="cmtFiles"
                             />
                         </div>

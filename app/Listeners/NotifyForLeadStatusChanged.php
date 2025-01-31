@@ -41,6 +41,8 @@ class NotifyForLeadStatusChanged implements ShouldQueue
             ]
         ]);
 
+        \Log::info("Status changed to " . $event->newStatus);
+
         if($event->newStatus === 'past'){
             event(new WhatsappNotificationEvent([
                "type" => WhatsappMessageTemplateEnum::PAST,

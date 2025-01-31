@@ -27,17 +27,13 @@ class WorkerLeadsController extends Controller
     {
         $columns = [
             'id',
-            'name',
+            'firstname',
+            'lastname',
             'email',
             'phone',
             'status',
-            'ready_to_get_best_job',
-            'ready_to_work_in_house_cleaning',
-            'areas_aviv_herzliya_ramat_gan_kiryat_ono_good',
-            'none_id_visa',
+            'experience_in_house_cleaning',
             'you_have_valid_work_visa',
-            'work_sunday_to_thursday_fit_schedule_8_10am_12_2pm',
-            'full_or_part_time'
         ];
 
         $length = $request->get('length', 10);
@@ -77,17 +73,12 @@ class WorkerLeadsController extends Controller
         $workerLeads = $workerLeads->map(function ($lead) {
             return [
                 'id' => $lead->id,
-                'name' => $lead->name,
+                'name' => $lead->firstname . ' ' . $lead->lastname,
                 'email' => $lead->email,
                 'phone' => $lead->phone,
                 'status' => $lead->status,
-                'ready_to_get_best_job' => $lead->ready_to_get_best_job ? 'Yes' : 'No',
-                'ready_to_work_in_house_cleaning' => $lead->ready_to_work_in_house_cleaning ? 'Yes' : 'No',
-                'areas_aviv_herzliya_ramat_gan_kiryat_ono_good' => $lead->areas_aviv_herzliya_ramat_gan_kiryat_ono_good ? 'Yes' : 'No',
-                'none_id_visa' => $lead->none_id_visa ? 'Yes' : 'No',
+                'experience_in_house_cleaning' => $lead->experience_in_house_cleaning ? 'Yes' : 'No',
                 'you_have_valid_work_visa' => $lead->you_have_valid_work_visa ? 'Yes' : 'No',
-                'work_sunday_to_thursday_fit_schedule_8_10am_12_2pm' => $lead->work_sunday_to_thursday_fit_schedule_8_10am_12_2pm ? 'Yes' : 'No',
-                'full_or_part_time' => $lead->full_or_part_time ? 'Yes' : 'No',
             ];
         });
 
@@ -108,10 +99,12 @@ class WorkerLeadsController extends Controller
 
             // Validate the request
             $request->validate([
-                'name' => 'required|string|max:255',
+                'firstname' => 'required|string|max:255',
+                'lastname' => 'required|string|min:2|max:255',
                 'email' => 'required|email|max:255|unique:worker_leads,email',
                 'phone' => 'required|string|max:15', // Adjust max length as needed
                 'status' => 'required|string',
+                'role' => 'required|string',
                 // 'ready_to_get_best_job' => 'boolean',
                 // 'ready_to_work_in_house_cleaning' => 'boolean',
                 // 'areas_aviv_herzliya_ramat_gan_kiryat_ono_good' => 'boolean',
@@ -120,15 +113,42 @@ class WorkerLeadsController extends Controller
                 // 'work_sunday_to_thursday_fit_schedule_8_10am_12_2pm' => 'boolean',
                 // 'full_or_part_time' => 'required|string',
             ]);
+
+            $role = $request->role ?? 'cleaner';
+            $lng = $request->lng;
+    
+            if ($role == 'cleaner') {
+                $role = match ($lng) {
+                    'heb' => "מנקה",
+                    'en' => "Cleaner",
+                    'ru' => "уборщик",
+                    default => "limpiador"
+                };
+            } elseif ($role == 'general_worker') {
+                $role = match ($lng) {
+                    'heb' => "עובד כללי",
+                    'en' => "General worker",
+                    'ru' => "Общий рабочий",
+                    default => "Trabajador general"
+                };
+            }
     
             // Create a new worker lead
-            $workerLead = WorkerLeads::create($request->all());
+            $workerLead = WorkerLeads::create([
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'status' => $request->status,
+                'role' => $role,
+                'lng' => $request->lng
+            ]);
 
             if($request->send_bot_message) {
                 try {
                     $m = $this->botMessages['step0']['heb'];
     
-                    $result = sendWorkerWhatsappMessage($workerLead->phone, array('name' => ucfirst($workerLead->name), 'message' => $m));
+                    $result = sendWorkerWhatsappMessage($workerLead->phone, array('name' => ucfirst($workerLead->firstname).' '.ucfirst($workerLead->lastname), 'message' => $m));
 
                     WhatsAppBotWorkerState::updateOrCreate(
                         ['worker_lead_id' => $workerLead->id],
@@ -169,6 +189,7 @@ class WorkerLeadsController extends Controller
     public function edit($id)
     {
         $workerLead = WorkerLeads::find($id);
+        \Log::info($workerLead);
         if (!$workerLead) {
             return response()->json(['message' => 'Worker Lead not found'], 404);
         }
@@ -183,13 +204,13 @@ class WorkerLeadsController extends Controller
             return response()->json(['message' => 'Worker Lead not found'], 404);
         }
 
-        // Validate the request
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'status' => 'required|string',
-            'phone' => 'required|string|max:15', // Adjust max length as needed
-        ]);
+        // // Validate the request
+        // $request->validate([
+        //     'firstname' => 'required|string|max:255',
+        //     'email' => 'required|email|max:255',
+        //     'status' => 'required|string',
+        //     'phone' => 'required|string|max:15', // Adjust max length as needed
+        // ]);
 
         // Update the worker lead
         $workerLead->update($request->all());

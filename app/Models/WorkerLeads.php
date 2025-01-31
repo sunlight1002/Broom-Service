@@ -10,18 +10,39 @@ class WorkerLeads extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'firstname',
+        'lastname',
         'phone',
         'email',
+        'gender',
+        'address',
+        'country',
+        'latitude',
+        'longitude',
+        'id_number',
+        'visa',
+        'renewal_visa',
+        'passport',
+        'id_card',
+        'passport_card',
         'lng',
         'status',
-        'ready_to_get_best_job',
-        'ready_to_work_in_house_cleaning',
+        'role',
+        'hourly_rate',
+        'company_type',
+        'manpower_company_id',
+        'is_afraid_by_cat',
+        'is_afraid_by_dog',
         'experience_in_house_cleaning',
-        'areas_aviv_herzliya_ramat_gan_kiryat_ono_good',
-        'none_id_visa',
         'you_have_valid_work_visa',
-        'work_sunday_to_thursday_fit_schedule_8_10am_12_2pm',
-        'full_or_part_time'
     ];
+
+    public function forms()
+    {
+        return $this->morphMany(Form::class, 'user');
+    }
+
 }
+
+
+

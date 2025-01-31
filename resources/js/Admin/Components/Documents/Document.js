@@ -141,7 +141,7 @@ export default function Document({ worker, getWorkerDetails }) {
 
                 );
             }
-        }else{
+        } else {
             if (worker.country === "Israel") {
                 return alldocumentTypes.filter((i) =>
                     ["payslip", "others"].includes(i.slug)
@@ -185,7 +185,7 @@ export default function Document({ worker, getWorkerDetails }) {
                                     className="form-control d-none"
                                     id="visaSelect"
                                     type="file"
-                                    accept="application/pdf"
+                                    accept="application/pdf, image/*"
                                     onChange={(e) =>
                                         handleFileChange(e, "visa")
                                     }
@@ -205,11 +205,10 @@ export default function Document({ worker, getWorkerDetails }) {
                                     className="form-control d-none"
                                     id="passportSelect"
                                     type="file"
-                                    accept="application/pdf"
-                                    onChange={(e) =>
-                                        handleFileChange(e, "passport")
-                                    }
-                                ></input>
+                                    accept="application/pdf, image/*"
+                                    onChange={(e) => handleFileChange(e, "passport")}
+                                />
+
                             </>
                         )}
                     </>
@@ -229,7 +228,7 @@ export default function Document({ worker, getWorkerDetails }) {
                                 className="form-control d-none"
                                 id="idCardSelect"
                                 type="file"
-                                accept="application/pdf"
+                                accept="application/pdf, image/*"
                                 onChange={(e) =>
                                     handleFileChange(e, "id_card")
                                 }

@@ -4,7 +4,7 @@ import html2pdf from "html2pdf.js";
 import i18next from "i18next";
 import { Base64 } from "js-base64";
 import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import swal from "sweetalert";
 
 import { IsrailContact } from "../Admin/Pages/Contract/IsrailContact";
@@ -18,9 +18,11 @@ export default function WorkerContract({
     setNextStep,
     worker,
     handleBubbleToggle,
-    activeBubble
+    activeBubble,
+    type
 }) {
     const param = useParams();
+    const navigate = useNavigate();
     const [workerDetail, setWorkerDetail] = useState({});
     const [workerFormDetail, setWorkerFormDetail] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -63,6 +65,7 @@ export default function WorkerContract({
             let formData = objectToFormData(values);
             formData.append("pdf_file", _pdf);
             formData.append("step", nextStep);
+            formData.append("type", type == "lead" ? "lead" : "worker");
 
             axios
                 .post(`/api/${Base64.decode(param.id)}/work-contract`, formData, {
@@ -74,6 +77,12 @@ export default function WorkerContract({
                 .then((res) => {
                     if (worker.country === "Israel") {
                         swal(t('swal.forms_submitted'), "", "success");
+                        if (type === "lead" && res?.data?.id) {
+                            navigate(`/worker-forms/${Base64.encode(res?.data?.id.toString())}`);
+                        }
+                        setTimeout(() => {
+                            window.location.reload(true);
+                        }, 2000);
                     } else {
                         setNextStep(prev => prev + 1)
                     }
@@ -100,7 +109,7 @@ export default function WorkerContract({
 
     const getWorker = () => {
         axios
-            .post(`/api/worker-detail`, { worker_id: Base64.decode(param.id) })
+            .post(`/api/worker-detail`, { worker_id: Base64.decode(param.id), type: type })
             .then((res) => {
                 if (res.data.worker) {
                     let w = res.data.worker;
@@ -165,7 +174,7 @@ export default function WorkerContract({
                 <h1>Loading</h1>
             )}
             {
-               worker.country === "Israel" && (
+                worker.country === "Israel" && (
                     <FullPageLoader visible={loading} />
                 )
             }

@@ -6,7 +6,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { pdfjs } from "react-pdf";
 import { Document, Page } from "react-pdf";
 import i18next from "i18next";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Base64 } from "js-base64";
 import * as yup from "yup";
 import { useFormik } from "formik";
@@ -35,7 +35,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 const InsuranceForm = ({
     nextStep,
     setNextStep,
-    isManpower
+    isManpower,
+    type
 }) => {
     const [show, setShow] = useState(false);
     const sigRef = useRef();
@@ -43,6 +44,7 @@ const InsuranceForm = ({
     const [pdfData, setPdfData] = useState(null);
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
     const initialValues = {
         // page 1
         type: "New",
@@ -407,6 +409,7 @@ const InsuranceForm = ({
             let formData = objectToFormData(values);
             formData.append("pdf_file", blob);
             formData.append("step", nextStep);
+            formData.append("type", type == "lead" ? "lead" : "worker");
 
             axios
                 .post(`/api/worker/${id}/insurance-form`, formData, {
@@ -416,20 +419,26 @@ const InsuranceForm = ({
                     },
                 })
                 .then((res) => {
+
                     Swal.fire({
                         text: t("insurance.signedSuccess"),
                         icon: "success",
                     });
+                    if (type === "lead" && res?.data?.id) {
+                        navigate(`/worker-forms/${Base64.encode(res?.data?.id.toString())}`);
+                    }
                     setTimeout(() => {
                         window.location.reload(true);
                     }, 2000);
                     setLoading(false);
                 })
                 .catch((e) => {
+                    console.log(e);
+                    
                     setLoading(false);
                     Swal.fire({
                         title: "Error!",
-                        text: e.response.data.message,
+                        text: e.response?.data?.message,
                         icon: "error",
                     });
                 });
@@ -443,7 +452,7 @@ const InsuranceForm = ({
     const handleClose = () => setShow(false);
 
     const getForm = async () => {
-        await axios.get(`/api/worker/${id}/insurance-form`).then((res) => {
+        await axios.get(`/api/worker/${id}/insurance-form/${type}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../Assets/css/rtl.css");

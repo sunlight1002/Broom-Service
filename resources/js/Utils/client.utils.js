@@ -10,7 +10,7 @@ export const leadStatusColor = (_status) => {
             break;
 
         case "irrelevant":
-            _color = "orange";
+            _color = "black";
             break;
 
         case "uninterested":

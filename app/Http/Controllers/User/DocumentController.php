@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\DocumentType;
 use App\Models\User;
+use App\Models\WorkerLeads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -83,8 +84,7 @@ class DocumentController extends Controller
     {
         $data = $request->all();
         \Log::info($data);
-        $user = User::find($data['id']);
-        
+        $user = $request->type == "worker" ? User::find($data['id']) : WorkerLeads::find($data['id']);        
         if ($request->file('visa') || $request->file('passport') || $request->file('id_card')) {
             
             // Handle visa file upload
