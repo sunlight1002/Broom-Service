@@ -17,7 +17,8 @@ import FullPageLoader from "../Components/common/FullPageLoader";
 
 const ManpowerSaftyForm = ({
     setNextStep,
-    nextStep
+    nextStep,
+    type
 }) => {
     const sigRef = useRef();
     const param = useParams();
@@ -98,6 +99,7 @@ const ManpowerSaftyForm = ({
                 // Convert JSON object to FormData
                 let formData = objectToFormData(values);
                 formData.append("pdf_file", _pdf);
+                formData.append("type", type == "lead" ? "lead" : "worker");
 
                 axios
                     .post(`/api/${id}/manpower-form`, formData, {
@@ -130,7 +132,7 @@ const ManpowerSaftyForm = ({
     };
 
     useEffect(() => {
-        axios.get(`/api/getManpowerSafteyForm/${id}`).then((res) => {
+        axios.get(`/api/getManpowerSafteyForm/${id}/${type}`).then((res) => {
 
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
@@ -318,15 +320,19 @@ const ManpowerSaftyForm = ({
                             </div>
                             <div className={`d-flex justify-content-end mt-4 ${isGeneratingPDF ? "hide-in-pdf" : ""}`}>
 
-                                <button
-                                    type="button"
-                                    onClick={(e) => setNextStep(prev => prev - 1)}
-                                    className="navyblue py-2 px-4 mr-2"
-                                    name="prev"
-                                    style={{ borderRadius: "5px" }}
-                                >
-                                    <GrFormPreviousLink /> {t("common.prev")}
-                                </button>
+                                {
+                                    nextStep != 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => setNextStep(prev => prev - 1)}
+                                            className="navyblue py-2 px-4 mr-2"
+                                            name="prev"
+                                            style={{ borderRadius: "5px" }}
+                                        >
+                                            <GrFormPreviousLink /> {t("common.prev")}
+                                        </button>
+                                    )
+                                }
                                 <button
                                     type="button"
                                     onClick={(e) => handleSubmit()}

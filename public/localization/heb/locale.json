@@ -289,7 +289,15 @@
         "comments": "תגובות",
         "is_completed": "הושלם",
         "user_type": "סוג משתמש",
-        "user_name": "שם משתמש"
+        "user_name": "שם משתמש",
+        "reschedule_time": "תזמן מחדש זמן",
+        "reschedule_date": "תאריך מחדש",
+        "select_date": "בחר תאריך",
+        "select_time": "בחר זמן",
+        "select_reschedule_date": "בחר תאריך מחדש",
+        "change_status": "שנה סטטוס",
+        "sub_status": "סטטוס משנה",
+        "select_sub_status": "---בחר סטטוס משנה---"
     },
     "modal": {
         "title": "מודל",
@@ -1446,7 +1454,7 @@
             "change_status": "שנה סטטוס",
             "ready_to_get_best_job": "מוכן לקבל את העבודה הטובה ביותר",
             "ready_to_work_in_house_cleaning": "מוכן לעבוד בניקיון הבית",
-            "areas": "אזורי אביב הרצליה, רמת גן, קרית אונו טוב",
+            "areas": "ניסיון בניקיון בתים",
             "none_id_visa": "וויזה ללא תעודת זהות",
             "you_have_valid_work_visa": "יש לך ויזת עבודה תקפה?",
             "work_sunday_to_thursday_fit_schedule_8_10am_12_2pm": "עבודה בימים ראשון עד חמישי בלוח זמנים בכושר 8-10:00 או 12-14:00",

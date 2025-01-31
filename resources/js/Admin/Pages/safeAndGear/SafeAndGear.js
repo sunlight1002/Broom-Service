@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAlert } from "react-alert";
 import { useTranslation } from "react-i18next";
 import { GrFormNextLink, GrFormPreviousLink } from "react-icons/gr";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import * as yup from "yup";
 import { objectToFormData } from "../../../Utils/common.utils";
@@ -21,11 +21,13 @@ const SafeAndGear = ({
     setNextStep,
     handleBubbleToggle,
     activeBubble,
-    isManpower
+    isManpower,
+    type
 }) => {
     const sigRef = useRef();
     const param = useParams();
     const { t } = useTranslation();
+    const navigate = useNavigate();
 
     const id = Base64.decode(param.id);
     const alert = useAlert();
@@ -93,6 +95,7 @@ const SafeAndGear = ({
                 formData.append("pdf_file", _pdf);
                 formData.append("savingType", savingType);
                 formData.append("step", nextStep);
+                formData.append("type", type == "lead" ? "lead" : "worker");
 
                 setLoading(true);
 
@@ -109,6 +112,12 @@ const SafeAndGear = ({
                             setNextStep(prev => prev + 1);
                         } else {
                             swal(t("swal.forms_submitted"), "", "success");
+                            if (type === "lead" && res?.data?.id) {
+                                navigate(`/worker-forms/${Base64.encode(res?.data?.id.toString())}`);
+                            }
+                            setTimeout(() => {
+                                window.location.reload(true);
+                            }, 2000);
                         }
 
                         setLoading(false);
@@ -137,7 +146,7 @@ const SafeAndGear = ({
     };
 
     useEffect(() => {
-        axios.get(`/api/getSafegear/${id}`).then((res) => {
+        axios.get(`/api/getSafegear/${id}/${type}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
             if (res.data.lng == "heb") {
                 import("../../../Assets/css/rtl.css");
@@ -347,7 +356,7 @@ const SafeAndGear = ({
                                 <button
                                     type="submit"
                                     name="next"
-                                    disabled={isSubmitted}
+                                    disabled={isManpower ? isSubmitted : false}
                                     className="navyblue py-2 px-4"
                                     style={{ borderRadius: "5px" }}
                                 >

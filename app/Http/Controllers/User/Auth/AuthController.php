@@ -10,6 +10,7 @@ use App\Events\InsuranceFormSigned;
 use App\Events\SafetyAndGearFormSigned;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\WorkerLeads;
 use App\Enums\Form101FieldEnum;
 use App\Models\WorkerInvitation;
 use App\Models\WorkerAvailability;
@@ -277,7 +278,6 @@ class AuthController extends Controller
 
     public function sendResetLinkEmail(Request $request)
     {
-        \Log::info($request->email);
 
         // Validate the incoming request
         $request->validate([
@@ -289,8 +289,6 @@ class AuthController extends Controller
             ['email' => $request->email]
         );
     
-        \Log::info($status);
-
         // Return the response based on the result
         return $status === Password::RESET_LINK_SENT
             ? response()->json(['message' => __($status)], 200)
@@ -438,7 +436,7 @@ class AuthController extends Controller
 
     public function getWorkerDetail(Request $request)
     {
-        $user = User::where('id', $request->worker_id)->first();
+        $user = $request->type == 'lead' ? WorkerLeads::where('id', $request->worker_id)->first() : User::where('id', $request->worker_id)->first();
 
         $form = $user->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
@@ -455,9 +453,8 @@ class AuthController extends Controller
     {
         // Validation Rules
         $validator = Validator::make($request->all(), [
-            'worker_id' => 'required|exists:users,id',
             'firstname' => 'required|string|max:255',
-            'lastname' => 'nullable|string|max:255',
+            'lastname' => 'required|string|min:2|max:255',
             'address' => 'required|string',
             'email' => [
                 'required',
@@ -483,9 +480,10 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+
+        $type = $request->type;
         // Get Worker
-        $user = User::find($request->worker_id);
+        $user = $type == 'worker' ? User::find($request->worker_id) : WorkerLeads::find($request->worker_id);
     
         // Update User Details
         $user->update([
@@ -501,9 +499,11 @@ class AuthController extends Controller
             'is_afraid_by_cat' => $request->is_afraid_by_cat,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
-            'step' => 2,
             'updated_at' => Carbon::now()
         ]);
+
+        $user->step = 1;
+        $user->save();
 
         if ($request->has('passportNumber')) {
             $user->passport = $request->passportNumber;
@@ -529,8 +529,39 @@ class AuthController extends Controller
         }
     
         $user->save();
+
+        if($type == 'lead') {
+            $formEnum = new Form101FieldEnum;
+
+            $defaultFields = $formEnum->getDefaultFields();
+            $defaultFields['employeeFirstName'] = $user->firstname;
+            $defaultFields['employeeLastName'] = $user->lastname;
+            $defaultFields['employeeMobileNo'] = $user->phone;
+            $defaultFields['employeeEmail'] = $user->email;
+            $defaultFields['employeecountry'] = $user->country;
+            $defaultFields['sender']['employeeEmail'] = $user->email;
+            $defaultFields['employeeSex'] = Str::ucfirst($user->gender);
+            $formData = app('App\Http\Controllers\User\Auth\AuthController')->transformFormDataForBoolean($defaultFields);
+
+            $user->forms()->create([
+                'type' => WorkerFormTypeEnum::FORM101,
+                'data' => $formData,
+                'submitted_at' => NULL
+            ]);
+
+        }
     
         return response()->json(['message' => 'Worker details updated successfully', 'worker' => $user], 200);
+    }
+
+    public function workerLeadDetails($id)
+    {
+        $workerLead = WorkerLeads::find($id);
+        if (!$workerLead) {
+            return response()->json(['message' => 'Worker Lead not found'], 404);
+        }
+
+        return response()->json($workerLead);
     }
 
     public function getWorkerInvitation(Request $request)
@@ -755,7 +786,7 @@ class AuthController extends Controller
         $pdfFile = isset($data['pdf_file']) ? $data['pdf_file'] : null;
         unset($data['pdf_file']);
     
-        $worker = User::where('id', $id)->first();
+        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('id', $id)->first();
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -804,6 +835,9 @@ class AuthController extends Controller
     
             // Update the form data with the PDF file name
             $formData['pdf_name'] = $file_name;
+            // $worker->worker_contract = $file_name;
+            $worker->contract = 1;
+            $worker->save();
         }
     
         // Create or update the form in the database
@@ -817,14 +851,19 @@ class AuthController extends Controller
             $message = 'Contract created successfully.';
         }
     
+        $user = null;
         // Trigger the event only if the form is fully submitted
         if ($savingType === 'submit') {
             event(new ContractFormSigned($worker, $form));
+            if($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country == 'Israel') {
+                $user = $this->createUser($worker);
+            }
             $message = 'Contract signed successfully. Thanks for signing the contract.';
         }
     
         return response()->json([
-            'message' => $message
+            'message' => $message,
+            'id' => $request->type == 'lead' ? $user->id : null
         ]);
     }
     
@@ -849,7 +888,7 @@ class AuthController extends Controller
 
     public function form101(Request $request, $id)
     {
-        $worker = User::find($id);
+        $worker = $request->input('type') == 'lead' ? WorkerLeads::find($id) : User::find($id);
 
         if (!$worker) {
             return response()->json([
@@ -860,15 +899,15 @@ class AuthController extends Controller
         $data = $request->all();
         $data = $this->transformFormDataForBoolean($data);
         $savingType = $data['savingType'];
-        $formId = $data['formId'];
+        $formId = $data['formId'] ?? null;
         $step = $data['step'] ?? 1;  // Retrieve 'step' from the request (if exists)
-        $idNumber = $data['employeeIdNumber'];
+        $idNumber = $data['employeeIdNumber'] ?? null;
         unset($data['savingType']);
-    
+        
         // Save the 'step' value to the worker's record
         if ($step) {
             $worker->step = $step;  // Assuming the 'step' field exists on the worker model
-            $worker->id_number = $idNumber;
+            $worker->id_number = $idNumber ?? $worker->id_number ?? null;
             $worker->save();
         }
 
@@ -876,18 +915,21 @@ class AuthController extends Controller
             Storage::disk('public')->makeDirectory('uploads/form101/documents');
         }
 
-        $form = $worker->forms()
-            ->when($formId != NULL, function ($q) use ($formId) {
-                $q->where('id', $formId);
-            })
-            ->when($formId == NULL, function ($q) use ($formId) {
-                $q->where('type', WorkerFormTypeEnum::FORM101);
-                // ->whereYear('created_at', now()->year);
-            })
-            ->first();
+        // Look for an existing form (draft or submitted) for this worker
+
+        $form = $worker->forms()->where('type', WorkerFormTypeEnum::FORM101)
+        ->when(!empty($formId) && $formId != "null", function ($q) use ($formId) {
+            $q->where('id', $formId);
+        })
+        ->when(empty($formId) || $formId == "null", function ($q) {
+            $q->whereNull('submitted_at');
+        })
+        ->orderBy('created_at', 'DESC')
+        ->first();
 
         $formOldData = $form ? $form->data : [];
 
+        // Process all document uploads
         $data = $this->saveForm101UploadedDocument($data, 'employeepassportCopy', $formOldData);
         $data = $this->saveForm101UploadedDocument($data, 'employeeResidencePermit', $formOldData);
         $data = $this->saveForm101UploadedDocument($data, 'employeeIdCardCopy', $formOldData);
@@ -904,6 +946,7 @@ class AuthController extends Controller
         $data = $this->saveForm101UploadedDocument($data, 'TaxCoordination.requestReason1Certificate', $formOldData);
         $data = $this->saveForm101UploadedDocument($data, 'TaxCoordination.requestReason3Certificate', $formOldData);
 
+        // Handle employer-related documents (if any)
         if (
             isset($data['TaxCoordination']['employer']) &&
             is_array($data['TaxCoordination']['employer'])
@@ -915,24 +958,24 @@ class AuthController extends Controller
             }
         }
 
+        // Check if the form has already been submitted
         if ($form && $form->submitted_at) {
             return response()->json([
-                'message' => 'Form 101 already submitted for current year.'
+                'message' => 'Form 101 already submitted for the current year.'
             ], 403);
         }
 
-        if ($savingType == 'submit') {
-            $submittedAt = now()->toDateTimeString();
-        } else {
-            $submittedAt = NULL;
-        }
+        // Set the submission timestamp based on the saving type (draft or submit)
+        $submittedAt = ($savingType == 'submit') ? now()->toDateTimeString() : NULL;
 
+        // If a form already exists (draft), update it
         if ($form) {
             $form->update([
                 'data' => $data,
                 'submitted_at' => $submittedAt
             ]);
         } else {
+            // If no form exists, create a new one
             $form = $worker->forms()->create([
                 'type' => WorkerFormTypeEnum::FORM101,
                 'data' => $data,
@@ -940,8 +983,12 @@ class AuthController extends Controller
             ]);
         }
 
+        // // Generate PDF if the form has been submitted
         if ($form->submitted_at) {
             $file_name = Str::uuid()->toString() . '.pdf';
+            $worker->form101 = 1;
+            // $worker->form_101 = $file_name;
+            $worker->save();
             $this->workerFormService->generateForm101PDF($form, $file_name, $worker->lng);
 
             $form->update([
@@ -951,12 +998,14 @@ class AuthController extends Controller
             event(new Form101Signed($worker, $form));
         }
 
+        // Return the appropriate message based on the saving type
         return response()->json([
             'message' => $savingType === 'draft'
                 ? 'Form 101 saved as draft.'
                 : 'Form 101 signed successfully.'
         ]);
     }
+
 
     private function saveForm101UploadedDocument($data, $key, $formOldData)
     {
@@ -1009,7 +1058,7 @@ class AuthController extends Controller
 
     public function safegear(Request $request, $id)
     {
-        $worker = User::find($id);
+        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::find($id);
     
         if (!$worker) {
             return response()->json([
@@ -1080,6 +1129,10 @@ class AuthController extends Controller
                     ], 403);
                 }
             }
+
+            $worker->safety_and_gear = $savingType === 'submit' ? 1 : 0;
+            // $worker->safety_and_gear_form = $savingType === 'submit' ? $file_name : null;
+            $worker->save();
     
             // Create the form
             $form = $worker->forms()->create([
@@ -1092,19 +1145,24 @@ class AuthController extends Controller
             $message = 'Safety and gear form created successfully.';
         }
     
+        $user = null;
         // Trigger the event only when a submission is made
         if ($savingType === 'submit') {
+            if($request->type == 'lead' && $worker->company_type == 'manpower') {
+                $user = $this->createUser($worker);
+            }
             event(new SafetyAndGearFormSigned($worker, $form));
         }
     
         return response()->json([
-            'message' => $message
+            'message' => $message,
+            'id' => $request->type == 'lead' ? $user->id : null
         ]);
     }
     
-    public function getSafegear($id)
+    public function getSafegear($id, $type = null)
     {
-        $worker = User::find($id);
+        $worker = $type == 'lead' ? WorkerLeads::find($id) : User::find($id);
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -1122,9 +1180,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function get101($id, $formId = NULL)
+    public function get101($id, $formId = null, $type = null)
     {
-        $worker = User::find($id);
+        $worker = $type == 'lead' ? WorkerLeads::find($id) : User::find($id);
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -1132,14 +1190,24 @@ class AuthController extends Controller
         }
 
         $form = $worker->forms()
-            ->when($formId != NULL, function ($q) use ($formId) {
+            ->when(!empty($formId) && $formId != "null", function ($q) use ($formId) {
                 $q->where('id', $formId);
             })
-            ->when($formId == NULL, function ($q) use ($formId) {
+            ->when(empty($formId) || $formId == "null", function ($q) use ($formId) {
                 $q->where('type', WorkerFormTypeEnum::FORM101);
                 // ->whereYear('created_at', now()->year);
             })
             ->first();
+
+            // $form = $worker->forms()->where('type', WorkerFormTypeEnum::FORM101)
+            // ->when(!empty($formId) && $formId != "null", function ($q) use ($formId) {
+            //     $q->where('id', $formId);
+            // })
+            // ->when(empty($formId) || $formId == "null", function ($q) {
+            //     $q->whereNull('submitted_at');
+            // })
+            // ->orderBy('created_at', 'DESC')
+            // ->first();
 
         return response()->json([
             'lng' => $worker->lng,
@@ -1147,9 +1215,9 @@ class AuthController extends Controller
             'worker' => $worker
         ]);
     }
-    public function getAllForms($id)
+    public function getAllForms($id, $type = null) 
     {
-        $worker = User::find($id);
+        $worker = $type == 'lead' ? WorkerLeads::find($id) : User::find($id);
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -1158,7 +1226,6 @@ class AuthController extends Controller
         $form = $worker->forms()
             // ->whereYear('created_at', now()->year)
             ->get();
-
         return response()->json([
             'lng' => $worker->lng,
             'forms' => $form->count() > 0 ? $form : [],
@@ -1185,9 +1252,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function getInsuranceForm($id)
+    public function getInsuranceForm($id, $type = null)
     {
-        $worker = User::find($id);
+        $worker =$type == 'lead' ? WorkerLeads::find($id) : User::find($id);
         if (!$worker) {
             return response()->json([
                 'message' => 'Worker not found',
@@ -1208,7 +1275,7 @@ class AuthController extends Controller
 
     public function saveInsuranceForm(Request $request, $id)
     {
-        $worker = User::find($id);
+        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::find($id);
     
         if (!$worker) {
             return response()->json([
@@ -1251,6 +1318,10 @@ class AuthController extends Controller
                 'message' => "Can't save PDF"
             ], 403);
         }
+
+        // $worker->form_insurance = $file_name;
+        $worker->insurance = 1;
+        $worker->save();
     
         // Prepare form data
         $formData = [
@@ -1271,13 +1342,18 @@ class AuthController extends Controller
             $message = 'Insurance form created successfully.';
         }
     
+        $user = null;
         // Trigger the event only if the form is submitted
         if ($form && $form->submitted_at) {
+            if($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country != 'Israel') {
+                $user = $this->createUser($worker);
+            }
             event(new InsuranceFormSigned($worker, $form));
         }
     
         return response()->json([
-            'message' => $message
+            'message' => $message,
+            'id' => $request->type == 'lead' ? $user->id : null
         ]);
     }
     
@@ -1285,7 +1361,7 @@ class AuthController extends Controller
 
     public function manpowerForm(Request $request, $id)
     {
-        $worker = User::find($id);
+        $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::find($id);
     
         if (!$worker) {
             return response()->json([
@@ -1366,9 +1442,9 @@ class AuthController extends Controller
     
 
 
-    public function getManpowerSafty($id)
+    public function getManpowerSafty($id, $type = null)
     {
-        $worker = User::find($id);
+        $worker = $type == 'lead' ? WorkerLeads::find($id) : User::find($id);
 
         if (!$worker) {
             return response()->json([
@@ -1392,6 +1468,90 @@ class AuthController extends Controller
             'form' => $form,
             'manpower_company_name' => $manpowerCompany->name ?? null, // Include name or null
         ]);
+    }
+
+    public function createUser($workerLead){
+        $role = $workerLead->role ?? 'cleaner';
+        $lng = $workerLead->lng;
+
+        if ($role == 'cleaner') {
+            $role = match ($lng) {
+                'heb' => "מנקה",
+                'en' => "Cleaner",
+                'ru' => "уборщик",
+                default => "limpiador"
+            };
+        } elseif ($role == 'general_worker') {
+            $role = match ($lng) {
+                'heb' => "עובד כללי",
+                'en' => "General worker",
+                'ru' => "Общий рабочий",
+                default => "Trabajador general"
+            };
+        }
+
+        // Create new user
+        $worker = User::create([
+            'firstname' => $workerLead->firstname,
+            'lastname' => $workerLead->lastname ?? '',
+            'phone' => $workerLead->phone,
+            'email' => $workerLead->email ?? null,
+            'gender' => $workerLead->gender,
+            'role' => $role,
+            'lng' => $lng,
+            'passcode' => $workerLead->phone,
+            'password' => Hash::make($workerLead->phone),
+            'company_type' => $workerLead->company_type,
+            'visa' => $workerLead->visa ?? NULL,
+            'passport' => $workerLead->passport ?? NULL,
+            'passport_card' => $workerLead->passport_card ?? NULL,
+            'id_number' => $workerLead->id_number ?? NULL,
+            'status' => $workerLead->status,
+            'is_afraid_by_cat' => $workerLead->is_afraid_by_cat == 1,
+            'is_afraid_by_dog' => $workerLead->is_afraid_by_dog == 1,
+            'renewal_visa' => $workerLead->renewal_visa ?? NULL,
+            'address' => $workerLead->address ?? NULL,
+            'latitude' => $workerLead->latitude ?? NULL,
+            'longitude' => $workerLead->longitude ?? NULL,
+            'manpower_company_id' => $workerLead->company_type == "manpower" ? $workerLead->manpower_company_id : NULL,
+            'step' => $workerLead->step ?? 1
+        ]);
+
+        $i = 1;
+        $j = 0;
+        $check_friday = 1;
+        while ($i == 1) {
+            $current = Carbon::now();
+            $day = $current->addDays($j);
+            if ($this->isWeekend($day->toDateString())) {
+                $check_friday++;
+            } else {
+                $w_a = new WorkerAvailability;
+                $w_a->user_id = $worker->id;
+                $w_a->date = $day->toDateString();
+                $w_a->start_time = '08:00:00';
+                $w_a->end_time = '17:00:00';
+                $w_a->status = 1;
+                $w_a->save();
+            }
+            $j++;
+            if ($check_friday == 6) {
+                $i = 2;
+            }
+        }
+
+
+        $forms = $workerLead->forms()->get();
+            foreach ($forms as $form) {
+                $form->update([
+                    'user_type' => User::class,
+                    'user_id' => $worker->id
+                ]);
+            }
+
+        $workerLead->delete();
+
+        return $worker;
     }
     
 }

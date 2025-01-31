@@ -391,6 +391,11 @@ export default function MyRoutes() {
                     />
                     <Route
                         exact
+                        path="worker-lead-forms/:id"
+                        element={<WorkerForm />}
+                    />
+                    <Route
+                        exact
                         path="worker-forms/:id/:formId"
                         element={<WorkerForm />}
                     />

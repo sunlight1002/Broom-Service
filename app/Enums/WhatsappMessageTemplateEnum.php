@@ -182,4 +182,5 @@ final class WhatsappMessageTemplateEnum extends AbstractEnum
     public const SEND_TO_WORKER_PENDING_FORM101 = "send-to-worker-pending-form101";
     public const TEAM_WILL_THINK_SEND_TO_WORKER_LEAD = "team-will-think-send-to-worker-lead";
     public const WORKER_LEAD_NOT_RELEVANT_BY_TEAM = "worker-lead-not-relevant-by-team";
+    public const WORKER_LEAD_FORMS_AFTER_HIRING = "worker-lead-forms-after-hiring";
 }

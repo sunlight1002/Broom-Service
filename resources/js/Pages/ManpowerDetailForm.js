@@ -14,7 +14,7 @@ import {
 } from "@react-google-maps/api";
 import Geocode from "react-geocode";
 
-const ManpowerDetailForm = ({ setNextStep, values }) => {
+const ManpowerDetailForm = ({ setNextStep, values, type }) => {
     const { t } = useTranslation();
     const params = useParams();
     const workerId = Base64.decode(params.id);
@@ -42,11 +42,9 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
         is_afraid_by_dog: false,
         is_afraid_by_cat: false,
         latitude: latitude,
-        longitude: longitude
+        longitude: longitude,
+        type: type == "lead" ? "lead" : "worker"
     })
-
-    console.log(formValues);
-    
 
     Geocode.setApiKey("AIzaSyBU01s3r8ER0qJd1jG0NA8itmcNe-iSTYk");
     const containerStyle = {
@@ -62,6 +60,37 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
         axios.get(`/api/admin/countries`).then((response) => {
             setCountries(response.data.countries);
         });
+    };
+    const getWorkerLead = () => {
+        axios
+            .get(`/api/worker-lead-detail/${workerId}`)
+            .then((res) => {
+                const _worker = res.data;
+                setFormValues({
+                    worker_id: _worker.id,
+                    firstname: _worker.firstname,
+                    lastname: _worker.lastname,
+                    email: _worker.email,
+                    lng: _worker.lng,
+                    country: _worker.country,
+                    gender: _worker.gender,
+                    renewal_visa: _worker.renewal_visa,
+                    passportNumber: _worker.passport ?? "",
+                    IDNumber: _worker.id_number ?? "",
+                    address: _worker.address ?? "",
+                    is_afraid_by_dog: _worker.is_afraid_by_dog == 1 ? true : false,
+                    is_afraid_by_cat: _worker.is_afraid_by_cat == 1 ? true : false,
+                    latitude: _worker.latitude,
+                    longitude: _worker.longitude,
+                    type: "lead"
+                })
+                setWorker(_worker);
+            })
+            .catch((err) => {
+                if (err?.response?.data?.message) {
+                    alert.error(err.response.data.message);
+                }
+            });
     };
 
     const getWorker = async () => {
@@ -81,7 +110,8 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
             is_afraid_by_dog: response.data.worker.is_afraid_by_dog == 1 ? true : false,
             is_afraid_by_cat: response.data.worker.is_afraid_by_cat == 1 ? true : false,
             latitude: response.data.worker.latitude,
-            longitude: response.data.worker.longitude
+            longitude: response.data.worker.longitude,
+            type: "worker"
         })
         setWorker(response.data.worker);
     }
@@ -104,13 +134,19 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
     }
 
     useEffect(() => {
-        getWorker()
+        if (type == "lead") {
+            getWorkerLead();
+        } else {
+            getWorker()
+        }
         getCountries()
     }, [])
 
 
     const handlePlaceChanged = () => {
         if (place) {
+            // console.log(place.getPlace());
+            
             // setCity(place.getPlace().vicinity);
             setFormValues({
                 ...formValues,
@@ -137,9 +173,10 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
             });
     };
 
-    const handleFileChange = (e, type) => {
+    const handleFileChange = (e, typ) => {
         const data = new FormData();
         data.append("id", workerId);
+        data.append("type", type == "lead" ? "lead" : "worker");
         if (e.target.files.length > 0) {
             const file = e.target.files[0];
             const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
@@ -147,7 +184,7 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                 alert.error(t("form101.step1.imageSize")); // Show an error message
                 return;
             }
-            data.append(`${type}`, file);
+            data.append(`${typ}`, file);
         }
         handleDocSubmit(data);
     };
@@ -192,6 +229,9 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                     value={formValues.lastname}
                                     onChange={(e) => setFormValues({ ...formValues, lastname: e.target.value })}
                                 />
+                                <span className="text-danger">
+                                    {errors.lastname && errors.lastname}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -228,6 +268,9 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                             )
                                         )}
                                 </select>
+                                <span className="text-danger">
+                                        {errors.country && errors.country}
+                                    </span>
                             </div>
                         </div>
                         {formValues.country != "Israel" && (
@@ -277,6 +320,9 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                                         className="form-control"
                                         placeholder={t("form101.passport_num")}
                                     />
+                                     <span className="text-danger">
+                                        {errors.passport && errors.passport}
+                                    </span>
                                 </div>
                             </div>
                         )}
@@ -612,13 +658,13 @@ const ManpowerDetailForm = ({ setNextStep, values }) => {
                             placeholder={t("workerInviteForm.enter_your_address")}
                             readOnly
                         />
-                        {/* {errors.address ? (
+                        {errors.address ? (
                             <small className="text-danger mb-1">
                                 {errors.address}
                             </small>
                         ) : (
                             ""
-                        )} */}
+                        )}
                     </div>
 
 

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\WhatsappTemplate;
+use App\Models\ShortUrl;
 
 class WhatsappNotification
 {
@@ -35,6 +36,35 @@ class WhatsappNotification
         $this->adminBaseUrl = config('services.short_url.admin');
     }
 
+
+    private function generateShortUrl($urlData, $type = null)
+    {
+
+        if (empty($urlData)) {
+            return null;  
+        }
+        $token = substr(md5(uniqid()), 0, 12);
+        
+        $shortUrl = ShortUrl::create([
+            'url' => $urlData,
+            'token' => $token,
+        ]);
+
+        if ($type == 'worker') {
+            // return $this->workerBaseUrl . $token;
+            return $urlData;
+        } elseif ($type == 'client') {
+            // return $this->clientBaseUrl . $token;
+            return $urlData;
+        } elseif ($type == 'admin') {
+            // return $this->adminBaseUrl . $token;
+            return $urlData;
+        } else {
+            // return $shortUrl->token;
+            return $urlData;
+        }
+    }
+
     private function replaceClientFields($text, $clientData, $eventData)
     {
         $placeholders = [];
@@ -51,6 +81,18 @@ class WhatsappNotification
             }
 
 
+            if(isset($clientData['id']) && !empty($clientData['id'])) {
+                $leadDetailLink = $this->generateShortUrl(url("admin/leads/view/" . $clientData['id']), 'admin');
+                $clientJobsLink = $this->generateShortUrl(url("client/jobs"), 'client');
+                $clientDetailsLink = $this->generateShortUrl(url("admin/clients/view/" . $clientData['id']), 'admin');
+                $clientCardLink = $this->generateShortUrl(url("client/settings"), 'client');
+                $adminClientCardLink = $this->generateShortUrl(url("admin/clients/view/" .$clientData['id'] ."?=card"), 'admin');
+                $testimonialsLink = $this->generateShortUrl(url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl'));
+                $brromBrochureLink = $this->generateShortUrl($clientData['lng'] == "en" ? url("pdfs/BroomServiceEnglish.pdf") : url("pdfs/BroomServiceHebrew.pdf"));
+                $requestToChangeLink = $this->generateShortUrl(url("/request-to-change/" .  base64_encode($clientData['id']). "?type=client" ?? ''), 'client');
+            }
+
+
             // Concatenate all addresses into a single string, separated by a comma
             $fullAddress = implode(', ', $addresses);
 
@@ -61,21 +103,21 @@ class WhatsappNotification
                 ':service_requested' => '',
                 ':client_email' => $clientData['email'] ?? '',
                 ':client_address' => $fullAddress ?? "NA",
-                ':lead_detail_link' => isset($clientData['id']) ? url("admin/leads/view/" . $clientData['id'] ?? '') : '',
+                ':lead_detail_link' => $leadDetailLink ?? '',
                 ':client_phone_number' => '+' . ($clientData['phone'] ?? ''),
                 ':reason' => $clientData['reason'] ?? __('mail.wa-message.lead_declined_contract.no_reason_provided'),
                 ':inquiry_date' => Carbon::now()->format('M d Y'),
                 ':client_create_date' => isset($clientData['created_at']) ? Carbon::parse($clientData['created_at'])->format('M d Y H:i') : '',
-                ':lead_detail_url' => url("admin/leads/view/" . $clientData['id'] ?? ''),
-                ':client_jobs' => url("client/jobs"),
-                ':client_detail_url' => url("admin/clients/view/" . $clientData['id'] ?? ''),
-                ':request_change_schedule' => url("/request-to-change/" .  base64_encode($clientData['id']). "?type=client" ?? ''),
+                ':lead_detail_url' => $leadDetailLink ?? '',
+                ':client_jobs' => $clientJobsLink ?? '',
+                ':client_detail_url' => $clientDetailsLink ?? '',
+                ':request_change_schedule' => $requestToChangeLink ?? '',
                 ':request_details' => isset($eventData['request_details']) ? $eventData['request_details'] : '',
                 ':new_status' => $eventData['new_status'] ?? '',
-                ':testimonials_link' => url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl'),
-                ':broom_brochure' => $clientData['lng'] == "en" ? url("pdfs/BroomServiceEnglish.pdf") : url("pdfs/BroomServiceHebrew.pdf"),
-                ':admin_add_client_card' => url("admin/clients/view/" .$clientData['id'] ."?=card"),
-                ':client_card' => url("client/settings"),
+                ':testimonials_link' => $testimonialsLink ?? '',
+                ':broom_brochure' => $brromBrochureLink ?? '',
+                ':admin_add_client_card' => $adminClientCardLink ?? '',
+                ':client_card' => $clientCardLink ?? '',
             ];
 
         }
@@ -86,23 +128,35 @@ class WhatsappNotification
     {
         $placeholders = [];
         if(isset($workerData) && !empty($workerData)) {
+
+            if(isset($workerData['id']) && !empty($workerData['id'])) {
+                $workerFormsLink = $this->generateShortUrl(url("worker-forms/" . base64_encode($workerData['id'])), 'worker');
+                $form101Link = $this->generateShortUrl(
+                    isset($workerData['id'], $workerData['formId']) 
+                    ? url("form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId'])) 
+                    : '', 
+                    'worker'
+                );
+                $workerViewLink = $this->generateShortUrl(url("worker/view/" . base64_encode($workerData['id'])), 'worker');
+                $requestToChangeLink = $this->generateShortUrl(url("/request-to-change/" .  base64_encode($workerData['id']). "?type=worker" ?? ''), 'worker');
+                $workerLeadFormsLink = $this->generateShortUrl(url("worker-forms/" . base64_encode($workerData['id']) . "?type=lead" ?? ''), 'worker');
+            }
             $placeholders = [
                 ':worker_name' => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
                 ':worker_lead_name' => trim($workerData['name'] ?? ''),
                 ':worker_lead_phone' => isset($workerData['phone']) ? $workerData['phone'] : $workerData['phone'],
                 ':worker_phone_number' => '+' . ($workerData['phone'] ?? ''),
-                ':request_change_schedule' => url("/request-to-change/" .  (base64_encode($workerData['id']) . "?type=worker") ?? ''),
+                ':request_change_schedule' => $requestToChangeLink ?? '',
                 ':request_details' => isset($eventData['request_details']) ? $eventData['request_details'] : '',
                 ':last_work_date' => $workerData['last_work_date'] ?? '',
                 ':date' => isset($eventData['date']) ? Carbon::parse($eventData['date'])->format('M d Y') : '',
-                ':check_form' => url("worker-forms/" . base64_encode($workerData['id'])) ?? '',
-                ':form_101_link' => isset($workerData['id'], $workerData['formId'])
-                    ? url("worker-forms/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId']))
-                    : '',
+                ':check_form' => $workerFormsLink ?? '',
+                ':worker_lead_check_form' => $workerLeadFormsLink ?? '',
+                ':form_101_link' => $form101Link ?? '',
                 ':refund_rejection_comment' => $eventData['refundclaim']['rejection_comment'] ?? "",
                 ':refund_status' => $eventData['refundclaim']['status'] ?? "",
                 ':visa_renewal_date' => $workerData['renewal_visa'] ?? "",
-                ':worker_detail_url' => url("workers/view/" .($workerData['id'] ?? '')),
+                ':worker_detail_url' => $workerViewLink ?? '',
             ];
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
@@ -117,6 +171,21 @@ class WhatsappNotification
                 foreach ($jobData['comments'] as $comment) {
                     $commentsText .= "- " . $comment['comment'] . " (by " . $comment['name'] . ") \n";
                 }
+            }
+
+            if(isset($jobData['id']) && !empty($jobData['id'])) {
+                $adminJobViewLink = $this->generateShortUrl(url("admin/job/view/" . $jobData['id']), 'admin');
+                $clientJobsReviewLink = $this->generateShortUrl(url("client/jobs/" . base64_encode($jobData['id']) . "/review"), 'client');
+                $teamJobActionLink = $this->generateShortUrl(url("admin/jobs/" . $jobData['id'] . "/change-worker"), 'admin');
+                $clientJobViewLink = $this->generateShortUrl(url("client/jobs/view/" . base64_encode($jobData['id'])), 'client');
+                $workerJobViewLink = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']), 'worker');
+                $teamBtns = $this->generateShortUrl(url("team-btn/" . base64_encode($jobData['id'])), 'admin');
+                $contactManager = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']."?q=contact_manager"), 'worker');
+                $workerApproveJob = $this->generateShortUrl(
+                    isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : null,
+                    'worker'
+                );
+                $teamSkipComment = $this->generateShortUrl(url("action-comment/" . ($commentData['id'] ?? '')), 'admin');
             }
 
             $currentTime = Carbon::parse($jobData['start_time'] ?? '00:00:00');
@@ -152,27 +221,23 @@ class WhatsappNotification
                 ':job_end_time' => Carbon::today()->setTimeFromTimeString($jobData['end_time'] ?? '00:00:00')->format('H:i'),
                 ':job_remaining_hours' => $diffInHours . ':' . $diffInMinutes,
                 ':job_comments' => $commentsText ? $specialInstruction . " " . $commentsText : '',
-                ':team_skip_comment_link' => url("action-comment/" . ($commentData['id'] ?? '')),
+                ':team_skip_comment_link' => $teamSkipComment ?? '',
                 ':job_service_name' => (($workerData['lng'] ?? 'heb') == 'heb' && isset($jobData['jobservice'])) ? $jobData['jobservice']['heb_name'] : ($jobData['jobservice']['name'] ?? ''),
-                ':team_job_link' => url("admin/jobs/view/" . $jobData['id']),
-                ':team_action_btns_link' => url("team-btn/" . base64_encode($jobData['id'])),
-                ':worker_job_link' => url("worker/jobs/view/" . $jobData['id']),
-                ':comment_worker_job_link' => $commentsText ? "\n".$commentLinkText . " " . url("worker/jobs/view/" . $jobData['id']) : '',
-                ':client_view_job_link' => url("client/jobs/view/" . base64_encode($jobData['id'])),
-                ':team_job_action_link' => url("admin/jobs/" . $jobData['id'] . "/change-worker"),
+                ':team_job_link' => $adminJobViewLink ?? '',
+                ':team_action_btns_link' => $teamBtns ?? '',
+                ':worker_job_link' => $workerJobViewLink ?? '',
+                ':comment_worker_job_link' => $commentsText ? "\n".$commentLinkText . " " . $workerJobViewLink : '',
+                ':client_view_job_link' => $clientJobViewLink ?? '',
+                ':team_job_action_link' => $teamJobActionLink ?? '',
                 ':job_status' => ucfirst($jobData['status']) ?? '',
-                ':client_job_review' => url("client/jobs/" . base64_encode($jobData['id']) . "/review") ?? '',
+                ':client_job_review' => $clientJobsReviewLink ?? '',
                 ':content_txt' => isset($eventData['content_data']) ? $eventData['content_data'] : ' ',
                 ':rating' => $jobData['rating'] ?? "",
                 ':review' => $jobData['review'] ?? "",
+                ':job_accept_url' => $workerApproveJob ?? '',
+                ':job_contact_manager_link' => $contactManager ?? '',
             ];
 
-        }
-        if(isset($jobData) && !empty($jobData) ) {
-            $placeholders = array_merge($placeholders, [
-                ':job_accept_url' => isset($workerData['id']) ?? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve"),
-                ':job_contact_manager_link' => url("worker/jobs/view/" . $jobData['id']."?q=contact_manager"),
-            ]) ;
         }
         return str_replace(array_keys($placeholders), array_values($placeholders), $text);
     }
@@ -189,6 +254,14 @@ class WhatsappNotification
             } else {
                 $purpose = $eventData['purpose'];
             }
+        }
+
+        if(isset($eventData)) {
+            $meetingRescheduleLink = $this->generateShortUrl(isset($eventData['id']) ? url("meeting-schedule/" . base64_encode($eventData['id'])) : '');
+            $meetingFileUploadLink = $this->generateShortUrl(isset($eventData['id']) ? url("meeting-files/" . base64_encode($eventData['id'])) : '');
+            $uploadedFilesLink = $this->generateShortUrl(isset($eventData["file_name"]) ? url("storage/uploads/ClientFiles/" . $eventData["file_name"]) : '', 'admin');
+            $meetingAcceptLink = $this->generateShortUrl(isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/accept") : "");
+            $meetingRejectLink = $this->generateShortUrl(isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/reject") : "");
         }
 
         $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
@@ -217,15 +290,15 @@ class WhatsappNotification
             ':meeting_end_time' => isset($eventData['end_time']) ? date("H:i", strtotime($eventData['end_time'])) : '',
             ':meeting_address' => $address ?? '',
             ':meeting_purpose' => $purpose ? $purpose : "",
-            ':meeting_reschedule_link' => isset($eventData['id']) ? url("meeting-schedule/" . base64_encode($eventData['id'])) : '',
+            ':meeting_reschedule_link' => $meetingRescheduleLink ?? "",
             ':meeting_date' => isset($eventData['start_date']) ? Carbon::parse($eventData['start_date'])->format('d-m-Y') : '',
-            ':meeting_file_upload_link' => isset($eventData['id']) ? url("meeting-files/" . base64_encode($eventData['id'])) : '',
-            ':meeting_uploaded_file_url' => isset($eventData["file_name"]) ? url("storage/uploads/ClientFiles/" . $eventData["file_name"]) : '',
+            ':meeting_file_upload_link' => $meetingFileUploadLink ?? "",
+            ':meeting_uploaded_file_url' => $uploadedFilesLink ?? "",
             ':file_upload_date' => $eventData["file_upload_date"] ?? '',
             ':meet_link' => $eventData["meet_link"] ?? "",
             ':today_tommarow_or_date' => $todayTomorrowOrDate,
-            ':meeting_accept' => isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/accept") : "",
-            ':meeting_reject' => isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/reject") : "",
+            ':meeting_accept' => $meetingAcceptLink ?? "",
+            ':meeting_reject' => $meetingRejectLink ?? "",
             ':all_team_meetings' => $eventData['all_meetings'] ?? "",
         ];
 
@@ -246,6 +319,12 @@ class WhatsappNotification
             }
         }
 
+
+        if(isset($offerData["services"])) {
+            $offerDetailLink = $this->generateShortUrl(isset($offerData['id']) ? url("admin/offered-price/edit/" . ($offerData['id'] ?? '')) : '', 'admin');
+            $priceOfferLink = $this->generateShortUrl(isset($offerData['id']) ? url("price-offer/" . base64_encode($offerData['id'])) : '');
+        }
+
         $serviceNamesString = implode(", ", $serviceNames);
 
         if ($offerData && isset($offerData['service_template_names']) && str_contains($offerData['service_template_names'], 'airbnb')) {
@@ -262,8 +341,8 @@ class WhatsappNotification
                 ':property_person_name' => $property_person_name  ?? '',
                 ':offer_service_names' => $offerData['service_names'] ?? '',
                 ':offer_pending_since' => $offerData['offer_pending_since'] ?? '',
-                ':offer_detail_url' => url("admin/offered-price/edit/" . ($offerData['id'] ?? '')),
-                ':client_price_offer_link' => url("price-offer/" . base64_encode($offerData['id'])),
+                ':offer_detail_url' => $offerDetailLink ?? '',
+                ':client_price_offer_link' => $priceOfferLink ?? '',
                 ':price_offer_services' => $serviceNamesString,
                 ':offer_sent_date' => isset($offerData['created_at']) ? Carbon::parse($offerData['created_at'])->format('M d Y H:i') : '',
             ];
@@ -277,11 +356,19 @@ class WhatsappNotification
     {
         $placeholders = [];
         if($contractData) {
+
+            if(isset($contractData["contract_id"]) || $contractData["id"]) {
+                $teamViewContract = $this->generateShortUrl(isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '', 'admin');
+                $createJobLink = $this->generateShortUrl(isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : "", 'admin');
+                $clientContractLink = $this->generateShortUrl((isset($contractData['contract_id']) || isset($contractData['unique_hash'])) ? url("work-contract/" . ($contractData['contract_id'] ?? $contractData['unique_hash'])) : '', 'client');
+            }
+
             $placeholders = [
-                ':client_contract_link' => isset($contractData['contract_id']) ? url("work-contract/" . $contractData['contract_id'] ?? '') : '',
-                ':team_contract_link' => isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '',
-                ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at'])->format('M d Y H:i') : '',
-                ':create_job' => isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : " ",
+                // ':property_person_name' => $property_person_name  ?? '',
+                ':client_contract_link' => $clientContractLink ?? '',
+                ':team_contract_link' => $teamViewContract ?? '',
+                ':contract_sent_date' => isset($contractData['created_at']) ? Carbon::parse($contractData['created_at']?? '')->format('M d Y H:i') : '',
+                ':create_job' => $createJobLink ?? '',
 
             ];
         }
@@ -309,6 +396,10 @@ class WhatsappNotification
         $placeholders = [];
         if($eventData || $eventData['activity'] || ($eventData['old_worker'] && $eventData['old_job'])) {
             $by = isset($eventData['by']) ? $eventData['by'] : 'client';
+
+            if(isset($eventData)) {
+                $workerHearingLink = $this->generateShortUrl(isset($eventData['id']) ? url("hearing-schedule/" . base64_encode($eventData['id'])) : '', 'worker');
+            }
 
             $commentBy = "";
             $cancellationFee = null;
@@ -342,7 +433,7 @@ class WhatsappNotification
                 ':start_time'    => date("H:i", strtotime($eventData['start_time'] ?? "00-00")),
                 ':end_time'      => date("H:i", strtotime($eventData['end_time'] ?? "00-00")),
                 ':purpose'       => $eventData['purpose'] ?? "No purpose provided",
-                ':worker_hearing' => isset($eventData['id']) ? url("hearing-schedule/" . base64_encode($eventData['id'])) : '',
+                ':worker_hearing' => $workerHearingLink ?? '',
                 ':old_job_start_date' => Carbon::parse($eventData['old_job']['start_date'] ?? "00-00-0000")->format('M d Y'),
                 ':client_name' => ($eventData['job']['client']['firstname'] ?? '') . ' ' . ($eventData['job']['client']['lastname'] ?? ''),
                 ':old_worker_service_name' => ($eventData['old_worker']['lng'] ?? 'en') == 'heb'
@@ -422,6 +513,7 @@ class WhatsappNotification
                     case WhatsappMessageTemplateEnum::SEND_TO_WORKER_PENDING_FORMS:
                     case WhatsappMessageTemplateEnum::TEAM_WILL_THINK_SEND_TO_WORKER_LEAD:
                     case WhatsappMessageTemplateEnum::WORKER_LEAD_NOT_RELEVANT_BY_TEAM:
+                    case WhatsappMessageTemplateEnum::WORKER_LEAD_FORMS_AFTER_HIRING:
                         $receiverNumber = $workerData['phone'] ?? null;
                         $lng = $workerData['lng'] ?? 'heb';
                         break;
@@ -631,224 +723,6 @@ class WhatsappNotification
 
 
                         break;
-                    // case WhatsappMessageTemplateEnum::REFUND_CLAIM_MESSAGE:
-                    //     $userData = $eventData['worker'];
-                    //     $claimData = $eventData['refundclaim'];
-                    //     \Log::info([$claimData]);
-
-                    //     $receiverNumber = $userData['phone'];
-                    //     App::setLocale($userData['lng']);
-
-                    //     $text = __('mail.refund_claim.header');
-
-                    //     $text .= "\n\n";
-
-                    //     $text .= __('mail.wa-message.common.salutation', [
-                    //         'name' => $userData['firstname'] . ' ' . $userData['lastname']
-                    //     ]);
-
-                    //     $text .= "\n\n";
-
-                    //     $text .= __('mail.refund_claim.body', [
-                    //         'status' => $claimData['status'],
-                    //     ]);
-
-                    //     if ($claimData['status'] !== 'approved' && !is_null($claimData['rejection_comment'])) {
-                    //         $text .= "\n\n";
-                    //         $text .= __('mail.refund_claim.reason', [
-                    //             'reason' => $claimData['rejection_comment']
-                    //         ]);
-                    //     }
-
-
-                    //     break;
-
-                    // case WhatsappMessageTemplateEnum::FOLLOW_UP_ON_OUR_CONVERSATION:
-                    //     $clientData = $eventData['client'];
-
-                    //     $whapiApiEndpoint = config('services.whapi.url');
-                    //     $whapiApiToken = config('services.whapi.token');
-
-                    //     App::setLocale($clientData['lng'] ?? 'en');
-                    //     $receiverNumber = $clientData['phone'];
-                    //     $number = $clientData['phone'] . "@s.whatsapp.net";
-
-                    //     $text .= __('mail.wa-message.follow_up.salutation',[
-                    //         'client_name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname']))
-                    //     ]);
-                    //     $text .= "\n\n";
-                    //     $text .= __('mail.wa-message.follow_up.introduction');
-                    //     $text .= "\n\n";
-                    //     $text .= __('mail.wa-message.follow_up.testimonials', [
-                    //         'testimonials_link' => url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl')
-                    //     ]);
-                    //     $text .= "\n\n";
-                    //     $text .= __('mail.wa-message.follow_up.brochure');
-                    //     $text .= "\n\n";
-                    //     $text .= __('mail.wa-message.follow_up.commitment');
-                    //     $text .= "\n\n";
-                    //     $text .= __('mail.wa-message.follow_up.help');
-
-                    //     $text .= __('mail.wa-message.follow_up.signature');
-
-                    //     $fileName = $clientData['lng'] === 'heb' ? 'BroomServiceHebrew.pdf' : 'BroomServiceEnglish.pdf';
-
-                    //     // Retrieve the file from storage
-                    //     $pdfPath = Storage::path($fileName);
-
-                    //     // Prepare the file for attachment
-                    //     $file = fopen($pdfPath, 'r'); // Open the file in read mode
-
-                    //     // Send message and PDF
-                    //     $response = Http::withHeaders([
-                    //         'Authorization' => 'Bearer ' . $whapiApiToken,
-                    //     ])->attach(
-                    //         'media',
-                    //         $file,
-                    //         $fileName // Use 'media' for the attachment field
-                    //     )->post($whapiApiEndpoint . 'messages/document', [
-                    //         'to' => $number,
-                    //         'mime_type' => 'application/pdf',
-                    //     ]);
-
-                    //     fclose($file);
-
-                    //     if ($response->successful()) {
-                    //         \Log::info('PDF sent successfully');
-                    //     } else {
-                    //         \Log::error('Failed to send PDF: ' . $response->body());
-                    //     }
-                    //     break;
-
-                        // case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
-                        // $clientData = $eventData['client'];
-
-                        // $receiverNumber = $clientData['phone'];
-                        // App::setLocale($clientData['lng']??'en');
-
-                        // $text = __('mail.wa-message.contract_verify.subject');
-
-                        // $text .= "\n\n";
-
-                        // $text .= __('mail.wa-message.contract_verify.info',[
-                        //     'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                        // ]);
-
-                        // $text .= "\n\n";
-
-                        // $text .= __('mail.wa-message.contract_verify.content');
-
-                        // break;
-
-                    // case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
-                    //     $clientData = $eventData['client'];
-
-                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    //     App::setLocale('heb');
-
-                    //     $text = __('mail.wa-message.contract_verify_team.subject');
-
-                    //     $text .= "\n\n";
-
-                    //     $text .= __('mail.wa-message.contract_verify_team.info',[
-                    //         'name' => "צוות",
-                    //     ]);
-
-                    //     $text .= "\n\n";
-
-                    //     $text .= __('mail.wa-message.contract_verify_team.content',[
-                    //         'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                    //     ]);
-
-                    //     break;
-
-                    // case WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION:
-                    //     $clientData = $eventData['client'];
-
-                    //     $receiverNumber = $clientData['phone'];
-                    //     App::setLocale($clientData['lng'] ?? 'en');
-
-                    //     // Add the body content with dynamic client name and contract date
-                    //     $text .= __('mail.wa-message.common.salutation', [
-                    //         'name' => trim(trim($clientData['firstname']) . ' ' . trim($clientData['lastname'])),
-                    //     ]);
-
-                    //     $text .= "\n\n";
-
-                    //     $text .= __('mail.wa-message.weekly_notification.content');
-
-                    //     $text .= "\n\n";
-                    //     // $text .= __('mail.wa-message.weekly_notification.action_btn') . "\n";
-
-                    //     $text .= __('mail.wa-message.button-label.change_service_date') . ": " . url("client/jobs");
-                    //     // $text .= __('mail.wa-message.button-label.change_service_date') . ": " . url("client/jobs/view/" . base64_encode($jobData->id));
-                    //     // $text .= "\n" . __('mail.wa-message.button-label.cancel_service') . ": " . url("client/jobs/view/" . base64_encode($jobData->id)) . "/cancel-service";
-                    //     $text .= "\n\n";
-
-                    //     // Add the footer with contact details
-                    //     $text .= __('mail.wa-message.common.signature');
-
-                    //     break;
-
-
-                    // case WhatsappMessageTemplateEnum::WORKER_LEAD_WEBHOOK_IRRELEVANT:
-                    //     $clientData = $eventData['client'];
-
-                    //     $receiverNumber = $clientData["phone"];
-                    //     App::setLocale($clientData['lng']??'en');
-
-                    //     $text = '';
-
-                    //     $text .=  __('mail.wa-message.worker_webhook_irrelevant.message');
-
-                    //     break;
-
-                    // case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_CLIENT:
-                    //     $clientData = $eventData['client'];
-
-                    //     $receiverNumber = $clientData['phone'];
-                    //     App::setLocale($clientData['lng']??'en');
-
-                    //     $text = __('mail.wa-message.contract_verify.subject');
-
-                    //     $text .= "\n\n";
-
-                    //     $text .= __('mail.wa-message.contract_verify.info',[
-                    //         'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
-                    //     ]);
-
-                    //     $text .= "\n\n";
-
-                    //     $text .= __('mail.wa-message.contract_verify.content');
-
-                    //     break;
-
-                    // case WhatsappMessageTemplateEnum::NOTIFY_CONTRACT_VERIFY_TO_TEAM:
-                    //     $clientData = $eventData['client'];
-                    //     $jobData = $eventData['job'];
-
-                    //     $receiverNumber = config('services.whatsapp_groups.lead_client');
-                    //     App::setLocale('heb');
-
-                    //     $text = __('mail.wa-message.contract_verify_team.subject');
-
-                    //     $text .= "\n\n";
-
-                    //     $text .= __('mail.wa-message.contract_verify_team.info',[
-                    //         'name' => "צוות",
-                    //     ]);
-
-                    //     $text .= "\n\n";
-
-                    //     $text .= __('mail.wa-message.contract_verify_team.content',[
-                    //         'name' => $clientData['firstname'] . ' ' . $clientData['lastname'],
-                    //     ]);
-
-                    //     $text .= "\n\n" . __('mail.wa-message.button-label.review') . ": " . url("client/jobs/" . base64_encode($jobData['id']) . "/review");
-
-                    //     break;
-
-
                 }
             }
 
@@ -864,7 +738,7 @@ class WhatsappNotification
 
                 if($receiverNumber == config('services.whatsapp_groups.relevant_with_workers')){
                     $token = $this->whapiWorkerApiToken;
-                }else if($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE || $eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE){
+                }else if($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE){
                     \Log::info('NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE');
                     $token = $this->whapiClientApiToken;
                 }else{

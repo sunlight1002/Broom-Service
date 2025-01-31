@@ -16,19 +16,15 @@ export default function WorkerLeadView({ mode }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({}); // State to store validation errors
     const [formValues, setFormValues] = useState({
-        name: "",
+        firstname: "",
+        lastname: "",
+        role: "cleaner",
         email: "",
         phone: "",
         lng: "heb",
         status: "pending",
-        ready_to_get_best_job: false,
-        ready_to_work_in_house_cleaning: false,
         experience_in_house_cleaning: false,
-        areas_aviv_herzliya_ramat_gan_kiryat_ono_good: false,
-        none_id_visa: "none",
         you_have_valid_work_visa: false,
-        work_sunday_to_thursday_fit_schedule_8_10am_12_2pm: false,
-        full_or_part_time: "full time",
         send_bot_message: false
     });
 
@@ -51,19 +47,14 @@ export default function WorkerLeadView({ mode }) {
             const response = await axios.get(`/api/admin/worker-leads/${params.id}/edit`, { headers });
             const res = response?.data;
             setFormValues({
-                name: res?.name,
+                firstname: res?.firstname,
+                lastname: res?.lastname,
+                role: res?.role,
                 email: res?.email,
                 phone: res?.phone,
                 status: res?.status,
-                ready_to_get_best_job: res?.ready_to_get_best_job == 1 ? "true" : "false",
-                ready_to_work_in_house_cleaning: res?.ready_to_work_in_house_cleaning == 1 ? "true" : "false",
                 experience_in_house_cleaning: res?.experience_in_house_cleaning == 1 ? "true" : "false",
-                areas_aviv_herzliya_ramat_gan_kiryat_ono_good: res?.areas_aviv_herzliya_ramat_gan_kiryat_ono_good == 1 ? "true" : "false",
-                none_id_visa: res?.none_id_visa,
                 you_have_valid_work_visa: res?.you_have_valid_work_visa == 1 ? "true" : "false",
-                work_sunday_to_thursday_fit_schedule_8_10am_12_2pm: res?.work_sunday_to_thursday_fit_schedule_8_10am_12_2pm == 1 ? "true" : "false",
-                full_or_part_time: res?.full_or_part_time
-
             });
         } catch (error) {
             console.log(error);
@@ -92,15 +83,10 @@ export default function WorkerLeadView({ mode }) {
             alert.success("Worker lead added successfully");
             navigate('/admin/worker-leads');
         } catch (error) {
-            if (error.response && error.response.data && error.response.data.errors) {
-                const errors = error.response.data.errors; // Extract errors
-                Object.keys(errors).forEach((key) => {
-                    errors[key].forEach((message) => {
-                        alert.error(message); // Show each error message in an alert
-                    });
-                });
+            if (error.response && error.response.data.errors) {
+                setErrors(error.response.data.errors);
             } else {
-                alert.error("An unexpected error occurred.");
+                console.error("Something went wrong:", error);
             }
         }
     };
@@ -125,17 +111,42 @@ export default function WorkerLeadView({ mode }) {
                             <div className="row">
                                 <div className="col-sm-6">
                                     <div className="form-group">
-                                        <label className="control-label">{t("admin.global.Name")}</label>
+                                        <label className="control-label">{t("worker.settings.f_name")} *</label>
                                         <input
                                             type="text"
-                                            value={formValues.name}
+                                            value={formValues.firstname}
                                             onChange={(e) => {
-                                                setFormValues({ ...formValues, name: e.target.value });
+                                                setFormValues({ ...formValues, firstname: e.target.value });
                                             }}
                                             className="form-control"
                                             readOnly={mode !== "edit" && mode !== "add"}
                                             placeholder={t("admin.global.Name")}
                                         />
+                                        {errors.firstname && (
+                                            <small className="text-danger mb-1">
+                                                {errors.firstname}
+                                            </small>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="col-sm-6">
+                                    <div className="form-group">
+                                        <label className="control-label">{t("worker.settings.l_name")} *</label>
+                                        <input
+                                            type="text"
+                                            value={formValues.lastname}
+                                            onChange={(e) => {
+                                                setFormValues({ ...formValues, lastname: e.target.value });
+                                            }}
+                                            className="form-control"
+                                            readOnly={mode !== "edit" && mode !== "add"}
+                                            placeholder={t("admin.global.Name")}
+                                        />
+                                        {errors.lastname && (
+                                            <small className="text-danger mb-1">
+                                                {errors.lastname}
+                                            </small>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="col-sm-6">
@@ -151,6 +162,11 @@ export default function WorkerLeadView({ mode }) {
                                             readOnly={mode !== "edit" && mode !== "add"}
                                             placeholder={t("admin.global.Email")}
                                         />
+                                        {errors.email && (
+                                            <small className="text-danger mb-1">
+                                                {errors.email}
+                                            </small>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="col-sm-6">
@@ -174,50 +190,13 @@ export default function WorkerLeadView({ mode }) {
                                             required={true} // Move required out of inputProps
                                             readOnly={mode !== "edit" && mode !== "add"} // Set readOnly directly
                                         />
-
+                                        {errors.phone && (
+                                            <small className="text-danger mb-1">
+                                                {errors.phone}
+                                            </small>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("admin.leads.ready_to_get_best_job")} *
-                                        </label>
-                                        <select
-                                            className="form-control"
-                                            value={formValues.ready_to_get_best_job}  // Handle boolean to string conversion
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    ready_to_get_best_job: e.target.value === "true" ? true : false,  // Ensure boolean conversion
-                                                });
-                                            }}
-                                        >
-                                            <option value="true">Yes</option>
-                                            <option value="false">No</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("admin.leads.ready_to_work_in_house_cleaning")}
-                                        </label>
-                                        <select
-                                            className="form-control"
-                                            value={formValues.ready_to_work_in_house_cleaning}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    ready_to_work_in_house_cleaning: e.target.value === "true" ? true : false,  // Ensure boolean conversion
-                                                });
-                                            }}
-                                        >
-                                            <option value="true">Yes</option>
-                                            <option value="false">No</option>
-                                        </select>
-                                    </div>
-                                </div>
-
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
@@ -241,22 +220,30 @@ export default function WorkerLeadView({ mode }) {
                                 <div className="col-sm-6">
                                     <div className="form-group">
                                         <label className="control-label">
-                                            {t("admin.leads.none_id_visa")} (ILS)
+                                            {t("nonIsrailContract.role")}
                                         </label>
                                         <select
                                             className="form-control"
-                                            value={formValues.none_id_visa}
-                                            onChange={(e) => {
+                                            value={formValues.role}
+                                            onChange={(e) =>
                                                 setFormValues({
                                                     ...formValues,
-                                                    none_id_visa: e.target.value,
-                                                });
-                                            }}
+                                                    role: e.target.value,
+                                                })
+                                            }
                                         >
-                                            <option value="none">None</option>
-                                            <option value="id">ID</option>
-                                            <option value="visa">Visa</option>
+                                            <option value="cleaner">
+                                                Cleaner
+                                            </option>
+                                            <option value="general_worker">
+                                                General worker
+                                            </option>
                                         </select>
+                                        {errors.role && (
+                                            <small className="text-danger mb-1">
+                                                {errors.role}
+                                            </small>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="col-sm-6">
@@ -276,47 +263,6 @@ export default function WorkerLeadView({ mode }) {
                                         >
                                             <option value="true">Yes</option>
                                             <option value="false">No</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("admin.leads.work_sunday_to_thursday_fit_schedule_8_10am_12_2pm")} *
-                                        </label>
-                                        <select
-                                            className="form-control"
-                                            value={formValues.work_sunday_to_thursday_fit_schedule_8_10am_12_2pm}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    work_sunday_to_thursday_fit_schedule_8_10am_12_2pm: e.target.value === "true" ? true : false,  // Ensure boolean conversion
-                                                });
-                                            }}
-                                        >
-                                            <option value="true">Yes</option>
-                                            <option value="false">No</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="col-sm-6">
-                                    <div className="form-group">
-                                        <label className="control-label">
-                                            {t("admin.leads.full_or_part_time")}
-                                        </label>
-
-                                        <select
-                                            className="form-control"
-                                            value={formValues.full_or_part_time}
-                                            onChange={(e) => {
-                                                setFormValues({
-                                                    ...formValues,
-                                                    full_or_part_time: e.target.value,
-                                                });
-                                            }}
-                                        >
-                                            <option value="full time">Full Time</option>
-                                            <option value="part time">Part Time</option>
                                         </select>
                                     </div>
                                 </div>
@@ -366,6 +312,11 @@ export default function WorkerLeadView({ mode }) {
                                                 </option>
                                             ))}
                                         </select>
+                                        {errors.status && (
+                                            <small className="text-danger mb-1">
+                                                {errors.status}
+                                            </small>
+                                        )}
                                     </div>
                                 </div>
                             </div>

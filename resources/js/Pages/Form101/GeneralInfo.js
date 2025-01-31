@@ -699,7 +699,7 @@ export default function GeneralInfo({
                                 </div>
                                 <div className="col-sm">
                                     {
-                                        !form_submitted_at && (
+                                        !dateOfBegin && (
                                             <>
                                                 <DateField
                                                     name="DateOfBeginningWork"
@@ -720,6 +720,7 @@ export default function GeneralInfo({
                                                     required
                                                 />
                                                 {activeBubble === 'DateOfBeginningWork' && (
+                                                    
                                                     <div className="d-flex justify-content-end">
                                                         <div className="speech up">
                                                             {t("form101.step1.validation.Start_Date_Of_Job")}

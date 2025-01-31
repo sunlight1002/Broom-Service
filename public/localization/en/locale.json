@@ -294,7 +294,15 @@
         "comments" : "Comments",
         "is_completed" : "Is Completed",
         "user_type" : "User Type",
-        "user_name" : "User Name"
+        "user_name" : "User Name",
+        "reschedule_time": "Reschedule Time",
+        "reschedule_date": "Reschedule Date",
+        "select_date": "Select Date",
+        "select_time": "Select Time",
+        "select_reschedule_date": "Select Reschedule Date",
+        "change_status": "Change Status",
+        "sub_status": "Sub Status",
+        "select_sub_status": "---Select Sub Status---"
     },
     "modal": {
         "title": "Modal",
@@ -1416,7 +1424,7 @@
             "save": "Save",
             "ready_to_get_best_job": "Ready to get best job",
             "ready_to_work_in_house_cleaning": "Ready to work in house cleaning",
-            "areas": "Areas aviv herzliya, ramat gan ,kiryat ono good",
+            "areas": "Experience in house cleaning",
             "none_id_visa": "None Id Visa",
             "you_have_valid_work_visa": "You have valid work Visa?",
             "work_sunday_to_thursday_fit_schedule_8_10am_12_2pm": "Work Sunday to Thursday fit schedule 8-10am or 12-2pm",

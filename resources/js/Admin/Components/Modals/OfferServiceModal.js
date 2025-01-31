@@ -222,29 +222,33 @@ export default function OfferServiceModal({
         );
     };
 
-    const handleAddressChange = (index, value) => {
+    const handleAddressChange = (index, value, defaultAddress = false) => {
         const selectedAddress = addresses.find(address => address.id === parseInt(value));
 
         setOfferServiceTmp((prevState) =>
             prevState.map((service, i) =>
-                i === index
+                defaultAddress
                     ? {
                         ...service,
                         address: value,
                         address_name: selectedAddress ? selectedAddress.address_name : "",
                     }
-                    : service
+                    : i === index
+                        ? {
+                            ...service,
+                            address: value,
+                            address_name: selectedAddress ? selectedAddress.address_name : "",
+                        }
+                        : service
             )
         );
     };
 
-    console.log(offerServiceTmp);
-    
 
     const handleAddService = () => {
         // const selectedAddress = addresses[0];
         // console.log("selectedAddress",selectedAddress);
-        
+
 
         setOfferServiceTmp((prevState) => [
             ...prevState,
@@ -369,7 +373,7 @@ export default function OfferServiceModal({
                                 className="form-control"
                                 name="address"
                                 value={offerServiceTmp[0]?.address || ""}
-                                onChange={(e) => handleAddressChange(0, e.target.value)}
+                                onChange={(e) => handleAddressChange(0, e.target.value, true)}
                             >
                                 <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
                                 {addresses.map((address, i) => (
@@ -452,7 +456,12 @@ export default function OfferServiceModal({
                                         <select
                                             name="frequency"
                                             className="form-control mb-2"
-                                            value={service.frequency || 0}
+                                            value={
+                                                service.frequency || 
+                                                (offerServiceTmp[index]?.template === "airbnb" 
+                                                    ? frequencies.find(f => f.name == "On demand" || f.name == "עַל לִדרוֹשׁ")?.id || 0 
+                                                    : 0)
+                                            }
                                             onChange={(e) => handleFrequencyChange(index, e)}
                                         >
                                             <option value={0}>{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
@@ -546,24 +555,28 @@ export default function OfferServiceModal({
                                     </div>
                                 </div>
 
-                                <div className="col-sm-6">
-                                    <div className="form-group m-0">
-                                        <label className="control-label">{t("client.jobs.change.property")}</label>
-                                        <select
-                                            className="form-control"
-                                            name="address"
-                                            value={offerServiceTmp[index]?.address || ""}
-                                            onChange={(e) => handleAddressChange(index, e.target.value)}
-                                        >
-                                            <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
-                                            {addresses.map((address, i) => (
-                                                <option value={address.id} key={i}>
-                                                    {address.address_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
+                                {
+                                    !toggleAirbnbService[index] && (
+                                        <div className="col-sm-6">
+                                            <div className="form-group m-0">
+                                                <label className="control-label">{t("client.jobs.change.property")}</label>
+                                                <select
+                                                    className="form-control"
+                                                    name="address"
+                                                    value={offerServiceTmp[index]?.address || ""}
+                                                    onChange={(e) => handleAddressChange(index, e.target.value)}
+                                                >
+                                                    <option value="">{t("admin.leads.AddLead.AddLeadClient.JobModal.pleaseSelect")}</option>
+                                                    {addresses.map((address, i) => (
+                                                        <option value={address.id} key={i}>
+                                                            {address.address_name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )
+                                }
 
                                 {
                                     (toggleAirbnbService[index] || service?.sub_services?.address) && (

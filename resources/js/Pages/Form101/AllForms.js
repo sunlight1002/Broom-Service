@@ -124,6 +124,9 @@ function AllForms() {
             .get(`/api/worker/${param.id}`)
             .then((res) => {
                 const { worker: workData, forms: formData } = res.data;
+                if (!page) {
+                    setNextStep(res.data.worker.step)
+                }
                 setIsManpower(workData.company_type == "manpower" ? true : false)
                 setWorker(workData);
                 setFormId(formData.form101Form.id)
@@ -136,8 +139,9 @@ function AllForms() {
             });
     };
 
+
     const getAllForm = async () => {
-        const res = await axios.get(`/api/getAllForms/${id}`);
+        const res = await axios.get(`/api/getAllForms/${id}/${type}`);
         if (res.data?.forms?.length > 0) {
             const _form101Forms = res.data?.forms?.filter((f) =>
                 f.type.includes("form101")
@@ -155,7 +159,9 @@ function AllForms() {
 
     useEffect(() => {
         getAllForm();
-        getWorker();
+        if (type != "lead") {
+            getWorker();
+        }
     }, []);
 
 
@@ -222,24 +228,22 @@ function AllForms() {
             employeeDob: yup.date().required(t("form101.errorMsg.dobReq")),
             employeeDateOfAliyah: yup.date().nullable(),
             employeeCity: yup.string()
-                .when("employeecountry", {
-                    is: "Israel",
-                    then: () =>
-                        yup
-                            .string()
-                            .required(t("form101.errorMsg.CityReq"))
-                            .matches(hebrewRegex, "The input must contain Hebrew characters only"),
-                    otherwise: yup.string().required(t("form101.errorMsg.CityReq")),
+                .test('is-city-required', t("form101.errorMsg.CityReq"), function (value) {
+                    const { employeecountry } = this.parent; // Get the country value from the parent schema
+                    if (employeecountry === "Israel") {
+                        return value && hebrewRegex.test(value);
+                    }
+                    return value != null; // If not Israel, just check if there's a value
                 }),
-            employeeStreet: yup.string().when("employeecountry", {
-                is: "Israel",
-                then: () =>
-                    yup
-                        .string()
-                        .required(t("form101.errorMsg.StreetReq"))
-                        .matches(hebrewRegex, "The input must contain Hebrew characters only"),
-                otherwise: yup.string().required(t("form101.errorMsg.StreetReq")),
-            }),
+
+            employeeStreet: yup.string()
+                .test('is-street-required', t("form101.errorMsg.StreetReq"), function (value) {
+                    const { employeecountry } = this.parent; // Get the country value from the parent schema
+                    if (employeecountry === "Israel") {
+                        return value && hebrewRegex.test(value);
+                    }
+                    return value != null; // If not Israel, just check if there's a value
+                }),
             employeeHouseNo: yup
                 .string()
                 .required(t("form101.errorMsg.HouseNoReq")),
@@ -285,18 +289,7 @@ function AllForms() {
                 .nullable(),
             DateOfBeginningWork: yup
                 .date()
-                .nullable()
-                .required(t("form101.errorMsg.dateOfBeginReq"))
-                .test(
-                    "is-future-date",
-                    t("form101.errorMsg.dateOfBeginReq"),
-                    function (value) {
-                        if (!form_submitted_at && value > new Date()) {
-                            return false;
-                        }
-                        return true;
-                    }
-                ),
+                .required(t("form101.errorMsg.dateOfBeginReq")),
         }),
 
         step2: yup.object({
@@ -1287,6 +1280,7 @@ function AllForms() {
                 formData.append("savingType", savingType);
                 formData.append("formId", formId);
                 formData.append("step", nextStep);
+                formData.append("type", type == "lead" ? "lead" : "worker");
 
                 axios
                     .post(`/api/form101/${id}`, formData, {
@@ -1315,8 +1309,63 @@ function AllForms() {
         validateOnMount: false,
     });
 
-    console.log(isSubmitted, "isSubmitted");
-    
+    const getWorkerLead = () => {
+        axios
+            .get(`/api/worker-lead-detail/${Base64.decode(param.id)}`)
+            .then((res) => {
+                const _worker = res.data;
+                setWorker(_worker);
+                if (res.status == 200) {
+                     setIsManpower(_worker.company_type == "manpower" ? true : false)
+
+                    if (!page) {
+                        setNextStep(_worker.step)
+                    }
+                    if (_worker?.firstName !== null) {
+                        setFieldValue("employeeFirstName", _worker.firstname);
+                    }
+                    if (_worker?.lastName !== null) {
+                        setFieldValue("employeeLastName", _worker.lastname);
+                    }
+                    if (_worker?.address !== null) {
+                        setFieldValue("employeeAddress", _worker.address);
+                    }
+                    if (_worker?.passport !== null) {
+                        setFieldValue("employeePassportNumber", _worker.passport);
+                    }
+                    if (_worker?.phone !== null) {
+                        setFieldValue("employeeMobileNo", _worker.phone);
+                    }
+                    if (_worker?.worker_id !== null) {
+                        setFieldValue("employeeIdNumber", _worker.id_number);
+                    }
+                    if (_worker?.country !== null) {
+                        // setFieldValue("employeeCountry", _worker.country);
+                        setFieldValue("employeecountry", _worker.country);
+                    }
+
+                    const workerGender = _worker.gender;
+                    const gender =
+                        workerGender.charAt(0).toUpperCase() +
+                        workerGender.slice(1);
+                    setFieldValue("employeeEmail", _worker.email);
+                    setFieldValue("sender.employeeEmail", _worker.email);
+                    setFieldValue("employeeSex", gender);
+                }
+            })
+            .catch((err) => {
+                if (err?.response?.data?.message) {
+                    alert.error(err.response.data.message);
+                }
+            });
+    };
+
+    useEffect(() => {
+        if (type == 'lead') {
+            getWorkerLead()
+        }
+    }, [])
+
 
     const handleSignatureEnd = () => {
         setFieldValue("signature", sigRef.current.toDataURL());
@@ -1345,7 +1394,7 @@ function AllForms() {
     };
 
     const getForm = () => {
-        axios.get(`/api/get101/${id}/${formId}`).then((res) => {
+        axios.get(`/api/get101/${id}/${formId}/${type}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
 
 
@@ -1372,6 +1421,8 @@ function AllForms() {
 
             } else if (res.data.worker) {
                 const _worker = res.data.worker;
+                console.log(_worker, "worker");
+                
 
                 if (!page) {
                     setNextStep(res.data.worker.step)
@@ -1422,8 +1473,8 @@ function AllForms() {
         if (!values.DateOfBeginningWork && dateOfBegin) {
             setFieldValue("DateOfBeginningWork", dateOfBegin);
         }
-    }, [values]);
-    
+    }, []);
+
 
     const handleSaveAsDraft = async () => {
         if (nextStep === 3) {
@@ -1484,9 +1535,6 @@ function AllForms() {
         handleDocSubmit(data);
     };
 
-    console.log(errors);
-
-
     return (
         <div className=" mt-4 mb-5 bg-transparent " style={{
             margin: mobileView ? "0 20px" : "0 120px"
@@ -1537,7 +1585,7 @@ function AllForms() {
             </div>
 
             <div className="targetDiv">
-                {nextStep === 0 && <ManpowerDetailForm setNextStep={setNextStep} values={values} nextStep={nextStep} />}
+                {nextStep === 0 && <ManpowerDetailForm setNextStep={setNextStep} values={values} nextStep={nextStep} type={type} />}
                 {
                     nextStep === 1 && !isManpower ? (
                         <>
@@ -1557,7 +1605,7 @@ function AllForms() {
                             />
                         </>
                     ) : (
-                        nextStep === 1 && <ManpowerSaftyForm setNextStep={setNextStep} nextStep={nextStep} />
+                        nextStep === 1 && <ManpowerSaftyForm setNextStep={setNextStep} nextStep={nextStep} type={type} />
                     )
                 }
 
@@ -1635,6 +1683,8 @@ function AllForms() {
                             handleBubbleToggle={handleBubbleToggle}
                             activeBubble={activeBubble}
                             isManpower={isManpower}
+                            type={type}
+
                         />
                     )
                 }
@@ -1814,6 +1864,7 @@ function AllForms() {
                         handleBubbleToggle={handleBubbleToggle}
                         activeBubble={activeBubble}
                         isManpower={isManpower}
+                        type={type}
                     />
                 )
             }
@@ -1823,6 +1874,7 @@ function AllForms() {
                     <WorkerContract nextStep={nextStep} setNextStep={setNextStep} worker={worker}
                         handleBubbleToggle={handleBubbleToggle}
                         activeBubble={activeBubble}
+                        type={type}
                     />
                 )
             }
@@ -1837,6 +1889,7 @@ function AllForms() {
                     <InsuranceForm nextStep={nextStep} setNextStep={setNextStep} worker={worker}
                         handleBubbleToggle={handleBubbleToggle}
                         activeBubble={activeBubble}
+                        type={type}
                     />
                 )
             }
