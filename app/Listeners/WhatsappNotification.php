@@ -39,7 +39,7 @@ class WhatsappNotification
 
     private function generateShortUrl($urlData, $type = null)
     {
-
+        
         if (empty($urlData)) {
             return null;  
         }
