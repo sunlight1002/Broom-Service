@@ -39,7 +39,7 @@ Route::any('/webhook_client_review', [LeadWebhookController::class, 'clientRevie
 Route::any('/webhook_active_workers', [WorkerLeadWebhookController::class, 'fbActiveWorkersWebhookCurrentLive'])->name('webhook_active_workers');
 Route::any('/webhook_worker_lead', [WorkerLeadWebhookController::class, 'fbWebhookCurrentLive'])->name('webhook_worker_lead');
 Route::any('/webhook_active_worker_monday', [WorkerLeadWebhookController::class, 'activeWorkersMonday'])->name('webhook_active_worker_monday');
-Route::any('/webhook_active_worker_wednesday', [WorkerLeadWebhookController::class, 'activeClientsWednesday'])->name('webhook_active_worker_monday');
+Route::any('/webhook_active_wednesday', [LeadWebhookController::class, 'activeClientsWednesday'])->name('webhook_active_wednesday');
 
 
 Route::any('/twilio/voice/webhook', [TwilioController::class, 'webhook']);

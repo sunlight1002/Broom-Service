@@ -9,6 +9,7 @@ use App\Http\Controllers\User\JobCommentController;
 use App\Http\Controllers\User\DocumentController;
 use App\Http\Controllers\TwimlController;
 use App\Http\Controllers\Api\LeadTwilioController;
+use App\Http\Controllers\Api\GoogleSheetController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\PayrollReportController;
@@ -71,6 +72,11 @@ Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('r
 Route::post('worker/{wid}/jobs/{jid}', [JobController::class, 'workerJob']);
 Route::post('guest/{wid}/jobs/{jid}/approve', [JobController::class, 'approveWorkerJob']);
 Route::get('teams/availability/{id}/date/{date}', [MeetingController::class, 'availabilityByDate']);
+
+Route::group(['middleware' => ['api_token']], function () {
+    Route::get('get-client-info', [GoogleSheetController::class, 'getClientInfo']);
+    Route::get('get-workers', [GoogleSheetController::class, 'getWorkers']);
+});
 
 // Authenticated Routes
 Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
@@ -145,7 +151,6 @@ Route::group(['middleware' => ['auth:api', 'scopes:user']], function () {
     Route::post('jobs/request-to-change', [ScheduleChangeController::class, 'requestToChange']);
     // Route::get('/schedule-changes', [ScheduleChangeController::class, 'getAllScheduleChanges']);
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
-
 });
 Route::post('document/save', [DocumentController::class, 'save']);
 
@@ -157,5 +162,3 @@ Route::post('/twilio/handle-language', [LeadTwilioController::class, 'handleLang
 Route::post('/twilio/handle-call-flow', [LeadTwilioController::class, 'handleCallFlow'])->name('twilio.handleCallFlow');
 Route::post('/twilio/handle-response', [LeadTwilioController::class, 'handleResponse'])->name('twilio.handleResponse');
 Route::post('/twilio/main-menu', [LeadTwilioController::class, 'handleResponse'])->name('twilio.mainMenu');
-
-
