@@ -22,6 +22,7 @@ use App\Models\ScheduleChange;
 use App\Events\SendClientLogin;
 use App\Models\WebhookResponse;
 use App\Traits\ScheduleMeeting;
+use App\Traits\GoogleAPI;
 use App\Jobs\SendMeetingMailJob;
 use App\Mail\Client\LoginOtpMail;
 use App\Models\WhatsappLastReply;
@@ -41,11 +42,16 @@ use App\Events\WhatsappNotificationEvent;
 use Illuminate\Support\Facades\Validator;
 use App\Enums\WhatsappMessageTemplateEnum;
 use App\Models\WhatsAppBotActiveClientState;
-
+use Exception;
 
 class LeadWebhookController extends Controller
 {
-    use ScheduleMeeting;
+    use ScheduleMeeting, GoogleAPI;
+
+    protected $spreadsheetId;
+    protected $googleAccessToken;
+    protected $googleRefreshToken;
+    protected $googleSheetEndpoint = 'https://sheets.googleapis.com/v4/spreadsheets/';
 
     protected $botMessages = [
         'main-menu' => [
@@ -1909,7 +1915,7 @@ If you would like to speak to a human representative, please send a message with
                     ]);
                     break;
                 case 'urgent_contact':
-                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                    $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
 
                     $nextMessage = $this->activeClientBotMessages['urgent_contact'][$lng];
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
@@ -1941,7 +1947,7 @@ If you would like to speak to a human representative, please send a message with
 
                     $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
                     $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                    $personalizedMessage = str_replace([':client_name', ':message', ':client_phone', ':client_link'], [$clientName, trim($input), $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
+                    $personalizedMessage = str_replace([':client_name', ':message', ':client_phone', ':client_link'], [$clientName, '*' . trim($input) . '*', $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
                     $scheduleChange = new ScheduleChange();
@@ -1974,11 +1980,157 @@ If you would like to speak to a human representative, please send a message with
                         ->whereBetween('start_date', [$nextWeekStart, $nextWeekEnd])
                         ->get();
 
-                    if ($currentWeekJobs && $currentWeekJobs->count() > 0) {
-                        foreach ($currentWeekJobs as $job) {
-                            Carbon::setLocale($lng == 'en' ? 'en' : 'he');
-                            $day = Carbon::parse($job->start_date)->translatedFormat('l'); // Use translatedFormat for localized day
-                            $dateTime .=  $day . ' - ' . $job->start_time . ' ' . $job->end_time . "," . "\n";
+
+                    $this->initGoogleConfig();
+                    $sheets = $this->getAllSheetNames();
+                    if (count($sheets) <= 0) {
+                        Log::info("No sheet found", ['sheets' => $sheets]);
+                    }
+                    $currentWeeks = [];
+                    $nextWeeks = [];
+                    $currentDate = null;
+                    $dates = [];
+                    $shifts = [];
+                    foreach ($sheets as $key => $sheet) {
+                        $data = $this->getGoogleSheetData($sheet);
+                        if (empty($data)) {
+                            Log::warning("Sheet $sheet is empty.");
+                            continue;
+                        }
+
+                        foreach ($data as $index => $row) {
+                            if ($index == 0) {
+                                continue;
+                            }
+                            if (!empty($row[3]) && (
+                                preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2}\.\d{1,2}/u', $row[3]) ||
+                                preg_match('/(?:יום\s*)?[א-ת]+\s*\d{1,2},\d{1,2}/u', $row[3])
+                                // preg_match('/(?:יום\s*)?[א-ת]+\s*\d{2}\d{2}/u', $row[3])
+                            )) {
+                                $currentDate = $this->convertDate($row[3], $sheet);
+                                $grouped[$currentDate] = [];
+                            }
+                            if ($currentDate !== null && !empty($row[1]) && !empty($row[5]) && $row[5] == 'TRUE') {
+                                $grouped[$currentDate][] = $row;
+                                $id = null;
+                                $email = null;
+                                if (strpos(trim($row[1]), '#') === 0) {
+                                    $id = substr(trim($row[1]), 1);
+                                } else if (filter_var(trim($row[1]), FILTER_VALIDATE_EMAIL)) {
+                                    $email = trim($row[1]);
+                                }
+
+                                if (($id || $email) && !empty($row[9])) {
+                                    $shifts[] = trim($row[9] ?? '');
+                                    if ($id == $client->id || (!empty($email) && $email == $client->email)) {
+                                        $currentDateObj = Carbon::parse($currentDate); // Current date
+                                        $nextWeekStart = Carbon::now()->next(Carbon::SUNDAY); // Next week's Sunday
+                                        $nextWeekEnd = $nextWeekStart->copy()->addDays(6); // Next week's Saturday
+                                        $shift = "";
+                                        $day = $currentDateObj->format('l');
+                                        if($client->lng == 'en') {
+                                            switch (trim($row[9])) {
+                                                case 'יום':
+                                                case 'בוקר':
+                                                case '7 בבוקר':
+                                                case 'בוקר 11':
+                                                case 'בוקר מוקדם':
+                                                case 'בוקר 6':
+                                                    $shift = "Morning";
+                                                    break;
+
+                                                case 'צהריים':
+                                                case 'צהריים 14':
+                                                    $shift = "Noon";
+                                                    break;
+
+                                                case 'אחהצ':
+                                                case 'אחה״צ':
+                                                case 'ערב':
+                                                case 'אחר״צ':
+                                                    $shift = "After noon";
+                                                    break;
+
+                                                default:
+                                                    $shift = $row[9];
+                                                    break;
+                                            }
+                                        } else {
+                                            switch (trim($row[9])) {
+                                                case 'יום':
+                                                case 'בוקר':
+                                                case '7 בבוקר':
+                                                case 'בוקר 11':
+                                                case 'בוקר מוקדם':
+                                                case 'בוקר 6':
+                                                    $shift = "בוקר";
+                                                    break;
+
+                                                case 'צהריים':
+                                                case 'צהריים 14':
+                                                    $shift = 'צהריים';
+                                                    break;
+
+                                                case 'אחהצ':
+                                                case 'אחה״צ':
+                                                case 'ערב':
+                                                case 'אחר״צ':
+                                                    $shift = "אחה״צ";
+                                                    break;
+
+
+                                                default:
+                                                    $shift = $row[9];
+                                                    break;
+                                            }
+                                            switch ($day) {
+                                                case 'Sunday':
+                                                    $day = "ראשון";
+                                                    break;
+                                                case 'Monday':
+                                                    $day = "שני";
+                                                    break;
+                                                case 'Tuesday':
+                                                    $day = "שלישי";
+                                                    break;
+                                                case 'Wednesday':
+                                                    $day = "רביעי";
+                                                    break;
+                                                case 'Thursday':
+                                                    $day = "חמישי";
+                                                    break;
+                                                case 'Friday':
+                                                    $day = "שישי";
+                                                    break;
+                                                case 'Saturday':
+                                                    $day = "שבת";
+                                                    break;
+                                            }
+
+                                        }
+                                        if ($currentDateObj->lessThan($nextWeekStart) && $currentDateObj->greaterThan(now())) {
+                                            $currentWeeks[] = [
+                                                "shift" => $shift,
+                                                "dayName" => $day,
+                                                "currentDate" => $currentDateObj->format('j.n.y')
+                                            ];
+                                        }
+                                        if ($currentDateObj->between($nextWeekStart, $nextWeekEnd)) {
+                                            $nextWeeks[] = [
+                                                "shift" => $shift,
+                                                "dayName" => $day,
+                                                "currentDate" => $currentDateObj->format('j.n.y')
+                                            ];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if ($currentWeeks && count($currentWeeks) > 0) {
+                        foreach ($currentWeeks as $job) {
+                            $dateTime .= $job['dayName'] . " " . $job['currentDate'] . " " . $job['shift'] . "," . "\n";
                         }
 
                         $nextMessage = $this->activeClientBotMessages['service_schedule'][$lng];
@@ -1994,11 +2146,10 @@ If you would like to speak to a human representative, please send a message with
                         ]);
 
                         $clientMessageStatus->delete();
-                    } else if ($nextWeekJobs && $nextWeekJobs->count() > 0) {
-                        foreach ($nextWeekJobs as $job) {
-                            Carbon::setLocale($lng == 'en' ? 'en' : 'he');
-                            $day = Carbon::parse($job->start_date)->translatedFormat('l'); // Use translatedFormat for localized day
-                            $dateTime .= $day . ' - ' . $job->start_time . ' ' . $job->end_time . "," . "\n";
+                    } else if ($nextWeeks && count($nextWeeks) > 0) {
+
+                        foreach ($nextWeeks as $job) {
+                            $dateTime .= $job['dayName'] . " " . $job['currentDate'] . " " . $job['shift'] . "," . "\n";
                         }
 
                         $nextMessage = $this->activeClientBotMessages['next_week_service_schedule'][$lng];
@@ -2067,7 +2218,7 @@ If you would like to speak to a human representative, please send a message with
                     break;
                 case 'thank_you_invoice_account':
                     $nextMessage = $this->activeClientBotMessages['thank_you_invoice_account'][$lng];
-                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                    $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
                     sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
@@ -2078,9 +2229,9 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
-
+                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
                     $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
-                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, $input, url("admin/clients/view/" . $client->id)], $nextMessage);
+                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, '*' . trim($input) . '*', url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
                         'status' => 1,
@@ -2132,7 +2283,7 @@ If you would like to speak to a human representative, please send a message with
 
                     $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
                     $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, $input, url("admin/clients/view/" . $client->id)], $nextMessage);
+                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, '*' . trim($input) . '*', url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                     WebhookResponse::create([
@@ -2410,7 +2561,7 @@ If you would like to speak to a human representative, please send a message with
         $initialMessage = $this->activeClientBotMessages['main_menu'][$lng];
 
         // Replace :client_name with the client's firstname and lastname
-        $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+        $clientName = $client->firstname ?? '' . ' ' . $client->lastname ?? '';
         $personalizedMessage = str_replace(':client_name', $clientName, $initialMessage);
         $result = sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
 
@@ -2525,8 +2676,8 @@ If you would like to speak to a human representative, please send a message with
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $message]);
 
                         $teammsg = "שלום צוות,\n\n:client_name שיתף את ההערה או הבקשה הבאה בנוגע לשירות האחרון שקיבל:\n':message'\n\nאנא בדקו וטפלו בנושא בהקדם. עדכנו את הלקוח כשהנושא טופל.";
-
-                        $teammsg = str_replace([':client_name', ':message'], [(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')), $scheduleChange->comments], $teammsg);
+                        $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                        $teammsg = str_replace([':client_name', ':message'], [$clientName, '*' . trim($scheduleChange->comments) . '*'], $teammsg);
 
                         sendTeamWhatsappMessage(config('services.whatsapp_groups.reviews_of_clients'), ['name' => '', 'message' => $teammsg]);
                         sleep(2);
@@ -2634,8 +2785,8 @@ If you would like to speak to a human representative, please send a message with
                                     "reason" => $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ',
                                 ]
                             );
-
-                            $teammsg = "שלום צוות, הלקוח" .($client->firstname ?? '') . " " . ($client->lastname ?? '') . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                            $teammsg = "שלום צוות, הלקוח" . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2712,8 +2863,8 @@ office@broomservice.co.il';
                             if ($scheduleChange) {
                                 $scheduleChange->comments = $messageBody;
                                 $scheduleChange->save();
-
-                                $teammsg = "שלום צוות, הלקוח" .($client->firstname ?? '') . " " . ($client->lastname ?? '') . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                                $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                                $teammsg = "שלום צוות, הלקוח" . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                                 sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2735,8 +2886,8 @@ office@broomservice.co.il';
                             $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
                             $scheduleChange->comments = $messageBody;
                             $scheduleChange->save();
-
-                            $teammsg = "שלום צוות, הלקוח" .($client->firstname ?? "") . " " . ($client->lastname ?? ""). "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                            $teammsg = "שלום צוות, הלקוח" .$clientName. "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2810,12 +2961,12 @@ office@broomservice.co.il';
                 }
                 $from = $message_data[0]['from'];
                 Log::info($from);
-
+                \Log::info('$msgStatus', [$from]);
                 $client = Client::where('phone', 'like', $from)->where('status', '2')->whereHas('lead_status', function($q) {
                     $q->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
                 })->first();
-
                 if($client){
+
                     $msgStatus = Cache::get('client_review' . $client->id);
                     $input = trim($data_returned['messages'][0]['text']['body'] ?? '');
                     if (!empty($msgStatus) && ($input == '7' || $input == '8')) {
@@ -2835,6 +2986,7 @@ office@broomservice.co.il';
                 if ($isWednesday && $client) {
 
                     $msgStatus = Cache::get('client_job_confirm_msg' . $client->id);
+                    \Log::info('$msgStatus', [$msgStatus]);
                     if(!empty($msgStatus)) {
                         $menu_option = explode('->', $msgStatus);
                         $messageBody = trim($data_returned['messages'][0]['text']['body'] ?? '');
@@ -2865,8 +3017,8 @@ office@broomservice.co.il';
                                     "reason" => $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ',
                                 ]
                             );
-
-                            $teammsg = "שלום צוות, הלקוח" .($client->firstname ?? '') . " " . ($client->lastname ?? '') . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                            $teammsg = "שלום צוות, הלקוח" .$clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2943,8 +3095,8 @@ office@broomservice.co.il';
                             if ($scheduleChange) {
                                 $scheduleChange->comments = $messageBody;
                                 $scheduleChange->save();
-
-                                $teammsg = "שלום צוות, הלקוח" .($client->firstname ?? '') . " " . ($client->lastname ?? '') . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                                $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                                $teammsg = "שלום צוות, הלקוח" . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody. '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                                 sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2964,8 +3116,8 @@ office@broomservice.co.il';
                             $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
                             $scheduleChange->comments = $messageBody;
                             $scheduleChange->save();
-
-                            $teammsg = "שלום צוות, הלקוח" .($client->firstname ?? "") . " " . ($client->lastname ?? ""). "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"".$messageBody."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                            $teammsg = "שלום צוות, הלקוח" .$clientName. "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' .$messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -3001,5 +3153,123 @@ office@broomservice.co.il';
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function initGoogleConfig()
+    {
+        // Retrieve the Google Sheet ID from settings
+        $this->spreadsheetId = Setting::query()
+            ->where('key', SettingKeyEnum::GOOGLE_SHEET_ID)
+            ->value('value');
+
+        $this->googleRefreshToken = Setting::query()
+            ->where('key', SettingKeyEnum::GOOGLE_REFRESH_TOKEN)
+            ->value('value');
+
+        if (!$this->googleRefreshToken) {
+            throw new Exception('Error: Google Refresh Token not found.');
+        }
+
+        // Refresh the access token
+        $googleClient = $this->getClient();
+        $googleClient->refreshToken($this->googleRefreshToken);
+        $response = $googleClient->fetchAccessTokenWithRefreshToken($this->googleRefreshToken);
+        $this->googleAccessToken = $response['access_token'];
+
+        // Save the new access token
+        Setting::updateOrCreate(
+            ['key' => SettingKeyEnum::GOOGLE_ACCESS_TOKEN],
+            ['value' => $this->googleAccessToken]
+        );
+
+        if (!$this->googleAccessToken) {
+            throw new Exception('Error: Google Access Token not found.');
+        }
+    }
+
+    public function getAllSheetNames()
+    {
+        // Google Sheets API endpoint to fetch spreadsheet metadata
+        $metadataUrl = $this->googleSheetEndpoint . $this->spreadsheetId;
+        try {
+            // Fetch metadata to get sheet names
+            $metadataResponse = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->googleAccessToken,
+                'Content-Type' => 'application/json',
+            ])->get($metadataUrl);
+            if ($metadataResponse->successful()) {
+                $metadata = $metadataResponse->json();
+                $sheets = $metadata['sheets'] ?? [];
+                return array_map(fn($sheet) => $sheet['properties']['title'], $sheets);
+            } else {
+                return [];
+            }
+        } catch (\Exception $e) {
+            Log::error('Error occurred during fetching Google sheet', [
+                'error' => $e->getMessage(),
+                'spreadsheetId' => $this->spreadsheetId,
+            ]);
+            throw $e;
+        }
+    }
+
+    public function getGoogleSheetData($sName = null)
+    {
+        try {
+            if (!$sName) {
+                return [];
+            }
+            $range = $sName . '!A:Z'; // Adjust range as needed
+            $url = $this->googleSheetEndpoint . $this->spreadsheetId . '/values/' . $range;
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->googleAccessToken,
+                'Content-Type' => 'application/json',
+            ])->get($url);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $rows = $data['values'] ?? [];
+                return $rows;
+            } else {
+                return [];
+            }
+        } catch (\Exception $e) {
+            Log::error('Error occurred during fetching Google sheet', [
+                'error' => $e->getMessage(),
+                'spreadsheetId' => $this->spreadsheetId,
+            ]);
+            throw $e;
+        }
+    }
+
+    public function convertDate($dateString, $sheet)
+    {
+        // Extract year from the sheet (assumes format: "Month Year" e.g., "ינואר 2025" or "דצמבר 2024")
+        preg_match('/\d{4}/', $sheet, $yearMatch);
+        $year = $yearMatch[0] ?? date('Y'); // Default to current year if no match
+
+        // Normalize different formats (convert ',' to '.')
+        $dateString = str_replace(',', '.', $dateString);
+
+        // Extract day and month
+        if (preg_match('/(\d{1,2})\.(\d{1,2})/', $dateString, $matches)) {
+            // Format: 12.01 → day = 12, month = 01
+            $day = sprintf('%02d', $matches[1]);
+            $month = sprintf('%02d', $matches[2]);
+        } elseif (preg_match('/(\d{2})(\d{2})/', $dateString, $matches)) {
+            // Format: 0401 → day = 04, month = 01
+            $day = sprintf('%02d', $matches[1]);
+            $month = sprintf('%02d', $matches[2]);
+        } elseif (preg_match('/(\d{1,2})\s*,\s*(\d{1,2})/', $dateString, $matches)) {
+            // Format: 3,1 → day = 3, month = 1
+            $day = sprintf('%02d', $matches[1]);
+            $month = sprintf('%02d', $matches[2]);
+        } else {
+            return false;
+        }
+
+        // Return formatted date
+        return "$year-$month-$day";
     }
 }
