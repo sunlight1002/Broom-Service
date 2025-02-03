@@ -1132,7 +1132,7 @@ class AuthController extends Controller
                 }
             }
 
-            $worker->safety_and_gear = $savingType === 'submit' ? 1 : 0;
+            $worker->saftey_and_gear = $savingType === 'submit' ? 1 : 0;
             // $worker->safety_and_gear_form = $savingType === 'submit' ? $file_name : null;
             $worker->save();
     
