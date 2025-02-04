@@ -11,6 +11,7 @@ import { CgInsights } from "react-icons/cg";
 
 import logo from "../../Assets/image/sample.svg";
 import { NavLink } from "react-router-dom";
+import { GiReceiveMoney } from "react-icons/gi";
 
 export default function Sidebar() {
     const location = useLocation();
@@ -262,6 +263,13 @@ export default function Sidebar() {
                         className="d-flex align-items-center"
                     >
                         <i className="fa-solid fa-hand font-20"></i>{t("admin.sidebar.pending_request")}
+                    </NavLink>
+                </li>
+                <li className="list-group-item">
+                    <NavLink to="/admin/expanses"
+                        className="d-flex align-items-center"
+                    >
+                        <GiReceiveMoney className="font-20 mr-2" /> {t("global.expenses")}
                     </NavLink>
                 </li>
                 <li className="list-group-item">

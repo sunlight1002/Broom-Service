@@ -306,7 +306,17 @@
         "wednesday_notification": "הודעת רביעי",
         "s_bot_notification": "הודעת Secretory-Bot",
         "all_notification": "כל ההתראות",
-        "expanses": "הוצאות"
+        "add_expenses": "הוסף הוצאות",
+        "expenses": "הוצאות",
+        "suppliers": "ספקים",
+        "doc_type": "סוג מסמך",
+        "upload": "העלה",
+        "supplier": "ספק",
+        "vat_id": "מזהה מע'מ",
+        "type": "סוג",
+        "doc_num": "מספר מסמך",
+        "sum": "סכום",
+        "file": "קובץ"
     },
     "modal": {
         "title": "מודל",

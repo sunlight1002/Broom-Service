@@ -305,7 +305,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                             }
                                         }
 
-                                        // $this->handleJob($offer, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, );
+                                        $this->handleJob($offer, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, );
                                     }
                                 } else {
                                     $offers = $client->offers;
@@ -914,17 +914,32 @@ class SyncGoogleSheetDataJob implements ShouldQueue
             if ($offer) {
                 \Log::info("Offer ID: " . $offer->id);
                 \Log::info("Client ID: " . $offer->client_id);
+                \Log::info("selectedOfferDataArr: ");
                 \Log::info($selectedOfferDataArr);
+                \Log::info("Services: ");
                 \Log::info($services);
+                \Log::info("Frequencies: ");
                 \Log::info($frequencies);
-                \Log::info($selectedAddress);
-                \Log::info($selectedFrequency);
-                \Log::info($selectedService);
+                // \Log::info("selectedAddress: ");
+                // \Log::info($selectedAddress);
+                // \Log::info("selectedFrequency: ");
+                // \Log::info($selectedFrequency);
+                // \Log::info("selectedService: ");
+                // \Log::info($selectedService);
+
+                $ServiceFrequency = ServiceSchedule::where('name', $frequencies[0])
+                ->orWhere('name_heb', $frequencies[0])
+                ->first();
 
                 $contract = Contract::with('offer')
                 ->where('offer_id', $offer->id)
-                ->latest();
-
+                // ->whereHas('offer', function ($query) use ($ServiceFrequency) {
+                //     $query->whereJsonContains('services->frequency', $ServiceFrequency->id); // Correct JSON path
+                // })
+                ->get(); // Fetch all matching results
+            
+            \Log::info($contract->offer->toArray()); // Convert to array before logging
+            
                 if (!$contract) {
                     return response()->json([
                         'message' => 'Contract not found'

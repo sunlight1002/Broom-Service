@@ -258,7 +258,7 @@ export default function Lead() {
         return () => {
             if ($.fn.DataTable.isDataTable(tableRef.current)) {
                 $(tableRef.current).DataTable().destroy(true); // Ensure proper cleanup
-                $(tableRef.current).off("click");
+                // $(tableRef.current).off("click");
                 $(tableRef.current).off("page.dt");
             }
         };

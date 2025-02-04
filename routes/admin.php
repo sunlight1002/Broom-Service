@@ -255,9 +255,11 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('delete-file', [ClientController::class, 'deletefile']);
     Route::post('client-notifications', [ClientController::class, 'handledNotifications']);
 
+    Route::resource('expenses', ExpanseController::class)->except('edit');
     Route::post('/expenses/store', [ExpanseController::class, 'expanseStore']);
     Route::get('/get-expense-types', [ExpanseController::class, 'getExpenseTypes']);
     Route::get('/get-expense-doctypes', [ExpanseController::class, 'getExpenseDoctypes']);
+    Route::get('/get-suplier-list', [ExpanseController::class, 'getSuplierList']);
 
     // Report
     Route::post('worker/hours/export', [JobController::class, 'exportTimeReport']);
