@@ -133,10 +133,8 @@ function ScheduleChange() {
                         className: "cursor-pointer text-center",
                         width: "20%",
                         render: function (data, type, row, meta) {
-                            const firstname = data.split(" ")[0];
-                            const lastname = data.split(" ")[1];
-                            return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}"><p 
-                                        data-tooltip-id="comment" 
+                            return `<div class="dt-user-name-btn cursor-pointer" data-id="${row.user_id}"><p
+                                        data-tooltip-id="comment"
                                         data-tooltip-html="${data}">
                                         ${data}
                                     </p></div>`;
@@ -148,10 +146,13 @@ function ScheduleChange() {
                         data: "reason",
                         className: "text-center",
                         render: function (data) {
-                            const first = data.indexOf(" ") === -1 ? data : data.split(" ")[0];
-                            return `<p 
-                                    class="badge" 
-                                    data-tooltip-id="comment" 
+                            let first = "";
+                            if(data) {
+                                first = data?.indexOf(" ") === -1 ? data : data?.split(" ")[0];
+                            }
+                            return `<p
+                                    class="badge"
+                                    data-tooltip-id="comment"
                                     data-tooltip-html="${data}">
                                     ${first}...
                                 </p>`;
@@ -163,10 +164,9 @@ function ScheduleChange() {
                         className: "text-center",
                         width: "35%",
                         render: function (data) {
-                            const first = data.indexOf(" ") === -1 ? data : data.split(" ")[0];
-                            return `<p 
-                                        class=" dt-comment-btn text-start" 
-                                        data-tooltip-id="comment" 
+                            return `<p
+                                        class=" dt-comment-btn text-start"
+                                        data-tooltip-id="comment"
                                         data-tooltip-html="${data}">
                                         ${data}
                                     </p>`;
@@ -202,9 +202,9 @@ function ScheduleChange() {
                         className: "text-center",
                         width: "5%",
                         render: function (data) {
-                            return `<p 
-                                        class="badge dt-date-btn" 
-                                        data-tooltip-id="comment" 
+                            return `<p
+                                        class="badge dt-date-btn"
+                                        data-tooltip-id="comment"
                                         data-tooltip-html="${moment(data).format("DD-MM-YYYY HH:mm")}">
                                         ${moment(data).format("DD-MM")}
                                     </p>`;
@@ -217,14 +217,14 @@ function ScheduleChange() {
                         width: "5%",
                         render: function (data, type, row, meta) {
                             return `
-                                <div class="action-dropdown dropdown"> 
-                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
-                                        <i class="fa fa-ellipsis-vertical"></i> 
-                                    </button> 
+                                <div class="action-dropdown dropdown">
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-ellipsis-vertical"></i>
+                                    </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                         <button type="button" class="dropdown-item dt-view-btn" data-id="${row.id}">${t("admin.leads.view")}</button>
-                                        
-                                    </div> 
+
+                                    </div>
                                 </div>`;
                         }
 
