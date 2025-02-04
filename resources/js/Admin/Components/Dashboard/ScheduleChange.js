@@ -86,7 +86,6 @@ function ScheduleChange() {
         }
         try {
             const response = await axios.post(`/api/admin/send-message-to-user/${userId}`, data, { headers });
-            console.log(response);
             setIsOpen(false)
             setAdminMessage({
                 ...adminMessage,

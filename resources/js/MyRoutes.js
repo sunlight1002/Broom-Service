@@ -183,7 +183,7 @@ import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
 // import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
-// import Expanses from "./Admin/Components/Dashboard/Expanses";
+import Expanses from "./Admin/Components/Dashboard/Expanses";
 import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
 import ManpowerSaftyForm from "./Pages/ManpowerSaftyForm";
 import ManpowerDetailForm from "./Pages/ManpowerDetailForm";
@@ -627,11 +627,11 @@ export default function MyRoutes() {
                                 path="schedule-requests"
                                 element={<ScheduleChange />}
                             />
-                            {/* <Route
+                            <Route
                                 exact
                                 path="expanses"
                                 element={<Expanses />}
-                            /> */}
+                            />
                              <Route
                                 exact
                                 path="add-schedule-requests"

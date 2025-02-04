@@ -311,7 +311,17 @@
         "wednesday_notification": "Wednesday Notification",
         "s_bot_notification": "Secretory-Bot Notification",
         "all_notification": "All Notifications",
-        "expanses": "Expanses"
+        "add_expenses": "Add Expenses",
+        "expenses": "Expenses",
+        "suppliers": "Suppliers",
+        "doc_type": "Document Type",
+        "upload": "Upload",
+        "supplier": "Supplier",
+        "vat_id": "VAT ID",
+        "type": "Type",
+        "doc_num": "Doc num",
+        "sum": "Sum",
+        "file": "File"
     },
     "modal": {
         "title": "Modal",
