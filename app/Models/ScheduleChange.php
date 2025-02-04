@@ -16,7 +16,8 @@ class ScheduleChange extends Model
         'reason',
         'comments',
         'user_id',
-        'status'
+        'status',
+        'team_response'
     ];
 
     /**

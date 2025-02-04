@@ -130,10 +130,16 @@ Please reply with the appropriate number.",
             }
         }
         foreach(array_unique($clientIds) as $clientId) {
-            $client = Client::find($clientId);
+
+            $client = Client::where('id', $clientId)
+                    ->where('review_notification', 0)
+                    ->where('disable_notification', 0)
+                    ->first();
+
             if($client) {
+
                 WhatsAppBotActiveClientState::where('client_id', $client->id)->delete();
-                $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
+                $clientName = "*".($client->firstname ?? '') . ' ' . ($client->lastname ?? '')."*";
                 $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);
                 sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
                 Cache::put('client_review' . $client->id, 'client_review', now()->addDay(1));

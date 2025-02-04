@@ -33,7 +33,13 @@ export default function WorkerLead() {
         Authorization: `Bearer ` + localStorage.getItem("admin-token"),
     };
 
-    const leaveStatuses = ["pending", "irrelevant", "rejected", "unanswered"];
+    const leaveStatuses = {
+        "pending": t("admin.leads.Pending"), 
+        "irrelevant": t("admin.leads.Irrelevant"), 
+        "rejected": t("admin.leads.Rejected"), 
+        "will-think": t("admin.leads.Will_think"), 
+        "unanswered": t("admin.leads.Unanswered")
+    };
     const statusArr = {
         "pending": "pending",
         "rejected": "rejected",
@@ -63,7 +69,7 @@ export default function WorkerLead() {
     const initializeDataTable = (initialPage = 0) => {
         // Ensure DataTable is initialized only if it hasn't been already
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
-           const table = $(tableRef.current).DataTable({
+            const table = $(tableRef.current).DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -290,13 +296,14 @@ export default function WorkerLead() {
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}
                             />
-                            {leaveStatuses.map((status, index) => (
+                            {Object.entries(leaveStatuses).map(([key, value]) => (
                                 <FilterButtons
-                                    text={status}
-                                    className="mr-1 px-3 ml-2"
-                                    key={index}
+                                    text={value}
+                                    name={key}
+                                    className="px-3 mr-1"
+                                    key={key}
                                     selectedFilter={filter}
-                                    setselectedFilter={setFilter}
+                                    setselectedFilter={(status) => setFilter(status)}
                                 />
                             ))}
                         </div>

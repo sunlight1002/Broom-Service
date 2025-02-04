@@ -183,6 +183,7 @@ import WorkerLeadView from "./Admin/Pages/Workers/WorkerLeadView";
 // import ChangeWorkerRequest from "./Client/Pages/Jobs/ChangeWorkerRequest";
 import { RequestToChangeScheduled } from "./Pages/RequestToChangeScheduled";
 import ScheduleChange from "./Admin/Components/Dashboard/ScheduleChange";
+import Expanses from "./Admin/Components/Dashboard/Expanses";
 import ScheduleRequestDetails from "./Pages/ScheduleRequestDetails";
 import ManpowerSaftyForm from "./Pages/ManpowerSaftyForm";
 import ManpowerDetailForm from "./Pages/ManpowerDetailForm";
@@ -194,6 +195,8 @@ import FacebookInsights from "./Admin/Components/Dashboard/FacebookInsights";
 import CustomMessage from "./Admin/Pages/Setting/CustomMessage";
 import AdminDocument from "./Admin/Components/Documents/AdminDocument";
 import ClientForgotPassword from "./Client/Auth/ClientForgotPassword";
+import AddScheduleRequest from "./Admin/Components/Dashboard/AddScheduleRequest";
+
 // const ManpowerSaftyForm = lazy(() => import('./Pages/ManpowerSaftyForm'));
 // const AllForms = lazy(() => import('./Pages/Form101/AllForms'))
 
@@ -623,6 +626,16 @@ export default function MyRoutes() {
                                 exact
                                 path="schedule-requests"
                                 element={<ScheduleChange />}
+                            />
+                            <Route
+                                exact
+                                path="expanses"
+                                element={<Expanses />}
+                            />
+                             <Route
+                                exact
+                                path="add-schedule-requests"
+                                element={<AddScheduleRequest />}
                             />
                             <Route
                                 exact

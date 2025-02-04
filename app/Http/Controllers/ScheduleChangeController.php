@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\ScheduleChange;
 use App\Models\Client;
 use App\Models\User;
+use App\Models\WhatsAppBotActiveClientState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\WhatsappMessageTemplateEnum;
+use Illuminate\Support\Facades\DB;
 
 class ScheduleChangeController extends Controller
 {
@@ -114,32 +116,61 @@ class ScheduleChangeController extends Controller
          ]);
      }
      
+     public function addScheduleRequest(Request $request)
+     {
+         $request->validate([
+             'client_ids' => 'array',
+             'client_ids.*' => 'exists:clients,id',
+             'worker_ids' => 'array',
+             'worker_ids.*' => 'exists:users,id',
+             'reason' => 'required|string',
+             'comment' => 'required|string',
+         ]);
      
+         $scheduleChanges = [];
      
+         DB::beginTransaction();
+         try {
+             if (!empty($request->client_ids)) {
+                 foreach ($request->client_ids as $clientId) {
+                     $scheduleChanges[] = [
+                         'user_type' => Client::class,
+                         'user_id' => $clientId,
+                         'reason' => $request->reason,
+                         'comments' => $request->comment,
+                         'status' => 'pending', // You can modify the default status
+                         'created_at' => now(),
+                         'updated_at' => now(),
+                     ];
+                 }
+             }
      
-  
+             if (!empty($request->worker_ids)) {
+                 foreach ($request->worker_ids as $workerId) {
+                     $scheduleChanges[] = [
+                         'user_type' => User::class,
+                         'user_id' => $workerId,
+                         'reason' => $request->reason,
+                         'comments' => $request->comment,
+                         'status' => 'pending',
+                         'created_at' => now(),
+                         'updated_at' => now(),
+                     ];
+                 }
+             }
      
-    //  public function getAllScheduleChanges(Request $request)
-    // {
-    //     $query = ScheduleChange::query();
-
-    //     if ($request->has('user_type')) {
-    //         $query->where('user_type', $request->user_type);
-    //     }
-
-    //     if ($request->has('user_id')) {
-    //         $query->where('user_id', $request->user_id);
-    //     }
-
-    //     $scheduleChanges = $query->paginate(10); // Paginate results
-
-    //     return response()->json([
-    //         'message' => 'Filtered schedule changes fetched successfully.',
-    //         'data' => $scheduleChanges
-    //     ], 200);
-    // }
-
-
+             // Bulk insert to optimize performance
+             if (!empty($scheduleChanges)) {
+                 ScheduleChange::insert($scheduleChanges);
+             }
+     
+             DB::commit();
+             return response()->json(['message' => 'Schedule change requests created successfully'], 201);
+         } catch (\Exception $e) {
+             DB::rollBack();
+             return response()->json(['error' => 'Failed to create schedule change requests', 'details' => $e->getMessage()], 500);
+         }
+     }
 
     public function requestToChange(Request $request)
     {
@@ -267,5 +298,103 @@ class ScheduleChangeController extends Controller
         ], 200);
     }
 
+    public function sendMessageToUser(Request $request, $id)
+    {
+        $request->validate([
+            'message' => 'required|string',
+            'reason' => 'required|string',
+        ]);
+    
+        $scheduleChange = ScheduleChange::with('user')
+            ->where('id', $id)
+            ->first();
+    
+        if (!$scheduleChange) {
+            return response()->json([
+                'message' => 'Schedule change not found',
+            ], 404);
+        }
+    
+        // Get existing team responses and decode them as an array
+        $existingResponses = $scheduleChange->team_response ? json_decode($scheduleChange->team_response, true) : [];
+    
+        // Ensure it's an array
+        if (!is_array($existingResponses)) {
+            $existingResponses = [];
+        }
+    
+        // Append new response
+        $newResponse = [
+            'reason' => $request->reason,
+            'message' => $request->message,
+            'timestamp' => now()->toDateTimeString(),
+        ];
+    
+        $existingResponses[] = $newResponse;
+    
+        // Update the team_response field with the new array
+        $scheduleChange->team_response = json_encode($existingResponses);
+        $scheduleChange->save();
+
+        $message = [
+            "en" => "Hello :client_name,
+Following your request regarding :team_reason, the team has reviewed it and provided the following response:
+':team_message'
+
+Do you want to add anything else to this request?
+    • If yes, reply with the number 1.
+    • If no, no further action is needed.
+Thank you for your cooperation.
+
+Best regards,
+The Broom Service Team 🌹",
+
+            "heb" => "שלום :client_name,
+בהמשך לבקשתך בנוגע ל**:team_reason**, הצוות שלנו בדק את הפנייה והשיב:
+':team_message'
+
+האם תרצה להוסיף משהו נוסף לבקשה זו?
+    • אם כן, השב עם הספרה 1.
+    • אם לא, אין צורך בפעולה נוספת.
+תודה על שיתוף הפעולה.
+
+בברכה,
+צוות ברום סרוויס 🌹"
+        ];
+        // \Log::info($scheduleChange);
+
+        $lng = $scheduleChange->user->lng;
+        \Log::info($lng);
+        $from = $scheduleChange->user->phone;
+        $team_reason = $request->reason;
+        $team_message = $request->message;
+        $clientName = "*" . ($scheduleChange->user->firstname ?? '') . ' ' . ($scheduleChange->user->lastname ?? '') . "*";
+
+        $nextMessage = $message[$lng];
+        $personalizedMessage = str_replace([':client_name', ':team_reason', ':team_message'], [$clientName, $team_reason, $team_message], $nextMessage);
+        \Log::info($personalizedMessage);
+        sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+        
+        $clientState = WhatsAppBotActiveClientState::where('from', $from)->first();
+        if ($clientState) {
+            $clientState->menu_option = 'not_recognized->team_send_message';
+            $clientState->lng = $lng;
+            $clientState->save();
+        }else{
+            WhatsAppBotActiveClientState::create([
+                'client_id' => $scheduleChange->user->id,
+                'from' => $from,
+                'lng' => $lng,
+                'menu_option' => 'not_recognized->team_send_message',
+            ]);
+        }
+    
+        return response()->json([
+            'message' => 'Response added successfully',
+            'team_response' => $existingResponses
+        ]);
+    }
+    
 
 }

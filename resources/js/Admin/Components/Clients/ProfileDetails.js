@@ -42,9 +42,37 @@ export default function ProfileDetails({
     const zip = client.zipcode;
     const passcode = client.passcode;
     const joined =
-        Moment(client.created_at).format("DD/MM/Y") +
-        " " +
+        Moment(client.created_at).format("DD/MM/Y")
+    " " +
         Moment(client.created_at).format("dddd");
+
+    const [notifications, setNotifications] = useState({
+        review_notification: client.review_notification ? true : false,
+        monday_notification: client.monday_notification ? true : false,
+        wednesday_notification: client.wednesday_notification ? true : false,
+        s_bot_notification: client.s_bot_notification ? true : false,
+        disable_notification: client.disable_notification ? true : false,
+    })
+
+
+
+    const handleNotification = async (event) => {
+        const data = {
+            id: client.id,
+            review_notification: notifications.review_notification,
+            monday_notification: notifications.monday_notification,
+            wednesday_notification: notifications.wednesday_notification,
+            s_bot_notification: notifications.s_bot_notification,
+            disable_notification: notifications.disable_notification,
+        }
+        const res = await axios.post("/api/admin/client-notifications", data, { headers })
+        console.log(res.data);
+
+    };
+    useEffect(() => {
+        handleNotification();
+    }, [notifications]);
+
 
     const param = useParams();
 
@@ -134,49 +162,49 @@ export default function ProfileDetails({
         <>
             <div className="client-view">
                 <div className="d-flex align-items-center justify-content-between"
-                style={{padding: "30px 0 10px"}}
+                    style={{ padding: "30px 0 10px" }}
                 >
                     <h1 className="navyblueColor w-100">
                         <span>#{client.id}</span>{" "}
                         {client.firstname + " " + client.lastname}
                     </h1>
-                        <div className="form-group w-100 mb-0 d-flex justify-content-end flex-wrap">
+                    <div className="form-group w-100 mb-0 d-flex justify-content-end flex-wrap">
                         <Link to={`/admin/schedule/view/${param.id}`}
-                            style={{borderRadius: "5px", padding: "10px"}}
+                            style={{ borderRadius: "5px", padding: "10px" }}
                             className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
-                            >
-                                <i className="fas fa-hand-point-right mr-2"></i>
+                        >
+                            <i className="fas fa-hand-point-right mr-2"></i>
 
-                                {scheduleStatus == "Not Sent" ||
-                                    scheduleStatus == "sent"
-                                    ?  t("admin.schedule.scheduleMetting")
-                                    : t("admin.schedule.reSchedule")}
-                            </Link>
-                            <Link to={`/admin/offers/create?c=${param.id}`}
-                            style={{borderRadius: "5px", padding: "10px"}}
+                            {scheduleStatus == "Not Sent" ||
+                                scheduleStatus == "sent"
+                                ? t("admin.schedule.scheduleMetting")
+                                : t("admin.schedule.reSchedule")}
+                        </Link>
+                        <Link to={`/admin/offers/create?c=${param.id}`}
+                            style={{ borderRadius: "5px", padding: "10px" }}
                             className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
-                            >
-                                <i className="fas fa-hand-point-right mr-2"></i>
-                                {offerStatus == "Not Sent" ||
-                                    offerStatus == "sent"
-                                    ? t("admin.schedule.sendOffer")
-                                    : ("Re-" + t("admin.schedule.sendOffer"))}
-                            </Link>
-                            <Link
-                                to={`/admin/create-client-job/${param.id}`}
-                                id="bookBtn"
-                                style={{ display: "none" , borderRadius: "5px", padding: "10px"}}
-                                className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
-                                >
-                                <i className="fas fa-hand-point-right mr-2"></i>{t("admin.schedule.bookClient")}
-                            </Link>
-                                <Link
-                                    className="btn navyblue no-hover mt-2 "
-                                    to={`/admin/clients/${param.id}/edit`}
-                                >
-                                    {t("admin.global.Edit")}
-                                </Link>
-                        </div>
+                        >
+                            <i className="fas fa-hand-point-right mr-2"></i>
+                            {offerStatus == "Not Sent" ||
+                                offerStatus == "sent"
+                                ? t("admin.schedule.sendOffer")
+                                : ("Re-" + t("admin.schedule.sendOffer"))}
+                        </Link>
+                        <Link
+                            to={`/admin/create-client-job/${param.id}`}
+                            id="bookBtn"
+                            style={{ display: "none", borderRadius: "5px", padding: "10px" }}
+                            className="navyblue no-hover pl-2 pr-2 mr-2 mt-2 align-content-center"
+                        >
+                            <i className="fas fa-hand-point-right mr-2"></i>{t("admin.schedule.bookClient")}
+                        </Link>
+                        <Link
+                            className="btn navyblue no-hover mt-2 "
+                            to={`/admin/clients/${param.id}/edit`}
+                        >
+                            {t("admin.global.Edit")}
+                        </Link>
+                    </div>
                 </div>
                 <div className="row d-inline">
                     <div className="">
@@ -203,7 +231,7 @@ export default function ProfileDetails({
                                         aria-selected="false"
                                         role="tab"
                                     >
-                                         {t("admin.client.notes")}
+                                        {t("admin.client.notes")}
                                     </a>
                                 </li>
                                 <li className="nav-item" role="presentation">
@@ -367,8 +395,98 @@ export default function ProfileDetails({
                                                     <p>{cstatus}</p>
                                                 )}
                                             </div>
-                                        </div>
 
+                                        </div>
+                                    </div>
+                                    <label className="control-label navyblueColor mt-2" >
+                                        <b>{t("global.disable_notification")}:</b>
+                                    </label>
+                                    <div className="row">
+                                        <div className="col-sm">
+                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                <label htmlFor="review_notification" className="control-label navyblueColor" >
+                                                    {t("global.review_notification")}
+                                                </label>
+                                                <input
+                                                    type="checkbox"
+                                                    id="review_notification"
+                                                    className="mx-2"
+                                                    checked={notifications.review_notification}
+                                                    onChange={(e) => setNotifications({
+                                                        ...notifications,
+                                                        review_notification: e.target.checked
+                                                    })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-sm">
+                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                <label htmlFor="monday_notification" className="control-label navyblueColor" >
+                                                    {t("global.monday_notification")}
+                                                </label>
+                                                <input
+                                                    type="checkbox"
+                                                    id="monday_notification"
+                                                    className="mx-2"
+                                                    checked={notifications.monday_notification}
+                                                    onChange={(e) => setNotifications({
+                                                        ...notifications,
+                                                        monday_notification: e.target.checked
+                                                    })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-sm">
+                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                <label htmlFor="wednesday_notification" className="control-label navyblueColor" >
+                                                    {t("global.wednesday_notification")}
+                                                </label>
+                                                <input
+                                                    type="checkbox"
+                                                    id="wednesday_notification"
+                                                    className="mx-2"
+                                                    checked={notifications.wednesday_notification}
+                                                    onChange={(e) => setNotifications({
+                                                        ...notifications,
+                                                        wednesday_notification: e.target.checked
+                                                    })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-sm">
+                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                <label htmlFor="s_bot_notification" className="control-label navyblueColor" >
+                                                    {t("global.s_bot_notification")}
+                                                </label>
+                                                <input
+                                                    type="checkbox"
+                                                    id="s_bot_notification"
+                                                    className="mx-2"
+                                                    checked={notifications.s_bot_notification}
+                                                    onChange={(e) => setNotifications({
+                                                        ...notifications,
+                                                        s_bot_notification: e.target.checked
+                                                    })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-sm">
+                                            <div className="form-group mb-0 navyblueColor d-flex align-items-center">
+                                                <label htmlFor="all_notification" className="control-label navyblueColor" >
+                                                    {t("global.all_notification")}
+                                                </label>
+                                                <input
+                                                    type="checkbox"
+                                                    id="all_notification"
+                                                    className="mx-2"
+                                                    checked={notifications.disable_notification}
+                                                    onChange={(e) => setNotifications({
+                                                        ...notifications,
+                                                        disable_notification: e.target.checked
+                                                    })}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -428,7 +546,7 @@ export default function ProfileDetails({
                                     <div className="col-sm-12">
                                         <div className="form-group">
                                             <label className="control-label">
-                                            {t("admin.client.Enter_password")}
+                                                {t("admin.client.Enter_password")}
                                             </label>
                                             <input
                                                 type="password"

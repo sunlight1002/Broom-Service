@@ -72,19 +72,13 @@ export default function PriceOffer() {
                 }
             }
             let _services = JSON.parse(data.services);
-            console.log(_services);
-
 
             setServices(_services);
             const airbnbServices = _services.find(service => service.template === "airbnb");
-            // console.log(airbnbServices);
-
 
             const airbnbSubServiceIds = _services
                 .map(service => service.sub_services?.id) // Map to sub_services IDs
                 .filter(id => id); // Filter out undefined or null IDs
-            console.log(airbnbSubServiceIds);
-
             // Set the AirBnb state with all the IDs
             if (airbnbServices) {
                 setAirbnb({
@@ -132,17 +126,14 @@ export default function PriceOffer() {
             const res = await axios.get(`/api/get-sub-services/${id}`);
 
             const allSubServices = res.data?.subServices || [];
-            console.log(allSubServices, "allSubServices");
 
             // Ensure subServiceIds is an array and convert to string for comparison
             const subServiceIds = airbnb?.subServiceIds || [];
-            console.log(subServiceIds, "subServiceIds");
 
             // Filter sub-services where the id matches any in subServiceIds array
             const filteredSubServices = allSubServices.filter(sub =>
                 subServiceIds.includes(sub.id.toString())
             );
-            console.log(filteredSubServices, "filteredSubServices");
 
 
             setSubService(filteredSubServices);
@@ -871,7 +862,6 @@ export default function PriceOffer() {
                                             const subServiceName = clientLng === 'heb'
                                                 ? s.sub_services?.subServices?.name_heb
                                                 : s.sub_services?.subServices?.name_en;
-                                            console.log('jdfbjbsfjb', s);
                                             return (
                                                 <tr key={i}>
                                                     {
@@ -951,7 +941,20 @@ export default function PriceOffer() {
                                     </tbody>
                                 </table>
                             </div>
+                            <div className="row">
+                                <div className="col-12">
+                                    <ul>
+                                        <li>
+                                            {t("global.comment")}: {services[0]?.comments}
+                                        </li>
+                                    </ul>
+                                    {/* <p className="mt-4">
+                                        {t("global.comment")}: {services[0]?.comments}
+                                    </p> */}
+                                </div>
+                            </div>
                         </div>
+
                         <h4 className="mt-4">
                             <a
                                 href="https://www.broomservice.co.il"

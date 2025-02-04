@@ -48,13 +48,14 @@ class ReminderNextWeekServices extends Command
         // Get the start and end dates for the following week
         $startOfNextWeek = Carbon::now()->startOfWeek()->addWeek()->format('Y-m-d');
         $endOfNextWeek = Carbon::now()->endOfWeek()->addWeek()->format('Y-m-d');
-        // \Log::info("Next week's dates: {$startOfNextWeek} to {$endOfNextWeek}");
+        \Log::info("Next week's dates: {$startOfNextWeek} to {$endOfNextWeek}");
 
         // Fetch all Jobs with their related JobService for services happening next week
         $jobs = Job::with(['jobservice', 'propertyAddress'])
-            ->whereHas('jobservice', function($query) use ($startOfNextWeek, $endOfNextWeek) {
-                $query->whereBetween('created_at', [$startOfNextWeek, $endOfNextWeek]);
-            })
+                    ->whereBetween('start_date', [$startOfNextWeek, $endOfNextWeek])
+            // ->whereHas('jobservice', function($query) use ($startOfNextWeek, $endOfNextWeek) {
+            //     $query->whereBetween('created_at', [$startOfNextWeek, $endOfNextWeek]);
+            // })
             ->get();
 
         foreach ($jobs as $job) {
@@ -65,6 +66,11 @@ class ReminderNextWeekServices extends Command
 
             if ($jobService && $job->client) {
                 $client = $job->client;
+
+                if($client->wednesday_notification == 1 || $client->disable_notification == 1){
+                    \Log::info("Client {$client->id} has already been notified");
+                    continue;
+                }
 
                 $response = event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::WEEKLY_CLIENT_SCHEDULED_NOTIFICATION,

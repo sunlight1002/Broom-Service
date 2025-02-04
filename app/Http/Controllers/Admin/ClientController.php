@@ -171,6 +171,38 @@ class ClientController extends Controller
         ]);
     }
 
+    public function AllActiveClients()
+    {
+        $clients = Client::where('status', 2)
+        ->whereHas('lead_status', function ($query) {
+            $query->where('lead_status', LeadStatusEnum::ACTIVE_CLIENT);
+        })
+        ->get();
+
+        if (!empty($clients)) {
+            foreach ($clients as $i => $res) {
+                if ($res->lastname == null) {
+                    $clients[$i]->lastname = '';
+                }
+            }
+        }
+
+        return response()->json([
+            'clients' => $clients,
+        ]);
+    }
+
+    public function handledNotifications(Request $request){
+        $client = Client::find($request->id);
+        $client->disable_notification = $request->disable_notification;
+        $client->review_notification = $request->review_notification;
+        $client->monday_notification = $request->monday_notification;
+        $client->wednesday_notification = $request->wednesday_notification;
+        $client->s_bot_notification = $request->s_bot_notification;
+        $client->save();
+        return response()->json(['message' => 'Success']);
+    }
+
     public function latestClients()
     {
         $clients = Client::latest()->paginate(5);

@@ -29,6 +29,12 @@ function ScheduleChange() {
     const tableRef = useRef(null);
     const filterRef = useRef(filter);
     const typeRef = useRef(type);
+    const [schedule, setSchedule] = useState([])
+    const [adminMessage, setAdminMessage] = useState({
+        reason: "",
+        message: ""
+    })
+
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -47,16 +53,45 @@ function ScheduleChange() {
     const toggleChangeStatusModal = (_id) => {
         setIsOpen(!isOpen)
         setUserId(_id)
+        getRequest(_id)
     }
 
 
-    const handleChangeStatus = async (userId,e) => {
+    const handleChangeStatus = async (userId, e) => {
         setLoading(true)
         try {
             const response = await axios.put(`/api/admin/schedule-changes/${userId}`, { status: e ? "completed" : "pending" }, { headers });
             setLoading(false)
             setIsOpen(false)
             $(tableRef.current).DataTable().ajax.reload();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const getRequest = async (id) => {
+        const response = await axios.get(`/api/admin/schedule-change/${id}`, { headers })
+        setSchedule(response.data?.scheduleChange);
+        setAdminMessage({
+            ...adminMessage,
+            reason: response.data?.scheduleChange?.reason,
+        })
+    };
+
+    const handleSendMessage = async () => {
+        const data = {
+            user_id: userId,
+            message: adminMessage.message,
+            reason: adminMessage.reason,
+        }
+        try {
+            const response = await axios.post(`/api/admin/send-message-to-user/${userId}`, data, { headers });
+            console.log(response);
+            setIsOpen(false)
+            setAdminMessage({
+                ...adminMessage,
+                message: "",
+            })
         } catch (error) {
             console.error(error);
         }
@@ -80,8 +115,8 @@ function ScheduleChange() {
                 },
                 order: [[0, "desc"]],
                 columns: [
-                    { 
-                        title: t("global.Type"), 
+                    {
+                        title: t("global.Type"),
                         data: "user_type",
                         className: "text-center",
                         render: function (data) {
@@ -90,13 +125,13 @@ function ScheduleChange() {
                             } else if (data === "Worker") {
                                 return `<span class="">W</span>`;
                             }
-                        }, 
+                        },
                     },
-                    { 
-                        title: t("global.name"), 
-                        data: "user_fullname" ,
+                    {
+                        title: t("global.name"),
+                        data: "user_fullname",
                         className: "cursor-pointer text-center",
-                        width: "20%",   
+                        width: "20%",
                         render: function (data, type, row, meta) {
                             const firstname = data.split(" ")[0];
                             const lastname = data.split(" ")[1];
@@ -106,11 +141,11 @@ function ScheduleChange() {
                                         ${data}
                                     </p></div>`;
                         },
-                        
+
                     },
-                    { 
-                        title: t("global.reason"), 
-                        data: "reason" ,
+                    {
+                        title: t("global.reason"),
+                        data: "reason",
                         className: "text-center",
                         render: function (data) {
                             const first = data.indexOf(" ") === -1 ? data : data.split(" ")[0];
@@ -120,10 +155,10 @@ function ScheduleChange() {
                                     data-tooltip-html="${data}">
                                     ${first}...
                                 </p>`;
-                        }, 
+                        },
                     },
-                    { 
-                        title: t("global.comments"), 
+                    {
+                        title: t("global.comments"),
                         data: "comments",
                         className: "text-center",
                         width: "35%",
@@ -136,7 +171,19 @@ function ScheduleChange() {
                                         ${data}
                                     </p>`;
                         },
-                        
+
+                    },
+                    {
+                        title: "Send Notification",
+                        data: null,
+                        className: "text-center",
+                        render: function (data, type, row, meta) {
+                            if(row.user_type == "Client"){
+                                return `<div class="d-flex justify-content-center dt-date-wabtn" data-id="${row.id}"><button type="button" class="rounded" style="border: 1px solid #ebebeb; overflow: hidden; "><i class="fa-brands fa-whatsapp font-20"></i></button></div>`;
+                            }else{
+                                return "";
+                            }
+                        },
                     },
                     {
                         title: t("global.is_completed"),
@@ -144,7 +191,7 @@ function ScheduleChange() {
                         className: "text-center",
                         width: "10%",
                         render: function (data, type, row, meta) {
-                            return `<div class="d-flex justify-content-center"><span class="rounded" style="border: 1px solid #ebebeb; overflow: hidden; "> <input type="checkbox" data-id="${row.id
+                            return `<div class="d-flex justify-content-center "><span class="rounded" style="border: 1px solid #ebebeb; overflow: hidden; "> <input type="checkbox" data-id="${row.id
                                 }" class="form-control dt-if-completed-checkbox" style="cursor: pointer; margin: 5px 5px;" ${row.status == "completed" ? "checked" : ""
                                 }/> </span></div> `;
                         },
@@ -224,15 +271,15 @@ function ScheduleChange() {
 
         $(tableRef.current).on("click", ".dt-user-name-btn", function (e) {
             console.log("Button clicked!");
-        
+
             const _id = $(this).data("id");
             console.log("ID:", _id);
-        
+
             if (_id) {
                 navigate(`/admin/clients/view/${_id}`);
             }
         });
-        
+
 
         // Event listener for pagination
         $(tableRef.current).on("page.dt", function () {
@@ -250,6 +297,11 @@ function ScheduleChange() {
         $(tableRef.current).on("click", ".dt-view-btn", function () {
             const _id = $(this).data("id");
             navigate(`/admin/schedule-requests/${_id}`);
+        });
+
+        $(tableRef.current).on("click", ".dt-date-wabtn", function () {
+            const _id = $(this).data("id");
+            toggleChangeStatusModal(_id);
         });
 
         $(tableRef.current).on(
@@ -302,6 +354,13 @@ function ScheduleChange() {
                         <div className="">
                             <h1 className="page-title">{t("admin.sidebar.pending_request")}</h1>
                         </div>
+                        <Link
+                            to="/admin/add-schedule-requests"
+                            className="btn navyblue align-content-center addButton no-hover"
+                        >
+                            <i className="btn-icon fas fa-plus-circle"></i>
+                            {t("admin.client.AddNew")}
+                        </Link>
                     </div>
                 </div>
                 <div className="dashBox pt-4 pb-4" style={{ backgroundColor: "inherit", border: "none" }}>
@@ -362,27 +421,40 @@ function ScheduleChange() {
                 backdrop="static"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Change status</Modal.Title>
+                    <Modal.Title>Send Message</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
                     <div className="row">
                         <div className="col-sm-12">
                             <div className="form-group">
-                                <label className="control-label">Status</label>
-
-                                <select
-                                    name="status"
-                                    onChange={(e) => setStatus(e.target.value)}
-                                    value={status}
-                                    className="form-control mb-3"
-                                >
-                                    {Object.keys(statusArr).map((s) => (
-                                        <option key={s} value={s}>
-                                            {statusArr[s]}
-                                        </option>
-                                    ))}
-                                </select>
+                                <label className="control-label">Reason</label>
+                                <input
+                                    name="reason"
+                                    type="text"
+                                    defaultValue={schedule.reason}
+                                    value={adminMessage.reason || ""}
+                                    onChange={(e) => setAdminMessage({
+                                        ...adminMessage,
+                                        reason: e.target.value
+                                    })}
+                                    className="form-control"
+                                />
+                            </div>
+                        </div>
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">Comment</label>
+                                <textarea
+                                    type="text"
+                                    name="other_title"
+                                    className="form-control"
+                                    value={adminMessage.message || ""}
+                                    onChange={(e) => setAdminMessage({
+                                        ...adminMessage,
+                                        message: e.target.value
+                                    })}
+                                />
                             </div>
                         </div>
                     </div>
@@ -394,19 +466,19 @@ function ScheduleChange() {
                         className="btn btn-secondary"
                         onClick={() => setIsOpen(false)}
                     >
-                        Close
+                        {t("modal.close")}
                     </Button>
                     <Button
                         type="button"
-                        onClick={handleChangeStatus}
+                        onClick={handleSendMessage}
                         className="btn btn-primary"
                     >
-                        Save
+                        {t("global.send")}
                     </Button>
                 </Modal.Footer>
             </Modal>
             <Tooltip id="comment" place="top" type="dark" effect="solid" style={{ zIndex: "99999" }} />
-          </div>
+        </div>
     )
 }
 

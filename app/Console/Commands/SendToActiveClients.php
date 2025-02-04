@@ -112,7 +112,10 @@ office@broomservice.co.il',
             //     continue;
             // }
 
-            \Log::info('Sending message to ' . $client->phone . ' (' . $client->firstname . ')');
+            if($client->monday_notification == 1 || $client->disable_notification == 1){
+                \Log::info('monday notification already sent: ' . $client->id);
+                continue;
+            }
 
             // $result = sendClientWhatsappMessage($client->phone, array('name' => '', 'message' => $message[$client->lng]));
 

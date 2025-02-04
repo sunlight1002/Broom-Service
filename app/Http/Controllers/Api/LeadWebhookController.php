@@ -1765,8 +1765,9 @@ If you would like to speak to a human representative, please send a message with
                     die('Monday msg reply is pending.');
                 }
             }
-
+            \Log::info($from.' '.$input);
             $clientMessageStatus = WhatsAppBotActiveClientState::where('from', $from)->first();
+            \Log::info($clientMessageStatus);
 
             $last_menu = null;
             $send_menu = null;
@@ -1775,6 +1776,8 @@ If you would like to speak to a human representative, please send a message with
                 $menu_option = explode('->', $clientMessageStatus->menu_option);
                 $last_menu = end($menu_option);
             }
+
+            \Log::info($last_menu);
 
             WebhookResponse::create([
                 'status' => 1,
@@ -1822,6 +1825,10 @@ If you would like to speak to a human representative, please send a message with
                 $send_menu = 'thank_you_invoice_account';
             } else if ($last_menu == 'change_update_schedule' && !empty($input)) {
                 $send_menu = 'thank_you_change_update_schedule';
+            } else if ($last_menu == 'team_send_message' && $input == '1') {
+                $send_menu = 'team_send_message_1';
+            } else if ($last_menu == 'team_send_message_1' && !empty($input)) {
+                $send_menu = 'client_add_request';
             } else if ($last_menu == 'enter_phone' && !empty($input)) {
                 $phone = $input;
 
@@ -2472,6 +2479,66 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
+                    break;
+
+                case 'team_send_message_1':
+                    \Log::info('team_send_message_1');
+                    $text = [
+                        "en" => "Hello :client_name,
+Please let us know what additional information or request you would like to add.",
+                        "heb" => "שלום :client_name,
+אנא עדכן אותנו מה ברצונך להוסיף או לבקש."
+                    ];
+
+                    $nextMessage = $text[$lng];
+                    $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
+                    $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
+                    WhatsAppBotActiveClientState::updateOrCreate(
+                        ["from" => $from],
+                        [
+                            "from" => $from,
+                            'menu_option' => 'team_send_message_1'
+                        ]
+                    );
+
+                    WebhookResponse::create([
+                        'status' => 1,
+                        'name' => 'whatsapp',
+                        'message' => $nextMessage,
+                        'number' => $from,
+                        'read' => 1,
+                        'flex' => 'A',
+                    ]);
+                    break;
+
+                case "client_add_request":
+
+                    $text = [
+                        "en" => "Hello :client_name,
+We’ve received your updated request:
+':client_message'
+Your message has been forwarded to the team for further handling. Thank you for your patience!",
+                        "heb" => "שלום :client_name,
+קיבלנו את עדכון הבקשה שלך:
+':client_message'
+ההודעה הועברה לצוות להמשך טיפול. תודה על הסבלנות!"
+                    ];
+
+                    $nextMessage = $text[$lng];
+                    $clientName = "*" . ($client->firstname ?? '') . ' ' . ($client->lastname ?? '') . "*";
+                    $personalizedMessage = str_replace([':client_name', ':client_message'], [$clientName, '*' . trim($input) . '*'], $nextMessage);
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+                    
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "additional information" : 'מידע נוסף';
+                    $scheduleChange->comments = $input;
+                    $scheduleChange->save();
+                    $clientMessageStatus->delete();
+                    
                     break;
 
                 case 'stop':
