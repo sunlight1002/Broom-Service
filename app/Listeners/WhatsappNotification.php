@@ -738,7 +738,7 @@ class WhatsappNotification
 
                 if($receiverNumber == config('services.whatsapp_groups.relevant_with_workers')){
                     $token = $this->whapiWorkerApiToken;
-                }else if($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE){
+                }else if($eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE || $eventType == WhatsappMessageTemplateEnum::NOTIFY_MONDAY_WORKER_FOR_SCHEDULE){
                     \Log::info('NOTIFY_MONDAY_CLIENT_FOR_SCHEDULE');
                     $token = $this->whapiClientApiToken;
                 }else{
