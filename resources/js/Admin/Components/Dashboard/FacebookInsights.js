@@ -37,8 +37,6 @@ function FacebookInsights() {
                     filter,
                 },
             });
-            console.log(response.data);
-
             setInsightsData({
                 insights: response.data.insights,
                 total_count: response.data.clientCount,

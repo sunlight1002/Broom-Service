@@ -40,13 +40,13 @@ export default function Clients() {
 
     const [filter, setFilter] = useState('');
 
-    const leadStatuses = [
-        t("admin.client.Potential"),
-        t("admin.client.Pending_client"),
-        t("admin.client.Active_client"),
-        t("admin.client.Freeze_client"),
-        t("admin.client.Past_client"),
-    ];
+    const leadStatuses = {
+        "potential": t("admin.client.Potential"),
+        "pending client": t("admin.client.Pending_client"),
+        "active client": t("admin.client.Active_client"),
+        "freeze client": t("admin.client.Freeze_client"),
+        "past": t("admin.client.Past_client"),
+    };
 
     const [filters, set_Filters] = useState({
         action: "past",
@@ -63,7 +63,7 @@ export default function Clients() {
             "pending client": "Waiting",
             "freeze client": t("admin.client.Freeze_client"),
             "active client": t("admin.client.Active_client"),
-            "past" : t("admin.client.Past_client")
+            "past": t("admin.client.Past_client")
         };
 
     const initializeDataTable = (initialPage = 0) => {
@@ -663,7 +663,18 @@ export default function Clients() {
                                         setFilter(status);
                                     }}
                                 />
-                                {leadStatuses.map((_status, _index) => {
+                                {Object.entries(leadStatuses).map(([key, value]) => (
+                                    <FilterButtons
+                                        text={value}
+                                        name={key}
+                                        className="px-3 mr-1"
+                                        key={key}
+                                        selectedFilter={filter}
+                                        setselectedFilter={(status) => setFilter(status)}
+                                    />
+                                ))}
+
+                                {/* {leadStatuses.map((_status, _index) => {
                                     return (
                                         <FilterButtons
                                             text={_status}
@@ -675,7 +686,7 @@ export default function Clients() {
                                             }}
                                         />
                                     );
-                                })}
+                                })} */}
                             </div>
                             <div className="col-sm-6 mt-2 pl-0 d-flex">
                                 <div className="search-data">

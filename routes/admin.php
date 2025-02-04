@@ -32,6 +32,7 @@ use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\Admin\LeadChartsController;
 use App\Http\Controllers\Admin\HolidayController;
 use App\Http\Controllers\Admin\AdvanceLoanController;
+use App\Http\Controllers\Admin\ExpanseController;
 use App\Http\Controllers\SickLeaveController;
 use App\Http\Controllers\PayrollReportController;
 use App\Http\Controllers\RefundClaimController;
@@ -174,6 +175,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     // Clients Api
     Route::resource('clients', ClientController::class)->except('create');
     Route::get('all-clients', [ClientController::class, 'AllClients']);
+    Route::get('all-active-clients', [ClientController::class, 'AllActiveClients']);
     Route::post('import-clients', [ClientController::class, 'import']);
     Route::post('client-status-log', [ClientController::class, 'clienStatusLog']);
     Route::delete('/client-meta/{clientId}', [ClientController::class, 'deleteClientMetaIfExists']);
@@ -251,6 +253,11 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('add-file', [ClientController::class, 'addfile']);
     Route::get('clients/{id}/files', [ClientController::class, 'files']);
     Route::post('delete-file', [ClientController::class, 'deletefile']);
+    Route::post('client-notifications', [ClientController::class, 'handledNotifications']);
+
+    Route::post('/expenses/store', [ExpanseController::class, 'expanseStore']);
+    Route::get('/get-expense-types', [ExpanseController::class, 'getExpenseTypes']);
+    Route::get('/get-expense-doctypes', [ExpanseController::class, 'getExpenseDoctypes']);
 
     // Report
     Route::post('worker/hours/export', [JobController::class, 'exportTimeReport']);
@@ -445,6 +452,8 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::get('/schedule-changes', [ScheduleChangeController::class, 'index'])->name('schedule-changes.index');
     Route::put('/schedule-changes/{id}', [ScheduleChangeController::class, 'updateScheduleChange']);
     Route::get('/schedule-change/{id}', [ScheduleChangeController::class, 'getScheduleChange']);
+    Route::post('/add-schedule-request', [ScheduleChangeController::class, 'addScheduleRequest']);
+    Route::post('/send-message-to-user/{id}', [ScheduleChangeController::class, 'sendMessageToUser']);
 
 
     // Route::get('jobs/change-worker-requests', [ChangeWorkerController::class, 'index']);

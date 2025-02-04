@@ -33,6 +33,7 @@ const initialValue = {
     month_date: 1,
     monthday_selection_type: "weekday",
     workers: [{ jobHours: "" }],
+    Comments: "",
 };
 
 const workerJobHours = (_service) => {

@@ -292,6 +292,7 @@
         "Submit": "Submit",
         "reason" : "Reason",
         "comments" : "Comments",
+        "comment" : "Comment",
         "is_completed" : "Is Completed",
         "user_type" : "User Type",
         "user_name" : "User Name",
@@ -302,7 +303,15 @@
         "select_reschedule_date": "Select Reschedule Date",
         "change_status": "Change Status",
         "sub_status": "Sub Status",
-        "select_sub_status": "---Select Sub Status---"
+        "select_sub_status": "---Select Sub Status---",
+        "add_schedule_request": "Add Schedule Request",
+        "disable_notification": "Disable Notification",
+        "review_notification": "Review Notification",
+        "monday_notification": "Monday Notification",
+        "wednesday_notification": "Wednesday Notification",
+        "s_bot_notification": "Secretory-Bot Notification",
+        "all_notification": "All Notifications",
+        "expanses": "Expanses"
     },
     "modal": {
         "title": "Modal",
@@ -1397,6 +1406,8 @@
             "Uninterested": "Uninterested",
             "Unanswered": "Unanswered",
             "Irrelevant": "Irrelevant",
+            "Rejected": "Rejected",
+            "Will_think": "Will think",
             "Potential_client": "Potential client",
             "Pending_client": "Pending client",
             "Freeze_client": "Freeze client",

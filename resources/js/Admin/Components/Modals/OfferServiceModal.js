@@ -39,6 +39,7 @@ const initialValues = {
             jobHours: "",
         },
     ],
+    comments: "",
 };
 export default function OfferServiceModal({
     setIsOpen,
@@ -347,6 +348,20 @@ export default function OfferServiceModal({
         })
     }
 
+    const handleComments = (serviceIndex, e) => {
+        const value = e.target.value; // Capture the value before the event is nullified
+    
+        setOfferServiceTmp((prevState) => {
+            const updatedServices = [...prevState];
+            updatedServices[serviceIndex] = {
+                ...updatedServices[serviceIndex],
+                comments: value, // Use the stored value instead of e.target.value
+            };
+            return updatedServices;
+        });
+    };
+    
+
     return (
         <Modal
             size="lg"
@@ -457,9 +472,9 @@ export default function OfferServiceModal({
                                             name="frequency"
                                             className="form-control mb-2"
                                             value={
-                                                service.frequency || 
-                                                (offerServiceTmp[index]?.template === "airbnb" 
-                                                    ? frequencies.find(f => f.name == "On demand" || f.name == "עַל לִדרוֹשׁ")?.id || 0 
+                                                service.frequency ||
+                                                (offerServiceTmp[index]?.template === "airbnb"
+                                                    ? frequencies.find(f => f.name == "On demand" || f.name == "עַל לִדרוֹשׁ")?.id || 0
                                                     : 0)
                                             }
                                             onChange={(e) => handleFrequencyChange(index, e)}
@@ -709,6 +724,22 @@ export default function OfferServiceModal({
                     <p>{t("global.noServicesAvailable")}</p>
                 )
                 }
+                <div className="row">
+                    <div className="col-sm-12">
+                        <div className="form-group">
+                            <label className="control-label">{t("global.comment")}</label>
+
+                            <textarea
+                                name="reason"
+                                type="text"
+                                value={offerServiceTmp[0]?.comments || ""}
+                                onChange={(e) => handleComments(0, e)}
+                                className="form-control"
+                                required
+                            ></textarea>
+                        </div>
+                    </div>
+                </div>
                 <div className="mt-4 text-right">
                     <Button onClick={handleAddService} className="navyblue btn">
                         {t("global.addService")}

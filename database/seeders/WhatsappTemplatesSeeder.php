@@ -520,7 +520,7 @@ Equipo Broom Service',
 
 Best regards,
 Broom Service Team',
-                'message_heb' => 'תודה, *:worker_name*! המשך יום נפלא.
+                'message_heb' => 'תודה, *:worker_name* ! המשך יום נפלא.
 
 בברכה,
 צוות ברום סרוויס',
@@ -1615,7 +1615,7 @@ Click here to take action: :lead_detail_url',
 
                 'message_heb' => 'שלום, *צוות*
 
-עדכון: פגישה נקבעה או סרטון הוזמן מ*:client_name*. נא להיערך בהתאם.
+עדכון: פגישה נקבעה או סרטון הוזמן מ *:client_name*. נא להיערך בהתאם.
 
 טלפון: :client_phone_number.
 לחץ כאן כדי לפעול: :lead_detail_url',

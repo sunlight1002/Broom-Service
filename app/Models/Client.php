@@ -62,6 +62,10 @@ class Client extends Authenticatable
         'stop_last_message',
         'has_input_one',
         'attempts',
+        'review_notification',
+        'monday_notification',
+        'wednesday_notification',
+        's_bot_notification',
     ];
 
     /**

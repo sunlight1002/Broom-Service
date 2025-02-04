@@ -13,6 +13,7 @@ export default function ViewClient() {
     const [offerStatus, setOfferStatus] = useState([]);
     const [contracts, setContracts] = useState([]);
     const [latestContract, setLatestContract] = useState([]);
+
     const { t } = useTranslation();
 
     const param = useParams();

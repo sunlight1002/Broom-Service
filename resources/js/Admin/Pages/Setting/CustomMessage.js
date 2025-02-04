@@ -31,8 +31,6 @@ const CustomMessage = () => {
         message_ru: "",
     });
 
-    console.log(status, "status");
-
 
     useEffect(() => {
         if (windowWidth < 768) {
