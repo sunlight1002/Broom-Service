@@ -158,6 +158,7 @@ Route::group(['middleware' => ['auth:admin-api', 'scopes:admin']], function () {
     Route::post('workers/working-hours/pdf', [WorkerController::class, 'generateWorkerHoursPDF']);
     Route::post('form/send', [WorkerController::class, 'formSend']);
     Route::post('workers/import', [WorkerController::class, 'import']);
+    Route::post('workers/change-status', [WorkerController::class, 'changeStatus']);
 
     //worker-leads api
     Route::get('worker-leads', [WorkerLeadsController::class, 'index'])->name('worker-leads.index');

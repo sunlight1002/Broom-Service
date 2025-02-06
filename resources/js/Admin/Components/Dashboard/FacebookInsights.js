@@ -215,7 +215,7 @@ function FacebookInsights() {
                                             <i className="fa-solid fa-dollar-sign font-50"></i>
                                         </div>
                                         <div className="dashText">
-                                            <h3>${insightsData.total_spend}</h3>
+                                            <h3>${insightsData.total_spend.toFixed(2)}</h3>
                                             <p> Total Spends </p>
                                         </div>
                                     </div>

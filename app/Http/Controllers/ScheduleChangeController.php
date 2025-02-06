@@ -40,6 +40,9 @@ class ScheduleChangeController extends Controller
          $order = $request->get('order', []); // Ordering data
          $columnIndex = $order[0]['column'] ?? 0; // Column index for sorting
          $dir = $order[0]['dir'] ?? 'desc'; // Sort direction (asc/desc)
+         $start_date = $request->get('start_date');
+         $end_date = $request->get('end_date');
+         $reason = $request->get('reason');
      
          // Base query for ScheduleChange
          $query = ScheduleChange::with('user');
@@ -67,12 +70,35 @@ class ScheduleChangeController extends Controller
                      $query->whereHas('user', function ($q) {
                          $q->where('user_type', 'App\Models\User');
                      });
+                 }else{
+                    return $q;
                  }
              }
              if ($status && $status !== 'All') {
                  $query->where('status', $status);
              }
-         });
+         })
+         ->when($start_date, function ($q) use ($start_date) {
+            return $q->whereDate('created_at', '>=', $start_date);
+        })
+        ->when($end_date, function ($q) use ($end_date) {
+            return $q->whereDate('created_at', '<=', $end_date);
+        })
+        ->when($reason, function ($q) use ($reason) {
+            if ($reason == "Contact me urgently") {
+                return $q->whereIn('reason', ["Contact me urgently", "צרו איתי קשר דחוף"]);
+            }else if($reason == "Change or update schedule"){
+                $q->whereIn('reason', ["Change or update schedule", "שינוי או עדכון שיבוץ", "Change Schedule", "שנה לוח זמנים", "Cambiar horario", "Изменить расписание"]);
+            }else if($reason == "Invoice and accounting inquiry"){
+                $q->whereIn('reason', ["Invoice and accounting inquiry", 'הנה"ח - פנייה למחלקת הנהלת חשבונות']);
+            }else if($reason == "additional information"){
+                $q->whereIn('reason', ["additional information", "מידע נוסף"]);
+            }else if($reason == "Client Feedback"){
+                $q->whereIn('reason', ["Client Feedback", "משוב לקוח"]);
+            }else if($reason == "All"){
+                return $q;
+            }
+        });
      
          // Select specified columns
          $query->select($columns);
@@ -396,5 +422,4 @@ The Broom Service Team 🌹",
         ]);
     }
     
-
 }

@@ -24,11 +24,12 @@ use App\Enums\NotificationTypeEnum;
 use App\Jobs\SendUninterestedClientEmail;
 use Illuminate\Mail\Mailable;
 use App\Jobs\SendNotificationJob;
+use App\Traits\ICountDocument;
 
 
 class ContractController extends Controller
 {
-    use PriceOffered;
+    use PriceOffered, ICountDocument;
 
     /**
      * Display a listing of the resource.
@@ -163,7 +164,7 @@ class ContractController extends Controller
     public function verify(Request $request)
     {
         $contract = Contract::query()
-            ->with('client')
+            ->with('client.property_addresses')
             ->find($request->id);
 
         if (!$contract) {
@@ -173,6 +174,13 @@ class ContractController extends Controller
         }
 
         $client = $contract->client;
+        $address = $contract->client->property_addresses->first();
+
+        // if (!$address) {
+        //     return response()->json([
+        //         'message' => 'Client address not found',
+        //     ])
+        // }
         if (!$client) {
             return response()->json([
                 'message' => 'Client not found',
@@ -197,6 +205,20 @@ class ContractController extends Controller
             ];
 
             SendNotificationJob::dispatch($client, $newLeadStatus, $emailData, $contract);
+        }
+
+        // Create user in iCount
+        $iCountResponse = $this->createOrUpdateUser($client, $address);
+
+        if ($iCountResponse->status() != 200) {
+            return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        }
+
+        $iCountData = $iCountResponse->json();
+
+        // Update client with iCount client_id
+        if (isset($iCountData['client_id'])) {
+            $client->update(['icount_client_id' => $iCountData['client_id']]);
         }
 
         return response()->json([
