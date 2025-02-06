@@ -235,6 +235,12 @@ www.broomservice.co.il
         foreach($clientIds as $clientId => $c) {
             $client = Client::find($clientId);
             if($client) {
+
+                if($client->wednesday_notification == 1 || $client->disable_notification == 1){
+                    \Log::info('wednesday notification client: ' . $client->id);
+                    continue;
+                }
+
                 WhatsAppBotActiveClientState::where('client_id', $clientId)->delete();
                 $clientName = ($client->firstname ?? '') . ' ' . ($client->lastname ?? '');
                 $personalizedMessage = str_replace(':client_name', $clientName, $this->message[$client->lng]);

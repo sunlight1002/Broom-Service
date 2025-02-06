@@ -31,6 +31,8 @@ export default function AllWorkers() {
     const [manpowerCompanies, setManpowerCompanies] = useState([]);
     const [show, setShow] = useState(false);
     const [importFile, setImportFile] = useState("");
+    const [isOpen, setIsOpen] = useState(false);
+    const [status, setStatus] = useState("");
     const alert = useAlert();
     const navigate = useNavigate();
     const tableRef = useRef(null);
@@ -109,9 +111,9 @@ export default function AllWorkers() {
                         orderable: false,
                         render: function (data, type, row, meta) {
                             // return data == 1 ? "Active" : "Inactive";
-                            return data == 1 ? `<p style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                            return data == 1 ? `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: green; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                                         Active
-                                    </p>` : `<p style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
+                                    </p>` : `<p class="dt-status" data-id="${row.id}" style="background-color: #efefef; color: red; padding: 5px 10px; border-radius: 5px; width: 110px; text-align: center;">
                                         Inactive
                                     </p>` ;
                         },
@@ -197,6 +199,7 @@ export default function AllWorkers() {
                     !e.target.closest(".dropdown-toggle") &&
                     !e.target.closest(".dropdown-menu") &&
                     !e.target.closest(".dt-address-link") &&
+                    !e.target.closest(".dt-status") &&
                     (!tableRef.current.classList.contains("collapsed") ||
                         !e.target.closest(".dtr-control"))
                 ) {
@@ -206,7 +209,8 @@ export default function AllWorkers() {
                 if (
                     !e.target.closest(".dropdown-toggle") &&
                     !e.target.closest(".dropdown-menu") &&
-                    !e.target.closest(".dt-address-link")
+                    !e.target.closest(".dt-address-link") && 
+                    !e.target.closest(".dt-status")
                 ) {
                     _id = $(e.target).closest("tr.child").prev().data("id");
                 }
@@ -254,6 +258,16 @@ export default function AllWorkers() {
             handleDelete(_id);
         });
 
+        $(tableRef.current).on("click", ".dt-status", function () {
+            const _id = $(this).data("id");
+            console.log("asdasd");
+            
+            console.log(_id);
+            
+            setSelectedWorkerId(_id);
+            setIsOpen(true);
+        });
+
         // Handle language changes
         i18n.on("languageChanged", () => {
             $(tableRef.current).DataTable().destroy(); // Destroy the table
@@ -278,6 +292,24 @@ export default function AllWorkers() {
         setSelectedWorkerId(_workerID);
         setIsOpenLeaveJobWorker(true);
     };
+
+    const handleChangeStatus = async () => {
+        const data = {
+            workerID: selectedWorkerId,
+            status: status
+        }
+        try {
+            const res = await axios.post(`/api/admin/workers/change-status`, data , { headers }); 
+            setIsOpen(false);
+            setTimeout(() => {
+                $(tableRef.current).DataTable().draw();
+            }, 1000);
+            alert.success(res?.data?.message);
+            
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -743,6 +775,55 @@ export default function AllWorkers() {
                     </Modal.Footer>
                 </Modal>
             </div>
+            <Modal
+                size="md"
+                className="modal-container"
+                show={isOpen}
+                onHide={() => setIsOpen(false)}
+                backdrop="static"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Change status</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <div className="form-group">
+                                <label className="control-label">Status</label>
+
+                                <select
+                                    name="status"
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    value={status}
+                                    className="form-control mb-3"
+                                >
+                                    <option value=""> ---Select Status---</option>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        Close
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={handleChangeStatus}
+                        className="btn btn-primary"
+                    >
+                        Save
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }

@@ -1713,13 +1713,23 @@ If you would like to speak to a human representative, please send a message with
             $isMonday = now()->isMonday();
 
             $workerLead = WorkerLeads::where('phone', $from)->first();
+            if ($workerLead) {
+                \Log::info('Worker lead already exists');
+            }
+
             $user = User::where('phone', $from)
                 ->where('status', 1)
                 ->first();
+                if ($user) {
+                    \Log::info('User already exists');
+                }
             $client = Client::where('phone', $from)
                 ->orWhereJsonContains('extra', [['phone' => $from]])
                 ->first();
 
+                if ($client) {
+                    \Log::info('Client already exists');
+                }
             $msgStatus = null;
 
             if($client){
@@ -2853,7 +2863,7 @@ Your message has been forwarded to the team for further handling. Thank you for 
                                 ]
                             );
                             $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                            $teammsg = "שלום צוות, הלקוח" . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $teammsg = "שלום צוות, הלקוח " . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2931,7 +2941,7 @@ office@broomservice.co.il';
                                 $scheduleChange->comments = $messageBody;
                                 $scheduleChange->save();
                                 $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                                $teammsg = "שלום צוות, הלקוח" . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                                $teammsg = "שלום צוות, הלקוח " . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                                 sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2954,7 +2964,7 @@ office@broomservice.co.il';
                             $scheduleChange->comments = $messageBody;
                             $scheduleChange->save();
                             $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                            $teammsg = "שלום צוות, הלקוח" .$clientName. "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $teammsg = "שלום צוות, הלקוח " .$clientName. "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -3085,7 +3095,7 @@ office@broomservice.co.il';
                                 ]
                             );
                             $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                            $teammsg = "שלום צוות, הלקוח" .$clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $teammsg = "שלום צוות, הלקוח " .$clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -3163,7 +3173,7 @@ office@broomservice.co.il';
                                 $scheduleChange->comments = $messageBody;
                                 $scheduleChange->save();
                                 $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                                $teammsg = "שלום צוות, הלקוח" . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody. '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                                $teammsg = "שלום צוות, הלקוח " . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody. '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                                 sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -3184,7 +3194,7 @@ office@broomservice.co.il';
                             $scheduleChange->comments = $messageBody;
                             $scheduleChange->save();
                             $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                            $teammsg = "שלום צוות, הלקוח" .$clientName. "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' .$messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $teammsg = "שלום צוות, הלקוח " .$clientName. "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' .$messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 

@@ -345,24 +345,24 @@ trait PaymentAPI
     // Same API but different configuration for 'order' doctype.
     private function generateOrderDocument($client, $items, $duedate, $data, $serviceDate, $jobId = null)
     {
-        $requestData = [
-            'data' => [
-                'client_name' => $input['firstname'] ?? null,
-                'first_name' => $input['firstname'] ?? null,
-                'last_name' => $input['lastname'] ?? null,
-                'id' => $client['id'] ?? null,
-                'phone' => $client['phone'] ?? null,
-                'email' => $client['email'] ?? null,
-                'vat_number' => $client['vat_number'] ?? null,
-                'status' => $client['status'] ?? null,
-                'invoicename' => $client['invoicename'] ? $client['invoicename'] : ($client['firstname'] ." " . $client['lastname']),
-            ],
-        ];
-        // Wrap the data in a Request object
-        $request = new Request($requestData);
+        // $requestData = [
+        //     'data' => [
+        //         'client_name' => $client['firstname'] ?? null,
+        //         'firstname' => $client['firstname'] ?? null,
+        //         'lastname' => $client['lastname'] ?? null,
+        //         'id' => $client['id'] ?? null,
+        //         'phone' => $client['phone'] ?? null,
+        //         'email' => $client['email'] ?? null,
+        //         'vat_number' => $client['vat_number'] ?? null,
+        //         'status' => $client['status'] ?? null,
+        //         'invoicename' => $client['invoicename'] ? $client['invoicename'] : ($client['firstname'] ." " . $client['lastname']),
+        //     ],
+        // ];
+        // // Wrap the data in a Request object
+        // $request = new Request($requestData);
 
         // Call createOrUpdateUser with the constructed Request
-        $iCountResponse = $this->createOrUpdateUser($request);
+        $iCountResponse = $this->createOrUpdateUser($client);
 
         $iCountData = $iCountResponse->json();
 

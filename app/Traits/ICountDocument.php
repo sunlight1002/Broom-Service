@@ -182,9 +182,9 @@ trait ICountDocument
 
 
 
-    private function createOrUpdateUser(Request $request)
+    private function createOrUpdateUser($client, $address = null)
     {
-        $input = $request->data;
+        $input = $client;
 
         $iCountCompanyID = Setting::query()
             ->where('key', SettingKeyEnum::ICOUNT_COMPANY_ID)
@@ -216,7 +216,10 @@ trait ICountDocument
             'custom_info' => json_decode(json_encode([
                 'status' => $input['status'] ?? null,
                 'invoicename' => $input['invoicename'] ? $input['invoicename'] : ($input['firstname'] ." " . $input['lastname']),
-            ]))
+            ])),
+            'bus_street' => $address['geo_address'] ?? null,
+            'bus_city' => $address['city'] ?? null,
+            'bus_zip' => $address['zipcode'] ?? null,
         ];
 
         $response = Http::withHeaders([

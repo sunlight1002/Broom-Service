@@ -181,19 +181,19 @@ class LeadController extends Controller
         AddGoogleContactJob::dispatch($client);
 
         // Create user in iCount
-        $iCountResponse = $this->createOrUpdateUser($request);
+        // $iCountResponse = $this->createOrUpdateUser($request);
 
         // Handle iCount response
-        if ($iCountResponse->status() != 200) {
-            return response()->json(['error' => 'Failed to create user in iCount'], 500);
-        }
+        // if ($iCountResponse->status() != 200) {
+        //     return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        // }
 
-        $iCountData = $iCountResponse->json();
+        // $iCountData = $iCountResponse->json();
 
-        // Update client with iCount client_id
-        if (isset($iCountData['client_id'])) {
-            $client->update(['icount_client_id' => $iCountData['client_id']]);
-        }
+        // // Update client with iCount client_id
+        // if (isset($iCountData['client_id'])) {
+        //     $client->update(['icount_client_id' => $iCountData['client_id']]);
+        // }
 
         // Process property addresses
         $property_address_data = $request->propertyAddress;
@@ -354,19 +354,19 @@ class LeadController extends Controller
         }
 
         // Create user in iCount
-        $iCountResponse = $this->createOrUpdateUser($request);
+        // $iCountResponse = $this->createOrUpdateUser($request);
 
         // Handle iCount response
-        if ($iCountResponse->status() != 200) {
-            return response()->json(['error' => 'Failed to create user in iCount'], 500);
-        }
+        // if ($iCountResponse->status() != 200) {
+        //     return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        // }
 
-        $iCountData = $iCountResponse->json();
+        // $iCountData = $iCountResponse->json();
 
-        // Extract Client_id from iCount response and update the Client model
-        if (isset($iCountData['client_id'])) {
-            $client->update(['icount_client_id' => $iCountData['client_id']]);
-        }
+        // // Extract Client_id from iCount response and update the Client model
+        // if (isset($iCountData['client_id'])) {
+        //     $client->update(['icount_client_id' => $iCountData['client_id']]);
+        // }
 
 
         $client->update($input);
@@ -587,11 +587,12 @@ class LeadController extends Controller
                 );
 
                 $address = ClientPropertyAddress::where('client_id', $property_address['client_id'])->first();
-                if ($address->id == $savedAddress->id) {
+                $client = Client::find($address->client_id);
+                if ($address->id == $savedAddress->id && $client->status == 2) {
                     \Log::info("Address updated");
                     $data = [
                         'id' => $address->client_id,
-                        'email' => Client::find($address->client_id)->email ?? null,
+                        'email' => $client->email ?? null,
                         'bus_street' => $address->geo_address,
                         'bus_city' => $address->city ?? null,
                         'bus_zip' => $address->zipcode ?? null,

@@ -251,19 +251,19 @@ class ClientController extends Controller
         $client = Client::create($input);
 
         // Create user in iCount
-        $iCountResponse = $this->createOrUpdateUser($request);
+        // $iCountResponse = $this->createOrUpdateUser($request);
 
         // Handle iCount response
-        if ($iCountResponse->status() != 200) {
-            return response()->json(['error' => 'Failed to create user in iCount'], 500);
-        }
+        // if ($iCountResponse->status() != 200) {
+        //     return response()->json(['error' => 'Failed to create user in iCount'], 500);
+        // }
 
-        $iCountData = $iCountResponse->json();
+        // $iCountData = $iCountResponse->json();
 
-        // Extract Client_id from iCount response and update the Client model
-        if (isset($iCountData['client_id'])) {
-            $client->update(['icount_client_id' => $iCountData['client_id']]);
-        }
+        // // Extract Client_id from iCount response and update the Client model
+        // if (isset($iCountData['client_id'])) {
+        //     $client->update(['icount_client_id' => $iCountData['client_id']]);
+        // }
 
         $client->lead_status()->updateOrCreate(
             [],
@@ -547,15 +547,17 @@ class ClientController extends Controller
 
         $input = $request->data;
 
-         // Create user in iCount
-         $iCountResponse = $this->createOrUpdateUser($request);
+        if($client->status == 2){
+             // Create user in iCount
+            $iCountResponse = $this->createOrUpdateUser($input);
 
-         // Handle iCount response
-         $iCountData = $iCountResponse->json();
+            // Handle iCount response
+            $iCountData = $iCountResponse->json();
 
-        // Handle iCount response
-        if ($iCountResponse->status() != 200) {
-            return response()->json(['error' => 'Failed to create user in iCount'], 500);
+            // Handle iCount response
+            if ($iCountResponse->status() != 200) {
+                return response()->json(['error' => 'Failed to create user in iCount'], 500);
+            }
         }
 
 

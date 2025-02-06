@@ -1293,4 +1293,20 @@ class WorkerController extends Controller
     {
         return Excel::download(new WorkerSampleExport, 'worker-import-sheet.xlsx', \Maatwebsite\Excel\Excel::XLSX);
     }
+
+    public function changeStatus(Request $request){
+
+        $data = $request->all();
+        \Log::info($data);
+        $worker = User::find($data['workerID']);
+        if (!$worker) {
+            return response()->json([
+                'message' => 'Worker not found',
+            ], 404);
+        }
+        $worker->update(['status' => $data['status']]);
+        return response()->json([
+            'message' => 'Worker status updated successfully',
+        ]);
+    }
 }
