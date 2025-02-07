@@ -368,8 +368,8 @@ Broom Service Team 🌹",
                             $client->save();
 
                             $m = $lng == 'heb'
-                                ? "ליד חדש נוצר בהצלחה\n" . url("admin/leads/view/" . $client->id)
-                                : "New lead created successfully\n" . url("admin/leads/view/" . $client->id);
+                                ? "ליד חדש נוצר בהצלחה\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin')
+                                : "New lead created successfully\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin');
                         } else {
 
                             if ($client->status != 2) {
@@ -382,8 +382,8 @@ Broom Service Team 🌹",
                             }
 
                             $m = $lng == 'heb'
-                                ? "עופרת כבר קיימת\n" . url("admin/leads/view/" . $client->id)
-                                : "Lead already exists\n" . url("admin/leads/view/" . $client->id);
+                                ? "עופרת כבר קיימת\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin')
+                                : "Lead already exists\n" . generateShortUrl(url("admin/leads/view/" . $client->id), 'admin');
                         }
 
                         // Send WhatsApp message
@@ -1380,7 +1380,7 @@ If you would like to speak to a human representative, please send a message with
                                     'status' => $schedule->booking_status
                                 ]);
 
-                                $link = url("meeting-status/" . base64_encode($schedule->id) . "/reschedule");
+                                $link = generateShortUrl(url("meeting-status/" . base64_encode($schedule->id) . "/reschedule"), 'client');
                                 if ($client->lng == 'heb') {
                                     $msg = "$link\n\nאנא בחר/י זמן לפגישה באמצעות הקישור למטה. יש משהו נוסף שבו אני יכול/ה לעזור לך היום? 😊";
                                 } else {
@@ -1975,7 +1975,14 @@ If you would like to speak to a human representative, please send a message with
 
                     $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
                     $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                    $personalizedMessage = str_replace([':client_name', ':message', ':client_phone', ':comment_link',':client_link'], [$clientName, '*' . trim($input) . '*', $client->phone, url('admin/schedule-requests'.'?id=' . $scheduleChange->id),url("admin/clients/view/" . $client->id)], $nextMessage);
+
+                    $scheduleLink = generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin');
+
+                    $personalizedMessage = str_replace([
+                        ':client_name', ':message', ':client_phone', ':comment_link',':client_link'
+                    ], [
+                        $clientName, '*' . trim($input) . '*', $client->phone, $scheduleLink, generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
+                    ], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
                     $clientMessageStatus->delete();
@@ -2217,9 +2224,15 @@ If you would like to speak to a human representative, please send a message with
 
                     $nextMessage = $this->activeClientBotMessages['team_new_qoute']["heb"];
                     $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                    $personalizedMessage = str_replace([':client_name', ':client_phone', ':client_link'], [$clientName, $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
+                    $personalizedMessage = str_replace([
+                        ':client_name', ':client_phone', ':client_link'
+                    ], [
+                        $clientName, $client->phone, generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
+                    ], $nextMessage);
+
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.lead_client'), ['name' => '', 'message' => $personalizedMessage]);
                     $clientMessageStatus->delete();
+
                     break;
                 case 'invoice_account':
                     $nextMessage = $this->activeClientBotMessages['invoice_account'][$lng];
@@ -2261,7 +2274,12 @@ If you would like to speak to a human representative, please send a message with
 
                     $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
                     $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
-                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ":comment_link",':client_link'], [$clientName, $client->phone, '*' . trim($input) . '*', url('admin/schedule-requests'.'?id=' . $scheduleChange->id), url("admin/clients/view/" . $client->id)], $nextMessage);
+                    $personalizedMessage = str_replace([
+                        ':client_name', ":client_phone", ":message", ":comment_link",':client_link'
+                    ], [
+                        $clientName, $client->phone, '*' . trim($input) . '*', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
+                    ], $nextMessage);
+
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
                         'status' => 1,
@@ -2314,7 +2332,12 @@ If you would like to speak to a human representative, please send a message with
 
                     $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
                     $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ":comment_link",':client_link'], [$clientName, $client->phone, '*' . trim($input) . '*', url('admin/schedule-requests'.'?id=' . $scheduleChange->id), url("admin/clients/view/" . $client->id)], $nextMessage);
+                    $personalizedMessage = str_replace([
+                        ':client_name', ":client_phone", ":message", ":comment_link",':client_link'
+                    ], [
+                        $clientName, $client->phone, '*' . trim($input) . '*', generateShortUrl(url('admin/schedule-requests'.'?id=' . $scheduleChange->id), 'admin'), generateShortUrl(url("admin/clients/view/" . $client->id), 'admin')
+                    ], $nextMessage);
+
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                     WebhookResponse::create([
@@ -2330,7 +2353,7 @@ If you would like to speak to a human representative, please send a message with
                     break;
                 case 'access_portal':
                     $nextMessage = $this->activeClientBotMessages['access_portal'][$lng];
-                    $personalizedMessage = str_replace(':client_portal_link', url("client/login"), $nextMessage);
+                    $personalizedMessage = str_replace(':client_portal_link', generateShortUrl(url("client/login"), 'admin'), $nextMessage);
                     sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                     $clientMessageStatus->delete();
 

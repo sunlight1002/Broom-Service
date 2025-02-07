@@ -29,40 +29,6 @@ class WhatsappNotification
         $this->whapiApiToken = config('services.whapi.token');
         $this->whapiWorkerApiToken = config('services.whapi.worker_token');
         $this->whapiClientApiToken = config('services.whapi.client_token');
-
-        // Initialize short URL base URLs
-        $this->workerBaseUrl = config('services.short_url.worker');
-        $this->clientBaseUrl = config('services.short_url.client');
-        $this->adminBaseUrl = config('services.short_url.admin');
-    }
-
-
-    private function generateShortUrl($urlData, $type = null)
-    {
-
-        if (empty($urlData)) {
-            return null;  
-        }
-        $token = substr(md5(uniqid()), 0, 12);
-        
-        $shortUrl = ShortUrl::create([
-            'url' => $urlData,
-            'token' => $token,
-        ]);
-
-        if ($type == 'worker') {
-            // return $this->workerBaseUrl . $token;
-            return $urlData;
-        } elseif ($type == 'client') {
-            // return $this->clientBaseUrl . $token;
-            return $urlData;
-        } elseif ($type == 'admin') {
-            // return $this->adminBaseUrl . $token;
-            return $urlData;
-        } else {
-            // return $shortUrl->token;
-            return $urlData;
-        }
     }
 
     private function replaceClientFields($text, $clientData, $eventData)
@@ -82,14 +48,14 @@ class WhatsappNotification
 
 
             if(isset($clientData['id']) && !empty($clientData['id'])) {
-                $leadDetailLink = $this->generateShortUrl(url("admin/leads/view/" . $clientData['id']), 'admin');
-                $clientJobsLink = $this->generateShortUrl(url("client/jobs"), 'client');
-                $clientDetailsLink = $this->generateShortUrl(url("admin/clients/view/" . $clientData['id']), 'admin');
-                $clientCardLink = $this->generateShortUrl(url("client/settings"), 'client');
-                $adminClientCardLink = $this->generateShortUrl(url("admin/clients/view/" .$clientData['id'] ."?=card"), 'admin');
-                $testimonialsLink = $this->generateShortUrl(url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl'));
-                $brromBrochureLink = $this->generateShortUrl($clientData['lng'] == "en" ? url("pdfs/BroomServiceEnglish.pdf") : url("pdfs/BroomServiceHebrew.pdf"));
-                $requestToChangeLink = $this->generateShortUrl(url("/request-to-change/" .  base64_encode($clientData['id']). "?type=client" ?? ''), 'client');
+                $leadDetailLink = generateShortUrl(url("admin/leads/view/" . $clientData['id']), 'admin');
+                $clientJobsLink = generateShortUrl(url("client/jobs"), 'client');
+                $clientDetailsLink = generateShortUrl(url("admin/clients/view/" . $clientData['id']), 'admin');
+                $clientCardLink = generateShortUrl(url("client/settings"), 'client');
+                $adminClientCardLink = generateShortUrl(url("admin/clients/view/" .$clientData['id'] ."?=card"), 'admin');
+                $testimonialsLink = generateShortUrl(url('https://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl'));
+                $brromBrochureLink = generateShortUrl($clientData['lng'] == "en" ? url("pdfs/BroomServiceEnglish.pdf") : url("pdfs/BroomServiceHebrew.pdf"));
+                $requestToChangeLink = generateShortUrl(url("/request-to-change/" .  base64_encode($clientData['id']). "?type=client" ?? ''), 'client');
             }
 
 
@@ -130,16 +96,16 @@ class WhatsappNotification
         if(isset($workerData) && !empty($workerData)) {
 
             if(isset($workerData['id']) && !empty($workerData['id'])) {
-                $workerFormsLink = $this->generateShortUrl(url("worker-forms/" . base64_encode($workerData['id'])), 'worker');
-                $form101Link = $this->generateShortUrl(
+                $workerFormsLink = generateShortUrl(url("worker-forms/" . base64_encode($workerData['id'])), 'worker');
+                $form101Link = generateShortUrl(
                     isset($workerData['id'], $workerData['formId']) 
                     ? url("form101/" . base64_encode($workerData['id']) . "/" . base64_encode($workerData['formId'])) 
                     : '', 
                     'worker'
                 );
-                $workerViewLink = $this->generateShortUrl(url("worker/view/" . base64_encode($workerData['id'])), 'worker');
-                $requestToChangeLink = $this->generateShortUrl(url("/request-to-change/" .  base64_encode($workerData['id']). "?type=worker" ?? ''), 'worker');
-                $workerLeadFormsLink = $this->generateShortUrl(url("worker-forms/" . base64_encode($workerData['id']) . "?type=lead" ?? ''), 'worker');
+                $workerViewLink = generateShortUrl(url("worker/view/" . base64_encode($workerData['id'])), 'worker');
+                $requestToChangeLink = generateShortUrl(url("/request-to-change/" .  base64_encode($workerData['id']). "?type=worker" ?? ''), 'worker');
+                $workerLeadFormsLink = generateShortUrl(url("worker-forms/" . base64_encode($workerData['id']) . "?type=lead" ?? ''), 'worker');
             }
             $placeholders = [
                 ':worker_name' => trim(trim($workerData['firstname'] ?? '') . ' ' . trim($workerData['lastname'] ?? '')),
@@ -174,18 +140,18 @@ class WhatsappNotification
             }
 
             if(isset($jobData['id']) && !empty($jobData['id'])) {
-                $adminJobViewLink = $this->generateShortUrl(url("admin/job/view/" . $jobData['id']), 'admin');
-                $clientJobsReviewLink = $this->generateShortUrl(url("client/jobs/" . base64_encode($jobData['id']) . "/review"), 'client');
-                $teamJobActionLink = $this->generateShortUrl(url("admin/jobs/" . $jobData['id'] . "/change-worker"), 'admin');
-                $clientJobViewLink = $this->generateShortUrl(url("client/jobs/view/" . base64_encode($jobData['id'])), 'client');
-                $workerJobViewLink = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']), 'worker');
-                $teamBtns = $this->generateShortUrl(url("team-btn/" . base64_encode($jobData['id'])), 'admin');
-                $contactManager = $this->generateShortUrl(url("worker/jobs/view/" . $jobData['id']."?q=contact_manager"), 'worker');
-                $workerApproveJob = $this->generateShortUrl(
+                $adminJobViewLink = generateShortUrl(url("admin/job/view/" . $jobData['id']), 'admin');
+                $clientJobsReviewLink = generateShortUrl(url("client/jobs/" . base64_encode($jobData['id']) . "/review"), 'client');
+                $teamJobActionLink = generateShortUrl(url("admin/jobs/" . $jobData['id'] . "/change-worker"), 'admin');
+                $clientJobViewLink = generateShortUrl(url("client/jobs/view/" . base64_encode($jobData['id'])), 'client');
+                $workerJobViewLink = generateShortUrl(url("worker/jobs/view/" . $jobData['id']), 'worker');
+                $teamBtns = generateShortUrl(url("team-btn/" . base64_encode($jobData['id'])), 'admin');
+                $contactManager = generateShortUrl(url("worker/jobs/view/" . $jobData['id']."?q=contact_manager"), 'worker');
+                $workerApproveJob = generateShortUrl(
                     isset($workerData['id']) ? url("worker/" . base64_encode($workerData['id']) . "/jobs" . "/" . base64_encode($jobData['id']) . "/approve") : null,
                     'worker'
                 );
-                $teamSkipComment = $this->generateShortUrl(url("action-comment/" . ($commentData['id'] ?? '')), 'admin');
+                $teamSkipComment = generateShortUrl(url("action-comment/" . ($commentData['id'] ?? '')), 'admin');
             }
 
             $currentTime = Carbon::parse($jobData['start_time'] ?? '00:00:00');
@@ -257,11 +223,11 @@ class WhatsappNotification
         }
 
         if(isset($eventData)) {
-            $meetingRescheduleLink = $this->generateShortUrl(isset($eventData['id']) ? url("meeting-schedule/" . base64_encode($eventData['id'])) : '');
-            $meetingFileUploadLink = $this->generateShortUrl(isset($eventData['id']) ? url("meeting-files/" . base64_encode($eventData['id'])) : '');
-            $uploadedFilesLink = $this->generateShortUrl(isset($eventData["file_name"]) ? url("storage/uploads/ClientFiles/" . $eventData["file_name"]) : '', 'admin');
-            $meetingAcceptLink = $this->generateShortUrl(isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/accept") : "");
-            $meetingRejectLink = $this->generateShortUrl(isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/reject") : "");
+            $meetingRescheduleLink = generateShortUrl(isset($eventData['id']) ? url("meeting-schedule/" . base64_encode($eventData['id'])) : '');
+            $meetingFileUploadLink = generateShortUrl(isset($eventData['id']) ? url("meeting-files/" . base64_encode($eventData['id'])) : '');
+            $uploadedFilesLink = generateShortUrl(isset($eventData["file_name"]) ? url("storage/uploads/ClientFiles/" . $eventData["file_name"]) : '', 'admin');
+            $meetingAcceptLink = generateShortUrl(isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/accept") : "");
+            $meetingRejectLink = generateShortUrl(isset($eventData['id']) ? url("thankyou/".base64_encode($eventData['id'])."/reject") : "");
         }
 
         $address = isset($propertyAddress) && isset($propertyAddress['address_name']) && !empty($propertyAddress['address_name']) ? $propertyAddress['address_name'] : "NA";
@@ -321,8 +287,8 @@ class WhatsappNotification
 
 
         if(isset($offerData["services"])) {
-            $offerDetailLink = $this->generateShortUrl(isset($offerData['id']) ? url("admin/offered-price/edit/" . ($offerData['id'] ?? '')) : '', 'admin');
-            $priceOfferLink = $this->generateShortUrl(isset($offerData['id']) ? url("price-offer/" . base64_encode($offerData['id'])) : '');
+            $offerDetailLink = generateShortUrl(isset($offerData['id']) ? url("admin/offered-price/edit/" . ($offerData['id'] ?? '')) : '', 'admin');
+            $priceOfferLink = generateShortUrl(isset($offerData['id']) ? url("price-offer/" . base64_encode($offerData['id'])) : '', 'client');
         }
 
         $serviceNamesString = implode(", ", $serviceNames);
@@ -358,9 +324,9 @@ class WhatsappNotification
         if($contractData) {
 
             if(isset($contractData["contract_id"]) || $contractData["id"]) {
-                $teamViewContract = $this->generateShortUrl(isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '', 'admin');
-                $createJobLink = $this->generateShortUrl(isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : "", 'admin');
-                $clientContractLink = $this->generateShortUrl((isset($contractData['contract_id']) || isset($contractData['unique_hash'])) ? url("work-contract/" . ($contractData['contract_id'] ?? $contractData['unique_hash'])) : '', 'client');
+                $teamViewContract = generateShortUrl(isset($contractData['id']) ? url("admin/view-contract/" . $contractData['id'] ?? '') : '', 'admin');
+                $createJobLink = generateShortUrl(isset($contractData['id']) ? url("admin/create-job/" . ($contractData['id'] ?? "")) : "", 'admin');
+                $clientContractLink = generateShortUrl((isset($contractData['contract_id']) || isset($contractData['unique_hash'])) ? url("work-contract/" . ($contractData['contract_id'] ?? $contractData['unique_hash'])) : '', 'client');
             }
 
             $placeholders = [
@@ -398,7 +364,7 @@ class WhatsappNotification
             $by = isset($eventData['by']) ? $eventData['by'] : 'client';
 
             if(isset($eventData)) {
-                $workerHearingLink = $this->generateShortUrl(isset($eventData['id']) ? url("hearing-schedule/" . base64_encode($eventData['id'])) : '', 'worker');
+                $workerHearingLink = generateShortUrl(isset($eventData['id']) ? url("hearing-schedule/" . base64_encode($eventData['id'])) : '', 'worker');
             }
 
             $commentBy = "";

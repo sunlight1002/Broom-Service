@@ -28,7 +28,7 @@ export default function WorkerContract({
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
     const [loading, setLoading] = useState(false)
-
+    const [savingType, setSavingType] = useState("draft");
     const { t } = useTranslation();
 
     const contentRef = useRef(null);
@@ -53,6 +53,8 @@ export default function WorkerContract({
             };
 
             const content = contentRef.current;
+            console.log(content);
+            
 
             const _pdf = await html2pdf()
                 .set(options)
@@ -65,6 +67,7 @@ export default function WorkerContract({
             let formData = objectToFormData(values);
             formData.append("pdf_file", _pdf);
             formData.append("step", nextStep);
+            formData.append("savingType", savingType);
             formData.append("type", type == "lead" ? "lead" : "worker");
 
             axios
@@ -75,7 +78,8 @@ export default function WorkerContract({
                     },
                 })
                 .then((res) => {
-                    if (worker.country === "Israel") {
+                    if (worker.country === "Israel" && savingType === "submit") {
+                        setIsSubmitted(true);
                         swal(t('swal.forms_submitted'), "", "success");
                         if (type === "lead" && res?.data?.id) {
                             navigate(`/worker-forms/${Base64.encode(res?.data?.id.toString())}`);
@@ -83,10 +87,12 @@ export default function WorkerContract({
                         setTimeout(() => {
                             window.location.reload(true);
                         }, 2000);
-                    } else {
+                    } else if (worker.country !== "Israel" && savingType === "submit") {
+                        setIsSubmitted(true);
+                        setNextStep(prev => prev + 1)
+                    }else if(savingType === "draft"){
                         setNextStep(prev => prev + 1)
                     }
-                    setIsSubmitted(true);
                     setLoading(false)
                     // setTimeout(() => {
                     //     window.location.href = "/worker/login";
@@ -157,6 +163,8 @@ export default function WorkerContract({
                         contentRef={contentRef}
                         nextStep={nextStep}
                         setNextStep={setNextStep}
+                        savingType={savingType}
+                        setSavingType={setSavingType}
                     />
                 ) : (
                     <NonIsraeliContract
@@ -168,6 +176,8 @@ export default function WorkerContract({
                         contentRef={contentRef}
                         nextStep={nextStep}
                         setNextStep={setNextStep}
+                        savingType={savingType}
+                        setSavingType={setSavingType}
                     />
                 )
             ) : (

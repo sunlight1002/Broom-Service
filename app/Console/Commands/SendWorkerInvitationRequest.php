@@ -119,7 +119,7 @@ class SendWorkerInvitationRequest extends Command
 
                     // Send URL to the worker's form
                     $encodedUserId = base64_encode($user->id);
-                    $url = url("worker-forms/{$encodedUserId}");
+                    $url = generateShortUrl(url("worker-forms/{$encodedUserId}"),'worker');
                     
                     Http::withToken($this->whapiApiToken)
                         ->post($this->whapiApiEndpoint . 'messages/text', [
@@ -158,7 +158,7 @@ class SendWorkerInvitationRequest extends Command
 
                 // Send URL to the worker's form
                 $encodedUserId = base64_encode($invitation->id);
-                $url = url("worker-invitation-form/{$encodedUserId}");
+                $url = generateShortUrl(url("worker-invitation-form/{$encodedUserId}"),'worker');
                 
                 // Send the text message with the clickable URL
                 $response = Http::withToken($this->whapiApiToken)

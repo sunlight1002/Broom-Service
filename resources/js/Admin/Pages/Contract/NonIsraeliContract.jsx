@@ -22,7 +22,9 @@ export function NonIsraeliContract({
     isGeneratingPDF,
     contentRef,
     nextStep,
-    setNextStep
+    setNextStep,
+    savingType,
+    setSavingType
 }) {
 
     const sigRef1 = useRef();
@@ -33,10 +35,10 @@ export function NonIsraeliContract({
     const companySigRef2 = useRef();
     const { t } = useTranslation();
     const [formValues, setFormValues] = useState(null);
-    const [savingType, setSavingType] = useState("submit");
     const windowWidth = useWindowWidth();
     const [mobileView, setMobileView] = useState(false);
     const currentDate = moment().format("YYYY-MM-DD");
+    const [tempSig1, setTempSig1] = useState(null);
 
     const initialValues = {
         fullName: "",
@@ -132,10 +134,6 @@ export function NonIsraeliContract({
         validationSchema: formSchema[`step${nextStep}`], // Use dynamic schema based on current step
         onSubmit: (values) => {
             handleFormSubmit(values);
-            // setNextStep(prev => prev+1)
-            // if (workerDetail?.is_existing_worker) {
-            //     setNextStep(prev => prev + 1)
-            // }
         },
     });
 
@@ -154,6 +152,7 @@ export function NonIsraeliContract({
             // setFieldValue("IdNumber", workerDetail.worker_id);
             setFieldValue("passport", workerDetail.passport);
             setFieldValue("startDate", workerDetail.first_date);
+            setFieldValue("signature1", sigRef1?.current?.toDataURL());
 
         }
     }, [isSubmitted, workerFormDetails, workerDetail]);
@@ -166,17 +165,16 @@ export function NonIsraeliContract({
     };
 
     const handleSignatureEnd1 = () => {
-        if (sigRef1.current) {
         setFieldValue("signature1", sigRef1.current.toDataURL());
-        }
+        setTempSig1(sigRef1?.current?.toDataURL());
     };
-   // Clear the signature canvas
-   const clearSignature1 = () => {
-    if (sigRef1.current) {
-        sigRef1.current.clear();
-        setSignature1Data(null);
-    }
-};
+    // Clear the signature canvas
+    const clearSignature1 = () => {
+        // if (sigRef1.current) {
+            setTempSig1(null);
+            sigRef1?.current?.clear();
+        // }
+    };
     const handleSignatureEnd2 = () => {
         setFieldValue("signature2", sigRef2.current.toDataURL());
     };
@@ -219,24 +217,16 @@ export function NonIsraeliContract({
         // Validate the current step
         const validationErrors = await validateForm(); // This will populate the `errors` object
 
-        // Check if page 7 exists based on the conditions
         const pageSevenExists = (workerDetail.country !== "Israel" && workerDetail.is_existing_worker !== 1);
 
         // If there are no validation errors
         if (!Object.keys(validationErrors).length) {
             if (nextStep === 5) {
-                // Set saving type based on the condition
-                if (pageSevenExists) {
-                    setSavingType("draft"); // If page 7 exists, save as draft
-                } else {
-                    setSavingType("submit"); // If page 7 doesn't exist, submit on step 6
-                }
-                // Move to Step 6 if Step 5 has no validation errors
+                setSavingType("draft");
                 setNextStep(6);
+                // handleSubmit();
             } else if (nextStep === 6) {
-                // Set saving type to "submit" if we are on Step 6 or beyond
                 setSavingType("submit");
-                // Submit the form if Step 6 has no validation errors
                 handleSubmit();
             }
         } else {
@@ -245,8 +235,6 @@ export function NonIsraeliContract({
             handleSubmit();
         }
     };
-
-    console.log(sigRef1);
 
 
     return (
@@ -259,7 +247,7 @@ export function NonIsraeliContract({
                 {
                     ((isGeneratingPDF ? nextStep === 6 : nextStep === 5) || !nextStep) && (
                         <div className="row">
-                            <section className="col pl-0">
+                            <section className={`${isGeneratingPDF ? "col-12" : "col"} pl-0`}>
                                 <ol
                                     className="mt-5 lh-lg text-justify"
                                     style={{ fontSize: "16px" }}
@@ -432,11 +420,11 @@ export function NonIsraeliContract({
                                                             </strong>
                                                         </p>
                                                     )}
-                                                    {formValues &&
-                                                        formValues.signature1 ? (
+                                                    {(formValues || tempSig1) &&
+                                                        (formValues?.signature1 || tempSig1) ? (
                                                         <img
                                                             src={
-                                                                formValues.signature1
+                                                                formValues?.signature1 || tempSig1
                                                             }
                                                         />
                                                     ) : (
@@ -463,21 +451,22 @@ export function NonIsraeliContract({
                                                                         </p>
                                                                     )}
                                                             </div>
-                                                            {!isGeneratingPDF && (
-                                                                <div className="d-block align-content-end">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="btn navyblue px-3 py-1 ml-2 mb-2"
-                                                                        onClick={
-                                                                            clearSignature1
-                                                                        }
-                                                                    >
-                                                                        {t(
-                                                                            "nonIsrailContract.nic5_sub.clear"
-                                                                        )}
-                                                                    </button>
-                                                                </div>
-                                                            )}
+
+                                                        </div>
+                                                    )}
+                                                    {tempSig1 && !isGeneratingPDF && (
+                                                        <div className="d-block align-content-end">
+                                                            <button
+                                                                type="button"
+                                                                className="btn navyblue px-3 py-1 ml-2 mb-2"
+                                                                onClick={
+                                                                    clearSignature1
+                                                                }
+                                                            >
+                                                                {t(
+                                                                    "nonIsrailContract.nic5_sub.clear"
+                                                                )}
+                                                            </button>
                                                         </div>
                                                     )}
                                                 </div>

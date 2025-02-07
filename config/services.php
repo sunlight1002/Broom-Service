@@ -100,6 +100,7 @@ return [
     ],
 
     'short_url' => [
+        'domain' => env('SHORT_URL_DOMAIN'),
         'worker' => env('WORKER_SHORT_URL'),
         'admin' => env('ADMIN_SHORT_URL'),
         'client' => env('CLIENT_SHORT_URL'),

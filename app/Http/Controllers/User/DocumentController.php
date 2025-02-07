@@ -83,7 +83,6 @@ class DocumentController extends Controller
     public function save(Request $request)
     {
         $data = $request->all();
-        \Log::info($data);
         $user = $request->type == "worker" ? User::find($data['id']) : WorkerLeads::find($data['id']);        
         if ($request->file('visa') || $request->file('passport') || $request->file('id_card')) {
             
@@ -106,8 +105,8 @@ class DocumentController extends Controller
             // Handle passport file upload with delete check
             if ($request->hasFile('passport')) {
                 // Delete existing passport file if present
-                if ($user->passport && Storage::disk('public')->exists('uploads/documents/' . $user->passport)) {
-                    Storage::disk('public')->delete('uploads/documents/' . $user->passport);
+                if ($user->passport_card && Storage::disk('public')->exists('uploads/documents/' . $user->passport_card)) {
+                    Storage::disk('public')->delete('uploads/documents/' . $user->passport_card);
                 }
     
                 $pasport_file = $request->file('passport');

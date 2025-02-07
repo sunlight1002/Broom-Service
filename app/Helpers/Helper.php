@@ -3,6 +3,7 @@
 use App\Mail\MailInvoiceToClient;
 use App\Models\Job;
 use App\Models\Setting;
+use App\Models\ShortUrl;
 use Illuminate\Support\Facades\Mail;
 use App\Events\WhatsappNotificationEvent;
 use App\Enums\WhatsappMessageTemplateEnum;
@@ -26,6 +27,36 @@ if (!function_exists('sendInvoicePayToClient')) {
         // $pdf = PDF::loadView('InvoicePdf', compact('invoice'));
 
         Mail::to($data['job']['client']['email'])->send(new MailInvoiceToClient($data));
+    }
+}
+
+if(!function_exists('generateShortUrl')) {
+    function generateShortUrl($urlData, $type = null)
+    {
+
+        if (empty($urlData)) {
+            return null;  
+        }
+        $token = substr(md5(uniqid()), 0, 15);
+        
+        $shortUrl = ShortUrl::create([
+            'url' => $urlData,
+            'token' => $token,
+        ]);
+        \Log::info($shortUrl);
+
+        if($shortUrl) {
+            return config("services.short_url.domain")."/". $token;
+        }
+        // if ($type == 'worker') {
+        //     return config('services.short_url.worker') . $token;
+        // } elseif ($type == 'client') {
+        //     return config('services.short_url.client') . $token;
+        // } elseif ($type == 'admin') {
+        //     return config('services.short_url.admin') . $token;
+        // } else {
+        //     return config("services.short_url.domain")."/". $token;
+        // }
     }
 }
 

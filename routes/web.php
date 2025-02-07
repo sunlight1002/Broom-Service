@@ -52,46 +52,75 @@ Route::get('response-import', [ChatController::class, 'responseImport']);
 Route::post('/newlead', [LeadWebhookController::class, 'saveLeadFromContactForm']);
 
 
-Route::get('/brmsrvc.1/{token}', function ($token) {
-    $shortUrl = ShortUrl::where('token', $token)->first();
+Route::domain(config("services.short_url.domain"))->group(function () {
+    Route::get('/{token}', function ($token) {
+        $shortUrl = ShortUrl::where('token', $token)->first();
 
-    if ($shortUrl) {
-        return redirect($shortUrl->url);
-    }
+        if ($shortUrl) {
+            return redirect($shortUrl->url);
+        }
 
-    return abort(404);
+        return abort(404);
+    });
 });
 
-Route::get('/brmsrvc.1/a/{token}', function ($token) {
-    $shortUrl = ShortUrl::where('token', $token)->first();
+// Route::domain(config("services.short_url.domain"))->group(function () {
+//     Route::get('/c/{token}', function ($token) {
+//         $shortUrl = ShortUrl::where('token', $token)->first();
 
-    if ($shortUrl) {
-        return redirect($shortUrl->url);
-    }
+//         if ($shortUrl) {
+//             return redirect($shortUrl->url);
+//         }
 
-    return abort(404);
-});
+//         return abort(404);
+//     });
+// });
+
+// Route::domain(config("services.short_url.domain"))->group(function () {
+    // Route::get('/a/{token}', function ($token) {
+    //     $shortUrl = ShortUrl::where('token', $token)->first();
+
+    //     if ($shortUrl) {
+    //         return redirect($shortUrl->url);
+    //     }
+
+    //     return abort(404);
+    // });
+// });
 
 
-Route::get('/brmsrvc.c/{token}', function ($token) {
-    $shortUrl = ShortUrl::where('token', $token)->first();
+// Route::domain(config("services.short_url.domain"))->group(function () {
+    // Route::get('/w/{token}', function ($token) {
+    //     $shortUrl = ShortUrl::where('token', $token)->first();
 
-    if ($shortUrl) {
-        return redirect($shortUrl->url);
-    }
+    //     if ($shortUrl) {
+    //         return redirect($shortUrl->url);
+    //     }
 
-    return abort(404);
-});
+    //     return abort(404);
+    // });
+// });
 
-Route::get('/{token}', function ($token) {
-    $shortUrl = ShortUrl::where('token', $token)->first();
 
-    if ($shortUrl) {
-        return redirect($shortUrl->url);
-    }
+// Route::get('/brmsrvc.c/{token}', function ($token) {
+//     $shortUrl = ShortUrl::where('token', $token)->first();
 
-    return abort(404);
-});
+//     if ($shortUrl) {
+//         return redirect($shortUrl->url);
+//     }
+
+//     return abort(404);
+// });
+
+// Route::get('/{token}', function ($token) {
+//     $shortUrl = ShortUrl::where('token', $token)->first();
+
+//     if ($shortUrl) {
+//         return redirect($shortUrl->url);
+//     }
+
+//     return abort(404);
+// });
 
 
 
