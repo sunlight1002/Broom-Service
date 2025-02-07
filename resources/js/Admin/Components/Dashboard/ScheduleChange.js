@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
@@ -51,6 +51,9 @@ function ScheduleChange() {
     const endDateRef = useRef(null);
     const reasonRef = useRef(null);
 
+    const [searchParams] = useSearchParams();
+    const queryId = searchParams.get('id');
+
     const headers = {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
@@ -70,6 +73,13 @@ function ScheduleChange() {
         setUserId(_id)
         getRequest(_id)
     }
+
+    useEffect(() => {
+        if(queryId){
+            toggleChangeStatusModal(queryId)
+        }
+    }, [queryId])
+    
 
 
     const handleChangeStatus = async (userId, e) => {

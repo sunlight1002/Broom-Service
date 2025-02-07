@@ -69,6 +69,10 @@ class LeadWebhookController extends Controller
             "en" => "Hello, we couldn’t recognize your number in our system.\nAre you an existing client, or would you like to receive a quote for our service?\n 1️⃣ I am an existing client\n 2️⃣ I’d like a quote",
             "heb" => "שלום, לא זיהינו את המספר שלך במערכת.\nהאם אתה לקוח קיים או מעוניין לקבל הצעת מחיר לשירות?\n 1️⃣ אני לקוח קיים\n 2️⃣ מעוניין לקבל הצעת מחיר"
         ],
+        "after_new_lead" => [
+            "en" => "Thank you for reaching out!\nA representative from our team will contact you shortly.\n\nIn the meantime, feel free to read what our satisfied clients say about us here:\nhttps://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl\n\nBest regards,\nThe Broom Service Team 🌹\nwww.broomservice.co.il\nPhone: 03-525-70-60\noffice@broomservice.co.il",
+            "heb" => "תודה על פנייתך!\nנציג מטעמנו יצור איתך קשר בקרוב.\n\nבינתיים, תוכלו לקרוא מה לקוחותינו המרוצים אומרים עלינו כאן:\nhttps://www.facebook.com/brmsrvc/posts/pfbid02wFoke74Yv9fK8FvwExmLducZdYufrHheqx84Dhmn14LikcUo3ZmGscLh1BrFBzrEl\n\nבברכה,\nצוות ברום סרוויס 🌹\nwww.broomservice.co.il\nטלפון: 03-525-70-60\noffice@broomservice.co.il"
+        ],
         "enter_phone" => [
             "en" => "Hello! To verify your account, please enter the phone number you registered with our service.",
             "heb" => "שלום! לאימות החשבון שלך, אנא הזן את מספר הטלפון איתו נרשמת לשירות."
@@ -98,8 +102,8 @@ class LeadWebhookController extends Controller
             "heb" => "תודה, קיבלנו את הודעתך והעברנו לצוות הרלוונטי. ניצור איתך קשר בהקדם."
         ],
         "team_comment" => [
-            "en" => "🔔 Client :client_name has requested an urgent callback regarding: :message\n📞 Phone: :client_phone\n📄 :client_link",
-            "heb" => "🔔 לקוח בשם :client_name ביקש שיחזרו אליו בדחיפות בנושא: :message\n📞 טלפון: :client_phone\n📄 :client_link"
+            "en" => "🔔 Client :client_name has requested an urgent callback regarding: :message\n📞 Phone: :client_phone\n:comment_link\n📄 :client_link",
+            "heb" => "🔔 לקוח בשם :client_name ביקש שיחזרו אליו בדחיפות בנושא: :message\n📞 טלפון: :client_phone\n:comment_link\n📄 :client_link"
         ],
         "service_schedule" => [
             "en" => "Your service is scheduled for \n:date_time\n⏰ Please note: Arrival time may vary up to 1.5 hours from the scheduled time.",
@@ -130,8 +134,8 @@ class LeadWebhookController extends Controller
             "heb" => "שלום :client_name,\n    • תודה על פנייתך למחלקת הנה\"ח שלנו.\nהבקשה שלך התקבלה ואנו מעבירים אותה לבדיקה של הצוות הרלוונטי.\nנחזור אליך בהקדם האפשרי עם תשובה מסודרת."
         ],
         "team_invoice_account" => [
-            "en" => "🔔 Client :client_name has contacted accounting with the following message: :message\n📞 Phone: :client_phone\n📄 :client_link",
-            "heb" => "🔔 לקוח בשם :client_name פנה למחלקת הנה'ח עם ההודעה הבאה: :message\n📞 טלפון: :client_phone\n📄 :client_link"
+            "en" => "🔔 Client :client_name has contacted accounting with the following message: :message\n📞 Phone: :client_phone\n:comment_link\n📄 :client_link",
+            "heb" => "🔔 לקוח בשם :client_name פנה למחלקת הנה'ח עם ההודעה הבאה: :message\n📞 טלפון: :client_phone\n:comment_link\n📄 :client_link"
         ],
         "change_update_schedule" => [
             "en" => "Thank you! What changes or updates would you like to make to your schedule?\nPlease provide details, and we’ll forward your request to the relevant team.",
@@ -142,8 +146,8 @@ class LeadWebhookController extends Controller
             "heb" => "תודה! קיבלנו את בקשתך לשינוי או עדכון שיבוץ.\nאנו נעביר זאת לצוות ונחזור אליך במידת הצורך. 🌸"
         ],
         "team_change_update_schedule" => [
-            "en" => "🔔 Client :client_name has requested to change or update their schedule. \nMessage logged: :message\n📞 Phone: :client_phone\n📄 :client_link",
-            "heb" => "🔔 לקוח בשם :client_name ביקש לשנות או לעדכן שיבוץ. ההודעה שנרשמה: :message\n📞 טלפון: :client_phone\n📄 :client_link"
+            "en" => "🔔 Client :client_name has requested to change or update their schedule. \nMessage logged: :message\n📞 Phone: :client_phone\n:comment_link\n📄 :client_link",
+            "heb" => "🔔 לקוח בשם :client_name ביקש לשנות או לעדכן שיבוץ. ההודעה שנרשמה: :message\n📞 טלפון: :client_phone\n:comment_link\n📄 :client_link"
         ],
         "access_portal" => [
             "en" => "To access our client portal, please click here: :client_portal_link.",
@@ -1962,17 +1966,17 @@ If you would like to speak to a human representative, please send a message with
                         'flex' => 'A',
                     ]);
 
-                    $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
-                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                    $personalizedMessage = str_replace([':client_name', ':message', ':client_phone', ':client_link'], [$clientName, '*' . trim($input) . '*', $client->phone, url("admin/clients/view/" . $client->id)], $nextMessage);
-                    sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
-
                     $scheduleChange = new ScheduleChange();
                     $scheduleChange->user_type = get_class($client);
                     $scheduleChange->user_id = $client->id;
                     $scheduleChange->reason = $lng == "en" ? "Contact me urgently" : " צרו איתי קשר דחוף";
                     $scheduleChange->comments = trim($input);
                     $scheduleChange->save();
+
+                    $nextMessage = $this->activeClientBotMessages['team_comment']["heb"];
+                    $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
+                    $personalizedMessage = str_replace([':client_name', ':message', ':client_phone', ':comment_link',':client_link'], [$clientName, '*' . trim($input) . '*', $client->phone, url('admin/schedule-requests'.'?id=' . $scheduleChange->id),url("admin/clients/view/" . $client->id)], $nextMessage);
+                    sendTeamWhatsappMessage(config('services.whatsapp_groups.urgent'), ['name' => '', 'message' => $personalizedMessage]);
 
                     $clientMessageStatus->delete();
                     break;
@@ -2238,6 +2242,7 @@ If you would like to speak to a human representative, please send a message with
                     $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
                     $personalizedMessage = str_replace(':client_name', $clientName, $nextMessage);
                     sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
+
                     WebhookResponse::create([
                         'status' => 1,
                         'name' => 'whatsapp',
@@ -2246,9 +2251,17 @@ If you would like to speak to a human representative, please send a message with
                         'read' => 1,
                         'flex' => 'A',
                     ]);
+                   
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "Invoice and accounting inquiry" : 'הנה"ח - פנייה למחלקת הנהלת חשבונות';
+                    $scheduleChange->comments = $input;
+                    $scheduleChange->save();
+
                     $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
                     $nextMessage = $this->activeClientBotMessages['team_invoice_account']["heb"];
-                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, '*' . trim($input) . '*', url("admin/clients/view/" . $client->id)], $nextMessage);
+                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ":comment_link",':client_link'], [$clientName, $client->phone, '*' . trim($input) . '*', url('admin/schedule-requests'.'?id=' . $scheduleChange->id), url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.problem_with_payments'), ['name' => '', 'message' => $personalizedMessage]);
                     WebhookResponse::create([
                         'status' => 1,
@@ -2259,12 +2272,6 @@ If you would like to speak to a human representative, please send a message with
                         'flex' => 'A',
                     ]);
 
-                    $scheduleChange = new ScheduleChange();
-                    $scheduleChange->user_type = get_class($client);
-                    $scheduleChange->user_id = $client->id;
-                    $scheduleChange->reason = $lng == "en" ? "Invoice and accounting inquiry" : 'הנה"ח - פנייה למחלקת הנהלת חשבונות';
-                    $scheduleChange->comments = $input;
-                    $scheduleChange->save();
                     $clientMessageStatus->delete();
                     break;
 
@@ -2298,9 +2305,16 @@ If you would like to speak to a human representative, please send a message with
                         'flex' => 'A',
                     ]);
 
+                    $scheduleChange = new ScheduleChange();
+                    $scheduleChange->user_type = get_class($client);
+                    $scheduleChange->user_id = $client->id;
+                    $scheduleChange->reason = $lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
+                    $scheduleChange->comments = $input;
+                    $scheduleChange->save();
+
                     $nextMessage = $this->activeClientBotMessages['team_change_update_schedule']["heb"];
                     $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ':client_link'], [$clientName, $client->phone, '*' . trim($input) . '*', url("admin/clients/view/" . $client->id)], $nextMessage);
+                    $personalizedMessage = str_replace([':client_name', ":client_phone", ":message", ":comment_link",':client_link'], [$clientName, $client->phone, '*' . trim($input) . '*', url('admin/schedule-requests'.'?id=' . $scheduleChange->id), url("admin/clients/view/" . $client->id)], $nextMessage);
                     sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $personalizedMessage]);
 
                     WebhookResponse::create([
@@ -2312,12 +2326,6 @@ If you would like to speak to a human representative, please send a message with
                         'flex' => 'A',
                     ]);
 
-                    $scheduleChange = new ScheduleChange();
-                    $scheduleChange->user_type = get_class($client);
-                    $scheduleChange->user_id = $client->id;
-                    $scheduleChange->reason = $lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
-                    $scheduleChange->comments = $input;
-                    $scheduleChange->save();
                     $clientMessageStatus->delete();
                     break;
                 case 'access_portal':
@@ -2425,6 +2433,9 @@ If you would like to speak to a human representative, please send a message with
                     ]);
                     break;
                 case 'new_lead':
+                    $nextMessage = $this->activeClientBotMessages['after_new_lead'][$lng];
+                    sendClientWhatsappMessage($from, ['name' => '', 'message' => $nextMessage]);
+
                     $m = $this->botMessages['main-menu']['heb'];
                     sendWhatsappMessage($from, array('name' => '', 'message' => $m));
 
@@ -2862,8 +2873,8 @@ Your message has been forwarded to the team for further handling. Thank you for 
                                     "reason" => $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ',
                                 ]
                             );
-                            $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                            $teammsg = "שלום צוות, הלקוח " . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                            $teammsg = "שלום צוות, הלקוח " . "*" . $clientName . "*" . " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2940,8 +2951,8 @@ office@broomservice.co.il';
                             if ($scheduleChange) {
                                 $scheduleChange->comments = $messageBody;
                                 $scheduleChange->save();
-                                $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                                $teammsg = "שלום צוות, הלקוח " . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                                $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                                $teammsg = "שלום צוות, הלקוח " . "*" .$clientName . "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                                 sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -2963,8 +2974,8 @@ office@broomservice.co.il';
                             $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
                             $scheduleChange->comments = $messageBody;
                             $scheduleChange->save();
-                            $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                            $teammsg = "שלום צוות, הלקוח " .$clientName. "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                            $teammsg = "שלום צוות, הלקוח " . "*" .$clientName. "*" ." ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -3094,8 +3105,8 @@ office@broomservice.co.il';
                                     "reason" => $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ',
                                 ]
                             );
-                            $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                            $teammsg = "שלום צוות, הלקוח " .$clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                            $teammsg = "שלום צוות, הלקוח " ."*" .$clientName . "*". "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -3172,8 +3183,10 @@ office@broomservice.co.il';
                             if ($scheduleChange) {
                                 $scheduleChange->comments = $messageBody;
                                 $scheduleChange->save();
-                                $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                                $teammsg = "שלום צוות, הלקוח " . $clientName . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody. '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+
+                                // Send message to team
+                                $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                                $teammsg = "שלום צוות, הלקוח " . "*" .$clientName. "*" . "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' . $messageBody. '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                                 sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 
@@ -3193,8 +3206,8 @@ office@broomservice.co.il';
                             $scheduleChange->reason = $client->lng == "en" ? "Change or update schedule" : 'שינוי או עדכון שיבוץ';
                             $scheduleChange->comments = $messageBody;
                             $scheduleChange->save();
-                            $clientName = "*" .(($client->firstname ?? '') . ' ' . ($client->lastname ?? '')) . "*";
-                            $teammsg = "שלום צוות, הלקוח " .$clientName. "  ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' .$messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
+                            $clientName = (($client->firstname ?? '') . ' ' . ($client->lastname ?? ''));
+                            $teammsg = "שלום צוות, הלקוח " ."*" .$clientName. "*". " ביקש לבצע שינוי בסידור העבודה שלו לשבוע הבא. הבקשה שלו היא: \"". '*' .$messageBody . '*' ."\" אנא בדקו וטפלו בהתאם. בברכה, צוות ברום סרוויס";
 
                             sendTeamWhatsappMessage(config('services.whatsapp_groups.changes_cancellation'), ['name' => '', 'message' => $teammsg]);
 

@@ -111,6 +111,7 @@ export default function Lead() {
                                 _html += `<p 
                                     class="badge dt-change-status-btn" 
                                     data-tooltip-id="reschedule" 
+                                    data-id="${row.id}" 
                                     data-tooltip-html="${tooltipContent}" 
                                     style="background-color: ${_statusColor.backgroundColor}; color: white; padding: 5px 10px; border-radius: 5px; width: 125px; text-align: center;">
                                     ${data}

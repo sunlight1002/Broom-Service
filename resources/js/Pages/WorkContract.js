@@ -33,6 +33,7 @@ export default function WorkContract() {
     const [cnumber, setCnumber] = useState("");
     const [status, setStatus] = useState("");
     const [cards, setCards] = useState({})
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -75,9 +76,7 @@ export default function WorkContract() {
             }
         }
 
-        console.log(data);
-
-
+        setIsSubmitted(true);
         axios
             .post(`/api/client/accept-contract`, data)
             .then((res) => {
@@ -86,6 +85,9 @@ export default function WorkContract() {
                 setTimeout(() => {
                     window.location.reload(true);
                 }, 1000)
+            }).catch((err) => {
+                setIsSubmitted(false);
+                console.log(err);
             })
     }
 
@@ -114,7 +116,9 @@ export default function WorkContract() {
                 // console.log(res);
 
                 // console.log(res.data.cards[0], "card");
-                setStatus(res.data?.contract?.status)
+                let status = res.data?.contract?.status
+                setIsSubmitted((status == "un-verified" || status == "verified") ? true : false)
+                setStatus(status)
                 setCards(res.data.cards[0])
                 if (res?.data?.cards[0]?.card_type) {
                     setCtype(res.data.cards[0].card_type)
@@ -216,7 +220,7 @@ export default function WorkContract() {
 
                                 (status == 'not-signed') ?
                                     <div className='float-right mt-2'>
-                                        <input className='btn btn-pink' onClick={handleAccept} value={t('work-contract.accept_contract')} />
+                                        <input className='btn btn-pink' disabled={isSubmitted} onClick={handleAccept} value={t('work-contract.accept_contract')} />
                                         <input className='mt-2 btn btn-danger' onClick={(e) => RejectContract(e, contract.id)} value={t('work-contract.button_reject')} />
                                     </div>
                                     :
@@ -607,7 +611,7 @@ export default function WorkContract() {
 
                                 (status == 'not-signed') ?
                                     <div className='float-right mt-2 col-sm-12'>
-                                        <input className='btn btn-pink' onClick={handleAccept} value={t('work-contract.accept_contract')} />
+                                        <input className='btn btn-pink' disabled={isSubmitted} onClick={handleAccept} value={t('work-contract.accept_contract')} />
                                     </div>
                                     : ''
                             }
