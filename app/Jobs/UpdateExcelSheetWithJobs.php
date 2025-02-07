@@ -133,51 +133,58 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
     }
 
 
-    public function addJobToGoogleSheet($job, $sheetName , $sheetId)
+    public function addJobToGoogleSheet($job, $sheetName, $sheetId)
     {
         $spreadsheetId = $this->spreadsheetId;
-        $fields = [];
-
-        // Google Sheets API endpoint for appending values
-        $appendEndpoint = "{$this->googleSheetEndpoint}{$spreadsheetId}/values/{$sheetName}!A1:Z1000:append?valueInputOption=USER_ENTERED";
-
+        
+        $checkRange = "{$sheetName}!A:A"; 
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->googleAccessToken,
+            'Content-Type' => 'application/json',
+        ])->get("{$this->googleSheetEndpoint}{$spreadsheetId}/values/{$checkRange}?majorDimension=ROWS");
+    
+        $existingRows = json_decode($response->body(), true)['values'] ?? [];
+        $nextRow = count($existingRows) + 1; // Find the next empty row
+        
+        // Construct range explicitly to force strict placement
+        $updateRange = "{$sheetName}!A{$nextRow}:Z{$nextRow}";
+    
         $client = $job->client ?? null;
         $offer = $job->offer ?? null;
         $contract = $job->contract ?? null;
-
+    
         // Fetch dropdown options
         $workerArr = User::where('status', 1)->get()->pluck('firstname')->toArray();
         $serviceArr = Services::get()->pluck('heb_name')->toArray();
         $frequencyArr = ServiceSchedule::where('status', 1)
             ->get()->pluck('name_heb')->toArray();
         $addressArr = ClientPropertyAddress::where('client_id', $job->client->id)->get()->pluck('address_name')->toArray();
-
+    
         $workerId = ParentJobs::where('id', $job->parent_job_id)->value('worker_id');
         $worker = User::where('id', $workerId)->first();
         $frequency = ServiceSchedule::where('period', $job->schedule)->first();
         $frequencyName = $frequency->name_heb ?? null;
-
+    
         $jsonServices = isset($offer->services) ? json_decode($offer->services, true) : [];
         $serviceId = null;
         if (!empty($jsonServices)) {
-            foreach ($jsonServices as $key => $jsonService) {
-                if($jsonService['frequency'] == $frequency->id) {
-                    // \Log::info($jsonService['service']);
+            foreach ($jsonServices as $jsonService) {
+                if ($jsonService['frequency'] == $frequency->id) {
                     $serviceId = $jsonService['service'];
                 }
             }
         }
         $service = Services::find($serviceId);
-
+    
         $startTime = Carbon::createFromFormat('H:i:s', $job->start_time);
         $endTime = Carbon::createFromFormat('H:i:s', $job->end_time);
         $diffInHours = $startTime->diffInHours($endTime);
         $diffInMinutes = $startTime->diffInMinutes($endTime) % 60;
-
+    
         $addressName = ClientPropertyAddress::where('id', $job->address_id)->value('address_name');
-
+    
         $serviceName = $client->lng == "heb" ? $service->heb_name : $service->name;
-
+    
         $jobData = [
             $client->invoicename ?? "",
             $client->id ?? "",
@@ -204,73 +211,74 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
             "", // Empty cell
             $job->id ?? ""
         ];
-
-
+    
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->googleAccessToken,
             'Content-Type' => 'application/json',
-        ])->post($appendEndpoint, [
+        ])->put("{$this->googleSheetEndpoint}{$spreadsheetId}/values/{$updateRange}?valueInputOption=USER_ENTERED", [
             "values" => [$jobData]
         ]);
-
-
-        $updatedRange = json_decode($response->body(), true)['updates']['updatedRange'] ?? null;
+    
+        $updatedRange = json_decode($response->body(), true)['updatedRange'] ?? null;
         if (!$updatedRange) {
-            \Log::error("Failed to append job data.");
+            \Log::error("Failed to update job data.");
             return;
         }
-
-        // Extract row number
-        preg_match('/\d+$/', $updatedRange, $matches);
-        $rowNumber = $matches[0] ?? null;
-        \Log::info("Row number: " . $rowNumber);
-
-        if (!$rowNumber) {
-            \Log::error("Could not determine row number.");
-            return;
-        }
-
-
+    
+        \Log::info("Added Job ID {$job->id} to Google Sheet at row: " . $nextRow);
+    
+        // Apply dropdowns & checkboxes
+        $fields = [];
+    
         $fields[] = [
-            'sheetId' => $sheetId, // Sheet ID
-            'cell' => "J".$rowNumber, // Cell location
-            'type' => 'dropdown', // Field type
-            'values' => $workerArr, // Dropdown options
+            'sheetId' => $sheetId,
+            'cell' => "F{$nextRow}",
+            'type' => 'checkbox',
+            'values' => ["TRUE", "FALSE"],
+            'value' => "TRUE",
+        ];
+        $fields[] = [
+            'sheetId' => $sheetId,
+            'cell' => "G{$nextRow}",
+            'type' => 'checkbox',
+            'values' => ["TRUE", "FALSE"],
+            'value' => "FALSE",
+        ];
+        $fields[] = [
+            'sheetId' => $sheetId,
+            'cell' => "J{$nextRow}",
+            'type' => 'dropdown',
+            'values' => $workerArr,
             'value' => $worker,
         ];
-
-
         $fields[] = [
-            'sheetId' => $sheetId, // Sheet ID
-            'cell' => "M".$rowNumber, // Cell location
-            'type' => 'dropdown', // Field type
-            'values' => $serviceArr, // Dropdown options
+            'sheetId' => $sheetId,
+            'cell' => "M{$nextRow}",
+            'type' => 'dropdown',
+            'values' => $serviceArr,
             'value' => $serviceName,
         ];
-
         $fields[] = [
-            'sheetId' => $sheetId, // Sheet ID
-            'cell' => "Q".$rowNumber, // Cell location
-            'type' => 'dropdown', // Field type
-            'values' => $frequencyArr, // Dropdown options
+            'sheetId' => $sheetId,
+            'cell' => "Q{$nextRow}",
+            'type' => 'dropdown',
+            'values' => $frequencyArr,
             'value' => $frequencyName,
         ];
-
         $fields[] = [
-            'sheetId' => $sheetId, // Sheet ID
-            'cell' => "T".$rowNumber, // Cell location
-            'type' => 'dropdown', // Field type
-            'values' => $addressArr, // Dropdown options
+            'sheetId' => $sheetId,
+            'cell' => "T{$nextRow}",
+            'type' => 'dropdown',
+            'values' => $addressArr,
             'value' => $addressName,
         ];
-
-        // Apply dropdowns & checkboxes
+    
         $res = $this->updateGoogleSheetFields($fields);
         \Log::info([$res]);
-
-        \Log::info("Added Job ID {$job->id} to Google Sheet: " . $response->body());
+    
         return $response->body();
     }
+    
 
 
     public function updateGoogleSheetFields($fields)

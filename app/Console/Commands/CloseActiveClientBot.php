@@ -47,7 +47,7 @@ class CloseActiveClientBot extends Command
         {
             try {
                 if($client->from) {
-                    $lng = $client->lng ?? 'heb';
+                    $lng = $client->lng ?? 'en';
                     $nextMessage = $message[$lng];
                     sendClientWhatsappMessage($client->from, ['name' => '', 'message' => $nextMessage]);
                     $client->delete();

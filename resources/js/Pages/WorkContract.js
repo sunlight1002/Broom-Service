@@ -39,8 +39,7 @@ export default function WorkContract() {
     const params = useParams();
     const sigRef1 = useRef();
     const sigRef2 = useRef();
-    const consentToAdsRef = useRef();
-    const [nextStep, setNextStep] = useState(1);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     useEffect(() => {
         if (windowWidth < 767) {
@@ -78,12 +77,14 @@ export default function WorkContract() {
             consent_to_ads: consentToAds ? 1 : 0,
             form_data: { card_signature: cardSignature },
         };
+        setIsSubmitted(true);
 
         axios
             .post(`/api/client/accept-contract`, data)
             .then((res) => {
                 setLoading(false);
                 if (res.data.error) {
+                    setIsSubmitted(false);
                     swal("", res.data.error, "error");
                 } else {
                     setStatus("un-verified");
@@ -131,6 +132,7 @@ export default function WorkContract() {
                     setServices(JSON.parse(res.data.offer.services));
                     setClient(res.data.offer.client);
                     setContract(_contract);
+                    setIsSubmitted((_contract?.status == "un-verified" || contract?.status == "verified") ? true : false);
                     setStatus(_contract.status);
                     setConsentToAds(_contract.consent_to_ads ? true : false);
 
@@ -354,6 +356,7 @@ export default function WorkContract() {
                                     <button
                                         type="button"
                                         className="btn btn-success"
+                                        disabled={isSubmitted}
                                         onClick={handleAccept}
                                     >
                                         {t("work-contract.accept_contract")}
@@ -865,6 +868,7 @@ export default function WorkContract() {
                                         <button
                                             type="button"
                                             className="btn btn-success"
+                                            disabled={isSubmitted}
                                             onClick={handleAccept}
                                         >
                                             {t("work-contract.accept_contract")}
