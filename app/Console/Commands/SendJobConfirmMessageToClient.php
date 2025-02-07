@@ -181,14 +181,14 @@ www.broomservice.co.il
 
                                         case 'צהריים':
                                         case 'צהריים 14':
-                                            $shift = 'אחה"צ';
+                                            $shift = 'צהריים';
                                             break;
 
                                         case 'אחהצ':
                                         case 'אחה״צ':
                                         case 'ערב':
                                         case 'אחר״צ':
-                                            $shift = "אחהצ";
+                                            $shift = "אחה״צ";
                                             break;
 
                                         default:
@@ -282,7 +282,7 @@ www.broomservice.co.il
                     $personalizedMessage = str_replace(':next_week_schedule', $msg, $personalizedMessage);
                 }
                 echo $personalizedMessage . PHP_EOL . PHP_EOL . PHP_EOL;
-                // sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
+                sendClientWhatsappMessage($client->phone, ['name' => '', 'message' => $personalizedMessage]);
                 Cache::put('client_job_confirm_msg' . $client->id, 'main_msg', now()->addDay(1));
             }
         }
