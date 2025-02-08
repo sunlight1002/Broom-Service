@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
         'api_token' => \App\Http\Middleware\ApiToken::class,
+        'telescope.basic' => \App\Http\Middleware\TelescopeBasicAuth::class,
     ];
 }

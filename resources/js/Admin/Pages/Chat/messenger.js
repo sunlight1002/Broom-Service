@@ -105,8 +105,8 @@ export default function Messenger() {
     }, []);
 
     return (
-        <div 
-            id="container" 
+        <div
+            id="container"
             style={{
                 height: "90vh",
                 overflow: "hidden",
@@ -139,7 +139,7 @@ export default function Messenger() {
                                     {t("admin.global.replies")}
                                     </h4>
                                     <hr />
-                                    <div className="chat-conversation">
+                                    <div className="chat-conversation" style={{ overflow: 'auto' }}>
                                         <div
                                             data-simplebar="init"
                                             style={{ height: "600px" }}
@@ -238,7 +238,7 @@ export default function Messenger() {
                                                 <div
                                                     className="simplebar-scrollbar"
                                                     style={{
-                                                        height: "348px",
+                                                        height: "200px",
                                                         transform:
                                                             "translate3d(0px, 0px, 0px)",
                                                         display: "block",

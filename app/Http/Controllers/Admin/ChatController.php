@@ -245,7 +245,7 @@ class ChatController extends Controller
             'status'        => 1,
             'name'          => 'whatsapp',
             'entry_id'      => '',
-            'message'       => $_msg ? ($client && $client->lng == 'en') ? $_msg->eng : $_msg->heb: '',
+            'message'       => $_msg ? ($client && $client->lng == 'en') ? $_msg->eng : $_msg->heb : '',
             'number'        => $request->number,
             'flex'          => 'A',
             'read'          => 1,
@@ -315,7 +315,7 @@ class ChatController extends Controller
             }
         }
 
-       if ($type == 'client') {
+        if ($type == 'client') {
             if (is_numeric($s)) {
 
                 return $this->chatSearch($s, 'number');
@@ -335,16 +335,16 @@ class ChatController extends Controller
                     return $this->chatSearch($nos, 'name');
                 }
             }
-       }else {
-        $cx = explode(' ', $s);
-        $fn  = $cx[0];
-        $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
+        } else {
+            $cx = explode(' ', $s);
+            $fn  = $cx[0];
+            $ln  = isset($cx[1]) ? $cx[1] : $cx[0];
             $leads = Client::where('firstname', 'like', '%' . $fn . '%')
-                        ->orWhere('lastname', 'like', '%' . $ln . '%')
-                        ->orWhere('phone', 'like', '%' . $s . '%') // Search by phone number as well
-                        ->get(['phone', 'firstname', 'lastname']);
+                ->orWhere('lastname', 'like', '%' . $ln . '%')
+                ->orWhere('phone', 'like', '%' . $s . '%') // Search by phone number as well
+                ->get(['phone', 'firstname', 'lastname']);
             return $leads;
-       }
+        }
     }
 
     public function responseImport()
@@ -555,7 +555,7 @@ class ChatController extends Controller
             ]);
         }
 
-        $url ='https://graph.facebook.com/v21.0/' . config('services.facebook.account_id') . '/conversations?fields=participants&limit=100000000000000000000000000000000000000000000000000000&access_token=' . $pageAccessToken;
+        $url = 'https://graph.facebook.com/v21.0/' . config('services.facebook.account_id') . '/conversations?fields=participants&limit=100000000000000000000000000000000000000000000000000000&access_token=' . $pageAccessToken;
 
         $ch = curl_init();
 
@@ -578,8 +578,19 @@ class ChatController extends Controller
 
     public function messengerMessage($id)
     {
+        $pageId = config('services.facebook.page_id');
+        $tokenResponse = Http::withToken(config('services.facebook.access_token'))
+            ->get("https://graph.facebook.com/v21.0/$pageId", [
+                'fields' => 'access_token',
+            ]);
+
+
+        $tokenData = $tokenResponse->json();
+        $pageAccessToken = $tokenData['access_token'] ?? null;
+
+
         \Log::info("Fetching Messenger messages for ID: " . $id);
-        $url = 'https://graph.facebook.com/v21.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . config('services.facebook.msg_access_token');
+        $url = 'https://graph.facebook.com/v21.0/' . $id . '/?fields=participants,messages{id,message,created_time,from}&access_token=' . $pageAccessToken;
 
         Log::info("Requesting Messenger messages", ["URL" => $url]);
 
@@ -646,11 +657,11 @@ class ChatController extends Controller
     public function deleteConversation(Request $request)
     {
         $chats = WebhookResponse::where('number', $request->number)->delete();
-        if($chats){
+        if ($chats) {
             return response()->json([
                 'msg' => 'Conversation has been deleted!'
             ]);
-        }else{
+        } else {
             return response()->json([
                 'msg' => 'No conversation found!'
             ], 422);
