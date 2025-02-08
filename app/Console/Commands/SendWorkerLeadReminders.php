@@ -29,7 +29,7 @@ class SendWorkerLeadReminders extends Command
             1 => "👋 Just checking in!\n\nPlease let us know if you’re interested in our house cleaning job.\nWe’re hiring in the Tel Aviv area, and we’d love to hear from you.\n\n✅ Please reply with:\n\n1. 'Yes' or 'No' – Do you have house cleaning experience?",
             2 => "👋 Just checking in!\n\nPlease let us know if you’re interested in our house cleaning job.\nWe’re hiring in the Tel Aviv area, and we’d love to hear from you.\n\n✅ Please reply with:\n\n2. 'Yes' or 'No' – Do you have a valid work visa (Israeli ID, B1 visa, or refugee visa)?",
         ],
-        'rus' => [
+        'ru' => [
             1 => "👋 Просто проверяю!\n\nПожалуйста, дайте нам знать, если вас интересует наша работа по уборке дома.\nМы нанимаем сотрудников в районе Тель-Авива, и мы будем рады услышать от вас.\n\n✅ Пожалуйста, ответьте:\n\n1. 'Да' или 'Нет' - Есть ли у вас опыт уборки дома",
             2 => "👋 Просто проверяю!\n\nПожалуйста, дайте нам знать, если вас интересует наша работа по уборке дома.\nМы нанимаем сотрудников в районе Тель-Авива, и мы будем рады услышать от вас.\n\n✅ Пожалуйста, ответьте:\n\n2. 'Да' или 'Нет' – Есть ли у вас действующая рабочая виза (израильское удостоверение, виза B1 или статус беженца)?",
         ]
@@ -40,7 +40,7 @@ class SendWorkerLeadReminders extends Command
             1 => "🌟 Hi again!\n\nWe noticed you haven’t replied yet. If you’re still interested in a house cleaning job, please answer the following:\n\n1. 'Yes' or 'No' – Do you have house cleaning experience?",
             2 => "🌟 Hi again!\n\nWe noticed you haven’t replied yet. If you’re still interested in a house cleaning job, please answer the following:\n\n2. 'Yes' or 'No' – Do you have a valid work visa (Israeli ID, B1 visa, or refugee visa)?",
         ],
-        'rus' => [
+        'ru' => [
             1 => "🌟 Привет снова!\n\nМы заметили, что вы еще не ответили. Если вы все еще заинтересованы в работе по уборке дома, пожалуйста, ответьте на следующие вопросы:\n\n1. 'Да' или 'Нет' - Есть ли у вас опыт уборки дома",
             2 => "🌟 Привет снова!\n\nМы заметили, что вы еще не ответили. Если вы все еще заинтересованы в работе по уборке дома, пожалуйста, ответьте на следующие вопросы:\n\n2. 'Да' или 'Нет' – Есть ли у вас действующая рабочая виза (израильское удостоверение, виза B1 или статус беженца)?",
         ]
@@ -51,7 +51,7 @@ class SendWorkerLeadReminders extends Command
             1 => "👋 Final check!\n\nIf you’re interested in working as a house cleaner in Tel Aviv, we’d love to hear from you. Please answer:\n\n1. 'Yes' or 'No' – Do you have house cleaning experience?\n\nIf you don’t reply, we’ll assume you’re no longer interested. Feel free to contact us anytime in the future. 🌟",
             2 => "👋 Final check!\n\nIf you’re interested in working as a house cleaner in Tel Aviv, we’d love to hear from you. Please answer:\n\n2. 'Yes' or 'No' – Do you have a valid work visa (Israeli ID, B1 visa, or refugee visa)?\n\nIf you don’t reply, we’ll assume you’re no longer interested. Feel free to contact us anytime in the future. 🌟",
         ],
-        'rus' => [
+        'ru' => [
             1 => "👋 Последняя проверка!\n\nЕсли вы заинтересованы в работе уборщицей в Тель-Авиве, мы будем рады услышать от вас. Пожалуйста, ответьте:\n\n1. 'Да' или 'Нет' - Есть ли у вас опыт уборки дома?\n\nЕсли вы не ответите, мы будем считать, что вы больше не заинтересованы. Не стесняйтесь обращаться к нам в любое время в будущем. 🌟",
             2 => "👋 Последняя проверка!\n\nЕсли вы заинтересованы в работе уборщицей в Тель-Авиве, мы будем рады услышать от вас. Пожалуйста, ответьте:\n\n2. 'Да' или 'Нет' – Есть ли у вас действующая рабочая виза (израильское удостоверение, виза B1 или статус беженца)?\n\nЕсли вы не ответите, мы будем считать, что вы больше не заинтересованы. Не стесняйтесь обращаться к нам в любое время в будущем. 🌟",
         ]
@@ -71,7 +71,7 @@ class SendWorkerLeadReminders extends Command
         foreach ($workerLeads as $workerLead) {
             // Retrieve the worker state associated with this worker lead
             $workerState = WhatsAppBotWorkerState::where('worker_lead_id', $workerLead->id)->first();
-            
+
             if ($workerState) {
                 $timePassed = $workerLead->created_at->diffInHours(now());
 
@@ -104,7 +104,7 @@ class SendWorkerLeadReminders extends Command
 
 
         if ( !$workerLead->experience_in_house_cleaning && $workerState->step < 4) {
-            $reminderMessage = $this->{$reminderType}[$language][1]; 
+            $reminderMessage = $this->{$reminderType}[$language][1];
        } else if ( !$workerLead->you_have_valid_work_visa && $workerState->step < 4) {
             $reminderMessage = $this->{$reminderType}[$language][2];
        }else{
