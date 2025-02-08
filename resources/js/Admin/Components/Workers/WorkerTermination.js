@@ -96,7 +96,7 @@ export default function WorkerTermination({ worker, getWorkerDetails }) {
                         {t("worker.settings.invitation_for_hearing")}
                     </a>
                 </li>
-                {/* <li className="nav-item" role="presentation">
+                <li className="nav-item" role="presentation">
                     <a
                         className={`nav-link ${activeTab === 'hearingProtocol' ? 'active' : ''}`}
                         onClick={() => handleTabChange('hearingProtocol')}
@@ -104,7 +104,7 @@ export default function WorkerTermination({ worker, getWorkerDetails }) {
                     >
                         {t("Hearing Protocol")}
                     </a>
-                </li> */}
+                </li>
             </ul>
 
             <div className="tab-content" style={{ background: "#fff" }}>
@@ -113,11 +113,11 @@ export default function WorkerTermination({ worker, getWorkerDetails }) {
                         <WorkersHearing worker={worker} getWorkerDetails={getWorkerDetails}/>
                     </div>
                 )}
-                {/* {activeTab === 'hearingProtocol' && (
+                {activeTab === 'hearingProtocol' && (
                     <div className="tab-pane active show" role="tabpanel">
                         <HearingProtocol worker={worker} getWorkerDetails={getWorkerDetails}/>
                     </div>
-                )} */}
+                )}
             </div>
         </div>
     );

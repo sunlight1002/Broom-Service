@@ -28,6 +28,10 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
                    $entry->isScheduledTask() ||
                    $entry->hasMonitoredTag();
         });
+
+        Telescope::auth(function ($request) {
+            return true;
+        });
     }
 
     /**
@@ -56,10 +60,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewTelescope', function ($user) {
-            dd($user);
-            return in_array($user->email, [
-                'Office@broomservice.co.il'
-            ]);
+            return true;
         });
     }
 }
