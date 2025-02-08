@@ -741,7 +741,7 @@ export default function TotalJobs() {
         <div id="container">
             <Sidebar />
             <div id="content" className="job-listing-page">
-                <div className="titleBox customer-title">
+                <div className="titleBox customer-title mb-3">
                     <div className="row">
                         {/* <div className="col-sm-2 col-4">
                             <h1 className="page-title">Jobs</h1>
@@ -763,8 +763,7 @@ export default function TotalJobs() {
                                 {t("admin.global.Export")}
                             </CSVLink>
                         </div>
-
-                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between mt-2">
+                        <div className="col-sm-3 mt-3">
                             <div className="d-flex align-items-center">
                                 <div style={{ fontWeight: "bold" }}>{t("global.filter")}</div>
                                 <div className="mx-3 d-flex align-items-center">
@@ -795,6 +794,64 @@ export default function TotalJobs() {
                                         </option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                        <div className="col-sm mt-3 d-none d-lg-block">
+                            <div className="d-flex align-items-center">
+                                <button
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    data-toggle="modal"
+                                    style={{
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    }}
+                                    data-target="#exampleModal"
+                                >
+                                    {t("global.exportTimeReport")}
+                                </button>
+
+                                <button
+                                    className="m-0 ml-4 btn border rounded px-3"
+                                    style={!probbtn ? {
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    } : {
+                                        background: "white",
+                                        color: "black",
+                                    }}
+                                    onClick={() => setProbbtn(prev => !prev)}
+                                >
+                                    Problems
+                                </button>
+                            </div>
+                        </div>
+                        {/* Mobile */}
+                        <div className="col-12 hidden-xl pl-0">
+                            <div className="job-buttons">
+                                <button
+                                    className="ml-2 btn border rounded navyblue"
+                                    data-toggle="modal"
+                                    data-target="#exampleModal"
+                                >
+                                    {t("global.exportTimeReport")}
+                                </button>
+                                <button
+                                    className="ml-2 btn border rounded"
+                                    style={!probbtn ? {
+                                        background: "#2c3f51",
+                                        color: "white",
+                                    } : {
+                                        background: "white",
+                                        color: "black",
+                                    }}
+                                    onClick={() => setProbbtn(prev => !prev)}
+                                >
+                                    Problems
+                                </button>
+                            </div>
+                        </div>
+                        <div className="col-md-12 d-none d-lg-block justify-content-between mt-2">
+                            <div className="d-flex align-items-center">
                                 <div
                                     style={{ fontWeight: "bold" }}
                                     className="mr-2"
@@ -841,70 +898,148 @@ export default function TotalJobs() {
                                 />
                             </div>
                         </div>
-                        <div className="col-md-12 hidden-xs d-sm-flex justify-content-between my-2">
-                            <div className="d-flex align-items-center">
+                        <div className="col-sm-12 mt-0 pl-2 d-flex d-lg-none">
+                            <div className="search-data m-0">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.date_period")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span className="ml-2" style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px"
+                                    }}>{selectedDateRange || t("admin.leads.All")}</span>
+
+                                    <div className="dropdown-menu dropdown-menu-right">
+
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.day"));
+                                            }}
+                                        >
+                                            {t("global.day")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.week"));
+                                            }}
+                                        >
+                                            {t("global.week")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateRange(t("global.month"));
+                                            }}
+                                        >
+                                            {t("global.month")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-sm-12 pl-2 d-flex d-lg-none">
+                            <div className="search-data mt-2">
+                                <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 ">
+                                    <div
+                                        className=" mr-3"
+                                        style={{ fontWeight: "bold" }}
+                                    >
+                                        {t("global.date_period")}{t("global.type")}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-default navyblue dropdown-toggle"
+                                        data-toggle="dropdown"
+                                    >
+                                        <i className="fa fa-filter"></i>
+                                    </button>
+                                    <span className="ml-2" style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px"
+                                    }}>{selectedDateStep || t("admin.leads.All")}</span>
+
+                                    <div className="dropdown-menu dropdown-menu-right">
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(t("client.previous"));
+                                            }}
+                                        >
+                                            {t("client.previous")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(t("global.current"));
+                                            }}
+                                        >
+                                            {t("global.current")}
+                                        </button>
+                                        <button
+                                            className="dropdown-item"
+                                            onClick={() => {
+                                                setSelectedDateStep(t("global.next"));
+                                            }}
+                                        >
+                                            {t("global.next")}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-12 d-sm-flex justify-content-between my-1">
+                            <div className="d-flex align-items-center flex-wrap mt-2">
                                 <div
                                     className="mr-3"
                                     style={{ fontWeight: "bold" }}
                                 >
                                     {t("global.custom_date")}
                                 </div>
-
-                                <input
-                                    className="form-control"
-                                    type="date"
-                                    placeholder="From date"
-                                    name="from filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.start_date}
-                                    onChange={(e) => {
-                                        setDateRange({
-                                            start_date: e.target.value,
-                                            end_date: dateRange.end_date,
-                                        });
-                                    }}
-                                />
-                                <div className="mx-2">{t("global.to")}</div>
-                                <input
-                                    className="form-control"
-                                    type="date"
-                                    placeholder="To date"
-                                    name="to filter"
-                                    style={{ width: "fit-content" }}
-                                    value={dateRange.end_date}
-                                    onChange={(e) => {
-                                        setDateRange({
-                                            start_date: dateRange.start_date,
-                                            end_date: e.target.value,
-                                        });
-                                    }}
-                                />
-                                <button
-                                    className="m-0 ml-4 btn border rounded px-3"
-                                    data-toggle="modal"
-                                    style={{
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    }}
-                                    data-target="#exampleModal"
-                                >
-                                    {t("global.exportTimeReport")}
-                                </button>
-
-                                <button
-                                    className="m-0 ml-4 btn border rounded px-3"
-                                    style={!probbtn ? {
-                                        background: "#2c3f51",
-                                        color: "white",
-                                    } : {
-                                        background: "white",
-                                        color: "black",
-                                    }}
-                                    onClick={() => setProbbtn(prev => !prev)}
-                                >
-                                    Problems
-                                </button>
-
+                                <div className="d-flex align-items-center flex-wrap">
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="From date"
+                                        name="from filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.start_date}
+                                        onChange={(e) => {
+                                            setDateRange({
+                                                start_date: e.target.value,
+                                                end_date: dateRange.end_date,
+                                            });
+                                        }}
+                                    />
+                                    <div className="mx-2">{t("global.to")}</div>
+                                    <input
+                                        className="form-control"
+                                        type="date"
+                                        placeholder="To date"
+                                        name="to filter"
+                                        style={{ width: "fit-content" }}
+                                        value={dateRange.end_date}
+                                        onChange={(e) => {
+                                            setDateRange({
+                                                start_date: dateRange.start_date,
+                                                end_date: e.target.value,
+                                            });
+                                        }}
+                                    />
+                                </div>
                                 <input
                                     type="hidden"
                                     value={startTimeFilter}
@@ -974,25 +1109,13 @@ export default function TotalJobs() {
                                 </div>
                             </div>
                         </div>
-                        {/* Mobile */}
-                        <div className="col-12 hidden-xl">
-                            <div className="job-buttons">
-                                <button
-                                    className="ml-2 reportModal btn btn-warning"
-                                    data-toggle="modal"
-                                    data-target="#exampleModal"
-                                >
-                                    {t("global.exportTimeReport")}
-                                </button>
-                            </div>
-                        </div>
-                        <div className="col-sm-6 hidden-xl mt-4">
+                        <div className="col-sm-6 hidden-xl mt-2">
                             <select
                                 className="form-control"
                                 onChange={(e) => sortTable(e.target.value)}
                             >
                                 <option value="">{t("admin.leads.Options.sortBy")}</option>
-                                <option value="0">{t("admin.dashboard.jobs.jobdate")}</option>
+                                <option value="0">{t("admin.dashboard.jobs.jobDate")}</option>
                                 <option value="1">{t("admin.dashboard.jobs.client")}</option>
                             </select>
                         </div>

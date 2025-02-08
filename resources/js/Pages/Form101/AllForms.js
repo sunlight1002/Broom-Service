@@ -1520,9 +1520,10 @@ function AllForms() {
     };
 
 
-    const handleFileChange = (e, type) => {
+    const handleFileChange = (e, typ) => {
         const data = new FormData();
         data.append("id", id);
+        data.append("type", type == "lead" ? "lead" : "worker");
         if (e.target.files.length > 0) {
             const file = e.target.files[0];
             const fileSizeInMB = file.size / (1024 * 1024); // Convert file size to MB
@@ -1530,7 +1531,7 @@ function AllForms() {
                 alert.error(t("form101.step1.imageSize")); // Show an error message
                 return;
             }
-            data.append(`${type}`, file);
+            data.append(`${typ}`, file);
         }
         handleDocSubmit(data);
     };

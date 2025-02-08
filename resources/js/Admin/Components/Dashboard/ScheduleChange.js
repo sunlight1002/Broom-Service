@@ -120,7 +120,6 @@ function ScheduleChange() {
             console.error(error);
         }
     }
-
     const initializeDataTable = (initialPage = 0) => {
         if (!$.fn.DataTable.isDataTable(tableRef.current)) {
             $(tableRef.current).DataTable({
@@ -706,30 +705,6 @@ function ScheduleChange() {
                                         >
                                             {t("global.month")}
                                         </button>
-                                        {/* <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setSelectedDateStep(t("client.previous"));
-                                            }}
-                                        >
-                                            {t("client.previous")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setSelectedDateStep(t("global.current"));
-                                            }}
-                                        >
-                                            {t("global.current")}
-                                        </button>
-                                        <button
-                                            className="dropdown-item"
-                                            onClick={() => {
-                                                setSelectedDateStep(t("global.next"));
-                                            }}
-                                        >
-                                            {t("global.next")}
-                                        </button> */}
                                     </div>
                                 </div>
                             </div>

@@ -191,8 +191,8 @@ class UpdateExcelSheetWithJobs implements ShouldQueue
             $offer->id ?? "",
             "", // Empty cell
             "", // Empty cell
-            "TRUE", // Checkbox
-            "FALSE", // Checkbox
+            "", // Checkbox
+            "", // Checkbox
             "", // Empty cell
             ($worker->firstname ?? "")." ".($worker->lastname ?? ""), // Default selected worker
             ($worker->firstname ?? "")." ".($worker->lastname ?? ""), // Worker dropdown

@@ -784,10 +784,11 @@ class AuthController extends Controller
     public function WorkContract(Request $request, $id)
     {
         $data = $request->all();
-        $savingType = $request->input('savingType', 'submit'); // Default to 'submit' if not provided
+        $savingType = $request->input('savingType', 'submit'); // Default to 'submit'
         $pdfFile = isset($data['pdf_file']) ? $data['pdf_file'] : null;
         unset($data['pdf_file']);
     
+        // Find worker based on type (lead or user)
         $worker = $request->type == 'lead' ? WorkerLeads::find($id) : User::where('id', $id)->first();
         if (!$worker) {
             return response()->json([
@@ -795,26 +796,25 @@ class AuthController extends Controller
             ], 404);
         }
     
-        $step = $data['step'] ?? 1;  // Retrieve 'step' from the request (if exists)
-        
-        // Save the 'step' value to the worker's record
+        $step = $data['step'] ?? 1;  // Retrieve 'step' from the request
         if ($step) {
-            $worker->step = $step;  // Assuming the 'step' field exists on the worker model
+            $worker->step = $step;
             $worker->save();
         }
     
-        // Check if the form already exists
+        // Check if form already exists
         $form = $worker->forms()
             ->where('type', WorkerFormTypeEnum::CONTRACT)
             ->first();
     
-        if ($form && $savingType == 'submit' && $form->submitted_at) {
+        // If the contract is already signed, prevent resubmission
+        if ($form && $savingType === 'submit' && $form->submitted_at) {
             return response()->json([
                 'message' => 'Contract already signed.'
             ], 403);
         }
     
-        // If form exists, update it; otherwise, create a new one
+        // Prepare form data
         $formData = [
             'type' => WorkerFormTypeEnum::CONTRACT,
             'data' => $data,
@@ -822,8 +822,14 @@ class AuthController extends Controller
             'pdf_name' => null
         ];
     
-        // If savingType is 'submit', generate the PDF and save it
+        // Handle PDF saving only when submitting
         if ($savingType === 'submit') {
+            if (!$pdfFile) {
+                return response()->json([
+                    'message' => "PDF file is required to submit the contract."
+                ], 400);
+            }
+    
             if (!Storage::drive('public')->exists('signed-docs')) {
                 Storage::drive('public')->makeDirectory('signed-docs');
             }
@@ -832,42 +838,40 @@ class AuthController extends Controller
             if (!Storage::disk('public')->putFileAs("signed-docs", $pdfFile, $file_name)) {
                 return response()->json([
                     'message' => "Can't save PDF"
-                ], 403);
+                ], 500);
             }
     
-            // Update the form data with the PDF file name
+            // Update contract status and assign PDF
             $formData['pdf_name'] = $file_name;
-            // $worker->worker_contract = $file_name;
             $worker->contract = 1;
             $worker->save();
         }
     
-        // Create or update the form in the database
+        // Create or update the form
         if ($form) {
-            // If form exists, update it
             $form->update($formData);
-            $message = 'Contract updated successfully.';
+            $message = ($savingType === 'submit') ? 'Contract signed successfully.' : 'Draft saved successfully.';
         } else {
-            // If form does not exist, create a new one
             $form = $worker->forms()->create($formData);
-            $message = 'Contract created successfully.';
+            $message = ($savingType === 'submit') ? 'Contract created and signed successfully.' : 'Draft saved successfully.';
         }
     
+        // Trigger event only when the contract is fully submitted
         $user = null;
-        // Trigger the event only if the form is fully submitted
         if ($savingType === 'submit') {
             event(new ContractFormSigned($worker, $form));
-            if($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country == 'Israel') {
+    
+            if ($request->type == 'lead' && $worker->company_type == 'my-company' && $worker->country == 'Israel') {
                 $user = $this->createUser($worker);
             }
-            $message = 'Contract signed successfully. Thanks for signing the contract.';
         }
     
         return response()->json([
             'message' => $message,
-            'id' => $request->type == 'lead' ? $user->id : null
+            'id' => $savingType === 'submit' && $request->type == 'lead' ? $user->id : null
         ]);
     }
+    
     
 
     public function transformFormDataForBoolean(&$array)

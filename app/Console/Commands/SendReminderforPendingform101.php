@@ -73,7 +73,7 @@ The 101 form is required by the tax authorities and needs to be completed anew e
 If you have any questions or need assistance, feel free to ask.
 
 Here is the form:
-" . url("worker-forms/" . base64_encode($worker->id) . "/" . base64_encode($pendingForm->id)) . "
+" . generateShortUrl(url("worker-forms/" . base64_encode($worker->id) . "/" . base64_encode($pendingForm->id)), 'worker') . "
 
 Thank you,",
 
@@ -86,7 +86,7 @@ Thank you,",
 Если у вас есть вопросы или вам нужна помощь, не стесняйтесь обращаться.
 
 Вот ссылка на форму:
-" . url("worker-forms/" . base64_encode($worker->id) . "/" . base64_encode($pendingForm->id)) . "
+" . generateShortUrl(url("worker-forms/" . base64_encode($worker->id) . "/" . base64_encode($pendingForm->id)), 'worker') . "
 
 Спасибо",
 

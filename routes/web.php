@@ -12,6 +12,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\iCountController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Webhook\TwilioController;
+use App\Models\ShortUrl;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,88 @@ Route::get('/thanks/{id}', [InvoiceController::class, 'displayThanks']);
 Route::get('ads-leads', [LeadController::class, 'fbAdsLead'])->name('adsLead');
 Route::get('response-import', [ChatController::class, 'responseImport']);
 Route::post('/newlead', [LeadWebhookController::class, 'saveLeadFromContactForm']);
+
+
+Route::domain(config('services.short_url.domain'))->group(function () {
+    // This route handles valid tokens.
+    Route::get('/{token}', function ($token) {
+        $shortUrl = ShortUrl::where('token', $token)->first();
+
+        if ($shortUrl) {
+            return redirect($shortUrl->url);
+        }
+
+        // If the token is not found, redirect to broomservice.
+        return redirect('https://crm.broomservice.co.il/', 302);
+    })
+    // Optionally, if your tokens follow a specific pattern you can add a constraint.
+    ->where('token', '[A-Za-z0-9]+');
+
+    // This fallback route catches any other URL (e.g. '/', '/foo/bar', etc.)
+    Route::fallback(function () {
+         return redirect('https://crm.broomservice.co.il/', 302);
+    });
+});
+
+// Route::domain(config("services.short_url.domain"))->group(function () {
+//     Route::get('/c/{token}', function ($token) {
+//         $shortUrl = ShortUrl::where('token', $token)->first();
+
+//         if ($shortUrl) {
+//             return redirect($shortUrl->url);
+//         }
+
+//         return abort(404);
+//     });
+// });
+
+// Route::domain(config("services.short_url.domain"))->group(function () {
+// Route::get('/a/{token}', function ($token) {
+//     $shortUrl = ShortUrl::where('token', $token)->first();
+
+//     if ($shortUrl) {
+//         return redirect($shortUrl->url);
+//     }
+
+//     return abort(404);
+// });
+// });
+
+
+// Route::domain(config("services.short_url.domain"))->group(function () {
+// Route::get('/w/{token}', function ($token) {
+//     $shortUrl = ShortUrl::where('token', $token)->first();
+
+//     if ($shortUrl) {
+//         return redirect($shortUrl->url);
+//     }
+
+//     return abort(404);
+// });
+// });
+
+
+// Route::get('/brmsrvc.c/{token}', function ($token) {
+//     $shortUrl = ShortUrl::where('token', $token)->first();
+
+//     if ($shortUrl) {
+//         return redirect($shortUrl->url);
+//     }
+
+//     return abort(404);
+// });
+
+// Route::get('/{token}', function ($token) {
+//     $shortUrl = ShortUrl::where('token', $token)->first();
+
+//     if ($shortUrl) {
+//         return redirect($shortUrl->url);
+//     }
+
+//     return abort(404);
+// });
+
+
 
 // Auth::routes();
 Route::any('/{path?}', function () {

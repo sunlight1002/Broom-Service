@@ -605,7 +605,7 @@ class WorkerLeadWebhookController extends Controller
 
                     case 'access_employee_portal':
                         $nextMessage = $this->activeWorkersbotMessages['access_employee_portal'][$lng];
-                        $personalizedMessage = str_replace(':link', url("worker/login"), $nextMessage);
+                        $personalizedMessage = str_replace(':link', generateShortUrl(url("worker/login"), 'worker'), $nextMessage);
                         sendClientWhatsappMessage($from, ['name' => '', 'message' => $personalizedMessage]);
                         $activeWorkerBot->delete();
                         break;

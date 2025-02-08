@@ -350,7 +350,17 @@ export default function Lead() {
 
                         <div className="col-sm-6">
                             <div className="search-data">
-                                <div className="action-dropdown dropdown mt-md-4 mr-2 d-lg-none">
+
+                                <Link
+                                    to="/admin/leads/create"
+                                    className="btn navyblue no-hover add-btn"
+                                >
+                                    <i className="fas fa-plus-circle"></i>
+                                    <span className="d-lg-block ml-2 d-none">
+                                        {t("admin.leads.AddNew")}
+                                    </span>
+                                </Link>
+                                <div className="action-dropdown dropdown mt-md-4 mx-2 d-lg-none">
                                     <button
                                         type="button"
                                         className="btn btn-default navyblue dropdown-toggle"
@@ -358,6 +368,11 @@ export default function Lead() {
                                     >
                                         <i className="fa fa-filter"></i>
                                     </button>
+                                    <span className="ml-2" style={{
+                                        padding: "6px",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "5px"
+                                    }}>{filter || t("admin.leads.All")}</span>
                                     <div className="dropdown-menu">
                                         <button
                                             className="dropdown-item "
@@ -383,15 +398,6 @@ export default function Lead() {
                                     </div>
                                 </div>
 
-                                <Link
-                                    to="/admin/leads/create"
-                                    className="btn navyblue no-hover add-btn"
-                                >
-                                    <i className="fas fa-plus-circle"></i>
-                                    <span className="d-lg-block ml-2 d-none">
-                                        {t("admin.leads.AddNew")}
-                                    </span>
-                                </Link>
                             </div>
                         </div>
                         <div className="col-sm-6 hidden-xl mt-4">

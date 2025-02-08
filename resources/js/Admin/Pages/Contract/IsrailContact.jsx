@@ -19,7 +19,9 @@ export function IsrailContact({
     isGeneratingPDF,
     contentRef,
     nextStep,
-    setNextStep
+    setNextStep,
+    savingType,
+    setSavingType
 }) {
     const sigRef = useRef();
     const { t } = useTranslation();
@@ -113,11 +115,6 @@ export function IsrailContact({
         },
     });
 
-    // if (isSubmitted) {
-    //     setNextStep(prev => prev + 1)
-    // }
-
-
     useEffect(() => {
         if (isSubmitted) {
             setFormValues(workerFormDetails);
@@ -164,9 +161,11 @@ export function IsrailContact({
         if (!Object.keys(errors).length) {
             if (nextStep === 5) {
                 // Move to Step 6 if Step 5 has no validation errors
+                setSavingType("draft");
                 setNextStep(6);
             } else if (nextStep === 6) {
                 // Submit the form if Step 6 has no validation errors
+                setSavingType("submit");
                 handleSubmit();
             }
         } else {

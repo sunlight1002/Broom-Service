@@ -30,7 +30,7 @@ class WebhookResponse extends Model
     {
         if (!is_null($client)) {
             $id   = base64_encode($client->id);
-            $link = url('/schedule-meet/' . $id);
+            $link = generateShortUrl(url('/schedule-meet/' . $id), 'client');
         } else {
             $link = '';
         }

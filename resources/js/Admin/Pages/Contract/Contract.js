@@ -24,19 +24,12 @@ export default function Contract() {
 
     const [filter, setFilter] = useState("All");
 
-    // const contractStatuses = [
-    //     t("global.verified"),
-    //     t("global.unverified"),
-    //     t("global.notSigned"),
-    //     t("admin.schedule.options.meetingStatus.Declined"),
-    // ];
-
-    const contractStatuses = [
-        "verified",
-        "un-verified",
-        "not-signed",
-        "declined",
-    ];
+    const contractStatuses = {
+        "verified": t("global.verified"),
+        "un-verified": t("global.unverified"),
+        "not-signed": t("global.notSigned"),
+        "declined": t("admin.schedule.options.meetingStatus.Declined"),
+    };
 
     const headers = {
         Accept: "application/json, text/plain, */*",
@@ -440,23 +433,89 @@ export default function Contract() {
                                 selectedFilter={filter}
                                 setselectedFilter={setFilter}
                             />
-                            {contractStatuses.map((_status, _index) => {
-                                return (
-                                    <FilterButtons
-                                        text={_status}
-                                        className="mr-1 px-3 ml-2"
-                                        key={_index}
-                                        selectedFilter={filter}
-                                        setselectedFilter={setFilter}
-                                    />
-                                );
-                            })}
-
+                            {Object.entries(contractStatuses).map(([key, value]) => (
+                                <FilterButtons
+                                    text={value}
+                                    name={key}
+                                    className="px-3 mr-1"
+                                    key={key}
+                                    selectedFilter={filter}
+                                    setselectedFilter={(status) => setFilter(status)}
+                                />
+                            ))}
                             <input
                                 type="hidden"
                                 value={filter}
                                 ref={statusRef}
                             />
+                        </div>
+                    </div>
+                </div>
+                <div className="col-sm-6 mt-2 pl-0 d-flex">
+                    <div className="search-data">
+                        <div className="action-dropdown dropdown d-flex align-items-center mt-md-4 mr-2 d-lg-none">
+                            <div
+                                className=" mr-3"
+                                style={{ fontWeight: "bold" }}
+                            >
+                                {t("admin.global.filter")}
+                            </div>
+                            <button
+                                type="button"
+                                className="btn btn-default navyblue dropdown-toggle"
+                                data-toggle="dropdown"
+                            >
+                                <i className="fa fa-filter"></i>
+                            </button>
+                            <span className="ml-2" style={{
+                                padding: "6px",
+                                border: "1px solid #ccc",
+                                borderRadius: "5px"
+                            }}>{filter || t("admin.leads.All")}</span>
+
+                            <div className="dropdown-menu dropdown-menu-right">
+
+                                <button
+                                    className="dropdown-item"
+                                    onClick={() => {
+                                        setFilter("All");
+                                    }}
+                                >
+                                    {t("admin.leads.All")}
+                                </button>
+                                <button
+                                    className="dropdown-item"
+                                    onClick={() => {
+                                        setFilter("verified");
+                                    }}
+                                >
+                                    {t("global.verified")}
+                                </button>
+                                <button
+                                    className="dropdown-item"
+                                    onClick={() => {
+                                        setFilter("un-verified");
+                                    }}
+                                >
+                                    {t("global.unverified")}
+                                </button>
+                                <button
+                                    className="dropdown-item"
+                                    onClick={() => {
+                                        setFilter("not-signed");
+                                    }}
+                                >
+                                    {t("global.notSigned")}
+                                </button>
+                                <button
+                                    className="dropdown-item"
+                                    onClick={() => {
+                                        setFilter("declined");
+                                    }}
+                                >
+                                    {t("admin.schedule.options.meetingStatus.Declined")}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
