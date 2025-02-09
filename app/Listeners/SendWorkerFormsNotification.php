@@ -30,19 +30,9 @@ class SendWorkerFormsNotification implements ShouldQueue
      */
     public function handle(WorkerCreated $event)
     {
-
-        // var_dump($event);
         if (!empty($event->worker->email)) {
             App::setLocale($event->worker->lng);
             $workerArr = $event->worker->toArray();
-
-            Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr) {
-                $messages->to($workerArr['email']);
-                ($workerArr['lng'] == 'heb') ?
-                    $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
-                    $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];
-                $messages->subject($sub);
-            });
             if (!empty($workerArr['phone'])) {
                 event(new WhatsappNotificationEvent([
                     "type" => WhatsappMessageTemplateEnum::WORKER_FORMS,
@@ -51,7 +41,17 @@ class SendWorkerFormsNotification implements ShouldQueue
                     ]
                 ]));
             }
-
+            try {
+                Mail::send('/Mails/WorkerForms', $workerArr, function ($messages) use ($workerArr) {
+                    $messages->to($workerArr['email']);
+                    ($workerArr['lng'] == 'heb') ?
+                        $sub = $workerArr['id'] . "# " . __('mail.forms.worker_forms') :
+                        $sub = __('mail.forms.worker_forms') . " #" . $workerArr['id'];
+                    $messages->subject($sub);
+                });
+            } catch (\Exception $e) {
+                report($e);
+            }
         }
     }
 }
