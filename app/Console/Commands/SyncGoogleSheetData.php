@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Jobs\SyncExcelSheetAndMakeJob;
 use App\Jobs\UpdateExcelSheetWithJobs;
+use App\Jobs\SyncGoogleSheetDataJob;
 
 
 class SyncGoogleSheetData extends Command
@@ -41,6 +42,7 @@ class SyncGoogleSheetData extends Command
     public function handle()
     {
         // dispatch(new SyncExcelSheetAndMakeJob())->onConnection('sync');
-        dispatch(new UpdateExcelSheetWithJobs())->onConnection('sync');
+        // dispatch(new UpdateExcelSheetWithJobs())->onConnection('sync');
+        dispatch(new SyncGoogleSheetDataJob())->onConnection('sync');
     }
 }

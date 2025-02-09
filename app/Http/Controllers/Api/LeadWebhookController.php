@@ -471,7 +471,7 @@ Broom Service Team 🌹",
                 die('final');
             };
 
-            if ($client && $data_returned['channel_id'] == 'DEADPL-DAB6G' && isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
+            if ($client && $data_returned['channel_id'] == 'GAMORA-MDYNP' && isset($data_returned) && isset($data_returned['messages']) && is_array($data_returned['messages'])) {
                 $message = ($message_data[0]['type'] == 'text') ? $message_data[0]['text']['body'] : ($message_data[0]['button']['text'] ?? "");
                 // \Log::info($message);
                 $result = WhatsappLastReply::where('phone', $from)

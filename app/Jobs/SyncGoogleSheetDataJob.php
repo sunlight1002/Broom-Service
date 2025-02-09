@@ -305,7 +305,7 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                             }
                                         }
 
-                                        $this->handleJob($offer, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, );
+                                        // $this->handleJob($offer, $selectedOfferDataArr, $services, $frequencies, $selectedAddress, $selectedFrequency, $selectedService, );
                                     }
                                 } else {
                                     $offers = $client->offers;
@@ -430,8 +430,8 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                                 // \Log::info('Fields', ['fields' => $fields]);
                                 // echo json_encode($fields) . PHP_EOL;
                                 $response = $this->updateGoogleSheetFields($fields);
-                                // echo $response . PHP_EOL;
-                                sleep(3);
+                                echo $response . PHP_EOL;
+                                sleep(1);
                                 echo ($index + 1) . PHP_EOL;
                             }
 
@@ -937,9 +937,9 @@ class SyncGoogleSheetDataJob implements ShouldQueue
                 //     $query->whereJsonContains('services->frequency', $ServiceFrequency->id); // Correct JSON path
                 // })
                 ->get(); // Fetch all matching results
-            
+
             \Log::info($contract->offer->toArray()); // Convert to array before logging
-            
+
                 if (!$contract) {
                     return response()->json([
                         'message' => 'Contract not found'
