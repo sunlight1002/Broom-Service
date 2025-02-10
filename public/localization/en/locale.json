@@ -1358,7 +1358,10 @@
             "worker_includes": "Worker Includes",
             "client_includes": "Clients Includes",
             "worker_excludes": "Worker Excludes",
-            "client_excludes": "Clients Excludes"
+            "client_excludes": "Clients Excludes",
+            "claim": "Claim",
+            "claim_request": "Claim Request"
+
         },
         "dashboard": {
             "jobPosted": "Job Posted",

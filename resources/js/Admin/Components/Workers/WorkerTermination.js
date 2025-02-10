@@ -75,6 +75,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import WorkersHearing from './WorkersHearing';
 import HearingProtocol from './HearingProtocol';
+import DisplayClaims from './DisplayClaims';
 
 export default function WorkerTermination({ worker, getWorkerDetails }) {
     const { t } = useTranslation();
@@ -129,7 +130,7 @@ export default function WorkerTermination({ worker, getWorkerDetails }) {
                 )}
                 {activeTab === 'showClaims' && (
                     <div className="tab-pane active show" role="tabpanel">
-                        <HearingProtocol worker={worker} getWorkerDetails={getWorkerDetails}/>
+                        <DisplayClaims worker={worker} getWorkerDetails={getWorkerDetails}/>
                     </div>
                 )}
             </div>

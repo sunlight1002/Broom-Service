@@ -332,6 +332,7 @@ class ClaimController extends Controller
     // Retrieve claims for a specific worker
     public function showWorkerClaims($workerId)
     {
+        \Log::info('Worker Claims '. $workerId);
         $claims = Claim::where('worker_id', $workerId)->get();
 
         return response()->json([
