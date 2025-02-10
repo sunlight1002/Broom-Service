@@ -217,7 +217,7 @@ export default function AdminHeader() {
                                         >
                                             {t("admin.account")}
                                         </Link>
-                                        {me && me.role !== "superadmin" && (
+                                        {me && me.role !== "superadmin" && me.role !== "hr" && (
                                             <Link
                                                 className="dropdown-item"
                                                 to="/admin/my-availability"

@@ -224,7 +224,7 @@ export default function Acc() {
                                     id="switch"
                                     checked={twostepverification}
                                 />
-                                <label htmlFor="switch">
+                                <label htmlFor="switch" className="">
                                     <span className="slider round"></span>
                                 </label>
                             </div>

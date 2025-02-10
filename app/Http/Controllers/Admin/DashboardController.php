@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Job;
 use App\Models\User;
 use App\Models\Client;
+use App\Models\WorkerLeads;
 use App\Models\Offer;
 use App\Models\Schedule;
 use App\Models\Contract;
@@ -45,6 +46,7 @@ class DashboardController extends Controller
     })->count();
     $total_schedules  = Schedule::whereDate('start_date', $today)->count();
     $total_offers    = Offer::where('status', 'sent')->count();
+    $total_worker_leads = WorkerLeads::all()->count();
     $total_contracts  = Contract::where('status', '!=', ContractStatusEnum::VERIFIED)->count();
     $latest_jobs     = Job::query()
       ->with(['client', 'service', 'worker', 'jobservice'])
@@ -58,6 +60,7 @@ class DashboardController extends Controller
       'total_active_clients'  => $total_active_clients,
       'total_leads'        => $total_leads,
       'total_workers'      => $total_workers,
+      'total_worker_leads' => $total_worker_leads,
       'total_schedules'    => $total_schedules,
       'total_offers'       => $total_offers,
       'total_contracts'    => $total_contracts,
