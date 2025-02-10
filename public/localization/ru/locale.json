@@ -268,7 +268,9 @@
         "noProblem": "Нет проблем",
         "noOfProblem": "Количество проблем",
         "declaration_form": "Форма декларации",
-        "Submit": "Отправить"
+        "Submit": "Отправить",
+        "cleaner": "уборщик",
+        "general_worker": "Общий рабочий"
     },
     "modal": {
         "title": "Модальное окно",

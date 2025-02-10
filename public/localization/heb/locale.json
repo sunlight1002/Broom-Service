@@ -316,7 +316,9 @@
         "type": "סוג",
         "doc_num": "מספר מסמך",
         "sum": "סכום",
-        "file": "קובץ"
+        "file": "קובץ",
+        "cleaner": "מנקה",
+        "general_worker": "עובד כללי"
     },
     "modal": {
         "title": "מודל",

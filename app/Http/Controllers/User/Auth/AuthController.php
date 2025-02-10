@@ -841,7 +841,7 @@ class AuthController extends Controller
     
             // Update contract status and assign PDF
             $formData['pdf_name'] = $file_name;
-            $worker->contract = 1;
+            // $worker->contract = 1;
             $worker->save();
         }
     
@@ -866,7 +866,7 @@ class AuthController extends Controller
     
         return response()->json([
             'message' => $message,
-            'id' => $savingType === 'submit' && $request->type == 'lead' ? $user->id : null
+            'id' => $worker->country == "Israel" && $request->type == 'lead' && $savingType === 'submit' ? $user->id : null
         ]);
     }
     
@@ -1134,7 +1134,7 @@ class AuthController extends Controller
                 }
             }
 
-            $worker->saftey_and_gear = $savingType === 'submit' ? 1 : 0;
+            // $worker->saftey_and_gear = $savingType === 'submit' ? 1 : 0;
             // $worker->safety_and_gear_form = $savingType === 'submit' ? $file_name : null;
             $worker->save();
     
@@ -1160,7 +1160,7 @@ class AuthController extends Controller
     
         return response()->json([
             'message' => $message,
-            'id' => $request->type == 'lead' ? $user->id : null
+            'id' => $worker->company_type == "manpower" && $request->type == 'lead' ? $user->id : null
         ]);
     }
     
@@ -1324,7 +1324,7 @@ class AuthController extends Controller
         }
 
         // $worker->form_insurance = $file_name;
-        $worker->insurance = 1;
+        // $worker->insurance = 1;
         $worker->save();
     
         // Prepare form data
@@ -1501,6 +1501,7 @@ class AuthController extends Controller
             'phone' => $workerLead->phone,
             'email' => $workerLead->email ?? null,
             'gender' => $workerLead->gender,
+            'first_date' => $workerLead->first_date ?? null,
             'role' => $role,
             'lng' => $lng,
             'passcode' => $workerLead->phone,
@@ -1510,7 +1511,7 @@ class AuthController extends Controller
             'passport' => $workerLead->passport ?? NULL,
             'passport_card' => $workerLead->passport_card ?? NULL,
             'id_number' => $workerLead->id_number ?? NULL,
-            'status' => $workerLead->status,
+            'status' => 1,
             'is_afraid_by_cat' => $workerLead->is_afraid_by_cat == 1,
             'is_afraid_by_dog' => $workerLead->is_afraid_by_dog == 1,
             'renewal_visa' => $workerLead->renewal_visa ?? NULL,

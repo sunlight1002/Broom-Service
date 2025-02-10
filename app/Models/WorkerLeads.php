@@ -35,6 +35,7 @@ class WorkerLeads extends Model
         'is_afraid_by_dog',
         'experience_in_house_cleaning',
         'you_have_valid_work_visa',
+        'first_date'
     ];
 
     public function forms()

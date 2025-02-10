@@ -360,6 +360,9 @@ export default function OfferServiceModal({
             return updatedServices;
         });
     };
+
+    console.log("offerServiceTmp", offerServiceTmp);
+    
     
 
     return (
@@ -571,7 +574,7 @@ export default function OfferServiceModal({
                                 </div>
 
                                 {
-                                    !toggleAirbnbService[index] && (
+                                    !toggleAirbnbService[index] && offerServiceTmp[index]?.template !== "airbnb" && (
                                         <div className="col-sm-6">
                                             <div className="form-group m-0">
                                                 <label className="control-label">{t("client.jobs.change.property")}</label>

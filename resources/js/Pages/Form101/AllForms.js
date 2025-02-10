@@ -291,7 +291,6 @@ function AllForms() {
                 .date()
                 .required(t("form101.errorMsg.dateOfBeginReq")),
         }),
-
         step2: yup.object({
             children: yup.array().of(
                 yup.object().shape({
@@ -1316,7 +1315,7 @@ function AllForms() {
                 const _worker = res.data;
                 setWorker(_worker);
                 if (res.status == 200) {
-                     setIsManpower(_worker.company_type == "manpower" ? true : false)
+                    setIsManpower(_worker.company_type == "manpower" ? true : false)
 
                     if (!page) {
                         setNextStep(_worker.step)
@@ -1397,7 +1396,6 @@ function AllForms() {
         axios.get(`/api/get101/${id}/${formId}/${type}`).then((res) => {
             i18next.changeLanguage(res.data.lng);
 
-
             if (res.data.lng == "heb") {
                 import("../../Assets/css/rtl.css");
                 document.querySelector("html").setAttribute("dir", "rtl");
@@ -1419,10 +1417,12 @@ function AllForms() {
                     setIsSubmitted(true);
                 }
 
-            } else if (res.data.worker) {
+            }
+            if (res.data.worker) {
+
                 const _worker = res.data.worker;
-                console.log(_worker, "worker");
-                
+                console.log(_worker);
+
 
                 if (!page) {
                     setNextStep(res.data.worker.step)
@@ -1438,19 +1438,23 @@ function AllForms() {
                     setFieldValue("employeeAddress", _worker.address);
                 }
                 if (_worker?.passport !== null) {
+                    console.log(_worker.passport);
+
                     setFieldValue("employeePassportNumber", _worker.passport);
                 }
                 if (_worker?.phone !== null) {
                     setFieldValue("employeeMobileNo", _worker.phone);
                 }
                 if (_worker?.worker_id !== null) {
-                    setFieldValue("employeeIdNumber", _worker.worker_id);
+                    setFieldValue("employeeIdNumber", _worker.id_number);
                 }
                 if (_worker?.country !== null) {
                     // setFieldValue("employeeCountry", _worker.country);
                     setFieldValue("employeecountry", _worker.country);
                 }
-                if (_worker?.first_date !== null) {
+                if (_worker?.first_date && _worker?.first_date !== null) {
+                    console.log(_worker?.first_date);
+                    
                     setFieldValue("DateOfBeginningWork", _worker?.first_date);
                 }
 
@@ -1535,6 +1539,11 @@ function AllForms() {
         }
         handleDocSubmit(data);
     };
+
+    console.log(errors?.DateOfBeginningWork);
+
+    console.log(touched);
+    
 
     return (
         <div className=" mt-4 mb-5 bg-transparent " style={{

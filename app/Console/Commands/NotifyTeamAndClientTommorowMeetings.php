@@ -50,11 +50,11 @@ class NotifyTeamAndClientTommorowMeetings extends Command
  - *מיקום*: " . $schedule->meet_link ."
  - *נושא הפגישה*: " . $schedule->purpose ."
  - *פרטי קשר של הלקוח*: " . $schedule->client->phone ." / " . $schedule->client->email . "
- - *כתובת*: " . url("https://maps.google.com?q=" . $geoAddress) . "\n";
+ - *כתובת*: " . generateShortUrl(url("https://maps.google.com?q=" . $geoAddress), 'admin') . "\n";
 
                 $count += 1;
                 
-                $geoAddress = url("https://maps.google.com?q=". $schedule->client->geo_address);
+                $geoAddress = generateShortUrl(url("https://maps.google.com?q=" . $schedule->client->geo_address), 'admin');
             $this->notifyClient($schedule);
             }
             

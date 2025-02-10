@@ -708,12 +708,13 @@ export default function GeneralInfo({
                                                     onChange={(e) => {
                                                         if (e.target.value !== null) {
                                                             setFieldValue("DateOfBeginningWork", e.target.value);
+                                                            handleChange(e);
                                                         }
                                                     }}
                                                     toggleBubble={handleBubbleToggle} // Pass the toggle handler
                                                     onBlur={handleBlur}
                                                     error={
-                                                        touched.DateOfBeginningWork && errors.DateOfBeginningWork
+                                                        touched.DateOfBeginningWork  && errors.DateOfBeginningWork
                                                             ? errors.DateOfBeginningWork
                                                             : ""
                                                     }
